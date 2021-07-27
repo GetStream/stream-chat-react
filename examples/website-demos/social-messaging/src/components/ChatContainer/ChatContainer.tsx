@@ -80,6 +80,7 @@ export const ChatContainer: React.FC = () => {
                     List={SocialChannelList}
                     options={options}
                     Preview={SocialChannelPreview}
+                    sendChannelsToList
                     sort={sort}
                 />
             </div>
