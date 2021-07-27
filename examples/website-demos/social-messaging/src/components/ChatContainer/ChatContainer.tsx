@@ -12,6 +12,8 @@ import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
+import './ChatContainer.scss';
+
 const apiKey = process.env.REACT_APP_STREAM_KEY;
 const user = process.env.REACT_APP_USER_ID;
 const userImage = process.env.USER_IMAGE;

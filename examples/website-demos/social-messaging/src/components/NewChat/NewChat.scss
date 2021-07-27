@@ -1,5 +1,7 @@
+@import '../../styles/variables';
+
 .new-chat {
     height: 100%;
-    width: 100%;
+    width: 100vh;
     background: $app-bg;
 }
