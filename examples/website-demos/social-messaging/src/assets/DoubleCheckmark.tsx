@@ -31,4 +31,3 @@ export const DoubleCheckmark: React.FC = () => (
         </svg>
     </div>
 );
-

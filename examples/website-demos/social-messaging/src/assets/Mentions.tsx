@@ -1,6 +1,4 @@
-type Props = {};
-
-export const Mentions: React.FC<Props> = () => (
+export const Mentions: React.FC = () => (
     <svg
         width="25"
         height="23"

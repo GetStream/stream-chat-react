@@ -1,6 +1,4 @@
-type Props = {};
-
-export const OptionsIcons: React.FC<Props> = () => (
+export const OptionsIcons: React.FC = () => (
     <div style={{ cursor: 'pointer', display: 'flex', flexDirection: 'row', padding: '3px'}}>
         <svg
             width="4"

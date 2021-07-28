@@ -22,7 +22,7 @@ const userImage = process.env.USER_IMAGE;
 const userToken = urlParams.get('user_token') || process.env.REACT_APP_USER_TOKEN;
 // const targetOrigin = urlParams.get('target_origin') || process.env.REACT_APP_TARGET_ORIGIN;
 
-const noChannelNameFilter = urlParams.get('no_channel_name_filter') || false;
+// const noChannelNameFilter = urlParams.get('no_channel_name_filter') || false;
 const skipNameImageSet = urlParams.get('skip_name_image_set') || false;
 
 const userToConnect: { id: string; name?: string; image?: string } = {
@@ -36,9 +36,8 @@ if (skipNameImageSet) {
     delete userToConnect.image;
   }
 
-const filters = noChannelNameFilter
-  ? { type: 'messaging', members: { $in: [user!] } }
-  : { type: 'messaging', name: 'Social Demo', demo: 'social' };
+const filters = { type: 'messaging', members: { $in: [user!] } }
+//   : { type: 'messaging', name: 'Social Demo', demo: 'social' };
 
 const options = { message_limit: 30 };
 
