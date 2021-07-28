@@ -5,6 +5,7 @@
 ### Feature
 
 - Add the ability to open/close list of available commands on click [#1072](https://github.com/GetStream/stream-chat-react/pull/1072)
+- Add the ability to set custom active channel on mount even if it's not returned in the initial `queryChannels` response [#1078](https://github.com/GetStream/stream-chat-react/pull/1078)
 
 ### Chore
 
