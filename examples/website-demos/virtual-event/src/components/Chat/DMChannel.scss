@@ -13,6 +13,8 @@
   &-header {
     &-container {
       display: flex;
+      background: $app-canvas;
+      transition: background 1s;
       align-items: center;
       justify-content: space-between;
       padding: 8px;
