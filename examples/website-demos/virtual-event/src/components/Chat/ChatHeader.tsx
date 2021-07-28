@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { DMChannelHeader } from './DMChannelHeader';
-
 import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
@@ -56,21 +54,13 @@ const ChatHeaderTabs: React.FC = () => {
 };
 
 export const ChatHeader: React.FC = () => {
-  const { dmChannel } = useEventContext();
-
   return (
     <div className='chat-components-header'>
-      {dmChannel ? (
-        <DMChannelHeader />
-      ) : (
-        <>
-          <div className='chat-components-header-top'>
-            <CloseChatButton />
-            <OnlineUsersIcon />
-          </div>
-          <ChatHeaderTabs />
-        </>
-      )}
+      <div className='chat-components-header-top'>
+        <CloseChatButton />
+        <OnlineUsersIcon />
+      </div>
+      <ChatHeaderTabs />
     </div>
   );
 };

@@ -9,6 +9,15 @@
   display: flex;
   flex-direction: column;
 
+  &-channel {
+    position: absolute;
+    top: 0;
+
+    .str-chat-channel {
+      height: calc(100vh - 56px); // height of dm header
+    }
+  }
+
   &-hidden {
     display: none;
   }

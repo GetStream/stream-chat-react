@@ -14,12 +14,12 @@ import {
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
+import { DMChannelHeader } from './DMChannelHeader';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
 import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
-import { useEventContext } from '../../contexts/EventContext';
 
 import type {
   Channel as StreamChannel,
@@ -90,7 +90,7 @@ const PreviewUI: React.FC<
 export const DMChannelList = () => {
   const { client } = useChatContext();
 
-  const { dmChannel, setDmChannel } = useEventContext();
+  const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [searching, setSearching] = useState(false);
 
   const handleSelectResult = async (result: StreamChannel | UserResponse) => {
@@ -115,17 +115,20 @@ export const DMChannelList = () => {
   return (
     <div className='dm'>
       {dmChannel && (
-        <Channel
-          channel={dmChannel}
-          EmptyStateIndicator={EmptyStateIndicators}
-          Input={MessageInputUI}
-        >
-          <Window hideOnThread>
-            <VirtualizedMessageList hideDeletedMessages />
-            <MessageInput focus />
-          </Window>
-          <Thread />
-        </Channel>
+        <div className='dm-channel'>
+          <DMChannelHeader dmChannel={dmChannel} setDmChannel={setDmChannel} />
+          <Channel
+            channel={dmChannel}
+            EmptyStateIndicator={EmptyStateIndicators}
+            Input={MessageInputUI}
+          >
+            <Window hideOnThread>
+              <VirtualizedMessageList hideDeletedMessages />
+              <MessageInput focus />
+            </Window>
+            <Thread />
+          </Channel>
+        </div>
       )}
       <div className={dmChannel ? 'dm-hidden' : ''}>
         <ChannelList

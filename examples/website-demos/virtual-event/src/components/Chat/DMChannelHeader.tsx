@@ -3,7 +3,6 @@ import { Channel } from 'stream-chat';
 
 import { CloseX } from '../../assets/CloseX';
 import { Ellipse } from '../../assets/Ellipse';
-import { useEventContext } from '../../contexts/EventContext';
 
 import './DMChannelHeader.scss';
 
@@ -11,13 +10,12 @@ const DropDown = ({
   dmChannel,
   setOpenMenu,
 }: {
-  dmChannel: Channel | undefined;
+  dmChannel: Channel;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const handleMute = async () => {
-    const muted = dmChannel?.muteStatus().muted;
-
-    muted ? await dmChannel?.unmute() : await dmChannel?.mute();
+    const isChannelMuted = dmChannel.muteStatus().muted;
+    isChannelMuted ? await dmChannel.unmute() : await dmChannel.mute();
     setOpenMenu(false);
   };
 
@@ -36,18 +34,20 @@ const DropDown = ({
   );
 };
 
-export const DMChannelHeader = () => {
-  const { dmChannel, setDmChannel } = useEventContext();
+type Props = {
+  dmChannel: Channel;
+  setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
+};
+
+export const DMChannelHeader: React.FC<Props> = (props) => {
+  const { dmChannel, setDmChannel } = props;
   const [openMenu, setOpenMenu] = useState(false);
 
-  const user = dmChannel && dmChannel.state.membership.user?.id;
+  const user = dmChannel.state.membership.user?.id;
 
-  const channelTitle =
-    dmChannel && Object.keys(dmChannel?.state.members).filter((key) => key !== user);
+  const channelTitle = Object.keys(dmChannel.state.members).filter((key) => key !== user);
 
-  const handleCloseDm = () => {
-    setDmChannel(undefined);
-  };
+  const handleCloseDm = () => setDmChannel(undefined);
 
   return (
     <>
