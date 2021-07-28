@@ -3,13 +3,27 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 export const OverviewButton: React.FC = () => {
-  const { selected, setSelected } = useEventContext();
+  const {
+    selected,
+    setChatType,
+    setEventName,
+    setSelected,
+    setShowChannelList,
+    showChannelList,
+  } = useEventContext();
+
+  const handleClick = () => {
+    setSelected('overview');
+    setEventName(undefined);
+    setChatType('global');
+    if (showChannelList) setShowChannelList(false);
+  };
 
   return (
     <div>
       {selected === 'overview' ? <div className='selected' /> : null}
       <svg
-        onClick={() => setSelected('overview')}
+        onClick={handleClick}
         xmlns='http://www.w3.org/2000/svg'
         width='72'
         height='53'

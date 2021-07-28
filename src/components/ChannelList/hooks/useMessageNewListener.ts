@@ -42,7 +42,7 @@ export const useMessageNewListener = <
           return uniqBy([channel, ...channels], 'cid');
         }
 
-        if (!lockChannelOrder) return moveChannelUp(event.cid || '', channels);
+        if (!lockChannelOrder) return moveChannelUp({ channels, cid: event.cid || '' });
 
         return channels;
       });

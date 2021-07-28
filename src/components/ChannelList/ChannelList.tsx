@@ -207,32 +207,38 @@ const UnMemoizedChannelList = <
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
    */
-  const activeChannelHandler = (
+  const activeChannelHandler = async (
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => {
-    if (
-      !channels ||
-      channels.length === 0 ||
-      channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)
-    ) {
+    if (channels.length === 0 || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
       return;
     }
 
     if (customActiveChannel) {
-      const customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
+      let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
+
+      if (!customActiveChannelObject) {
+        //@ts-expect-error
+        [customActiveChannelObject] = await client.queryChannels({ id: customActiveChannel });
+      }
+
       if (customActiveChannelObject) {
-        if (setActiveChannel) {
-          setActiveChannel(customActiveChannelObject, watchers);
-        }
-        const newChannels = moveChannelUp(customActiveChannelObject.cid, channels);
+        setActiveChannel(customActiveChannelObject, watchers);
+
+        const newChannels = moveChannelUp({
+          activeChannel: customActiveChannelObject,
+          channels,
+          cid: customActiveChannelObject.cid,
+        });
+
         setChannels(newChannels);
       }
 
       return;
     }
 
-    if (setActiveChannelOnMount && setActiveChannel) {
+    if (setActiveChannelOnMount) {
       setActiveChannel(channels[0], watchers);
     }
   };

@@ -35,6 +35,7 @@
 
       &__main-panel {
         width: 100%;
+        min-width: 250px;
         flex: 1;
         height: 100%;
         display: flex;
@@ -121,6 +122,7 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
     .str-chat__main-panel {
       height: 100%;
       width: 100%;
+      min-width: 250px;
       display: flex;
       flex-direction: column;
       flex: 1;

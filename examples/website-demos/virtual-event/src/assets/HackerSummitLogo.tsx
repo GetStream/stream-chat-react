@@ -25,9 +25,9 @@ export const HackerSummitLogo = () => {
           width='23.0734'
           height='18.574'
           filterUnits='userSpaceOnUse'
-          color-interpolation-filters='sRGB'
+          colorInterpolationFilters='sRGB'
         >
-          <feFlood flood-opacity='0' result='BackgroundImageFix' />
+          <feFlood floodOpacity='0' result='BackgroundImageFix' />
           <feGaussianBlur in='BackgroundImage' stdDeviation='0.493245' />
           <feComposite in2='SourceAlpha' operator='in' result='effect1_backgroundBlur' />
           <feBlend mode='normal' in='SourceGraphic' in2='effect1_backgroundBlur' result='shape' />
