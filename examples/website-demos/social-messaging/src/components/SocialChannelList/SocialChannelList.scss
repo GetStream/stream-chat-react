@@ -1,0 +1,65 @@
+@import '../../styles/variables';
+
+.channel-list {
+    min-width: 416px;
+    max-width: 416px;
+    background-color: $input-bg;
+    border-bottom: 1px solid $borders;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(100vh - 110px);
+
+    &-header {
+        height: 60px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        background-color: $bars-bg;
+        border-bottom: 1px solid $borders;
+        border-right: 1px solid $borders;
+      
+        left: 0px;
+        right: 0px;
+        top: 0px;
+        bottom: 20px;
+      
+        &.text {
+            color: $text-high-emphasis;
+        }
+    }
+
+    &-footer {
+        background-color: $bars-bg;
+        border-top: 1px solid $borders;
+        border-right: 1px solid $borders;
+      
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        padding: 0px;
+      
+        height: 56px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+      
+        .chats {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            font: $text-high-emphasis;
+            margin: 10px;
+        }
+      
+        .mentions {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            font: $text-low-emphasis;
+            margin: 10px;
+        }
+      }
+}

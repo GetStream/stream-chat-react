@@ -1,8 +1,13 @@
 @import '../../styles/variables';
 
 .social-channelheader {
-    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: -22px;
+    min-height: 60px;
     width: 100%;
     background-color: $bars-bg;
-    border-bottom: $border-bottom;
+    border-bottom: 1px solid $borders;
+    padding: 8px;
 }

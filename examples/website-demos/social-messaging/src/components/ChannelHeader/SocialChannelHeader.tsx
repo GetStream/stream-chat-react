@@ -1,10 +1,22 @@
 import React from 'react';
 
+import { ArrowLeft } from '../../assets/ArrowLeft';
+import { useViewContext } from '../../contexts/ViewContext';
+
 import './SocialChannelHeader.scss';
 
-type Props = {};
+export const SocialChannelHeader: React.FC = () => {
+  const { isNewChat } = useViewContext();
 
-export const SocialChannelHeader: React.FC<Props> = (props) => {
+  if (isNewChat) {
+    return (
+      <div className='social-channelheader'>
+        <ArrowLeft />
+        <span>New Chat</span>
+      </div>
+    )
+  }
+
   return (
     <div className='social-channelheader'>
       <span>Channel Header</span>

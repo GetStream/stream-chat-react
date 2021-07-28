@@ -1,17 +1,15 @@
+import 'stream-chat-react/dist/css/index.css';
 import './styles/App.scss';
 
-import { ChannelListContainer } from './components/ChannelList/ChannelListContainer';
-import { ChannelContainer } from './components/ChannelContainer/ChannelContainer';
-
-import { useTheme } from './hooks/useTheme';
+import { ChatContainer } from './components/ChatContainer/ChatContainer';
+import { ViewProvider } from './contexts/ViewContext';
 
 function App() {
-  const { setMode } = useTheme(); // eslint-disable-line
-
   return (
     <div className='app-container'>
-     <ChannelListContainer />
-     <ChannelContainer />
+      <ViewProvider>
+        <ChatContainer />
+      </ViewProvider>
     </div>
   );
 }

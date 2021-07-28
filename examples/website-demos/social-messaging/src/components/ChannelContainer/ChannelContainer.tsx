@@ -1,18 +1,24 @@
 import React from 'react';
 
+import { MessageInput, MessageList, Window } from 'stream-chat-react';
+
+import { NewChat } from '../NewChat/NewChat';
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
-import { SocialMessageList } from '../MessageList/SocialMessageList';
+
+import { useViewContext } from '../../contexts/ViewContext';
 
 import './ChannelContainer.scss';
 
-type Props = {};
-
-export const ChannelContainer: React.FC<Props> = (props) => {
+export const ChannelContainer: React.FC = () => {
+  const { isNewChat } = useViewContext();
+  
   return (
     <div className='channel-container'>
+      <Window>
         <SocialChannelHeader />
-        <SocialMessageList />
-      <p>Channel Container</p>
+        {isNewChat ? <NewChat /> : <MessageList />}
+        <MessageInput />
+      </Window>
     </div>
   );
 };
