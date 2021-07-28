@@ -29,13 +29,15 @@ type Props = {
 };
 
 const SearchInput: React.FC<SearchInputProps> = (props) => {
-  const { inputRef, onSearch, query } = props;
+  const { channelSearchParams, inputRef, onSearch, query } = props;
+
+  const { setQuery } = channelSearchParams;
 
   return (
     <div className='search-input'>
       <SearchIcon />
       <input onChange={onSearch} placeholder='Search' ref={inputRef} type='text' value={query} />
-      <ClearSearchButton />
+      <ClearSearchButton setQuery={setQuery} />
     </div>
   );
 };
