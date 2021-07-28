@@ -1,5 +1,17 @@
 # Changelog
 
+## [6.4.7](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.7) 2021-07-27
+
+### Feature
+
+- Add the ability to open/close list of available commands on click [#1072](https://github.com/GetStream/stream-chat-react/pull/1072)
+- Add the ability to set custom active channel on mount even if it's not returned in the initial `queryChannels` response [#1078](https://github.com/GetStream/stream-chat-react/pull/1078)
+
+### Chore
+
+- Replace `replaceAll` method with `replace` and add global flag for older browser support [#1074](https://github.com/GetStream/stream-chat-react/pull/1074)
+- Adjust `VirtualizedMessageList` CSS to support `MessageSimple` [#1075](https://github.com/GetStream/stream-chat-react/pull/1075)
+
 ## [6.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.6) 2021-07-23
 
 ### Chore

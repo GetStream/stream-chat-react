@@ -134,20 +134,24 @@ export const OverviewContainer = () => {
       <div className='overview-schedule'>
         <div className='overview-schedule-title'>Schedule</div>
         <EventCard
+          chatType='main-event'
           content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
+          eventName='cybersecurity'
           Image={Card1}
           label='Moderated'
+          presenters={6}
           title='Implementing a Cybersecurity Framework'
-          videoViewers={20}
-          viewers={2}
+          viewers={150}
         />
         <EventCard
+          chatType='room'
           content='ESG Regulations, Standards and Disclosure: Who to publish it for and how to make it meaningful.'
+          eventName='esg'
           Image={Card2}
           label='Private'
+          presenters={2}
           title='ESG Data - How to create it'
-          videoViewers={10}
-          viewers={30}
+          viewers={150}
         />
       </div>
     </div>
