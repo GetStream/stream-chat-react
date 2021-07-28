@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { ChannelSearchFunctionParams, SearchInput as DefaultSearchInput } from './SearchInput';
+import {
+  ChannelSearchFunctionParams,
+  SearchInput as DefaultSearchInput,
+  SearchInputProps,
+} from './SearchInput';
 import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
 
 import { ChannelOrUserResponse, isChannel } from './utils';
@@ -55,7 +59,7 @@ export type ChannelSearchProps<
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
   /** Custom UI component to display the search text input */
-  SearchInput?: React.ComponentType;
+  SearchInput?: React.ComponentType<SearchInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the search loading state */
   SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
