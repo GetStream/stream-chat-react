@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import {
   Avatar,
-  Channel,
   ChannelList,
   ChannelListMessengerProps,
   ChannelPreviewUIComponentProps,
   ChannelSearch,
-  MessageInput,
-  Thread,
   useChatContext,
-  VirtualizedMessageList,
-  Window,
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
-import { DMChannelHeader } from './DMChannelHeader';
+import { DMChannel } from './DMChannel';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
-import { MessageInputUI } from './MessageInputUI';
 import { getFormattedTime, isChannel } from './utils';
 
 import { ClickDMIcon } from '../../assets';
@@ -114,22 +108,7 @@ export const DMChannelList = () => {
 
   return (
     <div className='dm'>
-      {dmChannel && (
-        <div className='dm-channel'>
-          <DMChannelHeader dmChannel={dmChannel} setDmChannel={setDmChannel} />
-          <Channel
-            channel={dmChannel}
-            EmptyStateIndicator={EmptyStateIndicators}
-            Input={MessageInputUI}
-          >
-            <Window hideOnThread>
-              <VirtualizedMessageList hideDeletedMessages />
-              <MessageInput focus />
-            </Window>
-            <Thread />
-          </Channel>
-        </div>
-      )}
+      {dmChannel && <DMChannel dmChannel={dmChannel} setDmChannel={setDmChannel} />}
       <div className={dmChannel ? 'dm-hidden' : ''}>
         <ChannelList
           EmptyStateIndicator={EmptyStateIndicators}
