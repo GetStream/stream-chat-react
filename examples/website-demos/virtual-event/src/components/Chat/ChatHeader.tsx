@@ -4,17 +4,9 @@ import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 const ChatHeaderTabs: React.FC = () => {
-  const {
-    chatType,
-    eventName,
-    selected,
-    setChatType,
-    setEventName,
-    setShowChannelList,
-  } = useEventContext();
+  const { chatType, eventName, selected, setChatType, setShowChannelList } = useEventContext();
 
   const handleGlobalClick = () => {
-    setEventName(undefined);
     setChatType('global');
     setShowChannelList(false);
   };

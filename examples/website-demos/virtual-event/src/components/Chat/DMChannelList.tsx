@@ -14,6 +14,7 @@ import {
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
+import { DMChannelHeader } from './DMChannelHeader';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
 import { getFormattedTime, isChannel } from './utils';
@@ -113,35 +114,37 @@ export const DMChannelList = () => {
 
   return (
     <div className='dm'>
-      {dmChannel ? (
-        <Channel
-          channel={dmChannel}
-          EmptyStateIndicator={EmptyStateIndicators}
-          Input={MessageInputUI}
-        >
-          <Window hideOnThread>
-            <VirtualizedMessageList hideDeletedMessages />
-            <MessageInput focus />
-          </Window>
-          <Thread />
-        </Channel>
-      ) : (
-        <>
-          <ChannelList
+      {dmChannel && (
+        <div className='dm-channel'>
+          <DMChannelHeader dmChannel={dmChannel} setDmChannel={setDmChannel} />
+          <Channel
+            channel={dmChannel}
             EmptyStateIndicator={EmptyStateIndicators}
-            filters={filters}
-            List={ListUI}
-            options={options}
-            Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
-            sort={sort}
-          />
-          <div className='start-chat'>
-            <div className='start-chat-button' onClick={() => setSearching(true)}>
-              Start a chat
-            </div>
-          </div>
-        </>
+            Input={MessageInputUI}
+          >
+            <Window hideOnThread>
+              <VirtualizedMessageList hideDeletedMessages />
+              <MessageInput focus />
+            </Window>
+            <Thread />
+          </Channel>
+        </div>
       )}
+      <div className={dmChannel ? 'dm-hidden' : ''}>
+        <ChannelList
+          EmptyStateIndicator={EmptyStateIndicators}
+          filters={filters}
+          List={ListUI}
+          options={options}
+          Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
+          sort={sort}
+        />
+        <div className='start-chat'>
+          <div className='start-chat-button' onClick={() => setSearching(true)}>
+            Start a chat
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

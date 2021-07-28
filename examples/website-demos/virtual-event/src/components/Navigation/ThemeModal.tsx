@@ -94,11 +94,15 @@ export const ThemeModal = () => {
 
   return (
     <div className='navigation-top-theme-modal'>
-      {Object.entries(themes).map((theme) => {
+      {Object.entries(themes).map((theme, i) => {
         const Icon = theme[1].icon;
 
         return (
-          <div className='navigation-top-theme-modal-item' onClick={() => handleClick(theme[1])}>
+          <div
+            className='navigation-top-theme-modal-item'
+            key={i}
+            onClick={() => handleClick(theme[1])}
+          >
             <div>{theme[0]}</div>
             <Icon />
           </div>

@@ -1,22 +1,32 @@
-import { EventCardIcon } from '../../assets/EventCardIcon';
-import { VideoViewersIcon } from '../../assets/VideoViewersIcon';
-import { ViewersIcon } from '../../assets/ViewersIcon';
 import './EventCard.scss';
+import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 type Props = {
+  chatType: 'main-event' | 'room';
   content: string;
+  eventName: string;
   Image: () => JSX.Element;
   label: string;
+  presenters: number;
   title: string;
-  videoViewers?: number;
   viewers?: number;
 };
 
 export const EventCard: React.FC<Props> = (props) => {
-  const { content, Image, label, title, videoViewers, viewers } = props;
+  const { chatType, content, eventName, Image, label, presenters, title, viewers } = props;
+
+  const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
+
+  const handleClick = () => {
+    setEventName(eventName);
+    setChatType(chatType);
+    setShowChannelList(false);
+    setSelected(chatType === 'main-event' ? 'main-event' : 'rooms');
+  };
 
   return (
-    <div className='event-card-container'>
+    <div className='event-card-container' onClick={handleClick}>
       <div className='event-card-image'>
         <Image />
       </div>
@@ -28,16 +38,16 @@ export const EventCard: React.FC<Props> = (props) => {
         <div className='event-card-content-content'>{content}</div>
         <div className='event-card-footer'>
           <div className='event-card-viewers'>
-            {viewers && (
+            {presenters && (
               <div className='event-card-viewers-left'>
-                <ViewersIcon />
-                <div className='event-card-viewers-left-count'>{viewers}</div>
+                <ParticipantsIcon />
+                <div className='event-card-viewers-left-count'>{presenters}</div>
               </div>
             )}
-            {videoViewers && (
+            {viewers && (
               <div className='event-card-viewers-right'>
                 <VideoViewersIcon />
-                <div className='event-card-viewers-right-count'>{videoViewers}</div>
+                <div className='event-card-viewers-right-count'>{viewers}</div>
               </div>
             )}
           </div>
