@@ -22,4 +22,4 @@ export const ArrowLeft: React.FC = () => {
                 fill="black"/>
         </svg>
     )
-        };
+};
