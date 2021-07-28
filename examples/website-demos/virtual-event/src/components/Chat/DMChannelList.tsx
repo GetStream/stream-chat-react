@@ -127,7 +127,7 @@ export const DMChannelList = () => {
           <Thread />
         </Channel>
       )}
-      <div className={dmChannel && 'dm-hidden'}>
+      <div className={dmChannel ? 'dm-hidden' : ''}>
         <ChannelList
           EmptyStateIndicator={EmptyStateIndicators}
           filters={filters}
