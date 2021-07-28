@@ -1,6 +1,4 @@
-type Props = {};
-
-export const Chats: React.FC<Props> = () => (
+export const Chats: React.FC = () => (
     <svg
         width="24"
         height="23"
