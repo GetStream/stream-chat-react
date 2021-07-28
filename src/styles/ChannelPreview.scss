@@ -15,10 +15,10 @@
   }
 
   &--active {
-    // border-radius: var(--border-radius-md);
-    background: $borders;
-    // box-shadow: none;
-    // box-shadow: 0 1px 5px 0 var(--border);
+    border: none;
+    border-radius: var(--border-radius-md);
+    background: var(--white-snow);
+    box-shadow: 0 1px 5px 0 var(--border);
   }
 
   &--last-message p {
