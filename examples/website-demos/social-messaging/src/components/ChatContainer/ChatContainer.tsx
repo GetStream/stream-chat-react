@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import type { Channel as TypeChannel } from 'stream-chat';
 import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
@@ -58,7 +59,7 @@ export type UserType = { image?: string };
 export const ChatContainer: React.FC = () => {
     const [chatClient, setChatClient] = useState<StreamChat | null>(null);
 
-    const { isSideDrawerOpen } = useViewContext();
+    const { isListMentions, isSideDrawerOpen } = useViewContext();
 
     // useChecklist(chatClient, targetOrigin);
 
@@ -84,20 +85,34 @@ export const ChatContainer: React.FC = () => {
         };
     }, []); // eslint-disable-line
 
+    const customRenderFilter = (channels: TypeChannel[]) => {
+        console.log('in the render channels:', channels);
+        const thing = channels.filter((x) => x.cid === "messaging:!members-heguTywg5TD_OlmaaERX7TwpILW_rweOsui-1p1Xf4I");
+        console.log(thing);
+        return thing;
+    }
+
     if (!chatClient) return null;
 
     return (
         <Chat client={chatClient}>
             <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
                 <SocialChannelListHeader />
-                <ChannelList
+                {!isListMentions ? <ChannelList
                     filters={filters}
                     List={SocialChannelList}
                     options={options}
                     Preview={SocialChannelPreview}
-                    sendChannelsToList
                     sort={sort}
-                />
+                /> : <ChannelList 
+                        channelRenderFilterFn={customRenderFilter}
+                        filters={filters}
+                        List={SocialChannelList}
+                        options={options}
+                        Preview={SocialChannelPreview}
+                        sort={sort}
+                    />
+                }
             </div>
             {isSideDrawerOpen && <SideDrawer />}
             <Channel Input={SocialMessageInput} >
