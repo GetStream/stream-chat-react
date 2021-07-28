@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Channel as StreamChannel, StreamChat } from 'stream-chat';
+import { Channel as StreamChannel, LiteralStringForUnion, StreamChat } from 'stream-chat';
 
+import { getRandomTitle } from '../components/Chat/utils';
 import { ChatType, useEventContext } from '../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -8,6 +9,14 @@ const urlParams = new URLSearchParams(window.location.search);
 const apiKey = urlParams.get('apikey') || (process.env.REACT_APP_STREAM_KEY as string);
 const userId = urlParams.get('user') || (process.env.REACT_APP_USER_ID as string);
 const userToken = urlParams.get('user_token') || (process.env.REACT_APP_USER_TOKEN as string);
+
+export type AttachmentType = {};
+export type ChannelType = {};
+export type CommandType = LiteralStringForUnion;
+export type EventType = {};
+export type MessageType = {};
+export type ReactionType = {};
+export type UserType = { image?: string; title?: string };
 
 export const useInitChat = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
@@ -27,7 +36,15 @@ export const useInitChat = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      const client = StreamChat.getInstance(apiKey);
+      const client = StreamChat.getInstance<
+        AttachmentType,
+        ChannelType,
+        CommandType,
+        EventType,
+        MessageType,
+        ReactionType,
+        UserType
+      >(apiKey);
 
       if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
         client.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
@@ -38,6 +55,7 @@ export const useInitChat = () => {
           id: userId,
           name: userId,
           image: process.env.REACT_APP_USER_IMAGE,
+          title: getRandomTitle(),
         },
         userToken,
       );

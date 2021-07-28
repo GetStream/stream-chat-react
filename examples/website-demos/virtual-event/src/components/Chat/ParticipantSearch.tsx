@@ -1,17 +1,78 @@
 import React from 'react';
 import { Channel, UserResponse } from 'stream-chat';
-import { ChannelSearch, useChatContext } from 'stream-chat-react';
-
-import { isChannel } from './utils';
+import {
+  Avatar,
+  ChannelSearch,
+  isChannel,
+  SearchInputProps,
+  SearchQueryParams,
+  SearchResultItemProps,
+  useChatContext,
+} from 'stream-chat-react';
 
 import './ParticipantSearch.scss';
 
-import { CloseX } from '../../assets';
+import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
+import {
+  AttachmentType,
+  ChannelType,
+  CommandType,
+  EventType,
+  MessageType,
+  ReactionType,
+  UserType,
+} from '../../hooks/useInitChat';
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+const SearchInput: React.FC<SearchInputProps> = (props) => {
+  const { inputRef, onSearch, query } = props;
+
+  return (
+    <div className='search-input'>
+      <SearchIcon />
+      <input onChange={onSearch} placeholder='Search' ref={inputRef} type='text' value={query} />
+      <ClearSearchButton />
+    </div>
+  );
+};
+
+const SearchResultItem: React.FC<
+  SearchResultItemProps<
+    AttachmentType,
+    ChannelType,
+    CommandType,
+    EventType,
+    MessageType,
+    ReactionType,
+    UserType
+  >
+> = (props) => {
+  const { focusedUser, index, result, selectResult } = props;
+
+  const focused = focusedUser === index;
+
+  if (isChannel(result)) return null;
+
+  return (
+    <div
+      className={`search-result ${focused ? 'focused' : ''}`}
+      onClick={() => selectResult(result)}
+    >
+      <Avatar image={result.image} name={result.name || result.id} user={result} />
+      <div className='search-result-info'>
+        <div className='search-result-info-name'>{result.name || result.id}</div>
+        <div className='search-result-info-title'>{result.title || 'Attendee'}</div>
+      </div>
+    </div>
+  );
+};
+
+const SearchLoading: React.FC = () => <div className='search-loading'>Loading participants...</div>;
+const SearchEmpty: React.FC = () => <div className='search-empty'>No participants found</div>;
 
 export const ParticipantSearch: React.FC<Props> = (props) => {
   const { setDmChannel, setSearching } = props;
@@ -33,6 +94,10 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
     setSearching(false);
   };
 
+  const extraParams: SearchQueryParams = {
+    options: { limit: 20 },
+  };
+
   return (
     <div className='search'>
       <div className='search-header'>
@@ -41,7 +106,14 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         </div>
         <div className='search-header-title'> Participants </div>
       </div>
-      <ChannelSearch onSelectResult={handleSelectResult} />
+      <ChannelSearch
+        onSelectResult={handleSelectResult}
+        searchQueryParams={extraParams}
+        SearchEmpty={SearchEmpty}
+        SearchInput={SearchInput}
+        SearchLoading={SearchLoading}
+        SearchResultItem={SearchResultItem}
+      />
     </div>
   );
 };
