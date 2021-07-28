@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Channel } from 'stream-chat';
 
 import { CloseX } from '../../assets/CloseX';
@@ -13,8 +13,14 @@ const DropDown = ({
   dmChannel: Channel;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const [isChannelMuted, setIsChannelMuted] = useState(false);
+
+  useEffect(() => {
+    const muted = dmChannel.muteStatus().muted;
+    setIsChannelMuted(muted);
+  }, [dmChannel]);
+
   const handleMute = async () => {
-    const isChannelMuted = dmChannel.muteStatus().muted;
     isChannelMuted ? await dmChannel.unmute() : await dmChannel.mute();
     setOpenMenu(false);
   };
@@ -22,7 +28,7 @@ const DropDown = ({
   return (
     <div className='dropdown'>
       <div className='dropdown-option' onClick={() => handleMute()}>
-        Mute User
+        {isChannelMuted ? 'UnmuteUser' : 'Mute User'}
       </div>
       <div className='dropdown-option' onClick={() => setOpenMenu(false)}>
         Block User
