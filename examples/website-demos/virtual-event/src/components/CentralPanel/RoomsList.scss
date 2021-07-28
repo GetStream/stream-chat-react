@@ -1,0 +1,48 @@
+.rooms-list {
+  &-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-card {
+    border-radius: 8px;
+    width: 308px;
+    margin: 32px;
+
+    .event-card-container {
+      flex-direction: column;
+      margin: unset;
+      height: 100%;
+    }
+
+    .event-card-content {
+      width: unset;
+
+      &-content {
+        margin-bottom: 16px;
+      }
+    }
+
+    .event-card-image {
+      width: 100%;
+    }
+
+    .event-card-title {
+      margin-bottom: 16px;
+    }
+  }
+}

@@ -6,10 +6,10 @@ type Props = {
   chatType: 'main-event' | 'room';
   content: string;
   eventName: string;
-  Image: () => JSX.Element;
   label: string;
   presenters: number;
   title: string;
+  Image?: () => JSX.Element;
   viewers?: number;
 };
 
@@ -27,9 +27,7 @@ export const EventCard: React.FC<Props> = (props) => {
 
   return (
     <div className='event-card-container' onClick={handleClick}>
-      <div className='event-card-image'>
-        <Image />
-      </div>
+      <div className='event-card-image'>{Image && <Image />}</div>
       <div className='event-card-content'>
         <div className='event-card-title'>
           <EventCardIcon />
