@@ -393,7 +393,7 @@ export class Streami18n {
 
   /**
    * dayjs.defineLanguage('nl') also changes the global locale. We don't want to do that
-   * when user calls registerTranslation() function. So intead we will store the locale configs
+   * when user calls registerTranslation() function. So instead we will store the locale configs
    * given to registerTranslation() function in `dayjsLocales` object, and register the required locale
    * with moment, when setLanguage is called.
    * */
