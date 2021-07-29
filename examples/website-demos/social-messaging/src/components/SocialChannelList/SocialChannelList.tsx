@@ -9,23 +9,23 @@ import './SocialChannelList.scss';
 type Props = ChannelListMessengerProps;
 
 export const SocialChannelList: React.FC<Props> = (props) => {
-  const { children, loadedChannels } = props;
+  const { children } = props;
 
   const ListHeaderWrapper: React.FC<Props> = (props) => {
-    const { children, loadedChannels } = props;
+    const { children } = props;
     
     return (
       <>
         <div className='channel-list'>
           {children}
         </div>
-        <SocialChannelListFooter loadedChannels={loadedChannels} />
+        <SocialChannelListFooter />
       </>
     );
   };
 
   return (
-    <ListHeaderWrapper loadedChannels={loadedChannels}>{children}</ListHeaderWrapper>
+    <ListHeaderWrapper>{children}</ListHeaderWrapper>
   );
 };
 

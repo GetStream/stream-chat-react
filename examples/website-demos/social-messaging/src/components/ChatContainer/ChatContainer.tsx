@@ -5,6 +5,7 @@ import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
 import { SocialChannelListHeader } from '../SocialChannelList/SocialChannelListHeader';
@@ -59,7 +60,7 @@ export type UserType = { image?: string };
 export const ChatContainer: React.FC = () => {
     const [chatClient, setChatClient] = useState<StreamChat | null>(null);
 
-    const { isListMentions, isSideDrawerOpen } = useViewContext();
+    const { isListMentions, isSideDrawerOpen, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
     // useChecklist(chatClient, targetOrigin);
 
@@ -86,9 +87,22 @@ export const ChatContainer: React.FC = () => {
     }, []); // eslint-disable-line
 
     const customRenderFilter = (channels: TypeChannel[]) => {
-        return channels.filter((channel) => {
-            return channel.countUnreadMentions() > 0 ? channel : null;
-        });
+        const getTotalChatUnreadCount =
+            channels?.map(channel => channel.countUnread()).reduce((total, count) => total + count, 0);
+        
+        setChatsUnreadCount(getTotalChatUnreadCount);
+
+        const getTotalMentionsUnreadCount =
+            channels?.map(channel => channel.countUnreadMentions()).reduce((total, count) => total + count, 0);
+
+        setMentionsUnreadCount(getTotalMentionsUnreadCount);
+
+        if (isListMentions) {
+            return channels.filter((channel) => {
+                return channel.countUnreadMentions() > 0 ? channel : null;
+            });
+        }
+        return channels;
     }
 
     if (!chatClient) return null;
@@ -97,23 +111,15 @@ export const ChatContainer: React.FC = () => {
         <Chat client={chatClient}>
             <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
                 <SocialChannelListHeader />
-                {!isListMentions ? <ChannelList
+                <ChannelList 
+                    channelRenderFilterFn={customRenderFilter}
+                    EmptyStateIndicator={SocialEmptyStateIndicator}
                     filters={filters}
                     List={SocialChannelList}
                     options={options}
                     Preview={SocialChannelPreview}
-                    sendChannelsToList
                     sort={sort}
-                /> : <ChannelList 
-                        channelRenderFilterFn={customRenderFilter}
-                        filters={filters}
-                        List={SocialChannelList}
-                        options={options}
-                        Preview={SocialChannelPreview}
-                        sendChannelsToList
-                        sort={sort}
-                    />
-                }
+                />
             </div>
             {isSideDrawerOpen && <SideDrawer />}
             <Channel Input={SocialMessageInput} >
