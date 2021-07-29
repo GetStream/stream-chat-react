@@ -15,11 +15,12 @@ jobs:
           headless: true
           build: npm run build
           start: npm start
-          install: npm install -g concurrently
           env:
             path = ../stream-chat-react/examples/typescript-app/
+          install: npm install -g concurrently
           run:
-            (cd path & exec /yarn;yarn start)
+            concurrently "start:yarn;yarn start" "cd path" "start:yarn;yarn start"
+            #(cd path & exec /yarn;yarn start)
           wait-on: "http://localhost:3000"
           
           
