@@ -19,10 +19,9 @@ jobs:
           env:
             path = ../stream-chat-react/examples/typescript-app/
           run:
+            pwd
+            ls
             yarn;yarn start & cd path && exec yarn;yarn start
-            #pwd
-            #ls
-            
           wait-on: "http://localhost:3000"
           
           
