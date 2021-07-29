@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import {
+  ChannelSearchFunctionParams,
+  SearchInput as DefaultSearchInput,
+  SearchInputProps,
+} from './SearchInput';
 import { DropdownContainerProps, SearchResultItemProps, SearchResults } from './SearchResults';
 
 import { ChannelOrUserResponse, isChannel } from './utils';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { UserFilters, UserOptions, UserSort } from 'stream-chat';
 
@@ -19,23 +23,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-
-export type ChannelSearchFunctionParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = {
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<
-    React.SetStateAction<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>
-  >;
-  setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   filters?: UserFilters<Us>;
@@ -71,6 +58,8 @@ export type ChannelSearchProps<
     params: ChannelSearchFunctionParams<At, Ch, Co, Ev, Me, Re, Us>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
+  /** Custom UI component to display the search text input */
+  SearchInput?: React.ComponentType<SearchInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the search loading state */
   SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
@@ -100,6 +89,7 @@ const UnMemoizedChannelSearch = <
     SearchEmpty,
     searchForChannels = false,
     searchFunction,
+    SearchInput = DefaultSearchInput,
     SearchLoading,
     searchQueryParams,
     SearchResultItem,
@@ -107,7 +97,6 @@ const UnMemoizedChannelSearch = <
   } = props;
 
   const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>(
@@ -218,14 +207,12 @@ const UnMemoizedChannelSearch = <
 
   return (
     <div className='str-chat__channel-search'>
-      <input
-        onChange={(event: React.BaseSyntheticEvent) =>
-          searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
-        }
-        placeholder={t('Search')}
-        ref={inputRef}
-        type='text'
-        value={query}
+      <SearchInput
+        channelSearchParams={channelSearchParams}
+        inputRef={inputRef}
+        onSearch={onSearch}
+        query={query}
+        searchFunction={searchFunction}
       />
       {query && (
         <SearchResults

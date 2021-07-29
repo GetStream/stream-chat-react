@@ -1,23 +1,15 @@
 import React, { useState } from 'react';
 import {
   Avatar,
-  Channel,
   ChannelList,
   ChannelListMessengerProps,
   ChannelPreviewUIComponentProps,
-  ChannelSearch,
-  MessageInput,
-  Thread,
-  useChatContext,
-  VirtualizedMessageList,
-  Window,
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
-import { DMChannelHeader } from './DMChannelHeader';
+import { DMChannel } from './DMChannel';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
-import { MessageInputUI } from './MessageInputUI';
-import { getFormattedTime, isChannel } from './utils';
+import { getFormattedTime } from './utils';
 
 import { ClickDMIcon } from '../../assets';
 
@@ -26,12 +18,26 @@ import type {
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
-  UserResponse,
 } from 'stream-chat';
+import { ParticipantSearch } from './ParticipantSearch';
 
 const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
+
+const SkeletonLoader: React.FC = () => (
+  <ul className='dm-loading'>
+    {[0, 1, 2, 3, 4].map((_, i) => (
+      <li key={i}>
+        <div className='dm-loading-avatar'></div>
+        <div className='dm-loading-text'>
+          <div></div>
+          <div></div>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
 
 const ListWrapper: React.FC = ({ children }) => {
   return <div className='dm-list'>{children}</div>;
@@ -43,7 +49,7 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (loading) {
     return (
       <ListWrapper>
-        <div>Loading...</div>
+        <SkeletonLoader />
       </ListWrapper>
     );
   }
@@ -51,7 +57,9 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (error) {
     return (
       <ListWrapper>
-        <div>Error</div>
+        <div className='dm-error'>
+          Error fetching direct messages, please try again momentarily.
+        </div>
       </ListWrapper>
     );
   }
@@ -88,63 +96,30 @@ const PreviewUI: React.FC<
 };
 
 export const DMChannelList = () => {
-  const { client } = useChatContext();
-
   const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [searching, setSearching] = useState(false);
 
-  const handleSelectResult = async (result: StreamChannel | UserResponse) => {
-    if (!client.userID || isChannel(result)) return;
-
-    try {
-      const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
-      await newChannel.watch();
-
-      setDmChannel(newChannel);
-    } catch (err) {
-      console.log(err);
-    }
-
-    setSearching(false);
-  };
-
-  if (searching) {
-    return <ChannelSearch onSelectResult={handleSelectResult} />;
-  }
-
   return (
-    <div className='dm'>
-      {dmChannel && (
-        <div className='dm-channel'>
-          <DMChannelHeader dmChannel={dmChannel} setDmChannel={setDmChannel} />
-          <Channel
-            channel={dmChannel}
+    <>
+      {searching && <ParticipantSearch setDmChannel={setDmChannel} setSearching={setSearching} />}
+      <div className='dm'>
+        {dmChannel && <DMChannel dmChannel={dmChannel} setDmChannel={setDmChannel} />}
+        <div className={dmChannel ? 'dm-hidden' : ''}>
+          <ChannelList
             EmptyStateIndicator={EmptyStateIndicators}
-            Input={MessageInputUI}
-          >
-            <Window hideOnThread>
-              <VirtualizedMessageList hideDeletedMessages />
-              <MessageInput focus />
-            </Window>
-            <Thread />
-          </Channel>
-        </div>
-      )}
-      <div className={dmChannel ? 'dm-hidden' : ''}>
-        <ChannelList
-          EmptyStateIndicator={EmptyStateIndicators}
-          filters={filters}
-          List={ListUI}
-          options={options}
-          Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
-          sort={sort}
-        />
-        <div className='start-chat'>
-          <div className='start-chat-button' onClick={() => setSearching(true)}>
-            Start a chat
+            filters={filters}
+            List={ListUI}
+            options={options}
+            Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
+            sort={sort}
+          />
+          <div className='start-chat'>
+            <div className='start-chat-button' onClick={() => setSearching(true)}>
+              Start a chat
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

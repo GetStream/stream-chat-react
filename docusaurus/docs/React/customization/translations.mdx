@@ -18,9 +18,16 @@ class constructor that handles language translation. The library provides built-
 9. Portuguese (pt)
 10. German (de)
 
-The default language is English. To change the language of the connected user, create an instance of `Streami18n` and pass
-as a prop into the `Chat` component. The below example changes the current user's language to Spanish and automatically translates all
-text built into the component UI.
+The library supports two different methods for manually setting the language of the connected user and automatically translates all
+text built into the UI components. The simpler and less customizable way is to set the `language` value in the `connectUser` method on
+mount of the chat application.
+
+```tsx
+client.connectUser({ id: userId, language: 'es' }, userToken);
+```
+
+Additionally, you can create a class instance of `Streami18n` and pass as a prop into the `Chat` component. The below
+example changes the current user's language to Spanish
 
 ```jsx
 const i18nInstance = new Streami18n({ language: 'es' });
@@ -44,6 +51,10 @@ const i18nInstance = new Streami18n({
   ...
 </Chat>;
 ```
+
+If the language for the connected user is not manually set by the application, the component library detects the user's default
+browser language. If the component library has translation support for the detected browser language, the connected user's language
+is automatically set to this value. If the browser language is not supported for translation, the library defaults to English.
 
 :::note
 All [available translations](https://github.com/GetStream/stream-chat-react/tree/master/src/i18n) are found on GitHub and the

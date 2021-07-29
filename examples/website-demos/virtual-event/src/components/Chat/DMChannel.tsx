@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Channel } from 'stream-chat';
+import { Channel as StreamChannel } from 'stream-chat';
+import { Channel, MessageInput, Thread, VirtualizedMessageList, Window } from 'stream-chat-react';
 
-import { CloseX } from '../../assets/CloseX';
-import { Ellipse } from '../../assets/Ellipse';
+import './DMChannel.scss';
+import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { MessageInputUI } from './MessageInputUI';
 
-import './DMChannelHeader.scss';
+import { CloseX, Ellipse } from '../../assets';
 
 const DropDown = ({
   dmChannel,
   setOpenMenu,
 }: {
-  dmChannel: Channel;
+  dmChannel: StreamChannel;
   setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [isChannelMuted, setIsChannelMuted] = useState(false);
@@ -41,11 +43,11 @@ const DropDown = ({
 };
 
 type Props = {
-  dmChannel: Channel;
-  setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
+  dmChannel: StreamChannel;
+  setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
 };
 
-export const DMChannelHeader: React.FC<Props> = (props) => {
+export const DMChannel: React.FC<Props> = (props) => {
   const { dmChannel, setDmChannel } = props;
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -56,7 +58,7 @@ export const DMChannelHeader: React.FC<Props> = (props) => {
   const handleCloseDm = () => setDmChannel(undefined);
 
   return (
-    <>
+    <div className='dm-channel'>
       <div className='dm-header-container'>
         <div className='dm-header-close' onClick={handleCloseDm}>
           <CloseX />
@@ -70,6 +72,17 @@ export const DMChannelHeader: React.FC<Props> = (props) => {
         </div>
       </div>
       {openMenu && <DropDown dmChannel={dmChannel} setOpenMenu={setOpenMenu} />}
-    </>
+      <Channel
+        channel={dmChannel}
+        EmptyStateIndicator={EmptyStateIndicators}
+        Input={MessageInputUI}
+      >
+        <Window hideOnThread>
+          <VirtualizedMessageList hideDeletedMessages />
+          <MessageInput focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </div>
   );
 };

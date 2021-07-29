@@ -1,0 +1,104 @@
+@import '../../styles/variables';
+
+.dm {
+  &-channel {
+    position: absolute;
+    top: 0;
+
+    .str-chat-channel {
+      height: calc(100vh - 56px); // height of dm header
+    }
+  }
+
+  &-header {
+    &-container {
+      display: flex;
+      background: $app-canvas;
+      transition: background 1s;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      border: 1px solid $stroke;
+      max-height: 56px;
+      box-sizing: border-box;
+    }
+
+    &-close {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: $text-high-emphasis;
+      font-weight: 600;
+      font-size: 14px;
+
+      &-sub-title {
+        color: $text-mid-emphasis;
+        font-size: 12px;
+        font-weight: normal;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+  }
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  right: 10px;
+  position: absolute;
+  border-radius: 8px;
+  height: 120px;
+  width: 125px;
+  box-shadow: $shadow;
+  background: $app-canvas;
+  transition: background 1s;
+  overflow: hidden;
+
+  &-option {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: $text-high-emphasis;
+  }
+
+  &-option:hover {
+    background: $primary-accent;
+    color: $text-self;
+    cursor: pointer;
+  }
+}
