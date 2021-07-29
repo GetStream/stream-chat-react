@@ -19,13 +19,9 @@
         background-color: $bars-bg;
         border-bottom: 1px solid $borders;
         border-right: 1px solid $borders;
-      
-        left: 0px;
-        right: 0px;
-        top: 0px;
         bottom: 20px;
       
-        &.text {
+        &-text {
             color: $text-high-emphasis;
         }
     }
@@ -36,30 +32,87 @@
         border-right: 1px solid $borders;
       
         display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        align-items: flex-start;
+        justify-content: center;
+        align-items: center;
         padding: 0px;
-      
         height: 56px;
-        left: 0px;
-        right: 0px;
-        bottom: 0px;
       
         .chats {
-            align-items: center;
-            display: flex;
-            flex-direction: column;
-            font: $text-high-emphasis;
-            margin: 10px;
+            cursor: pointer;
+            width: 50%;
+            margin-top: -12px;
+
+            &-text {
+                color: $text-high-emphasis;
+                font-size: 12px;
+                font-weight: 400;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            &-unread {
+                background-color: $accent-error;
+                border-radius: 999px;
+                padding: 0px 4px 2px 4px;
+                display: inline-block;
+
+                position: relative;
+                left: 110px;
+                top: 15px;
+    
+                &.unreadCount {
+                    visibility: hidden;
+                }
+    
+                &-text {
+                    color: $white;
+                    font-size: 12px;
+                    font-weight: 700;
+                    line-height: 7px;
+                    text-align: center;
+                }
+            }
         }
       
         .mentions {
-            align-items: center;
-            display: flex;
-            flex-direction: column;
-            font: $text-low-emphasis;
-            margin: 10px;
+            cursor: pointer;
+            width: 50%;
+            margin-top: -12px;
+
+            &-text {
+                color: $text-low-emphasis;
+                font-size: 12px;
+                font-weight: 400;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            &-unread {
+                background-color: $accent-error;
+                border-radius: 999px;
+                padding: 0px 4px 2px 4px;
+                display: inline-block;
+
+                position: relative;
+                left: 110px;
+                top: 15px;
+    
+                &.unreadCount {
+                    visibility: hidden;
+                }
+    
+                &-text {
+                    color: $white;
+                    font-size: 12px;
+                    font-weight: 700;
+                    line-height: 7px;
+                    text-align: center;
+                }
+            }
         }
       }
 }

@@ -86,10 +86,9 @@ export const ChatContainer: React.FC = () => {
     }, []); // eslint-disable-line
 
     const customRenderFilter = (channels: TypeChannel[]) => {
-        console.log('in the render channels:', channels);
-        const thing = channels.filter((x) => x.cid === "messaging:!members-heguTywg5TD_OlmaaERX7TwpILW_rweOsui-1p1Xf4I");
-        console.log(thing);
-        return thing;
+        return channels.filter((channel) => {
+            return channel.countUnreadMentions() > 0 ? channel : null;
+        });
     }
 
     if (!chatClient) return null;
@@ -103,6 +102,7 @@ export const ChatContainer: React.FC = () => {
                     List={SocialChannelList}
                     options={options}
                     Preview={SocialChannelPreview}
+                    sendChannelsToList
                     sort={sort}
                 /> : <ChannelList 
                         channelRenderFilterFn={customRenderFilter}
@@ -110,6 +110,7 @@ export const ChatContainer: React.FC = () => {
                         List={SocialChannelList}
                         options={options}
                         Preview={SocialChannelPreview}
+                        sendChannelsToList
                         sort={sort}
                     />
                 }

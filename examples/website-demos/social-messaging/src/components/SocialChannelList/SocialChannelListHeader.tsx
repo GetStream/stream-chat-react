@@ -9,7 +9,7 @@ export const SocialChannelListHeader: React.FC = () => {
     return (
         <div className='channel-list-header'>
             <HamburgerIcon />
-            <span className='text'>Stream Chat</span>
+            <span className='channel-list-header-text'>Stream Chat</span>
             <NewChat />
         </div>
     );
