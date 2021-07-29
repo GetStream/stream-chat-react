@@ -25,6 +25,7 @@
   min-width: 320px;
   background: $app-canvas;
   transition: all 0.5s;
+  border: 1px solid $stroke;
 
   &-sidebar {
     display: flex;
@@ -79,7 +80,8 @@
         font-size: 14px;
         line-height: 18px;
         color: $text-high-emphasis;
-        border: 1px solid $stroke;
+        border-top: 1px solid $stroke;
+        border-bottom: 1px solid $stroke;
 
         &-item {
           position: relative;
