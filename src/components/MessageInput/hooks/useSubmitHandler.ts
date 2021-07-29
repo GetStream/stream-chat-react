@@ -172,8 +172,8 @@ export const useSubmitHandler = <
           await sendMessage({ ...updatedMessage, parent });
         }
 
-        if (publishTypingEvent) await channel.stopTyping();
         dispatch({ type: 'clear' });
+        if (publishTypingEvent) await channel.stopTyping();
       } catch (err) {
         addNotification(t('Send message request failed'), 'error');
       }
