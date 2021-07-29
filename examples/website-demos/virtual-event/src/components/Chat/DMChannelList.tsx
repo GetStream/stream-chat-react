@@ -25,6 +25,20 @@ const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
+const SkeletonLoader: React.FC = () => (
+  <ul className='dm-loading'>
+    {[0, 1, 2, 3, 4].map((_, i) => (
+      <li key={i}>
+        <div className='dm-loading-avatar'></div>
+        <div className='dm-loading-text'>
+          <div></div>
+          <div></div>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
 const ListWrapper: React.FC = ({ children }) => {
   return <div className='dm-list'>{children}</div>;
 };
@@ -35,7 +49,7 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (loading) {
     return (
       <ListWrapper>
-        <div>Loading...</div>
+        <SkeletonLoader />
       </ListWrapper>
     );
   }

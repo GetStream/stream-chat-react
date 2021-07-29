@@ -25,7 +25,9 @@ export const useInitChat = () => {
   const { chatType, eventName } = useEventContext();
 
   const switchChannel = async (type: ChatType, event?: string) => {
-    if (!chatClient || type === 'direct') return;
+    if (!chatClient || type === 'direct') {
+      return setCurrentChannel(undefined);
+    }
 
     const channelId = event && type !== 'global' ? `${type}-${event}` : type;
     const newChannel = chatClient.channel('livestream', channelId);

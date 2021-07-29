@@ -7,7 +7,7 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
-import { EmptyStateIndicators } from './EmptyStateIndicators';
+// import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -30,15 +30,17 @@ export const ChatContainer: React.FC = () => {
           {showChannelList ? (
             <DMChannelList />
           ) : (
-            <Channel
-              channel={currentChannel}
-              EmptyStateIndicator={EmptyStateIndicators}
-              Input={MessageInputUI}
-            >
-              <GiphyContextProvider>
-                <ChannelInner />
-              </GiphyContextProvider>
-            </Channel>
+            currentChannel && (
+              <Channel
+                channel={currentChannel}
+                // EmptyStateIndicator={EmptyStateIndicators}
+                Input={MessageInputUI}
+              >
+                <GiphyContextProvider>
+                  <ChannelInner />
+                </GiphyContextProvider>
+              </Channel>
+            )
           )}
         </Chat>
       </div>
