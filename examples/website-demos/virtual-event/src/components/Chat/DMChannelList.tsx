@@ -57,7 +57,9 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (error) {
     return (
       <ListWrapper>
-        <div>Error</div>
+        <div className='dm-error'>
+          Error fetching direct messages, please try again momentarily.
+        </div>
       </ListWrapper>
     );
   }

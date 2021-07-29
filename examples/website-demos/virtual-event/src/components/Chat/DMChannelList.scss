@@ -67,6 +67,11 @@
     }
   }
 
+  &-error {
+    color: var(--text-high-emphasis);
+    padding: 8px;
+  }
+
   &-loading {
     margin: 0;
     padding: 8px;
