@@ -16,8 +16,8 @@ jobs:
           build: npm run build
           start: npm start
           run:
-            yarn;yarn start &
-            cd ../stream-chat-react/examples/typescript-app/ && yarn;yarn start
+            yarn;yarn start & cd ../stream-chat-react/examples/typescript-app/
+            yarn;yarn start
             pwd
             ls
           wait-on: "http://localhost:3000"
