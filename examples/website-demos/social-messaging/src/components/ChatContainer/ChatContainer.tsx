@@ -5,6 +5,7 @@ import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-ch
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { NewChatPreview } from '../NewChat/NewChatPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
@@ -59,7 +60,7 @@ export type UserType = { image?: string };
 export const ChatContainer: React.FC = () => {
     const [chatClient, setChatClient] = useState<StreamChat | null>(null);
 
-    const { chatsUnreadCount, isListMentions, isSideDrawerOpen, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
+    const { chatsUnreadCount, isListMentions, isNewChat, isSideDrawerOpen, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
     // useChecklist(chatClient, targetOrigin);
 
@@ -126,7 +127,10 @@ export const ChatContainer: React.FC = () => {
     return (
         <Chat client={chatClient}>
             <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
-                <SocialChannelListHeader />
+                <div>
+                    <SocialChannelListHeader />
+                    {isNewChat && <NewChatPreview />}
+                </div>
                 <ChannelList 
                     channelRenderFilterFn={customRenderFilter}
                     EmptyStateIndicator={SocialEmptyStateIndicator}
