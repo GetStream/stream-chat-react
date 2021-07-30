@@ -82,7 +82,7 @@
       &:focus {
         border: none;
         box-shadow: none;
-        background: $app-canvas;
+        background: var(--card-alt-background);
         transition: background 1s;
       }
     }

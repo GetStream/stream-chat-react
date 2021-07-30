@@ -74,7 +74,7 @@ export const DMChannel: React.FC<Props> = (props) => {
       {openMenu && <DropDown dmChannel={dmChannel} setOpenMenu={setOpenMenu} />}
       <Channel
         channel={dmChannel}
-        EmptyStateIndicator={EmptyStateIndicators}
+        EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}
         Input={MessageInputUI}
       >
         <Window hideOnThread>

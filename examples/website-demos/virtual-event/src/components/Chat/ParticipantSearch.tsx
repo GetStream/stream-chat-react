@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Channel, UserResponse } from 'stream-chat';
 import {
   Avatar,
@@ -79,7 +79,27 @@ const SearchEmpty: React.FC = () => <div className='search-empty'>No participant
 export const ParticipantSearch: React.FC<Props> = (props) => {
   const { setDmChannel, setSearching } = props;
 
+  const [participants, setParticipants] = useState<UserResponse[]>();
+
   const { client } = useChatContext();
+
+  useEffect(() => {
+    const getParticipants = async () => {
+      try {
+        const { users } = await client.queryUsers(
+          { id: { $ne: client.userID || '' } },
+          { id: 1, last_active: -1 },
+          { limit: 10 },
+        );
+
+        if (users.length) setParticipants(users);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getParticipants();
+  }, []); // eslint-disable-line
 
   const handleSelectResult = async (result: Channel | UserResponse) => {
     if (!client.userID || isChannel(result)) return;
@@ -106,7 +126,7 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         <div className='search-header-close' onClick={() => setSearching(false)}>
           <CloseX />
         </div>
-        <div className='search-header-title'> Participants </div>
+        <div className='search-header-title'>Participants</div>
       </div>
       <ChannelSearch
         onSelectResult={handleSelectResult}
@@ -116,6 +136,10 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         SearchLoading={SearchLoading}
         SearchResultItem={SearchResultItem}
       />
+      {participants?.length &&
+        participants.map((participant, i) => (
+          <SearchResultItem index={i} result={participant} selectResult={handleSelectResult} />
+        ))}
     </div>
   );
 };

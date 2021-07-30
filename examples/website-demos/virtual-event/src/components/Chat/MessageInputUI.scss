@@ -118,6 +118,10 @@
   box-shadow: none !important;
 }
 
+.str-chat__input--emojipicker {
+  z-index: 1;
+}
+
 .emoji-mart {
   width: 320px !important;
   background: $app-canvas;

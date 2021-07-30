@@ -4,6 +4,7 @@ import {
   ChannelList,
   ChannelListMessengerProps,
   ChannelPreviewUIComponentProps,
+  useChatContext,
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
@@ -74,15 +75,19 @@ const PreviewUI: React.FC<
 > = (props) => {
   const { channel, displayImage, displayTitle, latestMessage, setDmChannel } = props;
 
+  const { client } = useChatContext();
+
   const secondsSinceLastMessage = channel.state?.last_message_at
     ? (Date.now() - channel.state.last_message_at.getTime()) / 1000
     : 0;
 
   const formattedTime = getFormattedTime(secondsSinceLastMessage);
 
+  const [fallbackName] = Object.keys(channel.state.members).filter((id) => id !== client.userID);
+
   return (
     <div className='dm-list-preview' onClick={() => setDmChannel(channel)}>
-      <Avatar image={displayImage} />
+      <Avatar image={displayImage} name={fallbackName} />
       <div>
         <div className='dm-list-preview-top'>
           <div>{displayTitle}</div>
