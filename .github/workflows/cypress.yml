@@ -13,8 +13,6 @@ jobs:
         with:
           browser: chrome
           headless: true
-          build: npm run build
-          start: npm start
           run: |
             sh./scripts/script.sh
           wait-on: "http://localhost:3000"
