@@ -19,15 +19,17 @@ const { spawn } = require('child_process');
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
-  /*let sp1;
+  let sp1;
   let sp2;
   on('before:run', () => {
     // change the below path to your stream-chat-react and examples/typescript-app path
-    sp1 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react'});
-    sp2 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react/examples/typescript-app'});
+    #sp1 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react'});
+    #sp2 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react/examples/typescript-app'});
+    sp1 = spawn('npm', ['start'], {cwd:'../stream-chat-react/examples/typescript-app/'});
+    sp2 = spawn('npm', ['start'], {cwd:'../stream-chat-react/examples/typescript-app/examples/typescript-app'});
   })
   on('after:run', () => {
     sp1.kill();
     sp2.kill();
-  });*/
+  });
 }
