@@ -8,13 +8,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: directory change 
+        run: |
+            sh ./scripts/script.sh
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           browser: chrome
           headless: true
-          run: |
-            sh ./scripts/script.sh
           wait-on: "http://localhost:3000"
           
           
