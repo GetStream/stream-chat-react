@@ -19,6 +19,7 @@ jobs:
             path = ../stream-chat-react/examples/typescript-app/
           install: npm install -g concurrently
           run:
+            yarn;yarn start
             concurrently "start:yarn;yarn start" "cd path" "start:yarn;yarn start"
             #(cd path & exec /yarn;yarn start)
           wait-on: "http://localhost:3000"
