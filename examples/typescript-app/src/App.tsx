@@ -5,7 +5,7 @@ import {
   Channel,
   ChannelHeader,
   ChannelList,
-  MessageList,
+  VirtualizedMessageList,
   MessageInput,
   Thread,
   Window,
@@ -36,7 +36,7 @@ const App = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <MessageList />
+        <VirtualizedMessageList separateGiphyPreview />
         <MessageInput focus />
       </Window>
       <Thread />

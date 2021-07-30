@@ -1,0 +1,22 @@
+---
+id: giphy_preview
+sidebar_position: 20
+title: Giphy Preview Component
+---
+
+This example demonstrates how to build a custom component to override the default `GiphyPreviewMessage` component that is rendered optionally in the
+`VirtualizedMessageList` above the `MessageInput` rather than inline with the other messages in the list.
+
+## separateGiphyPreview Prop
+
+To display a Giphy preview in this separately rendered component, use the `separateGiphyPreview` prop on `VirtualizedMessageList`.
+This separate component makes it so the preview doesn't scroll away in the large channel.
+
+```jsx
+<VirtualizedMessageList separateGiphyPreview />
+```
+
+## Implementation
+
+Our custom preview component will render an `Attachment` component with custom `Card` and `AttachmentActions` UI components.
+
