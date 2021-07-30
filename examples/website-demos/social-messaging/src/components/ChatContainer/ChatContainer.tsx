@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Channel as TypeChannel } from 'stream-chat';
-import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
+import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
@@ -59,7 +59,7 @@ export type UserType = { image?: string };
 export const ChatContainer: React.FC = () => {
     const [chatClient, setChatClient] = useState<StreamChat | null>(null);
 
-    const { isListMentions, isSideDrawerOpen, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
+    const { chatsUnreadCount, isListMentions, isSideDrawerOpen, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
     // useChecklist(chatClient, targetOrigin);
 
@@ -103,6 +103,23 @@ export const ChatContainer: React.FC = () => {
         }
         return channels;
     }
+
+    useEffect(() => {
+        const handlerNewMessageEvent = (event: Event) => {
+            if (event.user?.id !== chatClient?.userID) {
+                setChatsUnreadCount(chatsUnreadCount + 1)
+
+                const mentions = event.message?.mentioned_users?.filter(user => user.id === chatClient?.userID);
+
+                if (mentions && mentions.length) {
+                    setMentionsUnreadCount(mentionsUnreadCount + 1);
+                }
+            }
+        };
+
+        chatClient?.on('message.new', handlerNewMessageEvent);
+        return () => chatClient?.off('message.new', handlerNewMessageEvent);
+      }, [chatClient, chatsUnreadCount, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount]);
 
     if (!chatClient) return null;
 

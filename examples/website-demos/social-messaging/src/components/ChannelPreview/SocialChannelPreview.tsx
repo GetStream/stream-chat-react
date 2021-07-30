@@ -5,6 +5,8 @@ import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-reac
 import { AvatarGroup, getTimeStamp } from './utils';
 
 import './SocialChannelPreview.scss';
+
+import { useViewContext } from '../../contexts/ViewContext';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
 
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
@@ -18,6 +20,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     } = props;
 
     const { client } = useChatContext();
+    const { chatsUnreadCount, isListMentions, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
     const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
   
@@ -28,12 +31,18 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     const members = Object.values(channel.state.members).filter(
       ({ user }) => user?.id !== client.userID,
     );
+
+    const handleUnreadCounts = () => {
+      if (unread && unread > 0) setChatsUnreadCount(chatsUnreadCount - unread);
+      if (unread && unread > 0 && isListMentions) setMentionsUnreadCount(mentionsUnreadCount - unread);
+    }
   
     return (
       <button
         className={`channel-preview ${activeClass}`}
         onClick={() => {
           setActiveChannel?.(channel);
+          handleUnreadCounts();
         }}
         ref={channelPreviewButton}
       >
