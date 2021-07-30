@@ -11,12 +11,7 @@ jobs:
         
       - name: Install Dependencies & Build
         uses: actions/setup-node@v2
-        with:
-          build: yarn install
-          start: yarn start
-            sh ../scripts/script.sh
-            # wait-on: "http://localhost:3000"
-          
+                  
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
