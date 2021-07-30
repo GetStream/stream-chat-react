@@ -14,7 +14,6 @@ jobs:
         with:
           browser: chrome
           headless: true
-          config-file: ../stream-chat-react/cypress//config.json
           wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
