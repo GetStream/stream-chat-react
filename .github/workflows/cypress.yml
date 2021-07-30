@@ -14,8 +14,7 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - name: directory change , install packages and start app
         run: |
-          install: yarn install
-          build: yarn build
+          build: yarn install
           start: yarn start
             sh ./scripts/script.sh
           wait-on: "http://localhost:3000"
