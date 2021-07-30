@@ -10,7 +10,6 @@ import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
 import { SocialChannelListHeader } from '../SocialChannelList/SocialChannelListHeader';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
-import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -122,7 +121,7 @@ export const ChatContainer: React.FC = () => {
                 />
             </div>
             {isSideDrawerOpen && <SideDrawer />}
-            <Channel Input={SocialMessageInput} >
+            <Channel>
                 <ChannelContainer />
             </Channel>
         </Chat>

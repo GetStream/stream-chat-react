@@ -1,5 +1,18 @@
 @import '../../styles/variables';
 
+.str-chat-channel.messaging .str-chat__main-panel {
+  padding: 0;
+}
+
+.str-chat {
+  width: 100%
+}
+
+.str-chat__main-panel {
+  display: flex;
+  flex-direction: column;
+}
+
 .channel-list-container {
     min-width: 418px;
     max-width: 418px;
