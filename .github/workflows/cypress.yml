@@ -21,13 +21,10 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
           
       - name: Install Dependencies & Build
-        run: |
-          yarn install --frozen-lockfile --ignore-engines
-          run: sh ./scripts/script.s
-        # with:
-          #build: yarn install
-         # start: yarn start
-            # sh ./scripts/script.sh
+        with:
+          build: yarn install
+          start: yarn start
+            sh ./scripts/script.sh
             # wait-on: "http://localhost:3000"
           
       - name: Lint and Test with ${{ matrix.node }}
