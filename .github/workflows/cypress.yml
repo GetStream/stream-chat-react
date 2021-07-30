@@ -20,8 +20,7 @@ jobs:
           run: |
           build: yarn install
           start: yarn start ;
-            chmod +x ../scripts/script.sh
-            ../scripts/script.sh
+            sh  ./script.sh
           shell: bash
           wait-on: "http://localhost:3000"
           
