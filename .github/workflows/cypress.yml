@@ -14,12 +14,6 @@ jobs:
       - name: Install Dependencies & Build & Start App
         uses: actions/setup-node@v2
         
-      - name: Cache Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ./node_modules
-          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
-          
       - name: Install Dependencies & Build
         uses: actions/cache@v2
         env:
