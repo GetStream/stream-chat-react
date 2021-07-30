@@ -13,10 +13,10 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
       - name: directory change , install packages and start app
-        with:
+        run: |
           build: npm run build
           start: npm start
-          exec: sh ./scripts/script.sh
+            sh ./scripts/script.sh
           wait-on: "http://localhost:3000"
       - name: Cypress run
         uses: cypress-io/github-action@v2
