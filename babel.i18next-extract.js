@@ -10,7 +10,7 @@ module.exports = function (api) {
           contextSeparator: '__',
           defaultContexts: [''],
           defaultNS: 'en',
-          locales: ['nl', 'en', 'it', 'tr', 'fr', 'hi', 'ru', 'es', 'pt', 'de'],
+          locales: ['nl', 'en', 'it', 'tr', 'fr', 'hi', 'ru', 'es', 'pt', 'de', 'ja', 'ko'],
           jsonSpace: 4,
           keySeparator: null,
           nsSeparator: null,
