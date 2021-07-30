@@ -21,16 +21,15 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
           
       - name: Install Dependencies & Build
+        uses: actions/cache@v2
+        env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+            TYPESCRIPT: ${{ matrix.typescript }}
         with:
           build: yarn install
           start: yarn start
             sh ./scripts/script.sh
             # wait-on: "http://localhost:3000"
-          
-      - name: Lint and Test with ${{ matrix.node }}
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          TYPESCRIPT: ${{ matrix.typescript }}
           
       - name: Cypress run
         uses: cypress-io/github-action@v2
