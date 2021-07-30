@@ -14,14 +14,13 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - name: directory change , install packages and start app
         run: |
-          yarn install ; start: yarn start &
-            sh ./scripts/script.sh
-          wait-on: "http://localhost:3000"
+          yarn install & sh ./scripts/script.sh
+          # wait-on: "http://localhost:3000"
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           browser: chrome
           headless: true
-          # wait-on: "http://localhost:3000"
+          wait-on: "http://localhost:3000"
           
           
