@@ -10,8 +10,8 @@ jobs:
         uses: actions/checkout@v2
       - name: directory change 
         run: |
-          Install: yarn install
-          start: yarn start
+          Install: yarn build
+          start: yarn install
             sh ./scripts/script.sh
       - name: Cypress run
         uses: cypress-io/github-action@v2
