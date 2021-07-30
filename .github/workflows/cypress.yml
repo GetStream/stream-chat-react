@@ -12,7 +12,6 @@ jobs:
         with:
           build: yarn install
           start: yarn start
-          run: |
             sh ./scripts/script.sh
           # wait-on: "http://localhost:3000"
       - name: Cypress run
