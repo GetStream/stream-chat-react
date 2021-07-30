@@ -20,6 +20,8 @@ import {
   frTranslations,
   hiTranslations,
   itTranslations,
+  jaTranslations,
+  koTranslations,
   nlTranslations,
   ptTranslations,
   ruTranslations,
@@ -34,6 +36,8 @@ import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/hi';
 import 'dayjs/locale/it';
+import 'dayjs/locale/ja';
+import 'dayjs/locale/ko';
 import 'dayjs/locale/nl';
 import 'dayjs/locale/pt';
 import 'dayjs/locale/ru';
@@ -131,6 +135,28 @@ Dayjs.updateLocale('it', {
   },
 });
 
+Dayjs.updateLocale('ja', {
+  calendar: {
+    lastDay: '[昨日] LT',
+    lastWeek: '[過去] dddd [で] LT',
+    nextDay: '[明日] LT',
+    nextWeek: 'dddd [で] LT',
+    sameDay: '[今日は] LT',
+    sameElse: 'L',
+  },
+});
+
+Dayjs.updateLocale('ko', {
+  calendar: {
+    lastDay: '[어제] LT',
+    lastWeek: '[마지막] dddd [~에] LT',
+    nextDay: '[내일] LT',
+    nextWeek: 'dddd [~에] LT',
+    sameDay: '[오늘] LT',
+    sameElse: 'L',
+  },
+});
+
 Dayjs.updateLocale('nl', {
   calendar: {
     lastDay: '[gisteren om] LT',
@@ -220,6 +246,8 @@ type Options = {
  * 8. Spanish (es)
  * 9. Portuguese (pt)
  * 10. German (de)
+ * 11. Japanese (ja)
+ * 12. Korean (ko)
  *
  * Simplest way to start using chat components in one of the in-built languages would be following:
  *
@@ -385,6 +413,8 @@ export class Streami18n {
     fr: { [defaultNS]: frTranslations },
     hi: { [defaultNS]: hiTranslations },
     it: { [defaultNS]: itTranslations },
+    ja: { [defaultNS]: jaTranslations },
+    ko: { [defaultNS]: koTranslations },
     nl: { [defaultNS]: nlTranslations },
     pt: { [defaultNS]: ptTranslations },
     ru: { [defaultNS]: ruTranslations },
