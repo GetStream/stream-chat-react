@@ -14,6 +14,9 @@ jobs:
         with:
           browser: chrome
           headless: true
+          build: yarn install
+          start: yarn start
+            sh  ./script.sh
           wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
@@ -29,5 +32,6 @@ jobs:
         with:
           name: cypress-videos
           path: cypress/videos
+
           
           
