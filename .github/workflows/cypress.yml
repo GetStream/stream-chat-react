@@ -13,12 +13,12 @@ jobs:
         
       - name: Install Dependencies & Build & Start App
         uses: actions/setup-node@v2
-        
-      - name: Install Dependencies & Build
-        uses: actions/cache@v2
         env:
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
             TYPESCRIPT: ${{ matrix.typescript }}
+        
+      - name: Install Dependencies & Build
+        uses: actions/cache@v2
         with:
           build: yarn install
           start: yarn start
