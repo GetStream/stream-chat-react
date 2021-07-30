@@ -7,26 +7,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: directory change , install packages and start app
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v2-beta
         with:
-          build: yarn install
-          start: yarn start
-            sh ./scripts/script.sh
-          wait-on: "http://localhost:3000"
+          node-version: ${{ matrix.node }}
+        
+      - name: Install Dependencies & Build & Start App
+        uses: actions/setup-node@v2
+        
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+          
+      - name: Install Dependencies & Build
+        run: |
+          yarn install --frozen-lockfile --ignore-engines
+          run: sh ./scripts/script.s
+        # with:
+          #build: yarn install
+         # start: yarn start
+            # sh ./scripts/script.sh
+            # wait-on: "http://localhost:3000"
+          
+      - name: Lint and Test with ${{ matrix.node }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          TYPESCRIPT: ${{ matrix.typescript }}
+          
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           browser: chrome
           headless: true
-          # wait-on: "http://localhost:3000"
+          wait-on: "http://localhost:3000"
+          
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+          
       - name: upload failure videos
         uses: actions/upload-artifact@v2
         if: failure()
