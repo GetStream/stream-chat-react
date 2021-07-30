@@ -11,18 +11,18 @@ jobs:
         
       - name: Install Dependencies & Build
         uses: actions/setup-node@v2
+        with: |
+          build: yarn install
+          start: yarn start ;
+            sh  ./script.sh
+          shell: bash
+          wait-on: "http://localhost:3000"
                   
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           browser: chrome
           headless: true
-          run: |
-          build: yarn install
-          start: yarn start ;
-            sh  ./script.sh
-          shell: bash
-          wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
