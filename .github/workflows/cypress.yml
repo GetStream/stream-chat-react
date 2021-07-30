@@ -20,6 +20,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          build: npm i -D cypress
           browser: chrome
           headless: true
           
