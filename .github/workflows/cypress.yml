@@ -15,8 +15,7 @@ jobs:
           browser: chrome
           headless: true
           build: yarn install
-          start: yarn start
-            yarn start && sleep 15 & cd ../stream-chat-react/examples/typescript-app/ ; yarn start
+          start: yarn start ; sleep 15 & cd ../stream-chat-react/examples/typescript-app/ ; yarn start
           wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
