@@ -17,9 +17,12 @@ jobs:
         with:
           browser: chrome
           headless: true
+          run: |
           build: yarn install
           start: yarn start ;
-            sh ../scripts/script.sh
+            chmod +x ../scripts/script.sh
+            ../scripts/script.sh
+          shell: bash
           wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
