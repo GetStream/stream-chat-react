@@ -60,7 +60,7 @@
   "You've reached the maximum number of files": "ファイルの最大数に達しました",
   "live": "住む",
   "this content could not be displayed": "このコンテンツは表示できませんでした",
-  "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} と {{moreCount}} もっと",
+  "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} と {{ moreCount }} もっと",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} と {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} と {{ secondUser }}",
   "{{ imageCount }} more": "{{ imageCount }} もっと",

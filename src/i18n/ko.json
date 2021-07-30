@@ -60,7 +60,7 @@
   "You've reached the maximum number of files": "최대 파일 수에 도달했습니다.",
   "live": "라이브",
   "this content could not be displayed": "이 콘텐츠를 표시할 수 없습니다",
-  "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} 그리고 {{moreCount}} 더",
+  "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} 그리고 {{ moreCount }} 더",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} 그리고 {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} 그리고 {{ secondUser }}",
   "{{ imageCount }} more": "{{ imageCount }} 더",
