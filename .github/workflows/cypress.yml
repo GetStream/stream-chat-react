@@ -14,10 +14,7 @@ jobs:
         with:
           browser: chrome
           headless: true
-          build: yarn install
-          start: yarn start 
-          shell: bash
-              sleep 60 & cd /Users/joeladelubi/stream-chat-react/examples/typescript-app ; yarn start
+          config-file: ../stream-chat-react/cypress//config.json
           wait-on: "http://localhost:3000"
           
       - name: upload failure screenshots
