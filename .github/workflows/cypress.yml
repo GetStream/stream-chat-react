@@ -9,8 +9,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: directory change , install packages and start app
-        run: |
-          yarn install & sh ./scripts/script.sh
+        with:
+          build: yarn install
+          start: yarn start
+          run: |
+            sh ./scripts/script.sh
           # wait-on: "http://localhost:3000"
       - name: Cypress run
         uses: cypress-io/github-action@v2
