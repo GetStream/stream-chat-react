@@ -9,6 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: directory change , install packages and start app
+        uses: actions/setup-node@v2
         with:
           build: yarn install
           start: yarn start
