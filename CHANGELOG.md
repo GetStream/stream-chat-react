@@ -1,5 +1,14 @@
 # Changelog
 
+## [6.4.9](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.9) 2021-08-02
+
+### Feature
+
+- Add `defaultLanguage` prop to `Chat` component to specify fallback language for translation of UI components [#1086](https://github.com/GetStream/stream-chat-react/pull/1086)
+
+### Chore
+- Optimize `VirtualizedMessageList` message grouping and rendering logic [#1088](https://github.com/GetStream/stream-chat-react/pull/1088)
+
 ## [6.4.8](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.8) 2021-07-30
 
 ### Feature
