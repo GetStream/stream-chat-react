@@ -1,4 +1,5 @@
 import React from 'react';
+import { EmptyStateIndicatorProps } from 'stream-chat-react';
 
 import { EmptyChatIcon, EmptyDMIcon, EmptyQAIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
@@ -7,7 +8,9 @@ const EmptyStateWrapper: React.FC = ({ children }) => (
   <div className='chat-components-empty'>{children}</div>
 );
 
-export const EmptyStateIndicators = () => {
+export const EmptyStateIndicators: React.FC<
+  EmptyStateIndicatorProps & { isDmChannel?: boolean }
+> = ({ isDmChannel }) => {
   const { chatType } = useEventContext();
 
   let Icon: React.FC;
@@ -22,9 +25,11 @@ export const EmptyStateIndicators = () => {
       break;
 
     case 'direct':
-      Icon = EmptyDMIcon;
-      title = 'No direct messages yet';
-      description = 'You will see your first direct message here when it is received.';
+      Icon = isDmChannel ? EmptyChatIcon : EmptyDMIcon;
+      title = isDmChannel ? 'No chat yet' : 'No direct messages yet';
+      description = isDmChannel
+        ? 'Send a message to start the conversation.'
+        : 'You will see your first direct message here when it is received.';
       break;
 
     default:

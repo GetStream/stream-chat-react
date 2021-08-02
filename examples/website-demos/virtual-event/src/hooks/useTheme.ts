@@ -80,7 +80,7 @@ const themes: Themes = {
       '--card-background': '#ffffff',
       '--card-alt-background': '#f7f7f8',
       '--card-self-bg': '#ebebeb',
-      '--stroke': '##d6d6d6',
+      '--stroke': '#d6d6d6',
       '--stroke-low-emphasis': '#ebebeb',
       '--shadow': '0px 2px 5px rgba(0, 0, 0, 0.15)',
     },
