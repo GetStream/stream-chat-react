@@ -4,7 +4,7 @@ import { useChat } from './hooks/useChat';
 import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
 import { ChatProvider } from '../../context/ChatContext';
-import { TranslationProvider } from '../../context/TranslationContext';
+import { SupportedTranslations, TranslationProvider } from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
 
@@ -46,6 +46,8 @@ export type ChatProps<
   customStyles?: CustomStyles;
   /** If true, toggles the CSS variables to the default dark mode color palette */
   darkMode?: boolean;
+  /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
+  defaultLanguage?: SupportedTranslations;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
@@ -79,6 +81,7 @@ export const Chat = <
     client,
     customStyles,
     darkMode = false,
+    defaultLanguage,
     i18nInstance,
     initialNavOpen = true,
     theme = 'messaging light',
@@ -93,7 +96,7 @@ export const Chat = <
     openMobileNav,
     setActiveChannel,
     translators,
-  } = useChat({ client, i18nInstance, initialNavOpen });
+  } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 

@@ -4,19 +4,52 @@ sidebar_position: 5
 title: Translation and i18n
 ---
 
-The Stream Chat React component library uses the [`i18next`](https://www.npmjs.com/package/i18next) dependency to create a [`Streami18n`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/Streami18n.ts)
-class constructor that handles language translation. The library provides built-in translations for the following languages:
+import Localization1 from '../assets/Localization1.png';
+import Localization2 from '../assets/Localization2.png';
 
-1. English (en)
-2. Dutch (nl)
-3. Russian (ru)
-4. Turkish (tr)
-5. French (fr)
-6. Italian (it)
-7. Hindi (hi)
-8. Spanish (es)
-9. Portuguese (pt)
-10. German (de)
+The Stream Chat React component library uses the [`i18next`](https://www.npmjs.com/package/i18next) dependency to create a [`Streami18n`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/Streami18n.ts)
+class constructor that handles language translation.
+
+## Supported Languages
+
+The library provides built-in translations for the following languages:
+
+1. [English](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json) (en) - default
+2. [Dutch](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/nl.json) (nl)
+3. [French](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/fr.json) (fr)
+4. [German](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/de.json) (de)
+5. [Hindi](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/hi.json) (hi)
+6. [Italian](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/it.json) (it)
+7. [Japanese](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/ja.json) (ja)
+8. [Korean](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/ko.json) (ko)
+9. [Portuguese](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/pt.json) (pt)
+10. [Russian](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/ru.json) (ru)
+11. [Spanish](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/es.json) (es)
+12. [Turkish](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/tr.json) (tr)
+
+If you wish to change the default language in your app without initiating an instance of `Streami18n`, pass the `defaultLanguage` prop
+to the `Chat` component on load of your application. The below code snippet will change the default language from English to
+Italian.
+
+```tsx
+const defaultLanguage = 'it';
+
+<Chat client={client} defaultLanguage={defaultLanguage}>
+  ...
+</Chat>;
+```
+
+The following screenshots show the state of the UI components in the app before and after setting the `defaultLanguage` to Italian.
+
+**Default language not specified:**
+
+<img src={Localization1} alt='Localization1' width='700' />
+
+**Default language set to Italian:**
+
+<img src={Localization2} alt='Localization2' width='700' />
+
+## Enable Localization
 
 The library supports two different methods for manually setting the language of the connected user and automatically translates all
 text built into the UI components. The simpler and less customizable way is to set the `language` value in the `connectUser` method on
@@ -27,7 +60,7 @@ client.connectUser({ id: userId, language: 'es' }, userToken);
 ```
 
 Additionally, you can create a class instance of `Streami18n` and pass as a prop into the `Chat` component. The below
-example changes the current user's language to Spanish
+example changes the current user's language to Spanish.
 
 ```jsx
 const i18nInstance = new Streami18n({ language: 'es' });
@@ -62,6 +95,51 @@ JSON objects can be imported from the library.
 
 `import { esTranslations } from 'stream-chat-react';`
 :::
+
+## Add a Language
+
+In the following example, we will demonstrate how to add translation support for an additional language not currently supported
+by the component library. We will add translations for Simplified Chinese, which uses language code `zh`, by following these
+steps:
+
+1. Create a JSON file in your project (ex: `zh.json` if creating a translation file for Simplified Chinese)
+2. Copy the content of an existing [translation file](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json)
+3. Change the values to your desired translations
+4. Register the translation file and set the new language
+5. Pass as a prop to the `Chat` component
+
+:::note
+The `setLanguage` method on the class instance of `Streami18n` is asynchronous, so it's response needs to be
+awaited before the language translations can be updated.
+:::
+
+```tsx
+import zhTranslation from 'path/to/zh.json';
+
+const i18nInstance = new Streami18n();
+
+const App = () => {
+  const [languageLoaded, setLanguageLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadLanguage = async () => {
+      i18nInstance.registerTranslation('zh', zhTranslations);
+      await i18nInstance.setLanguage('zh');
+      setLanguageLoaded(true);
+    };
+
+    loadLanguage();
+  }, []);
+
+  if (!languageLoaded) return null;
+
+  return (
+    <Chat client={client} i18nInstance={i18nInstance}>
+      ...
+    </Chat>
+  );
+};
+```
 
 ## Streami18n API Reference
 
@@ -148,26 +226,3 @@ const t = await streami18n.setLanguage('nl');
 | Name     | Type   | Required           |
 | -------- | ------ | ------------------ |
 | language | string | :heavy_check_mark: |
-
-## Add a Language
-
-If you would like to add translation support for an additional language, follow these steps:
-
-1. Create a JSON file in your project (ex: `ko.json` if creating a translation file for Korean)
-2. Copy the content of an existing [translation file](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json)
-3. Change the values to your desired translations
-4. Register the translation file and set the new language
-5. Pass as prop to `Chat` component
-
-```tsx
-import koTranslation from 'path/to/ko.json';
-
-const i18nInstance = new Streami18n();
-
-i18nInstance.registerTranslation('ko', koTranslation);
-i18nInstance.setLanguage('ko');
-
-<Chat client={client} i18nInstance={i18nInstance}>
-  ...
-</Chat>;
-```
