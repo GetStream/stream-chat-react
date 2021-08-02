@@ -1,10 +1,63 @@
+@import '../../styles/variables';
+
 .rooms-list {
   &-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+
+    &-cards {
+      display: flex;
+      flex-wrap: wrap;
+    }
 
     &-hidden {
       display: none;
+    }
+  }
+
+  &-header {
+    display: flex;
+    background: $app-canvas;
+    transition: background 1s;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid $stroke;
+    box-sizing: border-box;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &-main {
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-high-emphasis;
+      }
+
+      &-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: $text-mid-emphasis;
+        margin-left: 8px;
+      }
+    }
+
+    &-calendar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
     }
   }
 
