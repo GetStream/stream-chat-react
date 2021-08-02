@@ -3,5 +3,6 @@
 .central-panel-container {
   height: 100%;
   width: 100%;
-  transition: background 1s;
+  transition: all 1s;
+  border-bottom: 1px solid $stroke;
 }

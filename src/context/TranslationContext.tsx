@@ -14,6 +14,11 @@ import type { UnknownType } from '../types/types';
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
 
+export const supportedTranslations = ['de', 'en', 'es', 'fr', 'hi', 'it', 'nl', 'pt', 'ru', 'tr'];
+
+export const isLanguageSupported = (language: string) =>
+  supportedTranslations.some((translation) => language === translation);
+
 export const isDayOrMoment = (output: TDateTimeParserOutput): output is Dayjs.Dayjs | Moment =>
   (output as Dayjs.Dayjs | Moment).isSame != null;
 

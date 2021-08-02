@@ -64,7 +64,7 @@ Display search results as an absolutely positioned popup, defaults to false and 
 
 Custom UI component to display empty search results.
 
-| Type      |                                |
+| Type      | Default                        |
 | --------- | ------------------------------ |
 | component | a div with: 'No results found' |
 
@@ -84,11 +84,19 @@ Custom search function to override default.
 | ------------------------------------------------------------------------------------------- |
 | (ChannelSearchFunctionParams, event: React.BaseSyntheticEvent ) =\> Promise\<void\> \| void |
 
+### SearchInput
+
+Custom UI component to display the search text input.
+
+| Type      | Default              |
+| --------- | -------------------- |
+| component | HTML `input` element |
+
 ### SearchLoading
 
 Custom UI component to display the search loading state.
 
-| Type      |                            |
+| Type      | Default                    |
 | --------- | -------------------------- |
 | component | a div with: 'Searching...' |
 

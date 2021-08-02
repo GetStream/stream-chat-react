@@ -1,5 +1,5 @@
 import React from 'react';
-import { Chat, Channel } from 'stream-chat-react';
+import { Chat, Channel, CustomStyles } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
 import './ChatContainer.scss';
@@ -7,7 +7,6 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
-import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -21,24 +20,26 @@ export const ChatContainer: React.FC = () => {
 
   if (!chatClient) return null;
 
+  const customStyles: CustomStyles = {
+    '--primary-color': 'var(--primary-accent)',
+  };
+
   return (
     <div className={`chat ${isFullScreen ? 'full-screen' : ''}`}>
       {isFullScreen && <ChatSidebar />}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
-        <Chat client={chatClient}>
+        <Chat client={chatClient} customStyles={customStyles}>
           <ChatHeader />
           {showChannelList ? (
             <DMChannelList />
           ) : (
-            <Channel
-              channel={currentChannel}
-              EmptyStateIndicator={EmptyStateIndicators}
-              Input={MessageInputUI}
-            >
-              <GiphyContextProvider>
-                <ChannelInner />
-              </GiphyContextProvider>
-            </Channel>
+            currentChannel && (
+              <Channel channel={currentChannel} Input={MessageInputUI}>
+                <GiphyContextProvider>
+                  <ChannelInner />
+                </GiphyContextProvider>
+              </Channel>
+            )
           )}
         </Chat>
       </div>

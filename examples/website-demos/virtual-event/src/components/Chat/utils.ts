@@ -1,5 +1,3 @@
-import type { Channel, UserResponse } from 'stream-chat';
-
 export const getFormattedTime = (time: number) => {
   if (!time) return '';
   if (time < 60) return 'Less than 1 min';
@@ -9,5 +7,30 @@ export const getFormattedTime = (time: number) => {
   return `${Math.floor(time / 86400)} days`;
 };
 
-export const isChannel = (output: Channel | UserResponse): output is Channel =>
-  (output as Channel).cid != null;
+const randomTitles = [
+  'Speaker',
+  'Software Engineer',
+  'Frontend Developer',
+  'Mobile Developer',
+  'System Architect',
+  'Product Manager',
+  'Content Designer',
+  'Inside Sales',
+  'UX/UI Designer',
+  'Marketing Manger',
+  'Technical Recruiter',
+  'Technical Marketing',
+  'Content Marketing',
+  'Customer Success',
+  'Integration Engineer',
+  'Sales Engineer',
+  'Community Manager',
+  'Developer Relations',
+  'Accounting',
+  'Sales Operations',
+];
+
+export const getRandomTitle = () => {
+  const index = Math.floor(randomTitles.length * Math.random());
+  return randomTitles[index];
+};

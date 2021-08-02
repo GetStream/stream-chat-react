@@ -85,6 +85,7 @@
   width: 125px;
   box-shadow: $shadow;
   background: $app-canvas;
+  transition: background 1s;
   overflow: hidden;
 
   &-option {

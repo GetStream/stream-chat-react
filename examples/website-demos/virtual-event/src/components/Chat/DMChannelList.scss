@@ -66,29 +66,97 @@
       }
     }
   }
-}
 
-.start-chat {
-  position: absolute;
-  bottom: 0;
-  max-height: 56px;
-  padding: 8px;
-  box-sizing: border-box;
-  width: 320px;
-  border: 1px solid $stroke;
+  &-error {
+    color: var(--text-high-emphasis);
+    padding: 8px;
+  }
 
-  &-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: $primary-accent;
-    color: $white;
-    border-radius: 8px;
-    height: 40px;
-    font-size: 14px;
-    line-height: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 1s;
+  &-loading {
+    margin: 0;
+    padding: 8px;
+
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      height: 40px;
+    }
+
+    &-avatar,
+    &-text {
+      display: inline-block;
+    }
+
+    &-avatar {
+      float: left;
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+      border-radius: 100px;
+    }
+
+    &-text div {
+      width: 220px;
+      height: 10px;
+      border-radius: 20px;
+    }
+
+    &-text div:nth-child(2) {
+      height: 16px;
+      margin-top: 8px;
+    }
+
+    &-avatar,
+    &-text div {
+      animation: placeHolderShimmer 1.5s linear infinite;
+      background: $card-background;
+      background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0) 5%,
+        rgba(0, 0, 0, 0.2) 25%,
+        rgba(0, 0, 0, 0.25) 50%,
+        rgba(0, 0, 0, 0.2) 75%,
+        rgba(0, 0, 0, 0) 95%,
+        rgba(0, 0, 0, 0) 100%
+      );
+      background-repeat: no-repeat;
+      background-size: 400px 100%;
+    }
+
+    @keyframes placeHolderShimmer {
+      0% {
+        background-position: -400px 0;
+      }
+      100% {
+        background-position: 400px 0;
+      }
+    }
+  }
+
+  .start-chat {
+    position: absolute;
+    bottom: 0;
+    max-height: 56px;
+    padding: 8px;
+    box-sizing: border-box;
+    width: 320px;
+    border: 1px solid $stroke;
+
+    &-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: $primary-accent;
+      color: $white;
+      border-radius: 8px;
+      height: 40px;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 1s;
+    }
   }
 }

@@ -4,6 +4,7 @@ import {
   ChannelList,
   ChannelListMessengerProps,
   ChannelPreviewUIComponentProps,
+  useChatContext,
 } from 'stream-chat-react';
 
 import './DMChannelList.scss';
@@ -25,6 +26,20 @@ const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
+const SkeletonLoader: React.FC = () => (
+  <ul className='dm-loading'>
+    {[0, 1, 2, 3, 4].map((_, i) => (
+      <li key={i}>
+        <div className='dm-loading-avatar'></div>
+        <div className='dm-loading-text'>
+          <div></div>
+          <div></div>
+        </div>
+      </li>
+    ))}
+  </ul>
+);
+
 const ListWrapper: React.FC = ({ children }) => {
   return <div className='dm-list'>{children}</div>;
 };
@@ -35,7 +50,7 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (loading) {
     return (
       <ListWrapper>
-        <div>Loading...</div>
+        <SkeletonLoader />
       </ListWrapper>
     );
   }
@@ -43,7 +58,9 @@ const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
   if (error) {
     return (
       <ListWrapper>
-        <div>Error</div>
+        <div className='dm-error'>
+          Error fetching direct messages, please try again momentarily.
+        </div>
       </ListWrapper>
     );
   }
@@ -58,15 +75,19 @@ const PreviewUI: React.FC<
 > = (props) => {
   const { channel, displayImage, displayTitle, latestMessage, setDmChannel } = props;
 
+  const { client } = useChatContext();
+
   const secondsSinceLastMessage = channel.state?.last_message_at
     ? (Date.now() - channel.state.last_message_at.getTime()) / 1000
     : 0;
 
   const formattedTime = getFormattedTime(secondsSinceLastMessage);
 
+  const [fallbackName] = Object.keys(channel.state.members).filter((id) => id !== client.userID);
+
   return (
     <div className='dm-list-preview' onClick={() => setDmChannel(channel)}>
-      <Avatar image={displayImage} />
+      <Avatar image={displayImage} name={fallbackName} />
       <div>
         <div className='dm-list-preview-top'>
           <div>{displayTitle}</div>
