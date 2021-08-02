@@ -9,7 +9,7 @@ import { useViewContext } from '../../contexts/ViewContext';
 
 export const ChannelContainer: React.FC = () => {
   const { isNewChat } = useViewContext();
-  
+
   return (
     <>
       <Window>

@@ -1,5 +1,5 @@
 import './NewChat.scss';
 
 export const NewChat = () => {
-    return <div className='new-chat'>New Chat</div>
+  return <div className='new-chat'>New Chat</div>;
 };

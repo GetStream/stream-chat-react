@@ -13,19 +13,14 @@ export const SocialChannelList: React.FC<Props> = (props) => {
 
   const ListHeaderWrapper: React.FC<Props> = (props) => {
     const { children } = props;
-    
+
     return (
       <>
-        <div className='channel-list'>
-          {children}
-        </div>
+        <div className='channel-list'>{children}</div>
         <SocialChannelListFooter />
       </>
     );
   };
 
-  return (
-    <ListHeaderWrapper>{children}</ListHeaderWrapper>
-  );
+  return <ListHeaderWrapper>{children}</ListHeaderWrapper>;
 };
-

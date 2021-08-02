@@ -32,7 +32,7 @@ export const ViewProvider: React.FC = ({ children }) => {
     setListMentions,
     setMentionsUnreadCount,
     setNewChat,
-    setSideDrawerOpen
+    setSideDrawerOpen,
   };
 
   return <ViewContext.Provider value={contextValue}>{children}</ViewContext.Provider>;
