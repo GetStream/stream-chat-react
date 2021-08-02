@@ -1,13 +1,7 @@
 import React from 'react';
 
 export const Card2 = () => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    width='250'
-    height='157'
-    fill='none'
-    viewBox='0 0 250 157'
-  >
+  <svg fill='none' viewBox='0 0 250 157'>
     <path fill='#160F1D' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
     <path fill='#73779C' d='M125.371 78.204l20.123-11.578v23.43l-20.123 11.304V78.204z'></path>
     <path fill='#8DD6F7' d='M105.247 66.626l20.124 11.58v23.154l-20.124-11.3V66.626z'></path>

@@ -15,7 +15,9 @@
   }
 
   &-image {
-    width: 100%;
+    svg {
+      width: 100%;
+    }
   }
 
   &-content {
@@ -35,6 +37,10 @@
     display: flex;
     flex: 1;
 
+    svg {
+      overflow: visible;
+    }
+
     &-text {
       font-weight: bold;
       margin: 0 8px;
@@ -45,6 +51,9 @@
     display: flex;
     flex: 1;
     justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    max-height: 32px;
   }
 
   &-viewers {

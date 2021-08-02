@@ -1,11 +1,11 @@
 import React from 'react';
 import { EventCard } from './EventCard';
 
-import { Card1, Card2 } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 import './RoomsList.scss';
 import { CalendarButton } from '../../assets/CalendarButton';
+import { rooms } from './rooms';
 
 export const RoomsList = () => {
   const { chatType } = useEventContext();
@@ -28,78 +28,23 @@ export const RoomsList = () => {
           </div>
         </div>
         <div className='rooms-list-container-cards'>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='esg'
-              Image={Card1}
-              label='Private'
-              presenters={6}
-              title='ESG Data - How to create it'
-              viewers={150}
-            />
-          </div>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='qa'
-              Image={Card1}
-              label='Moderated'
-              presenters={6}
-              title='Q&A session: Data strategy and executive communication'
-              viewers={150}
-            />
-          </div>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='qa'
-              Image={Card1}
-              label='Moderated'
-              presenters={6}
-              title='Q&A session: Data strategy and executive communication'
-              viewers={150}
-            />
-          </div>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='entertainment'
-              Image={Card2}
-              label='Open'
-              presenters={6}
-              title='Entertainment data literacy: learning to love the data'
-              viewers={150}
-            />
-          </div>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='tools'
-              Image={Card1}
-              label='Closed'
-              presenters={6}
-              title='Tools, Teams and Processes: how to successfully implement a data…'
-              viewers={150}
-            />
-          </div>
-          <div className='rooms-list-card'>
-            <EventCard
-              chatType='room'
-              content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-              eventName='roi'
-              Image={Card1}
-              label='Open'
-              presenters={6}
-              title='Defining ROI in the Modern Data World'
-              viewers={150}
-            />
-          </div>
+          {rooms.map((room) => {
+            return (
+              <div className='rooms-list-card'>
+                <EventCard
+                  //   @ts-expect-error
+                  chatType={room.chatType}
+                  content={room.content}
+                  eventName={room.eventName}
+                  Image={room.Image}
+                  label={room.label}
+                  presenters={room.presenters}
+                  title={room.title}
+                  viewers={room.viewers}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

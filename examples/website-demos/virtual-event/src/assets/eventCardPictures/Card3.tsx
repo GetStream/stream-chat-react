@@ -1,11 +1,5 @@
 export const Card3 = () => (
-  <svg
-    width='250'
-    height='156'
-    viewBox='0 0 250 156'
-    fill='none'
-    xmlns='http://www.w3.org/2000/svg'
-  >
+  <svg viewBox='0 0 250 156' fill='none' xmlns='http://www.w3.org/2000/svg'>
     <g clip-path='url(#clip0)'>
       <rect width='250' height='156' fill='#10083C' />
       <line
