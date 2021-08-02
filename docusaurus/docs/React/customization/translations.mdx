@@ -8,7 +8,8 @@ import Localization1 from '../assets/Localization1.png';
 import Localization2 from '../assets/Localization2.png';
 
 The Stream Chat React component library uses the [`i18next`](https://www.npmjs.com/package/i18next) dependency to create a [`Streami18n`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/Streami18n.ts)
-class constructor that handles language translation.
+class constructor that handles language translation of our UI components. The Stream Chat API also supports automatic translation of
+chat messages, [learn more](https://getstream.io/chat/docs/react/translation/?language=javascript).
 
 ## Supported Languages
 
@@ -49,6 +50,12 @@ The following screenshots show the state of the UI components in the app before 
 
 <img src={Localization2} alt='Localization2' width='700' />
 
+:::note
+The `defaultLanguage` prop is only applicable as a fallback language. If the connected user's preferred browser language is supported
+for translation, the component library will preferentially render the browser language. Meaning, if `defaultLanguage` was set to
+Italian but the user's preferred browser language was Spanish, the component library would render Spanish.
+:::
+
 ## Enable Localization
 
 The library supports two different methods for manually setting the language of the connected user and automatically translates all
@@ -58,6 +65,14 @@ mount of the chat application.
 ```tsx
 client.connectUser({ id: userId, language: 'es' }, userToken);
 ```
+
+:::caution
+If [auto translation](https://getstream.io/chat/docs/react/translation/?language=javascript#automatic-translation) of messages is enabled
+in the application, setting the `language` value on `connectUser` will result in the auto translation of all message text. If this behavior
+is undesired, follow the steps below to create a translation instance.
+:::
+
+### Create a Streami18n Instance
 
 Additionally, you can create a class instance of `Streami18n` and pass as a prop into the `Chat` component. The below
 example changes the current user's language to Spanish.
@@ -69,6 +84,8 @@ const i18nInstance = new Streami18n({ language: 'es' });
   ...
 </Chat>;
 ```
+
+### Override Default Translations
 
 Taking it one step further, the below example shows how to override the default text values built into the components.
 
@@ -85,9 +102,26 @@ const i18nInstance = new Streami18n({
 </Chat>;
 ```
 
-If the language for the connected user is not manually set by the application, the component library detects the user's default
-browser language. If the component library has translation support for the detected browser language, the connected user's language
-is automatically set to this value. If the browser language is not supported for translation, the library defaults to English.
+If you wish to completely override one of our language files, provide your custom translations via the `translationsForLanguage` key.
+Your custom language file must include all of the keys of the [default file](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/es.json).
+
+```tsx
+import esUpdated from 'path/to/esUpdated.json';
+
+const i18nInstance = new Streami18n({
+  language: 'es',
+  translationsForLanguage: esUpdated,
+});
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  ...
+</Chat>;
+```
+
+If the language for the connected user is not manually set by passing a `Streami18n` object to the `Chat` component, the component library
+detects the user's default browser language. If the component library has translation support for the detected browser language, either through
+the languages provided or by a custom added language (described below), the connected user's language is automatically set to this value. If the browser language
+is not supported for translation, the library defaults to English.
 
 :::note
 All [available translations](https://github.com/GetStream/stream-chat-react/tree/master/src/i18n) are found on GitHub and the
