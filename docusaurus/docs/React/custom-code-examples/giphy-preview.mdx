@@ -24,57 +24,57 @@ Our custom preview component will render an `Attachment` component with a custom
 This functionality is handled with the `handleAction` method via the `Message` component's `useActionHandler` hook.
 
 ```jsx
-  const CustomAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
-    const { actionHandler, actions } = props;
+    const CustomAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
+        const { actionHandler, actions } = props;
 
-    const handleClick = async (
-      event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-      value?: string,
-      name?: string,
-    ) => {
-      try {
-        if (actionHandler) await actionHandler(name, value, event);
-      } catch (err) {
-        console.log(err);
-      }
+        const handleClick = async (
+            event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+            value?: string,
+            name?: string,
+        ) => {
+            try {
+            if (actionHandler) await actionHandler(name, value, event);
+            } catch (err) {
+            console.log(err);
+            }
+        };
+
+        return (
+            <>
+            {actions.map((action) => (
+                <button
+                onClick={(event) => handleClick(event, action.value, action.name)}
+                >
+                {action.value}
+                </button>
+            ))}
+            </>
+        );
     };
-
-    return (
-      <>
-        {actions.map((action) => (
-          <button
-            onClick={(event) => handleClick(event, action.value, action.name)}
-          >
-            {action.value}
-          </button>
-        ))}
-      </>
-    );
-  };
   
-  const customGiphyPreview = (message: GiphyPreviewMessageProps) => {
-    const streamMessage: StreamMessage = message.message;
+    const customGiphyPreview: React.FC<GiphyPreviewMessageProps> = (props) => {
+        const { message } = props;
 
-    const handleAction = useActionHandler(streamMessage)
-  
-    if (!streamMessage.attachments) return <div></div>;
-  
-    return (
-      <Attachment
-        actionHandler={handleAction}
-        AttachmentActions={(props) => <CustomAttachmentActions {...props} />}
-        attachments={streamMessage.attachments}
-      />
-    );
-  }
+        const handleAction = useActionHandler(message)
 
-  <Channel GiphyPreviewMessage={customGiphyPreview}>
-    <Window>
-        <ChannelHeader />
-        <VirtualizedMessageList separateGiphyPreview />
-        <MessageInput />
-    </Window>
-  </Channel>
+        if (!message.attachments) return null;
+
+        return (
+            <Attachment
+            actionHandler={handleAction}
+            AttachmentActions={CustomAttachmentActions}
+            attachments={message.attachments}
+            />
+        );
+    }
+
+    <Chat client={chatClient}>
+        <Channel GiphyPreviewMessage={customGiphyPreview}>
+            <ChannelHeader />
+            <VirtualizedMessageList separateGiphyPreview />
+            <MessageInput />
+        </Channel>
+    </Chat>
 ```
 
 ## The Result
