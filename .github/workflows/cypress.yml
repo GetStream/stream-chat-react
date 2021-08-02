@@ -14,10 +14,16 @@ jobs:
         with:
           browser: chrome
           headless: true
-          build: yarn install
-          start: yarn start
-            sh  ./script.sh
           wait-on: "http://localhost:3000"
+          
+      - name: Install Project Dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Run Tests
+        run: yarn start ; sleep 60 & cd /Users/joeladelubi/stream-chat-react/examples/typescript-app ; yarn start
           
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
