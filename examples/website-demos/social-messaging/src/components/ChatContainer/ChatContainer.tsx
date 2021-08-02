@@ -94,18 +94,19 @@ export const ChatContainer: React.FC = () => {
     };
   }, []); // eslint-disable-line
 
-  const customRenderFilter = (channels: StreamChannel[]) => {
+  const CustomRenderFilter = (channels: StreamChannel[]) => {
     const getTotalChatUnreadCount = channels
       .map((channel) => channel.countUnread())
       .reduce((total, count) => total + count, 0);
-
-    setChatsUnreadCount(getTotalChatUnreadCount);
 
     const getTotalMentionsUnreadCount = channels
       .map((channel) => channel.countUnreadMentions())
       .reduce((total, count) => total + count, 0);
 
-    setMentionsUnreadCount(getTotalMentionsUnreadCount);
+    useEffect(() => {
+      setChatsUnreadCount(getTotalChatUnreadCount);
+      setMentionsUnreadCount(getTotalMentionsUnreadCount);
+    }, [getTotalChatUnreadCount, getTotalMentionsUnreadCount]);
 
     if (isListMentions) {
       return channels.filter((channel) => {
@@ -150,7 +151,7 @@ export const ChatContainer: React.FC = () => {
           {isNewChat && <NewChatPreview />}
         </div>
         <ChannelList
-          channelRenderFilterFn={customRenderFilter}
+          channelRenderFilterFn={CustomRenderFilter}
           EmptyStateIndicator={SocialEmptyStateIndicator}
           filters={filters}
           List={SocialChannelList}
