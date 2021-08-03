@@ -21,6 +21,7 @@ import type {
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
+  UserResponse,
 } from 'stream-chat';
 
 const filters: ChannelFilters = { type: 'messaging' };
@@ -103,17 +104,24 @@ const PreviewUI: React.FC<
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
+  setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
   dmChannel?: StreamChannel;
 };
 
 export const DMChannelList: React.FC<Props> = (props) => {
-  const { dmChannel, setDmChannel } = props;
+  const { dmChannel, setParticipantProfile, setDmChannel } = props;
 
   const { searching, setSearching } = useEventContext();
 
   return (
     <>
-      {searching && <ParticipantSearch setDmChannel={setDmChannel} setSearching={setSearching} />}
+      {searching && (
+        <ParticipantSearch
+          setDmChannel={setDmChannel}
+          setParticipantProfile={setParticipantProfile}
+          setSearching={setSearching}
+        />
+      )}
       <div className='dm'>
         {dmChannel && <DMChannel dmChannel={dmChannel} setDmChannel={setDmChannel} />}
         <div className={dmChannel ? 'dm-hidden' : ''}>

@@ -13,10 +13,10 @@ import { SkeletonLoader } from './DMChannelList';
 import { SearchResult } from './SearchResult';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
-import { useEventContext } from '../../contexts/EventContext';
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
+  setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -38,10 +38,9 @@ const SearchLoading: React.FC = () => <div className='search-loading'>Loading pa
 const SearchEmpty: React.FC = () => <div className='search-empty'>No participants found</div>;
 
 export const ParticipantSearch: React.FC<Props> = (props) => {
-  const { setDmChannel, setSearching } = props;
+  const { setParticipantProfile, setSearching } = props;
 
   const { client } = useChatContext();
-  const { setChatType, setShowChannelList } = useEventContext();
 
   const [participants, setParticipants] = useState<UserResponse[]>();
   const [querying, setQuerying] = useState(false);
@@ -70,19 +69,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
   }, []); // eslint-disable-line
 
   const handleSelectResult = async (result: Channel | UserResponse) => {
-    if (!client.userID || isChannel(result)) return;
-
-    try {
-      const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
-      await newChannel.watch();
-
-      setChatType('direct');
-      setShowChannelList(true);
-      setDmChannel(newChannel);
-    } catch (err) {
-      console.log(err);
-    }
-
+    if (isChannel(result)) return;
+    setParticipantProfile(result);
     setSearching(false);
   };
 
