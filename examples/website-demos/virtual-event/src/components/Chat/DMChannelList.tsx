@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   ChannelList,
@@ -10,9 +10,11 @@ import {
 import './DMChannelList.scss';
 import { DMChannel } from './DMChannel';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { ParticipantSearch } from './ParticipantSearch';
 import { getFormattedTime } from './utils';
 
 import { ClickDMIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 import type {
   Channel as StreamChannel,
@@ -20,7 +22,6 @@ import type {
   ChannelOptions,
   ChannelSort,
 } from 'stream-chat';
-import { ParticipantSearch } from './ParticipantSearch';
 
 const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
@@ -100,9 +101,15 @@ const PreviewUI: React.FC<
   );
 };
 
-export const DMChannelList = () => {
-  const [dmChannel, setDmChannel] = useState<StreamChannel>();
-  const [searching, setSearching] = useState(false);
+type Props = {
+  setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
+  dmChannel?: StreamChannel;
+};
+
+export const DMChannelList: React.FC<Props> = (props) => {
+  const { dmChannel, setDmChannel } = props;
+
+  const { searching, setSearching } = useEventContext();
 
   return (
     <>

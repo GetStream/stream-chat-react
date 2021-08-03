@@ -13,6 +13,7 @@ import {
 import './ParticipantSearch.scss';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 import {
   AttachmentType,
   ChannelType,
@@ -79,9 +80,10 @@ const SearchEmpty: React.FC = () => <div className='search-empty'>No participant
 export const ParticipantSearch: React.FC<Props> = (props) => {
   const { setDmChannel, setSearching } = props;
 
-  const [participants, setParticipants] = useState<UserResponse[]>();
-
   const { client } = useChatContext();
+  const { setChatType, setShowChannelList } = useEventContext();
+
+  const [participants, setParticipants] = useState<UserResponse[]>();
 
   useEffect(() => {
     const getParticipants = async () => {
@@ -108,6 +110,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
       await newChannel.watch();
 
+      setChatType('direct');
+      setShowChannelList(true);
       setDmChannel(newChannel);
     } catch (err) {
       console.log(err);
@@ -138,7 +142,12 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       />
       {participants?.length &&
         participants.map((participant, i) => (
-          <SearchResultItem index={i} result={participant} selectResult={handleSelectResult} />
+          <SearchResultItem
+            index={i}
+            key={i}
+            result={participant}
+            selectResult={handleSelectResult}
+          />
         ))}
     </div>
   );
