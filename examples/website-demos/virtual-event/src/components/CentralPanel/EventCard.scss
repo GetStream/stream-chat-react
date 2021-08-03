@@ -25,6 +25,7 @@
     margin: 16px;
     flex-direction: column;
     width: 100%;
+    color: $text-high-emphasis;
 
     &-content {
       display: flex;
@@ -85,6 +86,7 @@
     background: $light-grey;
     border-radius: 999px;
     height: fit-content;
+    color: black;
 
     &.moderated {
       background: $accent-orange-low;

@@ -4,10 +4,13 @@
   &-container {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    background: $stroke;
 
     &-cards {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     &-hidden {
@@ -72,9 +75,11 @@
   }
 
   &-card {
-    border-radius: 8px;
-    width: 308px;
+    border-radius: 16px;
+    min-width: 308px;
+    max-width: 400px;
     margin: 32px;
+    background: $app-canvas;
 
     .event-card-container {
       flex-direction: column;
@@ -93,6 +98,11 @@
 
     .event-card-image {
       width: 100%;
+      height: 50%;
+
+      svg {
+        height: 100%;
+      }
     }
 
     .event-card-title {

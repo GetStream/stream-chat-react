@@ -1,6 +1,7 @@
 import './EventCard.scss';
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
+import React from 'react';
 
 type Props = {
   chatType: 'main-event' | 'room';
@@ -9,7 +10,7 @@ type Props = {
   label: string;
   presenters: number;
   title: string;
-  Image?: () => JSX.Element;
+  Image?: React.FC;
   viewers?: number;
 };
 

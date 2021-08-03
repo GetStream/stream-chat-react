@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Card1 = () => (
+export const Card1: React.FC = () => (
   <svg fill='none' viewBox='0 0 250 157'>
     <path fill='#02007B' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
     <g filter='url(#filter0_d)'>

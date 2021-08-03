@@ -10,8 +10,6 @@ import { rooms } from './rooms';
 export const RoomsList = () => {
   const { chatType } = useEventContext();
 
-  console.log({ chatType });
-
   return (
     <>
       <div className={`rooms-list-video${chatType === 'room' ? '' : '-hidden'}`}>
@@ -32,7 +30,6 @@ export const RoomsList = () => {
             return (
               <div className='rooms-list-card'>
                 <EventCard
-                  //   @ts-expect-error
                   chatType={room.chatType}
                   content={room.content}
                   eventName={room.eventName}

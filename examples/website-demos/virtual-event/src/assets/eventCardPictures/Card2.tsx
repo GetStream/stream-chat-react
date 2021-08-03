@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Card2 = () => (
+export const Card2: React.FC = () => (
   <svg fill='none' viewBox='0 0 250 157'>
     <path fill='#160F1D' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
     <path fill='#73779C' d='M125.371 78.204l20.123-11.578v23.43l-20.123 11.304V78.204z'></path>
