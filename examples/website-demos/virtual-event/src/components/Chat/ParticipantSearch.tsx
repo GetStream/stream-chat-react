@@ -11,8 +11,10 @@ import {
 } from 'stream-chat-react';
 
 import './ParticipantSearch.scss';
+import { SkeletonLoader } from './DMChannelList';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 import {
   AttachmentType,
   ChannelType,
@@ -79,12 +81,17 @@ const SearchEmpty: React.FC = () => <div className='search-empty'>No participant
 export const ParticipantSearch: React.FC<Props> = (props) => {
   const { setDmChannel, setSearching } = props;
 
-  const [participants, setParticipants] = useState<UserResponse[]>();
-
   const { client } = useChatContext();
+  const { setChatType, setShowChannelList } = useEventContext();
+
+  const [participants, setParticipants] = useState<UserResponse[]>();
+  const [querying, setQuerying] = useState(false);
 
   useEffect(() => {
     const getParticipants = async () => {
+      if (querying) return;
+      setQuerying(true);
+
       try {
         const { users } = await client.queryUsers(
           { id: { $ne: client.userID || '' } },
@@ -96,6 +103,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       } catch (err) {
         console.log(err);
       }
+
+      setQuerying(false);
     };
 
     getParticipants();
@@ -108,6 +117,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
       await newChannel.watch();
 
+      setChatType('direct');
+      setShowChannelList(true);
       setDmChannel(newChannel);
     } catch (err) {
       console.log(err);
@@ -136,10 +147,19 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         SearchLoading={SearchLoading}
         SearchResultItem={SearchResultItem}
       />
-      {participants?.length &&
+      {querying ? (
+        <SkeletonLoader />
+      ) : (
+        participants?.length &&
         participants.map((participant, i) => (
-          <SearchResultItem index={i} result={participant} selectResult={handleSelectResult} />
-        ))}
+          <SearchResultItem
+            index={i}
+            key={i}
+            result={participant}
+            selectResult={handleSelectResult}
+          />
+        ))
+      )}
     </div>
   );
 };

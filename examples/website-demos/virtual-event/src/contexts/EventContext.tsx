@@ -8,11 +8,13 @@ type TabOptions = 'overview' | 'main-event' | 'rooms';
 type EventContextValue = {
   chatType: ChatType;
   isFullScreen: boolean;
+  searching: boolean;
   selected: TabOptions;
   setChatType: React.Dispatch<React.SetStateAction<ChatType>>;
   setEventName: React.Dispatch<React.SetStateAction<string | undefined>>;
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
   setMode: React.Dispatch<React.SetStateAction<ModeOptions>>;
+  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
   setSelected: React.Dispatch<React.SetStateAction<TabOptions>>;
   setShowChannelList: React.Dispatch<React.SetStateAction<boolean>>;
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
@@ -26,6 +28,7 @@ export const EventProvider: React.FC = ({ children }) => {
   const [chatType, setChatType] = useState<ChatType>('global');
   const [eventName, setEventName] = useState<string | undefined>();
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<TabOptions>('overview');
   const [showChannelList, setShowChannelList] = useState(false);
 
@@ -35,11 +38,13 @@ export const EventProvider: React.FC = ({ children }) => {
     chatType,
     eventName,
     isFullScreen,
+    searching,
     selected,
     setChatType,
     setEventName,
     setIsFullScreen,
     setMode,
+    setSearching,
     setSelected,
     setTheme,
     showChannelList,

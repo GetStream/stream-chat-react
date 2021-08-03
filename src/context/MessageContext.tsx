@@ -105,6 +105,8 @@ export type MessageContextValue<
   customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
+  /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
+  groupedByUser?: boolean;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */
