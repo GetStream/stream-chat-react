@@ -11,6 +11,7 @@ import {
 } from 'stream-chat-react';
 
 import './ParticipantSearch.scss';
+import { SkeletonLoader } from './DMChannelList';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
@@ -84,9 +85,13 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
   const { setChatType, setShowChannelList } = useEventContext();
 
   const [participants, setParticipants] = useState<UserResponse[]>();
+  const [querying, setQuerying] = useState(false);
 
   useEffect(() => {
     const getParticipants = async () => {
+      if (querying) return;
+      setQuerying(true);
+
       try {
         const { users } = await client.queryUsers(
           { id: { $ne: client.userID || '' } },
@@ -98,6 +103,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       } catch (err) {
         console.log(err);
       }
+
+      setQuerying(false);
     };
 
     getParticipants();
@@ -140,7 +147,10 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         SearchLoading={SearchLoading}
         SearchResultItem={SearchResultItem}
       />
-      {participants?.length &&
+      {querying ? (
+        <SkeletonLoader />
+      ) : (
+        participants?.length &&
         participants.map((participant, i) => (
           <SearchResultItem
             index={i}
@@ -148,7 +158,8 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
             result={participant}
             selectResult={handleSelectResult}
           />
-        ))}
+        ))
+      )}
     </div>
   );
 };

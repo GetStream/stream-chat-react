@@ -27,7 +27,7 @@ const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
-const SkeletonLoader: React.FC = () => (
+export const SkeletonLoader: React.FC = () => (
   <ul className='dm-loading'>
     {[0, 1, 2, 3, 4].map((_, i) => (
       <li key={i}>
