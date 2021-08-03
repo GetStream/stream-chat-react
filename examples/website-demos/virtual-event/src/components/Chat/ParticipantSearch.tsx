@@ -1,29 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Channel, UserResponse } from 'stream-chat';
 import {
-  Avatar,
   ChannelSearch,
   isChannel,
   SearchInputProps,
   SearchQueryParams,
-  SearchResultItemProps,
   useChatContext,
 } from 'stream-chat-react';
 
 import './ParticipantSearch.scss';
 import { SkeletonLoader } from './DMChannelList';
+import { SearchResult } from './SearchResult';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
-import {
-  AttachmentType,
-  ChannelType,
-  CommandType,
-  EventType,
-  MessageType,
-  ReactionType,
-  UserType,
-} from '../../hooks/useInitChat';
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
@@ -40,37 +30,6 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
       <SearchIcon />
       <input onChange={onSearch} placeholder='Search' ref={inputRef} type='text' value={query} />
       <ClearSearchButton setQuery={setQuery} />
-    </div>
-  );
-};
-
-const SearchResultItem: React.FC<
-  SearchResultItemProps<
-    AttachmentType,
-    ChannelType,
-    CommandType,
-    EventType,
-    MessageType,
-    ReactionType,
-    UserType
-  >
-> = (props) => {
-  const { focusedUser, index, result, selectResult } = props;
-
-  const focused = focusedUser === index;
-
-  if (isChannel(result)) return null;
-
-  return (
-    <div
-      className={`search-result ${focused ? 'focused' : ''}`}
-      onClick={() => selectResult(result)}
-    >
-      <Avatar image={result.image} name={result.name || result.id} user={result} />
-      <div className='search-result-info'>
-        <div className='search-result-info-name'>{result.name || result.id}</div>
-        <div className='search-result-info-title'>{result.title || 'Attendee'}</div>
-      </div>
     </div>
   );
 };
@@ -145,19 +104,14 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         SearchEmpty={SearchEmpty}
         SearchInput={SearchInput}
         SearchLoading={SearchLoading}
-        SearchResultItem={SearchResultItem}
+        SearchResultItem={SearchResult}
       />
       {querying ? (
         <SkeletonLoader />
       ) : (
         participants?.length &&
         participants.map((participant, i) => (
-          <SearchResultItem
-            index={i}
-            key={i}
-            result={participant}
-            selectResult={handleSelectResult}
-          />
+          <SearchResult index={i} key={i} result={participant} selectResult={handleSelectResult} />
         ))
       )}
     </div>

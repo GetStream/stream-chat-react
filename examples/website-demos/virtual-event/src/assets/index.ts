@@ -27,4 +27,5 @@ export { SendArrow } from './SendArrow';
 export { SidebarDMButton } from './SidebarDMButton';
 export { SidebarHomeButton } from './SidebarHomeButton';
 export { SidebarQAButton } from './SidebarQAButton';
+export { UserEllipse } from './UserEllipse';
 export { VideoViewersIcon } from './VideoViewersIcon';
