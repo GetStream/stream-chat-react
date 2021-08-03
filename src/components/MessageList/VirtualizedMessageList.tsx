@@ -218,19 +218,13 @@ const VirtualizedMessageListWithContext = <
         return <MessageSystem message={message} />;
       }
 
+      const groupedByUser =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id === messageList[streamMessageIndex - 1].user?.id;
+
       return (
-        <Message
-          message={message}
-          Message={() => (
-            <MessageUIComponent
-              groupedByUser={
-                shouldGroupByUser &&
-                streamMessageIndex > 0 &&
-                message.user?.id === messageList[streamMessageIndex - 1].user?.id
-              }
-            />
-          )}
-        />
+        <Message groupedByUser={groupedByUser} message={message} Message={MessageUIComponent} />
       );
     },
     [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
