@@ -6,9 +6,15 @@ import { useEventContext } from '../../contexts/EventContext';
 import './RoomsList.scss';
 import { CalendarButton } from '../../assets/CalendarButton';
 import { rooms } from './rooms';
+import { useState } from 'react';
 
 export const RoomsList = () => {
+  const [dropdown, setDropdown] = useState(false);
   const { chatType } = useEventContext();
+
+  const calendarClick = () => {
+    setDropdown(!dropdown);
+  };
 
   return (
     <>
@@ -21,9 +27,28 @@ export const RoomsList = () => {
             <div className='rooms-list-header-title-main'>World Hacker Summit 2021</div>
             <div className='rooms-list-header-title-sub'>Stream.IO</div>
           </div>
-          <div className='rooms-list-header-calendar'>
+          <div className='rooms-list-header-calendar' onClick={calendarClick}>
             <CalendarButton />
           </div>
+          {dropdown && (
+            <div className='rooms-list-dropdown'>
+              {rooms.map((room) => {
+                return (
+                  <div className='rooms-list-card'>
+                    <EventCard
+                      chatType={room.chatType}
+                      content={room.content}
+                      eventName={room.eventName}
+                      label={room.label}
+                      presenters={room.presenters}
+                      title={room.title}
+                      viewers={room.viewers}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
         <div className='rooms-list-container-cards'>
           {rooms.map((room) => {

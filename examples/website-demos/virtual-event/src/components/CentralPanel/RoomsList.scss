@@ -27,6 +27,7 @@
     padding: 8px;
     border-bottom: 1px solid $stroke;
     box-sizing: border-box;
+    position: relative;
 
     &-title {
       display: flex;
@@ -62,6 +63,20 @@
         fill: $primary-accent;
       }
     }
+  }
+
+  &-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+    box-shadow: $shadow;
+    height: 660px;
+    width: 350px;
+    background: $stroke;
+    position: absolute;
+    right: 0px;
+    top: 56px;
   }
 
   &-video {
