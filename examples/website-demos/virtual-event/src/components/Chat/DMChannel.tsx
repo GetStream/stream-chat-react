@@ -6,15 +6,17 @@ import './DMChannel.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
 
-import { CloseX, Ellipse } from '../../assets';
+import { BlockUser, CloseX, Ellipse, MuteUser, ReportUser } from '../../assets';
 
-const DropDown = ({
-  dmChannel,
-  setOpenMenu,
-}: {
+type DropDownProps = {
+  actionsOpen: boolean;
   dmChannel: StreamChannel;
-  setOpenMenu: React.Dispatch<React.SetStateAction<boolean>>;
-}) => {
+  setActionsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const DropDown: React.FC<DropDownProps> = (props) => {
+  const { actionsOpen, dmChannel, setActionsOpen } = props;
+
   const [isChannelMuted, setIsChannelMuted] = useState(false);
 
   useEffect(() => {
@@ -22,21 +24,40 @@ const DropDown = ({
     setIsChannelMuted(muted);
   }, [dmChannel]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: Event) => {
+      if (event.target instanceof HTMLElement) {
+        const elements = document.getElementsByClassName('dropdown');
+        const actionsModal = elements.item(0);
+
+        if (!actionsModal?.contains(event.target)) {
+          setActionsOpen(false);
+        }
+      }
+    };
+
+    if (actionsOpen) document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [actionsOpen]); // eslint-disable-line
+
   const handleMute = async () => {
     isChannelMuted ? await dmChannel.unmute() : await dmChannel.mute();
-    setOpenMenu(false);
+    setActionsOpen(false);
   };
 
   return (
     <div className='dropdown'>
       <div className='dropdown-option' onClick={() => handleMute()}>
-        {isChannelMuted ? 'UnmuteUser' : 'Mute User'}
+        <div>{isChannelMuted ? 'Unmute user' : 'Mute user'}</div>
+        <MuteUser />
       </div>
-      <div className='dropdown-option' onClick={() => setOpenMenu(false)}>
-        Block User
+      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
+        <div>Block user</div>
+        <BlockUser />
       </div>
-      <div className='dropdown-option' onClick={() => setOpenMenu(false)}>
-        Report User
+      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
+        <div>Report user</div>
+        <ReportUser />
       </div>
     </div>
   );
@@ -49,29 +70,30 @@ type Props = {
 
 export const DMChannel: React.FC<Props> = (props) => {
   const { dmChannel, setDmChannel } = props;
-  const [openMenu, setOpenMenu] = useState(false);
+
+  const [actionsOpen, setActionsOpen] = useState(false);
 
   const user = dmChannel.state.membership.user?.id;
 
   const channelTitle = Object.keys(dmChannel.state.members).filter((key) => key !== user);
 
-  const handleCloseDm = () => setDmChannel(undefined);
-
   return (
     <div className='dm-channel'>
       <div className='dm-header-container'>
-        <div className='dm-header-close' onClick={handleCloseDm}>
+        <div className='dm-header-close' onClick={() => setDmChannel(undefined)}>
           <CloseX />
         </div>
         <div className='dm-header-title'>
           <div>{channelTitle}</div>
           <div className='dm-header-title-sub-title'>Direct Message</div>
         </div>
-        <div className='dm-header-actions' onClick={() => setOpenMenu(!openMenu)}>
+        <div className='dm-header-actions' onClick={() => setActionsOpen((prev) => !prev)}>
           <Ellipse />
         </div>
       </div>
-      {openMenu && <DropDown dmChannel={dmChannel} setOpenMenu={setOpenMenu} />}
+      {actionsOpen && (
+        <DropDown actionsOpen={actionsOpen} dmChannel={dmChannel} setActionsOpen={setActionsOpen} />
+      )}
       <Channel
         channel={dmChannel}
         EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}

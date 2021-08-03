@@ -140,9 +140,11 @@
         width: 125px;
         display: flex;
         align-items: center;
+        justify-content: space-between;
         color: $text-high-emphasis;
         padding: 0 16px;
         font-size: 12px;
+        box-sizing: border-box;
 
         &:hover {
           cursor: pointer;

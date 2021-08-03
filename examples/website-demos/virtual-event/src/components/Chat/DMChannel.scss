@@ -81,8 +81,6 @@
   right: 10px;
   position: absolute;
   border-radius: 8px;
-  height: 120px;
-  width: 125px;
   box-shadow: $shadow;
   background: $app-canvas;
   transition: background 1s;
@@ -90,10 +88,14 @@
 
   &-option {
     display: flex;
-    flex: 1;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     color: $text-high-emphasis;
+    height: 40px;
+    width: 125px;
+    padding: 0 16px;
+    font-size: 12px;
+    box-sizing: border-box;
   }
 
   &-option:hover {
