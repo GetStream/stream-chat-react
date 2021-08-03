@@ -1,46 +1,52 @@
 import React from 'react';
 
 export const Card2: React.FC = () => (
-  <svg fill='none' viewBox='0 0 250 157'>
-    <path fill='#160F1D' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
-    <path fill='#73779C' d='M125.371 78.204l20.123-11.578v23.43l-20.123 11.304V78.204z'></path>
-    <path fill='#8DD6F7' d='M105.247 66.626l20.124 11.58v23.154l-20.124-11.3V66.626z'></path>
+  <svg
+    xmlns='http://www.w3.org/2000/svg'
+    width='304'
+    height='162'
+    fill='none'
+    viewBox='0 0 304 162'
+  >
+    <path fill='#160F1D' d='M0 0H303.333V162H0z'></path>
+    <path fill='#73779C' d='M152.371 80.863l20.123-11.578v23.43l-20.123 11.304V80.863z'></path>
+    <path fill='#8DD6F7' d='M132.247 69.285l20.124 11.58v23.154l-20.124-11.3V69.285z'></path>
     <path
       fill='#EE5D2D'
-      d='M105.247 66.626l20.124-11.578 20.123 11.578-20.123 11.578-20.124-11.578z'
+      d='M132.247 69.285l20.124-11.578 20.123 11.578-20.123 11.578-20.124-11.578z'
     ></path>
     <g filter='url(#filter0_d)'>
       <path
         fill='#73779C'
         fillOpacity='0.75'
-        d='M125.371 78.067l40.247-23.156v46.86l-40.247 22.608V78.067z'
+        d='M152.371 80.726l40.247-23.156v46.86l-40.247 22.607V80.726z'
       ></path>
     </g>
     <path
       fill='#8DD6F7'
       fillOpacity='0.75'
-      d='M85.124 54.911L125.37 78.07v46.309l-40.247-22.601V54.911z'
+      d='M112.124 57.57l40.247 23.158v46.309l-40.247-22.6V57.57z'
     ></path>
     <path
       fill='#EE5D2D'
-      d='M85.124 54.911l40.247-23.156 40.247 23.156-40.247 23.156-40.247-23.156z'
+      d='M112.124 57.57l40.247-23.156 40.247 23.156-40.247 23.156-40.247-23.156z'
       opacity='0.75'
     ></path>
     <path
       fill='#73779C'
-      d='M125.371 77.93l60.37-34.734v70.29l-60.37 33.911V77.93z'
+      d='M152.371 80.589l60.37-34.734v70.29l-60.37 33.911V80.589z'
       opacity='0.5'
     ></path>
     <path
       fill='#8DD6F7'
       fillOpacity='0.5'
-      d='M65 43.196l60.371 34.737v69.464L65 113.497v-70.3z'
+      d='M92 45.855l60.371 34.737v69.464L92 116.155v-70.3z'
     ></path>
     <g filter='url(#filter1_b)'>
       <path
         fill='#EE5D2D'
         fillOpacity='0.4'
-        d='M65 43.197l60.371-34.734 60.37 34.734-60.37 34.734L65 43.197z'
+        d='M92 45.856l60.371-34.734 60.37 34.734-60.37 34.733L92 45.857z'
       ></path>
     </g>
     <defs>
@@ -48,8 +54,8 @@ export const Card2: React.FC = () => (
         id='filter0_d'
         width='48.247'
         height='77.467'
-        x='121.371'
-        y='54.911'
+        x='148.371'
+        y='57.57'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
@@ -69,8 +75,8 @@ export const Card2: React.FC = () => (
         id='filter1_b'
         width='128.741'
         height='77.467'
-        x='61'
-        y='4.463'
+        x='88'
+        y='7.122'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
