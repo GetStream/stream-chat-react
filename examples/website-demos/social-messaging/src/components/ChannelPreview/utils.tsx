@@ -4,17 +4,33 @@ import { Avatar } from 'stream-chat-react';
 
 export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) => {
   if (members.length === 1) {
-    return <Avatar image={members[0].user?.image as string || ''} name={members[0].user?.name || 'User'} size={56} />;
+    return (
+      <Avatar
+        image={(members[0].user?.image as string) || ''}
+        name={members[0].user?.name || 'User'}
+        size={56}
+      />
+    );
   }
 
   if (members.length === 2) {
     return (
       <div className='channel-preview-avatar-avatars two'>
         <span>
-          <Avatar image={members[0].user?.image as string || ''} name={members[0].user?.name || 'User'} shape='square' size={25} />
+          <Avatar
+            image={(members[0].user?.image as string) || ''}
+            name={members[0].user?.name || 'User'}
+            shape='square'
+            size={25}
+          />
         </span>
         <span>
-          <Avatar image={members[1].user?.image as string || ''} name={members[1].user?.name || 'User'} shape='square' size={25} />
+          <Avatar
+            image={(members[1].user?.image as string) || ''}
+            name={members[1].user?.name || 'User'}
+            shape='square'
+            size={25}
+          />
         </span>
       </div>
     );
@@ -24,11 +40,26 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
     return (
       <div className='channel-preview-avatar-avatars three'>
         <span>
-          <Avatar image={members[0].user?.image as string || ''} name={members[0].user?.name || 'User'} shape='square' size={25} />
+          <Avatar
+            image={(members[0].user?.image as string) || ''}
+            name={members[0].user?.name || 'User'}
+            shape='square'
+            size={25}
+          />
         </span>
         <span>
-          <Avatar image={members[1].user?.image as string || ''} name={members[1].user?.name || 'User'} shape='square' size={25} />
-          <Avatar image={members[2].user?.image as string || ''} name={members[2].user?.name || 'User'} shape='square' size={25} />
+          <Avatar
+            image={(members[1].user?.image as string) || ''}
+            name={members[1].user?.name || 'User'}
+            shape='square'
+            size={25}
+          />
+          <Avatar
+            image={(members[2].user?.image as string) || ''}
+            name={members[2].user?.name || 'User'}
+            shape='square'
+            size={25}
+          />
         </span>
       </div>
     );
@@ -38,12 +69,32 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
     return (
       <div className='channel-preview-avatar-avatars'>
         <span>
-          <Avatar image={members[members.length - 1].user?.image as string || ''} name={members[members.length - 1].user?.name || 'User'} shape='square' size={30} />
-          <Avatar image={members[members.length - 2].user?.image as string || ''} name={members[members.length - 2].user?.name || 'User'} shape='square' size={30} />
+          <Avatar
+            image={(members[members.length - 1].user?.image as string) || ''}
+            name={members[members.length - 1].user?.name || 'User'}
+            shape='square'
+            size={30}
+          />
+          <Avatar
+            image={(members[members.length - 2].user?.image as string) || ''}
+            name={members[members.length - 2].user?.name || 'User'}
+            shape='square'
+            size={30}
+          />
         </span>
         <span>
-          <Avatar image={members[members.length - 3].user?.image as string || ''} name={members[members.length - 3].user?.name || 'User'} shape='square' size={30} />
-          <Avatar image={members[members.length - 4].user?.image as string || ''} name={members[members.length - 4].user?.name || 'User'} shape='square' size={30} />
+          <Avatar
+            image={(members[members.length - 3].user?.image as string) || ''}
+            name={members[members.length - 3].user?.name || 'User'}
+            shape='square'
+            size={30}
+          />
+          <Avatar
+            image={(members[members.length - 4].user?.image as string) || ''}
+            name={members[members.length - 4].user?.name || 'User'}
+            shape='square'
+            size={30}
+          />
         </span>
       </div>
     );
