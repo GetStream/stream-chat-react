@@ -52,7 +52,8 @@
   }
 
   &.actions-modal {
-    border: none;
+    border-color: $overlay;
+    border-radius: 0;
   }
 
   &-components {
@@ -154,7 +155,7 @@
         align-items: center;
         color: $text-high-emphasis;
         height: 40px;
-        width: 125px;
+        width: 130px;
         padding: 0 16px;
         font-size: 12px;
         box-sizing: border-box;

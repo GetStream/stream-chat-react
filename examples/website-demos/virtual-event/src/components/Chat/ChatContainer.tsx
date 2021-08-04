@@ -63,7 +63,11 @@ export const ChatContainer: React.FC = () => {
             />
           )}
           {actionsModalOpen && userActionType && (
-            <UserActionsModal userActionType={userActionType} />
+            <UserActionsModal
+              dmChannel={dmChannel}
+              participantProfile={participantProfile}
+              userActionType={userActionType}
+            />
           )}
           <ChatHeader />
           {showChannelList ? (

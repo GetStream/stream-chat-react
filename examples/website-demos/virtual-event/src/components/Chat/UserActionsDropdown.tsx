@@ -1,30 +1,38 @@
 import React, { useEffect, useState } from 'react';
-import { Channel as StreamChannel } from 'stream-chat';
+import { useChatContext } from 'stream-chat-react';
 
 import './DMChannel.scss';
 
-import { BlockUser, MuteUser, ReportUser } from '../../assets';
+import { MuteUser, ReportUser } from '../../assets';
 import { useEventContext, UserActions } from '../../contexts/EventContext';
+
+import type { Channel, UserResponse } from 'stream-chat';
 
 type Props = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  dmChannel?: StreamChannel;
+  dmChannel?: Channel;
+  participantProfile?: UserResponse;
 };
 
 export const UserActionsDropdown: React.FC<Props> = (props) => {
-  const { dropdownOpen, dmChannel, setDropdownOpen } = props;
+  const { dropdownOpen, dmChannel, participantProfile, setDropdownOpen } = props;
 
+  const { client, mutes } = useChatContext();
   const { setActionsModalOpen, setUserActionType } = useEventContext();
 
-  const [isChannelMuted, setIsChannelMuted] = useState(false);
+  const [isUserMuted, setIsUserMuted] = useState(false);
 
   useEffect(() => {
-    if (dmChannel) {
-      const muted = dmChannel.muteStatus().muted;
-      setIsChannelMuted(muted);
+    if (mutes.length) {
+      const actionUserId =
+        participantProfile?.id ||
+        Object.keys(dmChannel?.state.members || []).filter((member) => member !== client.userID)[0];
+
+      const actionUserIsMuted = mutes.some((mute) => mute.target.id === actionUserId);
+      setIsUserMuted(actionUserIsMuted);
     }
-  }, [dmChannel]);
+  }, [mutes.length]); // eslint-disable-line
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
@@ -50,16 +58,12 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
 
   return (
     <div className='dropdown'>
-      <div className='dropdown-option' onClick={() => handleClick('mute')}>
-        <div>{isChannelMuted ? 'Unmute user' : 'Mute user'}</div>
+      <div className='dropdown-option' onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}>
+        <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
         <MuteUser />
       </div>
-      <div className='dropdown-option' onClick={() => handleClick('block')}>
-        <div>Block user</div>
-        <BlockUser />
-      </div>
       <div className='dropdown-option' onClick={() => handleClick('report')}>
-        <div>Report user</div>
+        <div>Flag user</div>
         <ReportUser />
       </div>
     </div>

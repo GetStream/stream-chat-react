@@ -57,7 +57,11 @@ export const ParticipantProfile = (props: Props<UserType>) => {
         </div>
       </div>
       {dropdownOpen && (
-        <UserActionsDropdown dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
+        <UserActionsDropdown
+          dropdownOpen={dropdownOpen}
+          participantProfile={participantProfile}
+          setDropdownOpen={setDropdownOpen}
+        />
       )}
       <div className='profile-details'>
         {image ? (
