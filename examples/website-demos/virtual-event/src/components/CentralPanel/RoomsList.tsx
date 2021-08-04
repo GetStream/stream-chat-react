@@ -1,12 +1,13 @@
-import React from 'react';
+import { useState } from 'react';
+
 import { EventCard } from './EventCard';
+import { rooms } from './rooms';
+
+import { CalendarButton } from '../../assets/CalendarButton';
 
 import { useEventContext } from '../../contexts/EventContext';
 
 import './RoomsList.scss';
-import { CalendarButton } from '../../assets/CalendarButton';
-import { rooms } from './rooms';
-import { useState } from 'react';
 
 export const RoomsList = () => {
   const [dropdown, setDropdown] = useState(false);
