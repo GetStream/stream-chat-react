@@ -23,7 +23,7 @@ export const ParticipantProfile = (props: Props<UserType>) => {
   const { client } = useChatContext();
   const { setChatType, setShowChannelList } = useEventContext();
 
-  const [actionsOpen, setActionsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { id, image, name, online, title } = participantProfile;
 
@@ -50,14 +50,14 @@ export const ParticipantProfile = (props: Props<UserType>) => {
           <CloseX />
         </div>
         <div
-          className={`profile-header-actions ${actionsOpen ? 'open' : ''}`}
-          onClick={() => setActionsOpen((prev) => !prev)}
+          className={`profile-header-actions ${dropdownOpen ? 'open' : ''}`}
+          onClick={() => setDropdownOpen((prev) => !prev)}
         >
           <Ellipse />
         </div>
       </div>
-      {actionsOpen && (
-        <UserActionsDropdown actionsOpen={actionsOpen} setActionsOpen={setActionsOpen} />
+      {dropdownOpen && (
+        <UserActionsDropdown dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
       )}
       <div className='profile-details'>
         {image ? (

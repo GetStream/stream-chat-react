@@ -51,6 +51,10 @@
     min-width: 56px;
   }
 
+  &.actions-modal {
+    border: none;
+  }
+
   &-components {
     &.full-screen {
       visibility: hidden;

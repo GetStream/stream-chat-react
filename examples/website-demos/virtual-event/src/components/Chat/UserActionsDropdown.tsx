@@ -4,15 +4,18 @@ import { Channel as StreamChannel } from 'stream-chat';
 import './DMChannel.scss';
 
 import { BlockUser, MuteUser, ReportUser } from '../../assets';
+import { useEventContext, UserActions } from '../../contexts/EventContext';
 
 type Props = {
-  actionsOpen: boolean;
-  setActionsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  dropdownOpen: boolean;
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dmChannel?: StreamChannel;
 };
 
 export const UserActionsDropdown: React.FC<Props> = (props) => {
-  const { actionsOpen, dmChannel, setActionsOpen } = props;
+  const { dropdownOpen, dmChannel, setDropdownOpen } = props;
+
+  const { setActionsModalOpen, setUserActionType } = useEventContext();
 
   const [isChannelMuted, setIsChannelMuted] = useState(false);
 
@@ -30,33 +33,32 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
         const actionsModal = elements.item(0);
 
         if (!actionsModal?.contains(event.target)) {
-          setActionsOpen(false);
+          setDropdownOpen(false);
         }
       }
     };
 
-    if (actionsOpen) document.addEventListener('click', handleClickOutside);
+    if (dropdownOpen) document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, [actionsOpen]); // eslint-disable-line
+  }, [dropdownOpen]); // eslint-disable-line
 
-  const handleMute = async () => {
-    if (dmChannel) {
-      isChannelMuted ? await dmChannel.unmute() : await dmChannel.mute();
-      setActionsOpen(false);
-    }
+  const handleClick = (action: UserActions) => {
+    setActionsModalOpen(true);
+    setDropdownOpen(false);
+    setUserActionType(action);
   };
 
   return (
     <div className='dropdown'>
-      <div className='dropdown-option' onClick={() => handleMute()}>
+      <div className='dropdown-option' onClick={() => handleClick('mute')}>
         <div>{isChannelMuted ? 'Unmute user' : 'Mute user'}</div>
         <MuteUser />
       </div>
-      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
+      <div className='dropdown-option' onClick={() => handleClick('block')}>
         <div>Block user</div>
         <BlockUser />
       </div>
-      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
+      <div className='dropdown-option' onClick={() => handleClick('report')}>
         <div>Report user</div>
         <ReportUser />
       </div>

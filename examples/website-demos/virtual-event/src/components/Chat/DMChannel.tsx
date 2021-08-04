@@ -17,7 +17,7 @@ type Props = {
 export const DMChannel: React.FC<Props> = (props) => {
   const { dmChannel, setDmChannel } = props;
 
-  const [actionsOpen, setActionsOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const user = dmChannel.state.membership.user?.id;
 
@@ -34,17 +34,17 @@ export const DMChannel: React.FC<Props> = (props) => {
           <div className='dm-header-title-sub-title'>Direct Message</div>
         </div>
         <div
-          className={`dm-header-actions ${actionsOpen ? 'open' : ''}`}
-          onClick={() => setActionsOpen((prev) => !prev)}
+          className={`dm-header-actions ${dropdownOpen ? 'open' : ''}`}
+          onClick={() => setDropdownOpen((prev) => !prev)}
         >
           <Ellipse />
         </div>
       </div>
-      {actionsOpen && (
+      {dropdownOpen && (
         <UserActionsDropdown
-          actionsOpen={actionsOpen}
+          dropdownOpen={dropdownOpen}
           dmChannel={dmChannel}
-          setActionsOpen={setActionsOpen}
+          setDropdownOpen={setDropdownOpen}
         />
       )}
       <Channel
