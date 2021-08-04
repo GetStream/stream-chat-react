@@ -116,3 +116,18 @@
         }
       }
 }
+
+.connection-error {
+    background-color: $text-low-emphasis;
+    opacity: 90%;
+    height: 28px;
+    padding: 4px 0px;
+    display: flex;
+    justify-content: center;
+
+    span {
+        font-weight: 400;
+        font-size: 17px;
+        color: $white
+    }
+}
