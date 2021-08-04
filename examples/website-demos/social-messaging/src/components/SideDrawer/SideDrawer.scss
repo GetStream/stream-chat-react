@@ -9,7 +9,6 @@
     flex-direction: column;
     left: 0px;
     border-right: 1px solid $borders;
-    color: $bars-bg;
 
     &.isSideDrawerOpen {
         visibility: unset;
@@ -23,6 +22,7 @@
         cursor: pointer;
         padding-left: 15px;
         align-items: center;
+        background-color: $bars-bg;
 
         span {
             color: $text-high-emphasis;
@@ -34,9 +34,11 @@
 
     &-theme {
         display: flex;
+        background-color: $bars-bg;
         align-items: flex-end;
         justify-content: flex-end;
         height: calc(100vh - 168px);
         padding: 15px 15px;
+        cursor: pointer;
     }
 }
