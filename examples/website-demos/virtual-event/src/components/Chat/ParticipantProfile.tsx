@@ -1,71 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Avatar, useChatContext } from 'stream-chat-react';
 
 import './ParticipantProfile.scss';
+import { UserActionsModal } from './UserActionsModal';
 
-import {
-  BlockUser,
-  CloseX,
-  Ellipse,
-  LinkedInLogo,
-  MuteUser,
-  ReportUser,
-  TwitterLogo,
-} from '../../assets';
+import { CloseX, Ellipse, LinkedInLogo, TwitterLogo } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
 
 import type { UserType } from '../../hooks/useInitChat';
-
-type DropDownProps = {
-  actionsOpen: boolean;
-  setActionsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const DropDown: React.FC<DropDownProps> = (props) => {
-  const { actionsOpen, setActionsOpen } = props;
-
-  const [isUserMuted, setIsUserMuted] = useState(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: Event) => {
-      if (event.target instanceof HTMLElement) {
-        const elements = document.getElementsByClassName('dropdown');
-        const actionsModal = elements.item(0);
-
-        if (!actionsModal?.contains(event.target)) {
-          setActionsOpen(false);
-        }
-      }
-    };
-
-    if (actionsOpen) document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [actionsOpen]); // eslint-disable-line
-
-  const handleMute = async () => {
-    setIsUserMuted((prev) => !prev);
-    setActionsOpen(false);
-  };
-
-  return (
-    <div className='dropdown'>
-      <div className='dropdown-option' onClick={() => handleMute()}>
-        <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
-        <MuteUser />
-      </div>
-      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
-        <div>Block user</div>
-        <BlockUser />
-      </div>
-      <div className='dropdown-option' onClick={() => setActionsOpen(false)}>
-        <div>Report user</div>
-        <ReportUser />
-      </div>
-    </div>
-  );
-};
 
 type Props<UserType> = {
   participantProfile: UserResponse<UserType>;
@@ -109,7 +53,9 @@ export const ParticipantProfile = (props: Props<UserType>) => {
           <Ellipse />
         </div>
       </div>
-      {actionsOpen && <DropDown actionsOpen={actionsOpen} setActionsOpen={setActionsOpen} />}
+      {actionsOpen && (
+        <UserActionsModal actionsOpen={actionsOpen} setActionsOpen={setActionsOpen} />
+      )}
       <div className='profile-details'>
         {image ? (
           <img src={image} alt={image} />
