@@ -1,30 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Channel, UserResponse } from 'stream-chat';
 import {
-  Avatar,
   ChannelSearch,
   isChannel,
   SearchInputProps,
   SearchQueryParams,
-  SearchResultItemProps,
   useChatContext,
 } from 'stream-chat-react';
 
 import './ParticipantSearch.scss';
+import { SkeletonLoader } from './DMChannelList';
+import { SearchResult } from './SearchResult';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
-import {
-  AttachmentType,
-  ChannelType,
-  CommandType,
-  EventType,
-  MessageType,
-  ReactionType,
-  UserType,
-} from '../../hooks/useInitChat';
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
+  setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -42,49 +34,22 @@ const SearchInput: React.FC<SearchInputProps> = (props) => {
   );
 };
 
-const SearchResultItem: React.FC<
-  SearchResultItemProps<
-    AttachmentType,
-    ChannelType,
-    CommandType,
-    EventType,
-    MessageType,
-    ReactionType,
-    UserType
-  >
-> = (props) => {
-  const { focusedUser, index, result, selectResult } = props;
-
-  const focused = focusedUser === index;
-
-  if (isChannel(result)) return null;
-
-  return (
-    <div
-      className={`search-result ${focused ? 'focused' : ''}`}
-      onClick={() => selectResult(result)}
-    >
-      <Avatar image={result.image} name={result.name || result.id} user={result} />
-      <div className='search-result-info'>
-        <div className='search-result-info-name'>{result.name || result.id}</div>
-        <div className='search-result-info-title'>{result.title || 'Attendee'}</div>
-      </div>
-    </div>
-  );
-};
-
 const SearchLoading: React.FC = () => <div className='search-loading'>Loading participants...</div>;
 const SearchEmpty: React.FC = () => <div className='search-empty'>No participants found</div>;
 
 export const ParticipantSearch: React.FC<Props> = (props) => {
-  const { setDmChannel, setSearching } = props;
-
-  const [participants, setParticipants] = useState<UserResponse[]>();
+  const { setParticipantProfile, setSearching } = props;
 
   const { client } = useChatContext();
 
+  const [participants, setParticipants] = useState<UserResponse[]>();
+  const [querying, setQuerying] = useState(false);
+
   useEffect(() => {
     const getParticipants = async () => {
+      if (querying) return;
+      setQuerying(true);
+
       try {
         const { users } = await client.queryUsers(
           { id: { $ne: client.userID || '' } },
@@ -96,23 +61,16 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
       } catch (err) {
         console.log(err);
       }
+
+      setQuerying(false);
     };
 
     getParticipants();
   }, []); // eslint-disable-line
 
   const handleSelectResult = async (result: Channel | UserResponse) => {
-    if (!client.userID || isChannel(result)) return;
-
-    try {
-      const newChannel = client.channel('messaging', { members: [client.userID, result.id] });
-      await newChannel.watch();
-
-      setDmChannel(newChannel);
-    } catch (err) {
-      console.log(err);
-    }
-
+    if (isChannel(result)) return;
+    setParticipantProfile(result);
     setSearching(false);
   };
 
@@ -134,12 +92,16 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         SearchEmpty={SearchEmpty}
         SearchInput={SearchInput}
         SearchLoading={SearchLoading}
-        SearchResultItem={SearchResultItem}
+        SearchResultItem={SearchResult}
       />
-      {participants?.length &&
+      {querying ? (
+        <SkeletonLoader />
+      ) : (
+        participants?.length &&
         participants.map((participant, i) => (
-          <SearchResultItem index={i} result={participant} selectResult={handleSelectResult} />
-        ))}
+          <SearchResult index={i} key={i} result={participant} selectResult={handleSelectResult} />
+        ))
+      )}
     </div>
   );
 };

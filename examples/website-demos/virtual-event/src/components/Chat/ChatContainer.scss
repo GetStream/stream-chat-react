@@ -51,6 +51,10 @@
     min-width: 56px;
   }
 
+  &.actions-modal {
+    border: none;
+  }
+
   &-components {
     &.full-screen {
       visibility: hidden;
@@ -69,6 +73,10 @@
         align-items: center;
         justify-content: space-between;
         padding: 8px;
+
+        svg:hover {
+          cursor: pointer;
+        }
       }
 
       &-tabs {
@@ -125,6 +133,37 @@
         color: $text-mid-emphasis;
         text-align: center;
         max-width: 260px;
+      }
+    }
+
+    .dropdown {
+      display: flex;
+      flex-direction: column;
+      z-index: 9999;
+      right: 10px;
+      position: absolute;
+      border-radius: 8px;
+      box-shadow: $shadow;
+      background: $app-canvas;
+      transition: background 1s;
+      overflow: hidden;
+
+      &-option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: $text-high-emphasis;
+        height: 40px;
+        width: 125px;
+        padding: 0 16px;
+        font-size: 12px;
+        box-sizing: border-box;
+      }
+
+      &-option:hover {
+        background: $primary-accent;
+        color: $text-self;
+        cursor: pointer;
       }
     }
   }

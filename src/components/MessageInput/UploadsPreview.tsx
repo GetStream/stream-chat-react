@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 
+import { useBreakpoint } from '../Message/hooks';
+
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 
@@ -50,18 +52,20 @@ export const UploadsPreview = <
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
 
+  const { device } = useBreakpoint();
+
   useEffect(() => {
     const elements = document.getElementsByClassName('str-chat__send-button');
     const sendButton = elements.item(0);
 
     if (sendButton instanceof HTMLButtonElement) {
-      if (numberOfUploads && !text) {
+      if ((numberOfUploads && !text) || device !== 'full') {
         sendButton.style.display = 'block';
       } else {
         sendButton.style.display = 'none';
       }
     }
-  }, [numberOfUploads, text]);
+  }, [device, numberOfUploads, text]);
 
   return (
     <>

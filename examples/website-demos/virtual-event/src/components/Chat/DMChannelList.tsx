@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   ChannelList,
@@ -10,23 +10,25 @@ import {
 import './DMChannelList.scss';
 import { DMChannel } from './DMChannel';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { ParticipantSearch } from './ParticipantSearch';
 import { getFormattedTime } from './utils';
 
 import { ClickDMIcon } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 import type {
   Channel as StreamChannel,
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
+  UserResponse,
 } from 'stream-chat';
-import { ParticipantSearch } from './ParticipantSearch';
 
 const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 
-const SkeletonLoader: React.FC = () => (
+export const SkeletonLoader: React.FC = () => (
   <ul className='dm-loading'>
     {[0, 1, 2, 3, 4].map((_, i) => (
       <li key={i}>
@@ -100,13 +102,26 @@ const PreviewUI: React.FC<
   );
 };
 
-export const DMChannelList = () => {
-  const [dmChannel, setDmChannel] = useState<StreamChannel>();
-  const [searching, setSearching] = useState(false);
+type Props = {
+  setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
+  setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
+  dmChannel?: StreamChannel;
+};
+
+export const DMChannelList: React.FC<Props> = (props) => {
+  const { dmChannel, setParticipantProfile, setDmChannel } = props;
+
+  const { searching, setSearching } = useEventContext();
 
   return (
     <>
-      {searching && <ParticipantSearch setDmChannel={setDmChannel} setSearching={setSearching} />}
+      {searching && (
+        <ParticipantSearch
+          setDmChannel={setDmChannel}
+          setParticipantProfile={setParticipantProfile}
+          setSearching={setSearching}
+        />
+      )}
       <div className='dm'>
         {dmChannel && <DMChannel dmChannel={dmChannel} setDmChannel={setDmChannel} />}
         <div className={dmChannel ? 'dm-hidden' : ''}>
