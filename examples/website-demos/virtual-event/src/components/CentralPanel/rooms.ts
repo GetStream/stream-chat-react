@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card1, Card2, Card4, Card5, Card6 } from '../../assets';
-import { Card7 } from '../../assets/eventCardPictures/Card7';
+import { Card1, Card2, Card4, Card5, Card6, Card7 } from '../../assets';
 
 type Room = {
   chatType: 'main-event' | 'room';
@@ -9,7 +8,7 @@ type Room = {
   label: string;
   presenters: number;
   title: string;
-  Image?: React.FC<{}>;
+  Image?: React.FC;
   viewers?: number;
 };
 

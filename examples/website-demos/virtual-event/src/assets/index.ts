@@ -1,3 +1,4 @@
+export { CalendarButton } from './CalendarButton';
 export { Card1 } from './eventCardPictures/Card1';
 export { Card2 } from './eventCardPictures/Card2';
 export { Card3 } from './eventCardPictures/Card3';

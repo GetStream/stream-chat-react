@@ -1,7 +1,7 @@
+import React from 'react';
 import './EventCard.scss';
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
-import React from 'react';
 
 type Props = {
   chatType: 'main-event' | 'room';
@@ -28,7 +28,11 @@ export const EventCard: React.FC<Props> = (props) => {
 
   return (
     <div className='event-card-container' onClick={handleClick}>
-      <div className='event-card-image'>{Image && <Image />}</div>
+      {Image && (
+        <div className='event-card-image'>
+          <Image />
+        </div>
+      )}
       <div className='event-card-content'>
         <div className='event-card-title'>
           <EventCardIcon />
