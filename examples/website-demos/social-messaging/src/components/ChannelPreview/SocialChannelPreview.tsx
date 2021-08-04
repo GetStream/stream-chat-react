@@ -33,8 +33,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
 
   const handleUnreadCounts = () => {
     if (unread) setChatsUnreadCount(chatsUnreadCount - unread);
-    if (unread && isListMentions)
-      setMentionsUnreadCount(mentionsUnreadCount - unread);
+    if (unread && isListMentions) setMentionsUnreadCount(mentionsUnreadCount - unread);
   };
 
   return (

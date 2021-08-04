@@ -94,28 +94,6 @@ export const ChatContainer: React.FC = () => {
     };
   }, []); // eslint-disable-line
 
-  const CustomRenderFilter = (channels: StreamChannel[]) => {
-    const getTotalChatUnreadCount = channels
-      .map((channel) => channel.countUnread())
-      .reduce((total, count) => total + count, 0);
-
-    const getTotalMentionsUnreadCount = channels
-      .map((channel) => channel.countUnreadMentions())
-      .reduce((total, count) => total + count, 0);
-
-    useEffect(() => {
-      setChatsUnreadCount(getTotalChatUnreadCount);
-      setMentionsUnreadCount(getTotalMentionsUnreadCount);
-    }, [getTotalChatUnreadCount, getTotalMentionsUnreadCount]);
-
-    if (isListMentions) {
-      return channels.filter((channel) => {
-        return channel.countUnreadMentions() > 0 ? channel : null;
-      });
-    }
-    return channels;
-  };
-
   useEffect(() => {
     const handlerNewMessageEvent = (event: Event) => {
       if (event.user?.id !== chatClient?.userID) {
@@ -141,6 +119,26 @@ export const ChatContainer: React.FC = () => {
     setMentionsUnreadCount,
   ]);
 
+  const customRenderFilter = (channels: StreamChannel[]) => {
+    const getTotalChatUnreadCount = channels
+      .map((channel) => channel.countUnread())
+      .reduce((total, count) => total + count, 0);
+
+    const getTotalMentionsUnreadCount = channels
+      .map((channel) => channel.countUnreadMentions())
+      .reduce((total, count) => total + count, 0);
+
+    setChatsUnreadCount(getTotalChatUnreadCount);
+    setMentionsUnreadCount(getTotalMentionsUnreadCount);
+
+    if (isListMentions) {
+      return channels.filter((channel) => {
+        return channel.countUnreadMentions() > 0 ? channel : null;
+      });
+    }
+    return channels;
+  };
+
   if (!chatClient) return null;
 
   return (
@@ -151,7 +149,7 @@ export const ChatContainer: React.FC = () => {
           {isNewChat && <NewChatPreview />}
         </div>
         <ChannelList
-          channelRenderFilterFn={CustomRenderFilter}
+          channelRenderFilterFn={customRenderFilter}
           EmptyStateIndicator={SocialEmptyStateIndicator}
           filters={filters}
           List={SocialChannelList}
