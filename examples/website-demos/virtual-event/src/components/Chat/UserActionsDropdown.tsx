@@ -11,7 +11,7 @@ type Props = {
   dmChannel?: StreamChannel;
 };
 
-export const UserActionsModal: React.FC<Props> = (props) => {
+export const UserActionsDropdown: React.FC<Props> = (props) => {
   const { actionsOpen, dmChannel, setActionsOpen } = props;
 
   const [isChannelMuted, setIsChannelMuted] = useState(false);

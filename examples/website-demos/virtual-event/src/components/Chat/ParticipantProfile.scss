@@ -50,6 +50,14 @@
       svg {
         fill: $primary-accent;
       }
+
+      &.open {
+        background: $primary-accent;
+
+        svg {
+          fill: $white;
+        }
+      }
     }
   }
 

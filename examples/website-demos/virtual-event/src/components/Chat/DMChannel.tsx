@@ -5,7 +5,7 @@ import { Channel, MessageInput, Thread, VirtualizedMessageList, Window } from 's
 import './DMChannel.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { MessageInputUI } from './MessageInputUI';
-import { UserActionsModal } from './UserActionsModal';
+import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse } from '../../assets';
 
@@ -33,12 +33,15 @@ export const DMChannel: React.FC<Props> = (props) => {
           <div>{channelTitle}</div>
           <div className='dm-header-title-sub-title'>Direct Message</div>
         </div>
-        <div className='dm-header-actions' onClick={() => setActionsOpen((prev) => !prev)}>
+        <div
+          className={`dm-header-actions ${actionsOpen ? 'open' : ''}`}
+          onClick={() => setActionsOpen((prev) => !prev)}
+        >
           <Ellipse />
         </div>
       </div>
       {actionsOpen && (
-        <UserActionsModal
+        <UserActionsDropdown
           actionsOpen={actionsOpen}
           dmChannel={dmChannel}
           setActionsOpen={setActionsOpen}

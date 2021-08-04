@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Avatar, useChatContext } from 'stream-chat-react';
 
 import './ParticipantProfile.scss';
-import { UserActionsModal } from './UserActionsModal';
+import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse, LinkedInLogo, TwitterLogo } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
@@ -49,12 +49,15 @@ export const ParticipantProfile = (props: Props<UserType>) => {
         <div className='profile-header-close' onClick={() => setParticipantProfile(undefined)}>
           <CloseX />
         </div>
-        <div className='profile-header-actions' onClick={() => setActionsOpen((prev) => !prev)}>
+        <div
+          className={`profile-header-actions ${actionsOpen ? 'open' : ''}`}
+          onClick={() => setActionsOpen((prev) => !prev)}
+        >
           <Ellipse />
         </div>
       </div>
       {actionsOpen && (
-        <UserActionsModal actionsOpen={actionsOpen} setActionsOpen={setActionsOpen} />
+        <UserActionsDropdown actionsOpen={actionsOpen} setActionsOpen={setActionsOpen} />
       )}
       <div className='profile-details'>
         {image ? (

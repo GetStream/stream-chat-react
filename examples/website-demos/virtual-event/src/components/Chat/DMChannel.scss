@@ -64,11 +64,19 @@
       width: 40px;
       border-radius: 8px;
       background: $card-background;
-      transition: background 1s;
+      transition: background 0.5s;
       cursor: pointer;
 
       svg {
         fill: $primary-accent;
+      }
+
+      &.open {
+        background: $primary-accent;
+
+        svg {
+          fill: $white;
+        }
       }
     }
   }
