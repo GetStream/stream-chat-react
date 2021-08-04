@@ -160,6 +160,8 @@ export const useSubmitHandler = <
       }
     } else {
       try {
+        dispatch({ type: 'clear' });
+
         if (overrideSubmitHandler) {
           overrideSubmitHandler(
             {
@@ -172,9 +174,19 @@ export const useSubmitHandler = <
           await sendMessage({ ...updatedMessage, parent });
         }
 
-        dispatch({ type: 'clear' });
         if (publishTypingEvent) await channel.stopTyping();
       } catch (err) {
+        dispatch({
+          getNewText: () => text,
+          type: 'setText',
+        });
+
+        if (actualMentionedUsers.length) {
+          actualMentionedUsers.forEach((user) => {
+            dispatch({ type: 'addMentionedUser', user });
+          });
+        }
+
         addNotification(t('Send message request failed'), 'error');
       }
     }
