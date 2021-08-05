@@ -1,12 +1,8 @@
-import React from 'react';
-
 import { OverviewContainer } from './OverviewContainer';
+import { RoomsList } from './RoomsList';
 import { VideoContainer } from './VideoContainer';
 
 import { useEventContext } from '../../contexts/EventContext';
-
-import './CentralPanel.scss';
-import { RoomsList } from './RoomsList';
 
 export const CentralPanel = () => {
   const { selected } = useEventContext();

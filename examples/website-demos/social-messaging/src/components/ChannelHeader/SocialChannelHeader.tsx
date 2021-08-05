@@ -14,7 +14,7 @@ export const SocialChannelHeader: React.FC = () => {
         <ArrowLeft />
         <span>New Chat</span>
       </div>
-    )
+    );
   }
 
   return (

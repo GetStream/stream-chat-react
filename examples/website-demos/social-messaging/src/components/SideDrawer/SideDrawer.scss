@@ -1,16 +1,16 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .side-drawer {
-    min-width: 418px;
-    max-width: 418px;
-    height: 100vh;
-    visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    left: 0px;
-    border-right: 1px solid $borders;
+  min-width: 418px;
+  max-width: 418px;
+  height: 100vh;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  left: 0px;
+  border-right: 1px solid $borders;
 
-    &.isSideDrawerOpen {
-        visibility: unset;
-    }
+  &.isSideDrawerOpen {
+    visibility: unset;
+  }
 }

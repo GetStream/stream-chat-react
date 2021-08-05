@@ -136,14 +136,18 @@ export const ChannelPreview = <
 
   if (!Preview) return null;
 
+  const displayImage = getDisplayImage(channel, client.user);
+  const displayTitle = getDisplayTitle(channel, client.user);
+  const latestMessage = getLatestMessagePreview(channel, t, userLanguage);
+
   return (
     <Preview
       {...props}
       active={isActive}
-      displayImage={getDisplayImage(channel, client.user)}
-      displayTitle={getDisplayTitle(channel, client.user)}
+      displayImage={displayImage}
+      displayTitle={displayTitle}
       lastMessage={lastMessage}
-      latestMessage={getLatestMessagePreview(channel, t, userLanguage)}
+      latestMessage={latestMessage}
       setActiveChannel={setActiveChannel}
       unread={unread}
     />

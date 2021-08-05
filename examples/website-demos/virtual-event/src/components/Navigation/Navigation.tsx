@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-import './Navigation.scss';
-
 import { ThemeModal } from './ThemeModal';
 
 import { MainEventButton, MainLogo, OverviewButton, RoomsButton } from '../../assets';

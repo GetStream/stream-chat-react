@@ -1,5 +1,3 @@
-import './styles/App.scss';
-
 import { ChatContainer } from './components/Chat/ChatContainer';
 import { Navigation } from './components/Navigation/Navigation';
 import { CentralPanel } from './components/CentralPanel/CentralPanel';

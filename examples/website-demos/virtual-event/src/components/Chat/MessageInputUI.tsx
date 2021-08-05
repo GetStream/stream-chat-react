@@ -4,8 +4,6 @@ import { ChatAutoComplete, EmojiPicker, useMessageInputContext } from 'stream-ch
 import { EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
-import './MessageInputUI.scss';
-
 export const MessageInputUI: React.FC = () => {
   const {
     emojiPickerRef,
