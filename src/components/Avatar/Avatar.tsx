@@ -48,7 +48,7 @@ export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
     setLoaded(false);
   }, [image]);
 
-  const initials = (name || '').charAt(0);
+  const initials = (name?.toString() || '').charAt(0);
 
   return (
     <div

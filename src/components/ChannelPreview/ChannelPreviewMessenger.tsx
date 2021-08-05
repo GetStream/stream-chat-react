@@ -42,9 +42,8 @@ const UnMemoizedChannelPreviewMessenger = <
   const activeClass = active ? 'str-chat__channel-preview-messenger--active' : '';
   const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
 
-  const avatarName = displayTitle
-    ? displayTitle
-    : channel.state.messages[channel.state.messages.length - 1]?.user?.id;
+  const avatarName =
+    displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
 
   const onSelectChannel = () => {
     if (setActiveChannel) {
