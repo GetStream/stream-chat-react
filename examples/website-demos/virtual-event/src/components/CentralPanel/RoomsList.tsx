@@ -4,16 +4,14 @@ import { EventCard } from './EventCard';
 import { rooms } from './rooms';
 
 import { CalendarButton } from '../../assets';
-
 import { useEventContext } from '../../contexts/EventContext';
 
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const { chatType } = useEventContext();
 
-  const calendarClick = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  const calendarClick = () => setDropdownOpen(!dropdownOpen);
 
   return (
     <>
