@@ -27,7 +27,7 @@ export const rooms: Room[] = [
   {
     chatType: 'room',
     content:
-      'How to set a business plans to use information to a competitive advantage and support enterprise goals.',
+      'How to set a business plan to use information to a competitive advantage and support enterprise goals.',
     eventName: 'qa',
     Image: Card2,
     label: 'Moderated',
@@ -39,12 +39,12 @@ export const rooms: Room[] = [
   {
     chatType: 'room',
     content:
-      'How to set a business plans to use information to a competitive advantage and support enterprise goals.',
-    eventName: 'qa',
+      'Learn how to combine approaches with declarative API for native management and deployment across clusters.',
+    eventName: 'git',
     Image: Card5,
     label: 'Moderated',
     presenters: 2,
-    title: 'Q&A session: Data strategy and executive communication',
+    title: 'Managing multiple clusters with GitOps and ClusterAPI',
     viewers: 86,
   },
 
