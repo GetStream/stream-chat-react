@@ -6,6 +6,7 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
+import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
@@ -83,7 +84,7 @@ export const ChatContainer: React.FC = () => {
             />
           ) : (
             currentChannel && (
-              <Channel channel={currentChannel} Input={MessageInputUI}>
+              <Channel channel={currentChannel} Input={MessageInputUI} VirtualMessage={MessageUI}>
                 <GiphyContextProvider>
                   <ChannelInner />
                 </GiphyContextProvider>
