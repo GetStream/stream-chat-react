@@ -7,6 +7,7 @@ export { ClearSearchButton } from './ClearSearchButton';
 export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';
 export { CloseX } from './CloseX';
+export { CloseSnackbar } from './CloseSnackbar';
 export { Ellipse } from './Ellipse';
 export { EmojiPickerIcon } from './EmojiPickerIcon';
 export { EmptyChatIcon } from './EmptyChatIcon';

@@ -10,6 +10,7 @@ import { DMChannelList } from './DMChannelList';
 import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
+import { Snackbar } from './Snackbar';
 import { UserActionsModal } from './UserActionsModal';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -30,6 +31,7 @@ export const ChatContainer: React.FC = () => {
 
   const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
+  const [snackbar, setSnackbar] = useState(false);
 
   const { chatClient, currentChannel } = useInitChat();
 
@@ -66,8 +68,12 @@ export const ChatContainer: React.FC = () => {
             <UserActionsModal
               dmChannel={dmChannel}
               participantProfile={participantProfile}
+              setSnackbar={setSnackbar}
               userActionType={userActionType}
             />
+          )}
+          {snackbar && userActionType && (
+            <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
           )}
           <ChatHeader />
           {showChannelList ? (

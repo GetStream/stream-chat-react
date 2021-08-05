@@ -9,13 +9,14 @@ import { useEventContext, UserActions } from '../../contexts/EventContext';
 import type { Channel, UserResponse } from 'stream-chat';
 
 type Props = {
+  setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   userActionType: UserActions;
   dmChannel?: Channel;
   participantProfile?: UserResponse;
 };
 
 export const UserActionsModal: React.FC<Props> = (props) => {
-  const { dmChannel, participantProfile, userActionType } = props;
+  const { dmChannel, participantProfile, setSnackbar, userActionType } = props;
 
   const { client } = useChatContext();
   const { setActionsModalOpen, setUserActionType } = useEventContext();
@@ -69,7 +70,9 @@ export const UserActionsModal: React.FC<Props> = (props) => {
     }
 
     setActionsModalOpen(false);
-    setUserActionType(undefined);
+    setSnackbar(true);
+    setTimeout(() => setSnackbar(false), 3000);
+    setTimeout(() => setUserActionType(undefined), 3000);
   };
 
   if (!Icon || !title || !description) return null;
