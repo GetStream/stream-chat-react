@@ -3,7 +3,7 @@ import { Avatar, isChannel, SearchResultItemProps } from 'stream-chat-react';
 
 // import { BlockUser, MuteUser, ReportUser, UserEllipse } from '../../assets';
 
-import {
+import type {
   AttachmentType,
   ChannelType,
   CommandType,

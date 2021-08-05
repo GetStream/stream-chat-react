@@ -1,0 +1,45 @@
+@import './_variables';
+
+.str-chat__virtual-list .str-chat__virtual-list-message-wrapper {
+  padding: 8px;
+}
+
+.message-ui {
+  background: $app-canvas;
+  display: flex;
+  font-size: 14px;
+  color: $text-high-emphasis;
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 4px;
+
+    &-top {
+      display: flex;
+      align-items: center;
+
+      &-name {
+        font-weight: 600;
+        margin-right: 4px;
+      }
+
+      &-title {
+        color: $primary-accent;
+        font-size: 12px;
+        margin-right: 4px;
+      }
+
+      &-time {
+        color: $text-mid-emphasis;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .str-chat__avatar {
+    margin-right: 0;
+    margin-top: 4px;
+  }
+}
