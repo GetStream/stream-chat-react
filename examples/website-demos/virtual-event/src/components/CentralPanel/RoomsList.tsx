@@ -7,8 +7,6 @@ import { CalendarButton } from '../../assets';
 
 import { useEventContext } from '../../contexts/EventContext';
 
-import './RoomsList.scss';
-
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { chatType } = useEventContext();
