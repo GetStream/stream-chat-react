@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, isChannel, SearchResultItemProps } from 'stream-chat-react';
 
-import './ParticipantSearch.scss';
-
 // import { BlockUser, MuteUser, ReportUser, UserEllipse } from '../../assets';
 
 import {

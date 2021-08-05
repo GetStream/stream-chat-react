@@ -1,11 +1,11 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .str-chat-channel.messaging .str-chat__main-panel {
   padding: 0;
 }
 
 .str-chat {
-  width: 100%
+  width: 100%;
 }
 
 .str-chat__main-panel {
@@ -14,15 +14,15 @@
 }
 
 .channel-list-container {
-    min-width: 418px;
-    max-width: 418px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: $input-bg;
-    border-bottom: $border-top;
-  
-    &.sideDrawerOpen {
-      display: none;
-    }
+  min-width: 418px;
+  max-width: 418px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $input-bg;
+  border-bottom: $border-top;
+
+  &.sideDrawerOpen {
+    display: none;
+  }
 }

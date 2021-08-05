@@ -1,4 +1,3 @@
-import './EventCard.scss';
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 

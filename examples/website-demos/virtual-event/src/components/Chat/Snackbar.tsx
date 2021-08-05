@@ -1,7 +1,5 @@
 import React from 'react';
 
-import './UserActionsModal.scss';
-
 import { CloseSnackbar, MuteUser, ReportUser } from '../../assets';
 import { UserActions } from '../../contexts/EventContext';
 

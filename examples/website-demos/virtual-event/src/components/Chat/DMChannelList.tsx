@@ -7,7 +7,6 @@ import {
   useChatContext,
 } from 'stream-chat-react';
 
-import './DMChannelList.scss';
 import { DMChannel } from './DMChannel';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { ParticipantSearch } from './ParticipantSearch';

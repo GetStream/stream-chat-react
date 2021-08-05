@@ -5,8 +5,6 @@ import { VideoContainer } from './VideoContainer';
 
 import { useEventContext } from '../../contexts/EventContext';
 
-import './CentralPanel.scss';
-
 export const CentralPanel = () => {
   const { selected } = useEventContext();
 

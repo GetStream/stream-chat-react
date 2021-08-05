@@ -1,21 +1,21 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .new-chat {
-    height: 100%;
-    width: 100vw;
-    background: $app-bg;
+  height: 100%;
+  width: 100vw;
+  background: $app-bg;
 }
 
 .new-chat-preview {
-    display: flex;
-    align-items: center;
-    padding: 8px 5px;
-    background-color: $borders;
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  background-color: $borders;
 
-    max-height: 72px;
-    border-bottom: 1px solid $app-bg;
+  max-height: 72px;
+  border-bottom: 1px solid $app-bg;
 
-    &-avatar {
-        padding-right: 5px;
-    }
+  &-avatar {
+    padding-right: 5px;
+  }
 }

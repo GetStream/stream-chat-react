@@ -10,8 +10,6 @@ import {
   Symantec,
 } from '../../assets/companyLogos';
 
-import './OverviewContainer.scss';
-
 const eventText = (
   <div>
     <p>Welcome to the inaugural World Hacker Summit!</p>

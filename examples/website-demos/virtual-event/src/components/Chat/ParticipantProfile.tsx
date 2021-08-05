@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Avatar, useChatContext } from 'stream-chat-react';
 
-import './ParticipantProfile.scss';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse, LinkedInLogo, TwitterLogo } from '../../assets';

@@ -8,7 +8,6 @@ import {
   useChatContext,
 } from 'stream-chat-react';
 
-import './ParticipantSearch.scss';
 import { SkeletonLoader } from './DMChannelList';
 import { SearchResult } from './SearchResult';
 

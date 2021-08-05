@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useChatContext } from 'stream-chat-react';
 
-import './DMChannel.scss';
-
 import { MuteUser, ReportUser } from '../../assets';
 import { useEventContext, UserActions } from '../../contexts/EventContext';
 

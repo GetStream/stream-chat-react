@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Chat, Channel, CustomStyles } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
-import './ChatContainer.scss';
 import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
