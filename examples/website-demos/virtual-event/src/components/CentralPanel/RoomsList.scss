@@ -1,0 +1,127 @@
+@import '../../styles/variables';
+
+.rooms-list {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: $stroke;
+
+    &-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-header {
+    display: flex;
+    background: $app-canvas;
+    transition: background 1s;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid $stroke;
+    box-sizing: border-box;
+    position: relative;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &-main {
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-high-emphasis;
+      }
+
+      &-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: $text-mid-emphasis;
+        margin-left: 8px;
+      }
+    }
+
+    &-calendar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+  }
+
+  &-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+    box-shadow: $shadow;
+    height: 660px;
+    width: 350px;
+    background: $stroke;
+    position: absolute;
+    right: 0px;
+    top: 56px;
+  }
+
+  &-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-card {
+    border-radius: 16px;
+    min-width: 308px;
+    max-width: 400px;
+    margin: 32px;
+    background: $app-canvas;
+
+    .event-card-container {
+      flex-direction: column;
+      margin: unset;
+      height: 100%;
+    }
+
+    .event-card-content {
+      width: unset;
+      height: 100%;
+
+      &-content {
+        margin-bottom: 16px;
+      }
+    }
+
+    .event-card-image {
+      width: 100%;
+
+      svg {
+        height: auto;
+        width: 100%;
+      }
+    }
+
+    .event-card-title {
+      margin-bottom: 16px;
+    }
+  }
+}
