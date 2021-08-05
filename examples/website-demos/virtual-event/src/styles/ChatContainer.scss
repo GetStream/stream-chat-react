@@ -24,7 +24,7 @@
   width: 320px;
   min-width: 320px;
   background: $app-canvas;
-  transition: all 0.5s;
+  transition: all 0.5s, background 1s;
   border: 1px solid $stroke;
 
   &-sidebar {

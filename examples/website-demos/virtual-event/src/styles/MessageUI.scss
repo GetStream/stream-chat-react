@@ -9,6 +9,7 @@
   display: flex;
   font-size: 14px;
   color: $text-high-emphasis;
+  transition: all 1s;
 
   &-content {
     display: flex;
@@ -48,6 +49,7 @@
     border-radius: 16px;
     margin-top: 4px;
     max-width: 250px;
+    border-color: $stroke;
   }
 
   .str-chat__message-attachment--giphy {
