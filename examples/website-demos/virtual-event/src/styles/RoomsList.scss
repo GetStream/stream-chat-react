@@ -6,6 +6,7 @@
     flex-direction: column;
     height: 100%;
     background: $stroke;
+    overflow: scroll;
 
     &-cards {
       display: flex;
@@ -72,11 +73,16 @@
     overflow: scroll;
     box-shadow: $shadow;
     height: 660px;
-    width: 350px;
+    width: 280px;
     background: $stroke;
     position: absolute;
     right: 0px;
     top: 56px;
+    border-radius: 2px;
+
+    .rooms-list-card {
+      margin: 16px;
+    }
   }
 
   &-video {
@@ -91,9 +97,8 @@
 
   &-card {
     border-radius: 16px;
-    min-width: 308px;
-    max-width: 400px;
-    margin: 32px;
+    width: 220px;
+    margin: 16px;
     background: $app-canvas;
 
     .event-card-container {
@@ -117,6 +122,14 @@
       svg {
         height: auto;
         width: 100%;
+      }
+    }
+
+    .event-card-viewers-right {
+      margin-left: 8px;
+
+      &-count {
+        margin-left: 4px;
       }
     }
 

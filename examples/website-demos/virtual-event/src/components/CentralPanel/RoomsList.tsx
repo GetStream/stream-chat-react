@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { EventCard } from './EventCard';
 import { rooms } from './rooms';
@@ -10,6 +10,26 @@ import { useEventContext } from '../../contexts/EventContext';
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { chatType } = useEventContext();
+
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (event: MouseEvent) => {
+      if (
+        dropdownOpen &&
+        dropdownRef.current &&
+        event.target instanceof Element &&
+        !dropdownRef.current?.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside);
+    };
+  }, [dropdownOpen]);
 
   const calendarClick = () => {
     setDropdownOpen(!dropdownOpen);
@@ -30,7 +50,7 @@ export const RoomsList = () => {
             <CalendarButton />
           </div>
           {dropdownOpen && (
-            <div className='rooms-list-dropdown'>
+            <div className='rooms-list-dropdown' ref={dropdownRef}>
               {rooms.map((room) => (
                 <div className='rooms-list-card'>
                   <EventCard
