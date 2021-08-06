@@ -11,7 +11,7 @@
     &-cards {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-evenly;
     }
 
     &-hidden {
@@ -97,7 +97,7 @@
 
   &-card {
     border-radius: 16px;
-    width: 220px;
+    width: 200px;
     margin: 16px;
     background: $app-canvas;
 
@@ -107,12 +107,21 @@
       height: 100%;
     }
 
+    .event-card-title {
+      margin-bottom: 8px;
+      flex: unset;
+
+      svg {
+        width: 18px;
+      }
+    }
+
     .event-card-content {
       width: unset;
       height: 100%;
-
+      margin: 10px;
       &-content {
-        margin-bottom: 16px;
+        margin-bottom: 8px;
       }
     }
 
@@ -125,16 +134,26 @@
       }
     }
 
-    .event-card-viewers-right {
-      margin-left: 8px;
+    .event-card-viewers {
+      &-right {
+        margin-left: 8px;
 
-      &-count {
-        margin-left: 4px;
+        &-count {
+          margin-left: 4px;
+        }
+      }
+
+      &-left {
+        &-count {
+          margin-left: 4px;
+        }
       }
     }
 
-    .event-card-title {
-      margin-bottom: 16px;
+    .event-card-label {
+      height: 16px;
+      padding: 4px 6px;
+      margin-left: 4px;
     }
   }
 }
