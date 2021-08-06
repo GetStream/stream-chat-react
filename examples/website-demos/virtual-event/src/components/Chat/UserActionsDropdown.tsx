@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useChatContext } from 'stream-chat-react';
+import { ReactEventHandler, useChatContext } from 'stream-chat-react';
 
-import { MuteUser, ReportUser } from '../../assets';
+import { MuteUser, ReportUser, StartThread } from '../../assets';
 import { useEventContext, UserActions } from '../../contexts/EventContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -10,11 +10,20 @@ type Props = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   dmChannel?: Channel;
+  openThread?: ReactEventHandler;
   participantProfile?: UserResponse;
+  thread?: boolean;
 };
 
 export const UserActionsDropdown: React.FC<Props> = (props) => {
-  const { dropdownOpen, dmChannel, participantProfile, setDropdownOpen } = props;
+  const {
+    dropdownOpen,
+    dmChannel,
+    openThread,
+    participantProfile,
+    setDropdownOpen,
+    thread,
+  } = props;
 
   const { client, mutes } = useChatContext();
   const { setActionsModalOpen, setUserActionType } = useEventContext();
@@ -56,6 +65,12 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
 
   return (
     <div className='dropdown'>
+      {thread && openThread && (
+        <div className='dropdown-option thread' onClick={openThread}>
+          <div>Start thread</div>
+          <StartThread />
+        </div>
+      )}
       <div className='dropdown-option' onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}>
         <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
         <MuteUser />
