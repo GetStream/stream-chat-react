@@ -46,6 +46,11 @@
       position: absolute;
       margin-top: 4px;
       right: -8px;
+
+      &.recent {
+        margin-top: 0;
+        bottom: 145px;
+      }
     }
   }
 

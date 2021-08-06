@@ -4,7 +4,8 @@ import {
   Avatar,
   isDate,
   MessageUIComponentProps,
-  ReactEventHandler,
+  ReactionSelector,
+  useChannelStateContext,
   useMessageContext,
 } from 'stream-chat-react';
 
@@ -22,29 +23,33 @@ import type {
   ReactionType,
   UserType,
 } from '../../hooks/useInitChat';
+import { useEffect } from 'react';
 
 type OptionsProps = {
-  openThread: ReactEventHandler;
+  isRecentMessage: boolean;
+  setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const { openThread } = props;
+  const { isRecentMessage, setShowReactionSelector } = props;
+
+  const { handleOpenThread } = useMessageContext();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <div className='message-ui-options'>
-      <span>
+      <span onClick={() => setShowReactionSelector((prev) => !prev)}>
         <ReactionSmiley />
       </span>
       <span onClick={() => setDropdownOpen(!dropdownOpen)}>
         <MessageActionsEllipse />
       </span>
       {dropdownOpen && (
-        <div className='message-ui-options-dropdown'>
+        <div className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''}`}>
           <UserActionsDropdown
             dropdownOpen={dropdownOpen}
-            openThread={openThread}
+            openThread={handleOpenThread}
             setDropdownOpen={setDropdownOpen}
             thread
           />
@@ -65,7 +70,8 @@ export const MessageUI: React.FC<
     UserType
   >
 > = () => {
-  const { handleOpenThread, message } = useMessageContext<
+  const { messages } = useChannelStateContext();
+  const { message } = useMessageContext<
     AttachmentType,
     ChannelType,
     CommandType,
@@ -76,6 +82,19 @@ export const MessageUI: React.FC<
   >();
 
   const [showOptions, setShowOptions] = useState(false);
+  const [showReactionSelector, setShowReactionSelector] = useState(false);
+
+  useEffect(() => {
+    const handleClick = () => setShowReactionSelector(false);
+    if (showReactionSelector) document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [showReactionSelector]);
+
+  const isRecentMessage =
+    messages?.[messages.length - 1].id === message.id ||
+    messages?.[messages.length - 2].id === message.id;
+
+  const showTitle = message.user?.title === 'Admin' || message.user?.title === 'Moderator';
 
   const getTimeSinceMessage = () => {
     if (!message.created_at) return null;
@@ -87,17 +106,24 @@ export const MessageUI: React.FC<
     return getFormattedTime(secondsSinceLastMessage);
   };
 
-  const showTitle = message.user?.title === 'Admin' || message.user?.title === 'Moderator';
-
   if (!message.user) return null;
 
   return (
     <div
       className='message-ui'
       onMouseEnter={() => setShowOptions(true)}
-      onMouseLeave={() => setShowOptions(false)}
+      onMouseLeave={() => {
+        setShowOptions(false);
+        setShowReactionSelector(false);
+      }}
     >
-      {showOptions && <MessageOptions openThread={handleOpenThread} />}
+      {showOptions && (
+        <MessageOptions
+          isRecentMessage={isRecentMessage}
+          setShowReactionSelector={setShowReactionSelector}
+        />
+      )}
+      {showReactionSelector && <ReactionSelector />}
       <Avatar image={message.user.image} name={message.user.name || message.user.id} />
       <div className='message-ui-content'>
         <div className='message-ui-content-top'>

@@ -49,8 +49,8 @@ export const RoomsList = () => {
           </div>
           {dropdownOpen && (
             <div className='rooms-list-dropdown' ref={dropdownRef}>
-              {rooms.map((room) => (
-                <div className='rooms-list-card'>
+              {rooms.map((room, i) => (
+                <div className='rooms-list-card' key={i}>
                   <EventCard
                     chatType={room.chatType}
                     content={room.content}
@@ -66,8 +66,8 @@ export const RoomsList = () => {
           )}
         </div>
         <div className='rooms-list-container-cards'>
-          {rooms.map((room) => (
-            <div className='rooms-list-card'>
+          {rooms.map((room, i) => (
+            <div className='rooms-list-card' key={i}>
               <EventCard
                 chatType={room.chatType}
                 content={room.content}
