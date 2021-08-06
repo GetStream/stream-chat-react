@@ -29,6 +29,11 @@
     align-content: center;
     justify-content: center;
 
+    > div:first-child {
+      border: none;
+      box-shadow: 0 0 0 4px $accent-green;
+    }
+
     &-participant {
       //   background-image: url('../assets/participant01.jpg');
       display: flex;
@@ -52,6 +57,9 @@
         &-name {
           color: $white;
           margin-right: 12px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
       }
 
@@ -64,6 +72,40 @@
         border-radius: 6px;
         margin: 2px;
       }
+    }
+  }
+}
+
+.pinned {
+  background: blue;
+  order: -1;
+  width: 100% !important;
+  height: 400px !important;
+
+  .room-video-grid-participant {
+    &-connection {
+      display: flex !important;
+    }
+
+    &-info {
+      width: unset !important;
+    }
+  }
+}
+
+.isPinned {
+  > div {
+    width: 140px;
+    height: 100px;
+  }
+
+  .room-video-grid-participant {
+    &-connection {
+      display: none;
+    }
+
+    &-info {
+      width: 80%;
     }
   }
 }
