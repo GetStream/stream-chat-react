@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Attachment,
   Avatar,
   isDate,
   MessageUIComponentProps,
+  ReactEventHandler,
   useMessageContext,
 } from 'stream-chat-react';
 
+import { UserActionsDropdown } from './UserActionsDropdown';
 import { getFormattedTime } from './utils';
+
+import { MessageActionsEllipse, ReactionSmiley } from '../../assets';
 
 import type {
   AttachmentType,
@@ -18,6 +22,37 @@ import type {
   ReactionType,
   UserType,
 } from '../../hooks/useInitChat';
+
+type OptionsProps = {
+  openThread: ReactEventHandler;
+};
+
+const MessageOptions: React.FC<OptionsProps> = (props) => {
+  const { openThread } = props;
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  return (
+    <div className='message-ui-options'>
+      <span>
+        <ReactionSmiley />
+      </span>
+      <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+        <MessageActionsEllipse />
+      </span>
+      {dropdownOpen && (
+        <div className='message-ui-options-dropdown'>
+          <UserActionsDropdown
+            dropdownOpen={dropdownOpen}
+            openThread={openThread}
+            setDropdownOpen={setDropdownOpen}
+            thread
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const MessageUI: React.FC<
   MessageUIComponentProps<
@@ -30,7 +65,7 @@ export const MessageUI: React.FC<
     UserType
   >
 > = () => {
-  const { message } = useMessageContext<
+  const { handleOpenThread, message } = useMessageContext<
     AttachmentType,
     ChannelType,
     CommandType,
@@ -39,6 +74,8 @@ export const MessageUI: React.FC<
     ReactionType,
     UserType
   >();
+
+  const [showOptions, setShowOptions] = useState(false);
 
   const getTimeSinceMessage = () => {
     if (!message.created_at) return null;
@@ -55,7 +92,12 @@ export const MessageUI: React.FC<
   if (!message.user) return null;
 
   return (
-    <div className='message-ui'>
+    <div
+      className='message-ui'
+      onMouseEnter={() => setShowOptions(true)}
+      onMouseLeave={() => setShowOptions(false)}
+    >
+      {showOptions && <MessageOptions openThread={handleOpenThread} />}
       <Avatar image={message.user.image} name={message.user.name || message.user.id} />
       <div className='message-ui-content'>
         <div className='message-ui-content-top'>

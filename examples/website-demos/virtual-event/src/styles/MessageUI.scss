@@ -1,15 +1,53 @@
 @import './_variables';
 
 .str-chat__virtual-list .str-chat__virtual-list-message-wrapper {
-  padding: 8px;
+  background: $app-canvas;
+  transition: background 1s;
+  padding: 0px;
+
+  &:hover {
+    background: $card-background;
+    transition: background 0s;
+  }
+
+  &:not(:hover) {
+    transition: background 0s;
+  }
 }
 
 .message-ui {
-  background: $app-canvas;
+  position: relative;
   display: flex;
   font-size: 14px;
   color: $text-high-emphasis;
-  transition: all 1s;
+  padding: 8px;
+
+  &-options {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+
+    span:first-child {
+      margin-right: 8px;
+    }
+
+    svg {
+      &:hover {
+        cursor: pointer;
+
+        path {
+          transition: fill 0.2s;
+          fill: $primary-accent;
+        }
+      }
+    }
+
+    &-dropdown {
+      position: absolute;
+      margin-top: 4px;
+      right: -8px;
+    }
+  }
 
   &-content {
     display: flex;
