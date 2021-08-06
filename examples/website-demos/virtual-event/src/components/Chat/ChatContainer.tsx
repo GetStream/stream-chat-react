@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Chat, Channel, CustomStyles } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/index.css';
 
-import './ChatContainer.scss';
 import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
+import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
+import { Snackbar } from './Snackbar';
 import { UserActionsModal } from './UserActionsModal';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -30,6 +31,7 @@ export const ChatContainer: React.FC = () => {
 
   const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
+  const [snackbar, setSnackbar] = useState(false);
 
   const { chatClient, currentChannel } = useInitChat();
 
@@ -63,7 +65,15 @@ export const ChatContainer: React.FC = () => {
             />
           )}
           {actionsModalOpen && userActionType && (
-            <UserActionsModal userActionType={userActionType} />
+            <UserActionsModal
+              dmChannel={dmChannel}
+              participantProfile={participantProfile}
+              setSnackbar={setSnackbar}
+              userActionType={userActionType}
+            />
+          )}
+          {snackbar && userActionType && (
+            <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
           )}
           <ChatHeader />
           {showChannelList ? (
@@ -74,7 +84,7 @@ export const ChatContainer: React.FC = () => {
             />
           ) : (
             currentChannel && (
-              <Channel channel={currentChannel} Input={MessageInputUI}>
+              <Channel channel={currentChannel} Input={MessageInputUI} VirtualMessage={MessageUI}>
                 <GiphyContextProvider>
                   <ChannelInner />
                 </GiphyContextProvider>

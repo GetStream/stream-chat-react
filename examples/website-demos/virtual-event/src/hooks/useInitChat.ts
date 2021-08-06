@@ -57,7 +57,7 @@ export const useInitChat = () => {
           id: userId,
           name: userId,
           image: process.env.REACT_APP_USER_IMAGE,
-          title: getRandomTitle(),
+          title: userId === 'daddy-dan' ? 'Admin' : getRandomTitle(),
         },
         userToken,
       );

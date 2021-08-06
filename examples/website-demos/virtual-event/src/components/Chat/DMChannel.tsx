@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Channel as StreamChannel } from 'stream-chat';
 import { Channel, MessageInput, Thread, VirtualizedMessageList, Window } from 'stream-chat-react';
 
-import './DMChannel.scss';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
+import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
@@ -51,6 +51,7 @@ export const DMChannel: React.FC<Props> = (props) => {
         channel={dmChannel}
         EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}
         Input={MessageInputUI}
+        VirtualMessage={MessageUI}
       >
         <Window hideOnThread>
           <VirtualizedMessageList hideDeletedMessages />

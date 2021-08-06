@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .event-card {
   &-container {
@@ -14,15 +14,12 @@
     }
   }
 
-  &-image {
-    width: 250px;
-  }
-
   &-content {
     display: flex;
     margin: 16px;
     flex-direction: column;
     width: 100%;
+    color: $text-high-emphasis;
 
     &-content {
       display: flex;
@@ -35,6 +32,10 @@
     display: flex;
     flex: 1;
 
+    svg {
+      overflow: visible;
+    }
+
     &-text {
       font-weight: bold;
       margin: 0 8px;
@@ -45,6 +46,9 @@
     display: flex;
     flex: 1;
     justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    max-height: 32px;
   }
 
   &-viewers {
@@ -76,6 +80,7 @@
     background: $light-grey;
     border-radius: 999px;
     height: fit-content;
+    color: $black;
 
     &.moderated {
       background: $accent-orange-low;

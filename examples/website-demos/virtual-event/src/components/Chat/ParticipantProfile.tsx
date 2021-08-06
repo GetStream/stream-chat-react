@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Avatar, useChatContext } from 'stream-chat-react';
 
-import './ParticipantProfile.scss';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse, LinkedInLogo, TwitterLogo } from '../../assets';
@@ -57,7 +56,11 @@ export const ParticipantProfile = (props: Props<UserType>) => {
         </div>
       </div>
       {dropdownOpen && (
-        <UserActionsDropdown dropdownOpen={dropdownOpen} setDropdownOpen={setDropdownOpen} />
+        <UserActionsDropdown
+          dropdownOpen={dropdownOpen}
+          participantProfile={participantProfile}
+          setDropdownOpen={setDropdownOpen}
+        />
       )}
       <div className='profile-details'>
         {image ? (

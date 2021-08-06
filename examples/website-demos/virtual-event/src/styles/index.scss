@@ -1,5 +1,21 @@
 @import url('https://fonts.googleapis.com/css?family=Inter');
 
+@import './App.scss';
+@import './ChatContainer.scss';
+@import './CentralPanel.scss';
+@import './DMChannel.scss';
+@import './DMChannelList.scss';
+@import './EventCard.scss';
+@import './MessageUI.scss';
+@import './MessageInputUI.scss';
+@import './Navigation.scss';
+@import './OverviewContainer.scss';
+@import './ParticipantProfile.scss';
+@import './ParticipantSearch.scss';
+@import './RoomsList.scss';
+@import './UserActionsModal.scss';
+@import './VideoContainer.scss';
+
 body {
   margin: 0;
   font-family: 'Inter', 'Helvetica Neue', sans-serif;

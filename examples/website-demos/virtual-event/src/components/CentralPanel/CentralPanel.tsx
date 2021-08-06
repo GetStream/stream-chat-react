@@ -1,11 +1,8 @@
-import React from 'react';
-
 import { OverviewContainer } from './OverviewContainer';
+import { RoomsList } from './RoomsList';
 import { VideoContainer } from './VideoContainer';
 
 import { useEventContext } from '../../contexts/EventContext';
-
-import './CentralPanel.scss';
 
 export const CentralPanel = () => {
   const { selected } = useEventContext();
@@ -20,7 +17,7 @@ export const CentralPanel = () => {
     case 'rooms':
       return (
         <div className='central-panel-container'>
-          <h1>Rooms</h1>
+          <RoomsList />
         </div>
       );
     case 'overview':

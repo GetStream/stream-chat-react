@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .dm {
   &-channel {
@@ -17,6 +17,7 @@
       transition: background 1s;
       align-items: center;
       justify-content: space-between;
+      width: 100%;
       padding: 8px;
       border: 1px solid $stroke;
       max-height: 56px;

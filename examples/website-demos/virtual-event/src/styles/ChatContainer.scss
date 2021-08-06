@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@import './_variables';
 
 .str-chat {
   height: calc(100vh - 114px); // height of ChatHeader component
@@ -24,7 +24,7 @@
   width: 320px;
   min-width: 320px;
   background: $app-canvas;
-  transition: all 0.5s;
+  transition: all 0.5s, background 1s;
   border: 1px solid $stroke;
 
   &-sidebar {
@@ -52,7 +52,8 @@
   }
 
   &.actions-modal {
-    border: none;
+    border-color: $overlay;
+    border-radius: 0;
   }
 
   &-components {
@@ -154,7 +155,7 @@
         align-items: center;
         color: $text-high-emphasis;
         height: 40px;
-        width: 125px;
+        width: 130px;
         padding: 0 16px;
         font-size: 12px;
         box-sizing: border-box;
@@ -164,6 +165,50 @@
         background: $primary-accent;
         color: $text-self;
         cursor: pointer;
+      }
+    }
+
+    .snackbar {
+      @keyframes fade {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        20%,
+        80% {
+          opacity: 1;
+        }
+      }
+
+      z-index: 10;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      align-items: center;
+      background: $app-canvas;
+      border-radius: 16px;
+      height: 56px;
+      width: 304px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      filter: drop-shadow($shadow);
+      animation: fade 3s linear;
+
+      div {
+        color: $text-high-emphasis;
+        font-size: 14px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+
+      :last-child {
+        position: absolute;
+        right: 20px;
+
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }

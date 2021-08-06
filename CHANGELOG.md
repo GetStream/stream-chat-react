@@ -1,5 +1,27 @@
 # Changelog
 
+## [6.4.11](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.11) 2021-08-06
+
+### Chore
+
+- Upgrade `react-virtuoso` for tall last message edge case [#1102](https://github.com/GetStream/stream-chat-react/pull/1102)
+- Upgrade `stream-chat` and example app dependencies  [#1103](https://github.com/GetStream/stream-chat-react/pull/1103)
+
+## [6.4.10](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.10) 2021-08-05
+
+### Feature
+
+- Clear message input text prior to successful message response and revert to original text if request fails [#1097](https://github.com/GetStream/stream-chat-react/pull/1097)
+
+### Chore
+
+- Update Japanese and Korean translations [#1091](https://github.com/GetStream/stream-chat-react/pull/1091) and [#1099](https://github.com/GetStream/stream-chat-react/pull/1099)
+- Prevent `Avatar` component from being able to render its name as a number  [#1097](https://github.com/GetStream/stream-chat-react/pull/1097)
+
+### Bug
+
+- Fix logic to show input send button on breakpoint change to mobile/tablet views [#1095](https://github.com/GetStream/stream-chat-react/pull/1095)
+
 ## [6.4.9](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.9) 2021-08-02
 
 ### Feature

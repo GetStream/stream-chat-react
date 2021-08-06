@@ -3,11 +3,15 @@ export const getFormattedTime = (time: number) => {
   if (time < 60) return 'Less than 1 min';
   if (time < 120) return '1 min';
   if (time < 3600) return `${Math.floor(time / 60)} mins`;
+  if (time < 7200) return '1 hour';
   if (time < 86400) return `${Math.floor(time / 3600)} hours`;
+  if (time < 172800) return '1 day';
   return `${Math.floor(time / 86400)} days`;
 };
 
 const randomTitles = [
+  'Admin',
+  'Moderator',
   'Speaker',
   'Software Engineer',
   'Frontend Developer',
