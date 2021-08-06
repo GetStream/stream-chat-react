@@ -49,7 +49,7 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "1.9.6",
+    "react-virtuoso": "^1.10.4",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
