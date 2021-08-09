@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import {
   Attachment,
   Avatar,
   isDate,
   MessageUIComponentProps,
-  ReactionSelector,
   useChannelStateContext,
+  useEmojiContext,
   useMessageContext,
 } from 'stream-chat-react';
 
@@ -23,7 +23,6 @@ import type {
   ReactionType,
   UserType,
 } from '../../hooks/useInitChat';
-import { useEffect } from 'react';
 
 type OptionsProps = {
   isRecentMessage: boolean;
@@ -59,6 +58,22 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
   );
 };
 
+const ReactionSelector: React.FC = () => {
+  const { Emoji, emojiConfig } = useEmojiContext();
+
+  const customReactionIds = ['heart', '+1', '-1', 'laughing', 'angry'];
+
+  return (
+    <div className='message-ui-reaction-selector'>
+      {customReactionIds.map((reaction, i) => (
+        <Suspense fallback={null} key={i}>
+          <Emoji data={emojiConfig.emojiData} emoji={reaction} size={24} />
+        </Suspense>
+      ))}
+    </div>
+  );
+};
+
 export const MessageUI: React.FC<
   MessageUIComponentProps<
     AttachmentType,
@@ -85,7 +100,11 @@ export const MessageUI: React.FC<
   const [showReactionSelector, setShowReactionSelector] = useState(false);
 
   useEffect(() => {
-    const handleClick = () => setShowReactionSelector(false);
+    const handleClick = () => {
+      setShowOptions(false);
+      setShowReactionSelector(false);
+    };
+
     if (showReactionSelector) document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, [showReactionSelector]);

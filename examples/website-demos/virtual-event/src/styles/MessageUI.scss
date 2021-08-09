@@ -54,6 +54,35 @@
     }
   }
 
+  &-reaction-selector {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 40px;
+    width: 216px;
+    background: $app-canvas;
+    border-radius: 20px;
+    filter: drop-shadow(0px 0px 8px rgba(0, 0, 0, 0.15));
+    right: 8px;
+    top: -40px;
+    z-index: 1;
+
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      width: 36px;
+
+      &:hover {
+        cursor: pointer;
+        background: $stroke;
+        border-radius: 20px;
+      }
+    }
+  }
+
   &-content {
     display: flex;
     flex-direction: column;
