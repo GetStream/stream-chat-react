@@ -4,7 +4,7 @@
   &-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: calc(100% - 57px);
     background: $stroke;
     overflow: scroll;
 
@@ -70,6 +70,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100%;
 
     &-hidden {
       display: none;
