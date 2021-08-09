@@ -14,6 +14,7 @@ import { UserActionsDropdown } from './UserActionsDropdown';
 import { customReactions, getFormattedTime } from './utils';
 
 import { MessageActionsEllipse, ReactionSmiley } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 import type {
   AttachmentType,
@@ -88,6 +89,7 @@ export const MessageUI: React.FC<
   >
 > = () => {
   const { messages } = useChannelStateContext();
+  const { themeModalOpen } = useEventContext();
   const { message } = useMessageContext<
     AttachmentType,
     ChannelType,
@@ -131,7 +133,7 @@ export const MessageUI: React.FC<
 
   return (
     <div
-      className='message-ui'
+      className={`message-ui ${themeModalOpen ? 'theme-open' : ''}`}
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={clearModals}
     >

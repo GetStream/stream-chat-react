@@ -16,23 +16,17 @@ type EventContextValue = {
   setActionsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setEventName: React.Dispatch<React.SetStateAction<string | undefined>>;
   setIsFullScreen: React.Dispatch<React.SetStateAction<boolean>>;
-  setLabel: React.Dispatch<React.SetStateAction<string | undefined>>;
   setMode: React.Dispatch<React.SetStateAction<ModeOptions>>;
-  setPresenters: React.Dispatch<React.SetStateAction<number | undefined>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
   setSelected: React.Dispatch<React.SetStateAction<TabOptions>>;
   setShowChannelList: React.Dispatch<React.SetStateAction<boolean>>;
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
-  setTitle: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setThemeModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
-  setViewers: React.Dispatch<React.SetStateAction<number | undefined>>;
   showChannelList: boolean;
+  themeModalOpen: boolean;
   eventName?: string;
-  label?: string;
-  presenters?: number;
-  title?: string;
   userActionType?: UserActions;
-  viewers?: number;
 };
 
 const EventContext = React.createContext({} as EventContextValue);
@@ -42,14 +36,11 @@ export const EventProvider: React.FC = ({ children }) => {
   const [chatType, setChatType] = useState<ChatType>('global');
   const [eventName, setEventName] = useState<string | undefined>();
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [label, setLabel] = useState<string | undefined>();
-  const [presenters, setPresenters] = useState<number | undefined>();
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<TabOptions>('overview');
   const [showChannelList, setShowChannelList] = useState(false);
-  const [title, setTitle] = useState<string | undefined>();
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userActionType, setUserActionType] = useState<UserActions>();
-  const [viewers, setViewers] = useState<number | undefined>();
 
   const { setMode, setTheme } = useTheme();
 
@@ -57,29 +48,23 @@ export const EventProvider: React.FC = ({ children }) => {
     actionsModalOpen,
     chatType,
     eventName,
-    label,
     isFullScreen,
-    presenters,
     searching,
     selected,
     setActionsModalOpen,
     setChatType,
     setEventName,
     setIsFullScreen,
-    setLabel,
     setMode,
     setSearching,
     setSelected,
     setTheme,
     showChannelList,
-    setPresenters,
     setShowChannelList,
-    setTitle,
+    setThemeModalOpen,
     setUserActionType,
-    setViewers,
-    title,
+    themeModalOpen,
     userActionType,
-    viewers,
   };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;
