@@ -32,6 +32,18 @@ import 'stream-chat-react/dist/css/index.css';
 import './App.css';
 ```
 
+## Importing scss Files
+
+As an alternative to importing our entire style sheet (perhaps, due to it's size), there's also the option to easily assemble only what you need by importing individual scss files. The imports should happen in the file where you instantiate your application.
+
+Here's a complete [list of scss files](https://unpkg.com/browse/stream-chat-react@6.4.7/dist/scss/) broken down by size and with the
+option of filtering by SDK version.
+
+:::note
+If not importing our entire bundled CSS, individually importing the SDK's scss files is the better alternative to copy and pasting our stylesheets and then customizing that code in your application.
+The CSS in the library does change occasionally, and you want to keep up to date with these to ensure no problems arise by falling behind in important styling updates.
+:::
+
 ## Theming Your App
 
 To make more sweeping stylistic changes to the default CSS, the library exposes a variety of
