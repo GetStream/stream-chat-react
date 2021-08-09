@@ -61,12 +61,10 @@ export const CustomEmojiPicker = () => {
   const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
 
   return (
-    <div className='message-ui-reaction-selector'>
-      {customReactions.map((reaction, i) => (
+    <div className='wrapper'>
+      {customEmojis.map((emoji) => (
         <Suspense fallback={null} key={i}>
-          <div onClick={() => handleReaction(reaction)}>
-            <Emoji data={emojiConfig.emojiData} emoji={reaction} size={24} />
-          </div>
+          <Emoji onClick={onSelectEmoji} emoji={emoji} size={40} data={emojiData} />
         </Suspense>
       ))}
     </div>
