@@ -1,6 +1,6 @@
 import { BaseSyntheticEvent, useState } from 'react';
 
-import { useEventContext } from '../../contexts/EventContext';
+import { useVideoContext } from '../../contexts/VideoContext';
 
 import {
   BackArrow,
@@ -27,7 +27,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
   const [isPinned, setIsPinned] = useState(false);
   const [pinnedID, setPinnedID] = useState(null);
 
-  const { label, presenters, title, viewers } = useEventContext();
+  const { label, presenters, title, viewers } = useVideoContext();
 
   const handleClick = (event: BaseSyntheticEvent) => {
     if (!isPinned) {
@@ -60,7 +60,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           <div>{presenters}</div>
           <VideoViewersIcon />
           <div>{viewers}</div>
-          <div className='event-card-label'>{label}</div>
+          <div className={`event-card-label ${label?.toLowerCase()}`}>{label}</div>
         </div>
       </div>
       <div className={`room-video-grid ${isPinned ? 'isPinned' : ''}`}>
