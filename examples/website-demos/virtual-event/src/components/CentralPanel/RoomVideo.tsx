@@ -19,10 +19,11 @@ import part4 from '../../assets/participant04.jpg';
 import part5 from '../../assets/participant05.jpg';
 import part6 from '../../assets/participant06.jpg';
 
-//@ts-expect-error
-export const RoomVideo = (props) => {
-  const { handleBackArrow } = props;
+type Props = {
+  handleBackArrow: (event: BaseSyntheticEvent) => void;
+};
 
+export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
   const [isPinned, setIsPinned] = useState(false);
   const [pinnedID, setPinnedID] = useState(null);
 
