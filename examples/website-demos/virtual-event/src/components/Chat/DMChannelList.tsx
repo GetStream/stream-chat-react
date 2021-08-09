@@ -23,7 +23,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
-const filters: ChannelFilters = { type: 'messaging' };
+const filters: ChannelFilters = { type: 'messaging', demo: 'virtual-event' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1 };
 

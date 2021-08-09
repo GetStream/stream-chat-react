@@ -6,11 +6,12 @@
     flex-direction: column;
     height: 100%;
     background: $stroke;
+    overflow: scroll;
 
     &-cards {
       display: flex;
       flex-wrap: wrap;
-      justify-content: center;
+      justify-content: space-evenly;
     }
 
     &-hidden {
@@ -65,20 +66,6 @@
     }
   }
 
-  &-dropdown {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: scroll;
-    box-shadow: $shadow;
-    height: 660px;
-    width: 350px;
-    background: $stroke;
-    position: absolute;
-    right: 0px;
-    top: 56px;
-  }
-
   &-video {
     display: flex;
     align-items: center;
@@ -91,9 +78,8 @@
 
   &-card {
     border-radius: 16px;
-    min-width: 308px;
-    max-width: 400px;
-    margin: 32px;
+    width: 200px;
+    margin: 16px 0;
     background: $app-canvas;
 
     .event-card-container {
@@ -102,12 +88,21 @@
       height: 100%;
     }
 
+    .event-card-title {
+      margin-bottom: 8px;
+      flex: unset;
+
+      svg {
+        width: 18px;
+      }
+    }
+
     .event-card-content {
       width: unset;
       height: 100%;
-
+      margin: 10px;
       &-content {
-        margin-bottom: 16px;
+        margin-bottom: 8px;
       }
     }
 
@@ -120,7 +115,46 @@
       }
     }
 
-    .event-card-title {
+    .event-card-viewers {
+      &-right {
+        margin-left: 8px;
+
+        &-count {
+          margin-left: 4px;
+        }
+      }
+
+      &-left {
+        &-count {
+          margin-left: 4px;
+        }
+      }
+    }
+
+    .event-card-label {
+      height: 16px;
+      padding: 4px 6px;
+      margin-left: 4px;
+    }
+  }
+
+  &-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+    box-shadow: $shadow;
+    height: 660px;
+    width: 280px;
+    background: $stroke;
+    position: absolute;
+    right: 0px;
+    top: 56px;
+    border-radius: 2px;
+    padding-top: 16px;
+
+    .rooms-list-card {
+      margin: 0;
       margin-bottom: 16px;
     }
   }

@@ -30,7 +30,11 @@ export const ParticipantProfile = (props: Props<UserType>) => {
     if (!client.userID) return;
 
     try {
-      const newChannel = client.channel('messaging', { members: [client.userID, id] });
+      const newChannel = client.channel('messaging', {
+        demo: 'virtual-event',
+        members: [client.userID, id],
+      });
+
       await newChannel.watch();
 
       setChatType('direct');

@@ -140,7 +140,7 @@
     .dropdown {
       display: flex;
       flex-direction: column;
-      z-index: 9999;
+      z-index: 3;
       right: 10px;
       position: absolute;
       border-radius: 8px;
@@ -159,6 +159,14 @@
         padding: 0 16px;
         font-size: 12px;
         box-sizing: border-box;
+
+        &.thread {
+          &:hover {
+            svg path {
+              fill: $text-self;
+            }
+          }
+        }
       }
 
       &-option:hover {

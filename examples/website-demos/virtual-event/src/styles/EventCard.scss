@@ -24,7 +24,7 @@
     &-content {
       display: flex;
       flex: 1;
-      font-size: 14px;
+      font-size: 12px;
     }
   }
 
@@ -37,6 +37,7 @@
     }
 
     &-text {
+      font-size: 14px;
       font-weight: bold;
       margin: 0 8px;
     }
@@ -53,6 +54,7 @@
 
   &-viewers {
     display: flex;
+    font-size: 12px;
 
     &-left {
       display: flex;
@@ -67,6 +69,7 @@
       display: flex;
       align-items: center;
       margin-left: 16px;
+
       &-count {
         margin-left: 8px;
       }
@@ -81,6 +84,7 @@
     border-radius: 999px;
     height: fit-content;
     color: $black;
+    font-size: 12px;
 
     &.moderated {
       background: $accent-orange-low;
