@@ -46,6 +46,10 @@ loaded into the component library.
 To construct our component, we will utilize the `EmojiContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for the
 `data` prop on the `Emoji` component. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker.
 
+:::note
+The `Emoji` component needs to be wrapped in React's `Suspense` component because it is lazy loaded.
+:::
+
 This is what our final code will look like:
 
 ```tsx
@@ -57,9 +61,13 @@ export const CustomEmojiPicker = () => {
   const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
 
   return (
-    <div className='wrapper'>
-      {customEmojis.map((emoji) => (
-        <Emoji onClick={onSelectEmoji} emoji={emoji} size={40} data={emojiData} />
+    <div className='message-ui-reaction-selector'>
+      {customReactions.map((reaction, i) => (
+        <Suspense fallback={null} key={i}>
+          <div onClick={() => handleReaction(reaction)}>
+            <Emoji data={emojiConfig.emojiData} emoji={reaction} size={24} />
+          </div>
+        </Suspense>
       ))}
     </div>
   );
