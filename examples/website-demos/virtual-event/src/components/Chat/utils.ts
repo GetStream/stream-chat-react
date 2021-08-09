@@ -1,3 +1,5 @@
+import type { BaseEmoji } from 'emoji-mart';
+
 export const getFormattedTime = (time: number) => {
   if (!time) return '';
   if (time < 60) return 'Less than 1 min';
@@ -8,6 +10,54 @@ export const getFormattedTime = (time: number) => {
   if (time < 172800) return '1 day';
   return `${Math.floor(time / 86400)} days`;
 };
+
+export const customReactions: BaseEmoji[] = [
+  {
+    colons: ':heart:',
+    emoticons: ['<3'],
+    id: 'heart',
+    name: 'Heavy Black Heart',
+    native: '❤️',
+    skin: null,
+    unified: '2764-fe0f',
+  },
+  {
+    colons: ':+1:',
+    emoticons: [],
+    id: '+1',
+    name: 'Thumbs Up Sign',
+    native: '👍',
+    skin: null,
+    unified: '1f44d',
+  },
+  {
+    colons: ':-1:',
+    emoticons: [],
+    id: '-1',
+    name: 'Thumbs Down Sign',
+    native: '👎',
+    skin: null,
+    unified: '1f44e',
+  },
+  {
+    colons: ':laughing:',
+    emoticons: [':>', ':->'],
+    id: 'laughing',
+    name: 'Smiling Face with Open Mouth and Tightly-Closed Eyes',
+    native: '😆',
+    skin: null,
+    unified: '1f606',
+  },
+  {
+    colons: ':angry:',
+    emoticons: ['>:(', '>:-('],
+    id: 'angry',
+    name: 'Angry Face',
+    native: '😠',
+    skin: null,
+    unified: '1f620',
+  },
+];
 
 const randomTitles = [
   'Admin',

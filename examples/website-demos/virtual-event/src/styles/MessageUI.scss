@@ -137,4 +137,21 @@
       font-size: 8px;
     }
   }
+
+  .str-chat__simple-reactions-list {
+    border-radius: 99px;
+    border-color: $stroke;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 1px 12px 0px;
+    margin-top: 4px;
+
+    .emoji-mart-emoji {
+      span {
+        height: 16px !important;
+        width: 16px !important;
+      }
+    }
+  }
 }
