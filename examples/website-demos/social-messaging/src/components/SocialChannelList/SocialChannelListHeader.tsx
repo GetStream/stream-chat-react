@@ -2,8 +2,7 @@ import React from 'react';
 
 import { LoadingIndicator } from 'stream-chat-react';
 
-import { HamburgerIcon } from '../../assets/HamburgerIcon';
-import { NewChat } from '../../assets/NewChat';
+import { HamburgerIcon, NewChat } from '../../assets';
 
 import './SocialChannelList.scss';
 

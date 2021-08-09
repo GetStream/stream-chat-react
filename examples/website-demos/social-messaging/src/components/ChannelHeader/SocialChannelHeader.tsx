@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ArrowLeft } from '../../assets/ArrowLeft';
+import { ArrowLeft } from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelHeader.scss';
