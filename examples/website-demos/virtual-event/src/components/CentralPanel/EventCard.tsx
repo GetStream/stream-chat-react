@@ -17,7 +17,6 @@ export const EventCard: React.FC<Props> = (props) => {
   const { chatType, content, eventName, Image, label, presenters, title, viewers } = props;
 
   const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
-
   const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
