@@ -10,9 +10,5 @@ body {
 }
 
 .str-chat-channel-list {
-  height: 100%;
-}
-
-.str-chat-channel {
-  height: 100%;
+  overflow: scroll;
 }
