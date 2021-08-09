@@ -47,6 +47,7 @@
       display: flex;
       align-items: center;
       width: 15%;
+      min-width: 150px;
 
       &-icon {
         display: flex;
@@ -183,7 +184,7 @@
       align-items: center;
 
       img {
-        max-width: 120px;
+        max-width: 80px;
       }
     }
   }

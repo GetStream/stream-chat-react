@@ -1,19 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { EventCard } from './EventCard';
 import { rooms } from './rooms';
 
 import { CalendarButton } from '../../assets';
-
 import { useEventContext } from '../../contexts/EventContext';
 
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const { chatType } = useEventContext();
 
-  const calendarClick = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (event: MouseEvent) => {
+      if (
+        dropdownOpen &&
+        dropdownRef.current &&
+        event.target instanceof Element &&
+        !dropdownRef.current?.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside);
+    };
+  }, [dropdownOpen]);
+
+  const calendarClick = () => setDropdownOpen(!dropdownOpen);
 
   return (
     <>
@@ -30,9 +48,9 @@ export const RoomsList = () => {
             <CalendarButton />
           </div>
           {dropdownOpen && (
-            <div className='rooms-list-dropdown'>
-              {rooms.map((room) => (
-                <div className='rooms-list-card'>
+            <div className='rooms-list-dropdown' ref={dropdownRef}>
+              {rooms.map((room, i) => (
+                <div className='rooms-list-card' key={i}>
                   <EventCard
                     chatType={room.chatType}
                     content={room.content}
@@ -48,8 +66,8 @@ export const RoomsList = () => {
           )}
         </div>
         <div className='rooms-list-container-cards'>
-          {rooms.map((room) => (
-            <div className='rooms-list-card'>
+          {rooms.map((room, i) => (
+            <div className='rooms-list-card' key={i}>
               <EventCard
                 chatType={room.chatType}
                 content={room.content}

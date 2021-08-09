@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.4.11](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.11) 2021-08-06
+
+### Chore
+
+- Upgrade `react-virtuoso` for tall last message edge case [#1102](https://github.com/GetStream/stream-chat-react/pull/1102)
+- Upgrade `stream-chat` and example app dependencies  [#1103](https://github.com/GetStream/stream-chat-react/pull/1103)
+
 ## [6.4.10](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.10) 2021-08-05
 
 ### Feature
