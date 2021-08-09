@@ -1,6 +1,16 @@
 import { BaseSyntheticEvent, useState } from 'react';
 
-import { ConnectionStatus, Listening, Muted, Speaking } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
+
+import {
+  BackArrow,
+  ConnectionStatus,
+  Listening,
+  Muted,
+  ParticipantsIcon,
+  Speaking,
+  VideoViewersIcon,
+} from '../../assets';
 
 import part1 from '../../assets/participant01.jpg';
 import part2 from '../../assets/participant02.jpg';
@@ -9,9 +19,14 @@ import part4 from '../../assets/participant04.jpg';
 import part5 from '../../assets/participant05.jpg';
 import part6 from '../../assets/participant06.jpg';
 
-export const RoomVideo = () => {
+//@ts-expect-error
+export const RoomVideo = (props) => {
+  const { handleBackArrow } = props;
+
   const [isPinned, setIsPinned] = useState(false);
   const [pinnedID, setPinnedID] = useState(null);
+
+  const { label, presenters, title, viewers } = useEventContext();
 
   const handleClick = (event: BaseSyntheticEvent) => {
     if (!isPinned) {
@@ -28,11 +43,25 @@ export const RoomVideo = () => {
     }
   };
 
-  console.log(pinnedID === '1');
-
   return (
     <div className='room-video-container'>
-      <div className='room-video-header'>Data strategy and executive communication</div>
+      <div className='room-video-header'>
+        <div className='room-video-header-title'>
+          <div className='room-video-header-title-arrow' onClick={handleBackArrow}>
+            <BackArrow />
+          </div>
+          <div className='room-video-header-title-title'>{title}</div>
+          <div className='room-video-header-title-dot'></div>
+          <div className='room-video-header-title-recording'>Recording</div>
+        </div>
+        <div className='room-video-header-title-right'>
+          <ParticipantsIcon />
+          <div>{presenters}</div>
+          <VideoViewersIcon />
+          <div>{viewers}</div>
+          <div className='event-card-label'>{label}</div>
+        </div>
+      </div>
       <div className={`room-video-grid ${isPinned ? 'isPinned' : ''}`}>
         <div
           className={`room-video-grid-participant ${pinnedID === '1' ? 'pinned' : ''}`}

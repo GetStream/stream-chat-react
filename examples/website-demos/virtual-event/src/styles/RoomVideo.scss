@@ -1,10 +1,4 @@
 @import './_variables';
-// @import '../assets/participant01.jpg';
-// @import '../assets/participant02.jpg';
-// @import '../assets/participant04.jpg';
-// @import '../assets/participant05.jpg';
-// @import '../assets/participant06.jpg';
-// @import '../assets/participant07.jpg';
 
 .room-video {
   &-container {
@@ -16,9 +10,51 @@
   }
 
   &-header {
-    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
     height: 46px;
+    padding: 0 20px;
     color: $white;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      max-width: 50%;
+
+      &-arrow {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      &-title {
+        margin-left: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      &-recording {
+        font-size: 12px;
+        margin-left: 4px;
+      }
+
+      &-dot {
+        width: 6px;
+        height: 6px;
+        margin-left: 10px;
+        background: $accent-red;
+        border-radius: 999px;
+      }
+
+      &-right {
+        display: flex;
+        align-items: center;
+        width: 200px;
+        justify-content: space-evenly;
+      }
+    }
   }
 
   &-grid {
@@ -35,7 +71,6 @@
     }
 
     &-participant {
-      //   background-image: url('../assets/participant01.jpg');
       display: flex;
       justify-content: space-between;
       width: 340px;
@@ -43,7 +78,7 @@
       border-radius: 8px;
       border: 1px solid white;
       margin: 4px;
-      //   background: cornsilk;
+      cursor: pointer;
 
       &-info {
         display: flex;

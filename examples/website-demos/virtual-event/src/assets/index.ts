@@ -1,4 +1,5 @@
 export { CalendarButton } from './CalendarButton';
+export { BackArrow } from './BackArrow';
 export { BlockUser } from './BlockUser';
 export { Card1 } from './eventCardPictures/Card1';
 export { Card2 } from './eventCardPictures/Card2';

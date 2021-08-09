@@ -15,13 +15,26 @@ type Props = {
 export const EventCard: React.FC<Props> = (props) => {
   const { chatType, content, eventName, Image, label, presenters, title, viewers } = props;
 
-  const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
+  const {
+    setChatType,
+    setEventName,
+    setLabel,
+    setPresenters,
+    setSelected,
+    setShowChannelList,
+    setTitle,
+    setViewers,
+  } = useEventContext();
 
   const handleClick = () => {
-    setEventName(eventName);
     setChatType(chatType);
+    setEventName(eventName);
+    setLabel(label);
+    setPresenters(presenters);
     setShowChannelList(false);
     setSelected(chatType === 'main-event' ? 'main-event' : 'rooms');
+    setTitle(title);
+    setViewers(viewers);
   };
 
   return (
