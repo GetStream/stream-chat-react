@@ -1,18 +1,8 @@
 @import './_variables';
 
 .str-chat__virtual-list .str-chat__virtual-list-message-wrapper {
-  background: $app-canvas;
-  transition: background 1s;
+  background: unset;
   padding: 0px;
-
-  &:hover {
-    background: $card-background;
-    transition: background 0s;
-  }
-
-  &:not(:hover) {
-    transition: background 0s;
-  }
 }
 
 .message-ui {
@@ -21,6 +11,16 @@
   font-size: 14px;
   color: $text-high-emphasis;
   padding: 8px;
+  background: $app-canvas;
+  transition: background 0s;
+
+  &:hover {
+    background: $card-background;
+  }
+
+  &.theme-open {
+    transition: background 1s;
+  }
 
   &-options {
     position: absolute;
@@ -152,6 +152,11 @@
         height: 16px !important;
         width: 16px !important;
       }
+    }
+
+    .str-chat__simple-reactions-list-item--last-number {
+      color: $text-high-emphasis;
+      font-size: 12px;
     }
   }
 }

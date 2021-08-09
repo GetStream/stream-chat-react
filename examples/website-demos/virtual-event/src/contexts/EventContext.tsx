@@ -21,8 +21,10 @@ type EventContextValue = {
   setSelected: React.Dispatch<React.SetStateAction<TabOptions>>;
   setShowChannelList: React.Dispatch<React.SetStateAction<boolean>>;
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
+  setThemeModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
   showChannelList: boolean;
+  themeModalOpen: boolean;
   eventName?: string;
   userActionType?: UserActions;
 };
@@ -37,6 +39,7 @@ export const EventProvider: React.FC = ({ children }) => {
   const [searching, setSearching] = useState(false);
   const [selected, setSelected] = useState<TabOptions>('overview');
   const [showChannelList, setShowChannelList] = useState(false);
+  const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userActionType, setUserActionType] = useState<UserActions>();
 
   const { setMode, setTheme } = useTheme();
@@ -58,7 +61,9 @@ export const EventProvider: React.FC = ({ children }) => {
     setTheme,
     showChannelList,
     setShowChannelList,
+    setThemeModalOpen,
     setUserActionType,
+    themeModalOpen,
     userActionType,
   };
 
