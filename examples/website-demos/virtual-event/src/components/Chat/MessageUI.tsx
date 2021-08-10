@@ -152,7 +152,7 @@ export const MessageUI: React.FC<
           <div className='message-ui-content-top-time'>{getTimeSinceMessage()}</div>
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
-        {message.attachments && <Attachment attachments={message.attachments} />}
+        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
     </div>
