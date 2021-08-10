@@ -28,13 +28,14 @@ import type {
 
 type OptionsProps = {
   isRecentMessage: boolean;
+  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const { isRecentMessage, setShowReactionSelector } = props;
+  const { isRecentMessage, setMessageActionUser, setShowReactionSelector } = props;
 
-  const { handleOpenThread } = useMessageContext();
+  const { handleOpenThread, message } = useMessageContext();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -52,7 +53,9 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
             dropdownOpen={dropdownOpen}
             openThread={handleOpenThread}
             setDropdownOpen={setDropdownOpen}
+            setMessageActionUser={setMessageActionUser}
             thread
+            user={message.user}
           />
         </div>
       )}
@@ -86,8 +89,10 @@ export const MessageUI: React.FC<
     MessageType,
     ReactionType,
     UserType
-  >
-> = () => {
+  > & { setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>> }
+> = (props) => {
+  const { setMessageActionUser } = props;
+
   const { messages } = useChannelStateContext();
   const { themeModalOpen } = useEventContext();
   const { message } = useMessageContext<
@@ -140,6 +145,7 @@ export const MessageUI: React.FC<
       {showOptions && (
         <MessageOptions
           isRecentMessage={isRecentMessage}
+          setMessageActionUser={setMessageActionUser}
           setShowReactionSelector={setShowReactionSelector}
         />
       )}

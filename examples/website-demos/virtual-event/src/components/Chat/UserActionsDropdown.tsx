@@ -12,7 +12,9 @@ type Props = {
   dmChannel?: Channel;
   openThread?: ReactEventHandler;
   participantProfile?: UserResponse;
+  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   thread?: boolean;
+  user?: UserResponse | null;
 };
 
 export const UserActionsDropdown: React.FC<Props> = (props) => {
@@ -22,7 +24,9 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
     openThread,
     participantProfile,
     setDropdownOpen,
+    setMessageActionUser,
     thread,
+    user,
   } = props;
 
   const { client, mutes } = useChatContext();
@@ -34,6 +38,7 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
     if (mutes.length) {
       const actionUserId =
         participantProfile?.id ||
+        user?.id ||
         Object.keys(dmChannel?.state.members || []).filter((member) => member !== client.userID)[0];
 
       const actionUserIsMuted = mutes.some((mute) => mute.target.id === actionUserId);
@@ -58,10 +63,13 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
   }, [dropdownOpen]); // eslint-disable-line
 
   const handleClick = (action: UserActions) => {
+    if (user) setMessageActionUser?.(user.id);
     setActionsModalOpen(true);
     setDropdownOpen(false);
     setUserActionType(action);
   };
+
+  const isOwnUser = client.userID === participantProfile?.id || client.userID === user?.id;
 
   return (
     <div className='dropdown'>
@@ -71,14 +79,21 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
           <StartThread />
         </div>
       )}
-      <div className='dropdown-option' onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}>
-        <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
-        <MuteUser />
-      </div>
-      <div className='dropdown-option' onClick={() => handleClick('report')}>
-        <div>Flag user</div>
-        <ReportUser />
-      </div>
+      {!isOwnUser && (
+        <>
+          <div
+            className='dropdown-option'
+            onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}
+          >
+            <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
+            <MuteUser />
+          </div>
+          <div className='dropdown-option' onClick={() => handleClick('report')}>
+            <div>Flag user</div>
+            <ReportUser />
+          </div>
+        </>
+      )}
     </div>
   );
 };
