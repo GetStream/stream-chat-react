@@ -27,7 +27,13 @@ export const EventCard: React.FC<Props> = (props) => {
     viewers,
   } = props;
 
-  const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
+  const {
+    setChatType,
+    setEventName,
+    setSelected,
+    setShowChannelList,
+    setVideoOpen,
+  } = useEventContext();
   const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
@@ -40,6 +46,7 @@ export const EventCard: React.FC<Props> = (props) => {
     setShowChannelList(false);
     setSelected(chatType === 'main-event' ? 'main-event' : 'rooms');
     setTitle(title);
+    setVideoOpen(true);
     setViewers(viewers);
   };
 

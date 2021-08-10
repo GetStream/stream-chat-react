@@ -10,7 +10,7 @@ import { useEventContext } from '../../contexts/EventContext';
 export const EventsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { chatType, setChatType, setEventName } = useEventContext();
+  const { setChatType, setEventName, setVideoOpen, videoOpen } = useEventContext();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,12 +35,14 @@ export const EventsList = () => {
   const handleBackArrow = (event: BaseSyntheticEvent) => {
     setChatType('global');
     setEventName(undefined);
+    setVideoOpen(false);
   };
 
   const calendarClick = (event: BaseSyntheticEvent) => {
     event.stopPropagation();
     setDropdownOpen((prev) => !prev);
   };
+
   const currentEvents = [mainEvents[0], mainEvents[1]];
   const upcomingEvents = [mainEvents[2], mainEvents[3]];
 
@@ -86,7 +88,7 @@ export const EventsList = () => {
           </div>
         )}
       </div>
-      <div className={`events-list-video${chatType === 'main-event' ? '' : '-hidden'}`}>
+      <div className={`events-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
       </div>
       <div className='events-list-container'>
