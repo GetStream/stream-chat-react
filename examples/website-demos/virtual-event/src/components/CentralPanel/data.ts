@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card1, Card2, Card4, Card5, Card6, Card7 } from '../../assets';
 
-type Room = {
+type Event = {
   chatType: 'main-event' | 'room';
   content: string;
   eventName: string;
@@ -12,7 +12,7 @@ type Room = {
   viewers?: number;
 };
 
-export const rooms: Room[] = [
+export const rooms: Event[] = [
   {
     chatType: 'room',
     content:
@@ -35,7 +35,6 @@ export const rooms: Room[] = [
     title: 'Q&A session: Data strategy and executive communication',
     viewers: 150,
   },
-
   {
     chatType: 'room',
     content:
@@ -47,10 +46,9 @@ export const rooms: Room[] = [
     title: 'Managing multiple clusters with GitOps and ClusterAPI',
     viewers: 86,
   },
-
   {
     chatType: 'room',
-    content: 'Data management & Analytics best practices - Drivig data literacy',
+    content: 'Data management & Analytics best practices - Driving data literacy',
     eventName: 'entertainment',
     Image: Card6,
     label: 'Open',
@@ -58,7 +56,6 @@ export const rooms: Room[] = [
     title: 'Entertainment data literacy: learning to love the data',
     viewers: 150,
   },
-
   {
     chatType: 'room',
     content: 'Data governance imperative - Balancing data privacy & data sharing',
@@ -69,7 +66,6 @@ export const rooms: Room[] = [
     title: 'Tools, Teams and Processes: how to successfully implement a data…',
     viewers: 100,
   },
-
   {
     chatType: 'room',
     content: 'Identifying the opportunities for ROI from Data and Analytics.',

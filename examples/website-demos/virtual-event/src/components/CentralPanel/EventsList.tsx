@@ -7,7 +7,7 @@ import { RoomVideo } from './RoomVideo';
 import { CalendarButton } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-export const RoomsList = () => {
+export const EventsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { chatType, setChatType } = useEventContext();

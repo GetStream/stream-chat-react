@@ -33,6 +33,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+        font-size: 14px;
       }
 
       &-recording {
@@ -53,6 +54,7 @@
         align-items: center;
         width: 200px;
         justify-content: space-evenly;
+        font-size: 12px;
       }
     }
   }
@@ -85,7 +87,7 @@
         align-items: center;
         background: $overlay;
         align-self: flex-end;
-        padding: 6px;
+        padding: 0 6px;
         border-radius: 6px;
         margin: 2px;
 
@@ -95,6 +97,7 @@
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          font-size: 12px;
         }
       }
 
