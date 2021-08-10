@@ -1,3 +1,4 @@
+export { AddChat } from './AddChat';
 export { ArrowLeft } from './ArrowLeft';
 export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
