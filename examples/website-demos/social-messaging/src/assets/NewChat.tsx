@@ -1,7 +1,7 @@
 import { useViewContext } from '../contexts/ViewContext';
 
 export const NewChat: React.FC = () => {
-  const { isNewChat, setNewChat } = useViewContext();
+  const { setNewChat } = useViewContext();
 
   return (
     <svg
@@ -9,11 +9,7 @@ export const NewChat: React.FC = () => {
       height='40'
       viewBox='0 0 40 40'
       fill='none'
-      onClick={() => {
-        if (!isNewChat) {
-          setNewChat(true);
-        }
-      }}
+      onClick={() => setNewChat((prev) => !prev)}
       style={{ borderRadius: '20px', cursor: 'pointer', marginRight: '8px' }}
       xmlns='http://www.w3.org/2000/svg'
     >

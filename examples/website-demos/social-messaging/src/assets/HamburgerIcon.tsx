@@ -1,7 +1,7 @@
 import { useViewContext } from '../contexts/ViewContext';
 
 export const HamburgerIcon: React.FC = () => {
-  const { isSideDrawerOpen, setSideDrawerOpen } = useViewContext();
+  const { isSideDrawerOpen, setNewChat, setSideDrawerOpen } = useViewContext();
 
   return (
     <svg
@@ -12,6 +12,7 @@ export const HamburgerIcon: React.FC = () => {
       onClick={() => {
         if (!isSideDrawerOpen) {
           setSideDrawerOpen(true);
+          setNewChat(false);
         }
       }}
       style={{ cursor: 'pointer', marginLeft: '16px' }}

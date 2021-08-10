@@ -5,11 +5,9 @@ import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-ch
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
-import { NewChatPreview } from '../NewChat/NewChatPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
-import { SocialChannelListHeader } from '../SocialChannelList/SocialChannelListHeader';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 
 import { useViewContext } from '../../contexts/ViewContext';
@@ -63,7 +61,6 @@ export const ChatContainer: React.FC = () => {
   const {
     chatsUnreadCount,
     isListMentions,
-    isNewChat,
     isSideDrawerOpen,
     mentionsUnreadCount,
     setChatsUnreadCount,
@@ -144,10 +141,6 @@ export const ChatContainer: React.FC = () => {
   return (
     <Chat client={chatClient}>
       <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
-        <div>
-          <SocialChannelListHeader />
-          {isNewChat && <NewChatPreview />}
-        </div>
         <ChannelList
           channelRenderFilterFn={customRenderFilter}
           EmptyStateIndicator={SocialEmptyStateIndicator}

@@ -1,26 +1,60 @@
 import React from 'react';
 
-import { ChannelListMessengerProps } from 'stream-chat-react';
+import type { ChannelListMessengerProps } from 'stream-chat-react';
 
+import { SocialChannelListHeader } from './SocialChannelListHeader';
 import { SocialChannelListFooter } from '../../components/SocialChannelList/SocialChannelListFooter';
+import { useViewContext } from '../../contexts/ViewContext';
+import { LoadingWireframe } from '../LoadingWireframe/LoadingWireframe';
+import { NewChatPreview } from '../NewChat/NewChatPreview';
 
 import './SocialChannelList.scss';
 
-type Props = ChannelListMessengerProps;
+const ConnectionError = () => (
+  <div className='connection-error'>
+    <span>Waiting for Network</span>
+  </div>
+);
 
-export const SocialChannelList: React.FC<Props> = (props) => {
-  const { children } = props;
+export const SocialChannelList: React.FC<ChannelListMessengerProps> = (props) => {
+  const { children, error } = props;
 
-  const ListHeaderWrapper: React.FC<Props> = (props) => {
-    const { children } = props;
+  const ListWrapper: React.FC<ChannelListMessengerProps> = (props) => {
+    const { children, error, loading } = props;
+
+    const { isNewChat } = useViewContext();
+
+    if (error) {
+      return (
+        <div className='channel-list'>
+          <ConnectionError />
+          <LoadingWireframe />
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className='channel-list'>
+          <LoadingWireframe />
+        </div>
+      );
+    }
 
     return (
-      <>
-        <div className='channel-list'>{children}</div>
-        <SocialChannelListFooter />
-      </>
+      <div className='channel-list'>
+        {error && <ConnectionError />}
+        {isNewChat && <NewChatPreview />}
+        {children}
+      </div>
     );
   };
 
-  return <ListHeaderWrapper>{children}</ListHeaderWrapper>;
+  return (
+    <>
+      <SocialChannelListHeader error={error} />
+      <ListWrapper>{children}</ListWrapper>
+      <SocialChannelListFooter />
+    </>
+  );
 };
