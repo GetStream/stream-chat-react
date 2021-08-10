@@ -1,15 +1,27 @@
 import React from 'react';
 
-import { HamburgerIcon } from '../../assets/HamburgerIcon';
-import { NewChat } from '../../assets/NewChat';
+import { LoadingIndicator } from 'stream-chat-react';
+
+import { HamburgerIcon, NewChat } from '../../assets';
 
 import './SocialChannelList.scss';
 
-export const SocialChannelListHeader: React.FC = () => {
+type Props = {
+  error?: boolean;
+};
+
+export const SocialChannelListHeader: React.FC<Props> = (props) => {
+  const { error } = props;
+
   return (
     <div className='channel-list-header'>
       <HamburgerIcon />
-      <span className='channel-list-header-text'>Stream Chat</span>
+      <>
+        {error && <LoadingIndicator />}
+        <span className='channel-list-header-text'>
+          {!error ? 'Stream Chat' : 'Waiting for Network'}
+        </span>
+      </>
       <NewChat />
     </div>
   );

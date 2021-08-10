@@ -1,4 +1,4 @@
-@import './_variables';
+@import '../../styles/_variables';
 
 .new-chat {
   height: 100%;
@@ -15,7 +15,15 @@
   max-height: 72px;
   border-bottom: 1px solid $app-bg;
 
-  &-avatar {
-    padding-right: 5px;
-  }
+    &-avatar {
+        padding-left: 5px;
+    }
+
+    span {
+        color: $text-high-emphasis;
+        margin-left: 20px;
+        font-weight: 500;
+        line-height: 9.92px;
+        font-size: 17px;
+    }
 }

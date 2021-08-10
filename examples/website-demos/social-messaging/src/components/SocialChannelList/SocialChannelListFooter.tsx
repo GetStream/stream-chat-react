@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Chats } from '../../assets/Chats';
-import { Mentions } from '../../assets//Mentions';
+import { Chats, Mentions } from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelList.scss';

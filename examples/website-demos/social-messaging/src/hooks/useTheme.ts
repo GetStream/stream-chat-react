@@ -90,5 +90,5 @@ export const useTheme = () => {
     }
   }, [mode]);
 
-  return { setMode };
+  return { mode, setMode };
 };
