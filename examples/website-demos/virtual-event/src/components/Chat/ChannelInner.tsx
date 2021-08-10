@@ -1,5 +1,8 @@
 import { MessageInput, Thread, VirtualizedMessageList, Window } from 'stream-chat-react';
 
+import { MessageUI } from './MessageUI';
+import { ThreadInputUI } from './ThreadInputUI';
+
 import { useOverrideSubmit } from '../../hooks/useOverrideSubmit';
 
 export const ChannelInner = () => {
@@ -11,7 +14,7 @@ export const ChannelInner = () => {
         <VirtualizedMessageList hideDeletedMessages />
         <MessageInput focus maxRows={2} grow overrideSubmitHandler={overrideSubmitHandler} />
       </Window>
-      <Thread />
+      <Thread Input={ThreadInputUI} Message={MessageUI} />
     </>
   );
 };

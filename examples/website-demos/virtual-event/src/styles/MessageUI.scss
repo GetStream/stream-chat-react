@@ -5,6 +5,10 @@
   padding: 0px;
 }
 
+.str-chat__message-replies-count-button svg {
+  display: none;
+}
+
 .message-ui {
   position: relative;
   display: flex;

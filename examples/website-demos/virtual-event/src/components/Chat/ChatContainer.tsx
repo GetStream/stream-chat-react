@@ -18,6 +18,7 @@ import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useInitChat } from '../../hooks/useInitChat';
 
 import { Channel as StreamChannel, UserResponse } from 'stream-chat';
+import { ThreadHeaderUI } from './ThreadHeaderUI';
 
 export const ChatContainer: React.FC = () => {
   const {
@@ -89,6 +90,7 @@ export const ChatContainer: React.FC = () => {
               <Channel
                 channel={currentChannel}
                 Input={MessageInputUI}
+                ThreadHeader={ThreadHeaderUI}
                 VirtualMessage={(props) => (
                   <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
                 )}
