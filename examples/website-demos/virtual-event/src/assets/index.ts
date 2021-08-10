@@ -1,13 +1,19 @@
+export { EventCard1 } from './eventCardPictures/EventCard1';
+export { EventCard2 } from './eventCardPictures/EventCard2';
+export { EventCard3 } from './eventCardPictures/EventCard3';
+export { EventCard4 } from './eventCardPictures/EventCard4';
+
+export { RoomCard1 } from './roomCardPictures/RoomCard1';
+export { RoomCard2 } from './roomCardPictures/RoomCard2';
+export { RoomCard3 } from './roomCardPictures/RoomCard3';
+export { RoomCard4 } from './roomCardPictures/RoomCard4';
+export { RoomCard5 } from './roomCardPictures/RoomCard5';
+export { RoomCard6 } from './roomCardPictures/RoomCard6';
+export { RoomCard7 } from './roomCardPictures/RoomCard7';
+
 export { CalendarButton } from './CalendarButton';
 export { BackArrow } from './BackArrow';
 export { BlockUser } from './BlockUser';
-export { Card1 } from './eventCardPictures/Card1';
-export { Card2 } from './eventCardPictures/Card2';
-export { Card3 } from './eventCardPictures/Card3';
-export { Card4 } from './eventCardPictures/Card4';
-export { Card5 } from './eventCardPictures/Card5';
-export { Card6 } from './eventCardPictures/Card6';
-export { Card7 } from './eventCardPictures/Card7';
 export { ClearSearchButton } from './ClearSearchButton';
 export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';

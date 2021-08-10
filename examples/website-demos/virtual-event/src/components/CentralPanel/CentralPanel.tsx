@@ -1,6 +1,6 @@
+import { EventsList } from './EventsList';
 import { OverviewContainer } from './OverviewContainer';
 import { RoomsList } from './RoomsList';
-import { VideoContainer } from './VideoContainer';
 
 import { useEventContext } from '../../contexts/EventContext';
 
@@ -11,7 +11,7 @@ export const CentralPanel = () => {
     case 'main-event':
       return (
         <div className='central-panel-container'>
-          <VideoContainer />
+          <EventsList />
         </div>
       );
     case 'rooms':
@@ -21,7 +21,6 @@ export const CentralPanel = () => {
         </div>
       );
     case 'overview':
-    default:
       return (
         <div className='central-panel-container'>
           <OverviewContainer />

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Card6: React.FC = () => (
+export const RoomCard6: React.FC = () => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
     width='304'
