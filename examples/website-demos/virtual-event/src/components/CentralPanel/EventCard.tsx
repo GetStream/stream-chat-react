@@ -10,16 +10,29 @@ type Props = {
   presenters: number;
   title: string;
   Image?: React.FC;
+  upcoming?: boolean;
   viewers?: number;
 };
 
 export const EventCard: React.FC<Props> = (props) => {
-  const { chatType, content, eventName, Image, label, presenters, title, viewers } = props;
+  const {
+    chatType,
+    content,
+    eventName,
+    Image,
+    label,
+    presenters,
+    title,
+    upcoming,
+    viewers,
+  } = props;
 
   const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
   const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
+    if (upcoming) return;
+
     setChatType(chatType);
     setEventName(eventName);
     setLabel(label);
@@ -31,7 +44,7 @@ export const EventCard: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className='event-card-container' onClick={handleClick}>
+    <div className={`event-card-container ${upcoming ? 'upcoming' : ''}`} onClick={handleClick}>
       {Image && (
         <div className='event-card-image'>
           <Image />

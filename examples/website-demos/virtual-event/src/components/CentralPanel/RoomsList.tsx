@@ -10,7 +10,7 @@ import { useEventContext } from '../../contexts/EventContext';
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { chatType, setChatType } = useEventContext();
+  const { chatType, setChatType, setEventName } = useEventContext();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,24 +26,28 @@ export const RoomsList = () => {
       }
     };
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('click', checkIfClickedOutside);
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
+      document.removeEventListener('click', checkIfClickedOutside);
     };
   }, [dropdownOpen]);
 
   const handleBackArrow = (event: BaseSyntheticEvent) => {
     setChatType('global');
+    setEventName(undefined);
   };
 
-  const calendarClick = () => setDropdownOpen(!dropdownOpen);
+  const calendarClick = (event: BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setDropdownOpen((prev) => !prev);
+  };
 
   return (
     <>
       <div className='rooms-list-header'>
         <div className='rooms-list-header-title'>
           <div className='rooms-list-header-title-main'>World Hacker Summit 2021</div>
-          <div className='rooms-list-header-title-sub'>Stream</div>
+          <div className='rooms-list-header-title-sub'>Presented by Stream</div>
         </div>
         <div className='rooms-list-header-calendar' onClick={calendarClick}>
           <CalendarButton />

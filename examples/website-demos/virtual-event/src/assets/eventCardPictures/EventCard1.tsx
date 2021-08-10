@@ -1,18 +1,18 @@
 import React from 'react';
 
-export const Card1: React.FC = () => (
+export const EventCard1: React.FC = () => (
   <svg
     xmlns='http://www.w3.org/2000/svg'
-    width='304'
-    height='162'
+    width='250'
+    height='157'
     fill='none'
-    viewBox='0 0 304 162'
+    viewBox='0 0 250 157'
   >
-    <path fill='#02007B' d='M0 0H303.333V162H0z' transform='translate(.333)'></path>
+    <path fill='#02007B' d='M0 0H250V156H0z' transform='translate(0 .341)'></path>
     <g filter='url(#filter0_d)'>
       <path
         fill='#1D81FA'
-        d='M92.333 112.734L152.704 78l60.37 34.734-60.37 34.733-60.37-34.733z'
+        d='M65 110.075l60.371-34.734 60.37 34.734-60.37 34.734L65 110.075z'
       ></path>
     </g>
     <g filter='url(#filter1_d)'>
@@ -20,7 +20,7 @@ export const Card1: React.FC = () => (
         <path
           fill='#5BC9F9'
           fillOpacity='0.75'
-          d='M92.333 80.734L152.704 46l60.37 34.734-60.37 34.733-60.37-34.733z'
+          d='M65 78.075l60.371-34.734 60.37 34.734-60.37 34.734L65 78.075z'
         ></path>
       </g>
     </g>
@@ -29,7 +29,7 @@ export const Card1: React.FC = () => (
         <path
           fill='#F2F2F2'
           fillOpacity='0.85'
-          d='M92.333 48.734L152.704 14l60.37 34.734-60.37 34.733-60.37-34.733z'
+          d='M65 46.075l60.371-34.734 60.37 34.734-60.37 34.734L65 46.075z'
         ></path>
       </g>
     </g>
@@ -38,8 +38,8 @@ export const Card1: React.FC = () => (
         id='filter0_d'
         width='130.741'
         height='79.467'
-        x='87.333'
-        y='75'
+        x='60'
+        y='72.341'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
@@ -59,8 +59,8 @@ export const Card1: React.FC = () => (
         id='filter1_d'
         width='130.741'
         height='79.467'
-        x='87.333'
-        y='43'
+        x='60'
+        y='40.341'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
@@ -80,8 +80,8 @@ export const Card1: React.FC = () => (
         id='filter2_b'
         width='128.741'
         height='77.467'
-        x='88.333'
-        y='42'
+        x='61'
+        y='39.341'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
@@ -94,8 +94,8 @@ export const Card1: React.FC = () => (
         id='filter3_d'
         width='130.741'
         height='79.467'
-        x='87.333'
-        y='11'
+        x='60'
+        y='8.341'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >
@@ -115,8 +115,8 @@ export const Card1: React.FC = () => (
         id='filter4_b'
         width='128.741'
         height='77.467'
-        x='88.333'
-        y='10'
+        x='61'
+        y='7.341'
         colorInterpolationFilters='sRGB'
         filterUnits='userSpaceOnUse'
       >

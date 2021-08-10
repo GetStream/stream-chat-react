@@ -1,6 +1,6 @@
 import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
 
-import { rooms } from './data';
+import { mainEvents } from './data';
 import { EventCard } from './EventCard';
 import { RoomVideo } from './RoomVideo';
 
@@ -10,7 +10,7 @@ import { useEventContext } from '../../contexts/EventContext';
 export const EventsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { chatType, setChatType } = useEventContext();
+  const { chatType, setChatType, setEventName } = useEventContext();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,66 +26,100 @@ export const EventsList = () => {
       }
     };
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('click', checkIfClickedOutside);
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
+      document.removeEventListener('click', checkIfClickedOutside);
     };
   }, [dropdownOpen]);
 
   const handleBackArrow = (event: BaseSyntheticEvent) => {
     setChatType('global');
+    setEventName(undefined);
   };
 
-  const calendarClick = () => setDropdownOpen(!dropdownOpen);
+  const calendarClick = (event: BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setDropdownOpen((prev) => !prev);
+  };
+  const currentEvents = [mainEvents[0], mainEvents[1]];
+  const upcomingEvents = [mainEvents[2], mainEvents[3]];
 
   return (
     <>
-      <div className='rooms-list-header'>
-        <div className='rooms-list-header-title'>
-          <div className='rooms-list-header-title-main'>World Hacker Summit 2021</div>
-          <div className='rooms-list-header-title-sub'>Stream</div>
+      <div className='events-list-header'>
+        <div className='events-list-header-title'>
+          <div className='events-list-header-title-main'>World Hacker Summit 2021</div>
+          <div className='events-list-header-title-sub'>Presented by Stream</div>
         </div>
-        <div className='rooms-list-header-calendar' onClick={calendarClick}>
+        <div className='events-list-header-calendar' onClick={calendarClick}>
           <CalendarButton />
         </div>
         {dropdownOpen && (
-          <div className='rooms-list-dropdown' ref={dropdownRef}>
-            {rooms.map((room, i) => (
-              <div className='rooms-list-card' key={i}>
+          <div className='events-list-dropdown' ref={dropdownRef}>
+            {currentEvents.map((event, i) => (
+              <div className='events-list-card' key={i}>
                 <EventCard
-                  chatType={room.chatType}
-                  content={room.content}
-                  eventName={room.eventName}
-                  label={room.label}
-                  presenters={room.presenters}
-                  title={room.title}
-                  viewers={room.viewers}
+                  chatType={event.chatType}
+                  content={event.content}
+                  eventName={event.eventName}
+                  label={event.label}
+                  presenters={event.presenters}
+                  title={event.title}
+                  viewers={event.viewers}
+                />
+              </div>
+            ))}
+            {upcomingEvents.map((event, i) => (
+              <div className='events-list-card' key={i}>
+                <EventCard
+                  chatType={event.chatType}
+                  content={event.content}
+                  eventName={event.eventName}
+                  label={event.label}
+                  presenters={event.presenters}
+                  title={event.title}
+                  upcoming
+                  viewers={event.viewers}
                 />
               </div>
             ))}
           </div>
         )}
       </div>
-      <div className={`rooms-list-video${chatType === 'room' ? '' : '-hidden'}`}>
+      <div className={`events-list-video${chatType === 'main-event' ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
       </div>
-      <div className={`rooms-list-container${chatType === 'room' ? '-hidden' : ''}`}>
-        <div className='rooms-list-container-cards'>
-          {rooms.map((room, i) => (
-            <div className='rooms-list-card' key={i}>
-              <EventCard
-                chatType={room.chatType}
-                content={room.content}
-                eventName={room.eventName}
-                Image={room.Image}
-                label={room.label}
-                presenters={room.presenters}
-                title={room.title}
-                viewers={room.viewers}
-              />
-            </div>
-          ))}
-        </div>
+      <div className='events-list-container'>
+        {currentEvents.map((event, i) => (
+          <div className='events-list-container-item' key={i}>
+            <EventCard
+              chatType={event.chatType}
+              content={event.content}
+              eventName={event.eventName}
+              Image={event.Image}
+              label={event.label}
+              presenters={event.presenters}
+              title={event.title}
+              viewers={event.viewers}
+            />
+          </div>
+        ))}
+        <div className='events-list-container-separator'>Coming Up</div>
+        {upcomingEvents.map((event, i) => (
+          <div className='events-list-container-item' key={i}>
+            <EventCard
+              chatType={event.chatType}
+              content={event.content}
+              eventName={event.eventName}
+              Image={event.Image}
+              label={event.label}
+              presenters={event.presenters}
+              title={event.title}
+              upcoming
+              viewers={event.viewers}
+            />
+          </div>
+        ))}
       </div>
     </>
   );

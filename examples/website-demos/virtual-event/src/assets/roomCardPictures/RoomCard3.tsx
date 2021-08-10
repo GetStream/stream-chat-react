@@ -1,4 +1,4 @@
-export const Card3: React.FC = () => (
+export const RoomCard3: React.FC = () => (
   <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 250 156'>
     <g clipPath='url(#clip0)'>
       <path fill='#10083C' d='M0 0H250V156H0z'></path>

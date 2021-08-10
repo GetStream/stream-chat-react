@@ -1,12 +1,22 @@
 @import './_variables';
 
-.rooms-list {
+.events-list {
   &-container {
     display: flex;
     flex-direction: column;
     height: calc(100% - 57px);
     background: $stroke;
+    transition: background 1s;
     overflow: scroll;
+
+    .event-card-container {
+      background: $app-canvas;
+      transition: background 1s;
+    }
+
+    &-item:last-child {
+      margin-bottom: 32px;
+    }
 
     &-cards {
       display: flex;
@@ -16,6 +26,14 @@
 
     &-hidden {
       display: none;
+    }
+
+    &-separator {
+      font-weight: 600;
+      font-size: 18px;
+      color: $text-high-emphasis;
+      margin-left: 32px;
+      margin-top: 32px;
     }
   }
 
@@ -79,63 +97,14 @@
 
   &-card {
     border-radius: 16px;
-    width: 200px;
-    margin: 16px 0;
+    margin: 16px 32px;
     background: $app-canvas;
 
     .event-card-container {
       flex-direction: column;
       margin: unset;
       height: 100%;
-    }
-
-    .event-card-title {
-      margin-bottom: 8px;
-      flex: unset;
-
-      svg {
-        width: 18px;
-      }
-    }
-
-    .event-card-content {
-      width: unset;
-      height: 100%;
-      margin: 10px;
-      &-content {
-        margin-bottom: 8px;
-      }
-    }
-
-    .event-card-image {
-      width: 100%;
-
-      svg {
-        height: auto;
-        width: 100%;
-      }
-    }
-
-    .event-card-viewers {
-      &-right {
-        margin-left: 8px;
-
-        &-count {
-          margin-left: 4px;
-        }
-      }
-
-      &-left {
-        &-count {
-          margin-left: 4px;
-        }
-      }
-    }
-
-    .event-card-label {
-      height: 16px;
-      padding: 4px 6px;
-      margin-left: 4px;
+      background: $app-canvas;
     }
   }
 
@@ -154,10 +123,14 @@
     border-radius: 2px;
     padding-top: 16px;
 
-    .rooms-list-card {
+    .events-list-card {
       margin: 0;
       margin-bottom: 16px;
       width: calc(100% - 32px);
+    }
+
+    .event-card-content {
+      width: unset;
     }
   }
 }
