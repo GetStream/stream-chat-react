@@ -1,5 +1,6 @@
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
+import { useVideoContext } from '../../contexts/VideoContext';
 
 type Props = {
   chatType: 'main-event' | 'room';
@@ -16,12 +17,17 @@ export const EventCard: React.FC<Props> = (props) => {
   const { chatType, content, eventName, Image, label, presenters, title, viewers } = props;
 
   const { setChatType, setEventName, setSelected, setShowChannelList } = useEventContext();
+  const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
-    setEventName(eventName);
     setChatType(chatType);
+    setEventName(eventName);
+    setLabel(label);
+    setPresenters(presenters);
     setShowChannelList(false);
     setSelected(chatType === 'main-event' ? 'main-event' : 'rooms');
+    setTitle(title);
+    setViewers(viewers);
   };
 
   return (

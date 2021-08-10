@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { ThemeModal } from './ThemeModal';
 
 import { MainEventButton, MainLogo, OverviewButton, RoomsButton } from '../../assets';
 import NavigationAvatar from '../../assets/NavigationAvatar.png';
+import { useEventContext } from '../../contexts/EventContext';
 
 export const Navigation: React.FC = () => {
-  const [themeModalOpen, setThemeModalOpen] = useState(false);
+  const { setThemeModalOpen, themeModalOpen } = useEventContext();
 
   return (
     <div className='navigation'>

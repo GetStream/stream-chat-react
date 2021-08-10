@@ -1,9 +1,6 @@
 import { Avatar, useChatContext } from 'stream-chat-react';
 
-import { NewDirectMessage } from '../../assets/NewDirectMessage';
-import { NewGroupMessage } from '../../assets/NewGroupMessage';
-import { ThemeIcon } from '../../assets/ThemeIcon';
-
+import { NewDirectMessage, NewGroupMessage, ThemeIcon } from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SideDrawer.scss';
@@ -12,7 +9,7 @@ export const SideDrawer: React.FC = () => {
   const { isSideDrawerOpen, setNewChat, setSideDrawerOpen } = useViewContext();
   const { client } = useChatContext();
 
-  const user = client.user;
+  const { user } = client;
 
   const onClickFunction = () => {
     setSideDrawerOpen(false);

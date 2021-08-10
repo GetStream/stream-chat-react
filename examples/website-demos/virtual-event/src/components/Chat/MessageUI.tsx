@@ -4,15 +4,17 @@ import {
   Avatar,
   isDate,
   MessageUIComponentProps,
+  SimpleReactionsList,
   useChannelStateContext,
   useEmojiContext,
   useMessageContext,
 } from 'stream-chat-react';
 
 import { UserActionsDropdown } from './UserActionsDropdown';
-import { getFormattedTime } from './utils';
+import { customReactions, getFormattedTime } from './utils';
 
 import { MessageActionsEllipse, ReactionSmiley } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 
 import type {
   AttachmentType,
@@ -60,14 +62,15 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
 
 const ReactionSelector: React.FC = () => {
   const { Emoji, emojiConfig } = useEmojiContext();
-
-  const customReactionIds = ['heart', '+1', '-1', 'laughing', 'angry'];
+  const { handleReaction } = useMessageContext();
 
   return (
     <div className='message-ui-reaction-selector'>
-      {customReactionIds.map((reaction, i) => (
+      {customReactions.map((reaction, i) => (
         <Suspense fallback={null} key={i}>
-          <Emoji data={emojiConfig.emojiData} emoji={reaction} size={24} />
+          <div onClick={(event) => handleReaction(reaction.id, event)}>
+            <Emoji data={emojiConfig.emojiData} emoji={reaction} size={24} />
+          </div>
         </Suspense>
       ))}
     </div>
@@ -86,6 +89,7 @@ export const MessageUI: React.FC<
   >
 > = () => {
   const { messages } = useChannelStateContext();
+  const { themeModalOpen } = useEventContext();
   const { message } = useMessageContext<
     AttachmentType,
     ChannelType,
@@ -99,14 +103,14 @@ export const MessageUI: React.FC<
   const [showOptions, setShowOptions] = useState(false);
   const [showReactionSelector, setShowReactionSelector] = useState(false);
 
-  useEffect(() => {
-    const handleClick = () => {
-      setShowOptions(false);
-      setShowReactionSelector(false);
-    };
+  const clearModals = () => {
+    setShowOptions(false);
+    setShowReactionSelector(false);
+  };
 
-    if (showReactionSelector) document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
+  useEffect(() => {
+    if (showReactionSelector) document.addEventListener('click', clearModals);
+    return () => document.removeEventListener('click', clearModals);
   }, [showReactionSelector]);
 
   const isRecentMessage =
@@ -129,12 +133,9 @@ export const MessageUI: React.FC<
 
   return (
     <div
-      className='message-ui'
+      className={`message-ui ${themeModalOpen ? 'theme-open' : ''}`}
       onMouseEnter={() => setShowOptions(true)}
-      onMouseLeave={() => {
-        setShowOptions(false);
-        setShowReactionSelector(false);
-      }}
+      onMouseLeave={clearModals}
     >
       {showOptions && (
         <MessageOptions
@@ -151,7 +152,8 @@ export const MessageUI: React.FC<
           <div className='message-ui-content-top-time'>{getTimeSinceMessage()}</div>
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
-        {message.attachments && <Attachment attachments={message.attachments} />}
+        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <SimpleReactionsList reactionOptions={customReactions} />
       </div>
     </div>
   );

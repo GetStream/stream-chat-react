@@ -1,0 +1,146 @@
+@import './_variables';
+
+.room-video {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    background: $dark-grey;
+    height: 100%;
+    width: 100%;
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+
+    height: 46px;
+    padding: 0 20px;
+    color: $white;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      max-width: 50%;
+
+      &-arrow {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      &-title {
+        margin-left: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      &-recording {
+        font-size: 12px;
+        margin-left: 4px;
+      }
+
+      &-dot {
+        width: 6px;
+        height: 6px;
+        margin-left: 10px;
+        background: $accent-red;
+        border-radius: 999px;
+      }
+
+      &-right {
+        display: flex;
+        align-items: center;
+        width: 200px;
+        justify-content: space-evenly;
+      }
+    }
+  }
+
+  &-grid {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+
+    > div:first-child {
+      border: none;
+      box-shadow: 0 0 0 4px $accent-green;
+    }
+
+    &-participant {
+      display: flex;
+      justify-content: space-between;
+      width: 340px;
+      height: 204px;
+      border-radius: 8px;
+      border: 1px solid white;
+      margin: 4px;
+      cursor: pointer;
+
+      &-info {
+        display: flex;
+        align-items: center;
+        background: $overlay;
+        align-self: flex-end;
+        padding: 6px;
+        border-radius: 6px;
+        margin: 2px;
+
+        &-name {
+          color: $white;
+          margin-right: 12px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      &-connection {
+        display: flex;
+        align-items: center;
+        align-self: flex-end;
+        background: $overlay;
+        padding: 6px;
+        border-radius: 6px;
+        margin: 2px;
+      }
+    }
+  }
+}
+
+.pinned {
+  background: blue;
+  order: -1;
+  width: 100% !important;
+  height: 400px !important;
+
+  .room-video-grid-participant {
+    &-connection {
+      display: flex !important;
+    }
+
+    &-info {
+      width: unset !important;
+    }
+  }
+}
+
+.isPinned {
+  > div {
+    width: 140px;
+    height: 100px;
+  }
+
+  .room-video-grid-participant {
+    &-connection {
+      display: none;
+    }
+
+    &-info {
+      width: 80%;
+    }
+  }
+}
