@@ -89,8 +89,6 @@ const UnMemoizedMessageTextComponent = <
     messageTextToRender,
   ]);
 
-  const replyIsAttachment = message.attachments?.length ? message.attachments : null;
-
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
@@ -114,8 +112,7 @@ const UnMemoizedMessageTextComponent = <
         onMouseOver={onMentionsHoverMessage}
       >
         {message.quoted_message && <QuotedMessage />}
-        {replyIsAttachment && <Attachment attachments={replyIsAttachment} />}
-
+        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}
