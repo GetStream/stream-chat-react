@@ -55,7 +55,7 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { Attachment, QuotedMessage = DefaultQuotedMessage } = useComponentContext<
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
     At,
     Ch,
     Co,
@@ -112,7 +112,6 @@ const UnMemoizedMessageTextComponent = <
         onMouseOver={onMentionsHoverMessage}
       >
         {message.quoted_message && <QuotedMessage />}
-        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}
