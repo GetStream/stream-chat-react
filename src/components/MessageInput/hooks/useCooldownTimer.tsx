@@ -75,7 +75,7 @@ export const useCooldownTimer = <
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
   const globalRole = client.user?.role || '';
-  const channelRole = channel.state.members[client.userID || ''].role || '';
+  const channelRole = channel.state.members[client.userID || '']?.role || '';
 
   const skipCooldown = checkUserRoles(globalRole, channelRole);
 
