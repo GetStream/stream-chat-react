@@ -237,9 +237,9 @@ const MessageLivestreamWithContext = <
                 </p>
               )}
             </div>
-            {message.attachments && (
+            {message.attachments?.length ? (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
-            )}
+            ) : null}
             {isReactionEnabled && <ReactionsList />}
             {!initialMessage && (
               <MessageRepliesCountButton

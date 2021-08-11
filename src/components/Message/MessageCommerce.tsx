@@ -127,9 +127,9 @@ const MessageCommerceWithContext = <
             <ReactionSelector ref={reactionSelectorRef} />
           )}
         </>
-        {message.attachments && (
+        {message.attachments?.length ? (
           <Attachment actionHandler={handleAction} attachments={message.attachments} />
-        )}
+        ) : null}
         {message.mml && (
           <MML
             actionHandler={handleAction}
