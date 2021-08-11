@@ -60,6 +60,16 @@ const customMessages = [
 </Chat>;
 ```
 
+## Scroll Behavior Optimization
+
+By default, the virtualized message list uses the latest message (which gets rendered first) in the list as the default item size. 
+This can lead to inaccurate scroll thumb size or scroll jumps if the last item is unusually tall (for example, an attachment). 
+To improve this behavior, set the `defaultItemHeight` property to a value close (or equal to) the height of the usual messages. 
+
+```jsx
+<VirtualizedMessageList messages={customMessages} defaultItemHeight={76} />
+```
+
 ## Props
 
 ### customMessageRenderer
