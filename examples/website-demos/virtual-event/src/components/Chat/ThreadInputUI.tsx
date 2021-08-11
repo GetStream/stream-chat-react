@@ -1,10 +1,16 @@
 import React, { useCallback } from 'react';
-import { useState } from 'react';
 import { ChatAutoComplete, EmojiPicker, useMessageInputContext } from 'stream-chat-react';
 import { EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
-export const ThreadInputUI = () => {
+type Props = {
+  checked: boolean;
+  setChecked: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const ThreadInputUI: React.FC<Props> = (props) => {
+  const { checked, setChecked } = props;
+
   const {
     emojiPickerRef,
     handleChange,
@@ -15,8 +21,6 @@ export const ThreadInputUI = () => {
   } = useMessageInputContext();
 
   const { giphyState, setGiphyState } = useGiphyContext();
-
-  const [checked, setChecked] = useState(false);
 
   const onCheckChange = () => {
     setChecked(!checked);

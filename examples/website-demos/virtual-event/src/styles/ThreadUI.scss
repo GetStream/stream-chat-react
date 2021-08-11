@@ -23,6 +23,10 @@
   position: absolute;
   height: 100%;
   top: 0;
+
+  .str-chat__message-simple-reply-button {
+    display: none;
+  }
 }
 
 .messaging.str-chat .str-chat__list .str-chat__reverse-infinite-scroll {
