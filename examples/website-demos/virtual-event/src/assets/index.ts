@@ -11,9 +11,9 @@ export { RoomCard5 } from './roomCardPictures/RoomCard5';
 export { RoomCard6 } from './roomCardPictures/RoomCard6';
 export { RoomCard7 } from './roomCardPictures/RoomCard7';
 
-export { CalendarButton } from './CalendarButton';
 export { BackArrow } from './BackArrow';
 export { BlockUser } from './BlockUser';
+export { CalendarButton } from './CalendarButton';
 export { ClearSearchButton } from './ClearSearchButton';
 export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';
@@ -26,6 +26,7 @@ export { EmptyChatIcon } from './EmptyChatIcon';
 export { EmptyDMIcon } from './EmptyDMIcon';
 export { EmptyQAIcon } from './EmptyQAIcon';
 export { EventCardIcon } from './EventCardIcon';
+export { GiphyCommandIcon } from './GiphyCommandIcon';
 export { GiphyIcon } from './GiphyIcon';
 export { GiphySearch } from './GiphySearch';
 export { HackerSummitHero } from './HackerSummitHero';

@@ -6,6 +6,7 @@
     flex-direction: column;
     height: calc(100% - 57px);
     background: $stroke;
+    transition: background 1s;
     overflow: scroll;
 
     &-cards {
