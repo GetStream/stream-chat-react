@@ -40,6 +40,18 @@ export const CooldownTimer: React.FC<CooldownTimerProps> = (props) => {
   return <div>{seconds === 0 ? null : seconds}</div>;
 };
 
+const rolesToSkip: Record<string, boolean> = {
+  admin: true,
+  channel_moderator: true,
+  moderator: true,
+};
+
+const checkUserRoles = (globalRole: string, channelRole: string) => {
+  const skipGlobal = !!rolesToSkip[globalRole];
+  const skipChannel = !!rolesToSkip[channelRole];
+  return skipGlobal || skipChannel;
+};
+
 export type CooldownTimerState = {
   cooldownInterval: number;
   setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
@@ -62,9 +74,14 @@ export const useCooldownTimer = <
 
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
+  const globalRole = client.user?.role || '';
+  const channelRole = channel.state.members[client.userID || ''].role || '';
+
+  const skipCooldown = checkUserRoles(globalRole, channelRole);
+
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (event.user?.id === client.userID) {
+      if (!skipCooldown && event.user?.id === client.userID) {
         setCooldownRemaining(cooldownInterval);
       }
     };
