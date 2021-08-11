@@ -55,7 +55,7 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
+  const { Attachment, QuotedMessage = DefaultQuotedMessage } = useComponentContext<
     At,
     Ch,
     Co,
@@ -89,11 +89,13 @@ const UnMemoizedMessageTextComponent = <
     messageTextToRender,
   ]);
 
+  const replyIsAttachment = message.attachments?.length ? message.attachments : null;
+
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass =
     customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!messageTextToRender) return null;
+  if (!messageTextToRender && !message.quoted_message) return null;
 
   return (
     <div className={wrapperClass}>
@@ -112,6 +114,8 @@ const UnMemoizedMessageTextComponent = <
         onMouseOver={onMentionsHoverMessage}
       >
         {message.quoted_message && <QuotedMessage />}
+        {replyIsAttachment && <Attachment attachments={replyIsAttachment} />}
+
         {message.type === 'error' && (
           <div className={`str-chat__${theme}-message--error-message`}>{t('Error · Unsent')}</div>
         )}
