@@ -253,9 +253,9 @@ const MessageTeamWithContext = <
               </span>
             }
             {message.mml && <MML actionHandler={handleAction} align='left' source={message.mml} />}
-            {!message.text && message.attachments && (
+            {!message.text && message.attachments?.length ? (
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
-            )}
+            ) : null}
             {message.latest_reactions?.length !== 0 && message.text !== '' && isReactionEnabled && (
               <ReactionsList />
             )}
@@ -273,9 +273,9 @@ const MessageTeamWithContext = <
             )}
           </div>
           <MessageStatus messageType='team' />
-          {message.text && message.attachments && (
+          {message.text && message.attachments?.length ? (
             <Attachment actionHandler={handleAction} attachments={message.attachments} />
-          )}
+          ) : null}
           {message.latest_reactions &&
             message.latest_reactions.length !== 0 &&
             message.text === '' &&
