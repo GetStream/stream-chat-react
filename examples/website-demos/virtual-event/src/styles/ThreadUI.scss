@@ -8,6 +8,10 @@
   &__thread {
     max-width: unset;
 
+    &-list {
+      padding: unset;
+    }
+
     .dm-header-container {
       border: none;
       border-bottom: 1px solid $stroke;
@@ -23,15 +27,15 @@
   margin-top: auto;
 }
 
+.str-chat__thread .str-chat__message-replies-count-button {
+  display: none;
+}
+
 .messaging.str-chat .str-chat__thread {
   margin: unset;
   position: absolute;
   height: 100%;
   top: 0;
-
-  .str-chat__message-simple-reply-button {
-    display: none;
-  }
 }
 
 .messaging.str-chat .str-chat__list .str-chat__reverse-infinite-scroll {

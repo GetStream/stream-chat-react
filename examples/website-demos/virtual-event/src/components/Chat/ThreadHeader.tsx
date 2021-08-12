@@ -1,14 +1,13 @@
 import React from 'react';
 import { useChannelActionContext, useChannelStateContext } from 'stream-chat-react';
+
 import { CloseX, Ellipse } from '../../assets';
 
-export const ThreadHeader = () => {
+export const ThreadHeader: React.FC = () => {
   const { thread } = useChannelStateContext();
   const { closeThread } = useChannelActionContext();
 
-  if (!thread) {
-    return null;
-  }
+  if (!thread) return null;
 
   return (
     <div className='dm-header-container'>

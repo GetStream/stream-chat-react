@@ -33,9 +33,7 @@ export const MessageInputUI = (props: Props) => {
 
   const [commandsOpen, setCommandsOpen] = useState(false);
 
-  const onCheckChange = () => {
-    setChecked && setChecked(!checked);
-  };
+  const onCheckChange = () => setChecked?.(!checked);
 
   useEffect(() => {
     const handleClick = () => {
@@ -84,11 +82,9 @@ export const MessageInputUI = (props: Props) => {
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
           <ChatAutoComplete onChange={onChange} placeholder='Say something' />
-          {!threadInput && (
-            <div className='input-ui-input-commands' onClick={handleCommandsClick}>
-              <CommandBolt />
-            </div>
-          )}
+          <div className='input-ui-input-commands' onClick={handleCommandsClick}>
+            <CommandBolt />
+          </div>
           {!giphyState && (
             <div
               className='input-ui-input-emoji-picker'
