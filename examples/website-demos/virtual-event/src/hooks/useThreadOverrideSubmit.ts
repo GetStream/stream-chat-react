@@ -1,4 +1,5 @@
-import { MessageToSend, useChannelActionContext, useChannelStateContext } from 'stream-chat-react';
+import { Message } from 'stream-chat';
+import { MessageToSend, useChannelStateContext } from 'stream-chat-react';
 
 type Props = {
   checked: boolean;
@@ -6,14 +7,20 @@ type Props = {
 
 export const useThreadOverrideSubmit = (props: Props) => {
   const { checked } = props;
-  const { sendMessage } = useChannelActionContext();
 
   const { channel } = useChannelStateContext();
 
   const threadOverrideSubmitHandler = async (message: MessageToSend) => {
-    //@ts-expect-error
-    checked && (await channel.sendMessage({ ...message, show_in_channel: true }));
-    sendMessage(message);
+    const mentionIDs = message.mentioned_users?.map(({ id }) => id);
+
+    const updatedMessage: Message = {
+      ...message,
+      mentioned_users: mentionIDs,
+      parent_id: message.parent?.id,
+      show_in_channel: checked,
+    };
+
+    await channel.sendMessage(updatedMessage);
   };
 
   return threadOverrideSubmitHandler;
