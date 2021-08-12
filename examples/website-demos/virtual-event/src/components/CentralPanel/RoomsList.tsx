@@ -1,16 +1,16 @@
 import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
 
+import { rooms } from './data';
 import { EventCard } from './EventCard';
-import { rooms } from './rooms';
+import { RoomVideo } from './RoomVideo';
 
 import { CalendarButton } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
-import { RoomVideo } from './RoomVideo';
 
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { chatType, setChatType } = useEventContext();
+  const { chatType, setChatType, setEventName, setVideoOpen, videoOpen } = useEventContext();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,24 +26,29 @@ export const RoomsList = () => {
       }
     };
 
-    document.addEventListener('mousedown', checkIfClickedOutside);
+    document.addEventListener('click', checkIfClickedOutside);
     return () => {
-      document.removeEventListener('mousedown', checkIfClickedOutside);
+      document.removeEventListener('click', checkIfClickedOutside);
     };
   }, [dropdownOpen]);
 
   const handleBackArrow = (event: BaseSyntheticEvent) => {
     setChatType('global');
+    setEventName(undefined);
+    setVideoOpen(false);
   };
 
-  const calendarClick = () => setDropdownOpen(!dropdownOpen);
+  const calendarClick = (event: BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setDropdownOpen((prev) => !prev);
+  };
 
   return (
     <>
       <div className='rooms-list-header'>
         <div className='rooms-list-header-title'>
           <div className='rooms-list-header-title-main'>World Hacker Summit 2021</div>
-          <div className='rooms-list-header-title-sub'>Stream</div>
+          <div className='rooms-list-header-title-sub'>Presented by Stream</div>
         </div>
         <div className='rooms-list-header-calendar' onClick={calendarClick}>
           <CalendarButton />
@@ -66,7 +71,7 @@ export const RoomsList = () => {
           </div>
         )}
       </div>
-      <div className={`rooms-list-video${chatType === 'room' ? '' : '-hidden'}`}>
+      <div className={`rooms-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
       </div>
       <div className={`rooms-list-container${chatType === 'room' ? '-hidden' : ''}`}>

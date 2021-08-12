@@ -8,7 +8,7 @@ export const ChannelInner = () => {
   return (
     <>
       <Window hideOnThread>
-        <VirtualizedMessageList hideDeletedMessages />
+        <VirtualizedMessageList hideDeletedMessages separateGiphyPreview />
         <MessageInput focus maxRows={2} grow overrideSubmitHandler={overrideSubmitHandler} />
       </Window>
       <Thread />

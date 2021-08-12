@@ -1,6 +1,6 @@
 import { EventCard } from './EventCard';
 
-import { Card1, Card2, HackerSummitLogo, HackerSummitHero } from '../../assets';
+import { EventCard1, EventCard2, HackerSummitLogo, HackerSummitHero } from '../../assets';
 import {
   CrowdStrike,
   Cybereason,
@@ -135,7 +135,7 @@ export const OverviewContainer = () => {
           chatType='main-event'
           content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
           eventName='cybersecurity'
-          Image={Card1}
+          Image={EventCard1}
           label='Moderated'
           presenters={6}
           title='Implementing a Cybersecurity Framework'
@@ -143,9 +143,9 @@ export const OverviewContainer = () => {
         />
         <EventCard
           chatType='room'
-          content='ESG Regulations, Standards and Disclosure: Who to publish it for and how to make it meaningful.'
+          content='ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.'
           eventName='esg'
-          Image={Card2}
+          Image={EventCard2}
           label='Private'
           presenters={2}
           title='ESG Data - How to create it'

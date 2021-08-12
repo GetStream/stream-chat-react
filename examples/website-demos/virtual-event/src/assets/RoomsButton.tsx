@@ -9,6 +9,7 @@ export const RoomsButton: React.FC = () => {
     setEventName,
     setSelected,
     setShowChannelList,
+    setVideoOpen,
     showChannelList,
   } = useEventContext();
 
@@ -16,6 +17,7 @@ export const RoomsButton: React.FC = () => {
     setSelected('rooms');
     setEventName(undefined);
     setChatType('global');
+    setVideoOpen(false);
     if (showChannelList) setShowChannelList(false);
   };
 

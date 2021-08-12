@@ -9,10 +9,12 @@ export const OverviewButton: React.FC = () => {
     setEventName,
     setSelected,
     setShowChannelList,
+    setVideoOpen,
     showChannelList,
   } = useEventContext();
 
   const handleClick = () => {
+    setVideoOpen(false);
     setSelected('overview');
     setEventName(undefined);
     setChatType('global');

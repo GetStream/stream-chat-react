@@ -6,6 +6,7 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
+import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
@@ -30,6 +31,7 @@ export const ChatContainer: React.FC = () => {
   } = useEventContext();
 
   const [dmChannel, setDmChannel] = useState<StreamChannel>();
+  const [messageActionUser, setMessageActionUser] = useState<string>();
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
   const [snackbar, setSnackbar] = useState(false);
 
@@ -67,6 +69,7 @@ export const ChatContainer: React.FC = () => {
           {actionsModalOpen && userActionType && (
             <UserActionsModal
               dmChannel={dmChannel}
+              messageActionUser={messageActionUser}
               participantProfile={participantProfile}
               setSnackbar={setSnackbar}
               userActionType={userActionType}
@@ -84,7 +87,14 @@ export const ChatContainer: React.FC = () => {
             />
           ) : (
             currentChannel && (
-              <Channel channel={currentChannel} Input={MessageInputUI} VirtualMessage={MessageUI}>
+              <Channel
+                channel={currentChannel}
+                GiphyPreviewMessage={GiphyPreview}
+                Input={MessageInputUI}
+                VirtualMessage={(props) => (
+                  <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
+                )}
+              >
                 <GiphyContextProvider>
                   <ChannelInner />
                 </GiphyContextProvider>

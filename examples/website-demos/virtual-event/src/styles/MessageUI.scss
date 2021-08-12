@@ -116,9 +116,13 @@
     margin-top: 4px;
   }
 
+  .str-chat__message-attachment {
+    border-radius: 8px;
+  }
+
   .str-chat__message-attachment-card {
     border-width: 1px;
-    border-radius: 16px;
+    border-radius: 8px;
     margin-top: 4px;
     max-width: 250px;
     border-color: $stroke;
@@ -127,10 +131,12 @@
   .str-chat__message-attachment--giphy {
     max-width: 175px;
 
+    .str-chat__message-attachment-card--header {
+      height: 175px;
+    }
+
     .str-chat__message-attachment-card--content {
-      padding: 0;
-      margin-left: 8px;
-      margin-right: 8px;
+      display: none;
     }
 
     .str-chat__message-attachment-card--url {

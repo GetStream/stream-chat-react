@@ -10,11 +10,12 @@ type Props = {
   setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   userActionType: UserActions;
   dmChannel?: Channel;
+  messageActionUser?: string;
   participantProfile?: UserResponse;
 };
 
 export const UserActionsModal: React.FC<Props> = (props) => {
-  const { dmChannel, participantProfile, setSnackbar, userActionType } = props;
+  const { dmChannel, messageActionUser, participantProfile, setSnackbar, userActionType } = props;
 
   const { client } = useChatContext();
   const { setActionsModalOpen, setUserActionType } = useEventContext();
@@ -51,6 +52,7 @@ export const UserActionsModal: React.FC<Props> = (props) => {
   const handleAction = async (action: UserActions) => {
     const actionUserId =
       participantProfile?.id ||
+      messageActionUser ||
       Object.keys(dmChannel?.state.members || []).filter((member) => member !== client.userID)[0];
 
     if (!actionUserId) return;
