@@ -47,7 +47,7 @@ export const QuotedMessage = <
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
   return (
-    <div>
+    <>
       <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
         {quoted_message.user && (
           <Avatar
@@ -65,6 +65,6 @@ export const QuotedMessage = <
       {message.attachments?.length && message.quoted_message ? (
         <Attachment attachments={message.attachments} />
       ) : null}
-    </div>
+    </>
   );
 };
