@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ChatAutoComplete,
+  CooldownTimer,
   EmojiPicker,
   MessageInputProps,
   useMessageInputContext,
@@ -20,12 +21,15 @@ export const MessageInputUI = (props: Props) => {
 
   const {
     closeCommandsList,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
     openCommandsList,
     openEmojiPicker,
+    setCooldownRemaining,
     text,
   } = useMessageInputContext();
 
@@ -82,22 +86,35 @@ export const MessageInputUI = (props: Props) => {
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
           <ChatAutoComplete onChange={onChange} placeholder='Say something' />
-          <div className='input-ui-input-commands' onClick={handleCommandsClick}>
+          <div
+            className={`input-ui-input-commands ${cooldownRemaining ? 'cooldown' : ''}`}
+            onClick={cooldownRemaining ? () => null : handleCommandsClick}
+          >
             <CommandBolt />
           </div>
           {!giphyState && (
             <div
-              className='input-ui-input-emoji-picker'
+              className={`input-ui-input-emoji-picker ${cooldownRemaining ? 'cooldown' : ''}`}
               ref={emojiPickerRef}
-              onClick={openEmojiPicker}
+              onClick={cooldownRemaining ? () => null : openEmojiPicker}
             >
               <EmojiPickerIcon />
             </div>
           )}
         </div>
-        <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
+        <div
+          className={`input-ui-send ${text ? 'text' : ''} ${cooldownRemaining ? 'cooldown' : ''}`}
+          onClick={handleSubmit}
+        >
           {giphyState ? (
             <GiphySearch />
+          ) : cooldownRemaining ? (
+            <div className='input-ui-send-cooldown'>
+              <CooldownTimer
+                cooldownInterval={cooldownInterval}
+                setCooldownRemaining={setCooldownRemaining}
+              />
+            </div>
           ) : (
             <>
               <SendArrow />

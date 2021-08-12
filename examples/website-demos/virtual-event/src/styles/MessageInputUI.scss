@@ -30,6 +30,16 @@
       svg:hover path {
         fill: $primary-accent;
       }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
+      }
     }
 
     &-emoji-picker {
@@ -39,6 +49,16 @@
 
       svg:hover path {
         fill: $primary-accent;
+      }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
       }
     }
 
@@ -80,24 +100,34 @@
         color: $primary-accent;
       }
     }
-  }
 
-  &-send:hover {
-    cursor: pointer;
-    color: $primary-accent;
-
-    svg {
-      fill: $primary-accent;
+    &-cooldown {
+      font-size: 20px;
+      font-weight: 600;
+      color: $primary-accent;
     }
-  }
 
-  &-send:active {
-    background: $primary-accent;
-    transition: background 1s;
-    color: $white;
+    &:hover {
+      cursor: pointer;
+      color: $primary-accent;
 
-    svg {
-      fill: $white;
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &.cooldown:hover {
+      cursor: default;
+    }
+
+    &:active {
+      background: $primary-accent;
+      transition: background 1s;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
     }
   }
 }
