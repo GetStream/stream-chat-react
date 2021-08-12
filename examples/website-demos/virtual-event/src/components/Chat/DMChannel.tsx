@@ -6,6 +6,7 @@ import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
+import { SuggestionHeader, SuggestionListItem } from './SuggestionList';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse } from '../../assets';
@@ -49,6 +50,8 @@ export const DMChannel: React.FC<Props> = (props) => {
         />
       )}
       <Channel
+        AutocompleteSuggestionHeader={SuggestionHeader}
+        AutocompleteSuggestionItem={SuggestionListItem}
         channel={dmChannel}
         EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}
         GiphyPreviewMessage={GiphyPreview}

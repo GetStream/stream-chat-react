@@ -161,4 +161,28 @@
 
 .str-chat__emojisearch {
   z-index: 999;
+  background: $app-canvas;
+  box-shadow: $shadow;
+  border-radius: 8px;
+  bottom: 65px;
+}
+
+.suggestion-header {
+  color: $text-mid-emphasis;
+  font-size: 18px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  font-size: 18px;
+  font-weight: 600;
+  padding-left: 8px;
+  color: $text-high-emphasis;
+}
+
+.suggestion-item.selected {
+  background: $stroke-low-emphasis;
+  cursor: pointer;
 }
