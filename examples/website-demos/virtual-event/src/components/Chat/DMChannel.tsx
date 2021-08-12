@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Channel as StreamChannel } from 'stream-chat';
-import { Channel, MessageInput, Thread, VirtualizedMessageList, Window } from 'stream-chat-react';
+import { Channel } from 'stream-chat-react';
 
+import { ChannelInner } from './ChannelInner';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
@@ -58,11 +59,7 @@ export const DMChannel: React.FC<Props> = (props) => {
         Input={MessageInputUI}
         VirtualMessage={MessageUI}
       >
-        <Window hideOnThread>
-          <VirtualizedMessageList hideDeletedMessages separateGiphyPreview />
-          <MessageInput focus />
-        </Window>
-        <Thread />
+        <ChannelInner />
       </Channel>
     </div>
   );
