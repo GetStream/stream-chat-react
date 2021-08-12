@@ -19,6 +19,7 @@ export { ClickDMIcon } from './ClickDMIcon';
 export { CloseChatButton } from './CloseChatButton';
 export { CloseX } from './CloseX';
 export { CloseSnackbar } from './CloseSnackbar';
+export { CommandBolt } from './CommandBolt';
 export { ConnectionStatus } from './ConnectionStatus';
 export { Ellipse } from './Ellipse';
 export { EmojiPickerIcon } from './EmojiPickerIcon';

@@ -1,20 +1,34 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChatAutoComplete, EmojiPicker, useMessageInputContext } from 'stream-chat-react';
 
-import { EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
+import { CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
 export const MessageInputUI: React.FC = () => {
   const {
+    closeCommandsList,
     emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
+    openCommandsList,
     openEmojiPicker,
     text,
   } = useMessageInputContext();
 
   const { giphyState, setGiphyState } = useGiphyContext();
+
+  const [commandsOpen, setCommandsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClick = () => {
+      closeCommandsList();
+      setCommandsOpen(false);
+    };
+
+    if (commandsOpen) document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [commandsOpen]); // eslint-disable-line
 
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
@@ -40,15 +54,24 @@ export const MessageInputUI: React.FC = () => {
     [text, giphyState, numberOfUploads], // eslint-disable-line
   );
 
+  const handleCommandsClick = () => {
+    openCommandsList();
+    setGiphyState(false);
+    setCommandsOpen(true);
+  };
+
   return (
-    <div className='message-input-container'>
+    <div className='input-ui-container'>
       <EmojiPicker />
-      <div className={`message-input-input ${giphyState ? 'giphy' : ''}`}>
+      <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
         {giphyState && !numberOfUploads && <GiphyIcon />}
         <ChatAutoComplete onChange={onChange} placeholder='Say something' />
+        <div className='input-ui-input-commands' onClick={handleCommandsClick}>
+          <CommandBolt />
+        </div>
         {!giphyState && (
           <div
-            className='message-input-input-emoji-picker'
+            className='input-ui-input-emoji-picker'
             ref={emojiPickerRef}
             onClick={openEmojiPicker}
           >
@@ -56,7 +79,7 @@ export const MessageInputUI: React.FC = () => {
           </div>
         )}
       </div>
-      <div className={`message-input-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
+      <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
         {giphyState ? (
           <GiphySearch />
         ) : (
