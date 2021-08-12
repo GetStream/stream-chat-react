@@ -13,6 +13,7 @@ import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
 import { Snackbar } from './Snackbar';
 import { SuggestionHeader, SuggestionListItem } from './SuggestionList';
+import { ThreadHeader } from './ThreadHeader';
 import { UserActionsModal } from './UserActionsModal';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -95,6 +96,7 @@ export const ChatContainer: React.FC = () => {
                   channel={currentChannel}
                   GiphyPreviewMessage={GiphyPreview}
                   Input={MessageInputUI}
+                  ThreadHeader={ThreadHeader}
                   VirtualMessage={(props) => (
                     <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
                   )}

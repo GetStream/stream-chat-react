@@ -1,10 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ChatAutoComplete, EmojiPicker, useMessageInputContext } from 'stream-chat-react';
+import {
+  ChatAutoComplete,
+  EmojiPicker,
+  MessageInputProps,
+  useMessageInputContext,
+} from 'stream-chat-react';
 
 import { CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
-export const MessageInputUI: React.FC = () => {
+type Props = MessageInputProps & {
+  checked?: boolean;
+  setChecked?: React.Dispatch<React.SetStateAction<boolean>>;
+  threadInput?: boolean;
+};
+
+export const MessageInputUI = (props: Props) => {
+  const { checked, setChecked, threadInput = false } = props;
+
   const {
     closeCommandsList,
     emojiPickerRef,
@@ -19,6 +32,8 @@ export const MessageInputUI: React.FC = () => {
   const { giphyState, setGiphyState } = useGiphyContext();
 
   const [commandsOpen, setCommandsOpen] = useState(false);
+
+  const onCheckChange = () => setChecked?.(!checked);
 
   useEffect(() => {
     const handleClick = () => {
@@ -61,34 +76,47 @@ export const MessageInputUI: React.FC = () => {
   };
 
   return (
-    <div className='input-ui-container'>
-      <EmojiPicker />
-      <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
-        {giphyState && !numberOfUploads && <GiphyIcon />}
-        <ChatAutoComplete onChange={onChange} placeholder='Say something' />
-        <div className='input-ui-input-commands' onClick={handleCommandsClick}>
-          <CommandBolt />
-        </div>
-        {!giphyState && (
-          <div
-            className='input-ui-input-emoji-picker'
-            ref={emojiPickerRef}
-            onClick={openEmojiPicker}
-          >
-            <EmojiPickerIcon />
+    <>
+      <div className='input-ui-container'>
+        <EmojiPicker />
+        <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
+          {giphyState && !numberOfUploads && <GiphyIcon />}
+          <ChatAutoComplete onChange={onChange} placeholder='Say something' />
+          <div className='input-ui-input-commands' onClick={handleCommandsClick}>
+            <CommandBolt />
           </div>
-        )}
+          {!giphyState && (
+            <div
+              className='input-ui-input-emoji-picker'
+              ref={emojiPickerRef}
+              onClick={openEmojiPicker}
+            >
+              <EmojiPickerIcon />
+            </div>
+          )}
+        </div>
+        <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
+          {giphyState ? (
+            <GiphySearch />
+          ) : (
+            <>
+              <SendArrow />
+              <div>269</div>
+            </>
+          )}
+        </div>
       </div>
-      <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
-        {giphyState ? (
-          <GiphySearch />
-        ) : (
-          <>
-            <SendArrow />
-            <div>269</div>
-          </>
-        )}
-      </div>
-    </div>
+      {threadInput && (
+        <div className='thread-footer'>
+          <input
+            checked={checked}
+            className='thread-footer-checkbox'
+            onChange={onCheckChange}
+            type='checkbox'
+          />
+          <div className='thread-footer-text'>Send also as direct message</div>
+        </div>
+      )}
+    </>
   );
 };

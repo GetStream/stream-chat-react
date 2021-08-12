@@ -8,6 +8,7 @@ import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { SuggestionHeader, SuggestionListItem } from './SuggestionList';
+import { ThreadHeader } from './ThreadHeader';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse } from '../../assets';
@@ -57,6 +58,7 @@ export const DMChannel: React.FC<Props> = (props) => {
         EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}
         GiphyPreviewMessage={GiphyPreview}
         Input={MessageInputUI}
+        ThreadHeader={ThreadHeader}
         VirtualMessage={MessageUI}
       >
         <ChannelInner />

@@ -3,6 +3,7 @@ import {
   Attachment,
   Avatar,
   isDate,
+  MessageRepliesCountButton,
   MessageUIComponentProps,
   SimpleReactionsList,
   useChannelStateContext,
@@ -98,8 +99,9 @@ export const MessageUI: React.FC<
   const { setMessageActionUser } = props;
 
   const { messages } = useChannelStateContext();
+
   const { themeModalOpen } = useEventContext();
-  const { message } = useMessageContext<
+  const { handleOpenThread, message } = useMessageContext<
     AttachmentType,
     ChannelType,
     CommandType,
@@ -163,6 +165,7 @@ export const MessageUI: React.FC<
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
     </div>
