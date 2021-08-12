@@ -1,3 +1,10 @@
+export { Ban } from './commandIcons/Ban';
+export { Flag } from './commandIcons/Flag';
+export { Mute } from './commandIcons/Mute';
+export { Giphy } from './commandIcons/Giphy';
+export { Unban } from './commandIcons/Unban';
+export { Unmute } from './commandIcons/Unmute';
+
 export { EventCard1 } from './eventCardPictures/EventCard1';
 export { EventCard2 } from './eventCardPictures/EventCard2';
 export { EventCard3 } from './eventCardPictures/EventCard3';
