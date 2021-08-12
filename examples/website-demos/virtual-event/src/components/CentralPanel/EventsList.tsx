@@ -91,7 +91,7 @@ export const EventsList = () => {
       <div className={`events-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
       </div>
-      <div className='events-list-container'>
+      <div className={`events-list-container${videoOpen ? '-hidden' : ''}`}>
         {currentEvents.map((event, i) => (
           <div className='events-list-container-item' key={i}>
             <EventCard
