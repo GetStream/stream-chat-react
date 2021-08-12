@@ -14,9 +14,7 @@ export const ThreadInner = () => {
   return (
     <>
       <Thread
-        additionalMessageInputProps={
-          checked ? { overrideSubmitHandler: threadOverrideSubmitHandler } : undefined
-        }
+        additionalMessageInputProps={{ overrideSubmitHandler: threadOverrideSubmitHandler }}
         Input={(props) => <ThreadInputUI {...props} checked={checked} setChecked={setChecked} />}
         Message={MessageUI}
       />
