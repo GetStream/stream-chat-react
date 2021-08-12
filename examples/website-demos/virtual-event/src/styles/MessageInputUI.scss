@@ -167,9 +167,33 @@
   bottom: 65px;
 }
 
+.rta__list-header {
+  padding: 0;
+}
+
 .suggestion-header {
   color: $text-mid-emphasis;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding-left: 8px;
+  padding-top: 8px;
+
+  span {
+    color: $primary-accent;
+    font-size: 22px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  :last-child {
+    margin-left: 8px;
+  }
+
+  svg path {
+    fill: $primary-accent;
+  }
 }
 
 .suggestion-item {
@@ -178,8 +202,24 @@
   height: 40px;
   font-size: 18px;
   font-weight: 600;
-  padding-left: 8px;
+  padding: 0 8px;
   color: $text-high-emphasis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &-icon {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  &-description {
+    margin-left: 8px;
+    color: $text-mid-emphasis;
+    font-weight: normal;
+    font-size: 14px;
+  }
 }
 
 .suggestion-item.selected {
