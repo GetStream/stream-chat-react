@@ -54,58 +54,58 @@ export const ChatContainer: React.FC = () => {
       {isFullScreen && <ChatSidebar />}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient} customStyles={customStyles}>
-          {searching && (
-            <ParticipantSearch
-              setDmChannel={setDmChannel}
-              setParticipantProfile={setParticipantProfile}
-              setSearching={setSearching}
-            />
-          )}
-          {participantProfile && (
-            <ParticipantProfile
-              participantProfile={participantProfile}
-              setDmChannel={setDmChannel}
-              setParticipantProfile={setParticipantProfile}
-            />
-          )}
-          {actionsModalOpen && userActionType && (
-            <UserActionsModal
-              dmChannel={dmChannel}
-              messageActionUser={messageActionUser}
-              participantProfile={participantProfile}
-              setSnackbar={setSnackbar}
-              userActionType={userActionType}
-            />
-          )}
-          {snackbar && userActionType && (
-            <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
-          )}
-          <ChatHeader />
-          {showChannelList ? (
-            <DMChannelList
-              dmChannel={dmChannel}
-              setDmChannel={setDmChannel}
-              setParticipantProfile={setParticipantProfile}
-            />
-          ) : (
-            currentChannel && (
-              <Channel
-                AutocompleteSuggestionHeader={SuggestionHeader}
-                AutocompleteSuggestionItem={SuggestionListItem}
-                channel={currentChannel}
-                GiphyPreviewMessage={GiphyPreview}
-                Input={MessageInputUI}
-                ThreadHeader={ThreadHeader}
-                VirtualMessage={(props) => (
-                  <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
-                )}
-              >
-                <GiphyContextProvider>
+          <GiphyContextProvider>
+            {searching && (
+              <ParticipantSearch
+                setDmChannel={setDmChannel}
+                setParticipantProfile={setParticipantProfile}
+                setSearching={setSearching}
+              />
+            )}
+            {participantProfile && (
+              <ParticipantProfile
+                participantProfile={participantProfile}
+                setDmChannel={setDmChannel}
+                setParticipantProfile={setParticipantProfile}
+              />
+            )}
+            {actionsModalOpen && userActionType && (
+              <UserActionsModal
+                dmChannel={dmChannel}
+                messageActionUser={messageActionUser}
+                participantProfile={participantProfile}
+                setSnackbar={setSnackbar}
+                userActionType={userActionType}
+              />
+            )}
+            {snackbar && userActionType && (
+              <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
+            )}
+            <ChatHeader />
+            {showChannelList ? (
+              <DMChannelList
+                dmChannel={dmChannel}
+                setDmChannel={setDmChannel}
+                setParticipantProfile={setParticipantProfile}
+              />
+            ) : (
+              currentChannel && (
+                <Channel
+                  AutocompleteSuggestionHeader={SuggestionHeader}
+                  AutocompleteSuggestionItem={SuggestionListItem}
+                  channel={currentChannel}
+                  GiphyPreviewMessage={GiphyPreview}
+                  Input={MessageInputUI}
+                  ThreadHeader={ThreadHeader}
+                  VirtualMessage={(props) => (
+                    <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
+                  )}
+                >
                   <ChannelInner />
-                </GiphyContextProvider>
-              </Channel>
-            )
-          )}
+                </Channel>
+              )
+            )}
+          </GiphyContextProvider>
         </Chat>
       </div>
     </div>
