@@ -12,6 +12,7 @@ import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
 import { Snackbar } from './Snackbar';
+import { ThreadHeader } from './ThreadHeader';
 import { UserActionsModal } from './UserActionsModal';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -19,7 +20,6 @@ import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useInitChat } from '../../hooks/useInitChat';
 
 import { Channel as StreamChannel, UserResponse } from 'stream-chat';
-import { ThreadHeaderUI } from './ThreadHeaderUI';
 
 export const ChatContainer: React.FC = () => {
   const {
@@ -92,7 +92,7 @@ export const ChatContainer: React.FC = () => {
                 channel={currentChannel}
                 GiphyPreviewMessage={GiphyPreview}
                 Input={MessageInputUI}
-                ThreadHeader={ThreadHeaderUI}
+                ThreadHeader={ThreadHeader}
                 VirtualMessage={(props) => (
                   <MessageUI {...props} setMessageActionUser={setMessageActionUser} />
                 )}

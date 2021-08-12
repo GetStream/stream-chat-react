@@ -52,14 +52,14 @@ export const ThreadInputUI: React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className='message-input-container'>
+      <div className='input-ui-container'>
         <EmojiPicker />
-        <div className={`message-input-input ${giphyState ? 'giphy' : ''}`}>
+        <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
           <ChatAutoComplete onChange={onChange} placeholder='Say something' />
           {!giphyState && (
             <div
-              className='message-input-input-emoji-picker'
+              className='input-ui-input-emoji-picker'
               ref={emojiPickerRef}
               onClick={openEmojiPicker}
             >
@@ -68,7 +68,7 @@ export const ThreadInputUI: React.FC<Props> = (props) => {
           )}
         </div>
         <div
-          className={`message-input-send ${text ? 'text' : ''}`}
+          className={`input-ui-send ${text ? 'text' : ''}`}
           onClick={(e) => {
             handleSubmit(e);
             setChecked(false);

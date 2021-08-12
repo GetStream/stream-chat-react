@@ -161,9 +161,7 @@ export const MessageUI: React.FC<
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        <div className='str-chat__message-simple-reply-button'>
-          <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
-        </div>
+        <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
     </div>

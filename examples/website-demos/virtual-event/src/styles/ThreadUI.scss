@@ -8,6 +8,11 @@
   &__thread {
     max-width: unset;
 
+    .dm-header-container {
+      border: none;
+      border-bottom: 1px solid $stroke;
+    }
+
     &-start {
       display: none;
     }
