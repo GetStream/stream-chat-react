@@ -12,6 +12,7 @@ import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
 import { ParticipantSearch } from './ParticipantSearch';
 import { Snackbar } from './Snackbar';
+import { SuggestionHeader, SuggestionListItem } from './SuggestionList';
 import { UserActionsModal } from './UserActionsModal';
 
 import { useEventContext } from '../../contexts/EventContext';
@@ -88,6 +89,8 @@ export const ChatContainer: React.FC = () => {
           ) : (
             currentChannel && (
               <Channel
+                AutocompleteSuggestionHeader={SuggestionHeader}
+                AutocompleteSuggestionItem={SuggestionListItem}
                 channel={currentChannel}
                 GiphyPreviewMessage={GiphyPreview}
                 Input={MessageInputUI}
