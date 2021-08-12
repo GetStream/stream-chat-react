@@ -23,8 +23,10 @@ type EventContextValue = {
   setTheme: React.Dispatch<React.SetStateAction<ThemeOptions>>;
   setThemeModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
+  setVideoOpen: React.Dispatch<React.SetStateAction<boolean>>;
   showChannelList: boolean;
   themeModalOpen: boolean;
+  videoOpen: boolean;
   eventName?: string;
   userActionType?: UserActions;
 };
@@ -41,6 +43,7 @@ export const EventProvider: React.FC = ({ children }) => {
   const [showChannelList, setShowChannelList] = useState(false);
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [userActionType, setUserActionType] = useState<UserActions>();
+  const [videoOpen, setVideoOpen] = useState(false);
 
   const { setMode, setTheme } = useTheme();
 
@@ -63,8 +66,10 @@ export const EventProvider: React.FC = ({ children }) => {
     setShowChannelList,
     setThemeModalOpen,
     setUserActionType,
+    setVideoOpen,
     themeModalOpen,
     userActionType,
+    videoOpen,
   };
 
   return <EventContext.Provider value={value}>{children}</EventContext.Provider>;

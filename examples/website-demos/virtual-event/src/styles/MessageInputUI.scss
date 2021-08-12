@@ -1,6 +1,6 @@
 @import './_variables';
 
-.message-input {
+.input-ui {
   &-container {
     position: relative;
     display: flex;
@@ -19,6 +19,18 @@
     flex: 1;
     background: $card-alt-background;
     transition: background 1s, border-color 0.2s;
+
+    &-commands {
+      margin-right: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      svg:hover path {
+        fill: $primary-accent;
+      }
+    }
 
     &-emoji-picker {
       &:hover {
@@ -92,7 +104,6 @@
 
 .str-chat__textarea {
   width: 100%;
-  padding-right: 16px;
   display: flex;
   align-items: center;
   height: 100%;

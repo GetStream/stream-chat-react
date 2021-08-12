@@ -6,6 +6,7 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
+import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
 import { ParticipantProfile } from './ParticipantProfile';
@@ -89,6 +90,7 @@ export const ChatContainer: React.FC = () => {
             currentChannel && (
               <Channel
                 channel={currentChannel}
+                GiphyPreviewMessage={GiphyPreview}
                 Input={MessageInputUI}
                 ThreadHeader={ThreadHeaderUI}
                 VirtualMessage={(props) => (

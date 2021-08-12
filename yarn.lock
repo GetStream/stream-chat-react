@@ -9441,10 +9441,10 @@ react-view-pager@^0.6.0:
     resize-observer-polyfill "1.5.0"
     tabbable "1.1.2"
 
-react-virtuoso@^1.10.4:
-  version "1.10.4"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.10.4.tgz#c7ec91f98c3e65f3d98a41df1e01d305b523ba0a"
-  integrity sha512-rWXr61gASl+KDEwakwgxoSL+uwuevSsu1wQyDzeCdIN+PgbGfLOcvEsFoTt96E4+VWQ5BawZYkh8iNUgQpucXw==
+react-virtuoso@^1.10.6:
+  version "1.10.6"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.10.6.tgz#f20bed0040c29253a7be9f104a900c40384f6a17"
+  integrity sha512-cEv6QiYwChHV2ozTWP6UMaopKaJBAuvHdzIxuZ2Wow71Ka6EZRLvwkYOqCmWSprWiueOiwr7TK+zrosjH2CtzQ==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
@@ -10624,10 +10624,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@3.13.1:
-  version "3.13.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-3.13.1.tgz#1692246dd74968dee7596a6a8c1e1a02656bb634"
-  integrity sha512-JWgVwRgmAE/a7P9i+LK2Lr2C4dXfRaedm2c4jKsZuMPR6KwINIy0kgdGyds3Xqmp4/LPSfhXZJ7wExmlfo9+7g==
+stream-chat@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-4.0.0.tgz#7aec92015c8d1a2ee1344ca32b2f51a70cace600"
+  integrity sha512-u4oTd4d19E23t0IVj60G/DhJVNIEUUQt7SI8Zx8Rhum9GLfQ8VwXsgcJYUsLHaiIjpMVjttyoYmR/F8RP8f3+w==
   dependencies:
     "@babel/runtime" "^7.13.10"
     "@types/jsonwebtoken" "^8.5.0"

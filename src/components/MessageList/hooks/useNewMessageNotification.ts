@@ -22,6 +22,10 @@ export function useNewMessageNotification<
   Us extends DefaultUserType<Us> = DefaultUserType
 >(messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], currentUserId?: string) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
+  /**
+   * use the flag to avoid the initial "new messages" quick blink
+   */
+  const didMount = useRef(false);
 
   const lastMessageId = useRef('');
   const atBottom = useRef(false);
@@ -41,10 +45,11 @@ export function useNewMessageNotification<
     if (atBottom.current) return;
 
     /* if the new message belongs to current user scroll to bottom */
-    if (lastMessage.user?.id !== currentUserId) {
+    if (lastMessage.user?.id !== currentUserId && didMount.current) {
       /* otherwise just show newMessage notification  */
       setNewMessagesNotification(true);
     }
+    didMount.current = true;
   }, [currentUserId, messages]);
 
   return { atBottom, newMessagesNotification, setNewMessagesNotification };

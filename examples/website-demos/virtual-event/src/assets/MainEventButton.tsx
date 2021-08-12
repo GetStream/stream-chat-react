@@ -9,6 +9,7 @@ export const MainEventButton: React.FC = () => {
     setEventName,
     setSelected,
     setShowChannelList,
+    setVideoOpen,
     showChannelList,
   } = useEventContext();
 
@@ -16,6 +17,7 @@ export const MainEventButton: React.FC = () => {
     setSelected('main-event');
     setEventName(undefined);
     setChatType('global');
+    setVideoOpen(false);
     if (showChannelList) setShowChannelList(false);
   };
 

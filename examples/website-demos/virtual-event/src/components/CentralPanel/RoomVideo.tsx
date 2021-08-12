@@ -34,6 +34,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
       setIsPinned(true);
       setPinnedID(event.target.id);
     }
+
     if (isPinned && event.target.id === pinnedID) {
       setIsPinned(false);
       setPinnedID(null);
