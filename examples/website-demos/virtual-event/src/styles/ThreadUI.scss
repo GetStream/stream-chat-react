@@ -42,14 +42,18 @@
   padding-top: 0;
 }
 
-.messaging.str-chat .str-chat__thread-list > .str-chat__list {
-  flex: none;
+.messaging.str-chat .str-chat__thread-list {
+  padding: unset;
+  > .str-chat__list {
+    flex: none;
+  }
 }
 
 .thread-footer {
   display: flex;
-  margin: 8px;
+  padding: 8px;
   align-items: center;
+  background: $app-canvas;
 
   &-text {
     font-size: 12px;
