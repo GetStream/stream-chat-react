@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Thread, useChannelStateContext } from 'stream-chat-react';
 
-import { useThreadOverrideSubmit } from '../../hooks/useThreadOverrideSubmit';
 import { MessageInputUI } from './MessageInputUI';
+
+import { useOverrideSubmit } from '../../hooks/useOverrideSubmit';
 
 export const ThreadInner = () => {
   const [checked, setChecked] = useState(false);
@@ -15,7 +16,7 @@ export const ThreadInner = () => {
     }
   }, [thread]);
 
-  const threadOverrideSubmitHandler = useThreadOverrideSubmit({ checked });
+  const threadOverrideSubmitHandler = useOverrideSubmit(checked);
 
   return (
     <>
