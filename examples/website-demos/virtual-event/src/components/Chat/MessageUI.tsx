@@ -36,18 +36,23 @@ type OptionsProps = {
 const MessageOptions: React.FC<OptionsProps> = (props) => {
   const { isRecentMessage, setMessageActionUser, setShowReactionSelector } = props;
 
+  const { thread } = useChannelStateContext();
   const { handleOpenThread, isMyMessage, message } = useMessageContext();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const myMessageInThread = thread && isMyMessage();
 
   return (
     <div className='message-ui-options'>
       <span onClick={() => setShowReactionSelector((prev) => !prev)}>
         <ReactionSmiley />
       </span>
-      <span onClick={() => setDropdownOpen(!dropdownOpen)}>
-        <MessageActionsEllipse />
-      </span>
+      {!myMessageInThread && (
+        <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+          <MessageActionsEllipse />
+        </span>
+      )}
       {dropdownOpen && (
         <div
           className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''} ${
