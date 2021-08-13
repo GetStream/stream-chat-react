@@ -3,6 +3,7 @@ import {
   Attachment,
   Avatar,
   isDate,
+  MessageRepliesCountButton,
   MessageUIComponentProps,
   SimpleReactionsList,
   useChannelStateContext,
@@ -35,20 +36,29 @@ type OptionsProps = {
 const MessageOptions: React.FC<OptionsProps> = (props) => {
   const { isRecentMessage, setMessageActionUser, setShowReactionSelector } = props;
 
-  const { handleOpenThread, message } = useMessageContext();
+  const { thread } = useChannelStateContext();
+  const { handleOpenThread, isMyMessage, message } = useMessageContext();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const myMessageInThread = thread && isMyMessage();
 
   return (
     <div className='message-ui-options'>
       <span onClick={() => setShowReactionSelector((prev) => !prev)}>
         <ReactionSmiley />
       </span>
-      <span onClick={() => setDropdownOpen(!dropdownOpen)}>
-        <MessageActionsEllipse />
-      </span>
+      {!myMessageInThread && (
+        <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+          <MessageActionsEllipse />
+        </span>
+      )}
       {dropdownOpen && (
-        <div className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''}`}>
+        <div
+          className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''} ${
+            isMyMessage() ? 'mine' : ''
+          }`}
+        >
           <UserActionsDropdown
             dropdownOpen={dropdownOpen}
             openThread={handleOpenThread}
@@ -94,8 +104,9 @@ export const MessageUI: React.FC<
   const { setMessageActionUser } = props;
 
   const { messages } = useChannelStateContext();
+
   const { themeModalOpen } = useEventContext();
-  const { message } = useMessageContext<
+  const { handleOpenThread, message } = useMessageContext<
     AttachmentType,
     ChannelType,
     CommandType,
@@ -119,8 +130,9 @@ export const MessageUI: React.FC<
   }, [showReactionSelector]);
 
   const isRecentMessage =
-    messages?.[messages.length - 1].id === message.id ||
-    messages?.[messages.length - 2].id === message.id;
+    (messages?.[messages.length - 1].id === message.id ||
+      messages?.[messages.length - 2].id === message.id) &&
+    messages.length > 2;
 
   const showTitle = message.user?.title === 'Admin' || message.user?.title === 'Moderator';
 
@@ -159,6 +171,7 @@ export const MessageUI: React.FC<
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
     </div>

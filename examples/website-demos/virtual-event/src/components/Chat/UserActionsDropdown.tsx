@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ReactEventHandler, useChatContext } from 'stream-chat-react';
 
-import { MuteUser, ReportUser, StartThread } from '../../assets';
+import { FlagUser, MuteUser, StartThread } from '../../assets';
 import { useEventContext, UserActions } from '../../contexts/EventContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -88,9 +88,9 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
             <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
             <MuteUser />
           </div>
-          <div className='dropdown-option' onClick={() => handleClick('report')}>
+          <div className='dropdown-option' onClick={() => handleClick('flag')}>
             <div>Flag user</div>
-            <ReportUser />
+            <FlagUser />
           </div>
         </>
       )}

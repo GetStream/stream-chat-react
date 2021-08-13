@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Channel as StreamChannel } from 'stream-chat';
-import { Channel, MessageInput, Thread, VirtualizedMessageList, Window } from 'stream-chat-react';
+import { Channel } from 'stream-chat-react';
 
+import { ChannelInner } from './ChannelInner';
 import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
+import { SuggestionHeader, SuggestionListItem } from './SuggestionList';
+import { ThreadHeader } from './ThreadHeader';
 import { UserActionsDropdown } from './UserActionsDropdown';
 
 import { CloseX, Ellipse } from '../../assets';
@@ -49,17 +52,16 @@ export const DMChannel: React.FC<Props> = (props) => {
         />
       )}
       <Channel
+        AutocompleteSuggestionHeader={SuggestionHeader}
+        AutocompleteSuggestionItem={SuggestionListItem}
         channel={dmChannel}
         EmptyStateIndicator={(props) => <EmptyStateIndicators {...props} isDmChannel />}
         GiphyPreviewMessage={GiphyPreview}
         Input={MessageInputUI}
+        ThreadHeader={ThreadHeader}
         VirtualMessage={MessageUI}
       >
-        <Window hideOnThread>
-          <VirtualizedMessageList hideDeletedMessages separateGiphyPreview />
-          <MessageInput focus />
-        </Window>
-        <Thread />
+        <ChannelInner />
       </Channel>
     </div>
   );

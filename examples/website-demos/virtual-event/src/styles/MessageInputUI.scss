@@ -1,11 +1,13 @@
 @import './_variables';
 
-.message-input {
+.input-ui {
   &-container {
     position: relative;
     display: flex;
     width: 320px;
     border-top: 1px solid $stroke;
+    background: $app-canvas;
+    transition: background 1s;
   }
 
   &-input {
@@ -20,6 +22,28 @@
     background: $card-alt-background;
     transition: background 1s, border-color 0.2s;
 
+    &-commands {
+      margin-right: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      svg:hover path {
+        fill: $primary-accent;
+      }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
+      }
+    }
+
     &-emoji-picker {
       &:hover {
         cursor: pointer;
@@ -27,6 +51,16 @@
 
       svg:hover path {
         fill: $primary-accent;
+      }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
       }
     }
 
@@ -68,31 +102,40 @@
         color: $primary-accent;
       }
     }
-  }
 
-  &-send:hover {
-    cursor: pointer;
-    color: $primary-accent;
-
-    svg {
-      fill: $primary-accent;
+    &-cooldown {
+      font-size: 20px;
+      font-weight: 600;
+      color: $primary-accent;
     }
-  }
 
-  &-send:active {
-    background: $primary-accent;
-    transition: background 1s;
-    color: $white;
+    &:hover {
+      cursor: pointer;
+      color: $primary-accent;
 
-    svg {
-      fill: $white;
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &.cooldown:hover {
+      cursor: default;
+    }
+
+    &:active {
+      background: $primary-accent;
+      transition: background 1s;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
     }
   }
 }
 
 .str-chat__textarea {
   width: 100%;
-  padding-right: 16px;
   display: flex;
   align-items: center;
   height: 100%;
@@ -150,4 +193,68 @@
 
 .str-chat__emojisearch {
   z-index: 999;
+  background: $app-canvas;
+  box-shadow: $shadow;
+  border-radius: 8px;
+  bottom: 65px;
+}
+
+.rta__list-header {
+  padding: 0;
+}
+
+.suggestion-header {
+  color: $text-mid-emphasis;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding-left: 8px;
+  padding-top: 8px;
+
+  span {
+    color: $primary-accent;
+    font-size: 22px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  :last-child {
+    margin-left: 8px;
+  }
+
+  svg path {
+    fill: $primary-accent;
+  }
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 0 8px;
+  color: $text-high-emphasis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &-icon {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  &-description {
+    margin-left: 8px;
+    color: $text-mid-emphasis;
+    font-weight: normal;
+    font-size: 14px;
+  }
+}
+
+.suggestion-item.selected {
+  background: $stroke-low-emphasis;
+  cursor: pointer;
 }

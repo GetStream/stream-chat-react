@@ -1,3 +1,30 @@
+import {
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10,
+  avatar11,
+  avatar12,
+  avatar13,
+  avatar14,
+  avatar15,
+  avatar16,
+  avatar17,
+  avatar18,
+  avatar19,
+  avatar20,
+  avatar21,
+  avatar22,
+  avatar23,
+  avatar24,
+} from '../../assets';
+
 import type { BaseEmoji } from 'emoji-mart';
 
 export const getFormattedTime = (time: number) => {
@@ -87,4 +114,36 @@ const randomTitles = [
 export const getRandomTitle = () => {
   const index = Math.floor(randomTitles.length * Math.random());
   return randomTitles[index];
+};
+
+const randomImages = [
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10,
+  avatar11,
+  avatar12,
+  avatar13,
+  avatar14,
+  avatar15,
+  avatar16,
+  avatar17,
+  avatar18,
+  avatar19,
+  avatar20,
+  avatar21,
+  avatar22,
+  avatar23,
+  avatar24,
+];
+
+export const getRandomImage = () => {
+  const index = Math.floor(Math.random() * 24);
+  return randomImages[index];
 };

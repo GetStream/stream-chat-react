@@ -2,11 +2,11 @@ import { MessageToSend, useChannelActionContext } from 'stream-chat-react';
 
 import { useGiphyContext } from '../contexts/GiphyContext';
 
-export const useOverrideSubmit = () => {
+export const useOverrideSubmit = (showInChannel?: boolean) => {
   const { sendMessage } = useChannelActionContext();
   const { giphyState, setGiphyState } = useGiphyContext();
 
-  const overrideSubmitHandler = (message: MessageToSend) => {
+  const overrideSubmitHandler = async (message: MessageToSend) => {
     let updatedMessage;
 
     if (message.attachments?.length && message.text?.startsWith('/giphy')) {
@@ -19,23 +19,12 @@ export const useOverrideSubmit = () => {
       updatedMessage = { ...message, text: updatedText };
     }
 
-    if (sendMessage) {
-      const newMessage = updatedMessage || message;
-      const parentMessage = newMessage.parent;
+    const messageToSend = updatedMessage || message;
 
-      const messageToSend = {
-        ...newMessage,
-        parent: parentMessage
-          ? {
-              ...parentMessage,
-              created_at: parentMessage.created_at?.toString(),
-              pinned_at: parentMessage.pinned_at?.toString(),
-              updated_at: parentMessage.updated_at?.toString(),
-            }
-          : undefined,
-      };
-
-      sendMessage(messageToSend);
+    try {
+      await sendMessage(messageToSend, { show_in_channel: showInChannel });
+    } catch (err) {
+      console.log(err);
     }
 
     setGiphyState(false);

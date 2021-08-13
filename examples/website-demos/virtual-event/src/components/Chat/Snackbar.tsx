@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CloseSnackbar, MuteUser, ReportUser } from '../../assets';
+import { CloseSnackbar, FlagUser, MuteUser } from '../../assets';
 import { UserActions } from '../../contexts/EventContext';
 
 type Props = {
@@ -25,8 +25,8 @@ export const Snackbar: React.FC<Props> = (props) => {
       title = 'User successfully unmuted';
       break;
 
-    case 'report':
-      Icon = ReportUser;
+    case 'flag':
+      Icon = FlagUser;
       title = 'User successfully flagged';
       break;
   }

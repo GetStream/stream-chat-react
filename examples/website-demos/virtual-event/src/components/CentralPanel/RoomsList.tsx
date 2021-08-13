@@ -10,7 +10,7 @@ import { useEventContext } from '../../contexts/EventContext';
 export const RoomsList = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { chatType, setChatType, setEventName, setVideoOpen, videoOpen } = useEventContext();
+  const { setChatType, setEventName, setVideoOpen, videoOpen } = useEventContext();
 
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -74,7 +74,7 @@ export const RoomsList = () => {
       <div className={`rooms-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
       </div>
-      <div className={`rooms-list-container${chatType === 'room' ? '-hidden' : ''}`}>
+      <div className={`rooms-list-container${videoOpen ? '-hidden' : ''}`}>
         <div className='rooms-list-container-cards'>
           {rooms.map((room, i) => (
             <div className='rooms-list-card' key={i}>

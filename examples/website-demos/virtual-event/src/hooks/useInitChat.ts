@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Channel as StreamChannel, LiteralStringForUnion, StreamChat } from 'stream-chat';
 
-import { getRandomTitle } from '../components/Chat/utils';
+import { getRandomImage, getRandomTitle } from '../components/Chat/utils';
 import { ChatType, useEventContext } from '../contexts/EventContext';
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -56,7 +56,7 @@ export const useInitChat = () => {
         {
           id: userId,
           name: userId,
-          image: process.env.REACT_APP_USER_IMAGE,
+          image: process.env.REACT_APP_USER_IMAGE || getRandomImage(),
           title: userId === 'daddy-dan' ? 'Admin' : getRandomTitle(),
         },
         userToken,
