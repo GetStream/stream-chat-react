@@ -2,7 +2,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { Attachment, UpdatedMessage } from 'stream-chat';
+import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
@@ -102,7 +102,10 @@ export const useSubmitHandler = <
     ];
   };
 
-  const handleSubmit = async (event: React.BaseSyntheticEvent) => {
+  const handleSubmit = async (
+    event: React.BaseSyntheticEvent,
+    customMessageData?: Partial<Message<At, Me, Us>>,
+  ) => {
     event.preventDefault();
 
     const trimmedMessage = text.trim();
@@ -171,7 +174,13 @@ export const useSubmitHandler = <
             channel.cid,
           );
         } else {
-          await sendMessage({ ...updatedMessage, parent });
+          await sendMessage(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            customMessageData,
+          );
         }
 
         if (publishTypingEvent) await channel.stopTyping();
