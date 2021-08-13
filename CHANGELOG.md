@@ -4,7 +4,7 @@
 
 ### Feature
 
-- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1121](https://github.com/GetStream/stream-chat-react/pull/1121)
+- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1121](https://github.com/GetStream/stream-chat-react/pull/1123)
 
 ### Chore
 
