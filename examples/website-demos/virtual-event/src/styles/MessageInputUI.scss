@@ -6,6 +6,8 @@
     display: flex;
     width: 320px;
     border-top: 1px solid $stroke;
+    background: $app-canvas;
+    transition: background 1s;
   }
 
   &-input {
