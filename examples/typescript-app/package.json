@@ -7,7 +7,7 @@
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
     "react-scripts": "3.4.1",
-    "stream-chat": "3.13.1",
+    "stream-chat": "4.0.0",
     "stream-chat-react": "link:../../",
     "typescript": "4.3.5"
   },
