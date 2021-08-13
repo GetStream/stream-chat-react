@@ -1,7 +1,8 @@
 import React from 'react';
-import type { Message } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { Message } from 'stream-chat';
 
 import type { DefaultAttachmentType, DefaultMessageType, DefaultUserType } from '../../types/types';
 
