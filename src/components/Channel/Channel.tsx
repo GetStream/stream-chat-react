@@ -569,6 +569,7 @@ const ChannelInner = <
       message:
         | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
         | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+      customMessageData?: Partial<Message<At, Me, Us>>,
     ) => {
       if (!channel) return;
 
@@ -586,6 +587,7 @@ const ChannelInner = <
         parent_id,
         quoted_message_id: quotedMessage?.id,
         text,
+        ...customMessageData,
       } as Message<At, Me, Us>;
 
       try {
@@ -650,12 +652,15 @@ const ChannelInner = <
   );
 
   const sendMessage = useCallback(
-    async ({
-      attachments = [],
-      mentioned_users = [],
-      parent = undefined,
-      text = '',
-    }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>) => {
+    async (
+      {
+        attachments = [],
+        mentioned_users = [],
+        parent = undefined,
+        text = '',
+      }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
+      customMessageData?: Partial<Message<At, Me, Us>>,
+    ) => {
       if (!channel) return;
 
       // remove error messages upon submit
@@ -667,7 +672,7 @@ const ChannelInner = <
       // first we add the message to the UI
       updateMessage(messagePreview);
 
-      await doSendMessage(messagePreview);
+      await doSendMessage(messagePreview, customMessageData);
     },
     [channel?.state, createMessagePreview, doSendMessage, updateMessage],
   );
