@@ -22,7 +22,6 @@ export const useOverrideSubmit = (showInChannel?: boolean) => {
     const messageToSend = updatedMessage || message;
 
     try {
-      //@ts-expect-error
       await sendMessage(messageToSend, { show_in_channel: showInChannel });
     } catch (err) {
       console.log(err);
