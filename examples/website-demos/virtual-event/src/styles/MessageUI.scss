@@ -119,6 +119,55 @@
     }
   }
 
+  &-qa {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    margin-left: auto;
+    background: $card-background;
+    transition: background 1s;
+    cursor: pointer;
+
+    &.up-voted {
+      background: $primary-accent;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
+    }
+
+    svg {
+      margin: 14px 6px 14px 11px;
+      fill: $text-low-emphasis;
+    }
+
+    &-text {
+      margin-right: 14px;
+    }
+
+    &:hover {
+      cursor: pointer;
+      color: $primary-accent;
+      background: $app-canvas;
+      transition: none;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &:active {
+      background: $primary-accent;
+      transition: none;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
+    }
+  }
+
   .str-chat__avatar {
     margin-right: 0;
     margin-top: 4px;
