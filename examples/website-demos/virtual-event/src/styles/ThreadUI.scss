@@ -12,6 +12,10 @@
       padding: unset;
     }
 
+    .dropdown-option.thread {
+      display: none;
+    }
+
     .dm-header-container {
       border: none;
       border-bottom: 1px solid $stroke;
