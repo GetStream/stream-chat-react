@@ -93,7 +93,7 @@ const UnMemoizedMessageTextComponent = <
   const innerClass =
     customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!messageTextToRender) return null;
+  if (!messageTextToRender && !message.quoted_message) return null;
 
   return (
     <div className={wrapperClass}>
