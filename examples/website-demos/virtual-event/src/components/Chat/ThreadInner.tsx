@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Thread, useChannelStateContext } from 'stream-chat-react';
 
 import { useThreadOverrideSubmit } from '../../hooks/useThreadOverrideSubmit';
