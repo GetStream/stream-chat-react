@@ -4,7 +4,7 @@ import { ModeOptions, ThemeOptions, useTheme } from '../hooks/useTheme';
 
 export type ChatType = 'global' | 'main-event' | 'room' | 'direct' | 'qa';
 export type TabOptions = 'overview' | 'main-event' | 'rooms';
-export type UserActions = 'block' | 'mute' | 'report' | 'unmute';
+export type UserActions = 'flag' | 'mute' | 'unmute';
 
 type EventContextValue = {
   actionsModalOpen: boolean;

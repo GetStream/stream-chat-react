@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatContext } from 'stream-chat-react';
 
-import { MuteUser, ReportUser } from '../../assets';
+import { FlagUser, MuteUser } from '../../assets';
 import { useEventContext, UserActions } from '../../contexts/EventContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -37,8 +37,8 @@ export const UserActionsModal: React.FC<Props> = (props) => {
       description = 'You will resume receiving notifications from them.';
       break;
 
-    case 'report':
-      Icon = ReportUser;
+    case 'flag':
+      Icon = FlagUser;
       title = 'Flag user';
       description = 'You will flag them for moderation by the chat admin.';
       break;
@@ -62,7 +62,7 @@ export const UserActionsModal: React.FC<Props> = (props) => {
         await client.muteUser(actionUserId);
       } else if (action === 'unmute') {
         await client.unmuteUser(actionUserId);
-      } else if (action === 'report') {
+      } else if (action === 'flag') {
         await client.flagUser(actionUserId);
       }
     } catch (err) {

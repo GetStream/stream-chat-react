@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, isChannel, SearchResultItemProps } from 'stream-chat-react';
 
-// import { BlockUser, MuteUser, ReportUser, UserEllipse } from '../../assets';
-
 import type {
   AttachmentType,
   ChannelType,
@@ -12,29 +10,6 @@ import type {
   ReactionType,
   UserType,
 } from '../../hooks/useInitChat';
-
-// const UserActions: React.FC = () => {
-//   const handleClick: React.MouseEventHandler<HTMLDivElement> = (event) => {
-//     event.stopPropagation();
-//   };
-
-//   return (
-//     <div className='search-result-actions'>
-//       <div onClick={handleClick} className='search-result-actions-item'>
-//         <div>Mute user</div>
-//         <MuteUser />
-//       </div>
-//       <div onClick={handleClick} className='search-result-actions-item'>
-//         <div>Block user</div>
-//         <BlockUser />
-//       </div>
-//       <div onClick={handleClick} className='search-result-actions-item'>
-//         <div>Report user</div>
-//         <ReportUser />
-//       </div>
-//     </div>
-//   );
-// };
 
 export const SearchResult: React.FC<
   SearchResultItemProps<
@@ -50,7 +25,6 @@ export const SearchResult: React.FC<
   const { focusedUser, index, result, selectResult } = props;
 
   const [actionsOpen, setActionsOpen] = useState(false);
-  // const [showEllipse, setShowEllipse] = useState(false);
 
   const focused = focusedUser === index;
 
@@ -76,16 +50,12 @@ export const SearchResult: React.FC<
     <div
       className={`search-result ${focused ? 'focused' : ''}`}
       onClick={() => selectResult(result)}
-      // onMouseEnter={() => setShowEllipse(true)}
-      // onMouseLeave={() => setShowEllipse(false)}
     >
       <Avatar image={result.image} name={result.name || result.id} user={result} />
       <div className='search-result-info'>
         <div className='search-result-info-name'>{result.name || result.id}</div>
         <div className='search-result-info-title'>{result.title || 'Attendee'}</div>
       </div>
-      {/* {showEllipse && <UserEllipse setActionsOpen={setActionsOpen} />}
-      {actionsOpen && <UserActions />} */}
     </div>
   );
 };
