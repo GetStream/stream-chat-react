@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.1) 2021-08-13
+
+### Feature
+
+- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1121](https://github.com/GetStream/stream-chat-react/pull/1121)
+
+### Chore
+
+- Add support to quote a message with an attachment [#1118](https://github.com/GetStream/stream-chat-react/pull/1118)
+- Upgrade `stream-chat` to major version 4 [#1120](https://github.com/GetStream/stream-chat-react/pull/1120)
+
+### Bug
+
+- Skip `MessageInput` slow mode cooldown for admin and moderator user roles [#1116](https://github.com/GetStream/stream-chat-react/pull/1116)
+
 ## [6.5.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.0) 2021-08-11
 
 ### Feature
