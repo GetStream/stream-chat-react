@@ -126,7 +126,7 @@ export const MessageInputSmall = <
             )}
             <EmojiPicker small />
           </div>
-          {!cooldownRemaining && <SendButton<At, Me, Us> sendMessage={handleSubmit} />}
+          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>
