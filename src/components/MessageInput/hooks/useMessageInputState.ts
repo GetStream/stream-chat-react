@@ -12,7 +12,7 @@ import { usePasteHandler } from './usePasteHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type { FileLike } from 'react-file-utils';
-import type { Attachment, UserResponse } from 'stream-chat';
+import type { Attachment, Message, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -122,12 +122,19 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | RemoveFileUploadAction
   | AddMentionedUserAction<Us>;
 
-export type MessageInputHookProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type MessageInputHookProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
-  handleSubmit: (event: React.BaseSyntheticEvent) => void;
+  handleSubmit: (
+    event: React.BaseSyntheticEvent,
+    customMessageData?: Partial<Message<At, Me, Us>>,
+  ) => void;
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
@@ -344,7 +351,7 @@ export const useMessageInputState = <
   V extends CustomTrigger = CustomTrigger
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-): MessageInputState<At, Us> & MessageInputHookProps<Us> & CommandsListState => {
+): MessageInputState<At, Us> & MessageInputHookProps<At, Me, Us> & CommandsListState => {
   const { message } = props;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();

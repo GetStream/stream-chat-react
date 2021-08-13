@@ -133,7 +133,7 @@ export const MessageInputFlat = <
               </div>
             )}
           </div>
-          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
+          {!cooldownRemaining && <SendButton<At, Me, Us> sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

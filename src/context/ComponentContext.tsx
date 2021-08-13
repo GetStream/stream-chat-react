@@ -81,7 +81,7 @@ export type ComponentContextValue<
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
-  SendButton?: React.ComponentType<SendButtonProps>;
+  SendButton?: React.ComponentType<SendButtonProps<At, Me, Us>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
   ThreadInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
   ThreadStart?: React.ComponentType;

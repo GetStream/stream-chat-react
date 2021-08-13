@@ -1,6 +1,9 @@
 import React from 'react';
+import type { Message } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+
+import type { DefaultAttachmentType, DefaultMessageType, DefaultUserType } from '../../types/types';
 
 export const EmojiIconLarge: React.FC = () => {
   const { t } = useTranslationContext();
@@ -56,12 +59,24 @@ export const FileUploadIconFlat: React.FC = () => {
   );
 };
 
-export type SendButtonProps = {
-  /** Function to send a message to the currently active channel */
-  sendMessage: (event: React.BaseSyntheticEvent) => void;
+export type SendButtonProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  sendMessage: (
+    event: React.BaseSyntheticEvent,
+    customMessageData?: Partial<Message<At, Me, Us>>,
+  ) => void;
 };
 
-export const SendButton: React.FC<SendButtonProps> = ({ sendMessage }) => {
+export const SendButton = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>({
+  sendMessage,
+}: SendButtonProps<At, Me, Us>) => {
   const { t } = useTranslationContext();
 
   return (
