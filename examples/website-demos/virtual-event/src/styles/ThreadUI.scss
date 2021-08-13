@@ -48,9 +48,6 @@
 
 .messaging.str-chat .str-chat__thread-list {
   padding: unset;
-  > .str-chat__list {
-    flex: none;
-  }
 }
 
 .thread-footer {
@@ -58,6 +55,7 @@
   padding: 8px;
   align-items: center;
   background: $app-canvas;
+  transition: background 1s;
 
   &-text {
     font-size: 12px;
