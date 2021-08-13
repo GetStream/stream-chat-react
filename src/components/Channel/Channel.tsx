@@ -678,20 +678,16 @@ const ChannelInner = <
   );
 
   const retrySendMessage = useCallback(
-    async (
-      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-      customMessageData?: Partial<Message<At, Me, Us>>,
-    ) => {
+    async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
       // set the message status to sending
       updateMessage({
         ...message,
-        ...customMessageData,
         errorStatusCode: undefined,
         status: 'sending',
       });
 
       // actually try to send the message...
-      await doSendMessage(message, customMessageData);
+      await doSendMessage(message);
     },
     [doSendMessage, updateMessage],
   );
