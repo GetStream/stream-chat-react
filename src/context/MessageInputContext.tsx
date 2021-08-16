@@ -29,7 +29,7 @@ export type MessageInputContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 > = MessageInputState<At, Us> &
-  MessageInputHookProps<Us> &
+  MessageInputHookProps<At, Me, Us> &
   Omit<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>, 'Input'> &
   CooldownTimerState & { autocompleteTriggers?: TriggerSettings<Co, Us, V> } & CommandsListState;
 

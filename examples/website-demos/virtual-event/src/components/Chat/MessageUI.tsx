@@ -132,8 +132,9 @@ export const MessageUI: React.FC<
   }, [showReactionSelector]);
 
   const isRecentMessage =
-    messages?.[messages.length - 1].id === message.id ||
-    messages?.[messages.length - 2].id === message.id;
+    (messages?.[messages.length - 1].id === message.id ||
+      messages?.[messages.length - 2].id === message.id) &&
+    messages.length > 2;
 
   const showTitle = message.user?.title === 'Admin' || message.user?.title === 'Moderator';
 
