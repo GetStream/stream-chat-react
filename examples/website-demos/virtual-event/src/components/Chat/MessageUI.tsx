@@ -107,7 +107,7 @@ export const MessageUI: React.FC<
   const { messages } = useChannelStateContext();
   const { client } = useChatContext();
 
-  const { themeModalOpen } = useEventContext();
+  const { chatType, themeModalOpen } = useEventContext();
   const { handleOpenThread, message } = useMessageContext<
     AttachmentType,
     ChannelType,
@@ -148,20 +148,22 @@ export const MessageUI: React.FC<
     return getFormattedTime(secondsSinceLastMessage);
   };
 
-  const handleQAClick = async () => {
+  const handleQAClick = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+
     const mentionIDs = message.mentioned_users?.map(({ id }) => id);
     let updatedUpVotes;
 
     if (!message.up_votes) {
-      await client.updateMessage({
+      return await client.updateMessage({
         ...message,
         mentioned_users: mentionIDs,
-        up_votes: [client.user?.id],
+        up_votes: [client.userID],
       });
-    } else if (client.user?.id && message.up_votes.includes(client.user?.id)) {
-      updatedUpVotes = message.up_votes.filter((userID) => userID !== client.user?.id);
+    } else if (client.userID && message.up_votes.includes(client.userID)) {
+      updatedUpVotes = message.up_votes.filter((userID) => userID !== client.userID);
     } else {
-      updatedUpVotes = [...message.up_votes, client.user?.id];
+      updatedUpVotes = [...message.up_votes, client.userID];
     }
 
     const updatedMessage = {
@@ -170,11 +172,11 @@ export const MessageUI: React.FC<
       up_votes: updatedUpVotes,
     };
 
-    await client.updateMessage(updatedMessage);
+    return await client.updateMessage(updatedMessage);
   };
 
-  const isQA = message.cid?.slice(-3) === ':qa';
-  const userUpVoted = client.user && message.up_votes?.includes(client.user?.id);
+  const isQA = chatType === 'qa';
+  const userUpVoted = client.userID && message.up_votes?.includes(client.userID);
 
   if (!message.user) return null;
 
