@@ -8,10 +8,9 @@ import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { Channel, SendFileAPIResponse } from 'stream-chat';
+import type { Channel, SendFileAPIResponse, UserFilters, UserOptions, UserSort } from 'stream-chat';
 
 import type { FileUpload, ImageUpload } from './hooks/useMessageInputState';
-import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
@@ -25,6 +24,12 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
+
+export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  filters?: UserFilters<Us>;
+  options?: UserOptions;
+  sort?: UserSort<Us>;
+};
 
 export type MessageInputProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
