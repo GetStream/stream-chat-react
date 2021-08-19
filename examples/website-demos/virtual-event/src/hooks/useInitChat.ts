@@ -29,7 +29,9 @@ export const useInitChat = () => {
       return setCurrentChannel(undefined);
     }
 
-    const channelId = event && type !== 'global' ? `${type}-${event}` : type;
+    const channelIsEvent = type === 'main-event' || type === 'room';
+
+    const channelId = event && channelIsEvent ? `${type}-${event}` : type;
     const newChannel = chatClient.channel('livestream', channelId);
 
     await newChannel.watch({ watchers: { limit: 100 } });
