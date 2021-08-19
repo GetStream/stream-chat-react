@@ -49,6 +49,7 @@ export { MuteUser } from './MuteUser';
 export { OnlineUsersIcon } from './OnlineUsersIcon';
 export { OverviewButton } from './OverviewButton';
 export { ParticipantsIcon } from './ParticipantsIcon';
+export { QAThumb } from './QAThumb';
 export { ReactionSmiley } from './ReactionSmiley';
 export { RoomsButton } from './RoomsButton';
 export { SearchIcon } from './SearchIcon';

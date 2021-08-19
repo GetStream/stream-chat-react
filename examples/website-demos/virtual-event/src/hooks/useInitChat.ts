@@ -14,7 +14,7 @@ export type AttachmentType = {};
 export type ChannelType = {};
 export type CommandType = LiteralStringForUnion;
 export type EventType = {};
-export type MessageType = {};
+export type MessageType = { up_votes?: string[] };
 export type ReactionType = {};
 export type UserType = { image?: string; title?: string };
 
@@ -29,7 +29,9 @@ export const useInitChat = () => {
       return setCurrentChannel(undefined);
     }
 
-    const channelId = event && type !== 'global' ? `${type}-${event}` : type;
+    const channelIsEvent = type === 'main-event' || type === 'room';
+
+    const channelId = event && channelIsEvent ? `${type}-${event}` : type;
     const newChannel = chatClient.channel('livestream', channelId);
 
     await newChannel.watch({ watchers: { limit: 100 } });

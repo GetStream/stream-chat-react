@@ -6,6 +6,7 @@ import { ChannelInner } from './ChannelInner';
 import { ChatHeader } from './ChatHeader';
 import { ChatSidebar } from './ChatSidebar';
 import { DMChannelList } from './DMChannelList';
+import { EmptyStateIndicators } from './EmptyStateIndicators';
 import { GiphyPreview } from './GiphyPreview';
 import { MessageUI } from './MessageUI';
 import { MessageInputUI } from './MessageInputUI';
@@ -94,6 +95,7 @@ export const ChatContainer: React.FC = () => {
                   AutocompleteSuggestionHeader={SuggestionHeader}
                   AutocompleteSuggestionItem={SuggestionListItem}
                   channel={currentChannel}
+                  EmptyStateIndicator={EmptyStateIndicators}
                   GiphyPreviewMessage={GiphyPreview}
                   Input={MessageInputUI}
                   ThreadHeader={ThreadHeader}

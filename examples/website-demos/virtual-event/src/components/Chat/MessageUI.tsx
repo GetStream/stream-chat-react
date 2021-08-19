@@ -7,6 +7,7 @@ import {
   MessageUIComponentProps,
   SimpleReactionsList,
   useChannelStateContext,
+  useChatContext,
   useEmojiContext,
   useMessageContext,
 } from 'stream-chat-react';
@@ -14,7 +15,7 @@ import {
 import { UserActionsDropdown } from './UserActionsDropdown';
 import { customReactions, getFormattedTime } from './utils';
 
-import { MessageActionsEllipse, ReactionSmiley } from '../../assets';
+import { MessageActionsEllipse, QAThumb, ReactionSmiley } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 import type {
@@ -104,8 +105,9 @@ export const MessageUI: React.FC<
   const { setMessageActionUser } = props;
 
   const { messages } = useChannelStateContext();
+  const { client } = useChatContext();
 
-  const { themeModalOpen } = useEventContext();
+  const { chatType, themeModalOpen } = useEventContext();
   const { handleOpenThread, message } = useMessageContext<
     AttachmentType,
     ChannelType,
@@ -146,6 +148,36 @@ export const MessageUI: React.FC<
     return getFormattedTime(secondsSinceLastMessage);
   };
 
+  const handleQAClick = async (event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const mentionIDs = message.mentioned_users?.map(({ id }) => id);
+    let updatedUpVotes;
+
+    if (!message.up_votes) {
+      return await client.updateMessage({
+        ...message,
+        mentioned_users: mentionIDs,
+        up_votes: [client.userID],
+      });
+    } else if (client.userID && message.up_votes.includes(client.userID)) {
+      updatedUpVotes = message.up_votes.filter((userID) => userID !== client.userID);
+    } else {
+      updatedUpVotes = [...message.up_votes, client.userID];
+    }
+
+    const updatedMessage = {
+      ...message,
+      mentioned_users: mentionIDs,
+      up_votes: updatedUpVotes,
+    };
+
+    return await client.updateMessage(updatedMessage);
+  };
+
+  const isQA = chatType === 'qa';
+  const userUpVoted = client.userID && message.up_votes?.includes(client.userID);
+
   if (!message.user) return null;
 
   return (
@@ -154,14 +186,14 @@ export const MessageUI: React.FC<
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={clearModals}
     >
-      {showOptions && (
+      {showOptions && !isQA && (
         <MessageOptions
           isRecentMessage={isRecentMessage}
           setMessageActionUser={setMessageActionUser}
           setShowReactionSelector={setShowReactionSelector}
         />
       )}
-      {showReactionSelector && <ReactionSelector />}
+      {showReactionSelector && !isQA && <ReactionSelector />}
       <Avatar image={message.user.image} name={message.user.name || message.user.id} />
       <div className='message-ui-content'>
         <div className='message-ui-content-top'>
@@ -174,6 +206,12 @@ export const MessageUI: React.FC<
         <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
+      {isQA && (
+        <div className={`message-ui-qa ${userUpVoted ? 'up-voted' : ''}`} onClick={handleQAClick}>
+          <QAThumb />
+          <div className='message-ui-qa-text'>{message.up_votes?.length || 0}</div>
+        </div>
+      )}
     </div>
   );
 };

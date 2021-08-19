@@ -8,6 +8,7 @@ import {
 } from 'stream-chat-react';
 
 import { CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
+import { useEventContext } from '../../contexts/EventContext';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
 type Props = MessageInputProps & {
@@ -33,6 +34,7 @@ export const MessageInputUI = (props: Props) => {
     text,
   } = useMessageInputContext();
 
+  const { chatType } = useEventContext();
   const { giphyState, setGiphyState } = useGiphyContext();
 
   const [commandsOpen, setCommandsOpen] = useState(false);
@@ -86,20 +88,24 @@ export const MessageInputUI = (props: Props) => {
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
           <ChatAutoComplete onChange={onChange} placeholder='Say something' />
-          <div
-            className={`input-ui-input-commands ${cooldownRemaining ? 'cooldown' : ''}`}
-            onClick={cooldownRemaining ? () => null : handleCommandsClick}
-          >
-            <CommandBolt />
-          </div>
-          {!giphyState && (
-            <div
-              className={`input-ui-input-emoji-picker ${cooldownRemaining ? 'cooldown' : ''}`}
-              ref={emojiPickerRef}
-              onClick={cooldownRemaining ? () => null : openEmojiPicker}
-            >
-              <EmojiPickerIcon />
-            </div>
+          {chatType !== 'qa' && (
+            <>
+              <div
+                className={`input-ui-input-commands ${cooldownRemaining ? 'cooldown' : ''}`}
+                onClick={cooldownRemaining ? () => null : handleCommandsClick}
+              >
+                <CommandBolt />
+              </div>
+              {!giphyState && (
+                <div
+                  className={`input-ui-input-emoji-picker ${cooldownRemaining ? 'cooldown' : ''}`}
+                  ref={emojiPickerRef}
+                  onClick={cooldownRemaining ? () => null : openEmojiPicker}
+                >
+                  <EmojiPickerIcon />
+                </div>
+              )}
+            </>
           )}
         </div>
         <div

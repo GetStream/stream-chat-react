@@ -13,13 +13,33 @@ import { SearchResult } from './SearchResult';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
 
+import type {
+  AttachmentType,
+  ChannelType,
+  CommandType,
+  EventType,
+  MessageType,
+  ReactionType,
+  UserType,
+} from '../../hooks/useInitChat';
+
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
   setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const SearchInput: React.FC<SearchInputProps> = (props) => {
+const SearchInput: React.FC<
+  SearchInputProps<
+    AttachmentType,
+    ChannelType,
+    CommandType,
+    EventType,
+    MessageType,
+    ReactionType,
+    UserType
+  >
+> = (props) => {
   const { channelSearchParams, inputRef, onSearch, query } = props;
 
   const { setQuery } = channelSearchParams;
@@ -85,7 +105,15 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         </div>
         <div className='search-header-title'>Participants</div>
       </div>
-      <ChannelSearch
+      <ChannelSearch<
+        AttachmentType,
+        ChannelType,
+        CommandType,
+        EventType,
+        MessageType,
+        ReactionType,
+        UserType
+      >
         onSelectResult={handleSelectResult}
         searchQueryParams={extraParams}
         SearchEmpty={SearchEmpty}
