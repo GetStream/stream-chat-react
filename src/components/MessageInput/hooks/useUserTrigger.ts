@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import type { SearchQueryParams } from '../../ChannelSearch/ChannelSearch';
 import { UserItem } from '../../UserItem/UserItem';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -8,10 +9,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import type {
-  MentionQueryParams,
-  UserTriggerSetting,
-} from '../../MessageInput/DefaultTriggerProvider';
+import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvider';
 
 import type {
   DefaultAttachmentType,
@@ -27,7 +25,7 @@ export type UserTriggerParams<Us extends DefaultUserType<Us> = DefaultUserType> 
   onSelectUser: (item: UserResponse<Us>) => void;
   disableMentions?: boolean;
   mentionAllAppUsers?: boolean;
-  mentionQueryParams?: MentionQueryParams<Us>;
+  mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
 };
 
 export const useUserTrigger = <
