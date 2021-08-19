@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { Channel as StreamChannel } from 'stream-chat';
 import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-chat';
-import { Channel, ChannelList, Chat } from 'stream-chat-react';
+import { Channel, ChannelList, Chat, SearchQueryParams } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
@@ -158,3 +158,8 @@ export const ChatContainer: React.FC = () => {
     </Chat>
   );
 };
+
+// setQuery: React.Dispatch<React.SetStateAction<string>>;
+//     setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>[]>>;
+//     setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+//     setSearching: React.Dispatch<React.SetStateAction<boolean>>;

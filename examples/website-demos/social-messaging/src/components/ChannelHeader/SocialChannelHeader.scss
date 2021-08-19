@@ -4,9 +4,16 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: 54px;
+  min-height: 60px;
   width: 100%;
   background-color: $bars-bg;
   border-bottom: 1px solid $borders;
-  padding-left: 8px;
+
+  &-new-chat {
+      font-size: 17px;
+      color: $text-high-emphasis;
+      line-height: 20px;
+      font-weight: 500;
+      margin-left: 15px
+  }
 }

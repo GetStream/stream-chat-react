@@ -20,11 +20,16 @@
             font-size: 17px;
             font-weight: 500;
             line-height: 20px;
+            padding-bottom: 5px;
         }
 
         &-status {
-            color: $text-low-emphasis;
-            font-size: 13px;
+            span {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 15px;
+            }
         }
     }
 }
