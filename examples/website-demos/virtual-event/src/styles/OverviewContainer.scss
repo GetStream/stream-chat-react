@@ -9,7 +9,6 @@
     background: $app-canvas;
     transition: background 1s;
     color: $text-high-emphasis;
-    overflow: scroll;
   }
 
   &-header {
@@ -31,6 +30,15 @@
       justify-content: center;
       width: 25%;
     }
+
+    a {
+      color: unset;
+      text-decoration: unset;
+    }
+  }
+
+  &-content-wrapper {
+    overflow: scroll;
   }
 
   &-title {
@@ -175,6 +183,7 @@
       margin-bottom: 8px;
       font-weight: 600;
       font-size: 18px;
+      padding-left: 16px;
     }
 
     &-logos {

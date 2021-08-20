@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { EventCard } from './EventCard';
 
 import { EventCard1, EventCard2, HackerSummitLogo, HackerSummitHero } from '../../assets';
@@ -64,93 +65,109 @@ export const OverviewContainer = () => {
         <HackerSummitHero />
       </div>
       <div className='overview-tabs'>
-        <span>Description</span>
-        <span>Partners</span>
-        <span>Schedule</span>
-        <span>Speakers</span>
+        <span>
+          <a href='#description'>Description</a>
+        </span>
+        <span>
+          <a href='#partners'>Partners</a>
+        </span>
+        <span>
+          <a href='#schedule'>Schedule</a>
+        </span>
+        <span>
+          <a href='#schedule'>Speakers</a>
+        </span>
       </div>
-      <div className='overview-title'>
-        <div className='overview-title-content'>
-          <div className='overview-title-icon'>
-            <HackerSummitLogo />
+      <div className='overview-content-wrapper'>
+        <div className='overview-title'>
+          <div className='overview-title-content'>
+            <div className='overview-title-icon'>
+              <HackerSummitLogo />
+            </div>
+            <div className='overview-title-header'>
+              <span className='overview-title-header-main'>World Hacker Summit 2021</span>
+              <div className='overview-title-header-sub'>
+                <span className='overview-title-header-sub-left'>Presented by</span>
+                <span className='overview-title-header-sub-right'>Stream</span>
+              </div>
+            </div>
           </div>
-          <div className='overview-title-header'>
-            <span className='overview-title-header-main'>World Hacker Summit 2021</span>
-            <div className='overview-title-header-sub'>
-              <span className='overview-title-header-sub-left'>Presented by</span>
-              <span className='overview-title-header-sub-right'>Stream</span>
+          <div className='overview-title-date'>
+            <div className='overview-title-date-icon'>
+              <div>Day</div>
+              <div className='overview-title-date-number'>1</div>
             </div>
           </div>
         </div>
-        <div className='overview-title-date'>
-          <div className='overview-title-date-icon'>
-            <div>Day</div>
-            <div className='overview-title-date-number'>1</div>
+        <div className='overview-content'>
+          <div className='overview-content-container'>
+            <div className='overview-content-title'>
+              <a id='description'>Description</a>
+            </div>
+            <div className='overview-content-content'>{eventText}</div>
+          </div>
+          <div className='overview-content-stats'>
+            <div className='overview-content-stats-title'>Stats</div>
+            <div className='overview-content-stats-stat'>
+              <div className='overview-content-stats-total'>2</div>
+              <div className='overview-content-stats-description'>Days</div>
+            </div>
+            <div className='overview-content-stats-stat'>
+              <div className='overview-content-stats-total'>4</div>
+              <div className='overview-content-stats-description'>Main event</div>
+            </div>
+            <div className='overview-content-stats-stat'>
+              <div className='overview-content-stats-total'>38</div>
+              <div className='overview-content-stats-description'>Rooms</div>
+            </div>
+            <div className='overview-content-stats-stat'>
+              <div className='overview-content-stats-total'>120</div>
+              <div className='overview-content-stats-description'>Speakers</div>
+            </div>
+            <div className='overview-content-stats-stat'>
+              <div className='overview-content-stats-total'>2k</div>
+              <div className='overview-content-stats-description'>Tickets sold</div>
+            </div>
           </div>
         </div>
-      </div>
-      <div className='overview-content'>
-        <div className='overview-content-container'>
-          <div className='overview-content-title'>Description</div>
-          <div className='overview-content-content'>{eventText}</div>
-        </div>
-        <div className='overview-content-stats'>
-          <div className='overview-content-stats-title'>Stats</div>
-          <div className='overview-content-stats-stat'>
-            <div className='overview-content-stats-total'>2</div>
-            <div className='overview-content-stats-description'>Days</div>
+        <div className='overview-partners'>
+          <div className='overview-partners-title'>
+            <a id='partners'>Partners</a>
           </div>
-          <div className='overview-content-stats-stat'>
-            <div className='overview-content-stats-total'>4</div>
-            <div className='overview-content-stats-description'>Main event</div>
-          </div>
-          <div className='overview-content-stats-stat'>
-            <div className='overview-content-stats-total'>38</div>
-            <div className='overview-content-stats-description'>Rooms</div>
-          </div>
-          <div className='overview-content-stats-stat'>
-            <div className='overview-content-stats-total'>120</div>
-            <div className='overview-content-stats-description'>Speakers</div>
-          </div>
-          <div className='overview-content-stats-stat'>
-            <div className='overview-content-stats-total'>2k</div>
-            <div className='overview-content-stats-description'>Tickets sold</div>
+          <div className='overview-partners-logos'>
+            <img alt='RedCanary' src={RedCanary} />
+            <img alt='Symantec' src={Symantec} />
+            <img alt='CrowdStrike' src={CrowdStrike} />
+            <img alt='Cybereason' src={Cybereason} />
+            <img alt='GoGuardian' src={GoGuardian} />
+            <img alt='LogRhythm' src={LogRhythm} />
           </div>
         </div>
-      </div>
-      <div className='overview-partners'>
-        <div className='overview-partners-title'>Partners</div>
-        <div className='overview-partners-logos'>
-          <img alt='RedCanary' src={RedCanary} />
-          <img alt='Symantec' src={Symantec} />
-          <img alt='CrowdStrike' src={CrowdStrike} />
-          <img alt='Cybereason' src={Cybereason} />
-          <img alt='GoGuardian' src={GoGuardian} />
-          <img alt='LogRhythm' src={LogRhythm} />
+        <div className='overview-schedule'>
+          <div className='overview-schedule-title'>
+            <a id='schedule'>Schedule</a>
+          </div>
+          <EventCard
+            chatType='main-event'
+            content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
+            eventName='cybersecurity'
+            Image={EventCard1}
+            label='Moderated'
+            presenters={6}
+            title='Implementing a Cybersecurity Framework'
+            viewers={150}
+          />
+          <EventCard
+            chatType='room'
+            content='ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.'
+            eventName='esg'
+            Image={EventCard2}
+            label='Private'
+            presenters={2}
+            title='ESG Data - How to create it'
+            viewers={150}
+          />
         </div>
-      </div>
-      <div className='overview-schedule'>
-        <div className='overview-schedule-title'>Schedule</div>
-        <EventCard
-          chatType='main-event'
-          content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
-          eventName='cybersecurity'
-          Image={EventCard1}
-          label='Moderated'
-          presenters={6}
-          title='Implementing a Cybersecurity Framework'
-          viewers={150}
-        />
-        <EventCard
-          chatType='room'
-          content='ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.'
-          eventName='esg'
-          Image={EventCard2}
-          label='Private'
-          presenters={2}
-          title='ESG Data - How to create it'
-          viewers={150}
-        />
       </div>
     </div>
   );
