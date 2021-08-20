@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { BaseSyntheticEvent, Suspense, useEffect, useState } from 'react';
 import {
   Attachment,
   Avatar,
@@ -6,6 +6,8 @@ import {
   MessageRepliesCountButton,
   MessageUIComponentProps,
   SimpleReactionsList,
+  StreamMessage,
+  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   useEmojiContext,
@@ -42,14 +44,14 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const myMessageInThread = thread && isMyMessage();
+  const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
 
   return (
     <div className='message-ui-options'>
       <span onClick={() => setShowReactionSelector((prev) => !prev)}>
         <ReactionSmiley />
       </span>
-      {!myMessageInThread && (
+      {!hideActions && (
         <span onClick={() => setDropdownOpen(!dropdownOpen)}>
           <MessageActionsEllipse />
         </span>
@@ -104,7 +106,8 @@ export const MessageUI: React.FC<
 > = (props) => {
   const { setMessageActionUser } = props;
 
-  const { messages } = useChannelStateContext();
+  const { openThread } = useChannelActionContext();
+  const { channel, messages } = useChannelStateContext();
   const { client } = useChatContext();
 
   const { chatType, themeModalOpen } = useEventContext();
@@ -118,8 +121,10 @@ export const MessageUI: React.FC<
     UserType
   >();
 
+  const [replyCount, setReplyCount] = useState(message.reply_count);
   const [showOptions, setShowOptions] = useState(false);
   const [showReactionSelector, setShowReactionSelector] = useState(false);
+  const [threadParent, setThreadParent] = useState<StreamMessage>();
 
   const clearModals = () => {
     setShowOptions(false);
@@ -130,6 +135,23 @@ export const MessageUI: React.FC<
     if (showReactionSelector) document.addEventListener('click', clearModals);
     return () => document.removeEventListener('click', clearModals);
   }, [showReactionSelector]);
+
+  useEffect(() => {
+    const getMessage = async () => {
+      const { results } = await channel.search({ id: { $eq: message.parent_id || '' } });
+      const foundMessage = results[0].message;
+
+      if (foundMessage) {
+        setReplyCount(foundMessage.reply_count);
+        setThreadParent(foundMessage);
+      }
+    };
+
+    if (message.show_in_channel) getMessage();
+  }, []); // eslint-disable-line
+
+  const customOpenThread = (event: BaseSyntheticEvent) =>
+    threadParent ? openThread(threadParent, event) : handleOpenThread(event);
 
   const isRecentMessage =
     (messages?.[messages.length - 1].id === message.id ||
@@ -180,6 +202,8 @@ export const MessageUI: React.FC<
   const isQA = chatType === 'qa';
   const userUpVoted = client.userID && message.up_votes?.includes(client.userID);
 
+  const repliesToShow = replyCount || (!replyCount && message.show_in_channel && 2) || undefined;
+
   if (!message.user) return null;
 
   return (
@@ -209,7 +233,7 @@ export const MessageUI: React.FC<
         </div>
         <div className='message-ui-content-bottom'>{message.text}</div>
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
+        <MessageRepliesCountButton onClick={customOpenThread} reply_count={repliesToShow} />
         <SimpleReactionsList reactionOptions={customReactions} />
       </div>
       {isQA && (
