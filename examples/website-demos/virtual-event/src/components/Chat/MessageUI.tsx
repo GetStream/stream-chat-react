@@ -65,7 +65,7 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
             openThread={handleOpenThread}
             setDropdownOpen={setDropdownOpen}
             setMessageActionUser={setMessageActionUser}
-            thread
+            thread={!thread}
             user={message.user}
           />
         </div>
@@ -74,12 +74,12 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
   );
 };
 
-const ReactionSelector: React.FC = () => {
+const ReactionSelector: React.FC<{ isTopMessage: boolean }> = ({ isTopMessage }) => {
   const { Emoji, emojiConfig } = useEmojiContext();
   const { handleReaction } = useMessageContext();
 
   return (
-    <div className='message-ui-reaction-selector'>
+    <div className={`message-ui-reaction-selector ${isTopMessage ? 'top' : ''}`}>
       {customReactions.map((reaction, i) => (
         <Suspense fallback={null} key={i}>
           <div onClick={(event) => handleReaction(reaction.id, event)}>
@@ -135,6 +135,8 @@ export const MessageUI: React.FC<
     (messages?.[messages.length - 1].id === message.id ||
       messages?.[messages.length - 2].id === message.id) &&
     messages.length > 2;
+
+  const isTopMessage = messages?.[0].id === message.id;
 
   const showTitle = message.user?.title === 'Admin' || message.user?.title === 'Moderator';
 
@@ -193,8 +195,12 @@ export const MessageUI: React.FC<
           setShowReactionSelector={setShowReactionSelector}
         />
       )}
-      {showReactionSelector && !isQA && <ReactionSelector />}
-      <Avatar image={message.user.image} name={message.user.name || message.user.id} />
+      {showReactionSelector && !isQA && <ReactionSelector isTopMessage={isTopMessage} />}
+      <Avatar
+        image={message.user.image}
+        name={message.user.name || message.user.id}
+        shape='circle'
+      />
       <div className='message-ui-content'>
         <div className='message-ui-content-top'>
           <div className='message-ui-content-top-name'>{message.user.name || message.user.id}</div>
