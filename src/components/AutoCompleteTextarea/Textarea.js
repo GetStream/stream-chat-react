@@ -459,7 +459,6 @@ export class ReactTextareaAutocomplete extends React.Component {
       'disableMentions',
       'dropdownClassName',
       'dropdownStyle',
-      'grow',
       'handleSubmit',
       'innerRef',
       'itemClassName',
@@ -718,12 +717,8 @@ export class ReactTextareaAutocomplete extends React.Component {
 
   render() {
     const { className, containerClassName, containerStyle, style } = this.props;
-
-    let { maxRows } = this.props;
-
+    const { maxRows } = this.props;
     const { dataLoading, value } = this.state;
-
-    if (!this.props.grow) maxRows = 1;
 
     return (
       <div
