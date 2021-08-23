@@ -12,7 +12,14 @@ import { ChannelOrUserResponse, isChannel } from './utils';
 
 import { useChatContext } from '../../context/ChatContext';
 
-import type { UserFilters, UserOptions, UserSort } from 'stream-chat';
+import type {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  UserFilters,
+  UserOptions,
+  UserSort,
+} from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -24,10 +31,21 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type SearchQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  filters?: UserFilters<Us>;
-  options?: UserOptions;
-  sort?: UserSort<Us>;
+export type SearchQueryParams<
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  channelFilters?: {
+    filters?: ChannelFilters<Ch, Co, Us>;
+    options?: ChannelOptions;
+    sort?: ChannelSort<Ch>;
+  };
+  userFilters?: {
+    filters?: UserFilters<Us>;
+    options?: UserOptions;
+    sort?: UserSort<Us>;
+  };
 };
 
 export type ChannelSearchProps<
@@ -63,7 +81,7 @@ export type ChannelSearchProps<
   /** Custom UI component to display the search loading state */
   SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
-  searchQueryParams?: SearchQueryParams<Us>;
+  searchQueryParams?: SearchQueryParams<Ch, Co, Us>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
   SearchResultItem?: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display the search results header */
@@ -153,10 +171,10 @@ const UnMemoizedChannelSearch = <
         {
           $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
           id: { $ne: client.userID },
-          ...searchQueryParams?.filters,
+          ...searchQueryParams?.userFilters?.filters,
         },
-        { id: 1, ...searchQueryParams?.sort },
-        { limit: 8, ...searchQueryParams?.options },
+        { id: 1, ...searchQueryParams?.userFilters?.sort },
+        { limit: 8, ...searchQueryParams?.userFilters?.options },
       );
 
       if (searchForChannels) {
@@ -164,10 +182,10 @@ const UnMemoizedChannelSearch = <
           // @ts-expect-error
           {
             name: { $autocomplete: text },
-            ...searchQueryParams?.filters,
+            ...searchQueryParams?.channelFilters?.filters,
           },
-          {},
-          { limit: 5, ...searchQueryParams?.filters },
+          searchQueryParams?.channelFilters?.sort || {},
+          { limit: 5, ...searchQueryParams?.channelFilters?.options },
         );
 
         const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
