@@ -78,7 +78,7 @@ export type MessageInputProps<
   /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
   mentionAllAppUsers?: boolean;
   /** Object containing filters/sort/options overrides for an @mention user query */
-  mentionQueryParams?: SearchQueryParams<Us>;
+  mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
   /** If provided, the existing message will be edited on submit */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, disables file uploads. Default: false */

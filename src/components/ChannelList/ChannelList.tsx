@@ -60,7 +60,7 @@ export type ChannelListProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: ChannelSearchProps<Us>;
+  additionalChannelSearchProps?: ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>;
   /**
    * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
    * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
@@ -75,7 +75,7 @@ export type ChannelListProps<
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
   ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
-  ChannelSearch?: React.ComponentType<ChannelSearchProps<Us>>;
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
   /** Custom UI component for rendering an empty list, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) */
