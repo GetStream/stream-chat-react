@@ -139,7 +139,7 @@ export const MessageUI: React.FC<
   useEffect(() => {
     const getMessage = async () => {
       const { results } = await channel.search({ id: { $eq: message.parent_id || '' } });
-      const foundMessage = results[0].message;
+      const foundMessage = results[0]?.message;
 
       if (foundMessage) {
         setReplyCount(foundMessage.reply_count);
@@ -147,7 +147,7 @@ export const MessageUI: React.FC<
       }
     };
 
-    if (message.show_in_channel) getMessage();
+    if (message.show_in_channel && !replyCount) getMessage();
   }, []); // eslint-disable-line
 
   const customOpenThread = (event: BaseSyntheticEvent) =>
