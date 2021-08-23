@@ -11,14 +11,6 @@
     color: $text-high-emphasis;
   }
 
-  &-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
-    min-height: 320px;
-  }
-
   &-tabs {
     border-bottom: 1px solid $stroke;
     display: flex;
@@ -88,6 +80,10 @@
       box-sizing: border-box;
       border-radius: 16px;
       margin-right: 8px;
+
+      img {
+        height: 50px;
+      }
     }
 
     &-header {

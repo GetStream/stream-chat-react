@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { EventCard } from './EventCard';
 
-import { HackerSummitLogo, HackerSummitHero } from '../../assets';
+import { EventLogo, HackerSummitHero } from '../../assets';
 import {
   CrowdStrike,
   Cybereason,
@@ -62,9 +62,7 @@ const eventText = (
 export const OverviewContainer = () => {
   return (
     <div className='overview-container'>
-      <div className='overview-header'>
-        <HackerSummitHero />
-      </div>
+      <img alt='hero' src={HackerSummitHero} />
       <div className='overview-tabs'>
         <span>
           <a href='#description'>Description</a>
@@ -83,7 +81,7 @@ export const OverviewContainer = () => {
         <div className='overview-title'>
           <div className='overview-title-content'>
             <div className='overview-title-icon'>
-              <HackerSummitLogo />
+              <img alt='hero' src={EventLogo} />
             </div>
             <div className='overview-title-header'>
               <span className='overview-title-header-main'>World Hacker Summit 2021</span>
