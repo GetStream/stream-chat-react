@@ -33,11 +33,15 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
 
   return (
     <div className='social-channel-header'>
-      <div className='social-channel-header-avatar'><AvatarGroup members={members} size={40} /></div>
+      <div className='social-channel-header-avatar'>
+        <AvatarGroup members={members} size={40} />
+      </div>
       <div className='social-channel-header-contents'>
         <span className='social-channel-header-contents-name'>{channelName || 'Channel Name'}</span>
         {!live && !!member_count && member_count > 0 && (
-          <span className='social-channel-header-contents-status'>{member_count || '0'} Members, {watcher_count || '0'} Online</span>
+          <span className='social-channel-header-contents-status'>
+            {member_count || '0'} Members, {watcher_count || '0'} Online
+          </span>
         )}
       </div>
     </div>

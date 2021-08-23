@@ -6,7 +6,13 @@ export const BlankAvatar: React.FC<Props> = (props) => {
   const { size = 56 } = props;
 
   return (
-    <svg width={size} height={size} viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 56 56'
+      fill='none'
+      xmlns='http://www.w3.org/2000/svg'
+    >
       <path
         d='M0 28C0 12.536 12.536 0 28 0C43.464 0 56 12.536 56 28C56 43.464 43.464 56 28 56C12.536 56 0 43.464 0 28Z'
         fill='var(--text-low-emphasis)'

@@ -14,7 +14,7 @@ type Props = {
 export const NewChatUser: React.FC<Props> = (props) => {
   const { user } = props;
 
-  Dayjs.extend(relativeTime)
+  Dayjs.extend(relativeTime);
   let status = Dayjs().from(Dayjs(user.last_active), true);
 
   return (
@@ -25,7 +25,7 @@ export const NewChatUser: React.FC<Props> = (props) => {
           <span>{user?.name || 'User'}</span>
         </div>
         <div className='new-chat-user-contents-status'>
-          {user.last_active ? <span>Last online {status} ago</span> : <span>Not online</span>} 
+          {user.last_active ? <span>Last online {status} ago</span> : <span>Not online</span>}
         </div>
       </div>
     </div>

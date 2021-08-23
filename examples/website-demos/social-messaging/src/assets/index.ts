@@ -9,4 +9,5 @@ export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';
 export { NewGroupMessage } from './NewGroupMessage';
 export { OptionsIcons } from './OptionsIcons';
+export { SearchIcon } from './SearchIcon';
 export { ThemeIcon } from './ThemeIcon';

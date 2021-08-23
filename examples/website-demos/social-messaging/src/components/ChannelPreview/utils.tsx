@@ -7,12 +7,12 @@ import { BlankAvatar } from '../../assets';
 type Props = {
   members: ChannelMemberResponse[] | undefined;
   size: number | undefined;
-}
+};
 
 export const AvatarGroup: React.FC<Props> = (props) => {
   const { members, size } = props;
 
-  if (!members) return <BlankAvatar size={size || 56}  />
+  if (!members) return <BlankAvatar size={size || 56} />;
 
   let modifiedSize = size === 56 ? 30 : 20;
 
