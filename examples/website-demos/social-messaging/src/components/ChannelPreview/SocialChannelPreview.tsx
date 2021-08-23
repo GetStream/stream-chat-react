@@ -47,7 +47,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     >
       <div className='channel-preview-avatar'>
         {online && <div className='channel-preview-avatar-online'></div>}
-        <AvatarGroup members={members} />
+        <AvatarGroup members={members} size={56} />
       </div>
       <div className='channel-preview-contents'>
         <div className='channel-preview-contents-name'>

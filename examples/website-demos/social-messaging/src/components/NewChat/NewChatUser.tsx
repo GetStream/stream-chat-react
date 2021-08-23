@@ -4,12 +4,12 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Avatar } from 'stream-chat-react';
 import { UserResponse } from 'stream-chat';
 
-import { UserType } from '../ChatContainer/ChatContainer';
+import { SocialUserType } from '../ChatContainer/ChatContainer';
 
 import './NewChatUser.scss';
 
 type Props = {
-  user: UserResponse<UserType>;
+  user: UserResponse<SocialUserType>;
 };
 export const NewChatUser: React.FC<Props> = (props) => {
   const { user } = props;

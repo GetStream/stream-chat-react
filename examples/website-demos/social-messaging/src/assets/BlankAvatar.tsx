@@ -1,9 +1,9 @@
 type Props = {
-  size?: string
+  size?: number;
 };
 
 export const BlankAvatar: React.FC<Props> = (props) => {
-  const { size = '56' } = props;
+  const { size = 56 } = props;
 
   return (
     <svg width={size} height={size} viewBox='0 0 56 56' fill='none' xmlns='http://www.w3.org/2000/svg'>

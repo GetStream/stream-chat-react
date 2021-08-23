@@ -40,31 +40,12 @@
     &-avatars {
       display: flex;
       align-items: center;
-      height: 56px;
-      min-width: 56px;
+      // height: 56px;
+      min-width: 40px;
       max-width: 56px;
+      min-height: 40px;
       border-radius: 25px;
       overflow: hidden;
-
-      &.two div:first-child {
-        position: relative;
-        right: 10px;
-      }
-
-      &.two div:nth-child(2) {
-        position: relative;
-        right: 30px;
-      }
-
-      &.two span {
-        width: 20px;
-        overflow: hidden;
-      }
-
-      &.three span {
-        width: 20px;
-        overflow: hidden;
-      }
     }
   }
 

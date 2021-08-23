@@ -1,40 +1,45 @@
 import React from 'react';
-import { ChannelHeaderProps, useChannelStateContext } from 'stream-chat-react';
+import { ChannelHeaderProps, useChannelStateContext, useChatContext } from 'stream-chat-react';
 
 import { AvatarGroup } from '../ChannelPreview/utils';
-import { ArrowLeft, BlankAvatar } from '../../assets';
+import { ArrowLeft } from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelHeader.scss';
 
 export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   const { live } = props;
+  const { client } = useChatContext();
   const { isNewChat } = useViewContext();
 
   const { channel } = useChannelStateContext();
 
-  const { members, member_count, name, watcher_count } = channel?.data || {};
+  const members = Object.values(channel.state.members).filter(
+    ({ user }) => user?.id !== client.userID,
+  );
+
+  const { member_count, name, watcher_count } = channel?.data || {};
+
+  const channelName = members.length === 1 ? members[0].user?.name : name;
 
   if (isNewChat) {
     return (
-      <div className='social-channelheader'>
+      <div className='social-channel-header'>
         <ArrowLeft />
-        <span className='social-channelheader-new-chat'>New Chat</span>
+        <span className='social-channel-header-new-chat'>New Chat</span>
       </div>
     );
   }
 
   return (
-    <div className='social-channelheader'>
-      {/* {members ? <AvatarGroup members={members} /> : <BlankAvatar />} */}
-        <BlankAvatar size={'40'} />
-      <>
-        <span>{name}</span>
+    <div className='social-channel-header'>
+      <div className='social-channel-header-avatar'><AvatarGroup members={members} size={40} /></div>
+      <div className='social-channel-header-contents'>
+        <span className='social-channel-header-contents-name'>{channelName || 'Channel Name'}</span>
         {!live && !!member_count && member_count > 0 && (
-          <span>{member_count} members</span>
+          <span className='social-channel-header-contents-status'>{member_count || '0'} Members, {watcher_count || '0'} Online</span>
         )}
-        <span>{watcher_count} online</span> 
-      </>
+      </div>
     </div>
   );
 };

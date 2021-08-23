@@ -1,14 +1,27 @@
 import type { Channel, ChannelMemberResponse } from 'stream-chat';
 
 import { Avatar } from 'stream-chat-react';
+import { BlankAvatar } from '../../assets';
+// import { SocialUserType } from '../ChatContainer/ChatContainer';
 
-export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) => {
+type Props = {
+  members: ChannelMemberResponse[] | undefined;
+  size: number | undefined;
+}
+
+export const AvatarGroup: React.FC<Props> = (props) => {
+  const { members, size } = props;
+
+  if (!members) return <BlankAvatar size={size || 56}  />
+
+  let modifiedSize = size === 56 ? 30 : 20;
+
   if (members.length === 1) {
     return (
       <Avatar
         image={(members[0].user?.image as string) || ''}
         name={members[0].user?.name || 'User'}
-        size={56}
+        size={size || 56}
       />
     );
   }
@@ -21,7 +34,7 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[0].user?.image as string) || ''}
             name={members[0].user?.name || 'User'}
             shape='square'
-            size={25}
+            size={modifiedSize}
           />
         </span>
         <span>
@@ -29,7 +42,7 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[1].user?.image as string) || ''}
             name={members[1].user?.name || 'User'}
             shape='square'
-            size={25}
+            size={modifiedSize}
           />
         </span>
       </div>
@@ -44,7 +57,7 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[0].user?.image as string) || ''}
             name={members[0].user?.name || 'User'}
             shape='square'
-            size={25}
+            size={modifiedSize}
           />
         </span>
         <span>
@@ -52,13 +65,13 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[1].user?.image as string) || ''}
             name={members[1].user?.name || 'User'}
             shape='square'
-            size={25}
+            size={modifiedSize}
           />
           <Avatar
             image={(members[2].user?.image as string) || ''}
             name={members[2].user?.name || 'User'}
             shape='square'
-            size={25}
+            size={modifiedSize}
           />
         </span>
       </div>
@@ -73,13 +86,13 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[members.length - 1].user?.image as string) || ''}
             name={members[members.length - 1].user?.name || 'User'}
             shape='square'
-            size={30}
+            size={modifiedSize}
           />
           <Avatar
             image={(members[members.length - 2].user?.image as string) || ''}
             name={members[members.length - 2].user?.name || 'User'}
             shape='square'
-            size={30}
+            size={modifiedSize}
           />
         </span>
         <span>
@@ -87,13 +100,13 @@ export const AvatarGroup = ({ members }: { members: ChannelMemberResponse[] }) =
             image={(members[members.length - 3].user?.image as string) || ''}
             name={members[members.length - 3].user?.name || 'User'}
             shape='square'
-            size={30}
+            size={modifiedSize}
           />
           <Avatar
             image={(members[members.length - 4].user?.image as string) || ''}
             name={members[members.length - 4].user?.name || 'User'}
             shape='square'
-            size={30}
+            size={modifiedSize}
           />
         </span>
       </div>
