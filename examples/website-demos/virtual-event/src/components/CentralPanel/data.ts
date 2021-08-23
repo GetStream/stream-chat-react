@@ -6,10 +6,10 @@ import {
   EventCard4,
   RoomCard1,
   RoomCard2,
+  RoomCard3,
   RoomCard4,
   RoomCard5,
   RoomCard6,
-  RoomCard7,
 } from '../../assets';
 
 type Event = {
@@ -20,6 +20,7 @@ type Event = {
   presenters: number;
   title: string;
   Image?: React.FC;
+  jpeg?: string;
   viewers?: number;
 };
 
@@ -74,7 +75,7 @@ export const rooms: Event[] = [
     content:
       'ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.',
     eventName: 'esg',
-    Image: RoomCard1,
+    jpeg: RoomCard1,
     label: 'Private',
     presenters: 2,
     title: 'ESG Data - How to create it',
@@ -85,7 +86,7 @@ export const rooms: Event[] = [
     content:
       'How to set a business plan to use information to a competitive advantage and support enterprise goals.',
     eventName: 'qa',
-    Image: RoomCard2,
+    jpeg: RoomCard2,
     label: 'Moderated',
     presenters: 6,
     title: 'Q&A session: Data strategy and executive communication',
@@ -96,7 +97,7 @@ export const rooms: Event[] = [
     content:
       'Learn how to combine approaches with declarative API for native management and deployment across clusters.',
     eventName: 'git',
-    Image: RoomCard5,
+    jpeg: RoomCard3,
     label: 'Moderated',
     presenters: 2,
     title: 'Managing multiple clusters with GitOps and ClusterAPI',
@@ -106,7 +107,7 @@ export const rooms: Event[] = [
     chatType: 'room',
     content: 'Data management & Analytics best practices - Driving data literacy',
     eventName: 'entertainment',
-    Image: RoomCard6,
+    jpeg: RoomCard4,
     label: 'Open',
     presenters: 6,
     title: 'Entertainment data literacy: learning to love the data',
@@ -116,7 +117,7 @@ export const rooms: Event[] = [
     chatType: 'room',
     content: 'Data governance imperative - Balancing data privacy & data sharing',
     eventName: 'tools',
-    Image: RoomCard4,
+    jpeg: RoomCard5,
     label: 'Closed',
     presenters: 5,
     title: 'Tools, Teams and Processes: how to successfully implement a data…',
@@ -126,7 +127,7 @@ export const rooms: Event[] = [
     chatType: 'room',
     content: 'Identifying the opportunities for ROI from Data and Analytics.',
     eventName: 'roi',
-    Image: RoomCard7,
+    jpeg: RoomCard6,
     label: 'Open',
     presenters: 6,
     title: 'Defining ROI in the Modern Data World',

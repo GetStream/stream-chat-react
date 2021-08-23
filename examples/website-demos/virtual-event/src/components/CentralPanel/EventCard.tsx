@@ -10,6 +10,8 @@ type Props = {
   presenters: number;
   title: string;
   Image?: React.FC;
+  isJpeg?: boolean;
+  jpeg?: string;
   upcoming?: boolean;
   viewers?: number;
 };
@@ -20,6 +22,8 @@ export const EventCard: React.FC<Props> = (props) => {
     content,
     eventName,
     Image,
+    isJpeg,
+    jpeg,
     label,
     presenters,
     title,
@@ -52,7 +56,8 @@ export const EventCard: React.FC<Props> = (props) => {
 
   return (
     <div className={`event-card-container ${upcoming ? 'upcoming' : ''}`} onClick={handleClick}>
-      {Image && (
+      {isJpeg && <img className='event-card-image' alt='jpeg' src={jpeg} />}
+      {Image && !isJpeg && (
         <div className='event-card-image'>
           <Image />
         </div>

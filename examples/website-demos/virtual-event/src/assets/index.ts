@@ -10,13 +10,9 @@ export { EventCard2 } from './eventCardPictures/EventCard2';
 export { EventCard3 } from './eventCardPictures/EventCard3';
 export { EventCard4 } from './eventCardPictures/EventCard4';
 
-export { RoomCard1 } from './roomCardPictures/RoomCard1';
-export { RoomCard2 } from './roomCardPictures/RoomCard2';
-export { RoomCard3 } from './roomCardPictures/RoomCard3';
-export { RoomCard4 } from './roomCardPictures/RoomCard4';
-export { RoomCard5 } from './roomCardPictures/RoomCard5';
-export { RoomCard6 } from './roomCardPictures/RoomCard6';
-export { RoomCard7 } from './roomCardPictures/RoomCard7';
+export * from './eventCardPictures';
+
+export * from './roomCardPictures';
 
 export { BackArrow } from './BackArrow';
 export { CalendarButton } from './CalendarButton';

@@ -82,7 +82,8 @@ export const RoomsList = () => {
                 chatType={room.chatType}
                 content={room.content}
                 eventName={room.eventName}
-                Image={room.Image}
+                isJpeg
+                jpeg={room.jpeg}
                 label={room.label}
                 presenters={room.presenters}
                 title={room.title}
