@@ -7,6 +7,7 @@ type Props = {
   chatType: 'main-event' | 'room';
   content: string;
   eventName: string;
+  eventNumber: number;
   label: string;
   presenters: number;
   title: string;
@@ -16,7 +17,18 @@ type Props = {
 };
 
 export const EventCard: React.FC<Props> = (props) => {
-  const { chatType, content, eventName, jpeg, label, presenters, title, upcoming, viewers } = props;
+  const {
+    chatType,
+    content,
+    eventName,
+    eventNumber,
+    jpeg,
+    label,
+    presenters,
+    title,
+    upcoming,
+    viewers,
+  } = props;
 
   const [pressed, setPressed] = useState(false);
 
@@ -27,13 +39,14 @@ export const EventCard: React.FC<Props> = (props) => {
     setShowChannelList,
     setVideoOpen,
   } = useEventContext();
-  const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
+  const { setEventNumber, setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
     if (upcoming) return;
 
     setChatType(chatType);
     setEventName(eventName);
+    setEventNumber(eventNumber);
     setLabel(label);
     setPresenters(presenters);
     setShowChannelList(false);
@@ -42,8 +55,6 @@ export const EventCard: React.FC<Props> = (props) => {
     setVideoOpen(true);
     setViewers(viewers);
   };
-
-  console.log({ pressed });
 
   return (
     <div

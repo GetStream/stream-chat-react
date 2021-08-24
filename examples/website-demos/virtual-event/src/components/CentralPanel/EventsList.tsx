@@ -64,6 +64,7 @@ export const EventsList = () => {
                   chatType={event.chatType}
                   content={event.content}
                   eventName={event.eventName}
+                  eventNumber={i}
                   label={event.label}
                   presenters={event.presenters}
                   title={event.title}
@@ -77,6 +78,7 @@ export const EventsList = () => {
                   chatType={event.chatType}
                   content={event.content}
                   eventName={event.eventName}
+                  eventNumber={i + 2}
                   label={event.label}
                   presenters={event.presenters}
                   title={event.title}
@@ -98,6 +100,7 @@ export const EventsList = () => {
               chatType={event.chatType}
               content={event.content}
               eventName={event.eventName}
+              eventNumber={i}
               jpeg={event.jpeg}
               label={event.label}
               presenters={event.presenters}
@@ -113,6 +116,7 @@ export const EventsList = () => {
               chatType={event.chatType}
               content={event.content}
               eventName={event.eventName}
+              eventNumber={i + 2}
               jpeg={event.jpeg}
               label={event.label}
               presenters={event.presenters}

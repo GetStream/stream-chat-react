@@ -1,6 +1,6 @@
 import { BaseSyntheticEvent, useState } from 'react';
 
-import { useVideoContext } from '../../contexts/VideoContext';
+import { getParticipantOrder } from './data';
 
 import {
   BackArrow,
@@ -11,13 +11,7 @@ import {
   Speaking,
   VideoViewersIcon,
 } from '../../assets';
-
-import part1 from '../../assets/participant01.jpg';
-import part2 from '../../assets/participant02.jpg';
-import part3 from '../../assets/participant07.jpg';
-import part4 from '../../assets/participant04.jpg';
-import part5 from '../../assets/participant05.jpg';
-import part6 from '../../assets/participant06.jpg';
+import { useVideoContext } from '../../contexts/VideoContext';
 
 type Props = {
   handleBackArrow: (event: BaseSyntheticEvent) => void;
@@ -27,7 +21,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
   const [isPinned, setIsPinned] = useState(false);
   const [pinnedID, setPinnedID] = useState(null);
 
-  const { label, presenters, title, viewers } = useVideoContext();
+  const { eventNumber, label, presenters, title, viewers } = useVideoContext();
 
   const handleClick = (event: BaseSyntheticEvent) => {
     if (!isPinned) {
@@ -44,6 +38,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
       setPinnedID(event.target.id);
     }
   };
+
+  const participantOrder = getParticipantOrder(eventNumber);
 
   return (
     <div className='room-video-container'>
@@ -68,11 +64,14 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
         <div
           className={`room-video-grid-participant ${pinnedID === '1' ? 'pinned' : ''}`}
           id='1'
-          style={{ backgroundImage: `url(${part1})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[0].image})`,
+            backgroundSize: 'contain',
+          }}
           onClick={handleClick}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Lita Sherman</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[0].name}</div>
             <Speaking />
           </div>
           <div className='room-video-grid-participant-connection'>
@@ -83,10 +82,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '2' ? 'pinned' : ''}`}
           id='2'
           onClick={handleClick}
-          style={{ backgroundImage: `url(${part2})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[1].image})`,
+            backgroundSize: 'contain',
+          }}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Kirk Purdie</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[1].name}</div>
             <Listening />
           </div>
           <div className='room-video-grid-participant-connection'>
@@ -97,10 +99,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '3' ? 'pinned' : ''}`}
           id='3'
           onClick={handleClick}
-          style={{ backgroundImage: `url(${part5})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[2].image})`,
+            backgroundSize: 'contain',
+          }}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Khalid Ignác</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[2].name}</div>
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
@@ -111,10 +116,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '4' ? 'pinned' : ''}`}
           id='4'
           onClick={handleClick}
-          style={{ backgroundImage: `url(${part6})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[3].image})`,
+            backgroundSize: 'contain',
+          }}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Jaana Kirstie</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[3].name}</div>
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
@@ -125,10 +133,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '5' ? 'pinned' : ''}`}
           id='5'
           onClick={handleClick}
-          style={{ backgroundImage: `url(${part3})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[4].image})`,
+            backgroundSize: 'contain',
+          }}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Neal Sameera</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[4].name}</div>
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
@@ -139,10 +150,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '6' ? 'pinned' : ''}`}
           id='6'
           onClick={handleClick}
-          style={{ backgroundImage: `url(${part4})`, backgroundSize: 'cover' }}
+          style={{
+            backgroundImage: `url(${participantOrder[5].image})`,
+            backgroundSize: 'contain',
+          }}
         >
           <div className='room-video-grid-participant-info'>
-            <div className='room-video-grid-participant-info-name'>Halide Nursultan</div>
+            <div className='room-video-grid-participant-info-name'>{participantOrder[5].name}</div>
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>

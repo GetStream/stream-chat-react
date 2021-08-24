@@ -152,6 +152,7 @@ export const OverviewContainer = () => {
             chatType='main-event'
             content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
             eventName='cybersecurity'
+            eventNumber={1}
             jpeg={Card2}
             label='Moderated'
             presenters={6}
@@ -162,6 +163,7 @@ export const OverviewContainer = () => {
             chatType='room'
             content='ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.'
             eventName='esg'
+            eventNumber={2}
             jpeg={Card1}
             label='Private'
             presenters={2}

@@ -61,6 +61,7 @@ export const RoomsList = () => {
                   chatType={room.chatType}
                   content={room.content}
                   eventName={room.eventName}
+                  eventNumber={i}
                   label={room.label}
                   presenters={room.presenters}
                   title={room.title}
@@ -82,6 +83,7 @@ export const RoomsList = () => {
                 chatType={room.chatType}
                 content={room.content}
                 eventName={room.eventName}
+                eventNumber={i}
                 jpeg={room.jpeg}
                 label={room.label}
                 presenters={room.presenters}
