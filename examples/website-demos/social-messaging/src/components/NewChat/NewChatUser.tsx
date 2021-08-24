@@ -11,6 +11,7 @@ import './NewChatUser.scss';
 type Props = {
   user: UserResponse<SocialUserType>;
 };
+
 export const NewChatUser: React.FC<Props> = (props) => {
   const { user } = props;
 

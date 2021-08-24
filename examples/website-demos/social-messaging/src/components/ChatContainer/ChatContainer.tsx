@@ -158,8 +158,3 @@ export const ChatContainer: React.FC = () => {
     </Chat>
   );
 };
-
-// setQuery: React.Dispatch<React.SetStateAction<string>>;
-//     setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>[]>>;
-//     setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-//     setSearching: React.Dispatch<React.SetStateAction<boolean>>;
