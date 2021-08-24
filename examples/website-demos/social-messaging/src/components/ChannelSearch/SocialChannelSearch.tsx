@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-  ChannelSearch,
-  SearchInputProps,
-  useChatContext,
-} from 'stream-chat-react';
+import { ChannelSearch, SearchInputProps, useChatContext } from 'stream-chat-react';
 
-import { SearchIcon } from '../../assets';
+import { ClearSearch, SearchIcon } from '../../assets';
 import { SearchResultItem } from './SearchResultItem';
 
 import {
@@ -29,13 +25,17 @@ const SearchInput: React.FC<
     SocialUserType
   >
 > = (props) => {
-  const { inputRef, onSearch, query } = props;
+  const { channelSearchParams, inputRef, onSearch, query } = props;
 
   return (
-    <div className='social-search-input'>
+    <div className='search-social-input'>
       <SearchIcon />
       <input onChange={onSearch} placeholder='Search' ref={inputRef} type='text' value={query} />
-      {/* <ClearSearchButton setQuery={setQuery} /> */}
+      {query && (
+        <div className='search-social-input-close'>
+          <ClearSearch setQuery={channelSearchParams.setQuery} />
+        </div>
+      )}
     </div>
   );
 };

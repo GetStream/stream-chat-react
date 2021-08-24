@@ -1,5 +1,39 @@
 @import '../../styles/_variables';
 
+.search {
+  &-social-input {
+    background: $app-bg;
+    border-radius: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px;
+
+    &-close {
+      padding-right: 10px;
+    }
+  }
+
+  &-loading {
+      width: 100%;
+      min-height: 72px;
+      background-color: $app-bg;
+      border-bottom: 1px solid $borders;
+      padding: 25px;
+      color: $text-high-emphasis
+  }
+
+  &-empty {
+    width: 100%;
+    min-height: 72px;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 25px;
+    color: $text-high-emphasis
+  }
+}
+
 .search-result {
   display: flex;
   width: 100%;
@@ -166,6 +200,7 @@
 
 .str-chat__channel-search {
   padding: 8px 8px 8px 16px;
+  background: $input-bg;
 
   &-container {
     width: 100%;
@@ -178,6 +213,12 @@
     font-size: 17px;
     font-weight: 400;
     height: 40px;
+
+    &:focus {
+      border: none;
+      box-shadow: none;
+      background: $app-bg;
+    }
   }
 }
 

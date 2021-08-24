@@ -68,9 +68,13 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = (props) => {
     let status = Dayjs().from(Dayjs(result.last_active), true);
 
     return (
-      <div className='search-result-user' key={index} onClick={() => {
-        selectResult(result);
-      }}>
+      <div
+        className='search-result-user'
+        key={index}
+        onClick={() => {
+          selectResult(result);
+        }}
+      >
         <Avatar image={(result?.image as string) || ''} name={result?.name || 'User'} size={56} />
         <div className='search-result-user-contents'>
           <div className='search-result-user-contents-name'>
