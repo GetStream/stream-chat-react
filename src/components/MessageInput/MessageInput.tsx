@@ -121,15 +121,7 @@ const UnMemoizedMessageInput = <
 
   const Input = PropInput || ContextInput || MessageInputFlat;
 
-  const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>({
-    ...props,
-    additionalTextareaProps: props.additionalTextareaProps || {},
-    disabled: props.disabled || false,
-    focus: props.focus || false,
-    grow: props.grow || true,
-    maxRows: props.maxRows || 10,
-    publishTypingEvent: props.publishTypingEvent || true,
-  });
+  const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>(props);
 
   const cooldownTimerState = useCooldownTimer<At, Ch, Co, Ev, Me, Re, Us>();
 
