@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 import { useVideoContext } from '../../contexts/VideoContext';
@@ -16,6 +17,8 @@ type Props = {
 
 export const EventCard: React.FC<Props> = (props) => {
   const { chatType, content, eventName, jpeg, label, presenters, title, upcoming, viewers } = props;
+
+  const [pressed, setPressed] = useState(false);
 
   const {
     setChatType,
@@ -40,8 +43,16 @@ export const EventCard: React.FC<Props> = (props) => {
     setViewers(viewers);
   };
 
+  console.log({ pressed });
+
   return (
-    <div className={`event-card-container ${upcoming ? 'upcoming' : ''}`} onClick={handleClick}>
+    <div
+      className={`event-card-container ${upcoming ? 'upcoming' : ''} ${pressed ? 'pressed' : ''}`}
+      onClick={handleClick}
+      onMouseDown={() => setPressed(true)}
+      onMouseLeave={() => setPressed(false)}
+      onMouseUp={() => setPressed(false)}
+    >
       {jpeg && <img className='event-card-image' alt='jpeg' src={jpeg} />}
       <div className='event-card-content'>
         <div className='event-card-title'>
