@@ -202,5 +202,10 @@
       font-size: 18px;
       margin-left: 32px;
     }
+
+    img {
+      object-fit: cover;
+      width: 250px;
+    }
   }
 }

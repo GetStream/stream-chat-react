@@ -1,16 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { EventCard } from './EventCard';
 
-import { EventLogo, HackerSummitHero } from '../../assets';
 import {
+  Card1,
+  Card2,
   CrowdStrike,
   Cybereason,
+  EventLogo,
   GoGuardian,
+  HackerSummitHero,
   LogRhythm,
   RedCanary,
   Symantec,
-} from '../../assets/companyLogos';
-import { EventCard1, EventCard2 } from '../../assets/eventCardPictures';
+} from '../../assets';
 
 const eventText = (
   <div>
@@ -150,8 +152,7 @@ export const OverviewContainer = () => {
             chatType='main-event'
             content='How to set a business plans to use information to a competitive advantage and support enterprise goals.'
             eventName='cybersecurity'
-            isJpeg
-            jpeg={EventCard1}
+            jpeg={Card2}
             label='Moderated'
             presenters={6}
             title='Implementing a Cybersecurity Framework'
@@ -161,8 +162,7 @@ export const OverviewContainer = () => {
             chatType='room'
             content='ESG regulations, standards, and disclosure: Who to publish it for and how to make it meaningful.'
             eventName='esg'
-            isJpeg
-            jpeg={EventCard2}
+            jpeg={Card1}
             label='Private'
             presenters={2}
             title='ESG Data - How to create it'

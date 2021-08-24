@@ -98,7 +98,7 @@ export const EventsList = () => {
               chatType={event.chatType}
               content={event.content}
               eventName={event.eventName}
-              Image={event.Image}
+              jpeg={event.jpeg}
               label={event.label}
               presenters={event.presenters}
               title={event.title}
@@ -113,7 +113,7 @@ export const EventsList = () => {
               chatType={event.chatType}
               content={event.content}
               eventName={event.eventName}
-              Image={event.Image}
+              jpeg={event.jpeg}
               label={event.label}
               presenters={event.presenters}
               title={event.title}

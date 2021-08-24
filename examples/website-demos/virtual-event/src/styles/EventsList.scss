@@ -14,6 +14,11 @@
       transition: background 1s;
     }
 
+    &-item img {
+      object-fit: cover;
+      width: 250px;
+    }
+
     &-item:last-child {
       margin-bottom: 32px;
     }

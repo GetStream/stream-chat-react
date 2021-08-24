@@ -9,27 +9,13 @@ type Props = {
   label: string;
   presenters: number;
   title: string;
-  Image?: React.FC;
-  isJpeg?: boolean;
   jpeg?: string;
   upcoming?: boolean;
   viewers?: number;
 };
 
 export const EventCard: React.FC<Props> = (props) => {
-  const {
-    chatType,
-    content,
-    eventName,
-    Image,
-    isJpeg,
-    jpeg,
-    label,
-    presenters,
-    title,
-    upcoming,
-    viewers,
-  } = props;
+  const { chatType, content, eventName, jpeg, label, presenters, title, upcoming, viewers } = props;
 
   const {
     setChatType,
@@ -56,12 +42,7 @@ export const EventCard: React.FC<Props> = (props) => {
 
   return (
     <div className={`event-card-container ${upcoming ? 'upcoming' : ''}`} onClick={handleClick}>
-      {isJpeg && <img className='event-card-image' alt='jpeg' src={jpeg} />}
-      {Image && !isJpeg && (
-        <div className='event-card-image'>
-          <Image />
-        </div>
-      )}
+      {jpeg && <img className='event-card-image' alt='jpeg' src={jpeg} />}
       <div className='event-card-content'>
         <div className='event-card-title'>
           <EventCardIcon />
