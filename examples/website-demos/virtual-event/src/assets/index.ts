@@ -64,3 +64,5 @@ export { StartThread } from './StartThread';
 export { TwitterLogo } from './TwitterLogo';
 export { UserEllipse } from './UserEllipse';
 export { VideoViewersIcon } from './VideoViewersIcon';
+export { VideoWatermark } from './VideoWatermark';
+export { VideoWatermarkSmall } from './VideoWatermarkSmall';

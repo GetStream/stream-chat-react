@@ -4,9 +4,28 @@
   &-container {
     display: flex;
     flex-direction: column;
+    position: relative;
     background: $dark-grey;
     height: 100%;
     width: 100%;
+
+    .video-watermark {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    .video-watermark-small {
+      position: absolute;
+      height: 8%;
+      width: 100%;
+      z-index: 99;
+      pointer-events: none;
+      top: 50px;
+      left: 175px;
+    }
   }
 
   &-header {

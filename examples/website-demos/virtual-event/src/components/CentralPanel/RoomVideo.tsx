@@ -10,6 +10,8 @@ import {
   ParticipantsIcon,
   Speaking,
   VideoViewersIcon,
+  VideoWatermark,
+  VideoWatermarkSmall,
 } from '../../assets';
 import { useVideoContext } from '../../contexts/VideoContext';
 
@@ -43,6 +45,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
 
   return (
     <div className='room-video-container'>
+      <VideoWatermark />
+      {/* <VideoWatermarkSmall /> */}
       <div className='room-video-header'>
         <div className='room-video-header-title'>
           <div className='room-video-header-title-arrow' onClick={handleBackArrow}>
