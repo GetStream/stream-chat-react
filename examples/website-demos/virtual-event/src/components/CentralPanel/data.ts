@@ -11,7 +11,9 @@ import {
   Participant3,
   Participant4,
   Participant5,
-  Participant6,
+  Speaker1,
+  Speaker2,
+  Speaker3,
 } from '../../assets';
 
 type Event = {
@@ -26,32 +28,37 @@ type Event = {
   viewers?: number;
 };
 
-const p1 = { image: Participant1, name: 'Lita Sherman' };
-const p2 = { image: Participant2, name: 'Kirk Purdie' };
-const p3 = { image: Participant3, name: 'Neal Sameera' };
-const p4 = { image: Participant4, name: 'Jaana Kirstie' };
-const p5 = { image: Participant5, name: 'Khalid Ignác' };
-const p6 = { image: Participant6, name: 'Halide Nursultan' };
+const s1 = { video: Speaker1, name: 'Lita Sherman' };
+const s2 = { video: Speaker2, name: 'Zach Costello' };
+const s3 = { video: Speaker3, name: 'Tyler Stevens' };
+const s4 = { video: Speaker1, name: 'Lita Sherman' };
+const s5 = { video: Speaker2, name: 'Lita Sherman' };
+const s6 = { video: Speaker3, name: 'Lita Sherman' };
+const p1 = { video: Participant1, name: 'Kirk Purdie' };
+const p2 = { video: Participant2, name: 'Halide Nursultan' };
+const p3 = { video: Participant3, name: 'Khalid Ignác' };
+const p4 = { video: Participant4, name: 'Jaana Kirstie' };
+const p5 = { video: Participant5, name: 'Neal Sameera' };
 
 export const getParticipantOrder = (number?: number) => {
   switch (number) {
     case 0:
-      return { 0: p1, 1: p2, 2: p3, 3: p4, 4: p5, 5: p6 };
+      return { 0: s1, 1: p1, 2: p2, 3: p3, 4: p4, 5: p5 };
 
     case 1:
-      return { 0: p2, 1: p3, 2: p4, 3: p5, 4: p6, 5: p1 };
+      return { 0: s2, 1: p2, 2: p3, 3: p4, 4: p5, 5: p1 };
 
     case 2:
-      return { 0: p3, 1: p4, 2: p5, 3: p6, 4: p1, 5: p2 };
+      return { 0: s3, 1: p3, 2: p4, 3: p5, 4: p1, 5: p2 };
 
     case 3:
-      return { 0: p4, 1: p5, 2: p6, 3: p1, 4: p2, 5: p3 };
+      return { 0: s4, 1: p4, 2: p5, 3: p1, 4: p2, 5: p3 };
 
     case 4:
-      return { 0: p5, 1: p6, 2: p1, 3: p2, 4: p3, 5: p4 };
+      return { 0: s5, 1: p5, 2: p1, 3: p2, 4: p3, 5: p4 };
 
     default:
-      return { 0: p6, 1: p1, 2: p2, 3: p3, 4: p4, 5: p5 };
+      return { 0: s6, 1: p1, 2: p2, 3: p3, 4: p4, 5: p5 };
   }
 };
 

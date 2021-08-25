@@ -74,13 +74,24 @@
 
     &-participant {
       display: flex;
+      position: relative;
       justify-content: space-between;
       width: 340px;
-      height: 204px;
+      height: 191px;
       border-radius: 8px;
       border: 1px solid white;
       margin: 4px;
       cursor: pointer;
+      z-index: 1;
+      overflow: hidden;
+
+      video {
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
 
       &-info {
         display: flex;
@@ -115,10 +126,10 @@
 }
 
 .pinned {
-  background: blue;
+  overflow: hidden;
   order: -1;
   width: 100% !important;
-  height: 400px !important;
+  height: 425px !important;
 
   .room-video-grid-participant {
     &-connection {
@@ -134,7 +145,8 @@
 .isPinned {
   > div {
     width: 140px;
-    height: 100px;
+    height: 79px;
+    overflow: hidden;
   }
 
   .room-video-grid-participant {

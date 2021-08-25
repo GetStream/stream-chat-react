@@ -64,12 +64,9 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
         <div
           className={`room-video-grid-participant ${pinnedID === '1' ? 'pinned' : ''}`}
           id='1'
-          style={{
-            backgroundImage: `url(${participantOrder[0].image})`,
-            backgroundSize: 'contain',
-          }}
           onClick={handleClick}
         >
+          <video autoPlay id='1' loop src={participantOrder[0].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[0].name}</div>
             <Speaking />
@@ -82,11 +79,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '2' ? 'pinned' : ''}`}
           id='2'
           onClick={handleClick}
-          style={{
-            backgroundImage: `url(${participantOrder[1].image})`,
-            backgroundSize: 'contain',
-          }}
         >
+          <video autoPlay id='2' loop src={participantOrder[1].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[1].name}</div>
             <Listening />
@@ -99,11 +93,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '3' ? 'pinned' : ''}`}
           id='3'
           onClick={handleClick}
-          style={{
-            backgroundImage: `url(${participantOrder[2].image})`,
-            backgroundSize: 'contain',
-          }}
         >
+          <video autoPlay id='3' loop src={participantOrder[2].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[2].name}</div>
             <Muted />
@@ -116,11 +107,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '4' ? 'pinned' : ''}`}
           id='4'
           onClick={handleClick}
-          style={{
-            backgroundImage: `url(${participantOrder[3].image})`,
-            backgroundSize: 'contain',
-          }}
         >
+          <video autoPlay id='4' loop src={participantOrder[3].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[3].name}</div>
             <Muted />
@@ -133,11 +121,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '5' ? 'pinned' : ''}`}
           id='5'
           onClick={handleClick}
-          style={{
-            backgroundImage: `url(${participantOrder[4].image})`,
-            backgroundSize: 'contain',
-          }}
         >
+          <video autoPlay id='5' loop src={participantOrder[4].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[4].name}</div>
             <Muted />
@@ -150,11 +135,8 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           className={`room-video-grid-participant ${pinnedID === '6' ? 'pinned' : ''}`}
           id='6'
           onClick={handleClick}
-          style={{
-            backgroundImage: `url(${participantOrder[5].image})`,
-            backgroundSize: 'contain',
-          }}
         >
+          <video autoPlay id='6' loop src={participantOrder[5].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[5].name}</div>
             <Muted />

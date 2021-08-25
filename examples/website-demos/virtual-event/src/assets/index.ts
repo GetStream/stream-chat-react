@@ -34,12 +34,22 @@ export { MessageActionsEllipse } from './MessageActionsEllipse';
 export { MuteUser } from './MuteUser';
 export { OnlineUsersIcon } from './OnlineUsersIcon';
 export { OverviewButton } from './OverviewButton';
-export { default as Participant1 } from './participant01.jpg';
-export { default as Participant2 } from './participant02.jpg';
-export { default as Participant3 } from './participant07.jpg';
-export { default as Participant4 } from './participant04.jpg';
-export { default as Participant5 } from './participant05.jpg';
-export { default as Participant6 } from './participant06.jpg';
+// @ts-expect-error
+export { default as Participant1 } from './Participant1.mp4';
+// @ts-expect-error
+export { default as Participant2 } from './Participant2.mp4';
+// @ts-expect-error
+export { default as Participant3 } from './Participant3.mp4';
+// @ts-expect-error
+export { default as Participant4 } from './Participant4.mp4';
+// @ts-expect-error
+export { default as Participant5 } from './Participant5.mp4';
+// @ts-expect-error
+export { default as Speaker1 } from './Speaker1.mp4';
+// @ts-expect-error
+export { default as Speaker2 } from './Speaker2.mp4';
+// @ts-expect-error
+export { default as Speaker3 } from './Speaker3.mp4';
 export { ParticipantsIcon } from './ParticipantsIcon';
 export { QAThumb } from './QAThumb';
 export { ReactionSmiley } from './ReactionSmiley';
