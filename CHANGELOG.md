@@ -1,10 +1,23 @@
 # Changelog
 
+## [6.5.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.2) 2021-08-26
+
+### Chore
+
+- Improve `ChannelSearch` types for channel and user filters [#1141](https://github.com/GetStream/stream-chat-react/pull/1141)
+- Remove unnecessary `useMessageInputState` props [#1145](https://github.com/GetStream/stream-chat-react/pull/1145)
+- Change image `import` syntax to `require` [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
+- Upgrade `react-file-utils` and `react-virtuoso` dependencies [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
+
+### Bug
+
+- Hide URL link overflow in `MessageSimple` [#1147](https://github.com/GetStream/stream-chat-react/pull/1147)
+
 ## [6.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.1) 2021-08-13
 
 ### Feature
 
-- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1121](https://github.com/GetStream/stream-chat-react/pull/1123)
+- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1123](https://github.com/GetStream/stream-chat-react/pull/1123)
 
 ### Chore
 
