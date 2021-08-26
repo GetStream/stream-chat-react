@@ -5,10 +5,11 @@ import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-ch
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
+import { SocialMessage } from '../Message/SocialMessage';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
-import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -152,7 +153,7 @@ export const ChatContainer: React.FC = () => {
         />
       </div>
       {isSideDrawerOpen && <SideDrawer />}
-      <Channel>
+      <Channel Message={SocialMessage}>
         <ChannelContainer />
       </Channel>
     </Chat>
