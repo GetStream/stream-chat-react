@@ -14,17 +14,15 @@ import {
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 
-const SearchInput: React.FC<
-  SearchInputProps<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >
-> = (props) => {
+import type { ChannelFilters } from 'stream-chat';
+
+const SearchInput = (props: SearchInputProps<SocialAttachmentType,
+  SocialChannelType,
+  SocialCommandType,
+  SocialEventType,
+  SocialMessageType,
+  SocialReactionType,
+  SocialUserType>) => {
   const { channelSearchParams, inputRef, onSearch, query } = props;
 
   return (
@@ -46,21 +44,13 @@ const SearchEmpty: React.FC = () => <div className='search-empty'>No results fou
 export const SocialChannelSearch: React.FC = () => {
   const { client } = useChatContext();
 
-  const channelFilters = {
+  const channelFilters: { filters: ChannelFilters } = {
     filters: { members: { $in: [client.userID || ''] } },
   };
 
   return (
     <div className='search'>
-      <ChannelSearch<
-        SocialAttachmentType,
-        SocialChannelType,
-        SocialCommandType,
-        SocialEventType,
-        SocialMessageType,
-        SocialReactionType,
-        SocialUserType
-      >
+      <ChannelSearch
         searchForChannels={true}
         searchQueryParams={{
           channelFilters,

@@ -1,5 +1,5 @@
 type Props = {
-  createChannel: () => Promise<void>;
+  createChannel: () => void;
 };
 export const AddChat: React.FC<Props> = (props) => {
   const { createChannel } = props;

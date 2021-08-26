@@ -20,7 +20,7 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
 
   const { member_count, name, watcher_count } = channel?.data || {};
 
-  const channelName = members.length === 1 ? members[0].user?.name : name;
+  const channelName = members.length === 1 ? members[0].user?.name || members[0].user?.id : name;
 
   if (isNewChat) {
     return (

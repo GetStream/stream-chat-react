@@ -8,11 +8,11 @@ import { SocialUserType } from '../ChatContainer/ChatContainer';
 
 import './NewChatUser.scss';
 
-type Props = {
+type Props<SocialUserType> = {
   user: UserResponse<SocialUserType>;
 };
 
-export const NewChatUser: React.FC<Props> = (props) => {
+export const NewChatUser = (props: Props<SocialUserType>) => {
   const { user } = props;
 
   Dayjs.extend(relativeTime);
@@ -20,10 +20,10 @@ export const NewChatUser: React.FC<Props> = (props) => {
 
   return (
     <div className='new-chat-user'>
-      <Avatar image={(user?.image as string) || ''} name={user?.name || 'User'} size={56} />
+      <Avatar image={user.image || ''} name={user.name || user.id} size={56} />
       <div className='new-chat-user-contents'>
         <div className='new-chat-user-contents-name'>
-          <span>{user?.name || 'User'}</span>
+          <span>{user.name || user.id}</span>
         </div>
         <div className='new-chat-user-contents-status'>
           {user.last_active ? <span>Last online {status} ago</span> : <span>Not online</span>}

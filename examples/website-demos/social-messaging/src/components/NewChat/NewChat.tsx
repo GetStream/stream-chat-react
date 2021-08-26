@@ -34,7 +34,7 @@ export const NewChat = () => {
     try {
       const response = await client.queryUsers(
         {
-          id: { $ne: client.userID as string },
+          id: { $ne: client.userID || '' },
           $and: [{ name: { $autocomplete: inputText } }],
         },
         { id: 1 },
@@ -66,16 +66,16 @@ export const NewChat = () => {
     }
   }, [inputText]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const createChannel = async () => {
+  const createChannel = () => {
     const selectedUsersIds = selectedUsers.map((user) => user.id);
 
     if (!selectedUsersIds.length || !client.userID) return;
 
-    const conversation = await client.channel('messaging', {
+    const conversation = client.channel('messaging', {
       members: [...selectedUsersIds, client.userID],
     });
 
-    await conversation.watch();
+    conversation.watch();
 
     setActiveChannel?.(conversation);
     setSelectedUsers([]);
@@ -139,7 +139,7 @@ export const NewChat = () => {
       <div className='new-chat-input'>
         <div className='new-chat-input-to'>TO: </div>
         <div className='new-chat-input-main'>
-          {!!selectedUsers?.length && (
+          {!selectedUsers?.length && (
             <div className='new-chat-input-main-selected'>
               {selectedUsers.map((user) => (
                 <div
@@ -148,11 +148,11 @@ export const NewChat = () => {
                   key={user.id}
                 >
                   <Avatar
-                    image={(user?.image as string) || ''}
-                    name={user?.name || 'User'}
+                    image={user?.image || ''}
+                    name={user?.name || user.id}
                     size={28}
                   />
-                  <div className='new-chat-input-main-selected-user-name'>{user.name}</div>
+                  <div className='new-chat-input-main-selected-user-name'>{user.name || user.id}</div>
                 </div>
               ))}
             </div>
@@ -175,7 +175,7 @@ export const NewChat = () => {
       </div>
       {inputText && (
         <div className='new-chat-options'>
-          {!!users?.length && !searchEmpty && (
+          {users?.length && !searchEmpty && (
             <>
               {users.map((user, i) => (
                 <div

@@ -1,26 +1,27 @@
 import type { Channel, ChannelMemberResponse } from 'stream-chat';
-
 import { Avatar } from 'stream-chat-react';
-import { BlankAvatar } from '../../assets';
-// import { SocialUserType } from '../ChatContainer/ChatContainer';
 
-type Props = {
-  members: ChannelMemberResponse[] | undefined;
-  size: number | undefined;
+import { SocialUserType } from '../ChatContainer/ChatContainer';
+
+import { BlankAvatar } from '../../assets';
+
+type Props<SocialUserType> = {
+  members: ChannelMemberResponse<SocialUserType>[] | undefined;
+  size?: number;
 };
 
-export const AvatarGroup: React.FC<Props> = (props) => {
+export const AvatarGroup = (props: Props<SocialUserType>) => {
   const { members, size } = props;
 
-  if (!members) return <BlankAvatar size={size || 56} />;
+  if (!members) return <BlankAvatar size={size} />;
 
-  let modifiedSize = size === 56 ? 30 : 20;
+  const modifiedSize = size === 56 ? 30 : 20;
 
   if (members.length === 1) {
     return (
       <Avatar
         image={(members[0].user?.image as string) || ''}
-        name={members[0].user?.name || 'User'}
+        name={members[0].user?.name || members[0].user?.id}
         size={size || 56}
       />
     );
@@ -32,7 +33,7 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[0].user?.image as string) || ''}
-            name={members[0].user?.name || 'User'}
+            name={members[0].user?.name || members[0].user?.id}
             shape='square'
             size={modifiedSize}
           />
@@ -40,7 +41,7 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[1].user?.image as string) || ''}
-            name={members[1].user?.name || 'User'}
+            name={members[1].user?.name || members[1].user?.id}
             shape='square'
             size={modifiedSize}
           />
@@ -55,7 +56,7 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[0].user?.image as string) || ''}
-            name={members[0].user?.name || 'User'}
+            name={members[0].user?.name || members[0].user?.id}
             shape='square'
             size={modifiedSize}
           />
@@ -63,13 +64,13 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[1].user?.image as string) || ''}
-            name={members[1].user?.name || 'User'}
+            name={members[1].user?.name || members[1].user?.id}
             shape='square'
             size={modifiedSize}
           />
           <Avatar
             image={(members[2].user?.image as string) || ''}
-            name={members[2].user?.name || 'User'}
+            name={members[2].user?.name || members[2].user?.id}
             shape='square'
             size={modifiedSize}
           />
@@ -84,13 +85,13 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[members.length - 1].user?.image as string) || ''}
-            name={members[members.length - 1].user?.name || 'User'}
+            name={members[members.length - 1].user?.name || members[members.length - 1].user?.id}
             shape='square'
             size={modifiedSize}
           />
           <Avatar
             image={(members[members.length - 2].user?.image as string) || ''}
-            name={members[members.length - 2].user?.name || 'User'}
+            name={members[members.length - 2].user?.name || members[members.length - 2].user?.id}
             shape='square'
             size={modifiedSize}
           />
@@ -98,13 +99,13 @@ export const AvatarGroup: React.FC<Props> = (props) => {
         <span>
           <Avatar
             image={(members[members.length - 3].user?.image as string) || ''}
-            name={members[members.length - 3].user?.name || 'User'}
+            name={members[members.length - 3].user?.name || members[members.length - 3].user?.id}
             shape='square'
             size={modifiedSize}
           />
           <Avatar
             image={(members[members.length - 4].user?.image as string) || ''}
-            name={members[members.length - 4].user?.name || 'User'}
+            name={members[members.length - 4].user?.name || members[members.length - 4].user?.id}
             shape='square'
             size={modifiedSize}
           />

@@ -11,10 +11,11 @@ import {
 } from 'stream-chat-react';
 
 import { AvatarGroup, getTimeStamp } from '../ChannelPreview/utils';
+import { SocialUserType } from '../ChatContainer/ChatContainer';
 
 import './SocialChannelSearch.scss';
 
-export const SearchResultItem: React.FC<SearchResultItemProps> = (props) => {
+export const SearchResultItem = (props: SearchResultItemProps<SocialUserType>) => {
   const { index, result, selectResult } = props;
 
   const { client } = useChatContext();
@@ -27,9 +28,9 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = (props) => {
     const members = Object.values(channel.state.members).filter(
       ({ user }) => user?.id !== client.userID,
     );
-    const online = channel.state.watcher_count > 0 ? true : false;
+    const online = !!channel.state.watcher_count ? true : false;
     const unread = channel.countUnread();
-    const unreadCount = unread && unread > 0 ? true : false;
+    const unreadCount = !!unread ? true : false;
 
     return (
       <button
@@ -65,7 +66,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = (props) => {
     );
   } else {
     Dayjs.extend(relativeTime);
-    let status = Dayjs().from(Dayjs(result.last_active), true);
+    const status = Dayjs().from(Dayjs(result.last_active), true);
 
     return (
       <div
@@ -75,10 +76,10 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = (props) => {
           selectResult(result);
         }}
       >
-        <Avatar image={(result?.image as string) || ''} name={result?.name || 'User'} size={56} />
+        <Avatar image={result?.image || ''} name={result?.name || result?.id} size={56} />
         <div className='search-result-user-contents'>
           <div className='search-result-user-contents-name'>
-            <span>{result?.name || 'User'}</span>
+            <span>{result?.name || result?.id}</span>
           </div>
           <div className='search-result-user-contents-status'>
             {result.last_active ? <span>Last online {status} ago</span> : <span>Not online</span>}
