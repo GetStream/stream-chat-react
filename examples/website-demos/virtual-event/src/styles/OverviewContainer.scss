@@ -9,6 +9,17 @@
     background: $app-canvas;
     transition: background 1s;
     color: $text-high-emphasis;
+
+    // safari only styles
+    @media not all and (min-resolution: 0.001dpcm) {
+      @supports (-webkit-appearance: none) and (stroke-color: transparent) {
+        > img {
+          overflow: hidden;
+          height: 50%;
+          object-fit: cover;
+        }
+      }
+    }
   }
 
   &-tabs {

@@ -85,7 +85,7 @@
         align-items: center;
         justify-content: space-around;
         height: 56px;
-        font-weight: 600;
+        font-weight: 400;
         font-size: 14px;
         line-height: 18px;
         color: $text-high-emphasis;
@@ -111,6 +111,10 @@
             height: 4px;
             background: $primary-accent;
             border-radius: 0 0 4px 4px;
+          }
+
+          .selected + div {
+            font-weight: 600;
           }
         }
       }
