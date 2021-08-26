@@ -94,7 +94,9 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
   };
 
   const extraParams: SearchQueryParams = {
-    options: { limit: 20 },
+    userFilters: {
+      options: { limit: 20 },
+    },
   };
 
   return (

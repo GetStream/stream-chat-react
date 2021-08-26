@@ -80,7 +80,7 @@
 
   &-card {
     border-radius: 16px;
-    width: 200px;
+    width: 300px;
     margin: 16px 0;
     background: $app-canvas;
 
@@ -154,6 +154,7 @@
     top: 56px;
     border-radius: 2px;
     padding-top: 16px;
+    z-index: 2;
 
     .rooms-list-card {
       margin: 0;

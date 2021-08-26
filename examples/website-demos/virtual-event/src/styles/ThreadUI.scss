@@ -44,6 +44,21 @@
 
 .messaging.str-chat .str-chat__thread-list {
   padding: unset;
+
+  > :first-child {
+    .message-ui-options {
+      display: none;
+    }
+  }
+
+  .str-chat__virtual-list {
+    overflow-y: unset;
+    overflow-x: unset;
+
+    > :first-child {
+      overflow: unset !important;
+    }
+  }
 }
 
 .thread-footer {

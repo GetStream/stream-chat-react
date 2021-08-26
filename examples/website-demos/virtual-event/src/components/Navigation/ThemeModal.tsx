@@ -11,7 +11,7 @@ import {
   TeamDark,
   MusicLight,
   MusicDark,
-} from '../../assets/themeIcons';
+} from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 import { ModeOptions, ThemeOptions } from '../../hooks/useTheme';
 

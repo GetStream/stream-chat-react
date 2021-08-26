@@ -12,6 +12,26 @@
     .event-card-container {
       background: $app-canvas;
       transition: background 1s;
+
+      &:hover {
+        background: $card-background;
+        transition: background 0.2s;
+      }
+
+      &.pressed {
+        transition: background 0.2s;
+        background: $text-low-emphasis !important;
+      }
+
+      &.upcoming:hover {
+        cursor: unset;
+        background: $app-canvas !important;
+      }
+    }
+
+    &-item img {
+      object-fit: cover;
+      width: 250px;
     }
 
     &-item:last-child {
@@ -122,6 +142,7 @@
     top: 56px;
     border-radius: 2px;
     padding-top: 16px;
+    z-index: 2;
 
     .events-list-card {
       margin: 0;

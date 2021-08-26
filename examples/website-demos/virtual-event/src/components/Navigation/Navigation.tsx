@@ -3,7 +3,7 @@ import React from 'react';
 import { ThemeModal } from './ThemeModal';
 
 import { MainEventButton, MainLogo, OverviewButton, RoomsButton } from '../../assets';
-import NavigationAvatar from '../../assets/NavigationAvatar.png';
+import NavigationAvatar from '../../assets/NavigationAvatar.jpg';
 import { useEventContext } from '../../contexts/EventContext';
 
 export const Navigation: React.FC = () => {

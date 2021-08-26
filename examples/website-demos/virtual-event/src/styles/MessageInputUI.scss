@@ -94,6 +94,10 @@
     }
 
     &.text {
+      &:hover {
+        cursor: pointer;
+      }
+
       svg path {
         fill: $primary-accent;
       }
@@ -107,15 +111,6 @@
       font-size: 20px;
       font-weight: 600;
       color: $primary-accent;
-    }
-
-    &:hover {
-      cursor: pointer;
-      color: $primary-accent;
-
-      svg {
-        fill: $primary-accent;
-      }
     }
 
     &.cooldown:hover {

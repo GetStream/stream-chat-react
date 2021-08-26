@@ -1,22 +1,8 @@
-export { Ban } from './commandIcons/Ban';
-export { Flag } from './commandIcons/Flag';
-export { Mute } from './commandIcons/Mute';
-export { Giphy } from './commandIcons/Giphy';
-export { Unban } from './commandIcons/Unban';
-export { Unmute } from './commandIcons/Unmute';
-
-export { EventCard1 } from './eventCardPictures/EventCard1';
-export { EventCard2 } from './eventCardPictures/EventCard2';
-export { EventCard3 } from './eventCardPictures/EventCard3';
-export { EventCard4 } from './eventCardPictures/EventCard4';
-
-export { RoomCard1 } from './roomCardPictures/RoomCard1';
-export { RoomCard2 } from './roomCardPictures/RoomCard2';
-export { RoomCard3 } from './roomCardPictures/RoomCard3';
-export { RoomCard4 } from './roomCardPictures/RoomCard4';
-export { RoomCard5 } from './roomCardPictures/RoomCard5';
-export { RoomCard6 } from './roomCardPictures/RoomCard6';
-export { RoomCard7 } from './roomCardPictures/RoomCard7';
+export * from './cardPictures';
+export * from './commandIcons';
+export * from './companyLogos';
+export * from './themeIcons';
+export * from './userImages';
 
 export { BackArrow } from './BackArrow';
 export { CalendarButton } from './CalendarButton';
@@ -33,12 +19,12 @@ export { EmptyChatIcon } from './EmptyChatIcon';
 export { EmptyDMIcon } from './EmptyDMIcon';
 export { EmptyQAIcon } from './EmptyQAIcon';
 export { EventCardIcon } from './EventCardIcon';
+export { default as EventLogo } from './EventLogo.png';
 export { FlagUser } from './FlagUser';
 export { GiphyCommandIcon } from './GiphyCommandIcon';
 export { GiphyIcon } from './GiphyIcon';
 export { GiphySearch } from './GiphySearch';
-export { HackerSummitHero } from './HackerSummitHero';
-export { HackerSummitLogo } from './HackerSummitLogo';
+export { default as HackerSummitHero } from './HackerSummitHero.jpg';
 export { Listening } from './Listening';
 export { LinkedInLogo } from './LinkedInLogo';
 export { MainEventButton } from './MainEventButton';
@@ -48,6 +34,22 @@ export { MessageActionsEllipse } from './MessageActionsEllipse';
 export { MuteUser } from './MuteUser';
 export { OnlineUsersIcon } from './OnlineUsersIcon';
 export { OverviewButton } from './OverviewButton';
+// @ts-expect-error
+export { default as Participant1 } from './Participant1.mp4';
+// @ts-expect-error
+export { default as Participant2 } from './Participant2.mp4';
+// @ts-expect-error
+export { default as Participant3 } from './Participant3.mp4';
+// @ts-expect-error
+export { default as Participant4 } from './Participant4.mp4';
+// @ts-expect-error
+export { default as Participant5 } from './Participant5.mp4';
+// @ts-expect-error
+export { default as Speaker1 } from './Speaker1.mp4';
+// @ts-expect-error
+export { default as Speaker2 } from './Speaker2.mp4';
+// @ts-expect-error
+export { default as Speaker3 } from './Speaker3.mp4';
 export { ParticipantsIcon } from './ParticipantsIcon';
 export { QAThumb } from './QAThumb';
 export { ReactionSmiley } from './ReactionSmiley';
@@ -62,28 +64,4 @@ export { StartThread } from './StartThread';
 export { TwitterLogo } from './TwitterLogo';
 export { UserEllipse } from './UserEllipse';
 export { VideoViewersIcon } from './VideoViewersIcon';
-
-export { default as avatar1 } from './userImages/photo-1438761681033-6461ffad8d80.jpeg';
-export { default as avatar2 } from './userImages/photo-1463453091185-61582044d556.jpeg';
-export { default as avatar3 } from './userImages/photo-1503467913725-8484b65b0715.jpeg';
-export { default as avatar4 } from './userImages/photo-1519345182560-3f2917c472ef.jpeg';
-export { default as avatar5 } from './userImages/photo-1506089676908-3592f7389d4d.jpeg';
-export { default as avatar6 } from './userImages/photo-1507003211169-0a1dd7228f2d.jpeg';
-export { default as avatar7 } from './userImages/photo-1517202383675-eb0a6e27775f.jpeg';
-export { default as avatar8 } from './userImages/photo-1531251445707-1f000e1e87d0.jpeg';
-export { default as avatar9 } from './userImages/photo-1541271696563-3be2f555fc4e.jpeg';
-export { default as avatar10 } from './userImages/photo-1542345812-d98b5cd6cf98.jpeg';
-export { default as avatar11 } from './userImages/photo-1546539782-6fc531453083.jpeg';
-export { default as avatar12 } from './userImages/photo-1546623381-d6d69cd69955.jpeg';
-export { default as avatar13 } from './userImages/photo-1546820389-44d77e1f3b31.jpeg';
-export { default as avatar14 } from './userImages/photo-1548946526-f69e2424cf45.jpeg';
-export { default as avatar15 } from './userImages/photo-1549351236-caca0f174515.jpeg';
-export { default as avatar16 } from './userImages/photo-1551069613-1904dbdcda11.jpeg';
-export { default as avatar17 } from './userImages/photo-1554384645-13eab165c24b.jpeg';
-export { default as avatar18 } from './userImages/photo-1569443693539-175ea9f007e8.jpeg';
-export { default as avatar19 } from './userImages/photo-1573140247632-f8fd74997d5c.jpeg';
-export { default as avatar20 } from './userImages/photo-1546456073-6712f79251bb.jpeg';
-export { default as avatar21 } from './userImages/photo-1502378735452-bc7d86632805.jpeg';
-export { default as avatar22 } from './userImages/photo-1546967191-fdfb13ed6b1e.jpeg';
-export { default as avatar23 } from './userImages/photo-1502937406922-305bb2789e95.jpeg';
-export { default as avatar24 } from './userImages/photo-1552058544-f2b08422138a.jpeg';
+export { VideoWatermark } from './VideoWatermark';

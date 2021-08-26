@@ -23,10 +23,6 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
-const filters: ChannelFilters = { type: 'messaging', demo: 'virtual-event' };
-const options: ChannelOptions = { state: true, presence: true, limit: 10 };
-const sort: ChannelSort = { last_message_at: -1 };
-
 export const SkeletonLoader: React.FC = () => (
   <ul className='dm-loading'>
     {[0, 1, 2, 3, 4].map((_, i) => (
@@ -110,7 +106,16 @@ type Props = {
 export const DMChannelList: React.FC<Props> = (props) => {
   const { dmChannel, setParticipantProfile, setDmChannel } = props;
 
+  const { client } = useChatContext();
   const { searching, setSearching } = useEventContext();
+
+  const filters: ChannelFilters = {
+    type: 'messaging',
+    demo: 'virtual-event',
+    members: { $in: [client.userID || ''] },
+  };
+  const options: ChannelOptions = { state: true, presence: true, limit: 10 };
+  const sort: ChannelSort = { last_message_at: -1 };
 
   return (
     <>

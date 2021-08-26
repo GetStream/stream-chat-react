@@ -124,7 +124,7 @@ export const MessageInputUI = (props: Props) => {
           ) : (
             <>
               <SendArrow />
-              <div>269</div>
+              <div>{269 - text.length}</div>
             </>
           )}
         </div>

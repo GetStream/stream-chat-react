@@ -9,15 +9,6 @@
     background: $app-canvas;
     transition: background 1s;
     color: $text-high-emphasis;
-    overflow: scroll;
-  }
-
-  &-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
-    min-height: 320px;
   }
 
   &-tabs {
@@ -31,6 +22,15 @@
       justify-content: center;
       width: 25%;
     }
+
+    a {
+      color: unset;
+      text-decoration: unset;
+    }
+  }
+
+  &-content-wrapper {
+    overflow: scroll;
   }
 
   &-title {
@@ -80,6 +80,10 @@
       box-sizing: border-box;
       border-radius: 16px;
       margin-right: 8px;
+
+      img {
+        height: 50px;
+      }
     }
 
     &-header {
@@ -175,6 +179,7 @@
       margin-bottom: 8px;
       font-weight: 600;
       font-size: 18px;
+      padding-left: 16px;
     }
 
     &-logos {
@@ -196,6 +201,11 @@
       font-weight: 600;
       font-size: 18px;
       margin-left: 32px;
+    }
+
+    img {
+      object-fit: cover;
+      width: 250px;
     }
   }
 }

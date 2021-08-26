@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { EventCardIcon, ParticipantsIcon, VideoViewersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 import { useVideoContext } from '../../contexts/VideoContext';
@@ -6,10 +7,11 @@ type Props = {
   chatType: 'main-event' | 'room';
   content: string;
   eventName: string;
+  eventNumber: number;
   label: string;
   presenters: number;
   title: string;
-  Image?: React.FC;
+  jpeg?: string;
   upcoming?: boolean;
   viewers?: number;
 };
@@ -19,13 +21,16 @@ export const EventCard: React.FC<Props> = (props) => {
     chatType,
     content,
     eventName,
-    Image,
+    eventNumber,
+    jpeg,
     label,
     presenters,
     title,
     upcoming,
     viewers,
   } = props;
+
+  const [pressed, setPressed] = useState(false);
 
   const {
     setChatType,
@@ -34,13 +39,14 @@ export const EventCard: React.FC<Props> = (props) => {
     setShowChannelList,
     setVideoOpen,
   } = useEventContext();
-  const { setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
+  const { setEventNumber, setLabel, setPresenters, setTitle, setViewers } = useVideoContext();
 
   const handleClick = () => {
     if (upcoming) return;
 
     setChatType(chatType);
     setEventName(eventName);
+    setEventNumber(eventNumber);
     setLabel(label);
     setPresenters(presenters);
     setShowChannelList(false);
@@ -51,12 +57,14 @@ export const EventCard: React.FC<Props> = (props) => {
   };
 
   return (
-    <div className={`event-card-container ${upcoming ? 'upcoming' : ''}`} onClick={handleClick}>
-      {Image && (
-        <div className='event-card-image'>
-          <Image />
-        </div>
-      )}
+    <div
+      className={`event-card-container ${upcoming ? 'upcoming' : ''} ${pressed ? 'pressed' : ''}`}
+      onClick={handleClick}
+      onMouseDown={() => setPressed(true)}
+      onMouseLeave={() => setPressed(false)}
+      onMouseUp={() => setPressed(false)}
+    >
+      {jpeg && <img className='event-card-image' alt='jpeg' src={jpeg} />}
       <div className='event-card-content'>
         <div className='event-card-title'>
           <EventCardIcon />
