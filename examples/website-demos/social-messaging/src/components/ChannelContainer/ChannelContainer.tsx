@@ -7,6 +7,8 @@ import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
+import './ChannelContainer.scss';
+
 export const ChannelContainer: React.FC = () => {
   const { isNewChat } = useViewContext();
 

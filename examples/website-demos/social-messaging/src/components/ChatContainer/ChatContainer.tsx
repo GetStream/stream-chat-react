@@ -7,7 +7,7 @@ import { Channel, ChannelList, Chat } from 'stream-chat-react';
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
-import { SocialMessage } from '../Message/SocialMessage';
+import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
 

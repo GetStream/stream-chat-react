@@ -11,14 +11,30 @@ import {
 } from 'stream-chat-react';
 
 import { AvatarGroup, getTimeStamp } from '../ChannelPreview/utils';
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import {
+  SocialAttachmentType,
+  SocialChannelType,
+  SocialCommandType,
+  SocialEventType,
+  SocialMessageType,
+  SocialReactionType,
+  SocialUserType,
+} from '../ChatContainer/ChatContainer';
 
 import './SocialChannelSearch.scss';
 
 export const SearchResultItem = (props: SearchResultItemProps<SocialUserType>) => {
   const { index, result, selectResult } = props;
 
-  const { client } = useChatContext();
+  const { client } = useChatContext<
+    SocialAttachmentType,
+    SocialChannelType,
+    SocialCommandType,
+    SocialEventType,
+    SocialMessageType,
+    SocialReactionType,
+    SocialUserType
+  >();
   const { t, userLanguage } = useTranslationContext();
 
   if (isChannel(result)) {
