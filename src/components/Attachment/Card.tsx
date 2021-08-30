@@ -2,9 +2,8 @@ import React from 'react';
 
 import { SafeAnchor } from '../SafeAnchor';
 
+import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-const giphyLogo = require('../../assets/Poweredby_100px-White_VertText.png');
 
 export type CardProps = {
   /** The url of the full sized image */
