@@ -72,6 +72,7 @@ const VirtualizedMessageListWithContext = <
 ) => {
   const {
     channel,
+    closeReactionSelectorOnClick,
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
@@ -225,7 +226,12 @@ const VirtualizedMessageListWithContext = <
         message.user?.id === messageList[streamMessageIndex - 1].user?.id;
 
       return (
-        <Message groupedByUser={groupedByUser} message={message} Message={MessageUIComponent} />
+        <Message
+          closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+          groupedByUser={groupedByUser}
+          message={message}
+          Message={MessageUIComponent}
+        />
       );
     },
     [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
@@ -314,6 +320,8 @@ export type VirtualizedMessageListProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer?: (
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],

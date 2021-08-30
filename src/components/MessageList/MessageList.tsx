@@ -165,6 +165,7 @@ const MessageListWithContext = <
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
+      closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       customMessageActions: props.customMessageActions,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
@@ -232,6 +233,7 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
+  | 'closeReactionSelectorOnClick'
   | 'customMessageActions'
   | 'disableQuotedMessages'
   | 'formatDate'

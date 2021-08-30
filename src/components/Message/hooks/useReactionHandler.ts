@@ -155,6 +155,7 @@ export const useReactionClick = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   reactionSelectorRef?: RefObject<HTMLDivElement | null>,
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
+  closeReactionSelectorOnClick?: boolean,
 ) => {
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -169,7 +170,8 @@ export const useReactionClick = <
     (event) => {
       if (
         event.target instanceof HTMLElement &&
-        reactionSelectorRef?.current?.contains(event.target)
+        reactionSelectorRef?.current?.contains(event.target) &&
+        !closeReactionSelectorOnClick
       ) {
         return;
       }
