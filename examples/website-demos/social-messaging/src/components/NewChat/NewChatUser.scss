@@ -1,0 +1,35 @@
+@import '../../styles/_variables';
+
+.new-chat-user {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    max-height: 72px;
+    align-items: center;
+    flex-grow: 0;
+    text-align: left;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 8px 5px;
+
+    &-contents {
+        margin-left: 20px;
+
+        &-name {
+            color: $text-high-emphasis;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 20px;
+            padding-bottom: 5px;
+        }
+
+        &-status {
+            span {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 15px;
+            }
+        }
+    }
+}

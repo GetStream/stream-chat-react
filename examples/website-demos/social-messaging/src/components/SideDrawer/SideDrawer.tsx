@@ -19,7 +19,7 @@ export const SideDrawer: React.FC = () => {
   return (
     <div className={`side-drawer ${isSideDrawerOpen ? 'isSideDrawerOpen' : ''}`}>
       <div className='side-drawer-content-line'>
-        <Avatar image={user?.image || ''} name={user?.name || 'User'} size={45} />
+        <Avatar image={user?.image || ''} name={user?.name || user?.id} size={45} />
         <span>User</span>
       </div>
       <div className='side-drawer-content-line' onClick={() => onClickFunction()}>

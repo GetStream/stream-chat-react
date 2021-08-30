@@ -1,6 +1,8 @@
+export { AddChat } from './AddChat';
 export { ArrowLeft } from './ArrowLeft';
 export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
+export { ClearSearch } from './ClearSearch';
 export { DoubleCheckmark } from './DoubleCheckmark';
 export { HamburgerIcon } from './HamburgerIcon';
 export { Mentions } from './Mentions';
@@ -8,4 +10,5 @@ export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';
 export { NewGroupMessage } from './NewGroupMessage';
 export { OptionsIcons } from './OptionsIcons';
+export { SearchIcon } from './SearchIcon';
 export { ThemeIcon } from './ThemeIcon';

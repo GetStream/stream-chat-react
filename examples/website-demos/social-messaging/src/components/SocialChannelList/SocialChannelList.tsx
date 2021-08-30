@@ -7,6 +7,7 @@ import { SocialChannelListFooter } from '../../components/SocialChannelList/Soci
 import { useViewContext } from '../../contexts/ViewContext';
 import { LoadingWireframe } from '../LoadingWireframe/LoadingWireframe';
 import { NewChatPreview } from '../NewChat/NewChatPreview';
+import { SocialChannelSearch } from '../../components/ChannelSearch/SocialChannelSearch';
 
 import './SocialChannelList.scss';
 
@@ -44,6 +45,7 @@ export const SocialChannelList: React.FC<ChannelListMessengerProps> = (props) =>
     return (
       <div className='channel-list'>
         {error && <ConnectionError />}
+        <SocialChannelSearch />
         {isNewChat && <NewChatPreview />}
         {children}
       </div>
