@@ -1,13 +1,18 @@
 # Changelog
 
-## [6.5.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.2) 2021-08-26
+## [6.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.6.0) 2021-08-30
+
+### Feature
+
+- Add optimistic response to pin message request [#1149](https://github.com/GetStream/stream-chat-react/pull/1149)
+- Add option to close `ReactionSelector` component on reaction pick [#1150](https://github.com/GetStream/stream-chat-react/pull/1150)
 
 ### Chore
 
 - Improve `ChannelSearch` types for channel and user filters [#1141](https://github.com/GetStream/stream-chat-react/pull/1141)
 - Remove unnecessary `useMessageInputState` props [#1145](https://github.com/GetStream/stream-chat-react/pull/1145)
-- Change image `import` syntax to `require` [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
-- Upgrade `react-file-utils` and `react-virtuoso` dependencies [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
+- Upgrade `react-virtuoso` dependency [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
+- Add Rollup image plugin and upgrade `react-file-utils` [#1151](https://github.com/GetStream/stream-chat-react/pull/1151)
 
 ### Bug
 
