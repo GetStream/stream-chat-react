@@ -40,6 +40,8 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
   /** If true, disables the ability for users to quote messages, defaults to false */

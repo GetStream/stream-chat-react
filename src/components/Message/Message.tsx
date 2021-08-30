@@ -181,6 +181,7 @@ export const Message = <
   props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    closeReactionSelectorOnClick,
     disableQuotedMessages,
     getDeleteMessageErrorNotification,
     getFlagMessageErrorNotification,
@@ -238,6 +239,8 @@ export const Message = <
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
     reactionSelectorRef,
+    undefined,
+    closeReactionSelectorOnClick,
   );
 
   return (
