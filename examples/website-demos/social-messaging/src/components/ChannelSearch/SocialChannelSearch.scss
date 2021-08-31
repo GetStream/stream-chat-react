@@ -1,6 +1,40 @@
 @import '../../styles/_variables';
 
-.channel-preview {
+.search {
+  &-social-input {
+    background: $app-bg;
+    border-radius: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px;
+
+    &-close {
+      padding-right: 10px;
+    }
+  }
+
+  &-loading {
+      width: 100%;
+      min-height: 72px;
+      background-color: $app-bg;
+      border-bottom: 1px solid $borders;
+      padding: 25px;
+      color: $text-high-emphasis
+  }
+
+  &-empty {
+    width: 100%;
+    min-height: 72px;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 25px;
+    color: $text-high-emphasis
+  }
+}
+
+.search-result {
   display: flex;
   width: 100%;
   flex-direction: row;
@@ -122,6 +156,68 @@
         line-height: 15.23px;
         font-size: 13px;
       }
+    }
+  }
+
+  &-user {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    max-height: 72px;
+    align-items: center;
+    flex-grow: 0;
+    text-align: left;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 8px 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  
+    &-contents {
+        margin-left: 20px;
+  
+        &-name {
+            color: $text-high-emphasis;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 20px;
+            padding-bottom: 5px;
+        }
+  
+        &-status {
+            span {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 15px;
+            }
+        }
+    }
+  }
+}
+
+.str-chat__channel-search {
+  padding: 8px 8px 8px 16px;
+  background: $input-bg;
+
+  &-container {
+    width: 100%;
+    padding: 0px;
+  }
+
+  input {
+    background: $app-bg;
+    color: $text-high-emphasis;
+    font-size: 17px;
+    font-weight: 400;
+    height: 40px;
+
+    &:focus {
+      border: none;
+      box-shadow: none;
+      background: $app-bg;
     }
   }
 }

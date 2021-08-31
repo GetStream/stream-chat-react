@@ -47,13 +47,13 @@ const sort: ChannelSort = {
   cid: 1,
 };
 
-export type AttachmentType = {};
-export type ChannelType = {};
-export type CommandType = LiteralStringForUnion;
-export type EventType = {};
-export type MessageType = {};
-export type ReactionType = {};
-export type UserType = { image?: string };
+export type SocialAttachmentType = {};
+export type SocialChannelType = {};
+export type SocialCommandType = LiteralStringForUnion;
+export type SocialEventType = {};
+export type SocialMessageType = {};
+export type SocialReactionType = {};
+export type SocialUserType = { image?: string };
 
 export const ChatContainer: React.FC = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
@@ -72,13 +72,13 @@ export const ChatContainer: React.FC = () => {
   useEffect(() => {
     const initChat = async () => {
       const client = StreamChat.getInstance<
-        AttachmentType,
-        ChannelType,
-        CommandType,
-        EventType,
-        MessageType,
-        ReactionType,
-        UserType
+        SocialAttachmentType,
+        SocialChannelType,
+        SocialCommandType,
+        SocialEventType,
+        SocialMessageType,
+        SocialReactionType,
+        SocialUserType
       >(apiKey!);
       await client.connectUser(userToConnect, userToken);
       setChatClient(client);
