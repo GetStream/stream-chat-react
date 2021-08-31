@@ -1,5 +1,6 @@
 import { defaultPinPermissions, validateAndGetMessage } from '../utils';
 
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -66,6 +67,7 @@ export const usePinHandler = <
 ) => {
   const { getErrorNotification, notify } = notifications;
 
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
@@ -92,21 +94,46 @@ export const usePinHandler = <
 
     if (!message.pinned) {
       try {
-        await client.pinMessage(message);
+        const optimisticMessage = {
+          ...message,
+          pinned: true,
+          pinned_at: new Date(),
+          pinned_by: client.user,
+        };
+
+        updateMessage(optimisticMessage);
+
+        const messageResponse = await client.pinMessage(message);
+
+        updateMessage(messageResponse.message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error pinning message'), 'error');
+        updateMessage(message);
       }
     } else {
       try {
-        await client.unpinMessage(message);
+        const optimisticMessage = {
+          ...message,
+          pin_expires: null,
+          pinned: false,
+          pinned_at: null,
+          pinned_by: null,
+        };
+
+        updateMessage(optimisticMessage);
+
+        const messageResponse = await client.unpinMessage(message);
+
+        updateMessage(messageResponse.message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
         if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
+        updateMessage(message);
       }
     }
   };
