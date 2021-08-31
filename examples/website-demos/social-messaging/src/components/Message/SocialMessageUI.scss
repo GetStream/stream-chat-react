@@ -4,6 +4,7 @@
     display: flex;
     flex-direction: row;
     align-items: flex-end;
+    margin-top: 8px;
 
     .my-message {
         .str-chat__message-text-inner {
@@ -14,6 +15,8 @@
             line-height: 20px;
             display: flex;
             flex-direction: column;
+            padding: 0px 16px;
+            border: 1px solid $borders;
         }
     }
     
@@ -25,6 +28,43 @@
         line-height: 20px;
         display: flex;
         flex-direction: column;
+        padding: 0px 16px;
+        border: 1px solid $borders;
+    }
+
+    &-inner {
+        display: flex;
+        flex-direction: column;
+        padding-left: 5px;
+
+        &-data {
+            display: flex;
+            margin-top: 3px;
+
+            &-info {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 500;
+                margin-right: 5px;
+            }
+
+            &-time {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 400;
+            }
+
+            &.my-message {
+                justify-content: flex-end;
+            }
+
+            &-readby {
+                color: $accent-primary;
+                font-size: 13px;
+                font-weight: 600;
+                margin-bottom: 3px;
+            }
+        }
     }
 }
 
@@ -33,17 +73,17 @@
 }
 
 .str-chat__li--top .my-message .str-chat__message-text-inner, .str-chat__message-text-inner {
-    border-radius: 16px 16px 4px 4px;
+    border-radius: 18px 18px 4px 18px;
 }
 
 .str-chat__li--bottom .my-message .str-chat__message-text-inner, .str-chat__message-text-inner {
-    border-radius: 4px 4px 4px 16px;
+    border-radius: 18px 18px 4px 18px;
 }
 
 .str-chat__li--middle .my-message .str-chat__message-text-inner, .str-chat__message-text-inner {
-    border-radius: 4px 4px 4px 4px;    
+    border-radius: 18px 18px 4px 18px;    
 }
 
 .str-chat__li--single .my-message .str-chat__message-text-inner, .str-chat__message-text-inner {
-    border-radius: 16px 16px 4px 16px;
+    border-radius: 18px 18px 0px 18px;
 }

@@ -1,11 +1,13 @@
 import {
   Avatar,
   MessageText,
+  MessageTimestamp,
   MessageUIComponentProps,
   useChannelStateContext,
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
+import { DeliveredCheckmark, DoubleCheckmark } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -48,7 +50,7 @@ export const SocialMessage: React.FC<
     SocialReactionType,
     SocialUserType
   >();
-  const { isMyMessage, message } = useMessageContext<
+  const { isMyMessage, message, readBy } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,
@@ -64,15 +66,53 @@ export const SocialMessage: React.FC<
 
   const myMessage = isMyMessage();
 
+  const readByMembers = readBy?.filter((user) => user.id !== client.user?.id);
+  const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
+
+  // Group Channel
+  if (members > 2) {
+    return (
+      <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
+        {!myMessage && <Avatar size={36} image={message.user?.image} />}
+        <div className='message-wrapper-inner'>
+          <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+          <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
+            {!myMessage && (
+              <div className='message-wrapper-inner-data-info'>
+                {message.user?.name || message.user?.id}
+              </div>
+            )}
+            {isMyMessage() && readByMembersLength && (
+              <>
+                <span className='message-wrapper-inner-data-readby'>{readByMembers}</span>{' '}
+                <DoubleCheckmark />
+              </>
+            )}
+            <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // DM channel
   return (
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-        <div>
-          {!myMessage && members > 2 && (
-            <span className='message-wrapper-inner'>{message.user?.name || message.user?.id}</span>
+        <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
+          {!myMessage && (
+            <div className='message-wrapper-inner-data-info'>
+              {message.user?.name || message.user?.id}
+            </div>
           )}
+          {isMyMessage() &&
+            message.status === 'received' &&
+            readByMembers &&
+            readByMembers?.length < 2 && <DeliveredCheckmark />}
+          {isMyMessage() && readByMembers && readByMembers?.length >= 2 && <DoubleCheckmark />}
+          <MessageTimestamp customClass='message-wrapper-inner-data-time' />
         </div>
       </div>
     </div>

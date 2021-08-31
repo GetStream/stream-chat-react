@@ -1,5 +1,5 @@
 export const DoubleCheckmark: React.FC = () => (
-  <div style={{ display: 'flex', flexDirection: 'row' }}>
+  <div style={{ alignSelf: 'center', display: 'flex', flexDirection: 'row' }}>
     <svg
       width='13.37'
       height='6.67'
