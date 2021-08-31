@@ -19,7 +19,7 @@ jobs:
         run: yarn install
 
       - name: Install Example app
-        working-directory: ./examples/typescript-app/cypress/
+        working-directory: ./examples/typescript-app/
         run: yarn install
 
       - name: Run Tests
