@@ -14,16 +14,19 @@ jobs:
         with:
           browser: chrome
           headless: true
-          
-      - name: Install Project Dependencies
+
+      - name: Install Project Dependencies and Build
         run: yarn install
 
-      - name: Build
-        run: yarn build
+      - name: Install Example app
+        working-directory: ./examples/typescript-app
+        run: yarn install
 
       - name: Run Tests
-        run: yarn start ; sleep 60 & cd /Users/joeladelubi/stream-chat-react/examples/typescript-app ; yarn start
-        # wait-on: "http://localhost:3000"
+        working-directory: ./examples/typescript-app
+        run: yarn test:e2e:ci
+        env:
+          CYPRESS_BASE_URL: http://localhost:3000
 
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
@@ -31,13 +34,10 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-          
+
       - name: upload failure videos
         uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-videos
           path: cypress/videos
-
-          
-          
