@@ -9,12 +9,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          browser: chrome
-          headless: true
-
       - name: Install Project Dependencies and Build
         run: yarn install
 
@@ -27,6 +21,12 @@ jobs:
         run: yarn test:e2e:ci
         env:
           CYPRESS_BASE_URL: http://localhost:3000
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          headless: true
 
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
