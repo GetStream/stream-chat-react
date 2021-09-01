@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 
 import type { Channel as StreamChannel } from 'stream-chat';
-import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-chat';
+import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
+import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
-import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -91,31 +92,6 @@ export const ChatContainer: React.FC = () => {
     };
   }, []); // eslint-disable-line
 
-  useEffect(() => {
-    const handlerNewMessageEvent = (event: Event) => {
-      if (event.user?.id !== chatClient?.userID) {
-        setChatsUnreadCount(chatsUnreadCount + 1);
-
-        const mentions = event.message?.mentioned_users?.filter(
-          (user) => user.id === chatClient?.userID,
-        );
-
-        if (mentions?.length) {
-          setMentionsUnreadCount(mentionsUnreadCount + 1);
-        }
-      }
-    };
-
-    chatClient?.on('message.new', handlerNewMessageEvent);
-    return () => chatClient?.off('message.new', handlerNewMessageEvent);
-  }, [
-    chatClient,
-    chatsUnreadCount,
-    mentionsUnreadCount,
-    setChatsUnreadCount,
-    setMentionsUnreadCount,
-  ]);
-
   const customRenderFilter = (channels: StreamChannel[]) => {
     const getTotalChatUnreadCount = channels
       .map((channel) => channel.countUnread())
@@ -152,7 +128,7 @@ export const ChatContainer: React.FC = () => {
         />
       </div>
       {isSideDrawerOpen && <SideDrawer />}
-      <Channel>
+      <Channel Message={SocialMessage}>
         <ChannelContainer />
       </Channel>
     </Chat>
