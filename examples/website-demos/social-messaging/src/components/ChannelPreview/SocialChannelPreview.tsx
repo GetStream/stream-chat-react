@@ -6,13 +6,24 @@ import { AvatarGroup, getTimeStamp } from './utils';
 
 import './SocialChannelPreview.scss';
 
+import { SocialAttachmentType, SocialChannelType, SocialCommandType, SocialEventType, SocialMessageType, SocialReactionType, SocialUserType } from '../ChatContainer/ChatContainer';
+
 import { useViewContext } from '../../contexts/ViewContext';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
 
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
   const { active, channel, displayTitle, latestMessage, setActiveChannel, unread } = props;
 
-  const { client } = useChatContext();
+  const { client } = useChatContext<
+    SocialAttachmentType,
+    SocialChannelType,
+    SocialCommandType,
+    SocialEventType,
+    SocialMessageType,
+    SocialReactionType,
+    SocialUserType
+  >();
+
   const {
     chatsUnreadCount,
     isListMentions,
@@ -40,8 +51,8 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     <button
       className={`channel-preview ${activeClass}`}
       onClick={() => {
-        setActiveChannel?.(channel);
         handleUnreadCounts();
+        setActiveChannel?.(channel);
       }}
       ref={channelPreviewButton}
     >
