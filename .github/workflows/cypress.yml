@@ -14,7 +14,14 @@ jobs:
 
       - name: Install Example app
         working-directory: ./examples/typescript-app/
-        run: yarn install
+        run: yarn start
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          headless: true
+          wait-on: "http://localhost:3000" 
 
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress/
@@ -22,12 +29,7 @@ jobs:
         env:
           CYPRESS_BASE_URL: http://localhost:3000
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          browser: chrome
-          headless: true
-          wait-on: "http://localhost:3000"          
+              
 
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
