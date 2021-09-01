@@ -16,15 +16,10 @@ jobs:
         working-directory: ./examples/typescript-app/
         run: yarn install
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          browser: chrome
-          headless: true
-
+  
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress/
-        run: yarn start:e2e:ci
+        run: yarn run test:e2e:ci
         env:
           CYPRESS_BASE_URL: http://localhost:3000
 
