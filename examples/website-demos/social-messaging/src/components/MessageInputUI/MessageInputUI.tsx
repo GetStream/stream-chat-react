@@ -11,6 +11,8 @@ import { CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from 
 // import { useEventContext } from '../contexts/EventContext';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
+import './MessageInputUI.scss';
+
 type Props = MessageInputProps & {
   checked?: boolean;
   setChecked?: React.Dispatch<React.SetStateAction<boolean>>;

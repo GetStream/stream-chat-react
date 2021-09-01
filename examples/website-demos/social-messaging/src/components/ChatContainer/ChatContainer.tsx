@@ -5,6 +5,7 @@ import { ChannelSort, Event, LiteralStringForUnion, StreamChat } from 'stream-ch
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { MessageInputUI } from '../MessageInputUI/MessageInputUI';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SocialMessage } from '../Message/SocialMessageUI';
@@ -19,7 +20,8 @@ const urlParams = new URLSearchParams(window.location.search);
 
 const apiKey = urlParams.get('apikey') || process.env.REACT_APP_STREAM_KEY;
 const user = urlParams.get('user') || process.env.REACT_APP_USER_ID;
-const userImage = process.env.USER_IMAGE;
+const userImage = process.env.REACT_APP_USER_IMAGE;
+// USER_IMAGE|| getRandomImage(), => import { getRandomImage, getRandomTitle } from '../components/Chat/utils';
 const userToken = urlParams.get('user_token') || process.env.REACT_APP_USER_TOKEN;
 // const targetOrigin = urlParams.get('target_origin') || process.env.REACT_APP_TARGET_ORIGIN;
 
@@ -153,7 +155,7 @@ export const ChatContainer: React.FC = () => {
         />
       </div>
       {isSideDrawerOpen && <SideDrawer />}
-      <Channel Message={SocialMessage}>
+      <Channel Message={SocialMessage} Input={MessageInputUI}>
         <ChannelContainer />
       </Channel>
     </Chat>
