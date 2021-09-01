@@ -13,16 +13,18 @@ jobs:
         run: yarn install
 
       - name: Install Example app
-        working-directory: ./examples/typescript-app/
+        working-directory: ./examples/typescript-app
         run: yarn install
 
-  
+      - name: Build Example app
+        working-directory: ./examples/typescript-app
+        run: yarn build
+
       - name: Run Tests
-        working-directory: ./examples/typescript-app/
+        working-directory: ./examples/typescript-app
         run: yarn run test:e2e:ci
         env:
           CYPRESS_BASE_URL: http://localhost:3000
-          SKIP_PREFLIGHT_CHECK: true            
 
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
