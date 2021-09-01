@@ -18,7 +18,7 @@ jobs:
 
   
       - name: Run Tests
-        working-directory: ./examples/typescript-app/cypress/
+        working-directory: ./examples/typescript-app/
         run: yarn run test:e2e:ci
         env:
           CYPRESS_BASE_URL: http://localhost:3000
