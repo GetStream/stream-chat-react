@@ -24,6 +24,8 @@ jobs:
         working-directory: ./examples/typescript-app
         run: yarn run test:e2e:ci
         env:
+          browser: chrome
+          headless: true
           CYPRESS_BASE_URL: http://localhost:3000
 
       - name: upload failure screenshots
