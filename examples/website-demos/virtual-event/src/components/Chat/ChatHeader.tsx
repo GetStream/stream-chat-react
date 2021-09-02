@@ -4,13 +4,14 @@ import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
 type Props = {
+  dmUnread: boolean;
   eventUnread: boolean;
   globalUnread: boolean;
   qaUnread: boolean;
 };
 
 export const ChatHeader: React.FC<Props> = (props) => {
-  const { eventUnread, globalUnread, qaUnread } = props;
+  const { dmUnread, eventUnread, globalUnread, qaUnread } = props;
 
   const { chatType, eventName, selected, setChatType, setShowChannelList } = useEventContext();
 
@@ -63,6 +64,7 @@ export const ChatHeader: React.FC<Props> = (props) => {
         <div className='chat-components-header-tabs-item' onClick={handleDirectClick}>
           <div className={`${chatType === 'direct' ? 'selected' : ''}`} />
           <div>DM</div>
+          <div className={`${dmUnread && chatType !== 'direct' ? 'unread' : ''}`} />
         </div>
         <div className='chat-components-header-tabs-item' onClick={handleQAClick}>
           <div className={`${chatType === 'qa' ? 'selected' : ''}`} />

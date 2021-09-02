@@ -4,6 +4,8 @@
   &-channel {
     position: absolute;
     top: 0;
+    z-index: 1;
+    background: $app-canvas;
 
     .str-chat-channel {
       height: calc(100vh - 56px); // height of dm header

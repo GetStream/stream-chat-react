@@ -21,6 +21,7 @@ export type UserType = { image?: string; title?: string };
 export const useInitChat = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
   const [currentChannel, setCurrentChannel] = useState<StreamChannel>();
+  const [dmUnread, setDmUnread] = useState(false);
   const [eventUnread, setEventUnread] = useState(false);
   const [globalUnread, setGlobalUnread] = useState(false);
   const [qaUnread, setQaUnread] = useState(false);
@@ -34,6 +35,10 @@ export const useInitChat = () => {
   useEffect(() => {
     if (qaUnread && chatType === 'qa') setQaUnread(false);
   }, [chatType, qaUnread]);
+
+  useEffect(() => {
+    if (dmUnread && chatType === 'direct') setDmUnread(false);
+  }, [chatType, dmUnread]);
 
   useEffect(() => {
     if (eventUnread && (chatType === 'main-event' || chatType === 'room')) setEventUnread(false);
@@ -86,6 +91,11 @@ export const useInitChat = () => {
     return () => chatClient?.off('message.new', handleMessage);
   }, [chatClient, currentChannel]);
 
+  const handleDmMessages = (event: Event) => {
+    if (event.channel_type !== 'messaging') return;
+    setDmUnread(true);
+  };
+
   useEffect(() => {
     const initChat = async () => {
       const client = StreamChat.getInstance<
@@ -115,6 +125,9 @@ export const useInitChat = () => {
       const globalChannel = client.channel('livestream', 'global', { name: 'global' });
       await globalChannel.watch({ watchers: { limit: 100 } });
 
+      client.on('message.new', handleDmMessages);
+      client.on('notification.message_new', handleDmMessages);
+
       setChatClient(client);
       setCurrentChannel(globalChannel);
     };
@@ -134,5 +147,5 @@ export const useInitChat = () => {
     };
   }, []); // eslint-disable-line
 
-  return { chatClient, currentChannel, globalUnread, eventUnread, qaUnread };
+  return { chatClient, currentChannel, dmUnread, globalUnread, eventUnread, qaUnread };
 };
