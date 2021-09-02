@@ -3,6 +3,7 @@ export { ArrowLeft } from './ArrowLeft';
 export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
 export { ClearSearch } from './ClearSearch';
+export { DeliveredCheckmark } from './DeliveredCheckmark';
 export { DoubleCheckmark } from './DoubleCheckmark';
 export { HamburgerIcon } from './HamburgerIcon';
 export { Mentions } from './Mentions';

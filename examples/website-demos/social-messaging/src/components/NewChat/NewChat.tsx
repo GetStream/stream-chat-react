@@ -147,12 +147,10 @@ export const NewChat = () => {
                   onClick={() => removeUser(user)}
                   key={user.id}
                 >
-                  <Avatar
-                    image={user?.image || ''}
-                    name={user?.name || user.id}
-                    size={28}
-                  />
-                  <div className='new-chat-input-main-selected-user-name'>{user.name || user.id}</div>
+                  <Avatar image={user.image || ''} name={user.name || user.id} size={28} />
+                  <div className='new-chat-input-main-selected-user-name'>
+                    {user.name || user.id}
+                  </div>
                 </div>
               ))}
             </div>

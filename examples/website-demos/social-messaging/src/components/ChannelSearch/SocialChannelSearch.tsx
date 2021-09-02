@@ -16,13 +16,17 @@ import {
 
 import type { ChannelFilters } from 'stream-chat';
 
-const SearchInput = (props: SearchInputProps<SocialAttachmentType,
-  SocialChannelType,
-  SocialCommandType,
-  SocialEventType,
-  SocialMessageType,
-  SocialReactionType,
-  SocialUserType>) => {
+const SearchInput = (
+  props: SearchInputProps<
+    SocialAttachmentType,
+    SocialChannelType,
+    SocialCommandType,
+    SocialEventType,
+    SocialMessageType,
+    SocialReactionType,
+    SocialUserType
+  >,
+) => {
   const { channelSearchParams, inputRef, onSearch, query } = props;
 
   return (
