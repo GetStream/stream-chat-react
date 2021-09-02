@@ -86,23 +86,24 @@ export const MessageInputUI = (props: Props) => {
   return (
     <>
       <div className='input-ui-container'>
+        <CommandBolt />
         <EmojiPicker />
+        {/* <div>{269 - text.length}</div> */}
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
           <ChatAutoComplete onChange={onChange} placeholder='Say something' />
           {
             <>
               <div
-                className={`input-ui-input-commands ${cooldownRemaining ? 'cooldown' : ''}`}
-                onClick={cooldownRemaining ? () => null : handleCommandsClick}
+                className='input-ui-input-commands'
+                onClick={handleCommandsClick}
               >
-                <CommandBolt />
               </div>
               {!giphyState && (
                 <div
-                  className={`input-ui-input-emoji-picker ${cooldownRemaining ? 'cooldown' : ''}`}
+                  className='input-ui-input-emoji-picker'
                   ref={emojiPickerRef}
-                  onClick={cooldownRemaining ? () => null : openEmojiPicker}
+                  onClick={openEmojiPicker}
                 >
                   <EmojiPickerIcon />
                 </div>
@@ -111,22 +112,14 @@ export const MessageInputUI = (props: Props) => {
           }
         </div>
         <div
-          className={`input-ui-send ${text ? 'text' : ''} ${cooldownRemaining ? 'cooldown' : ''}`}
+          className={`input-ui-send ${text ? 'text' : ''}`}
           onClick={handleSubmit}
         >
           {giphyState ? (
             <GiphySearch />
-          ) : cooldownRemaining ? (
-            <div className='input-ui-send-cooldown'>
-              <CooldownTimer
-                cooldownInterval={cooldownInterval}
-                setCooldownRemaining={setCooldownRemaining}
-              />
-            </div>
           ) : (
             <>
               <SendArrow />
-              <div>{269 - text.length}</div>
             </>
           )}
         </div>
