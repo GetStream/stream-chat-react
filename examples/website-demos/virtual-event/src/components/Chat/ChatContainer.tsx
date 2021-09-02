@@ -38,7 +38,7 @@ export const ChatContainer: React.FC = () => {
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
   const [snackbar, setSnackbar] = useState(false);
 
-  const { chatClient, currentChannel } = useInitChat();
+  const { chatClient, currentChannel, eventUnread, globalUnread, qaUnread } = useInitChat();
 
   if (!chatClient) return null;
 
@@ -82,7 +82,7 @@ export const ChatContainer: React.FC = () => {
             {snackbar && userActionType && (
               <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
             )}
-            <ChatHeader />
+            <ChatHeader eventUnread={eventUnread} globalUnread={globalUnread} qaUnread={qaUnread} />
             {showChannelList ? (
               <DMChannelList
                 dmChannel={dmChannel}

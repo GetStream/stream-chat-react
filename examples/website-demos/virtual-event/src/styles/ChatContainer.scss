@@ -98,7 +98,6 @@
           justify-content: center;
           align-items: center;
           height: 100%;
-          width: 50px;
 
           &:hover {
             cursor: pointer;
@@ -115,6 +114,16 @@
 
           .selected + div {
             font-weight: 600;
+          }
+
+          .unread {
+            position: absolute;
+            top: 20px;
+            left: -6px;
+            height: 4px;
+            width: 4px;
+            border-radius: 2px;
+            background: $accent-red;
           }
         }
       }
