@@ -11,6 +11,8 @@ import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptySta
 import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
+import { ThreadHeader } from '../ThreadUI/ThreadHeader';
+import { GiphyContextProvider } from '../../contexts/GiphyContext';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -143,6 +145,8 @@ export const ChatContainer: React.FC = () => {
 
   return (
     <Chat client={chatClient}>
+          <GiphyContextProvider>
+
       <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
         <ChannelList
           channelRenderFilterFn={customRenderFilter}
@@ -155,9 +159,14 @@ export const ChatContainer: React.FC = () => {
         />
       </div>
       {isSideDrawerOpen && <SideDrawer />}
-      <Channel Message={SocialMessage} Input={MessageInputUI}>
+      <Channel
+        Message={SocialMessage}
+        Input={MessageInputUI}
+        ThreadHeader={ThreadHeader}>
         <ChannelContainer />
       </Channel>
+          </GiphyContextProvider>
+
     </Chat>
   );
 };

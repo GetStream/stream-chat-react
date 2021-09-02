@@ -4,45 +4,41 @@
   &-container {
     position: relative;
     display: flex;
-    // width: 320px;
     border-top: 1px solid $stroke;
     background: $app-canvas;
     transition: background 1s;
   }
 
+  &-commands {
+    // margin: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    svg:hover path {
+      fill: $accent-primary;
+    }
+  }
+
   &-input {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    border-radius: 8px;
-    border: 1px solid $stroke;
-    margin: 8px;
-    padding: 8px;
+    padding: 8px 8px 8px 16px;
     height: 40px;
-    flex: 1;
-    background: $card-alt-background;
+    margin: 8px;
+    background: $app-bg;
+    border: 1px solid $borders;
+    border-radius: 20px;
+    flex: none;
+    align-self: stretch;
+    flex-grow: 1;
     transition: background 1s, border-color 0.2s;
-
-    &-commands {
-      margin-right: 8px;
-
-      &:hover {
-        cursor: pointer;
-      }
-
-      svg:hover path {
-        fill: $accent-primary;
-      }
-
-      &.cooldown {
-        &:hover {
-          cursor: default;
-        }
-
-        svg:hover path {
-          fill: $text-mid-emphasis;
-        }
-      }
-    }
 
     &-emoji-picker {
       &:hover {
@@ -77,17 +73,17 @@
 
   &-send {
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    border-radius: 8px;
+    border-radius: 999px;
     height: 40px;
     width: 40px;
-    background: $card-background;
+    background: $app-canvas;
     transition: background 1s;
     margin: 8px 8px 8px 0;
     color: $text-low-emphasis;
-    font-size: 11px;
+    font-size: 17px;
 
     svg {
       fill: $text-low-emphasis;
@@ -137,19 +133,23 @@
 }
 
 .str-chat__textarea textarea {
-  background: $card-alt-background;
+  background: $app-bg;
   transition: background 1s;
   padding: 0;
   padding-left: 4px;
+  left: calc(50% - 793px / 2 - 12px);
+  top: 10px;
+  bottom: 10px;
   border: none;
   min-height: unset;
-  font-size: 14px;
+  font-size: 17px;
+  line-height: 20px;
   border-radius: 0;
-  color: $text-high-emphasis;
+  color: $text-low-emphasis;
 }
 
 .str-chat__textarea textarea:focus {
-  background: $card-alt-background;
+  background: $app-bg;
   transition: background 1s;
   border: none !important;
   outline: none !important;

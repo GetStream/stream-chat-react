@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ChatAutoComplete,
-  CooldownTimer,
   EmojiPicker,
   MessageInputProps,
   useMessageInputContext,
 } from 'stream-chat-react';
 
-import { CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
+import { Attach, CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
 // import { useEventContext } from '../contexts/EventContext';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
@@ -24,15 +23,12 @@ export const MessageInputUI = (props: Props) => {
 
   const {
     closeCommandsList,
-    cooldownInterval,
-    cooldownRemaining,
     emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
     openCommandsList,
     openEmojiPicker,
-    setCooldownRemaining,
     text,
   } = useMessageInputContext();
 
@@ -86,19 +82,19 @@ export const MessageInputUI = (props: Props) => {
   return (
     <>
       <div className='input-ui-container'>
-        <CommandBolt />
+        <div
+          className='input-ui-commands'
+          onClick={handleCommandsClick}
+        >
+          <Attach />
+          <CommandBolt />
+        </div>
         <EmojiPicker />
-        {/* <div>{269 - text.length}</div> */}
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
           {giphyState && !numberOfUploads && <GiphyIcon />}
-          <ChatAutoComplete onChange={onChange} placeholder='Say something' />
+          <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
           {
             <>
-              <div
-                className='input-ui-input-commands'
-                onClick={handleCommandsClick}
-              >
-              </div>
               {!giphyState && (
                 <div
                   className='input-ui-input-emoji-picker'

@@ -1,5 +1,6 @@
 export { AddChat } from './AddChat';
 export { ArrowLeft } from './ArrowLeft';
+export { Attach } from './Attach';
 export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
 export { CommandBolt } from './CommandBolt';
