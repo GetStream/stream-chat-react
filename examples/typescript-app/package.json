@@ -34,9 +34,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "serve": "http-server -p 8080 build",
+    "serve": "http-server -p 3000 build",
     "test:e2e": "start-server-and-test start :3000 cy:open",
-    "test:e2e:ci": "start-server-and-test serve :8080 cy:run",
+    "test:e2e:ci": "start-server-and-test serve :3000 cy:run",
     "cy:open": "cypress open",
     "cy:run": "cypress run"
   },
