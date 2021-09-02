@@ -11,7 +11,7 @@
 
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
-const { spawn } = require('child_process');
+
 /**
  * @type {Cypress.PluginConfig}
  */
@@ -19,14 +19,4 @@ const { spawn } = require('child_process');
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
-  let sp1;
-  let sp2;
-  on('before:run', () => {
-    sp1 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react'});
-    sp2 = spawn('npm', ['start'], {cwd:'/Users/joeladelubi/stream-chat-react/examples/typescript-app'});
-  })
-  on('after:run', () => {
-    sp1.kill();
-    sp2.kill();
-  });
 }
