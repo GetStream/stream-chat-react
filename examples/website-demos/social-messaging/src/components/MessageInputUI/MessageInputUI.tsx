@@ -6,7 +6,7 @@ import {
   EmojiPicker,
   MessageInputProps,
   useMessageInputContext,
-  useChannelStateContext,
+  // useChannelStateContext,
 } from 'stream-chat-react';
 
 import {
@@ -42,14 +42,40 @@ export const MessageInputUI = (props: Props) => {
     text,
   } = useMessageInputContext();
 
-  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
+  // const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
   // const { chatType } = useEventContext();
   const { giphyState, setGiphyState } = useGiphyContext();
 
-  const [commandsOpen, setCommandsOpen] = useState(false);
+  // const [attachOpen, setAttachOpen] = useState(false);
+
+  // const messageInput = useMessageInputContext();
 
   const onCheckChange = () => setChecked?.(!checked);
+
+  // useEffect(() => {
+  //   if (attachOpen) {
+  //     messageInput.textareaRef.current.focus();
+  //   } else {
+  //     messageInput.textareaRef.current.blur();
+  //   }
+  // }, [messageInput.textareaRef, attachOpen]);
+
+  // useEffect(() => {
+  //   if (messageInput.text) {
+  //     setAttachOpen(true);
+  //   }
+  // }, [messageInput.text, setAttachOpen]);
+
+  // const handleSubmit = (event) => {
+  //   if (messageInput.text.startsWith('/')) {
+  //     event.target.value = ''; // eslint-disable-line
+  //     return messageInput.handleChange(event);
+  //   }
+  //   return messageInput.handleSubmit(event);
+  // };
+
+  const [commandsOpen, setCommandsOpen] = useState(false);
 
   useEffect(() => {
     const handleClick = () => {

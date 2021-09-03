@@ -104,8 +104,9 @@
         cursor: pointer;
       }
 
-      svg path {
+      svg path:first-child {
         fill: $accent-primary;
+        transition: all 0.2s;
       }
 
       div {
