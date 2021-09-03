@@ -145,28 +145,23 @@ export const ChatContainer: React.FC = () => {
 
   return (
     <Chat client={chatClient}>
-          <GiphyContextProvider>
-
-      <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
-        <ChannelList
-          channelRenderFilterFn={customRenderFilter}
-          EmptyStateIndicator={SocialEmptyStateIndicator}
-          filters={filters}
-          List={SocialChannelList}
-          options={options}
-          Preview={SocialChannelPreview}
-          sort={sort}
-        />
-      </div>
-      {isSideDrawerOpen && <SideDrawer />}
-      <Channel
-        Message={SocialMessage}
-        Input={MessageInputUI}
-        ThreadHeader={ThreadHeader}>
-        <ChannelContainer />
-      </Channel>
-          </GiphyContextProvider>
-
+      <GiphyContextProvider>
+        <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
+          <ChannelList
+            channelRenderFilterFn={customRenderFilter}
+            EmptyStateIndicator={SocialEmptyStateIndicator}
+            filters={filters}
+            List={SocialChannelList}
+            options={options}
+            Preview={SocialChannelPreview}
+            sort={sort}
+          />
+        </div>
+        {isSideDrawerOpen && <SideDrawer />}
+        <Channel Message={SocialMessage} Input={MessageInputUI} ThreadHeader={ThreadHeader}>
+          <ChannelContainer />
+        </Channel>
+      </GiphyContextProvider>
     </Chat>
   );
 };

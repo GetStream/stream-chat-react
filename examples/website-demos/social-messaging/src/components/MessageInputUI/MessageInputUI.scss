@@ -7,10 +7,10 @@
     border-top: 1px solid $stroke;
     background: $app-canvas;
     transition: background 1s;
+    box-shadow: 0px -1px 0px #dbdde1;
   }
 
-  &-commands {
-    // margin: 8px;
+  &-wrapper {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -22,6 +22,16 @@
 
     svg:hover path {
       fill: $accent-primary;
+    }
+
+    &-attach {
+      display: flex;
+      padding: 8px 13px;
+    }
+
+    &-bolt {
+      display: flex;
+      padding: 6px;
     }
   }
 
@@ -137,9 +147,6 @@
   transition: background 1s;
   padding: 0;
   padding-left: 4px;
-  left: calc(50% - 793px / 2 - 12px);
-  top: 10px;
-  bottom: 10px;
   border: none;
   min-height: unset;
   font-size: 17px;
@@ -191,7 +198,6 @@
   background: $app-canvas;
   box-shadow: $shadow;
   border-radius: 8px;
-  bottom: 65px;
 }
 
 .rta__list-header {

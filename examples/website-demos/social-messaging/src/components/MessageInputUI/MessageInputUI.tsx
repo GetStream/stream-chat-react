@@ -1,12 +1,22 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ImageDropzone, FileUploadButton } from 'react-file-utils';
+
 import {
   ChatAutoComplete,
   EmojiPicker,
   MessageInputProps,
   useMessageInputContext,
+  useChannelStateContext,
 } from 'stream-chat-react';
 
-import { Attach, CommandBolt, EmojiPickerIcon, GiphyIcon, GiphySearch, SendArrow } from '../../assets';
+import {
+  Attach,
+  CommandBolt,
+  EmojiPickerIcon,
+  GiphyIcon,
+  GiphySearch,
+  SendArrow,
+} from '../../assets';
 // import { useEventContext } from '../contexts/EventContext';
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
@@ -31,6 +41,8 @@ export const MessageInputUI = (props: Props) => {
     openEmojiPicker,
     text,
   } = useMessageInputContext();
+
+  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
   // const { chatType } = useEventContext();
   const { giphyState, setGiphyState } = useGiphyContext();
@@ -82,12 +94,13 @@ export const MessageInputUI = (props: Props) => {
   return (
     <>
       <div className='input-ui-container'>
-        <div
-          className='input-ui-commands'
-          onClick={handleCommandsClick}
-        >
-          <Attach />
-          <CommandBolt />
+        <div className='input-ui-wrapper'>
+          <div className='input-ui-wrapper-attach'>
+            <Attach />
+          </div>
+          <div className='input-ui-wrapper-bolt' onClick={handleCommandsClick}>
+            <CommandBolt />
+          </div>
         </div>
         <EmojiPicker />
         <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
@@ -107,10 +120,7 @@ export const MessageInputUI = (props: Props) => {
             </>
           }
         </div>
-        <div
-          className={`input-ui-send ${text ? 'text' : ''}`}
-          onClick={handleSubmit}
-        >
+        <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
           {giphyState ? (
             <GiphySearch />
           ) : (
