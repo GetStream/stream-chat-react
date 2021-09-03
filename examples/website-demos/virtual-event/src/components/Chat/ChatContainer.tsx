@@ -59,7 +59,14 @@ export const ChatContainer: React.FC = () => {
         actionsModalOpen ? 'actions-modal' : ''
       }`}
     >
-      {isFullScreen && <ChatSidebar />}
+      {isFullScreen && (
+        <ChatSidebar
+          dmUnread={dmUnread}
+          eventUnread={eventUnread}
+          globalUnread={globalUnread}
+          qaUnread={qaUnread}
+        />
+      )}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient} customStyles={customStyles}>
           <GiphyContextProvider>

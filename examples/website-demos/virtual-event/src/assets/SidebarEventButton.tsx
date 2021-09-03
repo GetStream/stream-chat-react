@@ -3,21 +3,21 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 type Props = {
-  dmUnread: boolean;
+  eventUnread: boolean;
 };
 
-export const SidebarDMButton: React.FC<Props> = ({ dmUnread }) => {
+export const SidebarEventButton: React.FC<Props> = ({ eventUnread }) => {
   const { setChatType, setIsFullScreen, setShowChannelList } = useEventContext();
 
   const handleClick = () => {
-    setChatType('direct');
+    setChatType('main-event');
     setIsFullScreen(false);
-    setShowChannelList(true);
+    setShowChannelList(false);
   };
 
   return (
     <div className='chat-sidebar-button'>
-      <div className={`${dmUnread ? 'unread' : ''}`} />
+      <div className={`${eventUnread ? 'unread' : ''}`} />
       <svg
         onClick={handleClick}
         xmlns='http://www.w3.org/2000/svg'
@@ -33,7 +33,7 @@ export const SidebarDMButton: React.FC<Props> = ({ dmUnread }) => {
         <path
           fill='var(--text-mid-emphasis)'
           fillRule='evenodd'
-          d='M29.702 10.298a.972.972 0 00-.999-.249L8.511 16.556l-.007.003a.909.909 0 00-.35.346 1.045 1.045 0 00-.154.528c0 .19.063.376.154.529a.91.91 0 00.35.346l.002.001 9.163 4.022 4.02 9.157c.134.395.529.512.878.512.377 0 .753-.25.88-.63l6.502-20.18a.64.64 0 00.017-.458 1.058 1.058 0 00-.264-.434zM18.224 20.43l-6.7-2.872 14.153-4.61-7.332 7.332c-.027.027-.05.05-.067.069a.304.304 0 00-.048.068l-.003.006-.003.007z'
+          d='M27 10v1c1.953 0 3.03.926 3 2.943v13.558A3.492 3.492 0 0126.501 31H13.5A3.492 3.492 0 0110 27.501V13.943C10 12.035 11 11 13 11v-1a1 1 0 112 0v1h10v-1a1 1 0 012 0zm-.33 19c.752 0 1.33-.607 1.33-1.33V15.078H12V27.67c0 .723.607 1.33 1.33 1.33h13.34zm-6.214-11.984a.5.5 0 00-.912 0l-1.23 2.74a.5.5 0 01-.402.293l-2.986.323a.5.5 0 00-.282.867l2.226 2.017a.5.5 0 01.153.473l-.615 2.94a.5.5 0 00.738.535l2.605-1.493a.5.5 0 01.498 0l2.605 1.494a.5.5 0 00.738-.537l-.615-2.94a.5.5 0 01.153-.472l2.226-2.017a.5.5 0 00-.282-.867l-2.986-.323a.5.5 0 01-.402-.293l-1.23-2.74z'
           clipRule='evenodd'
         ></path>
       </svg>

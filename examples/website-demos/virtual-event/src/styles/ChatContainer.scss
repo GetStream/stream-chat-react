@@ -33,6 +33,20 @@
     align-items: center;
     padding-top: 8px;
 
+    &-button {
+      position: relative;
+
+      .unread {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        height: 6px;
+        width: 6px;
+        border-radius: 3px;
+        background: $accent-red;
+      }
+    }
+
     svg {
       padding-bottom: 8px;
 

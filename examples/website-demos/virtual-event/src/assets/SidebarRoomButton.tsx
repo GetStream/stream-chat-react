@@ -3,21 +3,21 @@ import React from 'react';
 import { useEventContext } from '../contexts/EventContext';
 
 type Props = {
-  dmUnread: boolean;
+  eventUnread: boolean;
 };
 
-export const SidebarDMButton: React.FC<Props> = ({ dmUnread }) => {
+export const SidebarRoomButton: React.FC<Props> = ({ eventUnread }) => {
   const { setChatType, setIsFullScreen, setShowChannelList } = useEventContext();
 
   const handleClick = () => {
-    setChatType('direct');
+    setChatType('room');
     setIsFullScreen(false);
-    setShowChannelList(true);
+    setShowChannelList(false);
   };
 
   return (
     <div className='chat-sidebar-button'>
-      <div className={`${dmUnread ? 'unread' : ''}`} />
+      <div className={`${eventUnread ? 'unread' : ''}`} />
       <svg
         onClick={handleClick}
         xmlns='http://www.w3.org/2000/svg'
@@ -33,7 +33,7 @@ export const SidebarDMButton: React.FC<Props> = ({ dmUnread }) => {
         <path
           fill='var(--text-mid-emphasis)'
           fillRule='evenodd'
-          d='M29.702 10.298a.972.972 0 00-.999-.249L8.511 16.556l-.007.003a.909.909 0 00-.35.346 1.045 1.045 0 00-.154.528c0 .19.063.376.154.529a.91.91 0 00.35.346l.002.001 9.163 4.022 4.02 9.157c.134.395.529.512.878.512.377 0 .753-.25.88-.63l6.502-20.18a.64.64 0 00.017-.458 1.058 1.058 0 00-.264-.434zM18.224 20.43l-6.7-2.872 14.153-4.61-7.332 7.332c-.027.027-.05.05-.067.069a.304.304 0 00-.048.068l-.003.006-.003.007z'
+          d='M20 19a4 4 0 100-8 4 4 0 000 8zm-5.5-7a3.5 3.5 0 100 7 1 1 0 100-2 1.5 1.5 0 010-3 1 1 0 100-2zM13 27a7 7 0 1113.903 1.167C26.603 29.958 22 30.5 20 30.5s-6.581-.425-6.902-2.33A7.05 7.05 0 0113 27zm-.146-5.227a1 1 0 00-1.26-1.554 6.988 6.988 0 00-2.496 6.61 1 1 0 101.972-.332 4.988 4.988 0 011.784-4.725zM29.5 15.5A3.5 3.5 0 0026 12a1 1 0 100 2 1.5 1.5 0 010 3 1 1 0 100 2 3.5 3.5 0 003.5-3.5zm-2.13 6.273a1 1 0 011.26-1.554 6.989 6.989 0 012.497 6.61 1 1 0 11-1.972-.332 4.988 4.988 0 00-1.784-4.725z'
           clipRule='evenodd'
         ></path>
       </svg>
