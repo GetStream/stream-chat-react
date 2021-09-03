@@ -1,4 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
+import { useState } from 'react';
+
 import { EventCard } from './EventCard';
 
 import {
@@ -61,22 +63,38 @@ const eventText = (
   </div>
 );
 
+type Tabs = 'description' | 'partners' | 'schedule' | 'speakers';
+
 export const OverviewContainer = () => {
+  const [selected, setSelected] = useState<Tabs>('description');
+
   return (
     <div className='overview-container'>
       <img alt='hero' src={HackerSummitHero} />
       <div className='overview-tabs'>
         <span>
-          <a href='#description'>Description</a>
+          {selected === 'description' && <div className='selected' />}
+          <a href='#description' onClick={() => setSelected('description')}>
+            Description
+          </a>
         </span>
         <span>
-          <a href='#partners'>Partners</a>
+          {selected === 'partners' && <div className='selected' />}
+          <a href='#partners' onClick={() => setSelected('partners')}>
+            Partners
+          </a>
         </span>
         <span>
-          <a href='#schedule'>Schedule</a>
+          {selected === 'schedule' && <div className='selected' />}
+          <a href='#schedule' onClick={() => setSelected('schedule')}>
+            Schedule
+          </a>
         </span>
         <span>
-          <a href='#schedule'>Speakers</a>
+          {selected === 'speakers' && <div className='selected' />}
+          <a href='#schedule' onClick={() => setSelected('speakers')}>
+            Speakers
+          </a>
         </span>
       </div>
       <div className='overview-content-wrapper'>

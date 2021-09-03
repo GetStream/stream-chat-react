@@ -29,9 +29,21 @@
     min-height: 48px;
 
     span {
+      position: relative;
       display: flex;
       justify-content: center;
+      align-items: center;
       width: 25%;
+      height: 100%;
+
+      .selected {
+        position: absolute;
+        top: 0;
+        height: 4px;
+        width: calc(100% - 8px);
+        background: $primary-accent;
+        border-radius: 0px 0px 4px 4px;
+      }
     }
 
     a {
