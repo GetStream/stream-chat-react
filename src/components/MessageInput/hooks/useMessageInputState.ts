@@ -417,6 +417,10 @@ export const useMessageInputState = <
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
+    
+  const setText = useCallback((text: string) => {
+    dispatch({ type: 'setText', getNewText: () => text });
+  }, []);
 
   return {
     ...state,
@@ -432,6 +436,7 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     handleSubmit,
     insertText,
+    setText,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
