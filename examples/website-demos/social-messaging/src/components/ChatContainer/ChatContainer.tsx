@@ -12,8 +12,8 @@ import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
 import { ThreadHeader } from '../ThreadUI/ThreadHeader';
-import { GiphyContextProvider } from '../../contexts/GiphyContext';
 
+import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './ChatContainer.scss';

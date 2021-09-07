@@ -58,16 +58,6 @@
       svg:hover path {
         fill: $accent-primary;
       }
-
-      &.cooldown {
-        &:hover {
-          cursor: default;
-        }
-
-        svg:hover path {
-          fill: $text-mid-emphasis;
-        }
-      }
     }
 
     &.giphy {
@@ -112,16 +102,6 @@
       div {
         color: $accent-primary;
       }
-    }
-
-    &-cooldown {
-      font-size: 20px;
-      font-weight: 600;
-      color: $accent-primary;
-    }
-
-    &.cooldown:hover {
-      cursor: default;
     }
 
     &:active {

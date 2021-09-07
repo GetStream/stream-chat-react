@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ImageDropzone, FileUploadButton } from 'react-file-utils';
+// import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 
 import {
   ChatAutoComplete,
@@ -17,7 +17,7 @@ import {
   GiphySearch,
   SendArrow,
 } from '../../assets';
-// import { useEventContext } from '../contexts/EventContext';
+
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
 import './MessageInputUI.scss';
@@ -44,7 +44,6 @@ export const MessageInputUI = (props: Props) => {
 
   // const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
-  // const { chatType } = useEventContext();
   const { giphyState, setGiphyState } = useGiphyContext();
 
   // const [attachOpen, setAttachOpen] = useState(false);
