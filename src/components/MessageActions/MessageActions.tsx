@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
+
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { isUserMuted } from '../Message/utils';
@@ -25,15 +27,6 @@ type MessageContextPropsToPick =
   | 'handlePin'
   | 'message';
 
-export const ActionsEmoji: React.FC = () => (
-  <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
-    <path
-      d='M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'
-      fillRule='nonzero'
-    />
-  </svg>
-);
-
 export type MessageActionsProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -43,7 +36,7 @@ export type MessageActionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
-  CustomActionsEmoji?: React.FunctionComponent;
+  ActionsIcon?: React.FunctionComponent;
   customWrapperClass?: string;
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
@@ -62,7 +55,7 @@ export const MessageActions = <
   props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    CustomActionsEmoji = ActionsEmoji,
+    ActionsIcon,
     customWrapperClass = '',
     getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
@@ -99,6 +92,8 @@ export const MessageActions = <
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
+
+  const Icon = ActionsIcon || DefaultActionsIcon;
 
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
@@ -144,7 +139,7 @@ export const MessageActions = <
         mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
-      <CustomActionsEmoji />
+      <Icon />
     </MessageActionsWrapper>
   );
 };
