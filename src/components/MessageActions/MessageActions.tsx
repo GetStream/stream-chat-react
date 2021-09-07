@@ -92,9 +92,7 @@ export const MessageActions = <
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
-
   const Icon = ActionsIcon || DefaultActionsIcon;
-
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
