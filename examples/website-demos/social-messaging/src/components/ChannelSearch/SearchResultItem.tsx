@@ -26,15 +26,7 @@ import './SocialChannelSearch.scss';
 export const SearchResultItem = (props: SearchResultItemProps<SocialUserType>) => {
   const { index, result, selectResult } = props;
 
-  const { client } = useChatContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
+  const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
 
   if (isChannel(result)) {

@@ -1,4 +1,5 @@
-import { BaseSyntheticEvent, useState } from 'react';
+import { BaseSyntheticEvent, useEffect, useState } from 'react';
+import lottie from 'lottie-web';
 
 import { getParticipantOrder } from './data';
 
@@ -8,7 +9,7 @@ import {
   Listening,
   Muted,
   ParticipantsIcon,
-  Speaking,
+  SpeakingAnimation,
   VideoViewersIcon,
   VideoWatermark,
 } from '../../assets';
@@ -23,6 +24,13 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
   const [pinnedID, setPinnedID] = useState(null);
 
   const { eventNumber, label, presenters, title, viewers } = useVideoContext();
+
+  useEffect(() => {
+    lottie.loadAnimation({
+      container: document.querySelector('#speaking-animation') as HTMLElement,
+      animationData: SpeakingAnimation,
+    });
+  }, []);
 
   const handleClick = (event: BaseSyntheticEvent) => {
     if (!isPinned) {
@@ -71,7 +79,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
           <video autoPlay id='1' loop src={participantOrder[0].video} />
           <div className='room-video-grid-participant-info'>
             <div className='room-video-grid-participant-info-name'>{participantOrder[0].name}</div>
-            <Speaking />
+            <div id='speaking-animation' />
           </div>
           <div className='room-video-grid-participant-connection'>
             <ConnectionStatus />

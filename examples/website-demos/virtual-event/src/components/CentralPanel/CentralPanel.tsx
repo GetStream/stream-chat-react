@@ -14,12 +14,14 @@ export const CentralPanel = () => {
           <EventsList />
         </div>
       );
+
     case 'rooms':
       return (
         <div className='central-panel-container'>
           <RoomsList />
         </div>
       );
+
     case 'overview':
       return (
         <div className='central-panel-container'>

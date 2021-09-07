@@ -33,6 +33,20 @@
     align-items: center;
     padding-top: 8px;
 
+    &-button {
+      position: relative;
+
+      .unread {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        height: 6px;
+        width: 6px;
+        border-radius: 3px;
+        background: $accent-red;
+      }
+    }
+
     svg {
       padding-bottom: 8px;
 
@@ -85,7 +99,7 @@
         align-items: center;
         justify-content: space-around;
         height: 56px;
-        font-weight: 600;
+        font-weight: 400;
         font-size: 14px;
         line-height: 18px;
         color: $text-high-emphasis;
@@ -98,7 +112,6 @@
           justify-content: center;
           align-items: center;
           height: 100%;
-          width: 50px;
 
           &:hover {
             cursor: pointer;
@@ -111,6 +124,20 @@
             height: 4px;
             background: $primary-accent;
             border-radius: 0 0 4px 4px;
+          }
+
+          .selected + div {
+            font-weight: 600;
+          }
+
+          .unread {
+            position: absolute;
+            top: 20px;
+            left: -6px;
+            height: 4px;
+            width: 4px;
+            border-radius: 2px;
+            background: $accent-red;
           }
         }
       }

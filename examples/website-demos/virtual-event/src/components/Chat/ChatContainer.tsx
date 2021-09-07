@@ -38,7 +38,14 @@ export const ChatContainer: React.FC = () => {
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
   const [snackbar, setSnackbar] = useState(false);
 
-  const { chatClient, currentChannel } = useInitChat();
+  const {
+    chatClient,
+    currentChannel,
+    dmUnread,
+    eventUnread,
+    globalUnread,
+    qaUnread,
+  } = useInitChat();
 
   if (!chatClient) return null;
 
@@ -52,7 +59,14 @@ export const ChatContainer: React.FC = () => {
         actionsModalOpen ? 'actions-modal' : ''
       }`}
     >
-      {isFullScreen && <ChatSidebar />}
+      {isFullScreen && (
+        <ChatSidebar
+          dmUnread={dmUnread}
+          eventUnread={eventUnread}
+          globalUnread={globalUnread}
+          qaUnread={qaUnread}
+        />
+      )}
       <div className={`chat-components ${isFullScreen ? 'full-screen' : ''}`}>
         <Chat client={chatClient} customStyles={customStyles}>
           <GiphyContextProvider>
@@ -82,7 +96,12 @@ export const ChatContainer: React.FC = () => {
             {snackbar && userActionType && (
               <Snackbar setSnackbar={setSnackbar} userActionType={userActionType} />
             )}
-            <ChatHeader />
+            <ChatHeader
+              dmUnread={dmUnread}
+              eventUnread={eventUnread}
+              globalUnread={globalUnread}
+              qaUnread={qaUnread}
+            />
             {showChannelList ? (
               <DMChannelList
                 dmChannel={dmChannel}

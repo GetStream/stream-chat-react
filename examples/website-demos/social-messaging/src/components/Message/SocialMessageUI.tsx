@@ -1,4 +1,5 @@
 import {
+  Attachment,
   Avatar,
   MessageText,
   MessageTimestamp,
@@ -32,24 +33,8 @@ export const SocialMessage: React.FC<
     SocialUserType
   >
 > = (props) => {
-  const { channel } = useChannelStateContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
-  const { client } = useChatContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
+  const { channel } = useChannelStateContext();
+  const { client } = useChatContext();
   const { isMyMessage, message, readBy } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
@@ -73,8 +58,11 @@ export const SocialMessage: React.FC<
   if (members > 2) {
     return (
       <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
-        {!myMessage && <Avatar size={36} image={message.user?.image} />}
+        {!myMessage && <Avatar size={36} image={message.user?.image} name={message.user?.name} />}
         <div className='message-wrapper-inner'>
+          {message.attachments?.length ? (
+            <Attachment attachments={message.attachments} />
+          ) : null}
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
           <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
             {!myMessage && (
@@ -82,9 +70,9 @@ export const SocialMessage: React.FC<
                 {message.user?.name || message.user?.id}
               </div>
             )}
-            {isMyMessage() && readByMembersLength && (
+            {myMessage && readByMembersLength && (
               <>
-                <span className='message-wrapper-inner-data-readby'>{readByMembers}</span>{' '}
+                <span className='message-wrapper-inner-data-readby'>{readByMembersLength}</span>{' '}
                 <DoubleCheckmark />
               </>
             )}
@@ -100,6 +88,9 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
+        {message.attachments?.length ? (
+          <Attachment attachments={message.attachments} />
+        ) : null}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
@@ -107,11 +98,11 @@ export const SocialMessage: React.FC<
               {message.user?.name || message.user?.id}
             </div>
           )}
-          {isMyMessage() &&
+          {myMessage &&
             message.status === 'received' &&
             readByMembers &&
-            readByMembers?.length < 2 && <DeliveredCheckmark />}
-          {isMyMessage() && readByMembers && readByMembers?.length >= 2 && <DoubleCheckmark />}
+            readByMembers?.length < 1 && <DeliveredCheckmark />}
+          {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
           <MessageTimestamp customClass='message-wrapper-inner-data-time' />
         </div>
       </div>

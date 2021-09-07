@@ -70,7 +70,7 @@ const PreviewUI: React.FC<
     setDmChannel: React.Dispatch<React.SetStateAction<StreamChannel | undefined>>;
   }
 > = (props) => {
-  const { channel, displayImage, displayTitle, latestMessage, setDmChannel } = props;
+  const { channel, displayImage, displayTitle, latestMessage, setDmChannel, unread } = props;
 
   const { client } = useChatContext();
 
@@ -82,15 +82,20 @@ const PreviewUI: React.FC<
 
   const [fallbackName] = Object.keys(channel.state.members).filter((id) => id !== client.userID);
 
+  const handleClick = async () => {
+    await channel.markRead();
+    setDmChannel(channel);
+  };
+
   return (
-    <div className='dm-list-preview' onClick={() => setDmChannel(channel)}>
+    <div className='dm-list-preview' onClick={handleClick}>
       <Avatar image={displayImage} name={fallbackName} />
       <div>
         <div className='dm-list-preview-top'>
           <div>{displayTitle}</div>
           <div>{formattedTime}</div>
         </div>
-        <div className='dm-list-preview-bottom'>{latestMessage}</div>
+        <div className={`dm-list-preview-bottom ${unread ? 'unread' : ''}`}>{latestMessage}</div>
       </div>
       <ClickDMIcon />
     </div>
@@ -128,19 +133,18 @@ export const DMChannelList: React.FC<Props> = (props) => {
       )}
       <div className='dm'>
         {dmChannel && <DMChannel dmChannel={dmChannel} setDmChannel={setDmChannel} />}
-        <div className={dmChannel ? 'dm-hidden' : ''}>
-          <ChannelList
-            EmptyStateIndicator={EmptyStateIndicators}
-            filters={filters}
-            List={ListUI}
-            options={options}
-            Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
-            sort={sort}
-          />
-          <div className='start-chat'>
-            <div className='start-chat-button' onClick={() => setSearching(true)}>
-              Start a chat
-            </div>
+        <ChannelList
+          EmptyStateIndicator={EmptyStateIndicators}
+          filters={filters}
+          List={ListUI}
+          options={options}
+          Preview={(props) => <PreviewUI {...props} setDmChannel={setDmChannel} />}
+          setActiveChannelOnMount={false}
+          sort={sort}
+        />
+        <div className='start-chat'>
+          <div className='start-chat-button' onClick={() => setSearching(true)}>
+            Start a chat
           </div>
         </div>
       </div>

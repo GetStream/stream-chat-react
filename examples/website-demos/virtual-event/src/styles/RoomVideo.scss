@@ -115,11 +115,16 @@
       &-info {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         background: $overlay;
         align-self: flex-end;
         padding: 0 6px;
         border-radius: 6px;
         margin: 2px;
+
+        #speaking-animation {
+          display: flex;
+        }
 
         &-name {
           color: $white;
@@ -136,7 +141,6 @@
         align-items: center;
         align-self: flex-end;
         background: $overlay;
-        padding: 6px;
         border-radius: 6px;
         margin: 2px;
       }

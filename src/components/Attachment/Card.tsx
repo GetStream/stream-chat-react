@@ -3,7 +3,6 @@ import React from 'react';
 import { SafeAnchor } from '../SafeAnchor';
 
 import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
-
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type CardProps = {

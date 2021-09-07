@@ -3,7 +3,16 @@ import React from 'react';
 import { CloseChatButton, OnlineUsersIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-const ChatHeaderTabs: React.FC = () => {
+type Props = {
+  dmUnread: boolean;
+  eventUnread: boolean;
+  globalUnread: boolean;
+  qaUnread: boolean;
+};
+
+export const ChatHeader: React.FC<Props> = (props) => {
+  const { dmUnread, eventUnread, globalUnread, qaUnread } = props;
+
   const { chatType, eventName, selected, setChatType, setShowChannelList } = useEventContext();
 
   const handleGlobalClick = () => {
@@ -28,39 +37,41 @@ const ChatHeaderTabs: React.FC = () => {
   };
 
   return (
-    <div className='chat-components-header-tabs'>
-      <div className='chat-components-header-tabs-item' onClick={handleGlobalClick}>
-        <div className={`${chatType === 'global' ? 'selected' : ''}`} />
-        <div>Global</div>
-      </div>
-      {selected !== 'overview' && eventName && (
-        <div className='chat-components-header-tabs-item' onClick={handleEventClick}>
-          <div
-            className={`${chatType === 'main-event' || chatType === 'room' ? 'selected' : ''}`}
-          />
-          <div>{selected === 'main-event' ? 'Event' : 'Room'}</div>
-        </div>
-      )}
-      <div className='chat-components-header-tabs-item' onClick={handleDirectClick}>
-        <div className={`${chatType === 'direct' ? 'selected' : ''}`} />
-        <div>DM</div>
-      </div>
-      <div className='chat-components-header-tabs-item' onClick={handleQAClick}>
-        <div className={`${chatType === 'qa' ? 'selected' : ''}`} />
-        <div>Q&A</div>
-      </div>
-    </div>
-  );
-};
-
-export const ChatHeader: React.FC = () => {
-  return (
     <div className='chat-components-header'>
       <div className='chat-components-header-top'>
         <CloseChatButton />
         <OnlineUsersIcon />
       </div>
-      <ChatHeaderTabs />
+      <div className='chat-components-header-tabs'>
+        <div className='chat-components-header-tabs-item' onClick={handleGlobalClick}>
+          <div className={`${chatType === 'global' ? 'selected' : ''}`} />
+          <div>Global</div>
+          <div className={`${globalUnread && chatType !== 'global' ? 'unread' : ''}`} />
+        </div>
+        {selected !== 'overview' && eventName && (
+          <div className='chat-components-header-tabs-item' onClick={handleEventClick}>
+            <div
+              className={`${chatType === 'main-event' || chatType === 'room' ? 'selected' : ''}`}
+            />
+            <div>{selected === 'main-event' ? 'Event' : 'Room'}</div>
+            <div
+              className={`${
+                eventUnread && chatType !== 'main-event' && chatType !== 'room' ? 'unread' : ''
+              }`}
+            />
+          </div>
+        )}
+        <div className='chat-components-header-tabs-item' onClick={handleDirectClick}>
+          <div className={`${chatType === 'direct' ? 'selected' : ''}`} />
+          <div>DM</div>
+          <div className={`${dmUnread && chatType !== 'direct' ? 'unread' : ''}`} />
+        </div>
+        <div className='chat-components-header-tabs-item' onClick={handleQAClick}>
+          <div className={`${chatType === 'qa' ? 'selected' : ''}`} />
+          <div>Q&A</div>
+          <div className={`${qaUnread && chatType !== 'qa' ? 'unread' : ''}`} />
+        </div>
+      </div>
     </div>
   );
 };

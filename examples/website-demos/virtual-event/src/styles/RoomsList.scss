@@ -119,7 +119,7 @@
 
     .event-card-viewers {
       &-right {
-        margin-left: 8px;
+        margin-left: 16px;
 
         &-count {
           margin-left: 4px;
@@ -131,12 +131,6 @@
           margin-left: 4px;
         }
       }
-    }
-
-    .event-card-label {
-      height: 16px;
-      padding: 4px 6px;
-      margin-left: 4px;
     }
   }
 
