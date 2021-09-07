@@ -122,6 +122,10 @@
         border-radius: 6px;
         margin: 2px;
 
+        #speaking-animation {
+          display: flex;
+        }
+
         &-name {
           color: $white;
           margin-right: 12px;

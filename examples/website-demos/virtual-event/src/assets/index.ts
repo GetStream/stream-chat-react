@@ -61,7 +61,7 @@ export { SidebarEventButton } from './SidebarEventButton';
 export { SidebarHomeButton } from './SidebarHomeButton';
 export { SidebarQAButton } from './SidebarQAButton';
 export { SidebarRoomButton } from './SidebarRoomButton';
-export { Speaking } from './Speaking';
+export { default as SpeakingAnimation } from './speaking-animation.json';
 export { StartThread } from './StartThread';
 export { TwitterLogo } from './TwitterLogo';
 export { UserEllipse } from './UserEllipse';
