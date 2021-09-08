@@ -62,6 +62,7 @@ const UnMemoizedMessageOptions = <
   } = props;
 
   const {
+    customMessageActions,
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
@@ -74,7 +75,7 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const showActionsBox = showMessageActionsBox(messageActions);
+  const showActionsBox = showMessageActionsBox(messageActions) || !!customMessageActions;
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =

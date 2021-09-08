@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-
 import { isUserMuted } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -70,6 +69,7 @@ export const MessageActions = <
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
+    customMessageActions,
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
@@ -117,7 +117,7 @@ export const MessageActions = <
     return () => document.removeEventListener('click', hideOptions);
   }, [actionsBoxOpen, hideOptions]);
 
-  if (messageActions.length === 0) return null;
+  if (!messageActions.length && !customMessageActions) return null;
 
   return (
     <MessageActionsWrapper
