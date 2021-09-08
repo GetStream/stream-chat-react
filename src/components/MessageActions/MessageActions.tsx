@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-
 import { isUserMuted } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
