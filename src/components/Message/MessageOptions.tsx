@@ -1,6 +1,10 @@
 import React from 'react';
 
-import { ReactionIcon, ThreadIcon } from './icons';
+import {
+  ActionsIcon as DefaultActionsIcon,
+  ReactionIcon as DefaultReactionIcon,
+  ThreadIcon as DefaultThreadIcon,
+} from './icons';
 import { MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { MessageActions } from '../MessageActions';
@@ -26,10 +30,13 @@ export type MessageOptionsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleOpenThread'>> & {
+  ActionsIcon?: React.FunctionComponent;
   displayLeft?: boolean;
   displayReplies?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  ReactionIcon?: React.FunctionComponent;
   theme?: string;
+  ThreadIcon?: React.FunctionComponent;
 };
 
 const UnMemoizedMessageOptions = <
@@ -44,11 +51,14 @@ const UnMemoizedMessageOptions = <
   props: MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    ActionsIcon = DefaultActionsIcon,
     displayLeft = true,
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
     messageWrapperRef,
+    ReactionIcon = DefaultReactionIcon,
     theme = 'simple',
+    ThreadIcon = DefaultThreadIcon,
   } = props;
 
   const {
@@ -86,7 +96,9 @@ const UnMemoizedMessageOptions = <
   if (isMyMessage() && displayLeft) {
     return (
       <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {showActionsBox && <MessageActions messageWrapperRef={messageWrapperRef} />}
+        {showActionsBox && (
+          <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+        )}
         {shouldShowReplies && (
           <div
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
@@ -129,7 +141,9 @@ const UnMemoizedMessageOptions = <
           <ThreadIcon />
         </div>
       )}
-      {showActionsBox && <MessageActions messageWrapperRef={messageWrapperRef} />}
+      {showActionsBox && (
+        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+      )}
     </div>
   );
 };
