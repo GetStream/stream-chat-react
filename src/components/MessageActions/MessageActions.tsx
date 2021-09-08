@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-
 import { MessageActionsBox } from './MessageActionsBox';
+
+import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 
 import { isUserMuted } from '../Message/utils';
 
@@ -55,7 +55,7 @@ export const MessageActions = <
   props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    ActionsIcon,
+    ActionsIcon = DefaultActionsIcon,
     customWrapperClass = '',
     getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
@@ -92,7 +92,6 @@ export const MessageActions = <
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
-  const Icon = ActionsIcon || DefaultActionsIcon;
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
@@ -137,7 +136,7 @@ export const MessageActions = <
         mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
-      <Icon />
+      <ActionsIcon />
     </MessageActionsWrapper>
   );
 };
