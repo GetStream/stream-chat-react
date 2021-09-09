@@ -6,6 +6,10 @@ jobs:
   cypress-run:
     runs-on: macos-latest
     steps:
+       
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Create env file
         working-directory: ./examples/typescript-app
         run: |
@@ -17,10 +21,7 @@ jobs:
         env:
           REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
           REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
-          CYPRESS_BASE_URL: http://localhost:3000   
-
-      - name: Checkout
-        uses: actions/checkout@v2
+          CYPRESS_BASE_URL: http://localhost:3000  
 
       - name: Install Project Dependencies and Build
         run: yarn install
