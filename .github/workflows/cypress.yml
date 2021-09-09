@@ -20,7 +20,9 @@ jobs:
         working-directory: ./examples/typescript-app
         run: SKIP_PREFLIGHT_CHECK=true yarn build
         env: 
-          repo_token: ${{ secrets.E2E_TOKEN }}
+          REACT_APP_USER_ID: '${{ secrets.REACT_APP_USER_ID }}'
+          REACT_APP_USER_TOKEN: '${{ secrets.REACT_APP_USER_TOKEN }}'
+
 
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
