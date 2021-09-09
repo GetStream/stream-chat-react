@@ -9,7 +9,7 @@ export { CloseX } from './CloseX';
 export { DeliveredCheckmark } from './DeliveredCheckmark';
 export { DoubleCheckmark } from './DoubleCheckmark';
 export { Ellipse } from './Ellipse';
-export { GiphyCommandIcon } from './GiphyCommandIcon';
+// export { GiphyCommandIcon } from './GiphyCommandIcon';
 export { HamburgerIcon } from './HamburgerIcon';
 export { Mentions } from './Mentions';
 export { NewChat } from './NewChat';
