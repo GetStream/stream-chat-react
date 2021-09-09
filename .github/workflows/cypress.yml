@@ -17,22 +17,30 @@ jobs:
         working-directory: ./examples/typescript-app
         run: yarn install
 
+      - name: Create env file
+        working-directory: ./examples/typescript-app/cypress
+        run: |
+            touch .env
+            REACT_APP_USER_ID >> .env
+            REACT_APP_USER_TOKEN >> .env
+            CYPRESS_BASE_URL >> .env
+            cat .env
+        env:
+          REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
+          REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
+          CYPRESS_BASE_URL: http://localhost:3000   
+
       - name: Build Example app
         working-directory: ./examples/typescript-app
         run: SKIP_PREFLIGHT_CHECK=true yarn build
 
+      
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
         run: |
-          touch .env
-          REACT_APP_USER_ID: ${secrets.REACT_APP_USER_ID} >> .env
-          REACT_APP_USER_TOKEN: ${ secrets.REACT_APP_USER_TOKEN} >> .env
-          CYPRESS_BASE_URL: http://localhost:3000 >> .env
-          cat .env
-          yarn run test:e2e:ci
+            cat .env
+            yarn run test:e2e:ci
           
-          
-
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
         if: failure()
