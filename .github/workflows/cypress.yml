@@ -19,8 +19,6 @@ jobs:
       - name: Build Example app
         working-directory: ./examples/typescript-app
         run: SKIP_PREFLIGHT_CHECK=true yarn build
-
-      - name: Test with
         env: 
           repo_token: ${{ secrets.E2E_TOKEN }}
 
