@@ -42,7 +42,7 @@ export type ChatProps<
 > = {
   /** The StreamChat client object */
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
-  /** Object containing custom CSS classnames to override the library's default CSS */
+  /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Object containing custom styles to override the default CSS variables */
   customStyles?: CustomStyles;
