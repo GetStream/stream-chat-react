@@ -18,7 +18,7 @@ jobs:
         run: yarn install
 
       - name: Create env file
-        working-directory: ./examples/typescript-app/cypress
+        working-directory: ./examples/typescript-app
         run: |
             touch .env
             REACT_APP_USER_ID >> .env
