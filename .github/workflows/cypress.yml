@@ -6,6 +6,7 @@ jobs:
   cypress-run:
     runs-on: macos-latest
     steps:
+    
       - name: Checkout
         uses: actions/checkout@v2
 
@@ -22,11 +23,12 @@ jobs:
 
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
-        env:
-          REACT_APP_USER_ID: '${{ secrets.REACT_APP_USER_ID }}'
-          REACT_APP_USER_TOKEN: '${{ secrets.REACT_APP_USER_TOKEN }}'
-          CYPRESS_BASE_URL: http://localhost:3000
-        run: yarn run test:e2e:ci
+        run: |
+          touch.env
+          REACT_APP_USER_ID: ${secrets.REACT_APP_USER_ID} >> .env
+          REACT_APP_USER_TOKEN: ${ secrets.REACT_APP_USER_TOKEN} >> .env
+          CYPRESS_BASE_URL: http://localhost:3000 >> .env
+          yarn run test:e2e:ci
           
 
       - name: upload failure screenshots
