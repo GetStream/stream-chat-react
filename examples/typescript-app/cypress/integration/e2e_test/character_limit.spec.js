@@ -4,6 +4,7 @@ context('Actions', () => {
   beforeEach(() => {
     const url = "http://localhost:3000"
     console.log(screen)
+    cy.waitFor(80000000)
     cy.visit(url, {timeout:120000})
     cy.dataTestContains('channel-preview-button').first()
       .click()
