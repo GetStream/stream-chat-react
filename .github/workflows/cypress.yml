@@ -14,14 +14,14 @@ jobs:
         working-directory: ./examples/typescript-app
         run: |
             touch .env
-            echo $REACT_APP_USER_ID >> .env
-            echo $REACT_APP_USER_TOKEN >> .env
-            echo $CYPRESS_BASE_URL >> .env
+            echo REACT_APP_USER_ID >> .env
+            echo REACT_APP_USER_TOKEN >> .env
+            echo CYPRESS_BASE_URL >> .env
             cat .env
         env:
           REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
           REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
-          CYPRESS_BASE_URL: http://localhost:3000  
+          CYPRESS_BASE_URL: http://localhost:3000
 
       - name: Install Project Dependencies and Build
         run: yarn install
@@ -30,7 +30,7 @@ jobs:
         working-directory: ./examples/typescript-app
         run: yarn install
 
-      
+        
 
       - name: Build Example app
         working-directory: ./examples/typescript-app
