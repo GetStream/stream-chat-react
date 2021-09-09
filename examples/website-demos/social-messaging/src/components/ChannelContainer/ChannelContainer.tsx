@@ -23,8 +23,6 @@ export const ChannelContainer: React.FC = () => {
     SocialUserType
   >();
 
-  console.log('channel as active cahnnel IS:', channel);
-
   const { chatsUnreadCount, isNewChat, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
   useEffect(() => {
@@ -40,7 +38,6 @@ export const ChannelContainer: React.FC = () => {
       const { message, user} = event;
 
       if (user?.id !== client?.userID && channel?.cid !== message?.cid) {
-        console.log('in the no channel');
         setChatsUnreadCount(chatsUnreadCount + 1);
 
         const mentions = message?.mentioned_users?.filter(

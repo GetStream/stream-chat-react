@@ -124,14 +124,13 @@
 }
 
 .str-chat__textarea textarea {
-  background: $app-bg;
+  background: $app-bg !important;
   transition: background 1s;
-  padding: 0;
-  padding-left: 4px;
-  border: none;
-  min-height: unset;
+  padding: 0 !important;
+  padding-left: 4px !important;
+  border: none !important;
+  min-height: unset !important;
   font-size: 17px;
-  line-height: 20px;
   border-radius: 0;
   color: $text-low-emphasis;
 }
