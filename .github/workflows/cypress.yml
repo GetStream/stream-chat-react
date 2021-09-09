@@ -19,15 +19,13 @@ jobs:
       - name: Build Example app
         working-directory: ./examples/typescript-app
         run: SKIP_PREFLIGHT_CHECK=true yarn build
-        env: 
-          REACT_APP_USER_ID: '${{ secrets.REACT_APP_USER_ID }}'
-          REACT_APP_USER_TOKEN: '${{ secrets.REACT_APP_USER_TOKEN }}'
-
 
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
         run: yarn run test:e2e:ci
         env:
+          REACT_APP_USER_ID: '${{ secrets.REACT_APP_USER_ID }}'
+          REACT_APP_USER_TOKEN: '${{ secrets.REACT_APP_USER_TOKEN }}'
           CYPRESS_BASE_URL: http://localhost:3000
 
       - name: upload failure screenshots
