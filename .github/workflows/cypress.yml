@@ -10,7 +10,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      
       - name: Install Project Dependencies and Build
         run: yarn install
 
@@ -25,13 +24,13 @@ jobs:
             echo "REACT_APP_USER_ID = ${REACT_APP_USER_ID}" >> .env
             echo "REACT_APP_USER_TOKEN = ${REACT_APP_USER_TOKEN}" >> .env
             echo "CYPRESS_BASE_URL = http://localhost:3000" >> .env
-        env:
-          REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
-          REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
-    
+        
 
       - name: Build Example app
         working-directory: ./examples/typescript-app
+        env:
+          REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
+          REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
         run: | 
           cat .env
           SKIP_PREFLIGHT_CHECK=true yarn build
