@@ -24,11 +24,13 @@ jobs:
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
         run: |
-          touch.env
+          touch .env
           REACT_APP_USER_ID: ${secrets.REACT_APP_USER_ID} >> .env
           REACT_APP_USER_TOKEN: ${ secrets.REACT_APP_USER_TOKEN} >> .env
           CYPRESS_BASE_URL: http://localhost:3000 >> .env
+          cat .env
           yarn run test:e2e:ci
+          
           
 
       - name: upload failure screenshots
