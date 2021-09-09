@@ -15,15 +15,12 @@ jobs:
 
       - name: Install Example app
         working-directory: ./examples/typescript-app
-        run: yarn install
-
-      - name: Create env file
-        working-directory: ./examples/typescript-app
         run: |
-            touch .env
-            echo "REACT_APP_USER_ID = ${REACT_APP_USER_ID}" >> .env
-            echo "REACT_APP_USER_TOKEN = ${REACT_APP_USER_TOKEN}" >> .env
-            echo "CYPRESS_BASE_URL = http://localhost:3000" >> .env
+          touch .env
+          echo "REACT_APP_USER_ID = ${REACT_APP_USER_ID}" >> .env
+          echo "REACT_APP_USER_TOKEN = ${REACT_APP_USER_TOKEN}" >> .env
+          echo "CYPRESS_BASE_URL = http://localhost:3000" >> .env
+          yarn install
         
 
       - name: Build Example app
@@ -31,15 +28,12 @@ jobs:
         env:
           REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
           REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
-        run: | 
-          cat .env
-          SKIP_PREFLIGHT_CHECK=true yarn build
+        run: SKIP_PREFLIGHT_CHECK=true yarn build
 
       
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
-        run: |
-            yarn run test:e2e:ci
+        run: yarn run test:e2e:ci
           
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
