@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import { removeDiacritics } from './utils';
+
 import { UserItem } from '../../UserItem/UserItem';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -143,16 +145,25 @@ export const useUserTrigger = <
        */
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
+        const scrubbedQuery = removeDiacritics(query).toLowerCase();
 
         const matchingUsers = users.filter((user) => {
           if (user.id === client.userID) return false;
-          if (!query) return true;
+          if (!scrubbedQuery) return true;
 
-          if (user.name !== undefined && user.name.toLowerCase().includes(query.toLowerCase())) {
-            return true;
+          // add levenstein distance to cover typos
+          // Transliterator
+          // ignores discritics
+
+          if (user.name !== undefined) {
+            // removes discritics, like é, ã, í etc.
+            const updatedName = removeDiacritics(user.name).toLowerCase();
+
+            if (updatedName.includes(scrubbedQuery)) return true;
           }
+          const scrubbedId = removeDiacritics(user.id).toLowerCase();
 
-          return user.id.toLowerCase().includes(query.toLowerCase());
+          return scrubbedId.toLowerCase().includes(scrubbedQuery);
         });
 
         const usersToShow = mentionQueryParams.options?.limit || 10;
