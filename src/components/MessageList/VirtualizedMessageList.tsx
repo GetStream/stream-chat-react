@@ -19,7 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { Message, MessageSimple, MessageUIComponentProps } from '../Message';
+import { Message, MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelActionContextValue,
@@ -224,6 +224,11 @@ const VirtualizedMessageListWithContext = <
         streamMessageIndex > 0 &&
         message.user?.id === messageList[streamMessageIndex - 1].user?.id;
 
+      const firstOfGroup =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+
       const endOfGroup =
         shouldGroupByUser &&
         streamMessageIndex > 0 &&
@@ -232,10 +237,13 @@ const VirtualizedMessageListWithContext = <
       return (
         <Message
           closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+          customMessageActions={props.customMessageActions}
           endOfGroup={endOfGroup}
+          firstOfGroup={firstOfGroup}
           groupedByUser={groupedByUser}
           message={message}
           Message={MessageUIComponent}
+          messageActions={props.messageActions}
         />
       );
     },
@@ -328,7 +336,9 @@ export type VirtualizedMessageListProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+> = Partial<
+  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'customMessageActions' | 'messageActions'>
+> & {
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */

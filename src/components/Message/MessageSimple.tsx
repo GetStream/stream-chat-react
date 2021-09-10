@@ -58,6 +58,7 @@ const MessageSimpleWithContext = <
     clearEditingState,
     editing,
     endOfGroup,
+    firstOfGroup,
     groupedByUser,
     handleAction,
     handleOpenThread,
@@ -125,6 +126,7 @@ const MessageSimpleWithContext = <
             ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
             ${message.pinned ? 'pinned-message' : ''}
             ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}
+            ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}
             ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
 					`.trim()}
           key={message.id}
@@ -177,7 +179,7 @@ const MessageSimpleWithContext = <
                 />
               </div>
             )}
-            {(groupedByUser === undefined || endOfGroup) && (
+            {(!groupedByUser || endOfGroup) && (
               <div className={`str-chat__message-data str-chat__message-simple-data`}>
                 {!isMyMessage() && message.user ? (
                   <span className='str-chat__message-simple-name'>

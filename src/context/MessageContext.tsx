@@ -105,6 +105,8 @@ export type MessageContextValue<
   customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
   endOfGroup?: boolean;
+  /** If true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  firstOfGroup?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */

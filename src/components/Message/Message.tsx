@@ -250,6 +250,7 @@ export const Message = <
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
       endOfGroup={props.endOfGroup}
+      firstOfGroup={props.firstOfGroup}
       formatDate={props.formatDate}
       groupedByUser={props.groupedByUser}
       groupStyles={props.groupStyles}
