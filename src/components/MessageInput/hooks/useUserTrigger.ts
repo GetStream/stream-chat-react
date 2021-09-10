@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { removeDiacritics } from './utils';
+import { calculateLevenshtein, removeDiacritics } from './utils';
 
 import { UserItem } from '../../UserItem/UserItem';
 
@@ -156,10 +156,11 @@ export const useUserTrigger = <
           // ignores discritics
 
           if (user.name !== undefined) {
-            // removes discritics, like é, ã, í etc.
             const updatedName = removeDiacritics(user.name).toLowerCase();
 
-            if (updatedName.includes(scrubbedQuery)) return true;
+            const levenshtein = calculateLevenshtein(scrubbedQuery, user.name);
+
+            if (updatedName.includes(scrubbedQuery) || levenshtein <= 3) return true;
           }
           const scrubbedId = removeDiacritics(user.id).toLowerCase();
 
