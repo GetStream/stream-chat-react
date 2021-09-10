@@ -2,7 +2,7 @@
 
 exports[`VirtualizedMessageList should render the list without any message 1`] = `
 <div
-  className="str-chat str-chat-channel messaging light"
+  className="str-chat str-chat-channel messaging light "
 >
   <div
     className="str-chat__container"

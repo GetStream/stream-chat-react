@@ -13,3 +13,4 @@ dist
 *dist*
 /src/styles/vendor/
 /coverage
+examples/capacitor/

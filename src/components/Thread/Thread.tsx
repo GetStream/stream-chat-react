@@ -12,6 +12,7 @@ import {
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -179,6 +180,7 @@ const ThreadInner = <
     Us
   >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
@@ -216,8 +218,10 @@ const ThreadInner = <
 
   if (!thread) return null;
 
+  const threadClass = customClasses?.thread || 'str-chat__thread';
+
   return (
-    <div className={`str-chat__thread ${fullWidth ? 'str-chat__thread--full' : ''}`}>
+    <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
