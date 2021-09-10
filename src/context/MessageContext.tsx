@@ -103,6 +103,8 @@ export type MessageContextValue<
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
+  /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  endOfGroup?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */

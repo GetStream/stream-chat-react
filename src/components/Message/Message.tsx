@@ -249,6 +249,7 @@ export const Message = <
       canPin={canPin}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
+      endOfGroup={props.endOfGroup}
       formatDate={props.formatDate}
       groupedByUser={props.groupedByUser}
       groupStyles={props.groupStyles}

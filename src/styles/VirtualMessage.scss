@@ -1,7 +1,39 @@
 .str-chat__virtual-list {
   .str-chat__virtual-list-message-wrapper {
-    padding: 20px 40px;
+    padding: 0px 40px;
     width: 100%;
+
+    .str-chat__message-simple {
+      align-items: center;
+      padding-left: var(--xl-p);
+
+      > .str-chat__avatar {
+        display: none;
+      }
+
+      &.str-chat__virtual-message__wrapper--end {
+        padding-bottom: var(--xs-p);
+        padding-left: 0;
+
+        > .str-chat__avatar {
+          display: flex;
+        }
+      }
+
+      &.str-chat__message-simple--me {
+        padding-right: var(--xl-p);
+        padding-left: 0;
+
+        &.str-chat__virtual-message__wrapper--end {
+          padding-right: 0;
+        }
+      }
+
+      .str-chat__message-data.str-chat__message-simple-data {
+        position: relative;
+        width: 100%;
+      }
+    }
   }
 
   // this resolves the issue with 1px tall messages (i.e. deleted messages)

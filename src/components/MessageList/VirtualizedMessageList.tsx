@@ -224,9 +224,15 @@ const VirtualizedMessageListWithContext = <
         streamMessageIndex > 0 &&
         message.user?.id === messageList[streamMessageIndex - 1].user?.id;
 
+      const endOfGroup =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+
       return (
         <Message
           closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+          endOfGroup={endOfGroup}
           groupedByUser={groupedByUser}
           message={message}
           Message={MessageUIComponent}
