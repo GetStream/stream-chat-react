@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.7.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.0) 2021-09-10
+
+### Feature
+
+- Add ability to override high-level, CSS container classes via the `customClasses` prop on `Chat` [#1159](https://github.com/GetStream/stream-chat-react/pull/1159). See the [docs](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#custom-container-classes) for more information.
+- Allow custom message actions in the `VirtualizedMessageList` [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- While using the `MessageSimple` UI component, allow message grouping in the `VirtualizedMessageList` via the `shouldGroupByUser` prop [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- Add ability to customize the svg icons in the `MessageOptions` component [#1159](https://github.com/GetStream/stream-chat-react/pull/1159)
+- Create a Capacitor sample app to test run the library natively [#1158](https://github.com/GetStream/stream-chat-react/pull/1158)
+
+### Bug
+
+- Fix edge case around custom message actions not showing up when default actions are disabled [#1161](https://github.com/GetStream/stream-chat-react/pull/1161)
+
 ## [6.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.6.0) 2021-08-30
 
 ### Feature

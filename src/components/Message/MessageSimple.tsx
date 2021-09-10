@@ -57,6 +57,9 @@ const MessageSimpleWithContext = <
     additionalMessageInputProps,
     clearEditingState,
     editing,
+    endOfGroup,
+    firstOfGroup,
+    groupedByUser,
     handleAction,
     handleOpenThread,
     handleRetry,
@@ -122,6 +125,9 @@ const MessageSimpleWithContext = <
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
             ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
             ${message.pinned ? 'pinned-message' : ''}
+            ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}
+            ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}
+            ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
 					`.trim()}
           key={message.id}
           ref={messageWrapperRef}
@@ -173,14 +179,16 @@ const MessageSimpleWithContext = <
                 />
               </div>
             )}
-            <div className={`str-chat__message-data str-chat__message-simple-data`}>
-              {!isMyMessage() && message.user ? (
-                <span className='str-chat__message-simple-name'>
-                  {message.user.name || message.user.id}
-                </span>
-              ) : null}
-              <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
-            </div>
+            {(!groupedByUser || endOfGroup) && (
+              <div className={`str-chat__message-data str-chat__message-simple-data`}>
+                {!isMyMessage() && message.user ? (
+                  <span className='str-chat__message-simple-name'>
+                    {message.user.name || message.user.id}
+                  </span>
+                ) : null}
+                <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
+              </div>
+            )}
           </div>
         </div>
       }

@@ -44,11 +44,11 @@
         margin-left: var(--xs-m);
       }
     }
-  }
 
-  .quoted-message.mine {
-    .quoted-message-inner {
-      background: var(--white-snow);
+    &.mine {
+      .quoted-message-inner {
+        background: var(--white-snow);
+      }
     }
   }
 
