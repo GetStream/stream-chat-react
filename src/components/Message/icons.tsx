@@ -12,6 +12,15 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
+export const ActionsIcon = () => (
+  <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
+    <path
+      d='M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'
+      fillRule='nonzero'
+    />
+  </svg>
+);
+
 export const ReplyIcon = () => (
   <svg height='15' width='18' xmlns='http://www.w3.org/2000/svg'>
     <path
