@@ -19,5 +19,8 @@ export const removeDiacritics = (text?: string) => {
   );
 };
 
-export const calculateLevenshtein = (target: string, query?: string) =>
-  levenshtein.get(query, target, { useCollator: true });
+export const calculateLevenshtein = (target: string, query?: string) => {
+  const thing = levenshtein.get(query, target, { useCollator: true });
+  console.log('thing IS:', thing);
+  return thing;
+};
