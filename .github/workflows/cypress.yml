@@ -6,8 +6,24 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache Project Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-lib-modules-${{ hashFiles('./yarn.lock') }}
+          restore-keys: ${{ runner.os }}-lib-modules-
+
+      - name: Cache App Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./examples/typescript-app/node_modules
+          key: ${{ runner.os }}-app-modules-${{ hashFiles('./examples/typescript-app/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-app-modules-
 
       - name: Install Project Dependencies and Build
         run: yarn install
