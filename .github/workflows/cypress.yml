@@ -32,29 +32,29 @@ jobs:
         working-directory: ./examples/typescript-app
         run: yarn install --frozen-lockfile
 
-      # - name: Build Example app
-      #   working-directory: ./examples/typescript-app
-      #   env:
-      #     REACT_APP_USER_ID: ${{ secrets.REACT_APP_USER_ID }}
-      #     REACT_APP_USER_TOKEN: ${{ secrets.REACT_APP_USER_TOKEN }}
-      #     REACT_APP_STREAM_KEY: ${{ secrets.REACT_APP_STREAM_KEY }}
-      #     SKIP_PREFLIGHT_CHECK: true
-      #   run: yarn build
+      - name: Build Example app
+        working-directory: ./examples/typescript-app
+        env:
+          REACT_APP_USER_ID: ${{ secrets.REACT_APP_USER_ID }}
+          REACT_APP_USER_TOKEN: ${{ secrets.REACT_APP_USER_TOKEN }}
+          REACT_APP_STREAM_KEY: ${{ secrets.REACT_APP_STREAM_KEY }}
+          SKIP_PREFLIGHT_CHECK: true
+        run: yarn build
 
-      # - name: Run Tests
-      #   working-directory: ./examples/typescript-app/cypress
-      #   run: yarn run test:e2e:ci
+      - name: Run Tests
+        working-directory: ./examples/typescript-app/cypress
+        run: yarn run test:e2e:ci
 
-      # - name: upload failure screenshots
-      #   uses: actions/upload-artifact@v2
-      #   if: failure()
-      #   with:
-      #     name: cypress-screenshots
-      #     path: ./examples/typescript-app/cypress/screenshots
+      - name: upload failure screenshots
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ./examples/typescript-app/cypress/screenshots
 
-      # - name: upload failure videos
-      #   uses: actions/upload-artifact@v2
-      #   if: failure()
-      #   with:
-      #     name: cypress-videos
-      #     path: ./examples/typescript-app/cypress/videos/e2e_test
+      - name: upload failure videos
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: cypress-videos
+          path: ./examples/typescript-app/cypress/videos/e2e_test
