@@ -6,35 +6,28 @@ jobs:
   cypress-run:
     runs-on: macos-latest
     steps:
-       
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Install Project Dependencies and Build
         run: yarn install
 
-      - name: Install Example app
+      - name: Install Example App Dependencies
         working-directory: ./examples/typescript-app
-        run: |
-          touch .env
-          echo "REACT_APP_USER_ID = ${REACT_APP_USER_ID}" >> .env
-          echo "REACT_APP_USER_TOKEN = ${REACT_APP_USER_TOKEN}" >> .env
-          echo "CYPRESS_BASE_URL = http://localhost:3000" >> .env
-          yarn install
-        
+        run: yarn install
 
       - name: Build Example app
         working-directory: ./examples/typescript-app
         env:
-          REACT_APP_USER_ID : '${{secrets.REACT_APP_USER_ID}}'
-          REACT_APP_USER_TOKEN : '${{secrets.REACT_APP_USER_TOKEN}}'
-        run: SKIP_PREFLIGHT_CHECK=true yarn build
+          REACT_APP_USER_ID: ${{ secrets.REACT_APP_USER_ID }}
+          REACT_APP_USER_TOKEN: ${{ secrets.REACT_APP_USER_TOKEN }}
+          SKIP_PREFLIGHT_CHECK: true
+        run: yarn build
 
-      
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
         run: yarn run test:e2e:ci
-          
+
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
         if: failure()
