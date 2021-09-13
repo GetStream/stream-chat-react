@@ -37,6 +37,7 @@ jobs:
         env:
           REACT_APP_USER_ID: ${{ secrets.REACT_APP_USER_ID }}
           REACT_APP_USER_TOKEN: ${{ secrets.REACT_APP_USER_TOKEN }}
+          REACT_APP_STREAM_KEY: ${{ secrets.REACT_APP_STREAM_KEY }}
           SKIP_PREFLIGHT_CHECK: true
         run: yarn build
 
