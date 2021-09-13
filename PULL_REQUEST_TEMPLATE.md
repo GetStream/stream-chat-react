@@ -12,8 +12,7 @@ _Provide a description of the implementation_
 
 _ Add relevant screenshots_
 
-## CLA
+### CLA
 
 - [ ] I have signed the [Stream CLA](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) (required).
 - [ ] The code changes follow best practices
-- [ ] Code changes are tested (add some information if not applicable)
