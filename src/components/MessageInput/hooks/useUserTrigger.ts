@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { calculateLevenshtein, removeDiacritics } from './utils';
+import { searchLocalUsers } from './utils';
 
 import { UserItem } from '../../UserItem/UserItem';
 
@@ -145,27 +145,8 @@ export const useUserTrigger = <
        */
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
-        const scrubbedQuery = removeDiacritics(query).toLowerCase();
 
-        const matchingUsers = users.filter((user) => {
-          if (user.id === client.userID) return false;
-          if (!scrubbedQuery) return true;
-
-          // add levenstein distance to cover typos
-          // Transliterator
-          // ignores discritics
-
-          if (user.name !== undefined) {
-            const updatedName = removeDiacritics(user.name).toLowerCase();
-
-            const levenshtein = calculateLevenshtein(scrubbedQuery, user.name);
-
-            if (updatedName.includes(scrubbedQuery) || levenshtein <= 3) return true;
-          }
-          const scrubbedId = removeDiacritics(user.id).toLowerCase();
-
-          return scrubbedId.toLowerCase().includes(scrubbedQuery);
-        });
+        const matchingUsers = searchLocalUsers<Us>(client.userID, users, query);
 
         const usersToShow = mentionQueryParams.options?.limit || 10;
         const data = matchingUsers.slice(0, usersToShow);
