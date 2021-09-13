@@ -10,7 +10,7 @@ _Provide a description of the implementation_
 
 ### 🎨 UI Changes
 
-_ Add relevant screenshots_
+_Add relevant screenshots_
 
 ### CLA
 
