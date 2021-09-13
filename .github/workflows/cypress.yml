@@ -26,11 +26,11 @@ jobs:
           restore-keys: ${{ runner.os }}-app-modules-
 
       - name: Install Project Dependencies and Build
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Install Example App Dependencies
         working-directory: ./examples/typescript-app
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Build Example app
         working-directory: ./examples/typescript-app
