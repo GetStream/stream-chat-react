@@ -128,7 +128,7 @@ export const useUserTrigger = <
 
       const filterMutes = (data: UserResponse<Us>[]) => {
         if (!mutes.length) return data;
-        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+        return data.filter((suggestion) => mutes.some((mute) => mute.target.id !== suggestion.id));
       };
 
       if (mentionAllAppUsers) {
@@ -145,6 +145,7 @@ export const useUserTrigger = <
        */
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
+        // const scrubbedQuery = removeDiacritics(query).toLowerCase();
 
         const matchingUsers = searchLocalUsers<Us>(client.userID, users, query);
 

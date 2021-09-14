@@ -20,41 +20,39 @@ export const removeDiacritics = (text?: string) => {
   );
 };
 
-export const calculateLevenshtein = (query: string, target: string) => {
-  if (query.length === 0) return target.length;
-  if (target.length === 0) return query.length;
+export const calculateLevenshtein = (query: string, name: string) => {
+  if (query.length === 0) return name.length;
+  if (name.length === 0) return query.length;
 
-  if (query.length > target.length) {
-    const tmp = query;
-    query = target;
-    target = tmp;
+  const matrix = [];
+
+  let i;
+  for (i = 0; i <= name.length; i++) {
+    matrix[i] = [i];
   }
 
-  const row = [];
-  for (let i = 0; i <= query.length; i++) {
-    row[i] = i;
+  let j;
+  for (j = 0; j <= query.length; j++) {
+    matrix[0][j] = j;
   }
 
-  for (let i = 1; i <= query.length; i++) {
-    let prev = i;
-    for (let j = 1; j <= query.length; j++) {
-      let val;
-      if (target.charAt(i - 1) === query.charAt(j - 1)) {
-        val = row[j - 1]; // match
+  for (i = 1; i <= name.length; i++) {
+    for (j = 1; j <= query.length; j++) {
+      if (name.charAt(i - 1) === query.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
       } else {
-        val = Math.min(
-          row[j - 1] + 1, // substitution
-          prev + 1, // insertion
-          row[j] + 1,
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          Math.min(
+            matrix[i][j - 1] + 1, // insertion
+            matrix[i - 1][j] + 1,
+          ),
         ); // deletion
       }
-      row[j - 1] = prev;
-      prev = val;
     }
-    row[query.length] = prev;
   }
 
-  return row[query.length];
+  return matrix[name.length][query.length];
 };
 
 export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserType>(
@@ -76,8 +74,9 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
     }
 
     const updatedId = removeDiacritics(user.id).toLowerCase();
+    const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
 
-    return updatedId.toLowerCase().includes(updatedQuery);
+    return updatedId.includes(updatedQuery) || levenshtein <= 3;
   });
 
   return matchingUsers;
