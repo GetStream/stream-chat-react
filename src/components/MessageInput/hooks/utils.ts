@@ -1,5 +1,5 @@
 import type { UserResponse } from 'stream-chat';
-import transliterate from '@sindresorhus/transliterate';
+// import transliterate from '@sindresorhus/transliterate';
 
 import type { DefaultUserType } from '../../../types/types';
 
@@ -62,14 +62,22 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
   query: string,
 ): UserResponse<Us>[] => {
   const matchingUsers = users.filter((user) => {
+    const thingIsTrue = true;
+
+    // let transliterateMethod:
+    //   | ((string: string, options?: unknown | undefined) => string)
+    //   | null = null;
+    if (thingIsTrue) {
+      import('@sindresorhus/transliterate').then((module) => {
+        console.log(module.default);
+      });
+    }
+
     if (user.id === ownUserId) return false;
     if (!query) return true;
 
     const updatedName = removeDiacritics(user.name).toLowerCase();
     const updatedQuery = removeDiacritics(query).toLowerCase();
-
-    const transliterateWord = transliterate(user.name || '');
-    console.log(transliterateWord);
 
     if (updatedName !== undefined) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
