@@ -1,4 +1,5 @@
 import type { UserResponse } from 'stream-chat';
+import transliterate from '@sindresorhus/transliterate';
 
 import type { DefaultUserType } from '../../../types/types';
 
@@ -66,6 +67,9 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
     const updatedName = removeDiacritics(user.name).toLowerCase();
     const updatedQuery = removeDiacritics(query).toLowerCase();
+
+    const transliterateWord = transliterate(user.name || '');
+    console.log(transliterateWord);
 
     if (updatedName !== undefined) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
