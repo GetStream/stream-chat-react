@@ -5,9 +5,8 @@ import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import external from 'rollup-plugin-peer-deps-external';
-import scss from 'rollup-plugin-scss';
 import url from 'rollup-plugin-url';
-import copy from 'rollup-plugin-copy-glob';
+import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
 import visualizer from 'rollup-plugin-visualizer';
 import replace from '@rollup/plugin-replace';
@@ -19,28 +18,6 @@ import process from 'process';
 import pkg from './package.json';
 
 process.env.NODE_ENV = 'production';
-
-const styleBundle = ({ min } = { min: false }) => ({
-  cache: false,
-  input: 'src/styles/index.scss',
-  output: [
-    {
-      dir: 'dist/css',
-      format: 'es',
-    },
-  ],
-  plugins: [
-    scss({
-      output: min ? pkg.style.replace('.css', '.min.css') : pkg.style,
-      outputStyle: min ? 'compressed' : 'nested',
-      prefix: `@import "./variables.scss";`,
-    }),
-  ],
-  watch: {
-    chokidar: false,
-    include: 'src/styles/',
-  },
-});
 
 const baseConfig = {
   cache: false,
@@ -105,16 +82,15 @@ const basePlugins = [
   }),
   // import files as data-uris or es modules
   url(),
-  copy(
-    [
-      { dest: 'dist/scss', files: 'src/styles/**/*' },
-      { dest: 'dist/assets', files: 'src/assets/*' },
+  copy({
+    targets: [
+      { dest: 'dist/assets', src: 'src/assets/*' },
+      { dest: 'dist/css', src: './node_modules/stream-chat-css/dist/css/index.css' },
+      { dest: 'dist/scss', src: './node_modules/stream-chat-css/dist/scss/*' },
     ],
-    {
-      verbose: process.env.VERBOSE,
-      watch: process.env.ROLLUP_WATCH,
-    },
-  ),
+    verbose: process.env.VERBOSE,
+    watch: process.env.ROLLUP_WATCH,
+  }),
   // Json to ES modules conversion
   json({ compact: true }),
   process.env.BUNDLE_SIZE ? visualizer() : null,
@@ -177,11 +153,5 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
 
 export default () =>
   process.env.ROLLUP_WATCH
-    ? [styleBundle(), normalBundle]
-    : [
-        styleBundle(),
-        styleBundle({ min: true }),
-        normalBundle,
-        fullBrowserBundle({ min: true }),
-        fullBrowserBundle(),
-      ];
+    ? [normalBundle]
+    : [normalBundle, fullBrowserBundle({ min: true }), fullBrowserBundle()];
