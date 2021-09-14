@@ -126,7 +126,7 @@ export const useUserTrigger = <
 
       const filterMutes = (data: UserResponse<Us>[]) => {
         if (!mutes.length) return data;
-        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+        return data.filter((suggestion) => mutes.some((mute) => mute.target.id !== suggestion.id));
       };
 
       if (mentionAllAppUsers) {
