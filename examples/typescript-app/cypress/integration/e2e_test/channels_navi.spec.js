@@ -5,7 +5,7 @@ context('Actions', () => {
     const url = "http://localhost:3000"
     console.log(screen)
     cy.waitFor(10000)
-    cy.visit(url, {timeout:120000})
+    cy.visit(url, {timeout:12000})
     cy.dataTestContains('channel-preview-button').first()
       .click()
       .should('exist')
