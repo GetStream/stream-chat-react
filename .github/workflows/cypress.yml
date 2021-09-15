@@ -21,7 +21,9 @@ jobs:
       - name: Cache App Dependencies
         uses: actions/cache@v2
         with:
-          path: ./examples/typescript-app/node_modules
+          path: |
+            ./examples/typescript-app/node_modules
+            ~/.cache/Cypress
           key: ${{ runner.os }}-app-modules-${{ hashFiles('./examples/typescript-app/yarn.lock') }}
           restore-keys: ${{ runner.os }}-app-modules-
 
@@ -43,9 +45,7 @@ jobs:
 
       - name: Run Tests
         working-directory: ./examples/typescript-app/cypress
-        run: |
-          npm i cypress
-          yarn run test:e2e:ci
+        run: yarn run test:e2e:ci
 
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
