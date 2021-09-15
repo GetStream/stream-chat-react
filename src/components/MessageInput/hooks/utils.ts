@@ -75,7 +75,6 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
         updatedName = theDefault(user.name || '').toLowerCase();
         updatedQuery = theDefault(query).toLowerCase();
         updatedId = theDefault(user.id).toLowerCase();
-        console.log('in the transliteration');
       })();
     }
 
