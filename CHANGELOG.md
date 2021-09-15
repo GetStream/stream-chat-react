@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.7.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.1) 2021-09-14
+
+### Bug
+
+- Prevent custom message data from being deleted on edit message request [#1169](https://github.com/GetStream/stream-chat-react/pull/1169)
+- Fix issue with autocomplete mentions displaying muted users [#1170](https://github.com/GetStream/stream-chat-react/pull/1170)
+
 ## [6.7.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.0) 2021-09-10
 
 ### Feature
