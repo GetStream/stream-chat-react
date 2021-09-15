@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-// import { ImageDropzone, FileUploadButton } from 'react-file-utils';
+import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 
 import {
   ChatAutoComplete,
   EmojiPicker,
   MessageInputProps,
+  UploadsPreview,
   useMessageInputContext,
-  // useChannelStateContext,
+  useChannelStateContext,
 } from 'stream-chat-react';
 
 import {
@@ -42,37 +43,13 @@ export const MessageInputUI = (props: Props) => {
     text,
   } = useMessageInputContext();
 
-  // const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
+  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
   const { giphyState, setGiphyState } = useGiphyContext();
 
-  // const [attachOpen, setAttachOpen] = useState(false);
-
-  // const messageInput = useMessageInputContext();
+  const messageInput = useMessageInputContext();
 
   const onCheckChange = () => setChecked?.(!checked);
-
-  // useEffect(() => {
-  //   if (attachOpen) {
-  //     messageInput.textareaRef.current.focus();
-  //   } else {
-  //     messageInput.textareaRef.current.blur();
-  //   }
-  // }, [messageInput.textareaRef, attachOpen]);
-
-  // useEffect(() => {
-  //   if (messageInput.text) {
-  //     setAttachOpen(true);
-  //   }
-  // }, [messageInput.text, setAttachOpen]);
-
-  // const handleSubmit = (event) => {
-  //   if (messageInput.text.startsWith('/')) {
-  //     event.target.value = ''; // eslint-disable-line
-  //     return messageInput.handleChange(event);
-  //   }
-  //   return messageInput.handleSubmit(event);
-  // };
 
   const [commandsOpen, setCommandsOpen] = useState(false);
 
@@ -121,30 +98,43 @@ export const MessageInputUI = (props: Props) => {
       <div className='input-ui-container'>
         <div className='input-ui-wrapper'>
           <div className='input-ui-wrapper-attach'>
-            <Attach />
+            <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
+              <Attach />
+            </FileUploadButton>
           </div>
           <div className='input-ui-wrapper-bolt' onClick={handleCommandsClick}>
             <CommandBolt />
           </div>
         </div>
-        <EmojiPicker />
-        <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
-          {giphyState && !numberOfUploads && <GiphyIcon />}
-          <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
-          {
-            <>
-              {!giphyState && (
-                <div
-                  className='input-ui-input-emoji-picker'
-                  ref={emojiPickerRef}
-                  onClick={openEmojiPicker}
-                >
-                  <EmojiPickerIcon />
-                </div>
-              )}
-            </>
+        <ImageDropzone
+          accept={acceptedFiles}
+          handleFiles={messageInput.uploadNewFiles}
+          multiple={multipleUploads}
+          disabled={
+            (maxNumberOfFiles !== undefined && messageInput.numberOfUploads >= maxNumberOfFiles) ||
+            giphyState
           }
-        </div>
+        >
+          <EmojiPicker />
+          <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
+            {giphyState && !numberOfUploads && <GiphyIcon />}
+            <UploadsPreview />
+            <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
+            {
+              <>
+                {!giphyState && (
+                  <div
+                    className='input-ui-input-emoji-picker'
+                    ref={emojiPickerRef}
+                    onClick={openEmojiPicker}
+                  >
+                    <EmojiPickerIcon />
+                  </div>
+                )}
+              </>
+            }
+          </div>
+        </ImageDropzone>
         <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
           {giphyState ? (
             <GiphySearch />

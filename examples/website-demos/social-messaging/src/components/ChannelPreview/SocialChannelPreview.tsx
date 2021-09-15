@@ -6,7 +6,15 @@ import { AvatarGroup, getTimeStamp } from './utils';
 
 import './SocialChannelPreview.scss';
 
-import { SocialAttachmentType, SocialChannelType, SocialCommandType, SocialEventType, SocialMessageType, SocialReactionType, SocialUserType } from '../ChatContainer/ChatContainer';
+import {
+  SocialAttachmentType,
+  SocialChannelType,
+  SocialCommandType,
+  SocialEventType,
+  SocialMessageType,
+  SocialReactionType,
+  SocialUserType,
+} from '../ChatContainer/ChatContainer';
 
 import { useViewContext } from '../../contexts/ViewContext';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';

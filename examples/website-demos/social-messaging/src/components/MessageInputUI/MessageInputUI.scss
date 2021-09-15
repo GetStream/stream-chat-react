@@ -4,6 +4,7 @@
   &-container {
     position: relative;
     display: flex;
+    align-items: center;
     border-top: 1px solid $stroke;
     background: $app-canvas;
     transition: background 1s;
@@ -39,18 +40,20 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 8px 8px 8px 16px;
-    height: 40px;
+    min-height: 40px;
+    height: fit-content;
+    padding: 0 8px 0 5px;
     margin: 8px;
     background: $app-bg;
     border: 1px solid $borders;
     border-radius: 20px;
     flex: none;
-    align-self: stretch;
     flex-grow: 1;
     transition: background 1s, border-color 0.2s;
 
     &-emoji-picker {
+      display: flex;
+
       &:hover {
         cursor: pointer;
       }
@@ -127,7 +130,7 @@
   background: $app-bg !important;
   transition: background 1s;
   padding: 0 !important;
-  padding-left: 4px !important;
+  padding-left: 11px !important;
   border: none !important;
   min-height: unset !important;
   font-size: 17px;
@@ -184,58 +187,52 @@ div.rta__autocomplete.str-chat__emojisearch {
   padding: 0;
 }
 
-.suggestion-header {
-  color: $text-mid-emphasis;
-  font-size: 18px;
+.rfu-dropzone {
   display: flex;
   align-items: center;
-  height: 40px;
-  padding-left: 8px;
-  padding-top: 8px;
-
-  span {
-    color: $accent-primary;
-    font-size: 22px;
-    font-weight: 600;
-    margin-right: 4px;
-  }
-
-  :last-child {
-    margin-left: 8px;
-  }
-
-  svg path {
-    fill: $accent-primary;
-  }
+  justify-content: center;
+  width: 100%;
 }
 
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  height: 40px;
-  font-size: 18px;
-  font-weight: 600;
-  padding: 0 8px;
-  color: $text-high-emphasis;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-
-  &-icon {
-    height: 24px;
-    width: 24px;
-    margin-right: 8px;
-  }
-
-  &-description {
-    margin-left: 8px;
-    color: $text-mid-emphasis;
-    font-weight: normal;
-    font-size: 14px;
-  }
+.rfu-dropzone__notifier {
+  height: 40px !important;
+  border-radius: 40px !important;
+  width: 97% !important;
 }
 
-.suggestion-item.selected {
-  background: $stroke-low-emphasis;
-  cursor: pointer;
+.rfu-dropzone:focus {
+  outline: none !important;
 }
+
+.rfu-image-previewer {
+  flex: none !important;
+}
+
+.rfu-image-previewer__image {
+  margin-bottom: 0 !important;
+}
+
+// .rfu-image-upload-button {
+//   display: none;
+// }
+
+.rfu-image-previewer {
+  // height: fit-content !important;
+  // width: fit-content !important;
+  margin: 8px 0 8px 9px !important;
+}
+
+// .rfu-image-previewer__image {
+//   margin: 0;
+// }
+
+// .rfu-image-previewer__image .rfu-thumbnail__wrapper {
+//   width: 42px !important;
+//   height: 42px !important;
+// }
+
+// .rfu-image-previewer__image .rfu-thumbnail__wrapper .rfu-thumbnail__overlay svg,
+// .rfu-image-previewer__image .rfu-thumbnail__wrapper .rfu-icon-button svg {
+//   height: 15px;
+//   width: 15px;
+// }
