@@ -23,7 +23,6 @@ export const removeDiacritics = (text?: string) => {
 
 export const calculateLevenshtein = (query: string, name: string) => {
   if (query.length === 0) return name.length;
-  if (name.length === 0) return query.length;
 
   const matrix = [];
 
@@ -60,35 +59,35 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
   ownUserId: string | undefined,
   users: UserResponse<Us>[],
   query: string,
+  useMentionsTransliteration?: boolean,
 ): UserResponse<Us>[] => {
   const matchingUsers = users.filter((user) => {
-    const thingIsTrue = true;
-
-    // let transliterateMethod:
-    //   | ((string: string, options?: unknown | undefined) => string)
-    //   | null = null;
-    if (thingIsTrue) {
-      import('@sindresorhus/transliterate').then((module) => {
-        console.log(module.default);
-      });
-    }
-
     if (user.id === ownUserId) return false;
     if (!query) return true;
 
-    const updatedName = removeDiacritics(user.name).toLowerCase();
-    const updatedQuery = removeDiacritics(query).toLowerCase();
+    let updatedId = removeDiacritics(user.id).toLowerCase();
+    let updatedName = removeDiacritics(user.name).toLowerCase();
+    let updatedQuery = removeDiacritics(query).toLowerCase();
 
-    if (updatedName !== undefined) {
+    if (useMentionsTransliteration) {
+      (async () => {
+        const { default: theDefault } = await import('@sindresorhus/transliterate');
+        updatedName = theDefault(user.name || '').toLowerCase();
+        updatedQuery = theDefault(query).toLowerCase();
+        updatedId = theDefault(user.id).toLowerCase();
+        console.log('in the transliteration');
+      })();
+    }
+
+    if (updatedName !== undefined && updatedName.length) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
 
       if (updatedName.includes(updatedQuery) || levenshtein <= 3) return true;
     }
 
-    const updatedId = removeDiacritics(user.id).toLowerCase();
     const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
 
-    return updatedId.includes(updatedQuery) || levenshtein <= 3;
+    return updatedId?.includes(updatedQuery) || levenshtein <= 3;
   });
 
   return matchingUsers;

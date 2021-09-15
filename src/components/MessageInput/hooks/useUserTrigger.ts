@@ -28,6 +28,7 @@ export type UserTriggerParams<Us extends DefaultUserType<Us> = DefaultUserType> 
   disableMentions?: boolean;
   mentionAllAppUsers?: boolean;
   mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
+  useMentionsTransliteration?: boolean;
 };
 
 export const useUserTrigger = <
@@ -41,7 +42,13 @@ export const useUserTrigger = <
 >(
   params: UserTriggerParams<Us>,
 ): UserTriggerSetting<Us> => {
-  const { disableMentions, mentionAllAppUsers, mentionQueryParams = {}, onSelectUser } = params;
+  const {
+    disableMentions,
+    mentionAllAppUsers,
+    mentionQueryParams = {},
+    onSelectUser,
+    useMentionsTransliteration,
+  } = params;
 
   const [searching, setSearching] = useState(false);
 
@@ -145,9 +152,13 @@ export const useUserTrigger = <
        */
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
-        // const scrubbedQuery = removeDiacritics(query).toLowerCase();
 
-        const matchingUsers = searchLocalUsers<Us>(client.userID, users, query);
+        const matchingUsers = searchLocalUsers<Us>(
+          client.userID,
+          users,
+          query,
+          useMentionsTransliteration,
+        );
 
         const usersToShow = mentionQueryParams.options?.limit || 10;
         const data = matchingUsers.slice(0, usersToShow);
