@@ -121,12 +121,21 @@ export const useUserTrigger = <
   return {
     callback: (item) => onSelectUser(item),
     component: UserItem,
-    dataProvider: (query, _, onReady) => {
+    dataProvider: (query, text, onReady) => {
       if (disableMentions) return;
 
       const filterMutes = (data: UserResponse<Us>[]) => {
+        if (text.includes('/unmute') && !mutes.length) {
+          return [];
+        }
         if (!mutes.length) return data;
-        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+
+        if (text.includes('/unmute')) {
+          return data.filter((suggestion) =>
+            mutes.some((mute) => mute.target.id === suggestion.id),
+          );
+        }
+        return data.filter((suggestion) => mutes.every((mute) => mute.target.id !== suggestion.id));
       };
 
       if (mentionAllAppUsers) {
