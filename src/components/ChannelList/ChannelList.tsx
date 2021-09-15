@@ -194,6 +194,7 @@ const UnMemoizedChannelList = <
     channel,
     client,
     closeMobileNav,
+    customClasses,
     navOpen = false,
     setActiveChannel,
     theme,
@@ -335,16 +336,18 @@ const UnMemoizedChannelList = <
     </List>
   );
 
+  const chatClass = customClasses?.chat || 'str-chat';
+  const channelListClass = customClasses?.channelList || 'str-chat-channel-list';
+  const navigationClass = navOpen ? 'str-chat-channel-list--open' : '';
+  const windowsEmojiClass =
+    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
+      ? 'str-chat--windows-flags'
+      : '';
+
   return (
     <>
       <div
-        className={`str-chat str-chat-channel-list ${theme} ${
-          navOpen ? 'str-chat-channel-list--open' : ''
-        } ${
-          useImageFlagEmojisOnWindows && navigator.platform.match(/Win/)
-            ? 'str-chat--windows-flags'
-            : ''
-        }`}
+        className={`${chatClass} ${channelListClass} ${theme} ${navigationClass} ${windowsEmojiClass}`}
         ref={channelListRef}
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}

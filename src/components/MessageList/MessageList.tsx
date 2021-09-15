@@ -22,6 +22,7 @@ import {
   ChannelStateContextValue,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -131,6 +132,8 @@ const MessageListWithContext = <
     read,
   } = props;
 
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
@@ -198,13 +201,12 @@ const MessageListWithContext = <
 
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
+  const messageListClass = customClasses?.messageList || 'str-chat__list';
+  const threadListClass = threadList ? customClasses?.threadList || 'str-chat__list--thread' : '';
+
   return (
     <>
-      <div
-        className={`str-chat__list ${threadList ? 'str-chat__list--thread' : ''}`}
-        onScroll={onScroll}
-        ref={listRef}
-      >
+      <div className={`${messageListClass} ${threadListClass}`} onScroll={onScroll} ref={listRef}>
         {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
