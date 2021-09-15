@@ -61,7 +61,6 @@ const externalDependencies = [
   /dayjs/,
   /emoji-mart/,
   'emoji-regex',
-  'fast-levenshtein',
   'i18next',
   'isomorphic-ws',
   'linkifyjs',
