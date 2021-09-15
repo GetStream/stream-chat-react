@@ -15,15 +15,17 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./node_modules
-          key: ${{ runner.os }}-lib-modules-${{ hashFiles('./yarn.lock') }}
-          restore-keys: ${{ runner.os }}-lib-modules-
+          key: ${{ runner.os }}-lib-modules-v1-${{ hashFiles('./yarn.lock') }}
+          restore-keys: ${{ runner.os }}-lib-modules-v1-
 
       - name: Cache App Dependencies
         uses: actions/cache@v2
         with:
-          path: ./examples/typescript-app/node_modules
-          key: ${{ runner.os }}-app-modules-${{ hashFiles('./examples/typescript-app/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-app-modules-
+          path: |
+            ./examples/typescript-app/node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-app-modules-v1-${{ hashFiles('./examples/typescript-app/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-app-modules-v1-
 
       - name: Install Project Dependencies and Build
         run: yarn install --frozen-lockfile
