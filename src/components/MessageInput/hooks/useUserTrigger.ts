@@ -6,12 +6,10 @@ import { UserItem } from '../../UserItem/UserItem';
 import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
+import type { SearchQueryParams } from '../../ChannelSearch/ChannelSearch';
 import type { UserResponse } from 'stream-chat';
 
-import type {
-  MentionQueryParams,
-  UserTriggerSetting,
-} from '../../MessageInput/DefaultTriggerProvider';
+import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvider';
 
 import type {
   DefaultAttachmentType,
@@ -27,7 +25,7 @@ export type UserTriggerParams<Us extends DefaultUserType<Us> = DefaultUserType> 
   onSelectUser: (item: UserResponse<Us>) => void;
   disableMentions?: boolean;
   mentionAllAppUsers?: boolean;
-  mentionQueryParams?: MentionQueryParams<Us>;
+  mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
 };
 
 export const useUserTrigger = <
@@ -123,12 +121,21 @@ export const useUserTrigger = <
   return {
     callback: (item) => onSelectUser(item),
     component: UserItem,
-    dataProvider: (query, _, onReady) => {
+    dataProvider: (query, text, onReady) => {
       if (disableMentions) return;
 
       const filterMutes = (data: UserResponse<Us>[]) => {
+        if (text.includes('/unmute') && !mutes.length) {
+          return [];
+        }
         if (!mutes.length) return data;
-        return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+
+        if (text.includes('/unmute')) {
+          return data.filter((suggestion) =>
+            mutes.some((mute) => mute.target.id === suggestion.id),
+          );
+        }
+        return data.filter((suggestion) => mutes.every((mute) => mute.target.id !== suggestion.id));
       };
 
       if (mentionAllAppUsers) {

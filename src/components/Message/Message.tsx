@@ -80,6 +80,7 @@ const MessageWithContext = <
 ) => {
   const {
     canPin,
+    groupedByUser,
     Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -153,7 +154,8 @@ const MessageWithContext = <
 
   return (
     <MessageProvider value={messageContextValue}>
-      <MessageUIComponent />
+      <MessageUIComponent groupedByUser={groupedByUser} />
+      {/* TODO - remove prop in next major release, maintains VML backwards compatibility */}
     </MessageProvider>
   );
 };
@@ -179,6 +181,7 @@ export const Message = <
   props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    closeReactionSelectorOnClick,
     disableQuotedMessages,
     getDeleteMessageErrorNotification,
     getFlagMessageErrorNotification,
@@ -236,6 +239,8 @@ export const Message = <
   const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
     message,
     reactionSelectorRef,
+    undefined,
+    closeReactionSelectorOnClick,
   );
 
   return (
@@ -244,7 +249,10 @@ export const Message = <
       canPin={canPin}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
+      endOfGroup={props.endOfGroup}
+      firstOfGroup={props.firstOfGroup}
       formatDate={props.formatDate}
+      groupedByUser={props.groupedByUser}
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}

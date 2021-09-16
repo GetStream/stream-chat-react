@@ -10,7 +10,6 @@ import {
 } from '../../context/MessageInputContext';
 
 import type { EmojiData } from 'emoji-mart';
-import type { UserFilters, UserOptions, UserSort } from 'stream-chat';
 
 import type { SuggestionCommand, SuggestionUser } from '../ChatAutoComplete/ChatAutoComplete';
 import type { CommandItemProps } from '../CommandItem/CommandItem';
@@ -44,12 +43,6 @@ export type UserTriggerSetting<Us extends DefaultUserType<Us> = DefaultUserType>
   UserItemProps,
   SuggestionUser<Us>
 >;
-
-export type MentionQueryParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  filters?: UserFilters<Us>;
-  options?: UserOptions;
-  sort?: UserSort<Us>;
-};
 
 export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType> = {
   component: string | React.ComponentType<T>;

@@ -141,6 +141,7 @@ const UnMemoizedChatAutoComplete = <
     <AutoCompleteTextarea
       additionalTextareaProps={messageInput.additionalTextareaProps}
       className='str-chat__textarea__textarea'
+      closeCommandsList={messageInput.closeCommandsList}
       containerClassName='str-chat__textarea'
       disabled={disabled || !!cooldownRemaining}
       disableMentions={messageInput.disableMentions}
@@ -160,6 +161,7 @@ const UnMemoizedChatAutoComplete = <
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={props.rows || 1}
+      showCommandsList={messageInput.showCommandsList}
       SuggestionItem={SuggestionItem}
       SuggestionList={SuggestionList}
       trigger={messageInput.autocompleteTriggers || {}}

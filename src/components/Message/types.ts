@@ -40,10 +40,16 @@ export type MessageProps<
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
+  /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  endOfGroup?: boolean;
+  /** When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  firstOfGroup?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
@@ -62,6 +68,8 @@ export type MessageProps<
   getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
   /** Function that returns the notification text to be displayed when a pin message request fails */
   getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
+  groupedByUser?: boolean;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether the threaded message is the first in the thread list */

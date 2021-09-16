@@ -43,6 +43,14 @@ Additional props to be passed to the underlying `MessageInput` component, [avail
 | ------ |
 | object |
 
+### closeReactionSelectorOnClick
+
+If true, picking a reaction from the `ReactionSelector` component will close the selector.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
 ### customMessageActions
 
 An object containing custom message actions (key) and function handlers (value).
@@ -66,6 +74,22 @@ If true, disables the ability for users to quote messages.
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### endOfGroup
+
+When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
+
+### firstOfGroup
+
+When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
 
 ### formatDate
 
@@ -128,6 +152,14 @@ pinned [message object](https://getstream.io/chat/docs/javascript/message_format
 | Type                               |
 | ---------------------------------- |
 | (message: StreamMessage) => string |
+
+### groupedByUser
+
+If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### groupStyles
 

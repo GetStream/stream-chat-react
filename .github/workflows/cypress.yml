@@ -22,20 +22,20 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ./examples/typescript-app/node_modules
+            ./examples/typescript/node_modules
             ~/.cache/Cypress
-          key: ${{ runner.os }}-app-modules-v1-${{ hashFiles('./examples/typescript-app/yarn.lock') }}
+          key: ${{ runner.os }}-app-modules-v1-${{ hashFiles('./examples/typescript/yarn.lock') }}
           restore-keys: ${{ runner.os }}-app-modules-v1-
 
       - name: Install Project Dependencies and Build
         run: yarn install --frozen-lockfile
 
       - name: Install Example App Dependencies
-        working-directory: ./examples/typescript-app
+        working-directory: ./examples/typescript
         run: yarn install --frozen-lockfile
 
       - name: Build Example app
-        working-directory: ./examples/typescript-app
+        working-directory: ./examples/typescript
         env:
           REACT_APP_USER_ID: ${{ secrets.REACT_APP_USER_ID }}
           REACT_APP_USER_TOKEN: ${{ secrets.REACT_APP_USER_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
         run: yarn build
 
       - name: Run Tests
-        working-directory: ./examples/typescript-app/cypress
+        working-directory: ./examples/typescript/cypress
         run: |
           npm i cypress
           yarn run test:e2e:ci
@@ -53,11 +53,11 @@ jobs:
         if: failure()
         with:
           name: cypress-screenshots
-          path: ./examples/typescript-app/cypress/screenshots
+          path: ./examples/typescript/cypress/screenshots
 
       - name: upload failure videos
         uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: cypress-videos
-          path: ./examples/typescript-app/cypress/videos/e2e_test
+          path: ./examples/typescript/cypress/videos/e2e_test

@@ -44,11 +44,11 @@
         margin-left: var(--xs-m);
       }
     }
-  }
 
-  .quoted-message.mine {
-    .quoted-message-inner {
-      background: var(--white-snow);
+    &.mine {
+      .quoted-message-inner {
+        background: var(--white-snow);
+      }
     }
   }
 
@@ -359,6 +359,8 @@
         ** https://css-tricks.com/snippets/css/prevent-long-urls-from-breaking-out-of-container/ */
         overflow-wrap: break-word;
         word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         /* Adds a hyphen where the word breaks, if supported (No Blink) */
         -ms-hyphens: auto;

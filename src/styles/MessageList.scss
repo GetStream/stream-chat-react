@@ -164,6 +164,12 @@
 
   p {
     margin: 0 !important; // always use padding, margin mess up the height calculations
+
+    a {
+      white-space: pre-line;
+      overflow: hidden;
+      word-wrap: break-word;
+    }
   }
 }
 

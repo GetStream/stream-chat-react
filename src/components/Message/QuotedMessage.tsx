@@ -47,14 +47,24 @@ export const QuotedMessage = <
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
   return (
-    <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
-      {quoted_message.user && (
-        <Avatar image={quoted_message.user.image} size={20} user={quoted_message.user} />
-      )}
-      <div className='quoted-message-inner'>
-        {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
-        <div>{quotedMessageText}</div>
+    <>
+      <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
+        {quoted_message.user && (
+          <Avatar
+            image={quoted_message.user.image}
+            name={quoted_message.user.name || quoted_message.user.id}
+            size={20}
+            user={quoted_message.user}
+          />
+        )}
+        <div className='quoted-message-inner'>
+          {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
+          <div>{quotedMessageText}</div>
+        </div>
       </div>
-    </div>
+      {message.attachments?.length && message.quoted_message ? (
+        <Attachment attachments={message.attachments} />
+      ) : null}
+    </>
   );
 };

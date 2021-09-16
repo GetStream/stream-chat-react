@@ -43,7 +43,7 @@ const reply1 = generateMessage({ parent_id: threadStart.id, user: bob });
 const reply2 = generateMessage({ parent_id: threadStart.id, user: alice });
 
 const channelStateContextMock = {
-  channel: { state: {} },
+  channel: { state: { members: {} } },
   thread: threadStart,
   threadHasMore: true,
   threadLoadingMore: false,

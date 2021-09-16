@@ -14,8 +14,8 @@ import type { UnknownType } from '../types/types';
 
 export type CommonEmoji = {
   custom: boolean;
-  emoticons: [];
-  short_names: [];
+  emoticons: string[] | [];
+  short_names: string[] | [];
 };
 
 export type EmojiSetDef = {

@@ -2,12 +2,12 @@
 @import './_variables.scss';
 @import './base.scss';
 
+// External dependencies (copied from libraries to rectify built file path discrepancies)
+@import './vendor/emoji-mart.scss'; // copy from '../../node_modules/emoji-mart/css/emoji-mart.css'
+@import './vendor/mml-react.scss'; // copy from '../../node_modules/mml-react/dist/styles/index.css'
+@import './vendor/react-file-utils.scss'; // copy from '../../node_modules/react-file-utils/dist/index.css'
+
 // Components
-
-@import '../../node_modules/mml-react/src/styles/index.scss';
-@import './vendor/react-file-utils.scss';
-@import './vendor/emoji-mart.scss';
-
 @import './ActionsBox.scss';
 @import './AttachmentActions.scss';
 @import './Attachment.scss';

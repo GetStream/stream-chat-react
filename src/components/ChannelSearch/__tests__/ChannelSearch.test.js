@@ -15,6 +15,7 @@ describe('ChannelSearch', () => {
         className="str-chat__channel-search"
       >
         <input
+          className="str-chat__channel-search-input"
           onChange={[Function]}
           placeholder="Search"
           type="text"

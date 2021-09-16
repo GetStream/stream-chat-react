@@ -54,7 +54,7 @@ export const useEnrichedMessages = <
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   let messagesWithDates =
-    threadList || (disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator)
+    disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : processMessages({
           disableDateSeparator,
@@ -62,6 +62,7 @@ export const useEnrichedMessages = <
           hideNewMessageSeparator,
           lastRead,
           messages,
+          threadList,
           userId: client.userID || '',
         });
 

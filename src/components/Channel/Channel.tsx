@@ -284,7 +284,7 @@ const ChannelInner = <
     onMentionsHover,
   } = props;
 
-  const { client, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
+  const { client, customClasses, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
     At,
     Ch,
     Co,
@@ -414,7 +414,7 @@ const ChannelInner = <
         try {
           await channel.watch();
         } catch (e) {
-          dispatch({ error: e, type: 'setError' });
+          dispatch({ error: e as Error, type: 'setError' });
           errored = true;
         }
       }
@@ -569,6 +569,7 @@ const ChannelInner = <
       message:
         | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
         | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+      customMessageData?: Partial<Message<At, Me, Us>>,
     ) => {
       if (!channel) return;
 
@@ -586,6 +587,7 @@ const ChannelInner = <
         parent_id,
         quoted_message_id: quotedMessage?.id,
         text,
+        ...customMessageData,
       } as Message<At, Me, Us>;
 
       try {
@@ -650,12 +652,15 @@ const ChannelInner = <
   );
 
   const sendMessage = useCallback(
-    async ({
-      attachments = [],
-      mentioned_users = [],
-      parent = undefined,
-      text = '',
-    }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>) => {
+    async (
+      {
+        attachments = [],
+        mentioned_users = [],
+        parent = undefined,
+        text = '',
+      }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
+      customMessageData?: Partial<Message<At, Me, Us>>,
+    ) => {
       if (!channel) return;
 
       // remove error messages upon submit
@@ -667,7 +672,7 @@ const ChannelInner = <
       // first we add the message to the UI
       updateMessage(messagePreview);
 
-      await doSendMessage(messagePreview);
+      await doSendMessage(messagePreview, customMessageData);
     },
     [channel?.state, createMessagePreview, doSendMessage, updateMessage],
   );
@@ -868,9 +873,16 @@ const ChannelInner = <
     typing,
   };
 
+  const chatClass = customClasses?.chat || 'str-chat';
+  const channelClass = customClasses?.channel || 'str-chat-channel';
+  const windowsEmojiClass =
+    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
+      ? ' str-chat--windows-flags'
+      : '';
+
   if (state.error) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingErrorIndicator error={state.error} />
       </div>
     );
@@ -878,7 +890,7 @@ const ChannelInner = <
 
   if (state.loading) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingIndicator size={25} />
       </div>
     );
@@ -886,20 +898,14 @@ const ChannelInner = <
 
   if (!channel?.watch) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <div>{t('Channel Missing')}</div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`str-chat str-chat-channel ${theme}${
-        useImageFlagEmojisOnWindows && navigator.platform.match(/Win/)
-          ? ' str-chat--windows-flags'
-          : ''
-      }`}
-    >
+    <div className={`${chatClass} ${channelClass} ${theme} ${windowsEmojiClass}`}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>

@@ -11,6 +11,7 @@ import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
 
+import type { StreamMessage } from '../../context/ChannelStateContext';
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -21,9 +22,18 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type MessageTextProps = {
+export type MessageTextProps<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
   customInnerClass?: string;
   customWrapperClass?: string;
+  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   theme?: string;
 };
 
@@ -36,9 +46,14 @@ const UnMemoizedMessageTextComponent = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: MessageTextProps,
+  props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { customInnerClass, customWrapperClass = '', theme = 'simple' } = props;
+  const {
+    customInnerClass,
+    customWrapperClass = '',
+    message: propMessage,
+    theme = 'simple',
+  } = props;
 
   const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
     At,
@@ -51,7 +66,7 @@ const UnMemoizedMessageTextComponent = <
   >();
 
   const {
-    message,
+    message: contextMessage,
     onMentionsClickMessage,
     onMentionsHoverMessage,
     renderText = defaultRenderText,
@@ -61,6 +76,8 @@ const UnMemoizedMessageTextComponent = <
   const { t, userLanguage } = useTranslationContext();
 
   const { handleMobilePress } = useMobilePress();
+
+  const message = propMessage || contextMessage;
 
   const hasAttachment = messageHasAttachments(message);
 
@@ -76,7 +93,7 @@ const UnMemoizedMessageTextComponent = <
   const innerClass =
     customInnerClass || `str-chat__message-text-inner str-chat__message-${theme}-text-inner`;
 
-  if (!messageTextToRender) return null;
+  if (!messageTextToRender && !message.quoted_message) return null;
 
   return (
     <div className={wrapperClass}>

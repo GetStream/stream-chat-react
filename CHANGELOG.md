@@ -1,5 +1,172 @@
 # Changelog
 
+## [6.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.2) 2021-09-15
+
+### Feature
+
+- Add optional `allowNewMessagesFromUnfilteredChannels` argument to `useNotificationMessageNewListener` and `useNotificationAddedToChannelListener` hooks to prevent channel from incrementing the list [#1175](https://github.com/GetStream/stream-chat-react/pull/1175)
+
+### Bug
+
+- Fix issue with autocomplete mentions displaying muted users [#1171](https://github.com/GetStream/stream-chat-react/pull/1171)
+- Prevent user mention edge case crash [#1172](https://github.com/GetStream/stream-chat-react/pull/1172)
+- Fix reaction handler edge case on mobile web use case [#1173](https://github.com/GetStream/stream-chat-react/pull/1173)
+- Add missing default value for `publishTypingEvent` `MessageInput` prop [#1174](https://github.com/GetStream/stream-chat-react/pull/1174)
+
+## [6.7.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.1) 2021-09-14
+
+### Bug
+
+- Prevent custom message data from being deleted on edit message request [#1169](https://github.com/GetStream/stream-chat-react/pull/1169)
+- Fix issue with autocomplete mentions displaying muted users [#1170](https://github.com/GetStream/stream-chat-react/pull/1170)
+
+## [6.7.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.0) 2021-09-10
+
+### Feature
+
+- Add ability to override high-level, CSS container classes via the `customClasses` prop on `Chat` [#1159](https://github.com/GetStream/stream-chat-react/pull/1159). See the [docs](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#custom-container-classes) for more information.
+- Allow custom message actions in the `VirtualizedMessageList` [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- While using the `MessageSimple` UI component, allow message grouping in the `VirtualizedMessageList` via the `shouldGroupByUser` prop [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- Add ability to customize the svg icons in the `MessageOptions` component [#1159](https://github.com/GetStream/stream-chat-react/pull/1159)
+- Create a Capacitor sample app to test run the library natively [#1158](https://github.com/GetStream/stream-chat-react/pull/1158)
+
+### Bug
+
+- Fix edge case around custom message actions not showing up when default actions are disabled [#1161](https://github.com/GetStream/stream-chat-react/pull/1161)
+
+## [6.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.6.0) 2021-08-30
+
+### Feature
+
+- Add optimistic response to pin message request [#1149](https://github.com/GetStream/stream-chat-react/pull/1149)
+- Add option to close `ReactionSelector` component on reaction pick [#1150](https://github.com/GetStream/stream-chat-react/pull/1150)
+
+### Chore
+
+- Improve `ChannelSearch` types for channel and user filters [#1141](https://github.com/GetStream/stream-chat-react/pull/1141)
+- Remove unnecessary `useMessageInputState` props [#1145](https://github.com/GetStream/stream-chat-react/pull/1145)
+- Upgrade `react-virtuoso` dependency [#1148](https://github.com/GetStream/stream-chat-react/pull/1148)
+- Add Rollup image plugin and upgrade `react-file-utils` [#1151](https://github.com/GetStream/stream-chat-react/pull/1151)
+
+### Bug
+
+- Hide URL link overflow in `MessageSimple` [#1147](https://github.com/GetStream/stream-chat-react/pull/1147)
+
+## [6.5.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.1) 2021-08-13
+
+### Feature
+
+- Add option to pass `customMessageData` to the `ChannelActionContext` `sendMessage` function [#1123](https://github.com/GetStream/stream-chat-react/pull/1123)
+
+### Chore
+
+- Add support to quote a message with an attachment [#1118](https://github.com/GetStream/stream-chat-react/pull/1118)
+- Upgrade `stream-chat` to major version 4 [#1120](https://github.com/GetStream/stream-chat-react/pull/1120)
+
+### Bug
+
+- Skip `MessageInput` slow mode cooldown for admin and moderator user roles [#1116](https://github.com/GetStream/stream-chat-react/pull/1116)
+
+## [6.5.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.5.0) 2021-08-11
+
+### Feature
+
+- Add `defaultItemHeight` prop to `VirtualizedMessageList` to smooth rendering of long and differently sized lists. Also, prevent new message notification icon from flashing when switching channels. [#1112](https://github.com/GetStream/stream-chat-react/pull/1112)
+
+### Chore
+
+- Improve `EmojiContext` types and documentation [#1107](https://github.com/GetStream/stream-chat-react/pull/1107)
+- Adjust `Attachment` component rendering in Message UI components for cases with no attachment array length [#1115](https://github.com/GetStream/stream-chat-react/pull/1115)
+
+## [6.4.11](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.11) 2021-08-06
+
+### Chore
+
+- Upgrade `react-virtuoso` for tall last message edge case [#1102](https://github.com/GetStream/stream-chat-react/pull/1102)
+- Upgrade `stream-chat` and example app dependencies  [#1103](https://github.com/GetStream/stream-chat-react/pull/1103)
+
+## [6.4.10](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.10) 2021-08-05
+
+### Feature
+
+- Clear message input text prior to successful message response and revert to original text if request fails [#1097](https://github.com/GetStream/stream-chat-react/pull/1097)
+
+### Chore
+
+- Update Japanese and Korean translations [#1091](https://github.com/GetStream/stream-chat-react/pull/1091) and [#1099](https://github.com/GetStream/stream-chat-react/pull/1099)
+- Prevent `Avatar` component from being able to render its name as a number  [#1097](https://github.com/GetStream/stream-chat-react/pull/1097)
+
+### Bug
+
+- Fix logic to show input send button on breakpoint change to mobile/tablet views [#1095](https://github.com/GetStream/stream-chat-react/pull/1095)
+
+## [6.4.9](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.9) 2021-08-02
+
+### Feature
+
+- Add `defaultLanguage` prop to `Chat` component to specify fallback language for translation of UI components [#1086](https://github.com/GetStream/stream-chat-react/pull/1086)
+
+### Chore
+- Optimize `VirtualizedMessageList` message grouping and rendering logic [#1088](https://github.com/GetStream/stream-chat-react/pull/1088)
+
+## [6.4.8](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.8) 2021-07-30
+
+### Feature
+
+- Add `SearchInput` UI prop to `ChannelSearch` component to override/extend default HTML `input` element [#1079](https://github.com/GetStream/stream-chat-react/pull/1079)
+- Detect connected user's preferred language for translation when language not set by `Streami18n` instance [#1082](https://github.com/GetStream/stream-chat-react/pull/1082)
+- Add Japanese and Korean to list of supported languages for auto translation [#1085](https://github.com/GetStream/stream-chat-react/pull/1085)
+
+## [6.4.7](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.7) 2021-07-27
+
+### Feature
+
+- Add the ability to open/close list of available commands on click [#1072](https://github.com/GetStream/stream-chat-react/pull/1072)
+- Add the ability to set custom active channel on mount even if it's not returned in the initial `queryChannels` response [#1078](https://github.com/GetStream/stream-chat-react/pull/1078)
+
+### Chore
+
+- Replace `replaceAll` method with `replace` and add global flag for older browser support [#1074](https://github.com/GetStream/stream-chat-react/pull/1074)
+- Adjust `VirtualizedMessageList` CSS to support `MessageSimple` [#1075](https://github.com/GetStream/stream-chat-react/pull/1075)
+
+## [6.4.6](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.6) 2021-07-23
+
+### Chore
+
+- Add error handling to `MessageInput` submit handler functions [#1068](https://github.com/GetStream/stream-chat-react/pull/1068)
+- Upgrade `react-images` dependency for React 17 support [#1069](https://github.com/GetStream/stream-chat-react/pull/1069)
+
+## [6.4.5](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.5) 2021-07-21
+
+### Feature
+
+- Provide option to use `VirtualizedMessageList` in `Thread` component via the `virtualized` boolean prop [#1065](https://github.com/GetStream/stream-chat-react/pull/1065)
+
+### Chore
+
+- Pass `message` object override prop to `MessageText` component [#1063](https://github.com/GetStream/stream-chat-react/pull/1063)
+- Add fallback `name` for specific rendered `Avatar` components [#1066](https://github.com/GetStream/stream-chat-react/pull/1066)
+
+## [6.4.4](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.4) 2021-07-20
+
+### Bug
+
+- Fix bundle issues with dependency CSS imports [#1061](https://github.com/GetStream/stream-chat-react/pull/1061)
+
+## [6.4.3](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.3) 2021-07-20
+
+### Feature
+
+- Reload `ChannelList` component when `sort` prop changes [#1054](https://github.com/GetStream/stream-chat-react/pull/1054)
+
+### Chore
+
+- Add repo info to NPM page [#1051](https://github.com/GetStream/stream-chat-react/pull/1051)
+- Export `MML` component [#1053](https://github.com/GetStream/stream-chat-react/pull/1053)
+- Upgrade `react-virtuoso` dependency [#1057](https://github.com/GetStream/stream-chat-react/pull/1057)
+- Revert removal of `EmptyStateIndicator` component for threads [#1058](https://github.com/GetStream/stream-chat-react/pull/1058)
+- Move `mml-react` (optional dependency) CSS import to `MML` component [#1059](https://github.com/GetStream/stream-chat-react/pull/1059)
+
 ## [6.4.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.4.2) 2021-07-14
 
 ### Feature

@@ -14,6 +14,8 @@ import {
   triggerPropsCheck,
 } from './utils';
 
+import { CommandItem } from '../CommandItem/CommandItem';
+
 export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
     closeOnClickOutside: true,
@@ -202,8 +204,10 @@ export class ReactTextareaAutocomplete extends React.Component {
   };
 
   _onSelect = (newToken) => {
-    const { onChange } = this.props;
-    const { currentTrigger, selectionEnd, value: textareaValue } = this.state;
+    const { closeCommandsList, onChange, showCommandsList } = this.props;
+    const { currentTrigger: stateTrigger, selectionEnd, value: textareaValue } = this.state;
+
+    const currentTrigger = showCommandsList ? '/' : stateTrigger;
 
     if (!currentTrigger) return;
 
@@ -223,7 +227,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       }
     };
 
-    const textToModify = textareaValue.slice(0, selectionEnd);
+    const textToModify = showCommandsList ? '/' : textareaValue.slice(0, selectionEnd);
 
     const startOfTokenPosition = textToModify.lastIndexOf(currentTrigger);
 
@@ -237,12 +241,13 @@ export class ReactTextareaAutocomplete extends React.Component {
     );
 
     const modifiedText = textToModify.substring(0, startOfTokenPosition) + newTokenString;
+    const valueToReplace = textareaValue.replace(textToModify, modifiedText);
 
     // set the new textarea value and after that set the caret back to its position
     this.setState(
       {
         dataLoading: false,
-        value: textareaValue.replace(textToModify, modifiedText),
+        value: valueToReplace,
       },
       () => {
         // fire onChange event after successful selection
@@ -254,11 +259,14 @@ export class ReactTextareaAutocomplete extends React.Component {
       },
     );
     this._closeAutocomplete();
+    closeCommandsList();
   };
 
-  _getItemOnSelect = () => {
-    const { currentTrigger } = this.state;
-    const triggerSettings = this._getCurrentTriggerSettings();
+  _getItemOnSelect = (paramTrigger) => {
+    const { currentTrigger: stateTrigger } = this.state;
+    const triggerSettings = this._getCurrentTriggerSettings(paramTrigger);
+
+    const currentTrigger = paramTrigger || stateTrigger;
 
     if (!currentTrigger || !triggerSettings) return null;
 
@@ -279,9 +287,11 @@ export class ReactTextareaAutocomplete extends React.Component {
     };
   };
 
-  _getTextToReplace = () => {
-    const { actualToken, currentTrigger } = this.state;
-    const triggerSettings = this._getCurrentTriggerSettings();
+  _getTextToReplace = (paramTrigger) => {
+    const { actualToken, currentTrigger: stateTrigger } = this.state;
+    const triggerSettings = this._getCurrentTriggerSettings(paramTrigger);
+
+    const currentTrigger = paramTrigger || stateTrigger;
 
     if (!currentTrigger || !triggerSettings) return null;
 
@@ -312,7 +322,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           };
         }
 
-        if (!textToReplace.text) {
+        if (!textToReplace.text && currentTrigger !== ':') {
           throw new Error(
             `Output "text" is not defined! Object should has shape {text: string, caretPosition: string | number}. Check the implementation for trigger "${currentTrigger}" and its token "${actualToken}"\n`,
           );
@@ -338,8 +348,10 @@ export class ReactTextareaAutocomplete extends React.Component {
     };
   };
 
-  _getCurrentTriggerSettings = () => {
-    const { currentTrigger } = this.state;
+  _getCurrentTriggerSettings = (paramTrigger) => {
+    const { currentTrigger: stateTrigger } = this.state;
+
+    const currentTrigger = paramTrigger || stateTrigger;
 
     if (!currentTrigger) return null;
 
@@ -390,8 +402,10 @@ export class ReactTextareaAutocomplete extends React.Component {
     });
   };
 
-  _getSuggestions = () => {
-    const { currentTrigger, data } = this.state;
+  _getSuggestions = (paramTrigger) => {
+    const { currentTrigger: stateTrigger, data } = this.state;
+
+    const currentTrigger = paramTrigger || stateTrigger;
 
     if (!currentTrigger || !data || (data && !data.length)) return null;
 
@@ -438,6 +452,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     const notSafe = [
       'additionalTextareaProps',
       'className',
+      'closeCommandsList',
       'closeOnClickOutside',
       'containerClassName',
       'containerStyle',
@@ -462,6 +477,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'showCommandsList',
       'SuggestionItem',
       'SuggestionList',
       'trigger',
@@ -619,6 +635,44 @@ export class ReactTextareaAutocomplete extends React.Component {
     scrollToItem(this.dropdownRef, item);
   };
 
+  getTriggerProps = () => {
+    const { showCommandsList, trigger } = this.props;
+    const { component, currentTrigger, selectionEnd, value } = this.state;
+
+    const selectedItem = this._getItemOnSelect();
+    const suggestionData = this._getSuggestions();
+    const textToReplace = this._getTextToReplace();
+
+    const triggerProps = {
+      component,
+      currentTrigger,
+      getSelectedItem: selectedItem,
+      getTextToReplace: textToReplace,
+      selectionEnd,
+      value,
+      values: suggestionData,
+    };
+
+    if (showCommandsList && trigger['/']) {
+      let currentCommands;
+      const getCommands = trigger['/'].dataProvider;
+
+      getCommands?.('', '/', (data) => {
+        currentCommands = data;
+      });
+
+      triggerProps.component = CommandItem;
+      triggerProps.currentTrigger = '/';
+      triggerProps.getTextToReplace = this._getTextToReplace('/');
+      triggerProps.getSelectedItem = this._getItemOnSelect('/');
+      triggerProps.selectionEnd = 1;
+      triggerProps.value = '/';
+      triggerProps.values = currentCommands;
+    }
+
+    return triggerProps;
+  };
+
   renderSuggestionListContainer() {
     const {
       disableMentions,
@@ -631,16 +685,12 @@ export class ReactTextareaAutocomplete extends React.Component {
       SuggestionList = DefaultSuggestionList,
     } = this.props;
 
-    const { component, currentTrigger, dataLoading, value } = this.state;
-
-    const selectedItem = this._getItemOnSelect();
-    const suggestionData = this._getSuggestions();
-    const textToReplace = this._getTextToReplace();
+    const triggerProps = this.getTriggerProps();
 
     if (
-      (dataLoading || suggestionData) &&
-      currentTrigger &&
-      !(disableMentions && currentTrigger === '@')
+      triggerProps.values &&
+      triggerProps.currentTrigger &&
+      !(disableMentions && triggerProps.currentTrigger === '@')
     ) {
       return (
         <div
@@ -650,26 +700,19 @@ export class ReactTextareaAutocomplete extends React.Component {
           }}
           style={dropdownStyle}
         >
-          {component && suggestionData && textToReplace && (
-            <SuggestionList
-              className={listClassName}
-              component={component}
-              currentTrigger={currentTrigger}
-              dropdownScroll={this._dropdownScroll}
-              getSelectedItem={selectedItem}
-              getTextToReplace={textToReplace}
-              itemClassName={itemClassName}
-              itemStyle={itemStyle}
-              onSelect={this._onSelect}
-              selectionEnd={this.state.selectionEnd}
-              SuggestionItem={SuggestionItem}
-              value={value}
-              values={suggestionData}
-            />
-          )}
+          <SuggestionList
+            className={listClassName}
+            dropdownScroll={this._dropdownScroll}
+            itemClassName={itemClassName}
+            itemStyle={itemStyle}
+            onSelect={this._onSelect}
+            SuggestionItem={SuggestionItem}
+            {...triggerProps}
+          />
         </div>
       );
     }
+
     return null;
   }
 

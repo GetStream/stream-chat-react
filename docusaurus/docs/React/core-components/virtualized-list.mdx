@@ -60,7 +60,25 @@ const customMessages = [
 </Chat>;
 ```
 
+## Scroll Behavior Optimization
+
+By default, the virtualized message list uses the latest message (which gets rendered first) in the list as the default item size.
+This can lead to inaccurate scroll thumb size or scroll jumps if the last item is unusually tall (for example, an attachment).
+To improve this behavior, set the `defaultItemHeight` property to a value close (or equal to) the height of the usual messages.
+
+```jsx
+<VirtualizedMessageList messages={customMessages} defaultItemHeight={76} />
+```
+
 ## Props
+
+### closeReactionSelectorOnClick
+
+If true, picking a reaction from the `ReactionSelector` component will close the selector.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### customMessageRenderer
 
@@ -70,6 +88,14 @@ Custom message render function, overrides the default `messageRenderer` function
 | ------------------------------------------------------------------ |
 | ( messages: StreamMessage[], index: number ) => React.ReactElement |
 
+### defaultItemHeight
+
+If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance.
+
+| Type   |
+| ------ |
+| number |
+
 ### disableDateSeparator
 
 If true, disables the injection of date separator UI components.
@@ -77,6 +103,14 @@ If true, disables the injection of date separator UI components.
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+### hasMore
+
+Whether or not the list has more items to load.
+
+| Type    | Default                                                                              |
+| ------- | ------------------------------------------------------------------------------------ |
+| boolean | [ChannelStateContextValue['hasMore']](../contexts/channel-state-context.mdx#hasmore) |
 
 ### hideDeletedMessages
 
@@ -93,6 +127,14 @@ If true, hides the `DateSeparator` component that renders when new messages are 
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### loadingMore
+
+Whether or not the list is currently loading more items.
+
+| Type    | Default                                                                                      |
+| ------- | -------------------------------------------------------------------------------------------- |
+| boolean | [ChannelStateContextValue['loadingMore']](../contexts/channel-state-context.mdx#loadingmore) |
 
 ### loadMore
 
@@ -150,7 +192,7 @@ If true, the list will scroll to the latest message when the window regains focu
 | ------- | ------- |
 | boolean | false   |
 
-### scrollToLatestMessageOnFocus
+### shouldGroupByUser
 
 If true, group messages belonging to the same user, otherwise show each message individually.
 
@@ -174,3 +216,11 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | Type               | Default  |
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
+
+### threadList
+
+If true, indicates that the current `VirtualizedMessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

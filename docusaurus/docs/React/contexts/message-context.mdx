@@ -59,6 +59,22 @@ If true, the message toggles to an editing state.
 | ------- | ------- |
 | boolean | false   |
 
+### endOfGroup
+
+When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
+
+### firstOfGroup
+
+When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
+
 ### formatDate
 
 Overrides the default date formatting logic, has access to the original date object.
@@ -74,6 +90,14 @@ Function that returns an array of the allowed actions on a message by the curren
 | Type                      |
 | ------------------------- |
 | () => MessageActionsArray |
+
+### groupedByUser
+
+If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### groupStyles
 

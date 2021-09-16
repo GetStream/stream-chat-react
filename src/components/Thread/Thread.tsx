@@ -1,12 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 
+import { FixedHeightMessage } from '../Message/FixedHeightMessage';
 import { Message } from '../Message/Message';
 import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
 import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
 import { MessageList, MessageListProps } from '../MessageList/MessageList';
+import {
+  VirtualizedMessageList,
+  VirtualizedMessageListProps,
+} from '../MessageList/VirtualizedMessageList';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -39,6 +45,8 @@ export type ThreadProps<
   additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
   additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
+  /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
+  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
   /** Display the thread on 100% width of its parent container. Useful for mobile style view */
@@ -47,6 +55,8 @@ export type ThreadProps<
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
   Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
+  virtualized?: boolean;
 };
 
 /**
@@ -152,10 +162,12 @@ const ThreadInner = <
     additionalMessageInputProps,
     additionalMessageListProps,
     additionalParentMessageProps,
+    additionalVirtualizedMessageListProps,
     autoFocus = true,
     fullWidth = false,
     Input: PropInput,
     Message: PropMessage,
+    virtualized,
   } = props;
 
   const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
@@ -168,18 +180,24 @@ const ThreadInner = <
     Us
   >();
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
+    VirtualMessage = FixedHeightMessage,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messageList = useRef<HTMLDivElement | null>(null);
 
   const ThreadInput =
     PropInput || additionalMessageInputProps?.Input || ContextInput || MessageInputSmall;
-  const ThreadMessage = PropMessage || additionalMessageListProps?.Message || ContextMessage;
+
+  const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
+  const FallbackMessage = virtualized ? VirtualMessage : ContextMessage;
+
+  const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
   useEffect(() => {
     if (thread?.id && thread?.reply_count) {
@@ -200,29 +218,31 @@ const ThreadInner = <
 
   if (!thread) return null;
 
+  const threadClass = customClasses?.thread || 'str-chat__thread';
+
   return (
-    <div className={`str-chat__thread ${fullWidth ? 'str-chat__thread--full' : ''}`}>
+    <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           initialMessage
           message={thread}
-          Message={ThreadMessage}
+          Message={ThreadMessage || FallbackMessage}
           threadList
           {...additionalParentMessageProps}
         />
         <ThreadStart />
-        <MessageList
+        <ThreadMessageList
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}
           loadMore={loadMoreThread}
-          Message={ThreadMessage}
+          Message={ThreadMessage || FallbackMessage}
           messages={threadMessages || []}
           threadList
-          {...additionalMessageListProps}
+          {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
         />
       </div>
-      <MessageInput<At, Ch, Co, Ev, Me, Re, Us, V>
+      <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
         parent={thread}

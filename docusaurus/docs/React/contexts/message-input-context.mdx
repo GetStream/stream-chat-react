@@ -54,6 +54,14 @@ Function to clear the editing state while editing a message.
 | ---------- |
 | () => void |
 
+### closeCommandsList
+
+Function to manually close the list of supported slash commands.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### closeEmojiPicker
 
 Function to close the `EmojiPicker` component.
@@ -194,9 +202,9 @@ Opens the `EmojiPicker` component on Enter or Spacebar key down.
 
 Function that runs onSubmit to the underlying `textarea` component.
 
-| Type                                      |
-| ----------------------------------------- |
-| (event: React.BaseSyntheticEvent) => void |
+| Type                                                                  |
+| --------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent, customMessageData?: Message) => void |
 
 ### imageOrder
 
@@ -329,6 +337,14 @@ Function that runs on select of a user in the suggestion list following an @ment
 | ---------------------------- |
 | (item: UserResponse) => void |
 
+### openCommandsList
+
+Function to manually open the list of supported slash commands.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### openEmojiPicker
 
 Function to open the `EmojiPicker` component.
@@ -384,6 +400,14 @@ React state hook function that sets the `cooldownRemaining` value.
 | Type                                          |
 | --------------------------------------------- |
 | React.Dispatch<React.SetStateAction<number\>> |
+
+### showCommandsList
+
+If true, show the list of supported slash commands above the text input.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### text
 

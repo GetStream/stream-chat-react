@@ -19,8 +19,7 @@ import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSepa
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { FixedHeightMessage, FixedHeightMessageProps } from '../Message/FixedHeightMessage';
-import { Message } from '../Message/Message';
+import { Message, MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
 
 import {
   ChannelActionContextValue,
@@ -57,7 +56,6 @@ type VirtualizedMessageListWithContextProps<
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   hasMore: boolean;
   loadingMore: boolean;
-  userId: string;
 };
 
 const VirtualizedMessageListWithContext = <
@@ -73,7 +71,9 @@ const VirtualizedMessageListWithContext = <
 ) => {
   const {
     channel,
+    closeReactionSelectorOnClick,
     customMessageRenderer,
+    defaultItemHeight,
     disableDateSeparator = true,
     hasMore,
     hideDeletedMessages = false,
@@ -90,7 +90,6 @@ const VirtualizedMessageListWithContext = <
     separateGiphyPreview = false,
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
-    userId,
   } = props;
 
   const {
@@ -101,9 +100,10 @@ const VirtualizedMessageListWithContext = <
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
     TypingIndicator = null,
-    VirtualMessage: contextMessage = FixedHeightMessage,
+    VirtualMessage: contextMessage = MessageSimple,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
 
+  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext();
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
@@ -142,7 +142,7 @@ const VirtualizedMessageListWithContext = <
       messages,
       separateGiphyPreview,
       setGiphyPreviewMessage,
-      userId,
+      userId: client.userID || '',
     });
   }, [
     disableDateSeparator,
@@ -151,7 +151,7 @@ const VirtualizedMessageListWithContext = <
     lastRead,
     messages,
     messages?.length,
-    userId,
+    client.userID,
   ]);
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -160,7 +160,7 @@ const VirtualizedMessageListWithContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(processedMessages, userId);
+  } = useNewMessageNotification(processedMessages, client.userID);
 
   const scrollToBottom = useCallback(() => {
     if (virtuoso.current) {
@@ -189,7 +189,7 @@ const VirtualizedMessageListWithContext = <
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
 
-  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, userId);
+  const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
 
   const followOutput = (isAtBottom: boolean) => {
     if (shouldForceScrollToBottom()) {
@@ -219,18 +219,31 @@ const VirtualizedMessageListWithContext = <
         return <MessageSystem message={message} />;
       }
 
+      const groupedByUser =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id === messageList[streamMessageIndex - 1].user?.id;
+
+      const firstOfGroup =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+
+      const endOfGroup =
+        shouldGroupByUser &&
+        streamMessageIndex > 0 &&
+        message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+
       return (
         <Message
+          closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+          customMessageActions={props.customMessageActions}
+          endOfGroup={endOfGroup}
+          firstOfGroup={firstOfGroup}
+          groupedByUser={groupedByUser}
           message={message}
-          Message={() => (
-            <MessageUIComponent
-              groupedByUser={
-                shouldGroupByUser &&
-                streamMessageIndex > 0 &&
-                message.user?.id === messageList[streamMessageIndex - 1].user?.id
-              }
-            />
-          )}
+          Message={MessageUIComponent}
+          messageActions={props.messageActions}
         />
       );
     },
@@ -251,10 +264,11 @@ const VirtualizedMessageListWithContext = <
         <></>
       );
 
+    const virtualMessageClass =
+      customClasses?.virtualMessage || 'str-chat__virtual-list-message-wrapper';
+
     // using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => (
-      <div {...props} className='str-chat__virtual-list-message-wrapper' />
-    );
+    const Item: Components['Item'] = (props) => <div {...props} className={virtualMessageClass} />;
 
     const Footer: Components['Footer'] = () =>
       TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
@@ -282,9 +296,12 @@ const VirtualizedMessageListWithContext = <
 
   if (!processedMessages) return null;
 
+  const virtualizedMessageListClass =
+    customClasses?.virtualizedMessageList || 'str-chat__virtual-list';
+
   return (
     <>
-      <div className='str-chat__virtual-list'>
+      <div className={virtualizedMessageListClass}>
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
           components={virtuosoComponents}
@@ -298,6 +315,7 @@ const VirtualizedMessageListWithContext = <
           style={{ overflowX: 'hidden' }}
           totalCount={processedMessages.length}
           {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
+          {...(defaultItemHeight ? { defaultItemHeight } : {})}
         />
         <div className='str-chat__list-notifications'>
           <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
@@ -318,22 +336,32 @@ export type VirtualizedMessageListProps<
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
-> = {
+> = Partial<
+  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'customMessageActions' | 'messageActions'>
+> & {
+  /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer?: (
     messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
     index: number,
   ) => React.ReactElement;
+  /** If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance */
+  defaultItemHeight?: number;
   /** Disables the injection of date separator components, defaults to `true` */
   disableDateSeparator?: boolean;
+  /** Whether or not the list has more items to load */
+  hasMore?: boolean;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
+  /** Whether or not the list is currently loading more items */
+  loadingMore?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  loadMore?: ChannelActionContextValue['loadMore'];
+  loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
-  Message?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
@@ -363,6 +391,8 @@ export type VirtualizedMessageListProps<
   shouldGroupByUser?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
+  /** If true, indicates the message list is a thread  */
+  threadList?: boolean;
 };
 
 /**
@@ -390,7 +420,6 @@ export function VirtualizedMessageList<
     Re,
     Us
   >();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   const messages = props.messages || contextMessages;
 
@@ -401,7 +430,6 @@ export function VirtualizedMessageList<
       loadingMore={!!loadingMore}
       loadMore={loadMore}
       messages={messages}
-      userId={client.userID || ''}
       {...props}
     />
   );

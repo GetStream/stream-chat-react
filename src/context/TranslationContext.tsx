@@ -14,6 +14,25 @@ import type { UnknownType } from '../types/types';
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
 
+export type SupportedTranslations =
+  | 'de'
+  | 'en'
+  | 'es'
+  | 'fr'
+  | 'hi'
+  | 'it'
+  | 'ja'
+  | 'ko'
+  | 'nl'
+  | 'pt'
+  | 'ru'
+  | 'tr';
+
+export const isLanguageSupported = (language: string): language is SupportedTranslations => {
+  const translations = ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'];
+  return translations.some((translation) => language === translation);
+};
+
 export const isDayOrMoment = (output: TDateTimeParserOutput): output is Dayjs.Dayjs | Moment =>
   (output as Dayjs.Dayjs | Moment).isSame != null;
 

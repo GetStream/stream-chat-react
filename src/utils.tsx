@@ -190,7 +190,10 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
     const displayLink = type === 'email' ? value : value.replace(detectHttp, '');
 
-    newText = newText.replaceAll(value, `[${displayLink}](${encodeURI(href)})`);
+    newText = newText.replace(
+      new RegExp(escapeRegExp(value), 'g'),
+      `[${displayLink}](${encodeURI(href)})`,
+    );
   });
 
   const plugins = [emojiMarkdownPlugin];

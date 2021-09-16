@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import Dayjs from 'dayjs';
 
+import {
+  isLanguageSupported,
+  SupportedTranslations,
+  TranslationContextValue,
+} from '../../../context/TranslationContext';
 import { Streami18n } from '../../../i18n';
 import { version } from '../../../version';
 
 import type { Channel, Event, Mute, StreamChat } from 'stream-chat';
-
-import type { TranslationContextValue } from '../../../context/TranslationContext';
 
 import type {
   DefaultAttachmentType,
@@ -28,6 +31,7 @@ export type UseChatParams<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
   initialNavOpen?: boolean;
 };
@@ -42,6 +46,7 @@ export const useChat = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >({
   client,
+  defaultLanguage = 'en',
   i18nInstance,
   initialNavOpen,
 }: UseChatParams<At, Ch, Co, Ev, Me, Re, Us>) => {
@@ -76,32 +81,32 @@ export const useChat = <
     setMutes(clientMutes || []);
 
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (event.type === 'notification.mutes_updated') setMutes(event.me?.mutes || []);
+      setMutes(event.me?.mutes || []);
     };
 
-    if (client) client.on(handleEvent);
-    return () => {
-      if (client) {
-        client.off(handleEvent);
-      }
-    };
+    client.on('notification.mutes_updated', handleEvent);
+    return () => client.off('notification.mutes_updated', handleEvent);
   }, [client, clientMutes]);
 
   useEffect(() => {
-    const streami18n =
-      i18nInstance instanceof Streami18n ? i18nInstance : new Streami18n({ language: 'en' });
+    let userLanguage = client.user?.language;
+
+    if (!userLanguage) {
+      const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
+      userLanguage = isLanguageSupported(browserLanguage) ? browserLanguage : defaultLanguage;
+    }
+
+    const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
 
     streami18n.registerSetLanguageCallback((t) =>
       setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
     );
 
     streami18n.getTranslators().then((translator) => {
-      if (translator) {
-        setTranslators({
-          ...translator,
-          userLanguage: client?.user?.language || 'en',
-        });
-      }
+      setTranslators({
+        ...translator,
+        userLanguage: userLanguage || defaultLanguage,
+      });
     });
   }, [client, i18nInstance]);
 

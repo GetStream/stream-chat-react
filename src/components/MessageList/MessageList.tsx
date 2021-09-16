@@ -22,6 +22,7 @@ import {
   ChannelStateContextValue,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -131,6 +132,8 @@ const MessageListWithContext = <
     read,
   } = props;
 
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
@@ -165,6 +168,7 @@ const MessageListWithContext = <
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
+      closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       customMessageActions: props.customMessageActions,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
@@ -197,14 +201,13 @@ const MessageListWithContext = <
 
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
+  const messageListClass = customClasses?.messageList || 'str-chat__list';
+  const threadListClass = threadList ? customClasses?.threadList || 'str-chat__list--thread' : '';
+
   return (
     <>
-      <div
-        className={`str-chat__list ${threadList ? 'str-chat__list--thread' : ''}`}
-        onScroll={onScroll}
-        ref={listRef}
-      >
-        {!elements.length && !threadList ? (
+      <div className={`${messageListClass} ${threadListClass}`} onScroll={onScroll} ref={listRef}>
+        {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
@@ -232,6 +235,7 @@ const MessageListWithContext = <
 
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
+  | 'closeReactionSelectorOnClick'
   | 'customMessageActions'
   | 'disableQuotedMessages'
   | 'formatDate'
@@ -289,7 +293,7 @@ export type MessageListProps<
   returnAllReadData?: boolean;
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
-  /** Set to `true` to indicate that the list is a thread  */
+  /** If true, indicates the message list is a thread  */
   threadList?: boolean;
 };
 
