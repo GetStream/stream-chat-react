@@ -4,7 +4,15 @@ import { MessageInput, MessageList, useChatContext, Window } from 'stream-chat-r
 
 import { NewChat } from '../NewChat/NewChat';
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
-import { SocialAttachmentType, SocialChannelType, SocialCommandType, SocialEventType, SocialMessageType, SocialReactionType, SocialUserType } from '../ChatContainer/ChatContainer';
+import {
+  SocialAttachmentType,
+  SocialChannelType,
+  SocialCommandType,
+  SocialEventType,
+  SocialMessageType,
+  SocialReactionType,
+  SocialUserType,
+} from '../ChatContainer/ChatContainer';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -23,9 +31,13 @@ export const ChannelContainer: React.FC = () => {
     SocialUserType
   >();
 
-  console.log('channel as active cahnnel IS:', channel);
-
-  const { chatsUnreadCount, isNewChat, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
+  const {
+    chatsUnreadCount,
+    isNewChat,
+    mentionsUnreadCount,
+    setChatsUnreadCount,
+    setMentionsUnreadCount,
+  } = useViewContext();
 
   useEffect(() => {
     const handlerNewMessageEvent: EventHandler<
@@ -36,16 +48,14 @@ export const ChannelContainer: React.FC = () => {
       SocialMessageType,
       SocialReactionType,
       SocialUserType
-    >  = (event) => {
-      const { message, user} = event;
+    > = (event) => {
+      const { message, user } = event;
 
       if (user?.id !== client?.userID && channel?.cid !== message?.cid) {
         console.log('in the no channel');
         setChatsUnreadCount(chatsUnreadCount + 1);
 
-        const mentions = message?.mentioned_users?.filter(
-          (user) => user.id === client?.userID,
-        );
+        const mentions = message?.mentioned_users?.filter((user) => user.id === client?.userID);
 
         if (mentions?.length) {
           setMentionsUnreadCount(mentionsUnreadCount + 1);
