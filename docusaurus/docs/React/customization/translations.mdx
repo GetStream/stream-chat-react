@@ -4,8 +4,10 @@ sidebar_position: 5
 title: Translation and i18n
 ---
 
+import Diacritics from '../assets/Diacritics.png';
 import Localization1 from '../assets/Localization1.png';
 import Localization2 from '../assets/Localization2.png';
+import Transliteration from '../assets/Transliteration.png';
 
 The Stream Chat React component library uses the [`i18next`](https://www.npmjs.com/package/i18next) dependency to create a [`Streami18n`](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/Streami18n.ts)
 class constructor that handles language translation of our UI components. The Stream Chat API also supports automatic translation of
@@ -182,6 +184,14 @@ While machine translation is never perfect it can enable two users to communicat
 each other without speaking the same language. For more information, see the full guide
 to [adding automatic translation](https://getstream.io/chat/docs/react/translation/?language=javascript).
 
+## Diacritics and Transliteration
+
+Searching for users when utilizing the '@' mentions command supports diacritics and, optionally, transliteration using [Transliterate](https://github.com/sindresorhus/transliterate). To add transliteration to your search functionality with the external Transliterate
+library, use the `useMentionsTransliteration` prop in the `MessageInput`. This library is dynamically imported if the prop is true. Diacritics support is available by default.
+
+<img src={Diacritics} alt='Diacritics' width='700' />
+
+<img src={Transliteration} alt='Transliteration' width='700' />
 
 ## Streami18n API Reference
 

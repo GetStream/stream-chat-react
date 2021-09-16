@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
-import { searchLocalUsers } from './utils';
+import { SearchLocalUserParams, searchLocalUsers } from './utils';
 
 import { UserItem } from '../../UserItem/UserItem';
 
@@ -162,12 +162,14 @@ export const useUserTrigger = <
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
 
-        const matchingUsers = searchLocalUsers<Us>(
-          client.userID,
-          users,
+        const params: SearchLocalUserParams<Us> = {
+          ownUserId: client.userID,
           query,
           useMentionsTransliteration,
-        );
+          users,
+        };
+
+        const matchingUsers = searchLocalUsers<Us>(params);
 
         const usersToShow = mentionQueryParams.options?.limit || 10;
         const data = matchingUsers.slice(0, usersToShow);

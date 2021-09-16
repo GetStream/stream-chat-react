@@ -1,5 +1,4 @@
 import type { UserResponse } from 'stream-chat';
-// import transliterate from '@sindresorhus/transliterate';
 
 import type { DefaultUserType } from '../../../types/types';
 
@@ -55,12 +54,18 @@ export const calculateLevenshtein = (query: string, name: string) => {
   return matrix[name.length][query.length];
 };
 
+export type SearchLocalUserParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
+  ownUserId: string | undefined;
+  query: string;
+  users: UserResponse<Us>[];
+  useMentionsTransliteration?: boolean;
+};
+
 export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  ownUserId: string | undefined,
-  users: UserResponse<Us>[],
-  query: string,
-  useMentionsTransliteration?: boolean,
+  params: SearchLocalUserParams<Us>,
 ): UserResponse<Us>[] => {
+  const { ownUserId, query, useMentionsTransliteration, users } = params;
+
   const matchingUsers = users.filter((user) => {
     if (user.id === ownUserId) return false;
     if (!query) return true;
@@ -71,14 +76,14 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
     if (useMentionsTransliteration) {
       (async () => {
-        const { default: theDefault } = await import('@sindresorhus/transliterate');
-        updatedName = theDefault(user.name || '').toLowerCase();
-        updatedQuery = theDefault(query).toLowerCase();
-        updatedId = theDefault(user.id).toLowerCase();
+        const { default: transliterate } = await import('@sindresorhus/transliterate');
+        updatedName = transliterate(user.name || '').toLowerCase();
+        updatedQuery = transliterate(query).toLowerCase();
+        updatedId = transliterate(user.id).toLowerCase();
       })();
     }
 
-    if (updatedName !== undefined && updatedName.length) {
+    if (updatedName !== undefined) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
 
       if (updatedName.includes(updatedQuery) || levenshtein <= 3) return true;
@@ -86,7 +91,7 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
     const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
 
-    return updatedId?.includes(updatedQuery) || levenshtein <= 3;
+    return updatedId.includes(updatedQuery) || levenshtein <= 3;
   });
 
   return matchingUsers;
