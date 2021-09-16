@@ -105,6 +105,16 @@ export const ChannelPreview = <
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
+    const handleEvent = (event: Event) => {
+      if (!event.cid) return setUnread(0);
+      if (channel.cid === event.cid) setUnread(0);
+    };
+
+    client.on('notification.mark_read', handleEvent);
+    return () => client.off('notification.mark_read', handleEvent);
+  }, []);
+
+  useEffect(() => {
     if (isActive || muted) {
       setUnread(0);
     } else {

@@ -62,9 +62,9 @@ export type ChannelListProps<
   /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
   additionalChannelSearchProps?: ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>;
   /**
-   * When the client receives a `message.new` event, we automatically push that channel to the top of the list.
-   * If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
-   * and push it to the top of the list. You can disable this behavior by setting this prop
+   * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
+   * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
+   * `client.activeChannels` and push it to the top of the list. You can disable this behavior by setting this prop
    * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
@@ -270,8 +270,17 @@ const UnMemoizedChannelList = <
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
-  useNotificationMessageNewListener(setChannels, onMessageNew, setOffset);
-  useNotificationAddedToChannelListener(setChannels, onAddedToChannel);
+  useNotificationMessageNewListener(
+    setChannels,
+    onMessageNew,
+    setOffset,
+    allowNewMessagesFromUnfilteredChannels,
+  );
+  useNotificationAddedToChannelListener(
+    setChannels,
+    onAddedToChannel,
+    allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationRemovedFromChannelListener(setChannels, onRemovedFromChannel);
   useChannelDeletedListener(setChannels, onChannelDeleted);
   useChannelHiddenListener(setChannels, onChannelHidden);
