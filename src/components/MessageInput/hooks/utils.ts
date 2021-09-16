@@ -84,7 +84,7 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
       })();
     }
 
-    if (updatedName !== undefined) {
+    if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
 
       if (updatedName.includes(updatedQuery) || levenshtein <= 3) return true;
