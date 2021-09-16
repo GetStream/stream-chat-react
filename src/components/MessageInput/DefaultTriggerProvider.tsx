@@ -100,6 +100,7 @@ export const DefaultTriggerProvider = <
       mentionAllAppUsers: currentValue.mentionAllAppUsers,
       mentionQueryParams: currentValue.mentionQueryParams,
       onSelectUser: currentValue.onSelectUser,
+      useMentionsTransliteration: currentValue.useMentionsTransliteration,
     }),
   };
 

@@ -4,11 +4,11 @@
   "private": true,
   "dependencies": {
     "lottie-web": "^5.7.13",
-    "node-sass": "6.0.1",
     "react": "link:../../../node_modules/react",
     "react-dom": "link:../../../node_modules/react-dom",
     "react-scripts": "4.0.3",
-    "stream-chat": "4.0.0",
+    "sass": "^1.41.0",
+    "stream-chat": "4.2.0",
     "stream-chat-react": "link:../../../",
     "typescript": "4.3.5"
   },

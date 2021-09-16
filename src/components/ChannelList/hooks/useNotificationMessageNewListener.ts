@@ -32,18 +32,16 @@ export const useNotificationMessageNewListener = <
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
   setOffset?: React.Dispatch<React.SetStateAction<number>>,
+  allowNewMessagesFromUnfilteredChannels = true,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
   useEffect(() => {
     const handleEvent = async (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      // if new message, put move channel up
-      // get channel if not in state currently
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
-      } else if (event.channel?.type) {
+      } else if (allowNewMessagesFromUnfilteredChannels && event.channel?.type) {
         const channel = await getChannel(client, event.channel.type, event.channel.id);
-        // move channel to starting position
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }
 

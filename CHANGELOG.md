@@ -1,5 +1,39 @@
 # Changelog
 
+## [6.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.2) 2021-09-15
+
+### Feature
+
+- Add optional `allowNewMessagesFromUnfilteredChannels` argument to `useNotificationMessageNewListener` and `useNotificationAddedToChannelListener` hooks to prevent channel from incrementing the list [#1175](https://github.com/GetStream/stream-chat-react/pull/1175)
+
+### Bug
+
+- Fix issue with autocomplete mentions displaying muted users [#1171](https://github.com/GetStream/stream-chat-react/pull/1171)
+- Prevent user mention edge case crash [#1172](https://github.com/GetStream/stream-chat-react/pull/1172)
+- Fix reaction handler edge case on mobile web use case [#1173](https://github.com/GetStream/stream-chat-react/pull/1173)
+- Add missing default value for `publishTypingEvent` `MessageInput` prop [#1174](https://github.com/GetStream/stream-chat-react/pull/1174)
+
+## [6.7.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.1) 2021-09-14
+
+### Bug
+
+- Prevent custom message data from being deleted on edit message request [#1169](https://github.com/GetStream/stream-chat-react/pull/1169)
+- Fix issue with autocomplete mentions displaying muted users [#1170](https://github.com/GetStream/stream-chat-react/pull/1170)
+
+## [6.7.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.0) 2021-09-10
+
+### Feature
+
+- Add ability to override high-level, CSS container classes via the `customClasses` prop on `Chat` [#1159](https://github.com/GetStream/stream-chat-react/pull/1159). See the [docs](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#custom-container-classes) for more information.
+- Allow custom message actions in the `VirtualizedMessageList` [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- While using the `MessageSimple` UI component, allow message grouping in the `VirtualizedMessageList` via the `shouldGroupByUser` prop [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
+- Add ability to customize the svg icons in the `MessageOptions` component [#1159](https://github.com/GetStream/stream-chat-react/pull/1159)
+- Create a Capacitor sample app to test run the library natively [#1158](https://github.com/GetStream/stream-chat-react/pull/1158)
+
+### Bug
+
+- Fix edge case around custom message actions not showing up when default actions are disabled [#1161](https://github.com/GetStream/stream-chat-react/pull/1161)
+
 ## [6.6.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.6.0) 2021-08-30
 
 ### Feature

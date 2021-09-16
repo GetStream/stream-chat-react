@@ -76,7 +76,7 @@ export const useMessageListElements = <
     threadList,
   } = props;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
@@ -131,10 +131,11 @@ export const useMessageListElements = <
         }
 
         const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+        const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
         return (
           <li
-            className={`str-chat__li str-chat__li--${groupStyles}`}
+            className={messageClass}
             key={message.id || (message.created_at as string)}
             onLoadCapture={onMessageLoadCaptured}
           >
