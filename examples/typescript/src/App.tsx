@@ -37,7 +37,7 @@ const App = () => (
       <Window>
         <ChannelHeader />
         <MessageList />
-        <MessageInput focus />
+        <MessageInput useMentionsTransliteration focus />
       </Window>
       <Thread />
     </Channel>

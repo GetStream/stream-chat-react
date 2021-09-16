@@ -22,6 +22,7 @@ export const removeDiacritics = (text?: string) => {
 
 export const calculateLevenshtein = (query: string, name: string) => {
   if (query.length === 0) return name.length;
+  if (name.length === 0) return query.length;
 
   const matrix = [];
 
