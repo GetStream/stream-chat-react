@@ -92,6 +92,8 @@ export type MessageInputProps<
   parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
+  /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/sindresorhus/transliterate */
+  useMentionsTransliteration?: boolean;
 };
 
 const UnMemoizedMessageInput = <
