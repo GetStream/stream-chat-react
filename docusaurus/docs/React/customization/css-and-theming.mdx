@@ -9,15 +9,19 @@ import Theming2 from '../assets/Theming2.png';
 import Theming3 from '../assets/Theming3.png';
 
 While the components in the React Chat library come with basic styling, the look and feel can easily be adjusted to fit
-your specifications. For small and precise changes, individual CSS classes can be overridden. For larger, theme-related
-adjustments, the `Chat` component accepts a [`customStyles`](../core-components/chat.mdx#customstyles) prop which can toggle
-a large selection of CSS variables.
+your specifications. For small and precise changes, individual CSS classes can be overridden.
+
+For larger, theme-related adjustments, the `Chat` component accepts [`customStyles`](../core-components/chat.mdx#customstyles)
+and [`customClasses`](../core-components/chat.mdx#customclasses) props. The `customStyles` prop allows you to toggle
+a large selection of CSS variables and the `customClasses` prop allows you to provide your own classes that override the
+default container CSS.
 
 ## Overriding CSS
 
 To override pre-defined library styles, follow this simple process:
 
-- Import our bundled CSS into the file where you instantiate your chat application
+- Import our bundled CSS into the file where you instantiate your chat application. We maintain a separate repository, `stream-chat-css`,
+  which houses all of the SCSS files for the components.
 
 - Use the browser inspector or view the library code and locate default styles you wish to override
 
@@ -28,23 +32,74 @@ To override pre-defined library styles, follow this simple process:
 For example:
 
 ```jsx
-import 'stream-chat-react/dist/css/index.css';
+import 'stream-chat-css/dist/css/index.css';
 import './App.css';
 ```
 
 ## Importing scss Files
 
-As an alternative to importing our entire style sheet (perhaps, due to it's size), there's also the option to easily assemble only what you need by importing individual scss files. The imports should happen in the file where you instantiate your application.
+As an alternative to importing our entire style sheet (perhaps, due to it's size), there's also the option to easily assemble only
+what you need by importing individual scss files. The imports should happen in the file where you instantiate your application.
 
 Here's a complete [list of scss files](https://unpkg.com/browse/stream-chat-react@6.4.7/dist/scss/) broken down by size and with the
 option of filtering by SDK version.
 
 :::note
-If not importing our entire bundled CSS, individually importing the SDK's scss files is the better alternative to copy and pasting our stylesheets and then customizing that code in your application.
-The CSS in the library does change occasionally, and you want to keep up to date with these to ensure no problems arise by falling behind in important styling updates.
+If not importing our entire bundled CSS, individually importing the SDK's scss files is the better alternative to copy and pasting
+our stylesheets and then customizing that code in your application. The CSS in the library does change occasionally, and you want
+to keep up to date with these to ensure no problems arise by falling behind in important styling updates.
 :::
 
 ## Theming Your App
+
+### Custom Container Classes
+
+Many of the high level React components in the library come with predefined CSS container classes that inject basic display styling.
+To remove or replace these wrapper classes entirely, the `Chat` component takes a `customStyles` prop. This prop accepts a mapping
+of overridable container classnames.
+
+In the below example we will replace two of the default container classes, `str-chat` (maps to the `chat` key) and
+`str-chat-channel` (maps to the `channel`) key. Once replaced, add whatever styles you want in your own stylesheets.
+
+```tsx
+const customClasses: CustomClasses = {
+  chat: 'custom-chat-class',
+  channel: 'custom-channel-class',
+};
+
+const App = () => (
+  <Chat client={client} customClasses={customClasses}>
+    <ChannelList />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+The accepted object keys and the default classnames they override are as follows:
+
+- chat - `str-chat`
+- channel - `str-chat-channel`
+- channelList - `str-chat-channel-list`
+- message - `str-chat__li str-chat__li--${groupStyles}`
+- messageList - `str-chat__list`
+- thread - `str-chat__thread`
+- threadList - `str-chat__list--thread`
+- virtualMessage - `str-chat__virtual-list-message-wrapper`
+- virtualizedMessageList - `str-chat__virtual-list`
+
+:::caution
+Be careful overriding the default styles on the `VirtualizedMessageList` component, as our defaults handle much of the logic
+that makes the list UI perform optimally.
+:::
+
+### CSS Variables
 
 To make more sweeping stylistic changes to the default CSS, the library exposes a variety of
 [CSS variables](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss) that can be
@@ -85,15 +140,15 @@ The first screenshot shows an app running with the default library styling. In t
 `customStyles` object to the `Chat` component to create a more zoomed-in user experience with a green primary
 color.
 
-### Default Styles
+#### Default Styles
 
 <img src={Theming1} alt='Theming1' width='700' />
 
-### Custom CSS Variables
+#### Custom CSS Variables
 
 <img src={Theming2} alt='Theming2' width='700' />
 
-### Simple Dark Mode
+#### Simple Dark Mode
 
 The `Chat` component also accepts a `darkMode` boolean prop that toggles the app into a basic dark mode setting.
 The dark mode toggle is meant to point you in the right direction for building a custom theme into your app.
@@ -124,11 +179,11 @@ const darkModeTheme: CustomStyles = {
 };
 ```
 
-#### The result:
+##### The result:
 
 <img src={Theming3} alt='Theming3' width='700' />
 
-### Variables Reference
+#### Variables Reference
 
 A complete reference of all supported CSS variables, as well as their default values, can be found within our
 [SCSS variables file](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss).

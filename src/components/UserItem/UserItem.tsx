@@ -50,7 +50,7 @@ const UnMemoizedUserItem: React.FC<UserItemProps> = (props) => {
 
   return (
     <div className='str-chat__user-item'>
-      <Avatar image={entity.image} size={20} />
+      <Avatar image={entity.image} name={entity.name || entity.id} size={20} />
       <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
         {renderName()}
       </span>

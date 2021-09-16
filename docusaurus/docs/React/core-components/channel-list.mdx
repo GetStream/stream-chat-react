@@ -102,9 +102,10 @@ Additional props to be passed to the underlying [`ChannelSearch`](../utility-com
 
 ### allowNewMessagesFromUnfilteredChannels
 
-When the client receives a `message.new` event, we automatically push that channel to the top of the list. If the channel
-doesn't currently exist in the list, we grab the channel from `client.activeChannels` and push it to the top of the list.
-You can disable this behavior by setting this prop to false, which will prevent channels not in the list from incrementing the list.
+When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically push
+that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from `client.activeChannels`
+and push it to the top of the list. You can disable this behavior by setting this prop to false, which will prevent channels not in the
+list from incrementing the list.
 
 | Type    | Default |
 | ------- | ------- |

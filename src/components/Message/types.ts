@@ -46,6 +46,10 @@ export type MessageProps<
   customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
+  /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  endOfGroup?: boolean;
+  /** When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
+  firstOfGroup?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
