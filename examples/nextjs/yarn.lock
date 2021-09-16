@@ -10749,6 +10749,11 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+stream-chat-css@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.0.tgz#4bb204825edb8931784fb414253e284b2a2cb273"
+  integrity sha512-PqV7ikbV9WsWDjc48RolSHdCtdKC6U/zmmz2V8ZhTPz6DV1dpmkQnd0mKoSSi7jlmtwHzGEEQyCtzg/396tbwg==
+
 "stream-chat-react@link:../..":
   version "0.0.0"
   uid ""
