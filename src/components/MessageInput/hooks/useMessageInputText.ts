@@ -30,7 +30,7 @@ export const useMessageInputText = <
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
 ) => {
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { additionalTextareaProps, focus, parent, publishTypingEvent } = props;
+  const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 
   const textareaRef = useRef<HTMLTextAreaElement>();

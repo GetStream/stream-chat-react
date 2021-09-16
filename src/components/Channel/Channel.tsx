@@ -284,7 +284,7 @@ const ChannelInner = <
     onMentionsHover,
   } = props;
 
-  const { client, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
+  const { client, customClasses, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
     At,
     Ch,
     Co,
@@ -414,7 +414,7 @@ const ChannelInner = <
         try {
           await channel.watch();
         } catch (e) {
-          dispatch({ error: e, type: 'setError' });
+          dispatch({ error: e as Error, type: 'setError' });
           errored = true;
         }
       }
@@ -873,9 +873,16 @@ const ChannelInner = <
     typing,
   };
 
+  const chatClass = customClasses?.chat || 'str-chat';
+  const channelClass = customClasses?.channel || 'str-chat-channel';
+  const windowsEmojiClass =
+    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
+      ? ' str-chat--windows-flags'
+      : '';
+
   if (state.error) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingErrorIndicator error={state.error} />
       </div>
     );
@@ -883,7 +890,7 @@ const ChannelInner = <
 
   if (state.loading) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingIndicator size={25} />
       </div>
     );
@@ -891,20 +898,14 @@ const ChannelInner = <
 
   if (!channel?.watch) {
     return (
-      <div className={`str-chat str-chat-channel ${theme}`}>
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
         <div>{t('Channel Missing')}</div>
       </div>
     );
   }
 
   return (
-    <div
-      className={`str-chat str-chat-channel ${theme}${
-        useImageFlagEmojisOnWindows && navigator.platform.match(/Win/)
-          ? ' str-chat--windows-flags'
-          : ''
-      }`}
-    >
+    <div className={`${chatClass} ${channelClass} ${theme} ${windowsEmojiClass}`}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>

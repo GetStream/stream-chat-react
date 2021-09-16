@@ -15,6 +15,19 @@ import type {
   UnknownType,
 } from '../types/types';
 
+type CSSClasses =
+  | 'chat'
+  | 'channel'
+  | 'channelList'
+  | 'message'
+  | 'messageList'
+  | 'thread'
+  | 'threadList'
+  | 'virtualMessage'
+  | 'virtualizedMessageList';
+
+export type CustomClasses = Partial<Record<CSSClasses, string>>;
+
 export type ChatContextValue<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -36,6 +49,7 @@ export type ChatContextValue<
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  customClasses?: CustomClasses;
   navOpen?: boolean;
 };
 

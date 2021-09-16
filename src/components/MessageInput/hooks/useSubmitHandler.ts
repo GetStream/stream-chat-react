@@ -150,10 +150,12 @@ export const useSubmitHandler = <
     };
 
     if (message) {
+      delete message.i18n;
+
       try {
         await editMessage(({
+          ...message,
           ...updatedMessage,
-          id: message.id,
         } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
 
         if (clearEditingState) clearEditingState();

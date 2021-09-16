@@ -322,7 +322,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           };
         }
 
-        if (!textToReplace.text) {
+        if (!textToReplace.text && currentTrigger !== ':') {
           throw new Error(
             `Output "text" is not defined! Object should has shape {text: string, caretPosition: string | number}. Check the implementation for trigger "${currentTrigger}" and its token "${actualToken}"\n`,
           );

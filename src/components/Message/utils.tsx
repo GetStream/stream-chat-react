@@ -237,6 +237,7 @@ export const areMessagePropsEqual = <
   const { message: nextMessage, Message: nextMessageUI } = nextProps;
 
   if (prevMessageUI !== nextMessageUI) return false;
+  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
 
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
     return false;
@@ -288,6 +289,7 @@ export const areMessageUIPropsEqual = <
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.editing !== nextProps.editing) return false;
+  if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
 

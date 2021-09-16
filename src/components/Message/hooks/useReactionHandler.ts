@@ -19,7 +19,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
-export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments. 
+export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = <
@@ -187,7 +187,6 @@ export const useReactionClick = <
     if (showDetailedReactions && !hasListener.current) {
       hasListener.current = true;
       document.addEventListener('click', closeDetailedReactions);
-      document.addEventListener('touchend', closeDetailedReactions);
 
       if (messageWrapper) {
         messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
@@ -196,7 +195,6 @@ export const useReactionClick = <
 
     if (!showDetailedReactions && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
 
       if (messageWrapper) {
         messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
@@ -208,7 +206,6 @@ export const useReactionClick = <
     return () => {
       if (hasListener.current) {
         document.removeEventListener('click', closeDetailedReactions);
-        document.removeEventListener('touchend', closeDetailedReactions);
 
         if (messageWrapper) {
           messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
@@ -224,7 +221,6 @@ export const useReactionClick = <
 
     if (messageDeleted && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
-      document.removeEventListener('touchend', closeDetailedReactions);
 
       if (messageWrapper) {
         messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
