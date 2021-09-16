@@ -1426,6 +1426,14 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
+"@sindresorhus/transliterate@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@sindresorhus/transliterate/-/transliterate-1.4.0.tgz#4648facf68e665147281dce4207a89374a3725b7"
+  integrity sha512-4X91xgzgEnD96QAVmn3YXl14FRhZI8eyWVP7MwYr33kMdkLgoHeCOi7+Ad2Uar+0kpbfiDHW1qUXioJjcXnwPg==
+  dependencies:
+    escape-string-regexp "^5.0.0"
+    lodash.deburr "^4.1.0"
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -4518,6 +4526,11 @@ escape-string-regexp@^4.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
+escape-string-regexp@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-5.0.0.tgz#4683126b500b61762f2dbebace1806e8be31b1c8"
+  integrity sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==
+
 escodegen@^1.11.0, escodegen@^1.9.1:
   version "1.14.3"
   resolved "https://registry.yarnpkg.com/escodegen/-/escodegen-1.14.3.tgz#4e7b81fba61581dc97582ed78cab7f0e8d63f503"
@@ -4944,22 +4957,10 @@ fast-json-stable-stringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
   integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
 
-fast-levenshtein@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-3.0.0.tgz#37b899ae47e1090e40e3fd2318e4d5f0142ca912"
-  integrity sha512-hKKNajm46uNmTlhHSyZkmToAc56uZJwYq7yrciZjqOxnlfQwERDQJmHPUp7m1m9wx8vgOe8IaCKZ5Kv2k1DdCQ==
-  dependencies:
-    fastest-levenshtein "^1.0.7"
-
 fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
-
-fastest-levenshtein@^1.0.7:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/fastest-levenshtein/-/fastest-levenshtein-1.0.12.tgz#9990f7d3a88cc5a9ffd1f1745745251700d497e2"
-  integrity sha512-On2N+BpYJ15xIC974QNVuYGMOlEVt4s0EOI3wwMqOmK1fdDY+FN/zltPV8vosq4ad4c/gJ1KHScUn/6AWIgiow==
 
 faye-websocket@^0.10.0:
   version "0.10.0"
@@ -7405,6 +7406,11 @@ lodash.debounce@^4.0.8:
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
+lodash.deburr@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/lodash.deburr/-/lodash.deburr-4.1.0.tgz#ddb1bbb3ef07458c0177ba07de14422cb033ff9b"
+  integrity sha1-3bG7s+8HRYwBd7oH3hRCLLAz/5s=
+
 lodash.includes@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.includes/-/lodash.includes-4.3.0.tgz#60bb98a87cb923c68ca1e51325483314849f553f"
@@ -9834,10 +9840,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.6.tgz#84033e15bd3d1b34b504208e9638692804a279ee"
-  integrity sha512-pYvUXSFPFpZk/yQ+TJihzlZ45PCl0CmPcLJp9zdDHkzZplppqrxvUoQlEQRgTaaHpwkiSgdXh/UgCx521PR8uA==
+react-file-utils@1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.7.tgz#4888f7fecde43a0a67bdfac61af4a3ad0c7c8087"
+  integrity sha512-Y0gI0PnJDWqofxJosGNw2GnyAexsx1QTlkikP5o0SvkrZHySaL28GL5LZ8QMXolOvqErkgnREZQmsTsL/5CjTg==
   dependencies:
     react-dropzone "11.3.4"
 
@@ -11129,10 +11135,10 @@ stream-browserify@^2.0.1:
   version "0.0.0"
   uid ""
 
-stream-chat@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-4.0.0.tgz#7aec92015c8d1a2ee1344ca32b2f51a70cace600"
-  integrity sha512-u4oTd4d19E23t0IVj60G/DhJVNIEUUQt7SI8Zx8Rhum9GLfQ8VwXsgcJYUsLHaiIjpMVjttyoYmR/F8RP8f3+w==
+stream-chat@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-4.2.0.tgz#1ccf93d2e9e79708d876eabd421c5008beaf6da7"
+  integrity sha512-wfm6VwXfLSTBO1f4JN6J5SvRV8fFza0Wxqq8zcW1acLJtMAVZ2+vfLOwws86PKexRNeoe8dHSC/sIRhoAEpr+Q==
   dependencies:
     "@babel/runtime" "^7.13.10"
     "@types/jsonwebtoken" "^8.5.0"
