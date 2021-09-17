@@ -63,6 +63,7 @@ export type MessageInputState<
   imageOrder: string[];
   imageUploads: { [id: string]: ImageUpload };
   mentioned_users: UserResponse<Us>[];
+  setText: (text: string) => void;
   text: string;
 };
 
@@ -177,6 +178,7 @@ const initState = <
       imageOrder: [],
       imageUploads: { ...emptyImageUploads },
       mentioned_users: [],
+      setText: () => null,
       text: '',
     };
   }
@@ -233,6 +235,7 @@ const initState = <
     imageOrder,
     imageUploads,
     mentioned_users,
+    setText: () => null,
     text: message.text || '',
   };
 };
@@ -418,6 +421,10 @@ export const useMessageInputState = <
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 
+  const setText = useCallback((text: string) => {
+    dispatch({ getNewText: () => text, type: 'setText' });
+  }, []);
+
   return {
     ...state,
     closeCommandsList,
@@ -442,6 +449,7 @@ export const useMessageInputState = <
     openEmojiPicker,
     removeFile,
     removeImage,
+    setText,
     showCommandsList,
     textareaRef,
     uploadFile,

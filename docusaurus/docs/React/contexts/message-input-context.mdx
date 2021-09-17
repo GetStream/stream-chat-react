@@ -202,8 +202,8 @@ Opens the `EmojiPicker` component on Enter or Spacebar key down.
 
 Function that runs onSubmit to the underlying `textarea` component.
 
-| Type                                                                  |
-| --------------------------------------------------------------------- |
+| Type                                                                   |
+| ---------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent, customMessageData?: Message) => void |
 
 ### imageOrder
@@ -400,6 +400,14 @@ React state hook function that sets the `cooldownRemaining` value.
 | Type                                          |
 | --------------------------------------------- |
 | React.Dispatch<React.SetStateAction<number\>> |
+
+### setText
+
+Function that overrides and sets the text value of the underlying `textarea` component.
+
+| Type                   |
+| ---------------------- |
+| (text: string) => void |
 
 ### showCommandsList
 
