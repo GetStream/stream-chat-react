@@ -50,6 +50,7 @@
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "^1.10.8",
+    "sass": "^1.41.0",
     "stream-chat-css": "1.0.0",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
@@ -61,7 +62,7 @@
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "^3.8.0"
+    "stream-chat": "^4.2.0"
   },
   "files": [
     "dist",
