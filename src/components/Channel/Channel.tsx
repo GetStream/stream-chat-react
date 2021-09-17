@@ -82,6 +82,8 @@ export type ChannelProps<
 > = {
   /** List of accepted file types */
   acceptedFiles?: string[];
+  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
+  activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
   /** Optional UI component to override the default suggestion Header component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
@@ -270,6 +272,7 @@ const ChannelInner = <
 ) => {
   const {
     acceptedFiles,
+    activeUnreadHandler,
     channel,
     children,
     doMarkReadRequest,
@@ -388,7 +391,12 @@ const ChannelInner = <
             markReadThrottled();
           } else if (channel.getConfig()?.read_events && !channel.muteStatus().muted) {
             const unread = channel.countUnread(lastRead.current);
-            document.title = `(${unread}) ${originalTitle.current}`;
+
+            if (activeUnreadHandler) {
+              activeUnreadHandler(unread, originalTitle.current);
+            } else {
+              document.title = `(${unread}) ${originalTitle.current}`;
+            }
           }
         }
       }
