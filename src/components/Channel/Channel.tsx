@@ -877,7 +877,7 @@ const ChannelInner = <
   const channelClass = customClasses?.channel || 'str-chat-channel';
   const windowsEmojiClass =
     useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
-      ? ' str-chat--windows-flags'
+      ? 'str-chat--windows-flags'
       : '';
 
   if (state.error) {

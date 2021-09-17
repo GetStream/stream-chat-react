@@ -31,6 +31,7 @@ export const useNotificationAddedToChannelListener = <
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
+  allowNewMessagesFromUnfilteredChannels = true,
 ) => {
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
 
@@ -38,7 +39,7 @@ export const useNotificationAddedToChannelListener = <
     const handleEvent = async (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
-      } else if (event.channel?.type) {
+      } else if (allowNewMessagesFromUnfilteredChannels && event.channel?.type) {
         const channel = await getChannel(client, event.channel.type, event.channel.id);
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }

@@ -20,7 +20,8 @@ default container CSS.
 
 To override pre-defined library styles, follow this simple process:
 
-- Import our bundled CSS into the file where you instantiate your chat application
+- Import our bundled CSS into the file where you instantiate your chat application. We maintain a separate repository, `stream-chat-css`,
+  which houses all of the SCSS files for the components.
 
 - Use the browser inspector or view the library code and locate default styles you wish to override
 
@@ -31,7 +32,7 @@ To override pre-defined library styles, follow this simple process:
 For example:
 
 ```jsx
-import 'stream-chat-react/dist/css/index.css';
+import 'stream-chat-css/dist/css/index.css';
 import './App.css';
 ```
 
