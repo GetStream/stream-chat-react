@@ -145,6 +145,7 @@ export type MessageInputHookProps<
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
+  setText: (text: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
@@ -417,9 +418,9 @@ export const useMessageInputState = <
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
-    
+
   const setText = useCallback((text: string) => {
-    dispatch({ type: 'setText', getNewText: () => text });
+    dispatch({ getNewText: () => text, type: 'setText' });
   }, []);
 
   return {
@@ -436,7 +437,6 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     handleSubmit,
     insertText,
-    setText,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
@@ -447,6 +447,7 @@ export const useMessageInputState = <
     openEmojiPicker,
     removeFile,
     removeImage,
+    setText,
     showCommandsList,
     textareaRef,
     uploadFile,
