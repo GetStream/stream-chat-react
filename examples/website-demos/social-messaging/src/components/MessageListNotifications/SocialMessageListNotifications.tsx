@@ -45,7 +45,7 @@ const CustomConnectionStatus: React.FC = () => {
   }, [client, online]);
 
   return (
-    <div className='connection-status'>
+    <div className={`connection-status ${online ? 'hidden' : ''}`}>
       <div className='connection-status-message'>The Matrix is down!</div>
       <ConnectionStatusError />
     </div>
