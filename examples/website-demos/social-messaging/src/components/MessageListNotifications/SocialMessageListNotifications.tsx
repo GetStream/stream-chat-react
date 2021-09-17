@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { useChatContext, useTranslationContext } from 'stream-chat-react';
+import { useChatContext } from 'stream-chat-react';
+
+import { ConnectionStatusError } from '../../assets';
 
 import type { MessageListNotificationsProps } from 'stream-chat-react';
+
+import './SocialMessageListNotifications.scss';
 
 type CustomNotificationProps = {
   type: string;
@@ -26,7 +30,6 @@ const CustomNotification: React.FC<CustomNotificationProps> = (props) => {
 
 const CustomConnectionStatus: React.FC = () => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext();
 
   const [online, setOnline] = useState(true);
 
@@ -42,16 +45,15 @@ const CustomConnectionStatus: React.FC = () => {
   }, [client, online]);
 
   return (
-    <CustomNotification active={true} type='error'>
-      {t('Connection failure, reconnecting now...')}
-    </CustomNotification>
+    <div className='connection-status'>
+      <div className='connection-status-message'>The Matrix is down!</div>
+      <ConnectionStatusError />
+    </div>
   );
 };
 
 export const SocialMessageListNotifications = (props: MessageListNotificationsProps) => {
   const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
-
-  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__list-notifications'>
@@ -62,7 +64,7 @@ export const SocialMessageListNotifications = (props: MessageListNotificationsPr
       ))}
       <CustomConnectionStatus />
       <MessageNotification onClick={scrollToBottom} showNotification={hasNewMessages}>
-        {t('New Messages!')}
+        New Messages!
       </MessageNotification>
     </div>
   );
