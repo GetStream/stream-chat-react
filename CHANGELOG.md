@@ -1,5 +1,18 @@
 # Changelog
 
+## [6.8.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.8.0) 2021-09-17
+
+### Feature
+
+- Improve user mention experience by ignoring diacritics, adding a `useMentionsTransliteration` prop to install an optional transliteration dependency, and using Levenshtein distance to match similar names [#1176](https://github.com/GetStream/stream-chat-react/pull/1176)
+- Add event listener to `ChannelPreview` to handle `markAllRead` function calls on the client [#1178](https://github.com/GetStream/stream-chat-react/pull/1178)
+- Add `setText` function to `MessageInputContext`, which overrides and sets the value of the `MessageInput` component's `textarea` element [#1184](https://github.com/GetStream/stream-chat-react/pull/1184)
+- Add `activeUnreadHandler` prop to `Channel`, which runs when the active channel has unread messages [#1185](https://github.com/GetStream/stream-chat-react/pull/1185)
+
+ ### Chore
+- Remove all SCSS files and import library styles from `stream-chat-css` dependency. This is non-breaking as the build process injects the external styles into the exact distributed directory as before. [#1168](https://github.com/GetStream/stream-chat-react/pull/1168)
+- Upgrade `stream-chat` and `react-file-utils` dependencies [#1178](https://github.com/GetStream/stream-chat-react/pull/1178)
+
 ## [6.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.2) 2021-09-15
 
 ### Feature
