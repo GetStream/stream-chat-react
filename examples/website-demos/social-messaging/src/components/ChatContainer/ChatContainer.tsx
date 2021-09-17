@@ -5,13 +5,13 @@ import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
-import { MessageInput } from '../MessageInput//MessageInput';
+import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
-import { ThreadHeader } from '../Thread/ThreadHeader';
+import { ThreadHeader } from '../Thread/SocialThreadHeader';
 
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useViewContext } from '../../contexts/ViewContext';
@@ -132,7 +132,7 @@ export const ChatContainer: React.FC = () => {
           />
         </div>
         {isSideDrawerOpen && <SideDrawer />}
-        <Channel Message={SocialMessage} Input={MessageInput} ThreadHeader={ThreadHeader}>
+        <Channel Message={SocialMessage} Input={SocialMessageInput} ThreadHeader={ThreadHeader}>
           <ChannelContainer />
         </Channel>
       </GiphyContextProvider>

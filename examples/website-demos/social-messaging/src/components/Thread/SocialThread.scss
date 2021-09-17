@@ -12,7 +12,7 @@
       padding: unset;
     }
 
-    .dm-header-container {
+    .thread-header-container {
       border: none;
       border-bottom: 1px solid $stroke;
     }
@@ -48,15 +48,6 @@
   > :first-child {
     .message-ui-options {
       display: none;
-    }
-  }
-
-  .str-chat__virtual-list {
-    overflow-y: unset;
-    overflow-x: unset;
-
-    > :first-child {
-      overflow: unset !important;
     }
   }
 }

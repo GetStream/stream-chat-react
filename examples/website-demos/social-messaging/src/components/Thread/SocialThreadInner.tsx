@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Thread, useChannelStateContext } from 'stream-chat-react';
 
-import { MessageInput } from '../MessageInput/MessageInput';
+import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 import { useOverrideSubmit } from '../../hooks/useOverrideSubmit';
 
@@ -23,9 +23,8 @@ export const ThreadInner = () => {
       <Thread
         additionalMessageInputProps={{ overrideSubmitHandler: threadOverrideSubmitHandler }}
         Input={(props) => (
-          <MessageInput {...props} checked={checked} setChecked={setChecked} threadInput />
+          <SocialMessageInput {...props} checked={checked} setChecked={setChecked} threadInput />
         )}
-        virtualized
       />
     </>
   );

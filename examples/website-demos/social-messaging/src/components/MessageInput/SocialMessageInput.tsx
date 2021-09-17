@@ -21,7 +21,7 @@ import {
 
 import { useGiphyContext } from '../../contexts/GiphyContext';
 
-import './MessageInput.scss';
+import './SocialMessageInput.scss';
 
 type Props = MessageInputProps & {
   checked?: boolean;
@@ -29,7 +29,7 @@ type Props = MessageInputProps & {
   threadInput?: boolean;
 };
 
-export const MessageInput = (props: Props) => {
+export const SocialMessageInput = (props: Props) => {
   const { checked, setChecked, threadInput = false } = props;
 
   const {
