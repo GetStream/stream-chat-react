@@ -1,0 +1,25 @@
+@import '../../styles/_variables';
+
+.connection-status {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+
+    &-message {
+        background: $borders;
+        color: $text-high-emphasis;
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 20px;
+        display: flex;
+        flex-direction: column;
+        padding: 8px 16px;
+        border: 1px solid $borders;
+        border-radius: 18px 18px 18px 18px;
+    }
+}
+
+.hidden {
+    display: none;
+}

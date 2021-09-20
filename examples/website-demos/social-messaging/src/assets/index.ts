@@ -5,6 +5,7 @@ export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
 export { ClearSearch } from './ClearSearch';
 export { CloseX } from './CloseX';
+export { ConnectionStatusError } from './ConnectionStatusError';
 export { CommandBolt } from './CommandBolt';
 export { DeliveredCheckmark } from './DeliveredCheckmark';
 export { DoubleCheckmark } from './DoubleCheckmark';
