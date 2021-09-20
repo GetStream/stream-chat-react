@@ -32,8 +32,8 @@ const s1 = { video: Speaker1, name: 'Lita Sherman' };
 const s2 = { video: Speaker2, name: 'Zach Costello' };
 const s3 = { video: Speaker3, name: 'Tyler Stevens' };
 const s4 = { video: Speaker1, name: 'Lita Sherman' };
-const s5 = { video: Speaker2, name: 'Lita Sherman' };
-const s6 = { video: Speaker3, name: 'Lita Sherman' };
+const s5 = { video: Speaker2, name: 'Zach Costello' };
+const s6 = { video: Speaker3, name: 'Tyler Stevens' };
 const p1 = { video: Participant1, name: 'Kirk Purdie' };
 const p2 = { video: Participant2, name: 'Halide Nursultan' };
 const p3 = { video: Participant3, name: 'Khalid Ignác' };
@@ -66,7 +66,7 @@ export const mainEvents: Event[] = [
   {
     chatType: 'main-event',
     content:
-      'Set you business plan to use information to a competitive advantage and support enterprise goals. A smart city uses different types of electronic methods and sensors to collect data. Insights gained from that data are used to manage assets, resources, and services efficiently.',
+      'Set your business plan to use information to a competitive advantage and support enterprise goals. A smart city uses different types of electronic methods and sensors to collect data. Insights gained from that data are used to manage assets, resources, and services efficiently.',
     eventName: 'cybersecurity',
     eventNumber: 0,
     jpeg: Card2,
