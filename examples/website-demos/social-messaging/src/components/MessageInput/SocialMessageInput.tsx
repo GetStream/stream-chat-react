@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 
 import {
@@ -72,7 +72,8 @@ export const SocialMessageInput = (props: Props) => {
         event.nativeEvent.inputType === 'deleteContentBackward'
           ? true
           : false;
-
+      console.log(text);
+      
       if (text.length === 1 && deletePressed) {
         setGiphyState(false);
       }
@@ -87,12 +88,12 @@ export const SocialMessageInput = (props: Props) => {
     [text, giphyState, numberOfUploads], // eslint-disable-line
   );
 
-  const handleCommandsClick = () => {
+  const handleCommandsClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     openCommandsList();
     setGiphyState(false);
     setCommandsOpen(true);
   };
-
   return (
     <>
       <div className='input-ui-container'>
@@ -115,24 +116,26 @@ export const SocialMessageInput = (props: Props) => {
             giphyState
           }
         >
-          <EmojiPicker />
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
-            <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
-            {
-              <>
-                {!giphyState && (
-                  <div
-                    className='input-ui-input-emoji-picker'
-                    ref={emojiPickerRef}
-                    onClick={openEmojiPicker}
-                  >
-                    <EmojiPickerIcon />
-                  </div>
-                )}
-              </>
-            }
+            <div className='input-ui-wrapper-emoji'>
+              <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
+              <EmojiPicker />
+              {
+                <>
+                  {!giphyState && (
+                    <div
+                      className='input-ui-input-emoji-picker'
+                      ref={emojiPickerRef}
+                      onClick={openEmojiPicker}
+                    >
+                      <EmojiPickerIcon />
+                    </div>
+                  )}
+                </>
+              }
+            </div>
           </div>
         </ImageDropzone>
         <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>

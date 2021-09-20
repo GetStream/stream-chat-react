@@ -4,7 +4,7 @@
   &-container {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: end;
     border-top: 1px solid $stroke;
     background: $app-canvas;
     transition: background 1s;
@@ -16,6 +16,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    padding-bottom: 8px;
 
     &:hover {
       cursor: pointer;
@@ -27,19 +28,26 @@
 
     &-attach {
       display: flex;
-      padding: 8px 13px;
+      padding: 0 13px;
     }
 
     &-bolt {
       display: flex;
-      padding: 6px;
+      padding: 9px 6px;
+    }
+
+    &-emoji {
+      display: flex;
+      width: 100%;
+      padding: 8px 0 10px;
     }
   }
 
   &-input {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     min-height: 40px;
     height: fit-content;
     padding: 0 8px 0 5px;
@@ -206,16 +214,26 @@ div.rta__autocomplete.str-chat__emojisearch {
 
 .rfu-image-previewer {
   flex: none !important;
+  // border-bottom: 2px solid $disabled !important; // only if images and files
+  width: 100%;
+  // margin: 8px 0 8px 9px !important;
 }
 
 .rfu-image-previewer__image {
   margin-bottom: 0 !important;
 }
 
-// .rfu-image-upload-button {
-//   display: none;
-// }
+.rfu-image-upload-button {
+  display: none;
+}
 
-.rfu-image-previewer {
-  margin: 8px 0 8px 9px !important;
+.emoji-mart {
+  display: flex !important;
+  flex-direction: column-reverse !important;
+}
+
+.emoji-mart-bar {
+  border-top: 2px solid $borders !important;
+  display: flex;
+  flex-direction: column;
 }

@@ -23,8 +23,6 @@ export const ChannelContainer: React.FC = () => {
     SocialUserType
   >();
 
-  console.log('channel as active cahnnel IS:', channel);
-
   const { chatsUnreadCount, isNewChat, mentionsUnreadCount, setChatsUnreadCount, setMentionsUnreadCount } = useViewContext();
 
   useEffect(() => {
