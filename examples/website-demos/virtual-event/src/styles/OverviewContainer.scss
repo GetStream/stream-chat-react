@@ -1,0 +1,234 @@
+@import './_variables';
+
+.overview {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background: $app-canvas;
+    transition: background 1s;
+    color: $text-high-emphasis;
+
+    // safari only styles
+    @media not all and (min-resolution: 0.001dpcm) {
+      @supports (-webkit-appearance: none) and (stroke-color: transparent) {
+        > img {
+          overflow: hidden;
+          height: 50%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+
+  &-tabs {
+    border-bottom: 1px solid $stroke;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+
+    span {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 25%;
+      height: 100%;
+
+      .selected {
+        position: absolute;
+        top: 0;
+        height: 4px;
+        width: calc(100% - 8px);
+        background: $primary-accent;
+        border-radius: 0px 0px 4px 4px;
+      }
+    }
+
+    a {
+      color: unset;
+      text-decoration: unset;
+    }
+  }
+
+  &-content-wrapper {
+    overflow: scroll;
+  }
+
+  &-title {
+    display: flex;
+    align-items: center;
+    margin: 16px;
+
+    &-content {
+      display: flex;
+      width: 85%;
+    }
+
+    &-date {
+      display: flex;
+      align-items: center;
+      width: 15%;
+      min-width: 150px;
+
+      &-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        background: $card-background;
+        transition: background 1s;
+        border-radius: 8px;
+      }
+
+      &-number {
+        color: $primary-accent;
+        font-weight: 600;
+        margin-top: 4px;
+        display: flex;
+      }
+    }
+
+    &-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60px;
+      width: 60px;
+      background: linear-gradient(180deg, #160f1d 0%, #1d0633 100%);
+      border: 1px solid $stroke;
+      box-sizing: border-box;
+      border-radius: 16px;
+      margin-right: 8px;
+
+      img {
+        height: 50px;
+      }
+    }
+
+    &-header {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      &-main {
+        font-size: 24px;
+      }
+
+      &-sub {
+        display: flex;
+        color: $text-mid-emphasis;
+
+        &-left {
+          font-size: 14px;
+          margin-right: 4px;
+        }
+
+        &-right {
+          font-weight: 600;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  &-content {
+    margin: 32px 16px;
+    display: flex;
+
+    &-container {
+      width: 85%;
+    }
+
+    &-title {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    &-content {
+      font-size: 14px;
+      margin-right: 32px;
+    }
+
+    &-stats {
+      height: 200px;
+      margin-top: 32px;
+      width: 15%;
+      min-width: 150px;
+
+      &-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      &-stat {
+        display: flex;
+        margin-bottom: 8px;
+      }
+
+      &-total {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        min-width: 50px;
+        height: 30px;
+        background: $card-background;
+        transition: background 1s;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+
+      &-description {
+        display: flex;
+        align-items: center;
+        color: $text-mid-emphasis;
+        margin-left: 8px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  &-partners {
+    margin: 0 16px;
+
+    &-title {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 18px;
+      padding-left: 16px;
+    }
+
+    &-logos {
+      display: flex;
+      justify-content: space-between;
+      padding: 32px 16px;
+      align-items: center;
+
+      img {
+        max-width: 80px;
+      }
+    }
+  }
+
+  &-schedule {
+    margin-bottom: 32px;
+
+    &-title {
+      font-weight: 600;
+      font-size: 18px;
+      margin-left: 32px;
+    }
+
+    img {
+      object-fit: cover;
+      width: 250px;
+    }
+  }
+}

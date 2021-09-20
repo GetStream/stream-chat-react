@@ -1,0 +1,174 @@
+@import './_variables';
+
+.search {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: $app-canvas;
+  transition: background 1s;
+  z-index: 2;
+
+  &-header {
+    display: flex;
+    background: $app-canvas;
+    transition: background 1s;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-bottom: 1px solid $stroke;
+    height: 56px;
+    max-height: 56px;
+    box-sizing: border-box;
+
+    &-close {
+      position: absolute;
+      left: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &-title {
+      color: $text-high-emphasis;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
+
+  .str-chat__channel-search {
+    padding: unset;
+    background: $app-canvas;
+    transition: background 1s;
+  }
+
+  &-input {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    width: 300px;
+    margin: 8px;
+    background: $card-alt-background;
+    border: 2px solid $stroke;
+    border-radius: 20px;
+    transition: all 1s;
+    padding-left: 16px;
+    padding-right: 8px;
+
+    &:focus-within {
+      border-color: $primary-accent;
+      caret-color: $primary-accent;
+    }
+
+    input {
+      padding: unset;
+      padding-left: 4px;
+      background: $card-alt-background;
+      color: $text-high-emphasis;
+      font-size: 14px;
+      margin-left: 4px;
+      transition: background 1s;
+
+      &:focus {
+        border: none;
+        box-shadow: none;
+        background: var(--card-alt-background);
+        transition: background 1s;
+      }
+    }
+  }
+
+  .str-chat__channel-search-container {
+    background: $app-canvas;
+    transition: background 1s;
+    padding: 0;
+    width: 100%;
+  }
+
+  &-result {
+    position: relative;
+    background: $app-canvas;
+    transition: background 1s;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+
+    &:hover {
+      cursor: pointer;
+      background: $card-background;
+      transition: background 0.2s;
+    }
+
+    &-info {
+      color: $text-high-emphasis;
+      font-size: 14px;
+
+      &-name {
+        font-weight: 600;
+      }
+    }
+
+    &-ellipse {
+      position: absolute;
+      right: 8px;
+      top: 12px;
+    }
+
+    &-actions {
+      position: absolute;
+      right: 8px;
+      top: 30px;
+      background: $app-canvas;
+      transition: 0.2s all;
+      border-radius: 6px;
+      z-index: 3;
+      border: 1px solid $stroke-low-emphasis;
+      box-shadow: $shadow;
+
+      &-item {
+        height: 40px;
+        width: 125px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: $text-high-emphasis;
+        padding: 0 16px;
+        font-size: 12px;
+        box-sizing: border-box;
+
+        &:hover {
+          cursor: pointer;
+          background: $primary-accent;
+          transition: 0.2s all;
+          color: $text-self;
+        }
+      }
+
+      :first-child {
+        border-radius: 6px 6px 0px 0px;
+      }
+
+      :last-child {
+        border-radius: 0px 0px 6px 6px;
+      }
+    }
+  }
+
+  &-loading,
+  &-empty {
+    color: var(--text-high-emphasis);
+    font-weight: 600;
+    padding: 8px;
+  }
+}

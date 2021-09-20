@@ -1,0 +1,86 @@
+@import './_variables';
+
+.dm {
+  &-channel {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    background: $app-canvas;
+
+    .str-chat-channel {
+      height: calc(100vh - 56px); // height of dm header
+    }
+  }
+
+  &-header {
+    &-container {
+      display: flex;
+      background: $app-canvas;
+      transition: background 1s;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid $stroke;
+      max-height: 56px;
+      box-sizing: border-box;
+    }
+
+    &-close {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: $text-high-emphasis;
+      font-weight: 600;
+      font-size: 14px;
+
+      &-sub-title {
+        color: $text-mid-emphasis;
+        font-size: 12px;
+        font-weight: normal;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 0.5s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+
+      &.open {
+        background: $primary-accent;
+
+        svg {
+          fill: $white;
+        }
+      }
+    }
+  }
+}
