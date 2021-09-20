@@ -3,11 +3,11 @@ import React from 'react';
 import type { ChannelListMessengerProps } from 'stream-chat-react';
 
 import { SocialChannelListHeader } from './SocialChannelListHeader';
-import { SocialChannelListFooter } from '../../components/SocialChannelList/SocialChannelListFooter';
+import { SocialChannelListFooter } from './SocialChannelListFooter';
 import { useViewContext } from '../../contexts/ViewContext';
 import { LoadingWireframe } from '../LoadingWireframe/LoadingWireframe';
 import { NewChatPreview } from '../NewChat/NewChatPreview';
-import { SocialChannelSearch } from '../../components/ChannelSearch/SocialChannelSearch';
+import { SocialChannelSearch } from '../ChannelSearch/SocialChannelSearch';
 
 import './SocialChannelList.scss';
 

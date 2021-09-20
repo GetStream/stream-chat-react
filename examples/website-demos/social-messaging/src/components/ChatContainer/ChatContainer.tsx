@@ -6,12 +6,15 @@ import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
 import { SocialMessageListNotifications } from '../MessageListNotifications/SocialMessageListNotifications';
+import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
 import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptyStateIndicator';
 import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
-import { SocialChannelList } from '../SocialChannelList/SocialChannelList';
+import { SocialChannelList } from '../ChannelList/SocialChannelList';
+import { SocialThreadHeader } from '../Thread/SocialThreadHeader';
 
+import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './ChatContainer.scss';
@@ -20,7 +23,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 const apiKey = urlParams.get('apikey') || process.env.REACT_APP_STREAM_KEY;
 const user = urlParams.get('user') || process.env.REACT_APP_USER_ID;
-const userImage = process.env.USER_IMAGE;
+const userImage = process.env.REACT_APP_USER_IMAGE;
 const userToken = urlParams.get('user_token') || process.env.REACT_APP_USER_TOKEN;
 // const targetOrigin = urlParams.get('target_origin') || process.env.REACT_APP_TARGET_ORIGIN;
 
@@ -117,21 +120,23 @@ export const ChatContainer: React.FC = () => {
 
   return (
     <Chat client={chatClient}>
-      <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
-        <ChannelList
-          channelRenderFilterFn={customRenderFilter}
-          EmptyStateIndicator={SocialEmptyStateIndicator}
-          filters={filters}
-          List={SocialChannelList}
-          options={options}
-          Preview={SocialChannelPreview}
-          sort={sort}
-        />
-      </div>
-      {isSideDrawerOpen && <SideDrawer />}
-      <Channel Message={SocialMessage} MessageListNotifications={SocialMessageListNotifications}>
-        <ChannelContainer />
-      </Channel>
+      <GiphyContextProvider>
+        <div className={`channel-list-container ${isSideDrawerOpen ? 'sideDrawerOpen' : ''}`}>
+          <ChannelList
+            channelRenderFilterFn={customRenderFilter}
+            EmptyStateIndicator={SocialEmptyStateIndicator}
+            filters={filters}
+            List={SocialChannelList}
+            options={options}
+            Preview={SocialChannelPreview}
+            sort={sort}
+          />
+        </div>
+        {isSideDrawerOpen && <SideDrawer />}
+        <Channel Message={SocialMessage} Input={SocialMessageInput} MessageListNotifications={SocialMessageListNotifications} ThreadHeader={SocialThreadHeader}>
+          <ChannelContainer />
+        </Channel>
+      </GiphyContextProvider>
     </Chat>
   );
 };
