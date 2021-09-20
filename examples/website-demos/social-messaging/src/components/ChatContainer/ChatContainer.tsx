@@ -133,7 +133,12 @@ export const ChatContainer: React.FC = () => {
           />
         </div>
         {isSideDrawerOpen && <SideDrawer />}
-        <Channel Message={SocialMessage} Input={SocialMessageInput} MessageListNotifications={SocialMessageListNotifications} ThreadHeader={SocialThreadHeader}>
+        <Channel
+          Message={SocialMessage}
+          Input={SocialMessageInput}
+          MessageListNotifications={SocialMessageListNotifications}
+          ThreadHeader={SocialThreadHeader}
+        >
           <ChannelContainer />
         </Channel>
       </GiphyContextProvider>
