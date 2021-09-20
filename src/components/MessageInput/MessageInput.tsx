@@ -81,7 +81,7 @@ export type MessageInputProps<
   mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
   /** If provided, the existing message will be edited on submit */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** If true, disables file uploads. Default: false */
+  /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
   overrideSubmitHandler?: (
