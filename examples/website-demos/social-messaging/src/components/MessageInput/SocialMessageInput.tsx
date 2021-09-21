@@ -72,7 +72,6 @@ export const SocialMessageInput = (props: Props) => {
         event.nativeEvent.inputType === 'deleteContentBackward'
           ? true
           : false;
-      console.log(text);
 
       if (text.length === 1 && deletePressed) {
         setGiphyState(false);
