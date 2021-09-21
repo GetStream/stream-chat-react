@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 
 import {
@@ -87,22 +87,22 @@ export const SocialMessageInput = (props: Props) => {
     [text, giphyState, numberOfUploads], // eslint-disable-line
   );
 
-  const handleCommandsClick = () => {
+  const handleCommandsClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
     openCommandsList();
     setGiphyState(false);
     setCommandsOpen(true);
   };
-
   return (
     <>
-      <div className='input-ui-container'>
-        <div className='input-ui-wrapper'>
-          <div className='input-ui-wrapper-attach'>
+      <div className='input-ui'>
+        <div className='input-ui-icons'>
+          <div className='input-ui-icons-attach'>
             <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
               <Attach />
             </FileUploadButton>
           </div>
-          <div className='input-ui-wrapper-bolt' onClick={handleCommandsClick}>
+          <div className='input-ui-icons-bolt' onClick={!numberOfUploads ? handleCommandsClick : () => null}>
             <CommandBolt />
           </div>
         </div>
@@ -115,28 +115,30 @@ export const SocialMessageInput = (props: Props) => {
             giphyState
           }
         >
-          <EmojiPicker />
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
-            <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
-            {
-              <>
-                {!giphyState && (
-                  <div
-                    className='input-ui-input-emoji-picker'
-                    ref={emojiPickerRef}
-                    onClick={openEmojiPicker}
-                  >
-                    <EmojiPickerIcon />
-                  </div>
-                )}
-              </>
-            }
+            <div className='input-ui-input-textarea'>
+              <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
+              <EmojiPicker />
+              {
+                <>
+                  {!giphyState && (
+                    <div
+                      className='input-ui-input-emoji-picker'
+                      ref={emojiPickerRef}
+                      onClick={openEmojiPicker}
+                    >
+                      <EmojiPickerIcon />
+                    </div>
+                  )}
+                </>
+              }
+            </div>
           </div>
         </ImageDropzone>
-        <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
-          {giphyState ? (
+        <div className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`} onClick={handleSubmit}>
+          {giphyState && !numberOfUploads ? (
             <GiphySearch />
           ) : (
             <>

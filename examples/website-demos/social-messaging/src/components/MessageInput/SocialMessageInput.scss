@@ -1,21 +1,20 @@
 @import '../../styles/_variables';
 
 .input-ui {
-  &-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    border-top: 1px solid $stroke;
-    background: $app-canvas;
-    transition: background 1s;
-    box-shadow: 0px -1px 0px #dbdde1;
-  }
+  position: relative;
+  display: flex;
+  align-items: end;
+  border-top: 1px solid $stroke;
+  background: $app-canvas;
+  transition: background 1s;
+  box-shadow: 0px -1px 0px #dbdde1;
 
-  &-wrapper {
+  &-icons {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    padding-bottom: 8px;
 
     &:hover {
       cursor: pointer;
@@ -27,19 +26,20 @@
 
     &-attach {
       display: flex;
-      padding: 8px 13px;
+      padding: 4px 13px 0;
     }
 
     &-bolt {
       display: flex;
-      padding: 6px;
+      padding: 10px 6px;
     }
   }
 
   &-input {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     min-height: 40px;
     height: fit-content;
     padding: 0 8px 0 5px;
@@ -50,6 +50,12 @@
     flex: none;
     flex-grow: 1;
     transition: background 1s, border-color 0.2s;
+
+    &-textarea {
+      display: flex;
+      width: 100%;
+      padding: 8px 0 10px;
+    }
 
     &-emoji-picker {
       display: flex;
@@ -64,6 +70,9 @@
     }
 
     &.giphy {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       border: 2px solid $accent-primary;
       caret-color: $accent-primary;
     }
@@ -124,18 +133,18 @@
   display: flex;
   align-items: center;
   height: 100%;
-}
 
-.str-chat__textarea textarea {
-  background: $app-bg !important;
-  transition: background 1s;
-  padding: 0 !important;
-  padding-left: 11px !important;
-  border: none !important;
-  min-height: unset !important;
-  font-size: 17px;
-  border-radius: 0;
-  color: $text-low-emphasis;
+  textarea {
+    background: $app-bg !important;
+    transition: background 1s;
+    padding: 0 !important;
+    padding-left: 11px !important;
+    border: none !important;
+    min-height: unset !important;
+    font-size: 17px;
+    border-radius: 0;
+    color: $text-low-emphasis;
+  }
 }
 
 .str-chat__textarea textarea:focus {
@@ -146,16 +155,14 @@
   box-shadow: none !important;
 }
 
-.str-chat__input--emojipicker {
-  z-index: 1;
-}
-
 .emoji-mart {
-  width: 320px !important;
+  width: 310px !important;
   background: $app-canvas;
   transition: background 1s;
   box-shadow: $shadow;
   border-color: $stroke;
+  display: flex !important;
+  flex-direction: column-reverse !important;
 
   &-category-label {
     background: $app-canvas;
@@ -167,8 +174,9 @@
       transition: background 1s;
     }
   }
+
   &-bar {
-    display: none;
+    border-top: 2px solid $borders !important;
   }
 
   &-search {
@@ -176,46 +184,47 @@
   }
 }
 
+.rfu-dropzone {
+  width: calc(100% - 111px);
+}
+
+.rfu-image {
+  &-previewer {
+    flex: none !important;
+    margin: 8px 8px 0 3px !important;
+  }
+
+  &__image {
+    margin-bottom: 0 !important;
+  }
+
+  &-upload-button {
+    display: none;
+  }
+}
+
+.rfu-file-previewer {
+  border: none !important;
+  width: 100%;
+  overflow: scroll !important;
+
+  ol {
+    display: flex;
+  }
+
+  &__file {
+    background: $white;
+    margin-right: 8px;
+    border-radius: 12px;
+    border: 1px solid $borders !important;
+    padding: 8px 8px 8px 0 !important;
+    max-width: 280px !important;
+  }
+}
+
 div.rta__autocomplete.str-chat__emojisearch {
   z-index: 999;
-  background: $app-canvas;
+  background: $app-canvas !important;
   box-shadow: $shadow;
   border-radius: 8px;
-}
-
-.rta__list-header {
-  padding: 0;
-}
-
-.rfu-dropzone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.rfu-dropzone__notifier {
-  height: 40px !important;
-  border-radius: 40px !important;
-  width: 97% !important;
-}
-
-.rfu-dropzone:focus {
-  outline: none !important;
-}
-
-.rfu-image-previewer {
-  flex: none !important;
-}
-
-.rfu-image-previewer__image {
-  margin-bottom: 0 !important;
-}
-
-// .rfu-image-upload-button {
-//   display: none;
-// }
-
-.rfu-image-previewer {
-  margin: 8px 0 8px 9px !important;
 }
