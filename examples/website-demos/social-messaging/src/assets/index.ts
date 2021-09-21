@@ -21,4 +21,5 @@ export { NewGroupMessage } from './NewGroupMessage';
 export { OptionsIcons } from './OptionsIcons';
 export { SearchIcon } from './SearchIcon';
 export { SendArrow } from './SendArrow';
+export { StartThread } from './StartThread';
 export { ThemeIcon } from './ThemeIcon';
