@@ -563,8 +563,9 @@ describe('Channel', () => {
 
       it('should update messages passed into the updateMessage callback', async () => {
         const newText = 'something entirely different';
-        const updatedMessage = { ...messages[0], text: newText };
+        const updatedMessage = { ...messages[0], text: newText, updated_at: Date.now() };
         let hasUpdated = false;
+
         const { findByText } = renderComponent(
           { children: <MockMessageList /> },
           ({ updateMessage }) => {
@@ -573,7 +574,9 @@ describe('Channel', () => {
           },
         );
 
-        expect(await findByText(updatedMessage.text)).toBeInTheDocument();
+        await waitFor(async () => {
+          expect(await findByText(updatedMessage.text)).toBeInTheDocument();
+        });
       });
 
       it('should enable retrying message sending', async () => {
@@ -583,9 +586,7 @@ describe('Channel', () => {
         const messageObject = { text: 'bla bla' };
 
         const { findByText } = renderComponent(
-          {
-            children: <MockMessageList />,
-          },
+          { children: <MockMessageList /> },
           ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
             if (!hasSent) {
               jest.spyOn(channel, 'sendMessage').mockImplementationOnce(() => Promise.reject());
@@ -600,7 +601,9 @@ describe('Channel', () => {
           },
         );
 
-        expect(await findByText(messageObject.text)).toBeInTheDocument();
+        await waitFor(async () => {
+          expect(await findByText(messageObject.text)).toBeInTheDocument();
+        });
       });
 
       it('should allow removing messages', async () => {

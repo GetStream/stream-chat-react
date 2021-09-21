@@ -27,6 +27,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
+import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
@@ -47,7 +48,6 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
-  ChannelStateContextValue,
   ChannelStateProvider,
   StreamMessage,
 } from '../../context/ChannelStateContext';
@@ -486,7 +486,7 @@ const ChannelInner = <
   );
 
   const loadMore = async (limit = 100) => {
-    if (!online.current || !window.navigator.onLine || !channel) return 0;
+    if (!online.current || !window.navigator.onLine) return 0;
 
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
@@ -527,7 +527,6 @@ const ChannelInner = <
       | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
       | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   ) => {
-    if (!channel) return;
     // add the message to the local channel state
     channel.state.addMessageSorted(updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>, true);
 
@@ -722,7 +721,7 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
     acceptedFiles,
     channel,
@@ -733,24 +732,27 @@ const ChannelInner = <
     notifications,
     quotedMessage,
     watcher_count: state.watcherCount,
-  };
+  });
 
-  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
-    addNotification,
-    closeThread,
-    dispatch,
-    editMessage,
-    loadMore,
-    loadMoreThread,
-    onMentionsClick: onMentionsHoverOrClick,
-    onMentionsHover: onMentionsHoverOrClick,
-    openThread,
-    removeMessage,
-    retrySendMessage,
-    sendMessage,
-    setQuotedMessage,
-    updateMessage,
-  };
+  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+    () => ({
+      addNotification,
+      closeThread,
+      dispatch,
+      editMessage,
+      loadMore,
+      loadMoreThread,
+      onMentionsClick: onMentionsHoverOrClick,
+      onMentionsHover: onMentionsHoverOrClick,
+      openThread,
+      removeMessage,
+      retrySendMessage,
+      sendMessage,
+      setQuotedMessage,
+      updateMessage,
+    }),
+    [channel.cid, loadMore, quotedMessage],
+  );
 
   const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
