@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
 import { useChat } from './hooks/useChat';
+import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
@@ -103,23 +104,23 @@ export const Chat = <
 
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
+  const chatContextValue = useCreateChatContext({
+    channel,
+    client,
+    closeMobileNav,
+    customClasses,
+    mutes,
+    navOpen,
+    openMobileNav,
+    setActiveChannel,
+    theme,
+    useImageFlagEmojisOnWindows,
+  });
+
   if (!translators.t) return null;
 
   return (
-    <ChatProvider
-      value={{
-        channel,
-        client,
-        closeMobileNav,
-        customClasses,
-        mutes,
-        navOpen,
-        openMobileNav,
-        setActiveChannel,
-        theme,
-        useImageFlagEmojisOnWindows,
-      }}
-    >
+    <ChatProvider value={chatContextValue}>
       <TranslationProvider value={translators}>{children}</TranslationProvider>
     </ChatProvider>
   );
