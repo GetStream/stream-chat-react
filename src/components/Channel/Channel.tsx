@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
+import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
@@ -56,7 +57,7 @@ import { ComponentContextValue, ComponentProvider } from '../../context/Componen
 import { useChatContext } from '../../context/ChatContext';
 import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
+import { TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
@@ -323,15 +324,19 @@ const ChannelInner = <
   };
 
   const throttledCopyStateFromChannel = useCallback(
-    throttle(() => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }), 500, {
-      leading: true,
-      trailing: true,
-    }),
+    throttle(
+      () => {
+        if (!channel) return;
+        dispatch({ channel, type: 'copyStateFromChannelOnEvent' });
+      },
+      500,
+      { leading: true, trailing: true },
+    ),
     [channel],
   );
 
   const markRead = useCallback(() => {
-    if (channel.disconnected || !channel.getConfig()?.read_events) {
+    if (!channel || channel.disconnected || !channel.getConfig()?.read_events) {
       return;
     }
 
@@ -364,7 +369,11 @@ const ChannelInner = <
       }
 
       if (event.type === 'typing.start' || event.type === 'typing.stop') {
-        return dispatch({ channel, type: 'setTyping' });
+        dispatch({
+          channel,
+          type: 'setTyping',
+        });
+        return;
       }
 
       if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
@@ -404,11 +413,13 @@ const ChannelInner = <
     let done = false;
 
     const onVisibilityChange = () => {
-      if (!document.hidden) markRead();
+      if (!document.hidden) {
+        markRead();
+      }
     };
 
     (async () => {
-      if (!channel.initialized) {
+      if (channel && !channel.initialized) {
         try {
           await channel.watch();
         } catch (e) {
@@ -420,7 +431,7 @@ const ChannelInner = <
       done = true;
       originalTitle.current = document.title;
 
-      if (!errored) {
+      if (channel && !errored) {
         dispatch({ channel, type: 'initStateFromChannel' });
         if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
@@ -443,7 +454,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel, handleEvent, markRead]);
+  }, [channel, client, handleEvent, markRead]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
@@ -542,7 +553,8 @@ const ChannelInner = <
         | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     ) => {
       if (!channel) return;
-      // add the message to the local channel state
+      // adds the message to the local channel state..
+      // this adds to both the main channel state as well as any reply threads
       channel.state.addMessageSorted(
         updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>,
         true,
@@ -568,6 +580,8 @@ const ChannelInner = <
         | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
       customMessageData?: Partial<Message<At, Me, Us>>,
     ) => {
+      if (!channel) return;
+
       const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
       // channel.sendMessage expects an array of user id strings
@@ -595,7 +609,7 @@ const ChannelInner = <
         }
 
         // replace it after send is completed
-        if (messageResponse?.message) {
+        if (messageResponse && messageResponse.message) {
           updateMessage({
             ...messageResponse.message,
             status: 'received',
@@ -625,6 +639,7 @@ const ChannelInner = <
       parent: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined,
       mentioned_users: UserResponse<Us>[],
     ) => {
+      // create a preview of the message
       const clientSideID = `${client.userID}-${uuidv4()}`;
 
       return ({
@@ -655,25 +670,32 @@ const ChannelInner = <
       }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
       customMessageData?: Partial<Message<At, Me, Us>>,
     ) => {
+      if (!channel) return;
+
+      // remove error messages upon submit
       channel.state.filterErrorMessages();
 
+      // create a local preview message to show in the UI
       const messagePreview = createMessagePreview(text, attachments, parent, mentioned_users);
 
+      // first we add the message to the UI
       updateMessage(messagePreview);
 
       await doSendMessage(messagePreview, customMessageData);
     },
-    [createMessagePreview, doSendMessage, updateMessage],
+    [channel?.state, createMessagePreview, doSendMessage, updateMessage],
   );
 
   const retrySendMessage = useCallback(
     async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+      // set the message status to sending
       updateMessage({
         ...message,
         errorStatusCode: undefined,
         status: 'sending',
       });
 
+      // actually try to send the message...
       await doSendMessage(message);
     },
     [doSendMessage, updateMessage],
@@ -681,6 +703,8 @@ const ChannelInner = <
 
   const removeMessage = useCallback(
     (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+      if (!channel) return;
+
       channel.state.removeMessage(message);
 
       dispatch({
@@ -696,7 +720,11 @@ const ChannelInner = <
 
   const openThread = useCallback(
     (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>, event: React.BaseSyntheticEvent) => {
-      event.preventDefault();
+      if (!channel) return;
+
+      if (event && event.preventDefault) {
+        event.preventDefault();
+      }
 
       dispatch({ channel, message, type: 'openThread' });
     },
@@ -724,13 +752,15 @@ const ChannelInner = <
   );
 
   const loadMoreThread = useCallback(async () => {
-    if (state.threadLoadingMore || !state.thread) return;
+    // prevent duplicate loading events...
+    if (!channel || state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentID = state.thread.id;
 
     if (!parentID) {
-      return dispatch({ type: 'closeThread' });
+      dispatch({ type: 'closeThread' });
+      return;
     }
 
     const oldMessages = channel.state.threads[parentID] || [];
@@ -746,7 +776,7 @@ const ChannelInner = <
       const threadHasMoreMessages = queryResponse.messages.length === limit;
       const newThreadMessages = channel.state.threads[parentID] || [];
 
-      // next set loadingMore to false so we can start asking for more data
+      // next set loadingMore to false so we can start asking for more data...
       loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
     } catch (e) {
       loadMoreThreadFinished(false, oldMessages);
@@ -754,7 +784,10 @@ const ChannelInner = <
   }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
 
   const closeThread = useCallback((event: React.BaseSyntheticEvent) => {
-    event.preventDefault();
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
     dispatch({ type: 'closeThread' });
   }, []);
 
@@ -845,9 +878,9 @@ const ChannelInner = <
     [],
   );
 
-  const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const typingContextValue = useCreateTypingContext({
     typing,
-  };
+  });
 
   const chatClass = customClasses?.chat || 'str-chat';
   const channelClass = customClasses?.channel || 'str-chat-channel';
@@ -872,7 +905,7 @@ const ChannelInner = <
     );
   }
 
-  if (!channel.watch) {
+  if (!channel?.watch) {
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
         <div>{t('Channel Missing')}</div>
