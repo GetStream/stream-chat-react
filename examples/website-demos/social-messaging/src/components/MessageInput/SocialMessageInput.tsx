@@ -73,7 +73,7 @@ export const SocialMessageInput = (props: Props) => {
           ? true
           : false;
       console.log(text);
-      
+
       if (text.length === 1 && deletePressed) {
         setGiphyState(false);
       }
@@ -138,7 +138,7 @@ export const SocialMessageInput = (props: Props) => {
             </div>
           </div>
         </ImageDropzone>
-        <div className={`input-ui-send ${text ? 'text' : ''}`} onClick={handleSubmit}>
+        <div className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`} onClick={handleSubmit}>
           {giphyState ? (
             <GiphySearch />
           ) : (
