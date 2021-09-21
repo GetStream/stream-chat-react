@@ -58,7 +58,6 @@
     flex: none;
     flex-grow: 1;
     transition: background 1s, border-color 0.2s;
-    // overflow: scroll; // maybe
 
     &-emoji-picker {
       display: flex;
@@ -185,18 +184,13 @@
 }
 
 .rfu-dropzone {
-  width: 100%;
-  // overflow: scroll; // breaks emoji picker and commands list
-  // flex-wrap: nowrap;
-
-  &:focus {
-    outline: none !important;
-  }
+  width: calc(100% - 111px);
 }
 
 .rfu-image {
   &-previewer {
     flex: none !important;
+    margin: 8px 8px 0 3px !important;
   }
 
   &__image {
@@ -210,10 +204,11 @@
 
 .rfu-file-previewer {
   border: none !important;
+  width: 100%;
+  overflow: scroll !important;
 
   ol {
     display: flex;
-    // overflow: scroll !important;
   }
 
   &__file {
