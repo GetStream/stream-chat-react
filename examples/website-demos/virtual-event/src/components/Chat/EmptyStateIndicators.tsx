@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyStateIndicatorProps } from 'stream-chat-react';
+import { EmptyStateIndicatorProps, useChannelStateContext } from 'stream-chat-react';
 
 import { EmptyChatIcon, EmptyDMIcon, EmptyQAIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
@@ -11,7 +11,10 @@ const EmptyStateWrapper: React.FC = ({ children }) => (
 export const EmptyStateIndicators: React.FC<
   EmptyStateIndicatorProps & { isDmChannel?: boolean }
 > = ({ isDmChannel }) => {
+  const { thread } = useChannelStateContext();
   const { chatType } = useEventContext();
+
+  if (thread) return null;
 
   let Icon: React.FC;
   let title: string;

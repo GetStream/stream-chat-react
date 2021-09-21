@@ -5,7 +5,9 @@ import { getParticipantOrder } from './data';
 
 import {
   BackArrow,
-  ConnectionStatus,
+  ConnectionStatusBad,
+  ConnectionStatusGood,
+  ConnectionStatusGreat,
   Listening,
   Muted,
   ParticipantsIcon,
@@ -82,7 +84,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <div id='speaking-animation' />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusGreat />
           </div>
         </div>
         <div
@@ -96,7 +98,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <Listening />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusGood />
           </div>
         </div>
         <div
@@ -110,7 +112,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusBad />
           </div>
         </div>
         <div
@@ -124,7 +126,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusGreat />
           </div>
         </div>
         <div
@@ -138,7 +140,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusGood />
           </div>
         </div>
         <div
@@ -152,7 +154,7 @@ export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
             <Muted />
           </div>
           <div className='room-video-grid-participant-connection'>
-            <ConnectionStatus />
+            <ConnectionStatusBad />
           </div>
         </div>
       </div>

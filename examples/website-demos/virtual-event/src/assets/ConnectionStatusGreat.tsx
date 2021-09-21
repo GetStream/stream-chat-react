@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ConnectionStatus: React.FC = () => (
+export const ConnectionStatusGreat: React.FC = () => (
   <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
     <path
       stroke='#00DDB5'
