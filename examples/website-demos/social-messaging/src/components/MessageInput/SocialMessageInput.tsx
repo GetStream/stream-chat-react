@@ -96,13 +96,13 @@ export const SocialMessageInput = (props: Props) => {
   return (
     <>
       <div className='input-ui-container'>
-        <div className='input-ui-wrapper'>
-          <div className='input-ui-wrapper-attach'>
+        <div className='input-ui-icons'>
+          <div className='input-ui-icons-attach'>
             <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
               <Attach />
             </FileUploadButton>
           </div>
-          <div className='input-ui-wrapper-bolt' onClick={handleCommandsClick}>
+          <div className='input-ui-icons-bolt' onClick={handleCommandsClick}>
             <CommandBolt />
           </div>
         </div>
@@ -118,7 +118,7 @@ export const SocialMessageInput = (props: Props) => {
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
-            <div className='input-ui-wrapper-emoji'>
+            <div className='input-ui-icons-emoji'>
               <ChatAutoComplete onChange={onChange} placeholder='Send a message' />
               <EmojiPicker />
               {
