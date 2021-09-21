@@ -258,7 +258,7 @@ describe('Channel', () => {
       // and then calls hasThread with the thread id if it was set.
       renderComponent({}, ({ openThread, thread }) => {
         if (!thread) {
-          openThread(threadMessage);
+          openThread(threadMessage, { preventDefault: () => null });
         } else {
           hasThread(thread.id);
         }
@@ -280,7 +280,7 @@ describe('Channel', () => {
       renderComponent({}, ({ loadMoreThread, openThread, thread, threadMessages }) => {
         if (!thread) {
           // first, open a thread
-          openThread(threadMessage);
+          openThread(threadMessage, { preventDefault: () => null });
         } else if (!threadMessages.length) {
           // then, load more messages in the thread
           loadMoreThread();
@@ -308,7 +308,7 @@ describe('Channel', () => {
           // if there is no open thread
           if (!threadHasAlreadyBeenOpened) {
             // and we haven't opened one before, open a thread
-            openThread(threadMessage);
+            openThread(threadMessage, { preventDefault: () => null });
             threadHasAlreadyBeenOpened = true;
           } else {
             // if we opened it ourselves before, it means the thread was successfully closed
@@ -316,7 +316,7 @@ describe('Channel', () => {
           }
         } else {
           // if a thread is open, close it.
-          closeThread();
+          closeThread({ preventDefault: () => null });
         }
       });
 
@@ -701,7 +701,7 @@ describe('Channel', () => {
         renderComponent({}, ({ openThread, thread }) => {
           if (!thread) {
             // first, open thread
-            openThread(threadMessage);
+            openThread(threadMessage, { preventDefault: () => null });
           } else if (thread.text !== newText) {
             // then, update the thread message
             // FIXME: dispatch event needs to be queued on event loop now
@@ -726,7 +726,7 @@ describe('Channel', () => {
         renderComponent({}, ({ openThread, thread, threadMessages }) => {
           if (!thread) {
             // first, open thread
-            openThread(threadMessage);
+            openThread(threadMessage, { preventDefault: () => null });
           } else if (!threadMessages.some(({ id }) => id === newThreadMessage.id)) {
             // then, add new thread message
             // FIXME: dispatch event needs to be queued on event loop now
