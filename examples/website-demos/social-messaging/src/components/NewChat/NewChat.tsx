@@ -13,7 +13,7 @@ export const NewChat = () => {
   const { client, setActiveChannel } = useChatContext();
   const [focusedUser, setFocusedUser] = useState<number>();
   const [inputText, setInputText] = useState('');
-  const [resultsOpen, setResultsOpen] = useState(false);
+  const [, setResultsOpen] = useState(false);
   const [searchEmpty, setSearchEmpty] = useState(false);
   const [searching, setSearching] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<UserResponse<SocialUserType>[]>([]);

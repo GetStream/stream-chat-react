@@ -3,7 +3,7 @@
 .input-ui {
   position: relative;
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   border-top: 1px solid $stroke;
   background: $app-canvas;
   transition: background 1s;
@@ -136,14 +136,12 @@
 
   textarea {
     background: $app-bg !important;
-    transition: background 1s;
     padding: 0 !important;
     padding-left: 11px !important;
     border: none !important;
     min-height: unset !important;
-    font-size: 17px;
-    border-radius: 0;
-    color: $text-low-emphasis;
+    font-size: 17px !important;
+    color: $text-high-emphasis;
   }
 }
 

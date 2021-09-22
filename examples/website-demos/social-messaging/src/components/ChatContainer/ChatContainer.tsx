@@ -64,10 +64,10 @@ export const ChatContainer: React.FC = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
 
   const {
-    chatsUnreadCount,
+    // chatsUnreadCount,
     isListMentions,
     isSideDrawerOpen,
-    mentionsUnreadCount,
+    // mentionsUnreadCount,
     setChatsUnreadCount,
     setMentionsUnreadCount,
   } = useViewContext();
