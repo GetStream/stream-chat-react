@@ -78,6 +78,7 @@ export const useCreateMessageInputContext = <
   uploadNewFiles,
   useMentionsTransliteration,
 }: MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>) => {
+  const editing = message?.editing;
   const fileUploadsValue = Object.entries(fileUploads)
     // eslint-disable-next-line
     .map(([_, value]) => value.state)
@@ -87,7 +88,7 @@ export const useCreateMessageInputContext = <
     .map(([_, value]) => value.state)
     .join();
   const mentionedUsersLength = mentioned_users.length;
-  //   const parentId = parent?.id;
+  const parentId = parent?.id;
 
   const messageInputContext: MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V> = useMemo(
     () => ({
@@ -147,12 +148,14 @@ export const useCreateMessageInputContext = <
       useMentionsTransliteration,
     }),
     [
+      editing,
       emojiPickerIsOpen,
       fileUploadsValue,
       imageUploadsValue,
       isUploadEnabled,
       mentionedUsersLength,
-      //   parentId,
+      parentId,
+      publishTypingEvent,
       text,
     ],
   );
