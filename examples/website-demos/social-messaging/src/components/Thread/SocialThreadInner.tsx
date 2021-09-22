@@ -21,7 +21,7 @@ export const SocialThreadInner = () => {
   return (
     <>
       <Thread
-        fullWidth
+        // fullWidth
         additionalMessageInputProps={{ overrideSubmitHandler: threadOverrideSubmitHandler }}
         Input={(props) => (
           <SocialMessageInput {...props} checked={checked} setChecked={setChecked} threadInput />

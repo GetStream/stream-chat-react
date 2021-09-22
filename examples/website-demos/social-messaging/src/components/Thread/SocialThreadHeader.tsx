@@ -3,6 +3,8 @@ import { useChannelActionContext, useChannelStateContext } from 'stream-chat-rea
 
 import { CloseX, Ellipse } from '../../assets';
 
+import './SocialThread.scss';
+
 export const SocialThreadHeader: React.FC = () => {
   const { thread } = useChannelStateContext();
   const { closeThread } = useChannelActionContext();
@@ -20,9 +22,9 @@ export const SocialThreadHeader: React.FC = () => {
           with {thread.user?.name || thread.user?.id || ''}
         </div>
       </div>
-      <div className='thread-header-actions'>
+      {/* <div className='thread-header-actions'>
         <Ellipse />
-      </div>
+      </div> */}
     </div>
   );
 };

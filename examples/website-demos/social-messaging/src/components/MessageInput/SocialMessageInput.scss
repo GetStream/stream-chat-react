@@ -228,3 +228,23 @@ div.rta__autocomplete.str-chat__emojisearch {
   box-shadow: $shadow;
   border-radius: 8px;
 }
+
+.thread-footer {
+  display: flex;
+  padding: 0 0 12px 12px;
+  align-items: center;
+  background: $app-canvas;
+  transition: background 1s;
+
+  &-text {
+    font-size: 13px;
+    margin-left: 8px;
+    color: $text-high-emphasis;
+  }
+
+  &-checkbox {
+    height: 16px;
+    width: 16px;
+    margin: 0;
+  }
+}
