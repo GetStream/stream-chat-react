@@ -22,6 +22,7 @@ export const ThreadInner = () => {
     <>
       <Thread
         additionalMessageInputProps={{ overrideSubmitHandler: threadOverrideSubmitHandler }}
+        additionalVirtualizedMessageListProps={{ separateGiphyPreview: true }}
         Input={(props) => (
           <MessageInputUI {...props} checked={checked} setChecked={setChecked} threadInput />
         )}

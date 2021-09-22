@@ -33,7 +33,7 @@
     justify-content: space-between;
 
     height: 46px;
-    padding: 0 20px;
+    padding: 0 8px 0 16px;
     color: $white;
 
     &-title {
@@ -48,7 +48,7 @@
       }
 
       &-title {
-        margin-left: 16px;
+        margin-left: 12px;
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
@@ -61,9 +61,9 @@
       }
 
       &-dot {
-        width: 6px;
-        height: 6px;
-        margin-left: 10px;
+        min-width: 6px;
+        min-height: 6px;
+        margin-left: 8px;
         background: $accent-red;
         border-radius: 999px;
       }
@@ -71,9 +71,16 @@
       &-right {
         display: flex;
         align-items: center;
-        width: 200px;
         justify-content: space-evenly;
         font-size: 12px;
+
+        div {
+          margin: 0 16px 0 8px;
+        }
+
+        .event-card-label {
+          margin: 0;
+        }
       }
     }
   }
@@ -85,20 +92,21 @@
     width: 100%;
     align-content: center;
     justify-content: center;
+    overflow: scroll;
 
     > div:first-child {
-      border: none;
-      box-shadow: 0 0 0 4px $accent-green;
+      border: 4px solid $accent-green;
+      box-sizing: border-box;
+      border-radius: 8px;
     }
 
     &-participant {
       display: flex;
       position: relative;
       justify-content: space-between;
-      width: 340px;
+      width: 339px;
       height: 191px;
       border-radius: 8px;
-      border: 1px solid white;
       margin: 4px;
       cursor: pointer;
       z-index: 1;
@@ -128,7 +136,7 @@
 
         &-name {
           color: $white;
-          margin-right: 12px;
+          margin-right: 4px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -153,6 +161,7 @@
   order: -1;
   width: 100% !important;
   height: 425px !important;
+  margin: 8px;
 
   .room-video-grid-participant {
     &-connection {
@@ -178,7 +187,7 @@
     }
 
     &-info {
-      width: 80%;
+      width: 70%;
     }
   }
 }

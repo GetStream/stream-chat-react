@@ -107,7 +107,7 @@ export const mainEvents: Event[] = [
     jpeg: Card5,
     label: '04 June 2021, 11:00 AM MT',
     presenters: 2,
-    title: 'Q&A session: data strategy and executive communication',
+    title: 'Q&A session: data strategy & executive communication',
   },
 ];
 
@@ -133,7 +133,7 @@ export const rooms: Event[] = [
     jpeg: Card2,
     label: 'Moderated',
     presenters: 6,
-    title: 'Q&A session: Data strategy and executive communication',
+    title: 'Q&A session: Data strategy & executive communication',
     viewers: 150,
   },
   {
@@ -167,7 +167,7 @@ export const rooms: Event[] = [
     jpeg: Card5,
     label: 'Closed',
     presenters: 5,
-    title: 'Tools, Teams and Processes: how to successfully implement a data…',
+    title: 'Tools, Teams and Processes: how to successfully implement a data privacy plan',
     viewers: 100,
   },
   {
