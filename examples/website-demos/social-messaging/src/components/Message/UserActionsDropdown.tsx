@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ReactEventHandler, useChatContext } from 'stream-chat-react';
+import React, { useEffect } from 'react';
+import { ReactEventHandler } from 'stream-chat-react';
 
 import {
   // FlagUser, MuteUser,
@@ -22,16 +22,16 @@ type Props = {
 export const UserActionsDropdown: React.FC<Props> = (props) => {
   const {
     dropdownOpen,
-    dmChannel,
+    // dmChannel,
     openThread,
-    participantProfile,
+    // participantProfile,
     setDropdownOpen,
-    setMessageActionUser,
+    // setMessageActionUser,
     thread,
-    user,
+    // user,
   } = props;
 
-  const { client, mutes } = useChatContext();
+  // const { client, mutes } = useChatContext();
   // const { setActionsModalOpen, setUserActionType } = useEventContext();
 
   // const [isUserMuted, setIsUserMuted] = useState(false);

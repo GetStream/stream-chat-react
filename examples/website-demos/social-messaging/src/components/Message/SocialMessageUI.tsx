@@ -64,18 +64,18 @@ export const SocialMessage: React.FC<
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
+  // const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
 
   return (
     <div className='message-ui-options'>
       {/* <span onClick={() => setShowReactionSelector((prev) => !prev)}>
         <ReactionSmiley />
       </span> */}
-      {!hideActions && (
+      {/* {!hideActions && ( */}
         <span onClick={() => setDropdownOpen(!dropdownOpen)}>
           <Ellipse />
         </span>
-      )}
+      {/* // )} */}
       {dropdownOpen && (
         <div
           className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''} ${
