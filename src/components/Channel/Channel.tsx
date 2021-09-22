@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
+import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
@@ -49,7 +50,6 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
-  ChannelStateContextValue,
   ChannelStateProvider,
   StreamMessage,
 } from '../../context/ChannelStateContext';
@@ -505,69 +505,57 @@ const ChannelInner = <
     [],
   );
 
-  const loadMore = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    async (limit: number = 100) => {
-      if (!online.current || !window.navigator.onLine || !channel) return 0;
+  const loadMore = async (limit = 100) => {
+    if (!online.current || !window.navigator.onLine) return 0;
 
-      // prevent duplicate loading events...
-      const oldestMessage = state?.messages?.[0];
+    // prevent duplicate loading events...
+    const oldestMessage = state?.messages?.[0];
 
-      if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
+    if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
 
-      // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-      if (channel.state.messages.length < 25) {
-        loadMoreFinished(false, channel.state.messages);
-        return channel.state.messages.length;
-      }
+    // initial state loads with up to 25 messages, so if less than 25 no need for additional query
+    if (channel.state.messages.length < 25) {
+      loadMoreFinished(false, channel.state.messages);
+      return channel.state.messages.length;
+    }
 
-      dispatch({ loadingMore: true, type: 'setLoadingMore' });
+    dispatch({ loadingMore: true, type: 'setLoadingMore' });
 
-      const oldestID = oldestMessage?.id;
-      const perPage = limit;
-      let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
+    const oldestID = oldestMessage?.id;
+    const perPage = limit;
+    let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
 
-      try {
-        queryResponse = await channel.query({
-          messages: { id_lt: oldestID, limit: perPage },
-          watchers: { limit: perPage },
-        });
-      } catch (e) {
-        console.warn('message pagination request failed with error', e);
-        dispatch({ loadingMore: false, type: 'setLoadingMore' });
-        return 0;
-      }
-
-      const hasMoreMessages = queryResponse.messages.length === perPage;
-      loadMoreFinished(hasMoreMessages, channel.state.messages);
-
-      return queryResponse.messages.length;
-    },
-    [channel, loadMoreFinished, online, state.loadingMore, state.messages],
-  );
-
-  const updateMessage = useCallback(
-    (
-      updatedMessage:
-        | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
-        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    ) => {
-      if (!channel) return;
-      // adds the message to the local channel state..
-      // this adds to both the main channel state as well as any reply threads
-      channel.state.addMessageSorted(
-        updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>,
-        true,
-      );
-
-      dispatch({
-        channel,
-        parentId: state.thread && updatedMessage.parent_id,
-        type: 'copyMessagesFromChannel',
+    try {
+      queryResponse = await channel.query({
+        messages: { id_lt: oldestID, limit: perPage },
+        watchers: { limit: perPage },
       });
-    },
-    [channel, state.thread],
-  );
+    } catch (e) {
+      console.warn('message pagination request failed with error', e);
+      dispatch({ loadingMore: false, type: 'setLoadingMore' });
+      return 0;
+    }
+
+    const hasMoreMessages = queryResponse.messages.length === perPage;
+    loadMoreFinished(hasMoreMessages, channel.state.messages);
+
+    return queryResponse.messages.length;
+  };
+
+  const updateMessage = (
+    updatedMessage:
+      | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
+      | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  ) => {
+    // add the message to the local channel state
+    channel.state.addMessageSorted(updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>, true);
+
+    dispatch({
+      channel,
+      parentId: state.thread && updatedMessage.parent_id,
+      type: 'copyMessagesFromChannel',
+    });
+  };
 
   const isUserResponseArray = (
     output: string[] | UserResponse<Us>[],
@@ -797,7 +785,7 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
     acceptedFiles,
     channel,
@@ -808,24 +796,27 @@ const ChannelInner = <
     notifications,
     quotedMessage,
     watcher_count: state.watcherCount,
-  };
+  });
 
-  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
-    addNotification,
-    closeThread,
-    dispatch,
-    editMessage,
-    loadMore,
-    loadMoreThread,
-    onMentionsClick: onMentionsHoverOrClick,
-    onMentionsHover: onMentionsHoverOrClick,
-    openThread,
-    removeMessage,
-    retrySendMessage,
-    sendMessage,
-    setQuotedMessage,
-    updateMessage,
-  };
+  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+    () => ({
+      addNotification,
+      closeThread,
+      dispatch,
+      editMessage,
+      loadMore,
+      loadMoreThread,
+      onMentionsClick: onMentionsHoverOrClick,
+      onMentionsHover: onMentionsHoverOrClick,
+      openThread,
+      removeMessage,
+      retrySendMessage,
+      sendMessage,
+      setQuotedMessage,
+      updateMessage,
+    }),
+    [channel.cid, loadMore, quotedMessage],
+  );
 
   const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
