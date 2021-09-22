@@ -48,7 +48,16 @@ export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
     setLoaded(false);
   }, [image]);
 
-  const initials = (name?.toString() || '').charAt(0);
+  function containsUnicodeCodePoints(name: string) {
+    // eslint-disable-next-line no-control-regex
+    return /[^\u0000-\u00ff]/.test(name);
+  }
+
+  const nameStr = name?.toString() || '';
+
+  const initials = containsUnicodeCodePoints(nameStr.slice(0, 2))
+    ? nameStr.slice(0, 2)
+    : nameStr.charAt(0);
 
   return (
     <div
