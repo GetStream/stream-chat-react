@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { getWholeChar } from '../../utils';
+
 import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType } from '../../types/types';
@@ -48,16 +50,8 @@ export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
     setLoaded(false);
   }, [image]);
 
-  function containsUnicodeCodePoints(name: string) {
-    // eslint-disable-next-line no-control-regex
-    return /[^\u0000-\u00ff]/.test(name);
-  }
-
   const nameStr = name?.toString() || '';
-
-  const initials = containsUnicodeCodePoints(nameStr.slice(0, 2))
-    ? nameStr.slice(0, 2)
-    : nameStr.charAt(0);
+  const initials = getWholeChar(nameStr, 0);
 
   return (
     <div
