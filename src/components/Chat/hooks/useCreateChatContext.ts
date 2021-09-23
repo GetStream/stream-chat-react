@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import type { ChatContextValue } from '../../../context/ChatContext';
-
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -20,18 +19,22 @@ export const useCreateChatContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  channel,
-  client,
-  closeMobileNav,
-  customClasses,
-  mutes,
-  navOpen,
-  openMobileNav,
-  setActiveChannel,
-  theme,
-  useImageFlagEmojisOnWindows,
-}: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>) => {
+>(
+  value: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const {
+    channel,
+    client,
+    closeMobileNav,
+    customClasses,
+    mutes,
+    navOpen,
+    openMobileNav,
+    setActiveChannel,
+    theme,
+    useImageFlagEmojisOnWindows,
+  } = value;
+
   const channelCid = channel?.cid;
   const clientValues = `${client.clientID}${Object.keys(client.activeChannels).length}${
     Object.keys(client.listeners).length

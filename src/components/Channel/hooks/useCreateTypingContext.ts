@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import type { TypingContextValue } from '../../../context/TypingContext';
-
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -20,9 +19,11 @@ export const useCreateTypingContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  typing,
-}: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>) => {
+>(
+  value: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { typing } = value;
+
   const typingValue = Object.keys(typing || {}).join();
 
   const typingContext: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
