@@ -92,58 +92,87 @@
   border-radius: 18px 18px 0px 18px;
 }
 
+.str-chat__li:hover .str-chat__message-simple__actions {
+  position: absolute;
+  // top: -14px;
+  // right: 20px;
+  // bottom: 20px;
+  display: flex;
+  // align-items: center;
+  // justify-content: space-between;
+  // height: 24px;
+  // border-radius: 100px;
+  // background: white;
+  // border: 1px solid #e0e0e0;
+  // box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+  // z-index: 1;
+  // padding: 0 4px 0;
+
+  &__action--reactions {
+    display: flex;
+  }
+
+  &__action--options {
+    display: flex;
+  }
+
+  // &__action--thread {
+  //   display: flex;
+  // }
+}
+
 // // hacky way to add message options
 
-.message-ui {
-  position: relative;
-  display: flex;
-  font-size: 14px;
-  color: $text-high-emphasis;
-  padding: 8px;
-  background: $app-canvas;
-  transition: background 0s;
+// .message-ui {
+//   position: relative;
+//   display: flex;
+//   font-size: 14px;
+//   color: $text-high-emphasis;
+//   padding: 8px;
+//   background: $app-canvas;
+//   transition: background 0s;
 
-  &:hover {
-    background: $card-background;
-  }
+//   &:hover {
+//     background: $card-background;
+//   }
 
-  &.theme-open {
-    transition: background 1s;
-  }
+//   &.theme-open {
+//     transition: background 1s;
+//   }
 
-  &-options {
-    position: absolute;
-    top: 5px;
-    right: 8px;
+//   &-options {
+//     position: absolute;
+//     top: 5px;
+//     right: 8px;
 
-    span:first-child {
-      margin-right: 8px;
-    }
+//     span:first-child {
+//       margin-right: 8px;
+//     }
 
-    svg {
-      &:hover {
-        cursor: pointer;
+//     svg {
+//       &:hover {
+//         cursor: pointer;
 
-        path {
-          transition: fill 0.2s;
-          fill: $accent-primary;
-        }
-      }
-    }
+//         path {
+//           transition: fill 0.2s;
+//           fill: $accent-primary;
+//         }
+//       }
+//     }
 
-    &-dropdown {
-      position: absolute;
-      margin-top: 4px;
-      right: -8px;
+//     &-dropdown {
+//       position: absolute;
+//       margin-top: 4px;
+//       right: -8px;
 
-      &.recent {
-        margin-top: 0;
-        bottom: 145px;
-      }
+//       &.recent {
+//         margin-top: 0;
+//         bottom: 145px;
+//       }
 
-      &.recent.mine {
-        bottom: 64px;
-      }
-    }
-  }
-}
+//       &.recent.mine {
+//         bottom: 64px;
+//       }
+//     }
+//   }
+// }

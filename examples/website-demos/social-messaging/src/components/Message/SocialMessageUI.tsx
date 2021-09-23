@@ -1,7 +1,9 @@
-import { useState } from 'react';
 import {
   Attachment,
   Avatar,
+  ReactionSelector,
+  MessageOptions,
+  MessageRepliesCountButton,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
@@ -11,7 +13,7 @@ import {
 } from 'stream-chat-react';
 import { DeliveredCheckmark, DoubleCheckmark, Ellipse, EmojiPickerIcon } from '../../assets';
 
-import { UserActionsDropdown } from './UserActionsDropdown';
+// import { UserActionsDropdown } from './UserActionsDropdown';
 
 import {
   SocialAttachmentType,
@@ -38,7 +40,7 @@ export const SocialMessage: React.FC<
 > = (props) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { isMyMessage, message, readBy } = useMessageContext<
+  const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,
@@ -47,54 +49,6 @@ export const SocialMessage: React.FC<
     SocialReactionType,
     SocialUserType
   >();
-
-  type OptionsProps = {
-  isRecentMessage: boolean;
-  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
-  // setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-  const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const { isRecentMessage,
-    //  setMessageActionUser, setShowReactionSelector
-    } = props;
-
-  const { thread } = useChannelStateContext();
-  const { handleOpenThread, isMyMessage, message } = useMessageContext();
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
-
-  return (
-    <div className='message-ui-options'>
-      {/* <span onClick={() => setShowReactionSelector((prev) => !prev)}>
-        <EmojiPickerIcon />
-      </span> */}
-      {/* {!hideActions && ( */}
-        <span onClick={() => setDropdownOpen(!dropdownOpen)}>
-          <Ellipse />
-        </span>
-      {/* // )} */}
-      {dropdownOpen && (
-        <div
-          className={`message-ui-options-dropdown ${isRecentMessage ? 'recent' : ''} ${
-            isMyMessage() ? 'mine' : ''
-          }`}
-        >
-          <UserActionsDropdown
-            dropdownOpen={dropdownOpen}
-            openThread={handleOpenThread}
-            setDropdownOpen={setDropdownOpen}
-            // setMessageActionUser={setMessageActionUser}
-            thread={!thread}
-            user={message.user}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
 
   const members = Object.values(channel.state.members).filter(
     ({ user }) => user?.id !== client.userID,
@@ -139,11 +93,9 @@ export const SocialMessage: React.FC<
       <div className='message-wrapper-inner'>
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-        <MessageOptions
-          isRecentMessage={true}
-          // setMessageActionUser={setMessageActionUser}
-          // setShowReactionSelector={setShowReactionSelector}
-        />
+        <MessageOptions displayLeft={false} displayReplies={false} />
+        <ReactionSelector />
+        <MessageRepliesCountButton />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
             <div className='message-wrapper-inner-data-info'>
