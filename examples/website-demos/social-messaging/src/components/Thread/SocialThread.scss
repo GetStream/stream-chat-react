@@ -50,11 +50,18 @@
   }
 }
 
-.messaging.str-chat .str-chat__thread {
-  border-top-left-radius: 0 !important;
-}
-
 .str-chat__thread {
   margin: 0 !important;
   border-left: 1px solid $stroke !important;
+  flex: 1 !important;
+  max-width: none !important;
+}
+
+.messaging.str-chat .str-chat__thread {
+  border-top-left-radius: 0 !important;
+  background: $app-bg !important;
+}
+
+.messaging.str-chat .str-chat__thread-list {
+  padding: 0 40px !important;
 }
