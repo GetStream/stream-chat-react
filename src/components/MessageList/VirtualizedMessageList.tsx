@@ -5,6 +5,7 @@ import {
   ScrollSeekPlaceholderProps,
   Virtuoso,
   VirtuosoHandle,
+  VirtuosoProps,
 } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
@@ -40,6 +41,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
+  UnknownType,
 } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
@@ -70,6 +72,7 @@ const VirtualizedMessageListWithContext = <
   props: VirtualizedMessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    additionalVirtuosoProps,
     channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
@@ -314,6 +317,7 @@ const VirtualizedMessageListWithContext = <
           startReached={startReached}
           style={{ overflowX: 'hidden' }}
           totalCount={processedMessages.length}
+          {...additionalVirtuosoProps}
           {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
           {...(defaultItemHeight ? { defaultItemHeight } : {})}
         />
@@ -339,6 +343,8 @@ export type VirtualizedMessageListProps<
 > = Partial<
   Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'customMessageActions' | 'messageActions'>
 > & {
+  /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
+  additionalVirtuosoProps?: VirtuosoProps<UnknownType>;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
