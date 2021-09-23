@@ -46,6 +46,8 @@
   padding: unset;
 
   > :first-child {
+    border-bottom: 1px solid $stroke;
+
     .message-ui-options {
       display: none;
     }
