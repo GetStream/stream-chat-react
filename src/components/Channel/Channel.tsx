@@ -28,6 +28,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
+import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
@@ -55,7 +56,7 @@ import { ComponentContextValue, ComponentProvider } from '../../context/Componen
 import { useChatContext } from '../../context/ChatContext';
 import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
+import { TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
@@ -805,9 +806,9 @@ const ChannelInner = <
     [],
   );
 
-  const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const typingContextValue = useCreateTypingContext({
     typing,
-  };
+  });
 
   const chatClass = customClasses?.chat || 'str-chat';
   const channelClass = customClasses?.channel || 'str-chat-channel';
