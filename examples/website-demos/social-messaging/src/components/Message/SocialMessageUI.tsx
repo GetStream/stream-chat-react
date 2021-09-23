@@ -9,7 +9,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark, Ellipse } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark, Ellipse, EmojiPickerIcon } from '../../assets';
 
 import { UserActionsDropdown } from './UserActionsDropdown';
 
@@ -50,7 +50,7 @@ export const SocialMessage: React.FC<
 
   type OptionsProps = {
   isRecentMessage: boolean;
-  // setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   // setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -69,7 +69,7 @@ export const SocialMessage: React.FC<
   return (
     <div className='message-ui-options'>
       {/* <span onClick={() => setShowReactionSelector((prev) => !prev)}>
-        <ReactionSmiley />
+        <EmojiPickerIcon />
       </span> */}
       {/* {!hideActions && ( */}
         <span onClick={() => setDropdownOpen(!dropdownOpen)}>
