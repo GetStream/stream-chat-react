@@ -1,6 +1,5 @@
 import React, {
   PropsWithChildren,
-  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -28,6 +27,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
+import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
+import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
@@ -48,7 +49,6 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
-  ChannelStateContextValue,
   ChannelStateProvider,
   StreamMessage,
 } from '../../context/ChannelStateContext';
@@ -56,7 +56,7 @@ import { ComponentContextValue, ComponentProvider } from '../../context/Componen
 import { useChatContext } from '../../context/ChatContext';
 import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { TypingContextValue, TypingProvider } from '../../context/TypingContext';
+import { TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
@@ -322,20 +322,17 @@ const ChannelInner = <
     emojiSetDef,
   };
 
-  const throttledCopyStateFromChannel = useCallback(
-    throttle(
-      () => {
-        if (!channel) return;
-        dispatch({ channel, type: 'copyStateFromChannelOnEvent' });
-      },
-      500,
-      { leading: true, trailing: true },
-    ),
-    [channel],
+  const throttledCopyStateFromChannel = throttle(
+    () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
+    500,
+    {
+      leading: true,
+      trailing: true,
+    },
   );
 
-  const markRead = useCallback(() => {
-    if (!channel || channel.disconnected || !channel.getConfig()?.read_events) {
+  const markRead = () => {
+    if (channel.disconnected || !channelConfig?.read_events) {
       return;
     }
 
@@ -350,61 +347,51 @@ const ChannelInner = <
     if (originalTitle.current) {
       document.title = originalTitle.current;
     }
-  }, [channel, doMarkReadRequest]);
+  };
 
-  const markReadThrottled = useCallback(
-    throttle(markRead, 500, { leading: true, trailing: true }),
-    [markRead],
-  );
+  const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
 
-  const handleEvent = useCallback(
-    (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (event.message) {
-        dispatch({
-          channel,
-          message: event.message,
-          type: 'updateThreadOnEvent',
-        });
+  const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+    if (event.message) {
+      dispatch({
+        channel,
+        message: event.message,
+        type: 'updateThreadOnEvent',
+      });
+    }
+
+    if (event.type === 'typing.start' || event.type === 'typing.stop') {
+      return dispatch({ channel, type: 'setTyping' });
+    }
+
+    if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
+      online.current = event.online;
+    }
+
+    if (event.type === 'message.new') {
+      let mainChannelUpdated = true;
+
+      if (event.message?.parent_id && !event.message?.show_in_channel) {
+        mainChannelUpdated = false;
       }
 
-      if (event.type === 'typing.start' || event.type === 'typing.stop') {
-        dispatch({
-          channel,
-          type: 'setTyping',
-        });
-        return;
-      }
+      if (mainChannelUpdated && event.message?.user?.id !== client.userID) {
+        if (!document.hidden) {
+          markReadThrottled();
+        } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
+          const unread = channel.countUnread(lastRead.current);
 
-      if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
-        online.current = event.online;
-      }
-
-      if (event.type === 'message.new') {
-        let mainChannelUpdated = true;
-
-        if (event.message?.parent_id && !event.message?.show_in_channel) {
-          mainChannelUpdated = false;
-        }
-
-        if (mainChannelUpdated && event.message?.user?.id !== client.userID) {
-          if (!document.hidden) {
-            markReadThrottled();
-          } else if (channel.getConfig()?.read_events && !channel.muteStatus().muted) {
-            const unread = channel.countUnread(lastRead.current);
-
-            if (activeUnreadHandler) {
-              activeUnreadHandler(unread, originalTitle.current);
-            } else {
-              document.title = `(${unread}) ${originalTitle.current}`;
-            }
+          if (activeUnreadHandler) {
+            activeUnreadHandler(unread, originalTitle.current);
+          } else {
+            document.title = `(${unread}) ${originalTitle.current}`;
           }
         }
       }
+    }
 
-      throttledCopyStateFromChannel();
-    },
-    [channel, client.userID, markReadThrottled, throttledCopyStateFromChannel],
-  );
+    throttledCopyStateFromChannel();
+  };
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
   useLayoutEffect(() => {
@@ -412,13 +399,11 @@ const ChannelInner = <
     let done = false;
 
     const onVisibilityChange = () => {
-      if (!document.hidden) {
-        markRead();
-      }
+      if (!document.hidden) markRead();
     };
 
     (async () => {
-      if (channel && !channel.initialized) {
+      if (!channel.initialized) {
         try {
           await channel.watch();
         } catch (e) {
@@ -430,7 +415,7 @@ const ChannelInner = <
       done = true;
       originalTitle.current = document.title;
 
-      if (channel && !errored) {
+      if (!errored) {
         dispatch({ channel, type: 'initStateFromChannel' });
         if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
@@ -446,14 +431,14 @@ const ChannelInner = <
     return () => {
       if (errored || !done) return;
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      if (channel) channel.off(handleEvent);
+      channel?.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
       client.off('user.updated', handleEvent);
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel, client, handleEvent, markRead]);
+  }, [channel.cid]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
@@ -489,277 +474,226 @@ const ChannelInner = <
     notificationTimeouts.push(timeout);
   };
 
-  const loadMoreFinished = useCallback(
-    debounce(
-      (hasMore: boolean, messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages']) => {
-        if (!isMounted.current) return;
-        dispatch({ hasMore, messages, type: 'loadMoreFinished' });
-      },
-      2000,
-      {
-        leading: true,
-        trailing: true,
-      },
-    ),
-    [],
-  );
-
-  const loadMore = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-    async (limit: number = 100) => {
-      if (!online.current || !window.navigator.onLine || !channel) return 0;
-
-      // prevent duplicate loading events...
-      const oldestMessage = state?.messages?.[0];
-
-      if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
-
-      // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-      if (channel.state.messages.length < 25) {
-        loadMoreFinished(false, channel.state.messages);
-        return channel.state.messages.length;
-      }
-
-      dispatch({ loadingMore: true, type: 'setLoadingMore' });
-
-      const oldestID = oldestMessage?.id;
-      const perPage = limit;
-      let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
-
-      try {
-        queryResponse = await channel.query({
-          messages: { id_lt: oldestID, limit: perPage },
-          watchers: { limit: perPage },
-        });
-      } catch (e) {
-        console.warn('message pagination request failed with error', e);
-        dispatch({ loadingMore: false, type: 'setLoadingMore' });
-        return 0;
-      }
-
-      const hasMoreMessages = queryResponse.messages.length === perPage;
-      loadMoreFinished(hasMoreMessages, channel.state.messages);
-
-      return queryResponse.messages.length;
+  const loadMoreFinished = debounce(
+    (hasMore: boolean, messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages']) => {
+      if (!isMounted.current) return;
+      dispatch({ hasMore, messages, type: 'loadMoreFinished' });
     },
-    [channel, loadMoreFinished, online, state.loadingMore, state.messages],
+    2000,
+    {
+      leading: true,
+      trailing: true,
+    },
   );
 
-  const updateMessage = useCallback(
-    (
-      updatedMessage:
-        | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
-        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    ) => {
-      if (!channel) return;
-      // adds the message to the local channel state..
-      // this adds to both the main channel state as well as any reply threads
-      channel.state.addMessageSorted(
-        updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>,
-        true,
-      );
+  const loadMore = async (limit = 100) => {
+    if (!online.current || !window.navigator.onLine) return 0;
 
-      dispatch({
-        channel,
-        parentId: state.thread && updatedMessage.parent_id,
-        type: 'copyMessagesFromChannel',
+    // prevent duplicate loading events...
+    const oldestMessage = state?.messages?.[0];
+
+    if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
+
+    // initial state loads with up to 25 messages, so if less than 25 no need for additional query
+    if (channel.state.messages.length < 25) {
+      loadMoreFinished(false, channel.state.messages);
+      return channel.state.messages.length;
+    }
+
+    dispatch({ loadingMore: true, type: 'setLoadingMore' });
+
+    const oldestID = oldestMessage?.id;
+    const perPage = limit;
+    let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
+
+    try {
+      queryResponse = await channel.query({
+        messages: { id_lt: oldestID, limit: perPage },
+        watchers: { limit: perPage },
       });
-    },
-    [channel, state.thread],
-  );
+    } catch (e) {
+      console.warn('message pagination request failed with error', e);
+      dispatch({ loadingMore: false, type: 'setLoadingMore' });
+      return 0;
+    }
+
+    const hasMoreMessages = queryResponse.messages.length === perPage;
+    loadMoreFinished(hasMoreMessages, channel.state.messages);
+
+    return queryResponse.messages.length;
+  };
+
+  const updateMessage = (
+    updatedMessage:
+      | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
+      | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  ) => {
+    // add the message to the local channel state
+    channel.state.addMessageSorted(updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>, true);
+
+    dispatch({
+      channel,
+      parentId: state.thread && updatedMessage.parent_id,
+      type: 'copyMessagesFromChannel',
+    });
+  };
 
   const isUserResponseArray = (
     output: string[] | UserResponse<Us>[],
   ): output is UserResponse<Us>[] => (output as UserResponse<Us>[])[0]?.id != null;
 
-  const doSendMessage = useCallback(
-    async (
-      message:
-        | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
-        | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-      customMessageData?: Partial<Message<At, Me, Us>>,
-    ) => {
-      if (!channel) return;
+  const doSendMessage = async (
+    message: MessageToSend<At, Ch, Co, Ev, Me, Re, Us> | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    customMessageData?: Partial<Message<At, Me, Us>>,
+  ) => {
+    const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
-      const { attachments, id, mentioned_users = [], parent_id, text } = message;
+    // channel.sendMessage expects an array of user id strings
+    const mentions = isUserResponseArray(mentioned_users)
+      ? mentioned_users.map(({ id }) => id)
+      : mentioned_users;
 
-      // channel.sendMessage expects an array of user id strings
-      const mentions = isUserResponseArray(mentioned_users)
-        ? mentioned_users.map(({ id }) => id)
-        : mentioned_users;
+    const messageData = {
+      attachments,
+      id,
+      mentioned_users: mentions,
+      parent_id,
+      quoted_message_id: quotedMessage?.id,
+      text,
+      ...customMessageData,
+    } as Message<At, Me, Us>;
 
-      const messageData = {
-        attachments,
-        id,
-        mentioned_users: mentions,
-        parent_id,
-        quoted_message_id: quotedMessage?.id,
-        text,
-        ...customMessageData,
-      } as Message<At, Me, Us>;
+    try {
+      let messageResponse: void | SendMessageAPIResponse<At, Ch, Co, Me, Re, Us>;
 
-      try {
-        let messageResponse: void | SendMessageAPIResponse<At, Ch, Co, Me, Re, Us>;
+      if (doSendMessageRequest) {
+        messageResponse = await doSendMessageRequest(channel.cid, messageData);
+      } else {
+        messageResponse = await channel.sendMessage(messageData);
+      }
 
-        if (doSendMessageRequest) {
-          messageResponse = await doSendMessageRequest(channel.cid, messageData);
-        } else {
-          messageResponse = await channel.sendMessage(messageData);
-        }
-
-        // replace it after send is completed
-        if (messageResponse && messageResponse.message) {
-          updateMessage({
-            ...messageResponse.message,
-            status: 'received',
-          });
-        }
-
-        if (quotedMessage) setQuotedMessage(undefined);
-      } catch (error) {
-        // error response isn't usable so needs to be stringified then parsed
-        const stringError = JSON.stringify(error);
-        const parsedError = stringError ? JSON.parse(stringError) : {};
-
+      // replace it after send is completed
+      if (messageResponse?.message) {
         updateMessage({
-          ...message,
-          errorStatusCode: (parsedError.status as number) || undefined,
-          status: 'failed',
+          ...messageResponse.message,
+          status: 'received',
         });
       }
-    },
-    [channel, doSendMessageRequest, quotedMessage, updateMessage],
-  );
 
-  const createMessagePreview = useCallback(
-    (
-      text: string,
-      attachments: MessageAttachments<At>,
-      parent: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined,
-      mentioned_users: UserResponse<Us>[],
-    ) => {
-      // create a preview of the message
-      const clientSideID = `${client.userID}-${uuidv4()}`;
+      if (quotedMessage) setQuotedMessage(undefined);
+    } catch (error) {
+      // error response isn't usable so needs to be stringified then parsed
+      const stringError = JSON.stringify(error);
+      const parsedError = stringError ? JSON.parse(stringError) : {};
 
-      return ({
-        __html: text,
-        attachments,
-        created_at: new Date(),
-        html: text,
-        id: clientSideID,
-        mentioned_users,
-        reactions: [],
-        status: 'sending',
-        text,
-        type: 'regular',
-        user: client.user,
-        ...(parent?.id ? { parent_id: parent.id } : null),
-      } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
-    },
-    [client.user, client.userID],
-  );
-
-  const sendMessage = useCallback(
-    async (
-      {
-        attachments = [],
-        mentioned_users = [],
-        parent = undefined,
-        text = '',
-      }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
-      customMessageData?: Partial<Message<At, Me, Us>>,
-    ) => {
-      if (!channel) return;
-
-      // remove error messages upon submit
-      channel.state.filterErrorMessages();
-
-      // create a local preview message to show in the UI
-      const messagePreview = createMessagePreview(text, attachments, parent, mentioned_users);
-
-      // first we add the message to the UI
-      updateMessage(messagePreview);
-
-      await doSendMessage(messagePreview, customMessageData);
-    },
-    [channel?.state, createMessagePreview, doSendMessage, updateMessage],
-  );
-
-  const retrySendMessage = useCallback(
-    async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
-      // set the message status to sending
       updateMessage({
         ...message,
-        errorStatusCode: undefined,
-        status: 'sending',
+        errorStatusCode: (parsedError.status as number) || undefined,
+        status: 'failed',
       });
+    }
+  };
 
-      // actually try to send the message...
-      await doSendMessage(message);
-    },
-    [doSendMessage, updateMessage],
-  );
+  const createMessagePreview = (
+    text: string,
+    attachments: MessageAttachments<At>,
+    parent: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined,
+    mentioned_users: UserResponse<Us>[],
+  ) => {
+    const clientSideID = `${client.userID}-${uuidv4()}`;
 
-  const removeMessage = useCallback(
-    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (!channel) return;
+    return ({
+      __html: text,
+      attachments,
+      created_at: new Date(),
+      html: text,
+      id: clientSideID,
+      mentioned_users,
+      reactions: [],
+      status: 'sending',
+      text,
+      type: 'regular',
+      user: client.user,
+      ...(parent?.id ? { parent_id: parent.id } : null),
+    } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
+  };
 
-      channel.state.removeMessage(message);
+  const sendMessage = async (
+    {
+      attachments = [],
+      mentioned_users = [],
+      parent = undefined,
+      text = '',
+    }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
+    customMessageData?: Partial<Message<At, Me, Us>>,
+  ) => {
+    channel.state.filterErrorMessages();
 
-      dispatch({
-        channel,
-        parentId: state.thread && message.parent_id,
-        type: 'copyMessagesFromChannel',
-      });
-    },
-    [channel, state.thread],
-  );
+    const messagePreview = createMessagePreview(text, attachments, parent, mentioned_users);
+
+    updateMessage(messagePreview);
+
+    await doSendMessage(messagePreview, customMessageData);
+  };
+
+  const retrySendMessage = async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+    updateMessage({
+      ...message,
+      errorStatusCode: undefined,
+      status: 'sending',
+    });
+
+    await doSendMessage(message);
+  };
+
+  const removeMessage = (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+    channel.state.removeMessage(message);
+
+    dispatch({
+      channel,
+      parentId: state.thread && message.parent_id,
+      type: 'copyMessagesFromChannel',
+    });
+  };
 
   /** THREAD */
 
-  const openThread = useCallback(
-    (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>, event: React.BaseSyntheticEvent) => {
-      if (!channel) return;
+  const openThread = (
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    event: React.BaseSyntheticEvent,
+  ) => {
+    event.preventDefault();
+    dispatch({ channel, message, type: 'openThread' });
+  };
 
-      if (event && event.preventDefault) {
-        event.preventDefault();
-      }
+  const closeThread = (event: React.BaseSyntheticEvent) => {
+    event.preventDefault();
+    dispatch({ type: 'closeThread' });
+  };
 
-      dispatch({ channel, message, type: 'openThread' });
+  const loadMoreThreadFinished = debounce(
+    (
+      threadHasMore: boolean,
+      threadMessages: Array<ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>>,
+    ) => {
+      dispatch({
+        threadHasMore,
+        threadMessages,
+        type: 'loadMoreThreadFinished',
+      });
     },
-    [channel],
+    2000,
+    { leading: true, trailing: true },
   );
 
-  const loadMoreThreadFinished = useCallback(
-    debounce(
-      (
-        threadHasMore: boolean,
-        threadMessages: Array<
-          ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
-        >,
-      ) => {
-        dispatch({
-          threadHasMore,
-          threadMessages,
-          type: 'loadMoreThreadFinished',
-        });
-      },
-      2000,
-      { leading: true, trailing: true },
-    ),
-    [],
-  );
-
-  const loadMoreThread = useCallback(async () => {
-    // prevent duplicate loading events...
-    if (!channel || state.threadLoadingMore || !state.thread) return;
+  const loadMoreThread = async () => {
+    if (state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentID = state.thread.id;
 
     if (!parentID) {
-      dispatch({ type: 'closeThread' });
-      return;
+      return dispatch({ type: 'closeThread' });
     }
 
     const oldMessages = channel.state.threads[parentID] || [];
@@ -775,20 +709,12 @@ const ChannelInner = <
       const threadHasMoreMessages = queryResponse.messages.length === limit;
       const newThreadMessages = channel.state.threads[parentID] || [];
 
-      // next set loadingMore to false so we can start asking for more data...
+      // next set loadingMore to false so we can start asking for more data
       loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
     } catch (e) {
       loadMoreThreadFinished(false, oldMessages);
     }
-  }, [channel, loadMoreThreadFinished, state.thread, state.threadLoadingMore]);
-
-  const closeThread = useCallback((event: React.BaseSyntheticEvent) => {
-    if (event && event.preventDefault) {
-      event.preventDefault();
-    }
-
-    dispatch({ type: 'closeThread' });
-  }, []);
+  };
 
   const onMentionsHoverOrClick = useMentionsHandlers(onMentionsHover, onMentionsClick);
 
@@ -796,7 +722,7 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
     acceptedFiles,
     channel,
@@ -807,24 +733,27 @@ const ChannelInner = <
     notifications,
     quotedMessage,
     watcher_count: state.watcherCount,
-  };
+  });
 
-  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
-    addNotification,
-    closeThread,
-    dispatch,
-    editMessage,
-    loadMore,
-    loadMoreThread,
-    onMentionsClick: onMentionsHoverOrClick,
-    onMentionsHover: onMentionsHoverOrClick,
-    openThread,
-    removeMessage,
-    retrySendMessage,
-    sendMessage,
-    setQuotedMessage,
-    updateMessage,
-  };
+  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+    () => ({
+      addNotification,
+      closeThread,
+      dispatch,
+      editMessage,
+      loadMore,
+      loadMoreThread,
+      onMentionsClick: onMentionsHoverOrClick,
+      onMentionsHover: onMentionsHoverOrClick,
+      openThread,
+      removeMessage,
+      retrySendMessage,
+      sendMessage,
+      setQuotedMessage,
+      updateMessage,
+    }),
+    [channel.cid, loadMore, quotedMessage],
+  );
 
   const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
@@ -877,9 +806,9 @@ const ChannelInner = <
     [],
   );
 
-  const typingContextValue: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const typingContextValue = useCreateTypingContext({
     typing,
-  };
+  });
 
   const chatClass = customClasses?.chat || 'str-chat';
   const channelClass = customClasses?.channel || 'str-chat-channel';
@@ -904,7 +833,7 @@ const ChannelInner = <
     );
   }
 
-  if (!channel?.watch) {
+  if (!channel.watch) {
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
         <div>{t('Channel Missing')}</div>
