@@ -1,0 +1,8 @@
+@import './_variables';
+
+.video-container {
+  height: 100%;
+  width: 100%;
+  background: $primary-accent;
+  transition: background 1s;
+}

@@ -1,0 +1,111 @@
+@import './_variables';
+
+.navigation {
+  height: 100%;
+  width: 80px;
+  background: $app-canvas;
+  border: 1px solid $stroke;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 1s;
+
+  &-top {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16px;
+
+    > .main-logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1.6px solid $stroke;
+      box-sizing: border-box;
+      border-radius: 24px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    &-theme-modal {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      width: 200px;
+      background: $app-canvas;
+      border-radius: 8px;
+      top: 72px;
+      left: 16px;
+      border: 1px solid $stroke-low-emphasis;
+      box-shadow: $shadow;
+      transition: all 1s;
+      z-index: 99;
+
+      &-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 40px;
+        padding-left: 16px;
+        padding-right: 16px;
+        color: $text-high-emphasis;
+        font-size: 12px;
+        transition: all 0.2s;
+
+        &:hover {
+          cursor: pointer;
+          color: $text-self;
+          background: $primary-accent;
+
+          svg path:last-child {
+            fill: #ffffff;
+            transition: all 0.2s;
+          }
+        }
+      }
+
+      > div:first-child:hover {
+        border-radius: 8px 8px 0 0;
+      }
+
+      > div:last-child:hover {
+        border-radius: 0 0 8px 8px;
+      }
+    }
+
+    &-tabs {
+      > div {
+        position: relative;
+
+        .selected {
+          position: absolute;
+          top: 6px;
+          background: $primary-accent;
+          width: 8px;
+          height: 55px;
+          border-radius: 0px 4px 4px 0px;
+        }
+      }
+
+      svg {
+        padding: 8px;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  > img {
+    border-radius: 24px;
+    margin-bottom: 16px;
+  }
+}

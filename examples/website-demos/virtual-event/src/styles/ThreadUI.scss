@@ -1,0 +1,78 @@
+@import './_variables';
+
+.str-chat {
+  &__li {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  &__thread {
+    max-width: unset;
+
+    &-list {
+      padding: unset;
+    }
+
+    .dm-header-container {
+      border: none;
+      border-bottom: 1px solid $stroke;
+    }
+
+    &-start {
+      display: none;
+    }
+  }
+}
+
+.message-ui {
+  margin-top: auto;
+}
+
+.str-chat__thread .str-chat__message-replies-count-button {
+  display: none;
+}
+
+.messaging.str-chat .str-chat__thread {
+  margin: unset;
+  position: absolute;
+  height: 100%;
+  top: 0;
+}
+
+.messaging.str-chat .str-chat__list .str-chat__reverse-infinite-scroll {
+  padding-top: 0;
+}
+
+.messaging.str-chat .str-chat__thread-list {
+  padding: unset;
+
+  > :first-child {
+    border-bottom: 1px solid $stroke;
+
+    .message-ui-options {
+      display: none;
+    }
+  }
+
+  .str-chat__virtual-list {
+    overflow-y: unset;
+    overflow-x: unset;
+
+    > :first-child {
+      overflow: unset !important;
+    }
+  }
+}
+
+.thread-footer {
+  display: flex;
+  padding: 8px;
+  align-items: center;
+  background: $app-canvas;
+  transition: background 1s;
+
+  &-text {
+    font-size: 12px;
+    margin-left: 8px;
+    color: $text-high-emphasis;
+  }
+}

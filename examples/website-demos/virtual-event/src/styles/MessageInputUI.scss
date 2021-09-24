@@ -1,0 +1,255 @@
+@import './_variables';
+
+.input-ui {
+  &-container {
+    position: relative;
+    display: flex;
+    width: 320px;
+    border-top: 1px solid $stroke;
+    background: $app-canvas;
+    transition: background 1s;
+  }
+
+  &-input {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    border: 1px solid $stroke;
+    margin: 8px;
+    padding: 8px;
+    height: 40px;
+    flex: 1;
+    background: $card-alt-background;
+    transition: background 1s, border-color 0.2s;
+
+    &-commands {
+      margin-right: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      svg:hover path {
+        fill: $primary-accent;
+      }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
+      }
+    }
+
+    &-emoji-picker {
+      &:hover {
+        cursor: pointer;
+      }
+
+      svg:hover path {
+        fill: $primary-accent;
+      }
+
+      &.cooldown {
+        &:hover {
+          cursor: default;
+        }
+
+        svg:hover path {
+          fill: $text-mid-emphasis;
+        }
+      }
+    }
+
+    &.giphy {
+      border: 2px solid $primary-accent;
+      caret-color: $primary-accent;
+    }
+
+    &:focus-within {
+      border: 2px solid $primary-accent;
+      caret-color: $primary-accent;
+    }
+  }
+
+  &-send {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    border-radius: 8px;
+    height: 40px;
+    width: 40px;
+    background: $card-background;
+    transition: background 1s;
+    margin: 8px 8px 8px 0;
+    color: $text-low-emphasis;
+    font-size: 11px;
+
+    svg {
+      fill: $text-low-emphasis;
+    }
+
+    &.text {
+      &:hover {
+        cursor: pointer;
+      }
+
+      svg path {
+        fill: $primary-accent;
+      }
+
+      div {
+        color: $primary-accent;
+      }
+    }
+
+    &-cooldown {
+      font-size: 20px;
+      font-weight: 600;
+      color: $primary-accent;
+    }
+
+    &.cooldown:hover {
+      cursor: default;
+    }
+
+    &:active {
+      background: $primary-accent;
+      transition: background 1s;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
+    }
+  }
+}
+
+.str-chat__textarea {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.str-chat__textarea textarea {
+  background: $card-alt-background;
+  transition: background 1s;
+  padding: 0;
+  padding-left: 4px;
+  border: none;
+  min-height: unset;
+  font-size: 14px;
+  border-radius: 0;
+  color: $text-high-emphasis;
+}
+
+.str-chat__textarea textarea:focus {
+  background: $card-alt-background;
+  transition: background 1s;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.str-chat__input--emojipicker {
+  z-index: 1;
+}
+
+.emoji-mart {
+  width: 320px !important;
+  background: $app-canvas;
+  transition: background 1s;
+  box-shadow: $shadow;
+  border-color: $stroke;
+
+  &-category-label {
+    background: $app-canvas;
+    transition: background 1s;
+    color: $text-high-emphasis;
+
+    span {
+      background: $app-canvas;
+      transition: background 1s;
+    }
+  }
+  &-bar {
+    display: none;
+  }
+
+  &-search {
+    display: none;
+  }
+}
+
+.str-chat__emojisearch {
+  z-index: 999;
+  background: $app-canvas;
+  box-shadow: $shadow;
+  border-radius: 8px;
+  bottom: 65px;
+}
+
+.rta__list-header {
+  padding: 0;
+}
+
+.suggestion-header {
+  color: $text-mid-emphasis;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding-left: 8px;
+  padding-top: 8px;
+
+  span {
+    color: $primary-accent;
+    font-size: 22px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+
+  :last-child {
+    margin-left: 8px;
+  }
+
+  svg path {
+    fill: $primary-accent;
+  }
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 0 8px;
+  color: $text-high-emphasis;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+
+  &-icon {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  &-description {
+    margin-left: 8px;
+    color: $text-mid-emphasis;
+    font-weight: normal;
+    font-size: 14px;
+  }
+}
+
+.suggestion-item.selected {
+  background: $stroke-low-emphasis;
+  cursor: pointer;
+}

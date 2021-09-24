@@ -1,0 +1,250 @@
+@import './_variables';
+
+.str-chat {
+  height: calc(100vh - 114px); // height of ChatHeader component
+}
+
+.str-chat-channel.messaging .str-chat__main-panel {
+  padding: 0;
+}
+
+.str-chat__virtual-list {
+  background: $app-canvas;
+  transition: background 1s;
+}
+
+.str-chat__input-flat {
+  background: $app-canvas;
+  transition: background 1s;
+}
+
+.chat {
+  position: relative;
+  height: 100%;
+  width: 320px;
+  min-width: 320px;
+  background: $app-canvas;
+  transition: all 0.5s, background 1s;
+  border: 1px solid $stroke;
+
+  &-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+
+    &-button {
+      position: relative;
+
+      .unread {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        height: 6px;
+        width: 6px;
+        border-radius: 3px;
+        background: $accent-red;
+      }
+    }
+
+    svg {
+      padding-bottom: 8px;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  &-close:hover {
+    cursor: pointer;
+  }
+
+  &.full-screen {
+    width: 56px;
+    min-width: 56px;
+  }
+
+  &.actions-modal {
+    border-color: $overlay;
+    border-radius: 0;
+  }
+
+  &-components {
+    &.full-screen {
+      visibility: hidden;
+
+      .str-chat {
+        height: 0;
+      }
+    }
+
+    &-header {
+      background: $app-canvas;
+      transition: background 1s;
+
+      &-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+
+        svg:hover {
+          cursor: pointer;
+        }
+      }
+
+      &-tabs {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        height: 56px;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 18px;
+        color: $text-high-emphasis;
+        border-top: 1px solid $stroke;
+        border-bottom: 1px solid $stroke;
+
+        &-item {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+
+          &:hover {
+            cursor: pointer;
+          }
+
+          .selected {
+            position: absolute;
+            top: 0;
+            width: 72px;
+            height: 4px;
+            background: $primary-accent;
+            border-radius: 0 0 4px 4px;
+          }
+
+          .selected + div {
+            font-weight: 600;
+          }
+
+          .unread {
+            position: absolute;
+            top: 20px;
+            left: -6px;
+            height: 4px;
+            width: 4px;
+            border-radius: 2px;
+            background: $accent-red;
+          }
+        }
+      }
+    }
+
+    &-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+
+      :nth-child(2) {
+        font-size: 18px;
+        color: $text-high-emphasis;
+        margin: 10px 0;
+      }
+
+      :last-child {
+        font-size: 14px;
+        color: $text-mid-emphasis;
+        text-align: center;
+        max-width: 260px;
+      }
+    }
+
+    .dropdown {
+      display: flex;
+      flex-direction: column;
+      z-index: 3;
+      right: 10px;
+      position: absolute;
+      border-radius: 8px;
+      box-shadow: $shadow;
+      background: $app-canvas;
+      transition: background 1s;
+      overflow: hidden;
+
+      &-option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: $text-high-emphasis;
+        height: 40px;
+        width: 130px;
+        padding: 0 16px;
+        font-size: 12px;
+        box-sizing: border-box;
+
+        &.thread {
+          &:hover {
+            svg path {
+              fill: $text-self;
+            }
+          }
+        }
+      }
+
+      &-option:hover {
+        background: $primary-accent;
+        color: $text-self;
+        cursor: pointer;
+      }
+    }
+
+    .snackbar {
+      @keyframes fade {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        20%,
+        80% {
+          opacity: 1;
+        }
+      }
+
+      z-index: 10;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      align-items: center;
+      background: $app-canvas;
+      border-radius: 16px;
+      height: 56px;
+      width: 304px;
+      padding: 0 20px;
+      box-sizing: border-box;
+      filter: drop-shadow($shadow);
+      animation: fade 3s linear;
+
+      div {
+        color: $text-high-emphasis;
+        font-size: 14px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+
+      :last-child {
+        position: absolute;
+        right: 20px;
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+@import './_variables';
+
+.central-panel-container {
+  height: 100%;
+  width: 100%;
+  min-width: 250px;
+  transition: all 1s;
+  border-bottom: 1px solid $stroke;
+}
