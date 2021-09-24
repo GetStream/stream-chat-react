@@ -12,12 +12,12 @@ import {
 
 import { AvatarGroup, getTimeStamp } from '../ChannelPreview/utils';
 import {
-  SocialAttachmentType,
-  SocialChannelType,
-  SocialCommandType,
-  SocialEventType,
-  SocialMessageType,
-  SocialReactionType,
+  // SocialAttachmentType,
+  // SocialChannelType,
+  // SocialCommandType,
+  // SocialEventType,
+  // SocialMessageType,
+  // SocialReactionType,
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 

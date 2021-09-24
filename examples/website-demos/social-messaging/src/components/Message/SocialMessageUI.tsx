@@ -1,14 +1,19 @@
 import {
   Attachment,
   Avatar,
+  ReactionSelector,
+  messageHasReactions,
+  MessageOptions,
+  MessageRepliesCountButton,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
+  SimpleReactionsList,
   useChannelStateContext,
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark, } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -35,7 +40,7 @@ export const SocialMessage: React.FC<
 > = (props) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { isMyMessage, message, readBy } = useMessageContext<
+  const { isMyMessage, isReactionEnabled, message, readBy, reactionSelectorRef, showDetailedReactions } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,
@@ -48,6 +53,8 @@ export const SocialMessage: React.FC<
   const members = Object.values(channel.state.members).filter(
     ({ user }) => user?.id !== client.userID,
   ).length;
+
+  const hasReactions = messageHasReactions(message);
 
   const myMessage = isMyMessage();
 
@@ -86,8 +93,14 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
-        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        {showDetailedReactions && isReactionEnabled && (
+          <ReactionSelector ref={reactionSelectorRef} />
+          )}
+        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <MessageOptions displayLeft={false} displayReplies={true} />
+        <MessageRepliesCountButton reply_count={message.reply_count} />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
             <div className='message-wrapper-inner-data-info'>
