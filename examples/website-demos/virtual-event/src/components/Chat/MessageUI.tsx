@@ -1,4 +1,4 @@
-import React, { BaseSyntheticEvent, Suspense, useEffect, useState } from 'react';
+import React, { BaseSyntheticEvent, Suspense, useEffect, useRef, useState } from 'react';
 import {
   Attachment,
   Avatar,
@@ -31,18 +31,24 @@ import type {
 } from '../../hooks/useInitChat';
 
 type OptionsProps = {
+  dropdownOpen: boolean;
   isRecentMessage: boolean;
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const { isRecentMessage, setMessageActionUser, setShowReactionSelector } = props;
+  const {
+    dropdownOpen,
+    isRecentMessage,
+    setDropdownOpen,
+    setMessageActionUser,
+    setShowReactionSelector,
+  } = props;
 
   const { thread } = useChannelStateContext();
   const { handleOpenThread, isMyMessage, message } = useMessageContext();
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
 
@@ -121,15 +127,22 @@ export const MessageUI: React.FC<
     UserType
   >();
 
-  const [replyCount, setReplyCount] = useState(message.reply_count);
+  const replyCount = useRef(message.reply_count);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [showReactionSelector, setShowReactionSelector] = useState(false);
   const [threadParent, setThreadParent] = useState<StreamMessage>();
 
   const clearModals = () => {
+    setDropdownOpen(false);
     setShowOptions(false);
     setShowReactionSelector(false);
   };
+
+  useEffect(() => {
+    if (!dropdownOpen) clearModals();
+  }, [dropdownOpen]);
 
   useEffect(() => {
     if (showReactionSelector) document.addEventListener('click', clearModals);
@@ -138,25 +151,28 @@ export const MessageUI: React.FC<
 
   useEffect(() => {
     const getMessage = async () => {
-      const { results } = await channel.search({ id: { $eq: message.parent_id || '' } });
-      const foundMessage = results[0]?.message;
+      try {
+        const { results } = await channel.search({ id: { $eq: message.parent_id || '' } });
+        const foundMessage = results[0]?.message;
 
-      if (foundMessage) {
-        setReplyCount(foundMessage.reply_count);
-        setThreadParent(foundMessage);
+        if (foundMessage) {
+          replyCount.current = foundMessage.reply_count;
+          setThreadParent(foundMessage);
+        }
+      } catch (err) {
+        console.log(err);
       }
     };
 
-    if (message.show_in_channel && !replyCount) getMessage();
+    if (message.show_in_channel && !replyCount.current) getMessage();
   }, []); // eslint-disable-line
 
   const customOpenThread = (event: BaseSyntheticEvent) =>
     threadParent ? openThread(threadParent, event) : handleOpenThread(event);
 
   const isRecentMessage =
-    (messages?.[messages.length - 1].id === message.id ||
-      messages?.[messages.length - 2]?.id === message.id) &&
-    messages.length > 2;
+    messages?.[messages.length - 1].id === message.id ||
+    messages?.[messages.length - 2]?.id === message.id;
 
   const isTopMessage = messages?.[0].id === message.id;
 
@@ -202,7 +218,8 @@ export const MessageUI: React.FC<
   const isQA = chatType === 'qa';
   const userUpVoted = client.userID && message.up_votes?.includes(client.userID);
 
-  const repliesToShow = replyCount || (!replyCount && message.show_in_channel && 2) || undefined;
+  const repliesToShow =
+    replyCount.current || (!replyCount.current && message.show_in_channel && 2) || undefined;
 
   if (!message.user) return null;
 
@@ -214,7 +231,9 @@ export const MessageUI: React.FC<
     >
       {showOptions && !isQA && (
         <MessageOptions
+          dropdownOpen={dropdownOpen}
           isRecentMessage={isRecentMessage}
+          setDropdownOpen={setDropdownOpen}
           setMessageActionUser={setMessageActionUser}
           setShowReactionSelector={setShowReactionSelector}
         />
