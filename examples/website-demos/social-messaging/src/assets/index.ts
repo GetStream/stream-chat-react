@@ -19,6 +19,7 @@ export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';
 export { NewGroupMessage } from './NewGroupMessage';
 export { OptionsIcons } from './OptionsIcons';
+export { ReactionBubble } from './ReactionBubble';
 export { SearchIcon } from './SearchIcon';
 export { SendArrow } from './SendArrow';
 export { StartThread } from './StartThread';

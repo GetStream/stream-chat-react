@@ -13,7 +13,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark, } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark, ReactionBubble, } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -93,6 +93,12 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
+        {hasReactions && !showDetailedReactions && isReactionEnabled &&
+        <>
+          <SimpleReactionsList />
+          <ReactionBubble />
+        </>
+        }
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {message.thread_participants ? (
@@ -100,11 +106,10 @@ export const SocialMessage: React.FC<
           <MessageRepliesCountButton reply_count={message.reply_count} />
           <Avatar size={16} image={message.thread_participants[0].image} />
         </div> ) : null}
-        <MessageOptions displayLeft={false} displayReplies={true} />
+        <MessageOptions displayReplies={true} />
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector ref={reactionSelectorRef} />
           )}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
             <div className='message-wrapper-inner-data-info'>

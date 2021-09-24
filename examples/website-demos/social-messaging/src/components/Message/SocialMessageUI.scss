@@ -69,8 +69,23 @@
     &-reply {
       display: flex;
       align-items: flex-end;
+      border-right: 1px solid #dbdde1;
+      border-bottom-right-radius: 16px;
+      bottom: 5px;
+    //   transform: matrix(-1, 0, 0, 1, 0, 0);
     }
   }
+}
+
+ul.str-chat__simple-reactions-list {
+  border: none;
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+}
+
+li.str-chat__simple-reactions-list-item--last-number {
+  display: none;
 }
 
 .right {
