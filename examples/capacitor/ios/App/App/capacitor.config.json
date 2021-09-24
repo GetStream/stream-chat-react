@@ -1,6 +1,6 @@
 {
-	"appId": "capacitor.test",
-	"appName": "capacitor",
-	"webDir": "build",
-	"bundledWebRuntime": false
+  "appId": "capacitor.test",
+  "appName": "capacitor",
+  "webDir": "build",
+  "bundledWebRuntime": false
 }

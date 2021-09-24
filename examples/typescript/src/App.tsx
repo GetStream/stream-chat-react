@@ -33,7 +33,7 @@ chatClient.connectUser({ id: userId }, userToken);
 const App = () => (
   <Chat client={chatClient} theme={`messaging ${theme}`}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
-    <Channel>
+    <Channel skipMessageDataMemoization>
       <Window>
         <ChannelHeader />
         <MessageList />
