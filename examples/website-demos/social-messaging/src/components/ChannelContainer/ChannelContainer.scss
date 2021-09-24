@@ -1,10 +1,6 @@
 @import '../../styles/_variables';
 
-.str-chat__list {
-  background: $app-bg !important;
-}
-
-.messaging.str-chat .str-chat__list {
+div.messaging.str-chat .str-chat__list {
   background: $app-bg;
 }
 
