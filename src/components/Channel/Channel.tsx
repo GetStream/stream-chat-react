@@ -220,6 +220,8 @@ export type ChannelProps<
   ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['SendButton'];
+  /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
+  skipMessageDataMemoization?: boolean;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadHeader'];
   /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
@@ -285,6 +287,7 @@ const ChannelInner = <
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
+    skipMessageDataMemoization,
   } = props;
 
   const { client, customClasses, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
@@ -750,6 +753,7 @@ const ChannelInner = <
       retrySendMessage,
       sendMessage,
       setQuotedMessage,
+      skipMessageDataMemoization,
       updateMessage,
     }),
     [channel.cid, loadMore, quotedMessage],
