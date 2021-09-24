@@ -23,7 +23,9 @@ export const useCreateChannelStateContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  value: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>,
+  value: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+    skipMessageDataMemoization?: boolean;
+  },
 ) => {
   const {
     acceptedFiles,
@@ -42,10 +44,11 @@ export const useCreateChannelStateContext = <
     pinnedMessages,
     quotedMessage,
     read = {},
+    skipMessageDataMemoization,
     thread,
     threadHasMore,
     threadLoadingMore,
-    threadMessages,
+    threadMessages = [],
     watcherCount,
     watcher_count,
     watchers,
@@ -60,12 +63,27 @@ export const useCreateChannelStateContext = <
   const readUsersLastReads = readUsers.map(({ last_read }) => last_read.toISOString()).join();
   const threadMessagesLength = threadMessages?.length;
 
-  const stringifiedMessageData = messages
+  const memoizedMessageData = skipMessageDataMemoization
+    ? messages
+    : messages
+        .map(
+          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at }) =>
+            `${deleted_at}${
+              latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
+            }${pinned}${reply_count}${status}${
+              updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
+                ? updated_at.toISOString()
+                : updated_at || ''
+            }`,
+        )
+        .join();
+
+  const memoizedThreadMessageData = threadMessages
     .map(
-      ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at }) =>
+      ({ deleted_at, latest_reactions, pinned, status, updated_at }) =>
         `${deleted_at}${
           latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
-        }${pinned}${reply_count}${status}${
+        }${pinned}${status}${
           updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
             ? updated_at.toISOString()
             : updated_at || ''
@@ -107,11 +125,13 @@ export const useCreateChannelStateContext = <
       loading,
       loadingMore,
       membersLength,
+      memoizedMessageData,
+      memoizedThreadMessageData,
       notificationsLength,
       quotedMessage,
       readUsersLength,
       readUsersLastReads,
-      stringifiedMessageData,
+      skipMessageDataMemoization,
       thread,
       threadHasMore,
       threadLoadingMore,
