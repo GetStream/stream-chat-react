@@ -93,14 +93,18 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
+        <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        {message.thread_participants ? (
+        <div className='message-wrapper-inner-reply'>
+          <MessageRepliesCountButton reply_count={message.reply_count} />
+          <Avatar size={16} image={message.thread_participants[0].image} />
+        </div> ) : null}
+        <MessageOptions displayLeft={false} displayReplies={true} />
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector ref={reactionSelectorRef} />
           )}
         {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
-        <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        <MessageOptions displayLeft={false} displayReplies={true} />
-        <MessageRepliesCountButton reply_count={message.reply_count} />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
             <div className='message-wrapper-inner-data-info'>

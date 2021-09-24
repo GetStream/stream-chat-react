@@ -65,6 +65,11 @@
         margin-bottom: 3px;
       }
     }
+
+    &-reply {
+      display: flex;
+      align-items: flex-end;
+    }
   }
 }
 
@@ -92,10 +97,18 @@
   border-radius: 18px 18px 0px 18px;
 }
 
+.str-chat__message-replies-count-button svg {
+  display: none;
+}
+
+button.str-chat__message-replies-count-button {
+  padding: 0 8px;
+}
+
 .str-chat__li:hover .str-chat__message-simple__actions {
-  position: absolute;
-  bottom: 0;
-  display: flex;
+  //   position: absolute;
+  //   bottom: 0;
+  //   display: flex;
 
   &__action--reactions {
     display: flex;
