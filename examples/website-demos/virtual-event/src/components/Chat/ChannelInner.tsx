@@ -10,7 +10,11 @@ export const ChannelInner = () => {
   return (
     <>
       <Window hideOnThread>
-        <VirtualizedMessageList hideDeletedMessages separateGiphyPreview />
+        <VirtualizedMessageList
+          additionalVirtuosoProps={{ alignToBottom: true }}
+          hideDeletedMessages
+          separateGiphyPreview
+        />
         <MessageInput focus maxRows={2} grow overrideSubmitHandler={overrideSubmitHandler} />
       </Window>
       <ThreadInner />
