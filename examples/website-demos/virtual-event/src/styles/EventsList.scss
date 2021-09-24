@@ -122,9 +122,52 @@
 
     .event-card-container {
       flex-direction: column;
-      margin: unset;
+      margin: 0;
       height: 100%;
       background: $app-canvas;
+    }
+
+    .event-card-title {
+      margin-bottom: 8px;
+      flex: unset;
+
+      svg {
+        width: 18px;
+      }
+    }
+
+    .event-card-content {
+      width: unset;
+      height: 100%;
+      margin: 10px;
+      &-content {
+        margin-bottom: 8px;
+      }
+    }
+
+    .event-card-image {
+      width: 100%;
+
+      svg {
+        height: auto;
+        width: 100%;
+      }
+    }
+
+    .event-card-viewers {
+      &-right {
+        margin-left: 16px;
+
+        &-count {
+          margin-left: 4px;
+        }
+      }
+
+      &-left {
+        &-count {
+          margin-left: 4px;
+        }
+      }
     }
   }
 

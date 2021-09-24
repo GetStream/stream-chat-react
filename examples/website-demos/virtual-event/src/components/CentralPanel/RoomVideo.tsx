@@ -22,8 +22,8 @@ type Props = {
 };
 
 export const RoomVideo: React.FC<Props> = ({ handleBackArrow }) => {
-  const [isPinned, setIsPinned] = useState(false);
-  const [pinnedID, setPinnedID] = useState(null);
+  const [isPinned, setIsPinned] = useState(true);
+  const [pinnedID, setPinnedID] = useState<string | null>('1');
 
   const { eventNumber, label, presenters, title, viewers } = useVideoContext();
 

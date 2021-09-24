@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.0) 2021-09-24
+
+### Feature
+
+- Add new virtual event example app [#1189](https://github.com/GetStream/stream-chat-react/pull/1189)
+- Memoize object values injected into context providers [#1194](https://github.com/GetStream/stream-chat-react/pull/1194)
+- Support emojis as the first character in a user name for the `Avatar` component's fallback [#1201](https://github.com/GetStream/stream-chat-react/pull/1201)
+- Provide the option to pass additional props to the `Virtuoso` component in the `VirtualizedMessageList` [#1202](https://github.com/GetStream/stream-chat-react/pull/1202)
+
+ ### Chore
+- Improve documentation around approved attachment types [#1190](https://github.com/GetStream/stream-chat-react/pull/1190)
+- Upgrade `react-virtuoso` dependency [#1194](https://github.com/GetStream/stream-chat-react/pull/1194)
+- Refactor `ChannelList` pagination offset logic to handle channels being added/removed from the list [#1200](https://github.com/GetStream/stream-chat-react/pull/1200)
+
 ## [6.8.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.8.0) 2021-09-17
 
 ### Feature

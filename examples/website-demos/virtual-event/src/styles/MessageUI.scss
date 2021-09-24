@@ -187,6 +187,11 @@
     margin-top: 4px;
     max-width: 250px;
     border-color: $stroke;
+
+    &--content {
+      background: $app-canvas;
+      transition: background 1s;
+    }
   }
 
   .str-chat__message-attachment--giphy {

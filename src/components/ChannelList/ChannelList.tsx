@@ -250,14 +250,7 @@ const UnMemoizedChannelList = <
    */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
-  const {
-    channels,
-    hasNextPage,
-    loadNextPage,
-    setChannels,
-    setOffset,
-    status,
-  } = usePaginatedChannels(
+  const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
     sort || DEFAULT_SORT,
@@ -273,7 +266,6 @@ const UnMemoizedChannelList = <
   useNotificationMessageNewListener(
     setChannels,
     onMessageNew,
-    setOffset,
     allowNewMessagesFromUnfilteredChannels,
   );
   useNotificationAddedToChannelListener(
