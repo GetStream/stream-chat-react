@@ -1,7 +1,14 @@
 import React from 'react';
 
 export const GiphyIcon: React.FC = () => (
-  <svg width='70' height='24' viewBox='0 0 70 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <svg
+    width='70'
+    height='24'
+    viewBox='0 0 70 24'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
+    style={{ flexShrink: 0 }}
+  >
     <path
       d='M0 12C0 5.37258 5.37258 0 12 0H58C64.6274 0 70 5.37258 70 12C70 18.6274 64.6274 24 58 24H12C5.37258 24 0 18.6274 0 12Z'
       fill='var(--accent-primary)'

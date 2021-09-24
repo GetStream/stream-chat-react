@@ -13,6 +13,7 @@ import {
   SocialReactionType,
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
+import { SocialThread } from '../Thread/SocialThread';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -81,7 +82,7 @@ export const ChannelContainer: React.FC = () => {
         {isNewChat ? <NewChat /> : <MessageList />}
         <MessageInput mentionAllAppUsers />
       </Window>
-      {/* <Thread /> */}
+      <SocialThread />
     </>
   );
 };
