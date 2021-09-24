@@ -95,11 +95,11 @@ export const SocialMessage: React.FC<
       <div className='message-wrapper-inner'>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector ref={reactionSelectorRef} />
-        )}
-        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+          )}
         {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-        <MessageOptions displayLeft={false} displayReplies={false} />
+          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <MessageOptions displayLeft={false} displayReplies={true} />
         <MessageRepliesCountButton reply_count={message.reply_count} />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
           {!myMessage && (
