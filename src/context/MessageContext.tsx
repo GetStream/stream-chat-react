@@ -137,7 +137,7 @@ export type MessageContextValue<
   unsafeHTML?: boolean;
 };
 
-export const MessageContext = React.createContext<MessageContextValue>({} as MessageContextValue);
+export const MessageContext = React.createContext<MessageContextValue | undefined>(undefined);
 
 export const MessageProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -166,7 +166,21 @@ export const useMessageContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => (useContext(MessageContext) as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+>() => {
+  const contextValue = useContext(MessageContext);
+
+  if (!contextValue) {
+    if (process.env.NODE_ENV === 'test') {
+      return {} as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    }
+
+    throw new Error(
+      "The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component.",
+    );
+  }
+
+  return (contextValue as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if MessageContext

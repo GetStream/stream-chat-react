@@ -25,7 +25,7 @@ export type TypingContextValue<
   typing?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['typing'];
 };
 
-export const TypingContext = React.createContext<TypingContextValue>({} as TypingContextValue);
+export const TypingContext = React.createContext<TypingContextValue | undefined>(undefined);
 
 export const TypingProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -54,7 +54,21 @@ export const useTypingContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => (useContext(TypingContext) as unknown) as TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+>() => {
+  const contextValue = useContext(TypingContext);
+
+  if (!contextValue) {
+    if (process.env.NODE_ENV === 'test') {
+      return {} as TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    }
+
+    throw new Error(
+      'The useTypingContext hook was called outside of the TypingContext provider. Make sure this hook is called within a child of the Channel component.',
+    );
+  }
+
+  return contextValue as TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if TypingContext
