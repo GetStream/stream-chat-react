@@ -1,0 +1,14 @@
+@import '../../styles/_variables';
+
+.message-wrapper-inner-reply div.str-chat__avatar {
+  margin: 0;
+}
+
+.str-chat__message-replies-count-button svg {
+  display: none;
+}
+
+button.str-chat__message-replies-count-button {
+  padding: 0 8px;
+  height: 16px;
+}

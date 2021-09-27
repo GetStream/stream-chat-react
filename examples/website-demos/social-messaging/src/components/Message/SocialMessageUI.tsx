@@ -4,7 +4,6 @@ import {
   ReactionSelector,
   messageHasReactions,
   MessageOptions,
-  MessageRepliesCountButton,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
@@ -13,7 +12,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark, ReactionBubble, } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark, } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -24,6 +23,8 @@ import {
   SocialReactionType,
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
+
+import { ThreadReply } from '../ThreadReply/ThreadReply';
 
 import './SocialMessageUI.scss';
 
@@ -93,29 +94,15 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className='message-wrapper-inner'>
-        {hasReactions && !showDetailedReactions && isReactionEnabled &&
-        <>
-          <SimpleReactionsList />
-          <ReactionBubble />
-        </>
-        }
+        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        {message.thread_participants ? (
-        <div className='message-wrapper-inner-reply'>
-          <MessageRepliesCountButton reply_count={message.reply_count} />
-          <Avatar size={16} image={message.thread_participants[0].image} />
-        </div> ) : null}
-        <MessageOptions displayReplies={true} />
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector ref={reactionSelectorRef} />
-          )}
+        )}
+        <ThreadReply />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
-          {!myMessage && (
-            <div className='message-wrapper-inner-data-info'>
-              {message.user?.name || message.user?.id}
-            </div>
-          )}
+          <MessageOptions displayReplies={true} />
           {myMessage &&
             message.status === 'received' &&
             readByMembers &&

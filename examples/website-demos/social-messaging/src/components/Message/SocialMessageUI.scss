@@ -69,10 +69,6 @@
     &-reply {
       display: flex;
       align-items: flex-end;
-      border-right: 1px solid #dbdde1;
-      border-bottom-right-radius: 16px;
-      bottom: 5px;
-    //   transform: matrix(-1, 0, 0, 1, 0, 0);
     }
   }
 }
@@ -86,6 +82,10 @@ ul.str-chat__simple-reactions-list {
 
 li.str-chat__simple-reactions-list-item--last-number {
   display: none;
+}
+
+div.message-wrapper-inner .str-chat__message-attachment {
+  margin: 4px 0 0;
 }
 
 .right {
@@ -110,14 +110,6 @@ li.str-chat__simple-reactions-list-item--last-number {
 .str-chat__li--single .my-message .str-chat__message-text-inner,
 .str-chat__message-text-inner {
   border-radius: 18px 18px 0px 18px;
-}
-
-.str-chat__message-replies-count-button svg {
-  display: none;
-}
-
-button.str-chat__message-replies-count-button {
-  padding: 0 8px;
 }
 
 .str-chat__li:hover .str-chat__message-simple__actions {
