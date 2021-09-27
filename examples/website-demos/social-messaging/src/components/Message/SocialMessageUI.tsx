@@ -93,7 +93,7 @@ export const SocialMessage: React.FC<
   return (
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
-      <div className='message-wrapper-inner'>
+      <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
         {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
@@ -101,14 +101,17 @@ export const SocialMessage: React.FC<
           <ReactionSelector ref={reactionSelectorRef} />
         )}
         <ThreadReply />
-        <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
-          <MessageOptions displayReplies={true} />
-          {myMessage &&
-            message.status === 'received' &&
-            readByMembers &&
-            readByMembers?.length < 1 && <DeliveredCheckmark />}
-          {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
-          <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+        <div className='message-wrapper-inner-options'>
+          {myMessage && <MessageOptions displayReplies={true} />}
+          <div className='message-wrapper-inner-data'>
+            {myMessage &&
+              message.status === 'received' &&
+              readByMembers &&
+              readByMembers?.length < 1 && <DeliveredCheckmark />}
+            {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
+            <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+          </div>
+          {!myMessage && <MessageOptions displayReplies={true} />}
         </div>
       </div>
     </div>
