@@ -1,5 +1,5 @@
 export const LeftReply: React.FC = () => (
-  <svg width="18" height="39" viewBox="0 0 18 39" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0.499989 32H0.739843C9.67734 32 16.8819 24.6783 16.7378 15.742L16.5 1" stroke="#DBDDE1"/>
+  <svg width="17" height="33" viewBox="0 0 17 33" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ position: 'relative', bottom: '6px' }}>
+    <path d="M0.5 32V32C9.33656 32 16.5 24.8366 16.5 16L16.5 0" stroke="#DBDDE1"/>
   </svg>
 );
