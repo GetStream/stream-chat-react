@@ -49,6 +49,7 @@ jobs:
           npm fund
           npm i cypress
           yarn run test:e2e:ci
+          
       - name: upload failure screenshots
         uses: actions/upload-artifact@v2
         if: failure()
