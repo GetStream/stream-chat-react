@@ -46,8 +46,6 @@ jobs:
       - name: Run Tests
         working-directory: ./examples/typescript/cypress
         run: |
-          yarn install
-          npm install
           npm i cypress
           yarn run test:e2e:ci
           
