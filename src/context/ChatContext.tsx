@@ -53,7 +53,7 @@ export type ChatContextValue<
   navOpen?: boolean;
 };
 
-export const ChatContext = React.createContext({} as ChatContextValue);
+export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
 export const ChatProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -82,7 +82,21 @@ export const useChatContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => (useContext(ChatContext) as unknown) as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+>() => {
+  const contextValue = useContext(ChatContext);
+
+  if (!contextValue) {
+    if (process.env.NODE_ENV === 'test') {
+      return {} as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    }
+
+    throw new Error(
+      'The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component.',
+    );
+  }
+
+  return (contextValue as unknown) as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+};
 
 /**
  * Typescript currently does not support partial inference so if ChatContext

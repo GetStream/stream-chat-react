@@ -57,9 +57,6 @@ export const MessageInputContextProvider = <
   </MessageInputContext.Provider>
 );
 
-/**
- * hook for MessageInput context
- */
 export const useMessageInputContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -71,9 +68,14 @@ export const useMessageInputContext = <
   V extends CustomTrigger = CustomTrigger
 >() => {
   const contextValue = useContext(MessageInputContext);
-  if (contextValue === undefined) {
-    console.warn(
-      'Empty MessageInputContext consumed. Make sure you wrap every component that uses MessageInputContext with a MessageInputContextProvider',
+
+  if (!contextValue) {
+    if (process.env.NODE_ENV === 'test') {
+      return {} as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+    }
+
+    throw new Error(
+      "The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component.",
     );
   }
 
