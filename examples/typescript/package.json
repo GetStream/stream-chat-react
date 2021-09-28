@@ -27,7 +27,7 @@
     "cypress-wait-until": "^1.7.1",
     "cypress-xpath": "^1.6.2",
     "http-server": "^13.0.1",
-    "start-server-and-test": "^1.13.1"
+    "start-server-and-test": "^1.14.0"
   },
   "scripts": {
     "start": "react-scripts start",
