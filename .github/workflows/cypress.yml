@@ -46,7 +46,6 @@ jobs:
       - name: Run Tests
         working-directory: ./examples/typescript/cypress
         run: |
-          npm fund
           npm audit fix
           npm i cypress
           yarn run test:e2e:ci
