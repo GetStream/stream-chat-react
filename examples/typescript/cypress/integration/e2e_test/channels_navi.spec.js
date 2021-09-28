@@ -4,7 +4,7 @@ context('Actions', () => {
   beforeEach(() => {
     const url = "http://localhost:3000"
     console.log(screen)
-    cy.waitFor(10000)
+    cy.viewport("macbook-11")
     cy.visit(url, {timeout:12000})
     cy.dataTestContains('channel-preview-button').first()
       .click()
@@ -13,36 +13,22 @@ context('Actions', () => {
     cy.waitFor(10000)
 
   })  
-    it('Navigate to general channel', () => { 
-    const channel_more = 'load-more-button'
+    it('Get first channel text and send text', () => { 
       const channel_last_preview = 'channel-preview-button'
-      const input = 'Succesfully loaded {enter}'
+      const channel_more = 'load-more-button'
+      // get first channel text
+      cy.xpath("//button[@data-testid='channel-preview-button']").first().invoke('text')
+      //cy.get('[data-testid="channel-preview-button"]').first().invoke('text')
+      const input = 'Last channel text {enter}'
       cy.dataTestContains(channel_more).click({force: true}).should('be.visible')
-      cy.xpath("//button[contains(@class,'str-chat__channel-preview-messenger  ')]").last().next().then(element => {
-      console.log()
-      cy.wrap(element).click({force: true})
-      cy.get('[data-testid="channel-preview-button"]').last().click({force: true})
-      cy.waitFor(10000)
-      cy.dataTestContains('channel-preview-button').contains('general')
-        .click()
-      cy.xpath("//textarea[contains(@placeholder,'Type your message')]").focus()
+      cy.wait(1000)
+      cy.dataTestContains(channel_more).click({force: true}).should('be.visible')
+      cy.dataTestContains('channel-preview-button').last().click().invoke('text')
+      cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
         .type(input, {timeout:100})
         .type('{enter}')
-        .should('exist')
-      cy.title()
-      cy.waitFor(10000)
-    })    
-})
-it('Select last channel from load more menu', () => { // TO DO
-  const channel_more = 'load-more-button'
-  const channel_last_preview = 'channel-preview-button'
-  cy.dataTestContains(channel_more).click({force: true})
-  cy.xpath("//button[contains(@class,'str-chat__channel-preview-messenger  ')]").last().next().then(element => {
-  console.log()
-  cy.wrap(element).click({force: true})
-  cy.get('[data-testid="channel-preview-button"]').last().click({force: true})
-
-})
+      cy.waitFor(10000) 
+    }) 
 })
 /* it('Populate text on all channels', () => { // TO DO
   const channel_more = 'load-more-button'
@@ -56,8 +42,5 @@ it('Select last channel from load more menu', () => { // TO DO
   cy.xpath("//textarea[contains(@placeholder,'Type your message')]").focus()
     .type(input, {timeout:100})
     .type('{enter}')
-  cy.wait(100)
+  cy.wait(100)*/
 
-}) 
-})*/
-})

@@ -5,6 +5,7 @@ context('Actions', () => {
     const url = "http://localhost:3000"
     console.log(screen)
     cy.waitFor(10000)
+    cy.viewport("macbook-11")
     cy.visit(url, {timeout:120000})
     cy.dataTestContains('channel-preview-button').first()
       .click()

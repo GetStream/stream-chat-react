@@ -3,6 +3,7 @@ context('Actions', () => {
   beforeEach(() => {
     const url = "http://localhost:3000"
     console.log(screen)
+    cy.viewport("macbook-11")
     cy.visit(url, {timeout:40000})
     cy.dataTestContains('channel-preview-button').first()
       .click()
@@ -39,7 +40,7 @@ it('thread reply a message() - type into a DOM element', () => {
         .type('{enter}')
       // close thread reply
       cy.dataTestContains('close-button').click({force: true})
-      cy.wait(4000)
+      cy.wait(1000)
         
 })
 })

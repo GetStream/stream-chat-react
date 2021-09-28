@@ -3,6 +3,7 @@ context('Actions', () => {
   beforeEach(() => {
     const url = "http://localhost:3000"
     console.log(screen)
+    cy.viewport("macbook-11")
     cy.visit(url, {timeout:40000})
     cy.dataTestContains('channel-preview-button').first()
       .click()
@@ -22,29 +23,34 @@ context('Actions', () => {
 })
 it('Mute User', function() {
    // hiding sub-menu Mute
-  cy.dataTestContains('channel-preview-button').contains('Social Demo')
-      .click()
-  const expected = 'has been muted'
-  cy.get('li').contains('g-money').first().then(element => {
+   cy.dataTestContains('channel-preview-button').first().next().then(element => {
+    cy.wrap(element).first().scrollIntoView().click({force: true})
+    cy.get('[data-testid="message-text-inner-wrapper"]').first()
+    cy.get('li').contains('Hello Ear').first().then(element => {
       console.log(element)
       const cls = element.attr('class')
-  //cy.wrap(element).last().scrollIntoView().click({force: true})
-  cy.contains('Mute').click({force: true})
-cy.get('[data-testid="custom-notification"]').invoke('text')
+    cy.get('[data-testid="message-inner"]').should('include.text', 'Hello Ear').first().then(element => {
+      cy.wrap(element).contains('Mute').click({force: true})
+    cy.get('[data-testid="custom-notification"]').invoke('text')
 
+})
+})
 })
 })
 it('Unmute User', function() {
     // hiding sub-menu Unmute
-  cy.dataTestContains('channel-preview-button').contains('Social Demo')
-      .click()
-  const expected = 'has been unmuted'
-  cy.get('li').first().next().scrollIntoView().then(element => {
-      console.log(element)
-      //const cls = element.attr('class')
-  cy.contains('Unmute').click({force: true})
-  console.log()
-  cy.get('[data-testid="custom-notification"]').invoke('text')
+    cy.dataTestContains('channel-preview-button').first().next().then(element => {
+      cy.wrap(element).first().scrollIntoView().click({force: true})
+      cy.get('[data-testid="message-text-inner-wrapper"]').first()
+      cy.get('li').contains('Hello Ear').first().then(element => {
+        console.log(element)
+        const cls = element.attr('class')
+      cy.get('[data-testid="message-inner"]').should('include.text', 'Hello Ear').first().then(element => {
+        cy.wrap(element).contains('Unmute').click({force: true})
+    cy.get('[data-testid="custom-notification"]').invoke('text')
+
+})
+})
 })
 })
 })

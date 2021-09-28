@@ -1,4 +1,6 @@
 {
+  "viewportWidth": 1000,
+  "viewportHeight": 660,
     "baseurl": "http://localhost:3000",
     "yarn cypress open" : "./node_modules/.bin/cypress open",
     "env": {
