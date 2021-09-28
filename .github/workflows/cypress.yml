@@ -47,7 +47,7 @@ jobs:
         working-directory: ./examples/typescript/cypress
         run: |
           npm audit fix
-          npm i cypress
+          yarn add cypress
           yarn run test:e2e:ci
           
       - name: upload failure screenshots
