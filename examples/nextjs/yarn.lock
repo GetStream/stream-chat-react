@@ -7580,10 +7580,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.5, mkdirp@~0.5.0, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mml-react@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.0.tgz#351f9629bc82f9ac8347fa9795b21ab9e81d3a10"
-  integrity sha512-xdm/wzcJ+4SjGW506V2YECsNHYj/kiPQDe0V+xhqsTN/bwqWIrGnjOP+o2nz4etpoD0jpPB6pFwMdYXb2Va/FQ==
+mml-react@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.1.tgz#24de3a878e5be38be5b10a185355c1dc15d384c5"
+  integrity sha512-1VLakWyYwH/TdPDlvXFk6/QGSRJ1ZiI8XVPBx/6owpRpUlA1FvOFwbv70LxvXFaqWd5Lo02s/bB4v7c8oq3euA==
   dependencies:
     "@braintree/sanitize-url" "^5.0.0"
     "@rgrove/parse-xml" "^3.0.0"
@@ -7592,7 +7592,7 @@ mml-react@^0.4.0:
     ical-expander "^3.1.0"
     linkifyjs "^2.1.9"
     react-markdown "^5.0.3"
-    react-virtuoso "^1.5.8"
+    react-virtuoso "^2.2.1"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -9485,7 +9485,7 @@ react-app-polyfill@^0.2.1:
     raf "3.4.1"
     whatwg-fetch "3.0.0"
 
-react-app-polyfill@^1.0.2, react-app-polyfill@^1.0.6:
+react-app-polyfill@^1.0.2:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-1.0.6.tgz#890f8d7f2842ce6073f030b117de9130a5f385f0"
   integrity sha512-OfBnObtnGgLGfweORmdZbyEz+3dgVePQBb3zipiaDsMHV1NpWm0rDFYIVXFV/AK+x4VIIfWHhrdMIeoTLyRr2g==
@@ -9780,24 +9780,13 @@ react-view-pager@^0.6.0:
     resize-observer-polyfill "1.5.0"
     tabbable "1.1.2"
 
-react-virtuoso@^1.10.8:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.11.0.tgz#3d1767f49ba32fae2565df79ccf54a7aa7dcb75a"
-  integrity sha512-uV0mt1++/wqG80V73GTI20tuzIWdWmBqOk7DFNQNgs6I1v71NJMPGrRDb1UoFe+gx5zlZA1QNA14cr891nEHMw==
+react-virtuoso@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.1.tgz#a15dbd864745011a011ac5ee75be3c523fcb8ded"
+  integrity sha512-kS+9mns4slmpsUSQA/sIUjDwf9cA17Il8dvslHTuS5SpxCo7iRJIKJpjZd1ilLpvX3wYAYObbHVR3BxnUWRPfg==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
-    resize-observer-polyfill "^1.5.1"
-
-react-virtuoso@^1.5.8:
-  version "1.5.14"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.5.14.tgz#8d9da2e9e83c1a2cd3f626d881198e9bb291a952"
-  integrity sha512-S0cpFmGKSkPEXLccgJ4AsUKCssGTjPDK8kPz320nZoAgIfm3Yham2kvVbFD8o9irxvd6iku2cEEkQ8Y7HDZwcg==
-  dependencies:
-    "@virtuoso.dev/react-urx" "^0.2.5"
-    "@virtuoso.dev/urx" "^0.2.5"
-    react-app-polyfill "^1.0.6"
-    resize-observer-polyfill "^1.5.1"
 
 "react@link:../../node_modules/react":
   version "0.0.0"
@@ -10081,11 +10070,6 @@ resize-observer-polyfill@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.0.tgz#660ff1d9712a2382baa2cad450a4716209f9ca69"
   integrity sha512-M2AelyJDVR/oLnToJLtuDJRBBWUGUvvGigj1411hXhAdyFWqMaqHp7TixW3FpiLuVaikIcR1QL+zqoJoZlOgpg==
-
-resize-observer-polyfill@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
-  integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
 
 resolve-cwd@^2.0.0:
   version "2.0.0"
@@ -10749,10 +10733,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.0.tgz#4bb204825edb8931784fb414253e284b2a2cb273"
-  integrity sha512-PqV7ikbV9WsWDjc48RolSHdCtdKC6U/zmmz2V8ZhTPz6DV1dpmkQnd0mKoSSi7jlmtwHzGEEQyCtzg/396tbwg==
+stream-chat-css@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.1.tgz#5168b1770aeeb0893ca0fa7223190049dccc82a4"
+  integrity sha512-BY3nEs9drjDXFpBvlAJsgq+7whjrGYeZ1rIuukjjtbxs+mfVGnywZoi80q+DGyltsynufGJv4uwYGWG9qjpKwQ==
 
 "stream-chat-react@link:../..":
   version "0.0.0"
