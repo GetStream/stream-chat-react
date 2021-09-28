@@ -12,6 +12,8 @@ export const ThreadReply: React.FC = () => {
 
   const myMessage = isMyMessage();
 
+  const uniqueThreadParticipants = Array.from(new Set(message.thread_participants)).slice(0, 2);
+
   return (
     <>
       {message.thread_participants ? (
@@ -19,13 +21,21 @@ export const ThreadReply: React.FC = () => {
         {!myMessage && (
           <>
             <RightReply />
-            <Avatar size={16} image={message.thread_participants[0].image} />
+            {uniqueThreadParticipants[0] && uniqueThreadParticipants.map((user, i) => (
+              <div className={`${uniqueThreadParticipants[1] ? `left-avatar-${i+1}` : ''}`}>
+                <Avatar key={user.id} size={16} image={user.image} />
+              </div>
+            ))}
           </>
         )}
         <MessageRepliesCountButton reply_count={message.reply_count} />
         {myMessage && (
           <>
-            <Avatar size={16} image={message.thread_participants[0].image} />
+            {uniqueThreadParticipants[0] && uniqueThreadParticipants.reverse().map((user, i) => (
+              <div className={`${uniqueThreadParticipants[1] ? `right-avatar-${i+1}` : ''}`}>
+                <Avatar key={user.id} size={16} image={user.image} />
+              </div>
+            ))}
             <LeftReply />
           </>
         )}
