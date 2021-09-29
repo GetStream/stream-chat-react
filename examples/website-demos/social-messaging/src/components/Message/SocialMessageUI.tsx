@@ -109,6 +109,11 @@ export const SocialMessage: React.FC<
               readByMembers &&
               readByMembers?.length < 1 && <DeliveredCheckmark />}
             {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
+            {!myMessage && (
+              <div className='message-wrapper-inner-data-info'>
+                {message.user?.name || message.user?.id}
+              </div>
+            )}
             <MessageTimestamp customClass='message-wrapper-inner-data-time' />
           </div>
           {!myMessage && <MessageOptions displayReplies={true} />}
