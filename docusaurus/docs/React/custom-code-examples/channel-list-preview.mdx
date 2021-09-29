@@ -110,6 +110,73 @@ const CustomLoadingIndicator = () => {
 </Chat>;
 ```
 
+## Customizing Event Handlers
+
+`ChannelList` uses [Event Listeners](https://getstream.io/chat/docs/javascript/event_listening/?language=javascript) to dynamically update when changes occur.
+If a new message is received, a user is added to a channel, or other events take place, the `ChannelList` will update its UI accordingly.
+It's important to note that `filters` don't apply to updates to the list from events.
+
+The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop.
+
+| [Event Type](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) | Default Behavior                                 | Custom Handler                                                                   |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `channel.deleted`                                                                         | Removes channel from list                        | [onChannelDeleted](../core-components/channel-list.mdx#onchanneldeleted)         |
+| `channel.hidden`                                                                          | Removes channel from list                        | [onChannelHidden](../core-components/channel-list.mdx#onchannelhidden)           |
+| `channel.truncated`                                                                       | Updates the channel                              | [onChannelTruncated](../core-components/channel-list.mdx#onchanneltruncated)     |
+| `channel.updated`                                                                         | Updates the channel                              | [onChannelUpdated](../core-components/channel-list.mdx#onchannelupdated)         |
+| `channel.visible`                                                                         | Adds channel to list                             | [onChannelVisible](../core-components/channel-list.mdx#onchannelvisible)         |
+| `connection.recovered`                                                                    | Forces a component render                        | N/A                                                                              |
+| `message.new`                                                                             | Moves channel to top of list                     | N/A                                                                              |
+| `notification.added_to_channel`                                                           | Moves channel to top of list and starts watching | [onAddedToChannel](../core-components/channel-list.mdx#onaddedtochannel)         |
+| `notification.message_new`                                                                | Moves channel to top of list and starts watching | [onMessageNew](../core-components/channel-list.mdx#onmessagenew)                 |
+| `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](../core-components/channel-list.mdx#onremovedfromchannel) |
+| `user.presence.changed`                                                                   | Updates the channel                              | N/A                                                                              |
+
+Let's take an example of ChannelList component for [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
+
+```tsx
+const filters = {
+  members: { $in: ['dan'] },
+  frozen: true
+}
+
+<ChannelList filters={filters} />
+```
+
+The `notification.message_new` event occurs when a message is received on a channel that is not loaded but the current user is a member of.
+The default behavior when this event occurs is to query the channel the message is received on, then add the channel to the top of the list, irrespective of `filters`.
+Thus, if a new message appears in an unfrozen channel of which the current user is a member, it will be added to the list. This may not be the desired behavior since the list is only supposed to show frozen channels.
+
+In this case, you can replace the default functionality by providing a custom `onMessageNew` function as a prop to the `ChannelList` component.
+`onMessageNew` receives two parameters when called, `setChannels`, a setter function for the internal `channels` state, and `event`, the `Event` object received for the `notification.message_new` event.
+These parameters can be used to create a function that achieves the desired custom behavior.
+
+```tsx
+const filters = {
+  members: { $in: ['dan'] },
+  frozen: true,
+};
+
+const customOnMessageNew = async (setChannels, event) => {
+  const eventChannel = event.channel;
+
+  // If the channel is frozen, then don't add it to the list.
+  if (!eventChannel?.id || !eventChannel.frozen) return;
+
+  try {
+    const newChannel = client.channel(eventChannel.type, eventChannel.id);
+    await newChannel.watch();
+    setChannels((channels) => [newChannel, ...channels]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+<ChannelList filters={filters} onMessageNew={customOnMessageNew} />;
+```
+
+Similarly, events other than notification.message_new can be handled as per application requirements.
+
 ## The Preview Prop Component
 
 The component set via the `Preview` prop (or the default) dictates the design and click functionality of an individual channel in the list that we built above.
