@@ -14,6 +14,7 @@ export { EmojiPickerIcon } from './EmojiPickerIcon';
 export { GiphyIcon } from './GiphyIcon';
 export { GiphySearch } from './GiphySearch';
 export { HamburgerIcon } from './HamburgerIcon';
+export { Mention } from './Mention';
 export { Mentions } from './Mentions';
 export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';
