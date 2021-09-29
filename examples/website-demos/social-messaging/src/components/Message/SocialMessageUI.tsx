@@ -62,6 +62,54 @@ export const SocialMessage: React.FC<
   const readByMembers = readBy?.filter((user) => user.id !== client.user?.id);
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
 
+    const customReactions = [
+  {
+    colons: ':heart:',
+    emoticons: ['<3'],
+    id: 'heart',
+    name: 'Heart',
+    native: '❤️',
+    skin: null,
+    unified: '2764',
+  },
+  {
+    colons: ':+1:',
+    emoticons: ['b'],
+    id: 'thumbsup',
+    name: 'Thumbs Up',
+    native: '👍',
+    skin: null,
+    unified: '1F44D',
+  },
+  {
+    colons: ':-1:',
+    emoticons: ['p'],
+    id: 'thumbsdown',
+    name: 'Thumbs Down',
+    native: '👎',
+    skin: null,
+    unified: '1f44e',
+  },
+  {
+    colons: ':laughing:',
+    emoticons: ['x)'],
+    id: 'laughing',
+    name: 'Grinning Squinting Face',
+    native: '😆',
+    skin: null,
+    unified: '1F606',
+  },
+  {
+    colons: ':angry:',
+    emoticons: ['=/'],
+    id: 'angry',
+    name: 'Angry',
+    native: '😠',
+    skin: null,
+    unified: '1F620',
+  },
+];
+
   // Group Channel
   if (members > 2) {
     return (
@@ -98,7 +146,7 @@ export const SocialMessage: React.FC<
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector ref={reactionSelectorRef} />
+          <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
         )}
         <ThreadReply />
         <div className='message-wrapper-inner-options'>

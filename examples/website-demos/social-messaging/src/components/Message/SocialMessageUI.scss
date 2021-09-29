@@ -33,8 +33,14 @@
   }
 
   &-inner {
+    align-items: flex-end; // moves left text, reply, and select right
+
+    .str-chat__message-text {
+      align-self: flex-start; // moves left text left
+    }
+
     &.my-message {
-      align-items: flex-end;
+      align-items: flex-start; // moves right selector left
     }
 
     display: flex;
@@ -84,8 +90,17 @@
       align-items: flex-end;
       height: 22px;
       position: relative;
+      align-self: flex-start; // moves left reply left
     }
   }
+}
+
+.message-wrapper-inner.my-message.my-message > div.my-message {
+  align-self: flex-end; // moves right text right
+}
+
+.my-message .message-wrapper-inner-reply {
+  align-self: flex-end; // moves right reply right
 }
 
 ul.str-chat__simple-reactions-list {
@@ -134,7 +149,7 @@ div.message-wrapper-inner .str-chat__message-attachment {
 
   &__action--reactions {
     display: flex;
-
+    position: relative;
   }
 
   &__action--options {
