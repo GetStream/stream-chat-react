@@ -8,7 +8,7 @@ import { LeftReply, RightReply, } from '../../assets';
 import './ThreadReply.scss';
 
 export const ThreadReply: React.FC = () => {
-  const { isMyMessage, message, } = useMessageContext();
+  const { handleOpenThread, isMyMessage, message, } = useMessageContext();
 
   const myMessage = isMyMessage();
 
@@ -28,7 +28,7 @@ export const ThreadReply: React.FC = () => {
             ))}
           </>
         )}
-        <MessageRepliesCountButton reply_count={message.reply_count} />
+        <MessageRepliesCountButton onClick={handleOpenThread} reply_count={message.reply_count} />
         {myMessage && (
           <>
             {uniqueThreadParticipants[0] && uniqueThreadParticipants.reverse().map((user, i) => (

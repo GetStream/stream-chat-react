@@ -128,23 +128,16 @@ div.message-wrapper-inner .str-chat__message-attachment {
 }
 
 .message-wrapper-inner:hover .str-chat__message-simple__actions {
-  //   position: absolute;
-  //   bottom: 0;
-  //   display: flex;
+  svg:hover {
+    fill: var(--accent-primary);
+  }
 
   &__action--reactions {
     display: flex;
 
-    // &:hover {
-    //   fill: blue;
-    // }
   }
 
   &__action--options {
-    display: flex;
-  }
-
-  &__action--thread {
     display: flex;
   }
 }
