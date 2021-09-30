@@ -817,6 +817,7 @@ const ChannelInner = <
   });
 
   const chatClass = customClasses?.chat || 'str-chat';
+  const chatContainerClass = customClasses?.chatContainer || 'str-chat__container';
   const channelClass = customClasses?.channel || 'str-chat-channel';
   const windowsEmojiClass =
     useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
@@ -854,7 +855,7 @@ const ChannelInner = <
           <ComponentProvider value={componentContextValue}>
             <EmojiProvider value={emojiContextValue}>
               <TypingProvider value={typingContextValue}>
-                <div className='str-chat__container'>{children}</div>
+                <div className={`${chatContainerClass}`}>{children}</div>
               </TypingProvider>
             </EmojiProvider>
           </ComponentProvider>

@@ -17,6 +17,7 @@ import type {
 
 type CSSClasses =
   | 'chat'
+  | 'chatContainer'
   | 'channel'
   | 'channelList'
   | 'message'
