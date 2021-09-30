@@ -171,7 +171,7 @@ export const SocialMessage: React.FC<
             )}
             <MessageTimestamp customClass='message-wrapper-inner-data-time' />
           </div>
-          {!myMessage && <MessageOptions displayReplies={true} />}
+          {!myMessage && <MessageOptions />}
         </div>
       </div>
     </div>

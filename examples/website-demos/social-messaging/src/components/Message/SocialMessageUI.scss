@@ -34,6 +34,7 @@
 
   &-inner {
     align-items: flex-end;
+    position: relative;
 
     .str-chat__message-text {
       align-self: flex-start;
@@ -99,13 +100,6 @@
   }
 }
 
-ul.str-chat__simple-reactions-list {
-  border: none;
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-}
-
 .message-wrapper-inner:hover .str-chat__message-simple__actions {
   svg:hover {
     fill: var(--accent-primary);
@@ -155,9 +149,32 @@ span.str-chat__message-reactions-list-item__count {
   color: var(--black);
 }
 
+ul.str-chat__simple-reactions-list {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 999;
+  border: 1px solid var(--borders);
+  height: 32px;
+  min-width: 32px;
+  border-radius: 32px;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-bg);
+
+  &-item {
+    // width: 15px;
+    // height: 16px;
+  }
+}
+
 li.str-chat__simple-reactions-list-item--last-number {
   display: none;
 }
+
+// .str-chat__simple-reactions-list-item > span > span > span {
+//   width: 22px !important;
+// }
 
 div.message-wrapper-inner .str-chat__message-attachment {
   margin: 4px 0 0;
