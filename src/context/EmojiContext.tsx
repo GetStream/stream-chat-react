@@ -61,7 +61,7 @@ const DefaultEmojiPicker = React.lazy(async () => {
   return { default: emojiPicker.default };
 });
 
-export const EmojiContext = React.createContext<EmojiContextValue>({} as EmojiContextValue);
+export const EmojiContext = React.createContext<EmojiContextValue | undefined>(undefined);
 
 export const EmojiProvider = ({
   children,
@@ -86,8 +86,19 @@ export const EmojiProvider = ({
   return <EmojiContext.Provider value={emojiContextValue}>{children}</EmojiContext.Provider>;
 };
 
-export const useEmojiContext = () =>
-  (useContext(EmojiContext) as unknown) as Required<EmojiContextValue>;
+export const useEmojiContext = () => {
+  const contextValue = useContext(EmojiContext);
+
+  if (!contextValue) {
+    if (process.env.NODE_ENV === 'test') return {} as Required<EmojiContextValue>;
+
+    throw new Error(
+      'The useEmojiContext hook was called outside of the EmojiContext provider. Make sure this hook is called within a child of the Channel component.',
+    );
+  }
+
+  return contextValue as Required<EmojiContextValue>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if EmojiContext
