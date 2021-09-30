@@ -1,3 +1,5 @@
+export * from './commandIcons';
+
 export { AddChat } from './AddChat';
 export { ArrowLeft } from './ArrowLeft';
 export { Attach } from './Attach';
@@ -15,6 +17,7 @@ export { GiphyIcon } from './GiphyIcon';
 export { GiphySearch } from './GiphySearch';
 export { HamburgerIcon } from './HamburgerIcon';
 export { LeftReply } from './LeftReply';
+export { Mention } from './Mention';
 export { Mentions } from './Mentions';
 export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';

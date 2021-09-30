@@ -12,7 +12,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark, } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -41,7 +41,14 @@ export const SocialMessage: React.FC<
 > = (props) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { isMyMessage, isReactionEnabled, message, readBy, reactionSelectorRef, showDetailedReactions } = useMessageContext<
+  const {
+    isMyMessage,
+    isReactionEnabled,
+    message,
+    readBy,
+    reactionSelectorRef,
+    showDetailedReactions,
+  } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,

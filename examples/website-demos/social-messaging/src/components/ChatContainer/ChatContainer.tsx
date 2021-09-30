@@ -12,6 +12,8 @@ import { SocialEmptyStateIndicator } from '../EmptyStateIndicator/SocialEmptySta
 import { SocialMessage } from '../Message/SocialMessageUI';
 import { SideDrawer } from '../SideDrawer/SideDrawer';
 import { SocialChannelList } from '../ChannelList/SocialChannelList';
+import { SocialSuggestionList } from '../SuggestionList/SocialSuggestionList';
+import { SocialSuggestionListHeader } from '../SuggestionList/SocialSuggestionListHeader';
 import { SocialThreadHeader } from '../Thread/SocialThreadHeader';
 
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
@@ -138,6 +140,8 @@ export const ChatContainer: React.FC = () => {
         </div>
         {isSideDrawerOpen && <SideDrawer />}
         <Channel
+          AutocompleteSuggestionHeader={SocialSuggestionListHeader}
+          AutocompleteSuggestionItem={SocialSuggestionList}
           Message={SocialMessage}
           Input={SocialMessageInput}
           MessageListNotifications={SocialMessageListNotifications}

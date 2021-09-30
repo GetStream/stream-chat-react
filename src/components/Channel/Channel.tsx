@@ -363,6 +363,8 @@ const ChannelInner = <
       });
     }
 
+    if (event.type === 'user.watching.start' || event.type === 'user.watching.stop') return;
+
     if (event.type === 'typing.start' || event.type === 'typing.stop') {
       return dispatch({ channel, type: 'setTyping' });
     }
@@ -815,6 +817,7 @@ const ChannelInner = <
   });
 
   const chatClass = customClasses?.chat || 'str-chat';
+  const chatContainerClass = customClasses?.chatContainer || 'str-chat__container';
   const channelClass = customClasses?.channel || 'str-chat-channel';
   const windowsEmojiClass =
     useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
@@ -852,7 +855,7 @@ const ChannelInner = <
           <ComponentProvider value={componentContextValue}>
             <EmojiProvider value={emojiContextValue}>
               <TypingProvider value={typingContextValue}>
-                <div className='str-chat__container'>{children}</div>
+                <div className={`${chatContainerClass}`}>{children}</div>
               </TypingProvider>
             </EmojiProvider>
           </ComponentProvider>

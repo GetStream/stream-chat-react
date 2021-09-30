@@ -1,0 +1,94 @@
+@import '../../styles/_variables';
+
+.suggestion-item {
+    display: flex;
+    flex-direction: row;
+    background: $bars-bg;
+    align-items: center;
+    padding: 10px 16px 8px 16px;
+
+    &:hover {
+        cursor: pointer;
+        background: $borders;
+    }
+
+    &-icon {
+        margin-right: 5px;
+    }
+
+    &-text {
+        color: $text-high-emphasis;
+        font-weight: 500;
+        font-size: 20px;
+        padding-bottom: 5px;
+    }
+
+    &-description {
+        color: $text-low-emphasis;
+        font-weight: 400;
+        font-size: 17px;
+        align-items: center;
+        padding: 0px 0px 5px 5px;
+    }
+
+    &-selected {
+        background: $borders;
+    }
+
+    &-contents {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 2;
+        padding-left: 5px;
+
+        &-name {
+            display: inline-flex;
+
+            &-part {
+                color: $text-high-emphasis;
+                font-weight: 500;
+                font-size: 17px;
+                line-height: 20px;
+                padding-bottom: 2px;
+            }
+
+            &-highlight {
+                color: $text-high-emphasis;
+                font-weight: 900;
+                font-size: 17px;
+                line-height: 20px;
+                padding-bottom: 2px;
+            }
+        }
+
+        &-mention {
+            color: $text-low-emphasis;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 15px;
+            padding-top: 2px;
+        }
+    }
+}
+
+.suggestion-header {
+    background: $bars-bg;
+    display: inline-flex;
+    padding: 10px 15px;
+
+    &-commands {
+        color: $text-low-emphasis;
+        font-weight: 400;
+        font-size: 17px;
+        margin-left: 10px;
+    }
+}
+
+li.rta__list-header {
+    padding: 5px;
+}
+
+div.rta__autocomplete.str-chat__emojisearch {
+    width: 400px;
+    border-radius: 16px 16px 0px 0px;
+}
