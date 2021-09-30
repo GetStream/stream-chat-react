@@ -8,22 +8,22 @@ import type { BaseEmoji } from 'emoji-mart';
 
 import './SocialSuggestionList.scss';
 
-type Props = Partial<SuggestionUser<SocialUserType>> & Partial<BaseEmoji> & {
-  itemNameParts?: { match: string; parts: string[] };
-};
+type Props = Partial<SuggestionUser<SocialUserType>> &
+  Partial<BaseEmoji> & {
+    itemNameParts?: { match: string; parts: string[] };
+  };
 
 export const renderName = (itemNameParts?: { match: string; parts: string[] }) => {
-    return (
-      itemNameParts?.parts.map((part, i) =>
-      part.toLowerCase() === itemNameParts.match.toLowerCase() ? (
-        <span className='suggestion-item-contents-name-highlight' key={`part-${i}`}>
-          {part}
-        </span>
-      ) : 
-        <span className='suggestion-item-contents-name-part' key={`part-${i}`}>
-          {part}
-        </span>
-    )
+  return itemNameParts?.parts.map((part, i) =>
+    part.toLowerCase() === itemNameParts.match.toLowerCase() ? (
+      <span className='suggestion-item-contents-name-highlight' key={`part-${i}`}>
+        {part}
+      </span>
+    ) : (
+      <span className='suggestion-item-contents-name-part' key={`part-${i}`}>
+        {part}
+      </span>
+    ),
   );
 };
 
