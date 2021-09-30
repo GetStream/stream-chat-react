@@ -1,3 +1,5 @@
+export * from './commandIcons';
+
 export { AddChat } from './AddChat';
 export { ArrowLeft } from './ArrowLeft';
 export { Attach } from './Attach';

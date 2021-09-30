@@ -102,7 +102,10 @@ export const SocialMessageInput = (props: Props) => {
               <Attach />
             </FileUploadButton>
           </div>
-          <div className='input-ui-icons-bolt' onClick={!numberOfUploads ? handleCommandsClick : () => null}>
+          <div
+            className='input-ui-icons-bolt'
+            onClick={!numberOfUploads ? handleCommandsClick : () => null}
+          >
             <CommandBolt />
           </div>
         </div>
@@ -137,7 +140,10 @@ export const SocialMessageInput = (props: Props) => {
             </div>
           </div>
         </ImageDropzone>
-        <div className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`} onClick={handleSubmit}>
+        <div
+          className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`}
+          onClick={handleSubmit}
+        >
           {giphyState && !numberOfUploads ? (
             <GiphySearch />
           ) : (
