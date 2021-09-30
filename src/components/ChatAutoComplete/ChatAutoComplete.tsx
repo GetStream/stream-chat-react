@@ -43,6 +43,7 @@ export type SuggestionItemProps<
   onSelectHandler: (item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>) => void;
   selected: boolean;
   style: React.CSSProperties;
+  value: string;
 };
 
 export type SuggestionListProps<

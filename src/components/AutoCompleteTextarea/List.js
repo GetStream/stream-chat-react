@@ -144,6 +144,7 @@ export const List = (props) => {
           }}
           selected={isSelected(item)}
           style={itemStyle}
+          value={propValue}
         />
       ))}
     </ul>
