@@ -13,7 +13,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark, } from '../../assets';
+import { DeliveredCheckmark, DoubleCheckmark } from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -40,7 +40,14 @@ export const SocialMessage: React.FC<
 > = (props) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { isMyMessage, isReactionEnabled, message, readBy, reactionSelectorRef, showDetailedReactions } = useMessageContext<
+  const {
+    isMyMessage,
+    isReactionEnabled,
+    message,
+    readBy,
+    reactionSelectorRef,
+    showDetailedReactions,
+  } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,
@@ -95,10 +102,10 @@ export const SocialMessage: React.FC<
       <div className='message-wrapper-inner'>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector ref={reactionSelectorRef} />
-          )}
+        )}
         {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         <MessageOptions displayLeft={false} displayReplies={true} />
         <MessageRepliesCountButton reply_count={message.reply_count} />
         <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
