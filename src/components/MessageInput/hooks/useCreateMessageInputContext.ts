@@ -151,6 +151,7 @@ export const useCreateMessageInputContext = <
       useMentionsTransliteration,
     }),
     [
+      cooldownInterval,
       editing,
       emojiPickerIsOpen,
       fileUploadsValue,
