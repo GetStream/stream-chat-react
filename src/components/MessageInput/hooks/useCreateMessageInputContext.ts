@@ -32,6 +32,7 @@ export const useCreateMessageInputContext = <
     closeCommandsList,
     closeEmojiPicker,
     cooldownInterval,
+    cooldownRemaining,
     disabled,
     disableMentions,
     doFileUploadRequest,
@@ -102,6 +103,7 @@ export const useCreateMessageInputContext = <
       closeCommandsList,
       closeEmojiPicker,
       cooldownInterval,
+      cooldownRemaining,
       disabled,
       disableMentions,
       doFileUploadRequest,
@@ -152,6 +154,7 @@ export const useCreateMessageInputContext = <
     }),
     [
       cooldownInterval,
+      cooldownRemaining,
       editing,
       emojiPickerIsOpen,
       fileUploadsValue,
