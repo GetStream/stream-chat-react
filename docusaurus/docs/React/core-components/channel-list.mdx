@@ -92,7 +92,7 @@ re-setting the list state, you can customize behavior and UI.
 
 ## Customizing Event Handlers
 
-The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop. Let's take an example of ChannelList component for [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
+The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop. Let's look at an example of customizing the ChannelList component to only display [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
 
 ```tsx
 const filters = {
@@ -120,7 +120,7 @@ const filters = {
 const customOnMessageNew = async (setChannels, event) => {
   const eventChannel = event.channel;
 
-  // If the channel is frozen, then don't add it to the list.
+  // If the channel isn't frozen, then don't add it to the list.
   if (!eventChannel?.id || !eventChannel.frozen) return;
 
   try {
@@ -135,7 +135,7 @@ const customOnMessageNew = async (setChannels, event) => {
 <ChannelList filters={filters} onMessageNew={customOnMessageNew} />;
 ```
 
-Similarly, events other than notification.message_new can be handled as per application requirements.
+Similarly, events other than `notification.message_new` can be handled as per application requirements.
 
 ## Props
 
