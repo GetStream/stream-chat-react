@@ -9531,10 +9531,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.1.tgz#5168b1770aeeb0893ca0fa7223190049dccc82a4"
-  integrity sha512-BY3nEs9drjDXFpBvlAJsgq+7whjrGYeZ1rIuukjjtbxs+mfVGnywZoi80q+DGyltsynufGJv4uwYGWG9qjpKwQ==
+stream-chat-css@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.15.tgz#dd22aca0c65d5a32fb50fb3ef17c8080669bdbc6"
+  integrity sha512-7fJq7HqB+6gUpsDdqPJJ7SvMoFzUCe37d7J8VWPYiUs3PWZHK2gs1PW28kQm8jVPL6PfZoX1ZwhgMMGOOsSo1w==
 
 stream-chat@4.2.0:
   version "4.2.0"
