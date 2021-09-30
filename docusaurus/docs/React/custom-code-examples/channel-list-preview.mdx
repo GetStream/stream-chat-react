@@ -116,23 +116,7 @@ const CustomLoadingIndicator = () => {
 If a new message is received, a user is added to a channel, or other events take place, the `ChannelList` will update its UI accordingly.
 It's important to note that `filters` don't apply to updates to the list from events.
 
-The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop.
-
-| [Event Type](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) | Default Behavior                                 | Custom Handler                                                                   |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------- |
-| `channel.deleted`                                                                         | Removes channel from list                        | [onChannelDeleted](../core-components/channel-list.mdx#onchanneldeleted)         |
-| `channel.hidden`                                                                          | Removes channel from list                        | [onChannelHidden](../core-components/channel-list.mdx#onchannelhidden)           |
-| `channel.truncated`                                                                       | Updates the channel                              | [onChannelTruncated](../core-components/channel-list.mdx#onchanneltruncated)     |
-| `channel.updated`                                                                         | Updates the channel                              | [onChannelUpdated](../core-components/channel-list.mdx#onchannelupdated)         |
-| `channel.visible`                                                                         | Adds channel to list                             | [onChannelVisible](../core-components/channel-list.mdx#onchannelvisible)         |
-| `connection.recovered`                                                                    | Forces a component render                        | N/A                                                                              |
-| `message.new`                                                                             | Moves channel to top of list                     | N/A                                                                              |
-| `notification.added_to_channel`                                                           | Moves channel to top of list and starts watching | [onAddedToChannel](../core-components/channel-list.mdx#onaddedtochannel)         |
-| `notification.message_new`                                                                | Moves channel to top of list and starts watching | [onMessageNew](../core-components/channel-list.mdx#onmessagenew)                 |
-| `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](../core-components/channel-list.mdx#onremovedfromchannel) |
-| `user.presence.changed`                                                                   | Updates the channel                              | N/A                                                                              |
-
-Let's take an example of ChannelList component for [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
+The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop. Let's take an example of ChannelList component for [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
 
 ```tsx
 const filters = {
