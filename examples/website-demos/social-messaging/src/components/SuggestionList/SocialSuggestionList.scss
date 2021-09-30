@@ -71,6 +71,23 @@
     }
 }
 
+.suggestion-header {
+    background: $bars-bg;
+    display: inline-flex;
+    padding: 10px 15px;
+
+    &-commands {
+        color: $text-low-emphasis;
+        font-weight: 400;
+        font-size: 17px;
+        margin-left: 10px;
+    }
+}
+
+li.rta__list-header {
+    padding: 5px;
+}
+
 div.rta__autocomplete.str-chat__emojisearch {
     width: 400px;
     border-radius: 16px 16px 0px 0px;
