@@ -90,6 +90,53 @@ re-setting the list state, you can customize behavior and UI.
 | `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](#onremovedfromchannel) |
 | `user.presence.changed`                                                                   | Updates the channel                              | N/A                                           |
 
+## Customizing Event Handlers
+
+The event type the `ChannelList` reacts to and its corresponding behavior can be overridden using the appropriate prop. Let's look at an example of customizing the ChannelList component to only display [frozen channels](https://getstream.io/chat/docs/javascript/freezing_channels/).
+
+```tsx
+const filters = {
+  members: { $in: ['dan'] },
+  frozen: true
+}
+
+<ChannelList filters={filters} />
+```
+
+The `notification.message_new` event occurs when a message is received on a channel that is not loaded but the current user is a member of.
+The default behavior when this event occurs is to query the channel the message is received on, then add the channel to the top of the list, irrespective of `filters`.
+Thus, if a new message appears in an unfrozen channel of which the current user is a member, it will be added to the list. This may not be the desired behavior since the list is only supposed to show frozen channels.
+
+In this case, you can replace the default functionality by providing a custom `onMessageNew` function as a prop to the `ChannelList` component.
+`onMessageNew` receives two parameters when called, `setChannels`, a setter function for the internal `channels` state, and `event`, the `Event` object received for the `notification.message_new` event.
+These parameters can be used to create a function that achieves the desired custom behavior.
+
+```tsx
+const filters = {
+  members: { $in: ['dan'] },
+  frozen: true,
+};
+
+const customOnMessageNew = async (setChannels, event) => {
+  const eventChannel = event.channel;
+
+  // If the channel isn't frozen, then don't add it to the list.
+  if (!eventChannel?.id || !eventChannel.frozen) return;
+
+  try {
+    const newChannel = client.channel(eventChannel.type, eventChannel.id);
+    await newChannel.watch();
+    setChannels((channels) => [newChannel, ...channels]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+<ChannelList filters={filters} onMessageNew={customOnMessageNew} />;
+```
+
+Similarly, events other than `notification.message_new` can be handled as per application requirements.
+
 ## Props
 
 ### additionalChannelSearchProps
