@@ -6,7 +6,7 @@
 
 - Add `chatContainer` custom CSS class name override [#1216](https://github.com/GetStream/stream-chat-react/pull/1216)
 
- ### Chore
+### Chore
  
 - Add descriptive error messages to custom context consumer hooks [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
 - Pass `value` prop to `SuggestionItem` component [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
@@ -14,7 +14,7 @@
 - Add `cooldownInterval` to `MessageInput` context value memoization [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)
 - Reduce packaged CSS bundle size [#1219](https://github.com/GetStream/stream-chat-react/pull/1219)
 
- ### Bug
+### Bug
 
 - Prevent user start/stop watching events from resetting the channel state [#1206](https://github.com/GetStream/stream-chat-react/pull/1206)
 
