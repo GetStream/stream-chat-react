@@ -1,5 +1,23 @@
 # Changelog
 
+## [6.9.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.1) 2021-10-01
+
+### Feature
+
+- Add `chatContainer` custom CSS class name override [#1216](https://github.com/GetStream/stream-chat-react/pull/1216)
+
+ ### Chore
+ 
+- Add descriptive error messages to custom context consumer hooks [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
+- Pass `value` prop to `SuggestionItem` component [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
+- Update docs for custom `ChannelList` event handler example [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)
+- Add `cooldownInterval` to `MessageInput` context value memoization [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)
+- Reduce packaged CSS bundle size [#1219](https://github.com/GetStream/stream-chat-react/pull/1219)
+
+ ### Bug
+
+- Prevent user start/stop watching events from resetting the channel state [#1206](https://github.com/GetStream/stream-chat-react/pull/1206)
+
 ## [6.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.0) 2021-09-24
 
 ### Feature
