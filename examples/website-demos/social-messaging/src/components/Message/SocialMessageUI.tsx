@@ -157,7 +157,7 @@ export const SocialMessage: React.FC<
         )}
         <ThreadReply />
         <div className='message-wrapper-inner-options'>
-          {myMessage && <MessageOptions displayReplies={true} />}
+          <MessageOptions />
           <div className='message-wrapper-inner-data'>
             {myMessage &&
               message.status === 'received' &&
@@ -171,7 +171,6 @@ export const SocialMessage: React.FC<
             )}
             <MessageTimestamp customClass='message-wrapper-inner-data-time' />
           </div>
-          {!myMessage && <MessageOptions />}
         </div>
       </div>
     </div>

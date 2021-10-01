@@ -50,11 +50,14 @@
       div.my-message {
         align-self: flex-end;
       }
+
+      .message-wrapper-inner-options {
+        flex-direction: initial;
+      }
     }
 
     display: flex;
     flex-direction: column;
-
     padding-left: 5px;
 
     &-options {
@@ -129,6 +132,10 @@ div.message-wrapper-inner .str-chat__message-attachment {
 }
 
 // reactions
+.message-wrapper-inner-options {
+  flex-direction: row-reverse;
+}
+
 .message-wrapper-inner:hover .str-chat__message-simple__actions {
   svg:hover {
     fill: var(--accent-primary);
