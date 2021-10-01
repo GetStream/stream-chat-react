@@ -149,7 +149,7 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
-        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
+        {hasReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {showDetailedReactions && isReactionEnabled && (

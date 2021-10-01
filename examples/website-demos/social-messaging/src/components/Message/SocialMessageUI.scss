@@ -100,6 +100,35 @@
   }
 }
 
+div.message-wrapper-inner .str-chat__message-attachment {
+  margin: 4px 0 0;
+}
+
+.right {
+  justify-content: flex-end;
+}
+
+.str-chat__li--top .my-message .str-chat__message-text-inner,
+.str-chat__message-text-inner {
+  border-radius: 18px 18px 4px 18px;
+}
+
+.str-chat__li--bottom .my-message .str-chat__message-text-inner,
+.str-chat__message-text-inner {
+  border-radius: 18px 18px 4px 18px;
+}
+
+.str-chat__li--middle .my-message .str-chat__message-text-inner,
+.str-chat__message-text-inner {
+  border-radius: 18px 18px 4px 18px;
+}
+
+.str-chat__li--single .my-message .str-chat__message-text-inner,
+.str-chat__message-text-inner {
+  border-radius: 18px 18px 0px 18px;
+}
+
+// reactions
 .message-wrapper-inner:hover .str-chat__message-simple__actions {
   svg:hover {
     fill: var(--accent-primary);
@@ -153,7 +182,7 @@ ul.str-chat__simple-reactions-list {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 999;
+  z-index: 1;
   border: 1px solid var(--borders);
   height: 32px;
   min-width: 32px;
@@ -161,45 +190,8 @@ ul.str-chat__simple-reactions-list {
   align-items: center;
   justify-content: center;
   background: var(--app-bg);
-
-  &-item {
-    // width: 15px;
-    // height: 16px;
-  }
 }
 
 li.str-chat__simple-reactions-list-item--last-number {
   display: none;
-}
-
-// .str-chat__simple-reactions-list-item > span > span > span {
-//   width: 22px !important;
-// }
-
-div.message-wrapper-inner .str-chat__message-attachment {
-  margin: 4px 0 0;
-}
-
-.right {
-  justify-content: flex-end;
-}
-
-.str-chat__li--top .my-message .str-chat__message-text-inner,
-.str-chat__message-text-inner {
-  border-radius: 18px 18px 4px 18px;
-}
-
-.str-chat__li--bottom .my-message .str-chat__message-text-inner,
-.str-chat__message-text-inner {
-  border-radius: 18px 18px 4px 18px;
-}
-
-.str-chat__li--middle .my-message .str-chat__message-text-inner,
-.str-chat__message-text-inner {
-  border-radius: 18px 18px 4px 18px;
-}
-
-.str-chat__li--single .my-message .str-chat__message-text-inner,
-.str-chat__message-text-inner {
-  border-radius: 18px 18px 0px 18px;
 }
