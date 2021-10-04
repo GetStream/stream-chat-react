@@ -44,7 +44,7 @@ li.str-chat__message-reactions-list-item {
 
   &:hover {
     background: var(--input-bg);
-    border-radius: 20px;
+    border-radius: 50%;
   }
 }
 
@@ -65,7 +65,7 @@ ul.str-chat__simple-reactions-list {
   border: 1px solid var(--borders);
   height: 32px;
   min-width: 32px;
-  border-radius: 32px;
+  border-radius: 34px;
   align-items: center;
   justify-content: center;
   background: var(--app-bg);
@@ -85,8 +85,7 @@ li.str-chat__simple-reactions-list-item {
   left: 7px;
   z-index: 1;
   border: 1px solid var(--borders);
-  border-radius: 8px;
-  // box-shadow: 1px 1px var(--app-bg);
+  border-radius: 50%;
   box-shadow: 0 0 0 1px var(--app-bg);
 }
 
@@ -99,7 +98,7 @@ li.str-chat__simple-reactions-list-item {
   left: 5px;
   z-index: 2;
   border: 1px solid var(--borders);
-  border-radius: 4px;
+  border-radius: 50%;
   box-shadow: 0 0 0 1px var(--app-bg);
 }
 
