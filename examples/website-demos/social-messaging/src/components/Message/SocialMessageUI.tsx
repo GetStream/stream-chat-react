@@ -4,7 +4,6 @@ import {
   ReactionSelector,
   messageHasReactions,
   MessageOptions,
-  MessageRepliesCountButton,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
@@ -24,6 +23,8 @@ import {
   SocialReactionType,
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
+
+import { ThreadReply } from '../ThreadReply/ThreadReply';
 
 import './SocialMessageUI.scss';
 
@@ -68,6 +69,54 @@ export const SocialMessage: React.FC<
   const readByMembers = readBy?.filter((user) => user.id !== client.user?.id);
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
 
+    const customReactions = [
+  {
+    colons: ':heart:',
+    emoticons: ['<3'],
+    id: 'heart',
+    name: 'Heart',
+    native: '❤️',
+    skin: null,
+    unified: '2764',
+  },
+  {
+    colons: ':+1:',
+    emoticons: ['b'],
+    id: 'thumbsup',
+    name: 'Thumbs Up',
+    native: '👍',
+    skin: null,
+    unified: '1F44D',
+  },
+  {
+    colons: ':-1:',
+    emoticons: ['p'],
+    id: 'thumbsdown',
+    name: 'Thumbs Down',
+    native: '👎',
+    skin: null,
+    unified: '1f44e',
+  },
+  {
+    colons: ':laughing:',
+    emoticons: ['x)'],
+    id: 'laughing',
+    name: 'Grinning Squinting Face',
+    native: '😆',
+    skin: null,
+    unified: '1F606',
+  },
+  {
+    colons: ':angry:',
+    emoticons: ['=/'],
+    id: 'angry',
+    name: 'Angry',
+    native: '😠',
+    skin: null,
+    unified: '1F620',
+  },
+];
+
   // Group Channel
   if (members > 2) {
     return (
@@ -99,27 +148,29 @@ export const SocialMessage: React.FC<
   return (
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
-      <div className='message-wrapper-inner'>
-        {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector ref={reactionSelectorRef} />
-        )}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
+      <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
+        {hasReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        <MessageOptions displayLeft={false} displayReplies={true} />
-        <MessageRepliesCountButton reply_count={message.reply_count} />
-        <div className={`message-wrapper-inner-data ${myMessage ? 'my-message' : ''}`}>
-          {!myMessage && (
-            <div className='message-wrapper-inner-data-info'>
-              {message.user?.name || message.user?.id}
-            </div>
-          )}
-          {myMessage &&
-            message.status === 'received' &&
-            readByMembers &&
-            readByMembers?.length < 1 && <DeliveredCheckmark />}
-          {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
-          <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+        {showDetailedReactions && isReactionEnabled && (
+          <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
+        )}
+        <ThreadReply />
+        <div className='message-wrapper-inner-options'>
+          <MessageOptions />
+          <div className='message-wrapper-inner-data'>
+            {myMessage &&
+              message.status === 'received' &&
+              readByMembers &&
+              readByMembers?.length < 1 && <DeliveredCheckmark />}
+            {myMessage && readByMembers && readByMembersLength && <DoubleCheckmark />}
+            {!myMessage && (
+              <div className='message-wrapper-inner-data-info'>
+                {message.user?.name || message.user?.id}
+              </div>
+            )}
+            <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+          </div>
         </div>
       </div>
     </div>
