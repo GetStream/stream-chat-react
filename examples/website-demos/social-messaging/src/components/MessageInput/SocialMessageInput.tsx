@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ImageDropzone, FileUploadButton } from 'react-file-utils';
 
 import {
   ChatAutoComplete,
+  CooldownTimer,
   EmojiPicker,
   MessageInputProps,
   UploadsPreview,
@@ -20,7 +21,6 @@ import {
 } from '../../assets';
 
 import { useGiphyContext } from '../../contexts/GiphyContext';
-import { SocialCooldownTimer } from '../CooldownTimer/SocialCooldownTimer';
 
 import './SocialMessageInput.scss';
 
@@ -98,16 +98,20 @@ export const SocialMessageInput = (props: Props) => {
     setCommandsOpen(true);
   };
 
-  const renderSendButton = () => {
-    return cooldownRemaining ? (
-      <SocialCooldownTimer
-        cooldownInterval={cooldownInterval}
-        setCooldownRemaining={setCooldownRemaining}
-      />
-    ) : (
-      <SendArrow />
-    );
-  };
+  const SendButton = useMemo(
+    () =>
+      cooldownRemaining ? (
+        <div className='input-ui-send-cooldown'>
+          <CooldownTimer
+            cooldownInterval={cooldownInterval}
+            setCooldownRemaining={setCooldownRemaining}
+          />
+        </div>
+      ) : (
+        <SendArrow />
+      ),
+    [cooldownInterval, cooldownRemaining, setCooldownRemaining],
+  );
 
   return (
     <>
@@ -163,7 +167,7 @@ export const SocialMessageInput = (props: Props) => {
           className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`}
           onClick={handleSubmit}
         >
-          {giphyState && !numberOfUploads ? <GiphySearch /> : <>{renderSendButton()}</>}
+          {giphyState && !numberOfUploads ? <GiphySearch /> : SendButton}
         </div>
       </div>
       {threadInput && (
