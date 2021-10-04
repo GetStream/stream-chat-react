@@ -67,6 +67,14 @@
       svg:hover path {
         fill: $accent-primary;
       }
+
+      .cooldown {
+        fill: $disabled;
+
+        svg:hover path {
+          fill: $disabled;
+        }
+      }
     }
 
     &.giphy {
@@ -123,6 +131,24 @@
 
       svg {
         fill: $white;
+      }
+    }
+
+    &-cooldown {
+      background-color: $disabled;
+      height: 40px;
+      width: 48px;
+      border-radius: 9999px;
+      position: relative;
+
+      :first-child {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: $disabled;
+        color: $white;
+        font-size: 17px;
       }
     }
   }

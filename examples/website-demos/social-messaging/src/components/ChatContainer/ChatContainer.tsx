@@ -27,7 +27,6 @@ const apiKey = urlParams.get('apikey') || process.env.REACT_APP_STREAM_KEY;
 const user = urlParams.get('user') || process.env.REACT_APP_USER_ID;
 const userImage = process.env.REACT_APP_USER_IMAGE;
 const userToken = urlParams.get('user_token') || process.env.REACT_APP_USER_TOKEN;
-
 // const targetOrigin = urlParams.get('target_origin') || process.env.REACT_APP_TARGET_ORIGIN;
 
 // const noChannelNameFilter = urlParams.get('no_channel_name_filter') || false;
