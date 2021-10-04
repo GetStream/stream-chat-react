@@ -82,7 +82,7 @@ export const SocialMessage: React.FC<
   {
     colons: ':+1:',
     emoticons: ['b'],
-    id: 'thumbsup',
+    id: '+1',
     name: 'Thumbs Up',
     native: '👍',
     skin: null,
@@ -91,7 +91,7 @@ export const SocialMessage: React.FC<
   {
     colons: ':-1:',
     emoticons: ['p'],
-    id: 'thumbsdown',
+    id: '-1',
     name: 'Thumbs Down',
     native: '👎',
     skin: null,
@@ -108,7 +108,7 @@ export const SocialMessage: React.FC<
   },
   {
     colons: ':angry:',
-    emoticons: ['=/'],
+    emoticons: ['=/', '>=('],
     id: 'angry',
     name: 'Angry',
     native: '😠',
@@ -149,15 +149,20 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
-        {hasReactions && isReactionEnabled && <SimpleReactionsList />}
-        <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        {/* <div className='message-wrapper-inner-text'> */}
+          {hasReactions && isReactionEnabled && <SimpleReactionsList reactionOptions={customReactions} />}
+          <div className='bubble-1'>
+            <div className='bubble-2'></div>
+          </div>
+          <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        {/* </div> */}
         {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
         )}
         <ThreadReply />
         <div className='message-wrapper-inner-options'>
-          {myMessage && <MessageOptions displayReplies={true} />}
+          <MessageOptions />
           <div className='message-wrapper-inner-data'>
             {myMessage &&
               message.status === 'received' &&
@@ -171,7 +176,6 @@ export const SocialMessage: React.FC<
             )}
             <MessageTimestamp customClass='message-wrapper-inner-data-time' />
           </div>
-          {!myMessage && <MessageOptions />}
         </div>
       </div>
     </div>
