@@ -67,6 +67,15 @@
       svg:hover path {
         fill: $accent-primary;
       }
+
+      .cooldown {
+        // color: $disabled;
+        fill: $disabled;
+
+        svg:hover path {
+          fill: $disabled;
+        }
+      }
     }
 
     &.giphy {

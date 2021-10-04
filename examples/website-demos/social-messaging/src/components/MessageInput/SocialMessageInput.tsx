@@ -20,6 +20,7 @@ import {
 } from '../../assets';
 
 import { useGiphyContext } from '../../contexts/GiphyContext';
+import { SocialCooldownTimer } from '../CooldownTimer/SocialCooldownTimer';
 
 import './SocialMessageInput.scss';
 
@@ -34,12 +35,15 @@ export const SocialMessageInput = (props: Props) => {
 
   const {
     closeCommandsList,
+    cooldownInterval,
+    cooldownRemaining,
     emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
     openCommandsList,
     openEmojiPicker,
+    setCooldownRemaining,
     text,
   } = useMessageInputContext();
 
@@ -93,20 +97,35 @@ export const SocialMessageInput = (props: Props) => {
     setGiphyState(false);
     setCommandsOpen(true);
   };
+
+  const renderSendButton = () => {
+    return cooldownRemaining ? (
+      <SocialCooldownTimer
+        cooldownInterval={cooldownInterval}
+        setCooldownRemaining={setCooldownRemaining}
+      />
+    ) : (
+      <SendArrow />
+    );
+  };
+
   return (
     <>
       <div className='input-ui'>
         <div className='input-ui-icons'>
           <div className='input-ui-icons-attach'>
-            <FileUploadButton handleFiles={messageInput.uploadNewFiles}>
-              <Attach />
+            <FileUploadButton
+              disabled={Boolean(cooldownRemaining)}
+              handleFiles={messageInput.uploadNewFiles}
+            >
+              <Attach cooldownRemaining={cooldownRemaining} />
             </FileUploadButton>
           </div>
           <div
             className='input-ui-icons-bolt'
-            onClick={!numberOfUploads ? handleCommandsClick : () => null}
+            onClick={!numberOfUploads && !cooldownRemaining ? handleCommandsClick : () => null}
           >
-            <CommandBolt />
+            <CommandBolt cooldownRemaining={cooldownRemaining} />
           </div>
         </div>
         <ImageDropzone
@@ -130,7 +149,7 @@ export const SocialMessageInput = (props: Props) => {
                     <div
                       className='input-ui-input-emoji-picker'
                       ref={emojiPickerRef}
-                      onClick={openEmojiPicker}
+                      onClick={!cooldownRemaining ? openEmojiPicker : () => null}
                     >
                       <EmojiPickerIcon />
                     </div>
@@ -144,13 +163,7 @@ export const SocialMessageInput = (props: Props) => {
           className={`input-ui-send ${text || numberOfUploads ? 'text' : ''}`}
           onClick={handleSubmit}
         >
-          {giphyState && !numberOfUploads ? (
-            <GiphySearch />
-          ) : (
-            <>
-              <SendArrow />
-            </>
-          )}
+          {giphyState && !numberOfUploads ? <GiphySearch /> : <>{renderSendButton()}</>}
         </div>
       </div>
       {threadInput && (
