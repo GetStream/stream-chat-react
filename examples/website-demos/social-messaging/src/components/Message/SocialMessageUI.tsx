@@ -98,9 +98,11 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
-        <SocialReactionList />
-        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-        <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        <div className='message-wrapper-inner-text'>
+          <SocialReactionList />
+          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+          <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        </div>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
         )}

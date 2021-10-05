@@ -52,10 +52,8 @@ export const customReactions = [
 
 export const SocialReactionList = () => {
   const {
-    // isMyMessage,
     isReactionEnabled,
     message,
-    // showDetailedReactions,
   } = useMessageContext();
 
   const hasReactions = messageHasReactions(message);
@@ -64,9 +62,11 @@ export const SocialReactionList = () => {
     <>
       {hasReactions && isReactionEnabled && (
         <>
-          <SimpleReactionsList reactionOptions={customReactions} />
-          <div className='bubble-1'>
-            <div className='bubble-2'></div>
+          <div className='reaction-list'>
+            <SimpleReactionsList reactionOptions={customReactions} />
+            <div className='bubble-1'>
+              <div className='bubble-2'></div>
+            </div>
           </div>
         </>
       )}

@@ -2,21 +2,11 @@
 
 .message-wrapper {
   display: flex;
-  flex-direction: row;
   align-items: flex-end;
-  margin-top: 8px;
 
   .my-message {
     .str-chat__message-text-inner {
       background: $borders;
-      color: $text-high-emphasis;
-      font-size: 17px;
-      font-weight: 400;
-      line-height: 20px;
-      display: flex;
-      flex-direction: column;
-      padding: 0px 16px;
-      border: 1px solid $borders;
     }
   }
 
@@ -33,23 +23,23 @@
   }
 
   &-inner {
-    align-items: flex-end;
-    position: relative;
-    min-width: 109px;
+    display: flex;
+    flex-direction: column;
+    padding-left: 5px;
 
-    .str-chat__message-text {
-      align-self: flex-start;
-    }
+    .message-wrapper-inner-text {
+        align-self: flex-start;
+      }
 
     &.my-message {
-      align-items: flex-start;
 
       .message-wrapper-inner-reply {
         align-self: flex-end;
       }
 
       div.my-message {
-        align-self: flex-end;
+        display: flex;
+        justify-content: flex-end;
       }
 
       .message-wrapper-inner-options {
@@ -57,12 +47,7 @@
       }
     }
 
-    display: flex;
-    flex-direction: column;
-    padding-left: 5px;
-
     &-options {
-      width: 100%;
       display: flex;
       justify-content: space-between;
     }
@@ -71,7 +56,6 @@
       display: flex;
       margin-top: 3px;
       height: 15px;
-      justify-content: space-between;
 
       &-info {
         color: $text-low-emphasis;
@@ -83,7 +67,6 @@
       &-time {
         color: $text-low-emphasis;
         font-size: 13px;
-        font-weight: 400;
       }
 
       &-readby {
@@ -130,6 +113,9 @@ div.message-wrapper-inner .str-chat__message-attachment {
 .str-chat__li--single .my-message .str-chat__message-text-inner,
 .str-chat__message-text-inner {
   border-radius: 18px 18px 0px 18px;
-  height: 36px;
   justify-content: center;
+}
+
+p {
+  margin: 8px 0;
 }

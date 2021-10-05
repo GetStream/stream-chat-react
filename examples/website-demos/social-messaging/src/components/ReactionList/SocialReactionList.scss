@@ -1,11 +1,23 @@
-// reactions
+@import '../../styles/_variables';
+
+.reaction-list {
+  margin-top: 28px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.my-message .reaction-list {
+  justify-content: initial;
+}
+
 .message-wrapper-inner-options {
   flex-direction: row-reverse;
 }
 
 .message-wrapper-inner:hover .str-chat__message-simple__actions {
   svg:hover {
-    fill: var(--accent-primary);
+    fill: $accent-primary;
   }
 
   &__action--reactions {
@@ -19,10 +31,10 @@
 }
 
 div.str-chat__reaction-selector {
-  background: var(--white);
+  background: $white;
   height: 40px;
   bottom: -45px;
-  left: 60px;
+  transform: translateX(35%);
 
   .emoji-mart-emoji:hover {
     transform: none;
@@ -34,7 +46,7 @@ div.str-chat__reaction-selector {
 }
 
 .message-wrapper-inner.my-message.my-message > div.str-chat__reaction-selector {
-  right: 40px;
+  transform: translateX(-35%);
   left: auto;
 }
 
@@ -43,63 +55,71 @@ li.str-chat__message-reactions-list-item {
   margin: 0;
 
   &:hover {
-    background: var(--input-bg);
+    background: $input-bg;
     border-radius: 50%;
   }
 }
 
 span.str-chat__message-reactions-list-item__count {
-  color: var(--black);
-}
-
-.message-wrapper-inner-text {
-  position: relative;
+  display: none;
 }
 
 ul.str-chat__simple-reactions-list {
   position: absolute;
-  top: -32px;
-  left: -15px;
-  // left: -55px;
+  padding: 4px 8px 2px 4px;
+  width: min-content;
+  top: -34px;
+  transform: translateX(44%);
   z-index: 2;
-  border: 1px solid var(--borders);
+  border: 1px solid $borders;
   height: 32px;
-  min-width: 32px;
   border-radius: 34px;
   align-items: center;
-  justify-content: center;
-  background: var(--app-bg);
-  box-shadow: 0 0 0 1px var(--app-bg);
+  background: $app-bg;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .str-chat__simple-reactions-list {
+  transform: translateX(-44%);
 }
 
 li.str-chat__simple-reactions-list-item {
   padding-left: 4px;
+  height: 16px;
 }
 
 .bubble-1 {
   position: absolute;
   height: 8px;
   width: 8px;
-  background: var(--app-bg);
+  background: $app-bg;
   top: 3px;
-  left: 7px;
+  right: 2px;
   z-index: 1;
-  border: 1px solid var(--borders);
+  border: 1px solid $borders;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--app-bg);
+  box-shadow: 0 0 0 2px $app-bg;
 }
 
 .bubble-2 {
   position: absolute;
   height: 4px;
   width: 4px;
-  background: var(--app-bg);
-  top: 6px;
-  left: 5px;
+  background: $app-bg;
+  top: 5px;
+  right: 5px;
   z-index: 2;
-  border: 1px solid var(--borders);
+  border: 1px solid $borders;
   border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--app-bg);
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .bubble-1 {
+  left: 2px;
+}
+
+.my-message .bubble-2 {
+  left: 5px;
 }
 
 li.str-chat__simple-reactions-list-item--last-number {
