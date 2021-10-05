@@ -50,25 +50,20 @@ export const customReactions = [
   },
 ];
 
-export const SocialReactionList = () => {
-  const {
-    isReactionEnabled,
-    message,
-  } = useMessageContext();
+export const SocialReactionList: React.FC = () => {
+  const { isReactionEnabled, message } = useMessageContext();
 
   const hasReactions = messageHasReactions(message);
 
   return (
     <>
       {hasReactions && isReactionEnabled && (
-        <>
-          <div className='reaction-list'>
-            <SimpleReactionsList reactionOptions={customReactions} />
-            <div className='bubble-1'>
-              <div className='bubble-2'></div>
-            </div>
+        <div className='reaction-list'>
+          <SimpleReactionsList reactionOptions={customReactions} />
+          <div className='bubble-1'>
+            <div className='bubble-2'></div>
           </div>
-        </>
+        </div>
       )}
     </>
   );
