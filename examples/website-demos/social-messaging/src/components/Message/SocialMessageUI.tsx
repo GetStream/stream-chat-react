@@ -2,12 +2,10 @@ import {
   Attachment,
   Avatar,
   ReactionSelector,
-  messageHasReactions,
   MessageOptions,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
-  SimpleReactionsList,
   useChannelStateContext,
   useChatContext,
   useMessageContext,
@@ -25,6 +23,7 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { ThreadReply } from '../ThreadReply/ThreadReply';
+import { SocialReactionList, customReactions } from '../ReactionList/SocialReactionList';
 
 import './SocialMessageUI.scss';
 
@@ -62,60 +61,10 @@ export const SocialMessage: React.FC<
     ({ user }) => user?.id !== client.userID,
   ).length;
 
-  const hasReactions = messageHasReactions(message);
-
   const myMessage = isMyMessage();
 
   const readByMembers = readBy?.filter((user) => user.id !== client.user?.id);
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
-
-    const customReactions = [
-  {
-    colons: ':heart:',
-    emoticons: ['<3'],
-    id: 'heart',
-    name: 'Heart',
-    native: '❤️',
-    skin: null,
-    unified: '2764',
-  },
-  {
-    colons: ':+1:',
-    emoticons: ['b'],
-    id: 'thumbsup',
-    name: 'Thumbs Up',
-    native: '👍',
-    skin: null,
-    unified: '1F44D',
-  },
-  {
-    colons: ':-1:',
-    emoticons: ['p'],
-    id: 'thumbsdown',
-    name: 'Thumbs Down',
-    native: '👎',
-    skin: null,
-    unified: '1f44e',
-  },
-  {
-    colons: ':laughing:',
-    emoticons: ['x)'],
-    id: 'laughing',
-    name: 'Grinning Squinting Face',
-    native: '😆',
-    skin: null,
-    unified: '1F606',
-  },
-  {
-    colons: ':angry:',
-    emoticons: ['=/'],
-    id: 'angry',
-    name: 'Angry',
-    native: '😠',
-    skin: null,
-    unified: '1F620',
-  },
-];
 
   // Group Channel
   if (members > 2) {
@@ -149,9 +98,11 @@ export const SocialMessage: React.FC<
     <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
       {!myMessage && <Avatar size={36} image={message.user?.image} />}
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
-        {hasReactions && isReactionEnabled && <SimpleReactionsList />}
-        <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-        {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+        <div className='message-wrapper-inner-text'>
+          <SocialReactionList />
+          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+          <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+        </div>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
         )}

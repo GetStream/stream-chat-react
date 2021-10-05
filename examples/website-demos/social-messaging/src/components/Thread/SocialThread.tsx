@@ -5,7 +5,7 @@ import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 import { useOverrideSubmit } from '../../hooks/useOverrideSubmit';
 
-export const SocialThread = () => {
+export const SocialThread: React.FC = () => {
   const [checked, setChecked] = useState(false);
 
   const { thread } = useChannelStateContext();

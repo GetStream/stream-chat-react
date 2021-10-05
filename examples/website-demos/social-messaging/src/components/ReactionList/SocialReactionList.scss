@@ -1,0 +1,127 @@
+@import '../../styles/_variables';
+
+.reaction-list {
+  margin-top: 28px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.my-message .reaction-list {
+  justify-content: initial;
+}
+
+.message-wrapper-inner-options {
+  flex-direction: row-reverse;
+}
+
+.message-wrapper-inner:hover .str-chat__message-simple__actions {
+  svg:hover {
+    fill: $accent-primary;
+  }
+
+  &__action--reactions {
+    display: flex;
+    position: relative;
+  }
+
+  &__action--options {
+    display: flex;
+  }
+}
+
+div.str-chat__reaction-selector {
+  background: $white;
+  height: 40px;
+  bottom: -45px;
+  transform: translateX(35%);
+
+  .emoji-mart-emoji:hover {
+    transform: none;
+  }
+
+  ul {
+    margin: 0 8px;
+  }
+}
+
+.message-wrapper-inner.my-message.my-message > div.str-chat__reaction-selector {
+  transform: translateX(-35%);
+  left: auto;
+}
+
+li.str-chat__message-reactions-list-item {
+  padding: 8px;
+  margin: 0;
+
+  &:hover {
+    background: $input-bg;
+    border-radius: 50%;
+  }
+}
+
+span.str-chat__message-reactions-list-item__count {
+  display: none;
+}
+
+ul.str-chat__simple-reactions-list {
+  position: absolute;
+  padding: 4px 8px 2px 4px;
+  width: min-content;
+  top: -34px;
+  transform: translateX(44%);
+  z-index: 2;
+  border: 1px solid $borders;
+  height: 32px;
+  border-radius: 34px;
+  align-items: center;
+  background: $app-bg;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .str-chat__simple-reactions-list {
+  transform: translateX(-44%);
+}
+
+li.str-chat__simple-reactions-list-item {
+  padding-left: 4px;
+  height: 16px;
+}
+
+.bubble-1 {
+  position: absolute;
+  height: 8px;
+  width: 8px;
+  background: $app-bg;
+  top: 3px;
+  right: 2px;
+  z-index: 1;
+  border: 1px solid $borders;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.bubble-2 {
+  position: absolute;
+  height: 4px;
+  width: 4px;
+  background: $app-bg;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  border: 1px solid $borders;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .bubble-1 {
+  left: 2px;
+}
+
+.my-message .bubble-2 {
+  left: 5px;
+}
+
+li.str-chat__simple-reactions-list-item--last-number {
+  display: none;
+}
