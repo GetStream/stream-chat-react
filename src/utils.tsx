@@ -38,7 +38,7 @@ const allowedMarkups: NodeType[] = [
   'delete',
 ];
 
-const matchMarkdownLinks = (message: string) => {
+export const matchMarkdownLinks = (message: string) => {
   const regexMdLinks = /\[([^[]+)\](\(.*\))/gm;
   const matches = message.match(regexMdLinks);
   const singleMatch = /\[([^[]+)\]\((.*)\)/;
@@ -53,7 +53,7 @@ const matchMarkdownLinks = (message: string) => {
   return links.flat();
 };
 
-const messageCodeBlocks = (message: string) => {
+export const messageCodeBlocks = (message: string) => {
   const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
   const matches = message.match(codeRegex);
   return matches || [];
@@ -64,7 +64,7 @@ type MarkDownRenderers = {
   href?: string;
 };
 
-const markDownRenderers: { [nodeType: string]: React.ElementType } = {
+export const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
     const { children, href } = props;
@@ -90,7 +90,7 @@ const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   span: 'span',
 };
 
-const emojiMarkdownPlugin = () => {
+export const emojiMarkdownPlugin = () => {
   function replace(match: RegExpMatchArray | null) {
     return {
       children: [{ type: 'text', value: match }],
@@ -107,7 +107,7 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
+export const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
   mentioned_users: UserResponse<Us>[],
 ) => () => {
   const mentioned_usernames = mentioned_users
