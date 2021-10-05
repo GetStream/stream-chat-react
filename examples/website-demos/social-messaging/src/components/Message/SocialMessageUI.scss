@@ -89,6 +89,11 @@
 
 div.message-wrapper-inner .str-chat__message-attachment {
   margin: 4px 0 0;
+  max-width: 375px;
+}
+
+div.str-chat__message-attachment-card {
+  margin: 0 0;
 }
 
 .right {
