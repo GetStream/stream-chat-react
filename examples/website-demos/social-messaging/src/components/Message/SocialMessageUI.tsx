@@ -23,7 +23,7 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { ThreadReply } from '../ThreadReply/ThreadReply';
-import { SocialReactionList, customReactions } from '../ReactionList/SocialReactionList';
+import { SocialReactionList, customReactions, ReactionParticipants } from '../ReactionList/SocialReactionList';
 
 import './SocialMessageUI.scss';
 
@@ -80,6 +80,7 @@ export const SocialMessage: React.FC<
           <SocialReactionList />
           {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+          <ReactionParticipants />
         </div>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />

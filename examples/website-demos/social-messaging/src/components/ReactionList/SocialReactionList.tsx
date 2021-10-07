@@ -1,4 +1,12 @@
-import { messageHasReactions, SimpleReactionsList, useMessageContext } from 'stream-chat-react';
+import React from 'react';
+import {
+  Avatar,
+  messageHasReactions,
+  SimpleReactionsList,
+  useChannelStateContext,
+  useChatContext,
+  useMessageContext,
+} from 'stream-chat-react';
 
 import './SocialReactionList.scss';
 
@@ -49,6 +57,45 @@ export const customReactions = [
     unified: '1F620',
   },
 ];
+
+export const ReactionParticipants: React.FC = () => {
+  const { isMyMessage, message } = useMessageContext();
+  const { channel } = useChannelStateContext();
+  const { client } = useChatContext();
+
+  const isGroup =
+    Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
+    2;
+
+  const myMessage = isMyMessage();
+
+  return (
+    <>
+      {message.latest_reactions?.length ? (
+        <div className={`participants-wrapper ${myMessage && 'my-message'}`}>
+          <div>{`${isGroup ? message.latest_reactions?.length : ''} Message Reactions`}</div>
+          <div className='participants-wrapper-users'>
+            {message.latest_reactions?.map((reaction) => (
+              <div className='participants-wrapper__user'>
+                <Avatar
+                  size={64}
+                  image={message.user?.image}
+                  name={message.user?.name || message.user?.id}
+                />
+                <div className='participants-wrapper__user-name'>
+                  {myMessage
+                    ? 'You'
+                    : message.user?.name?.split('-').join('- ') ||
+                      message.user?.id.split('-').join('- ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+};
 
 export const SocialReactionList: React.FC = () => {
   const { isReactionEnabled, message } = useMessageContext();
