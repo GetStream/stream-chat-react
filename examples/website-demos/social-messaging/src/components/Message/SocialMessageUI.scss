@@ -26,12 +26,16 @@
     display: flex;
     flex-direction: column;
     padding-left: 5px;
+    min-width: 125px;
 
     .message-wrapper-inner-text {
-        align-self: flex-start;
-      }
+      align-self: flex-start;
+    }
 
     &.my-message {
+      .message-wrapper-inner-text {
+      align-self: flex-end;
+    }
 
       .message-wrapper-inner-reply {
         align-self: flex-end;
