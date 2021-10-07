@@ -566,6 +566,9 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
+      channelStateOpts: {
+        channelCapabilities: { 'delete-own-message': true, 'update-own-message': true },
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -584,7 +587,10 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, membership: { role }, watchers: {} } },
+      channelStateOpts: {
+        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
+        state: { members: {}, membership: { role }, watchers: {} },
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -618,6 +624,9 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
+      channelStateOpts: {
+        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
+      },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -634,7 +643,10 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, membership: { role: 'admin' }, watchers: {} } },
+      channelStateOpts: {
+        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
+        state: { members: {}, membership: { role: 'admin' }, watchers: {} },
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },

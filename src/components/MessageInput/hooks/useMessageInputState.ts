@@ -357,7 +357,15 @@ export const useMessageInputState = <
 ): MessageInputState<At, Us> & MessageInputHookProps<At, Me, Us> & CommandsListState => {
   const { message } = props;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >();
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,
@@ -415,7 +423,8 @@ export const useMessageInputState = <
 
   const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
 
-  const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+  const isUploadEnabled =
+    channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
 
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });

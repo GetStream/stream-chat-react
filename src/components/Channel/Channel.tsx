@@ -317,6 +317,7 @@ const ChannelInner = <
   const lastRead = useRef(new Date());
   const online = useRef(true);
 
+  const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
   const channelConfig = channel.getConfig();
   const emojiConfig: EmojiConfig = {
     commonEmoji,
@@ -731,6 +732,7 @@ const ChannelInner = <
     ...restState,
     acceptedFiles,
     channel,
+    channelCapabilitiesArray,
     channelConfig,
     maxNumberOfFiles,
     multipleUploads,

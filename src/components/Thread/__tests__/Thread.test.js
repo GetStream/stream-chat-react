@@ -223,14 +223,15 @@ describe('Thread', () => {
 
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { replies: false } });
+    const ch = generateChannel({ getConfig: () => ({ replies: false }) });
+    const channelConfig = ch.getConfig();
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
     const tree = renderer
       .create(
-        <ChannelStateProvider value={{ ...channelStateContextMock, channel }}>
+        <ChannelStateProvider value={{ ...channelStateContextMock, channel, channelConfig }}>
           <Thread />
         </ChannelStateProvider>,
       )
