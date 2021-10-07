@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Avatar,
   messageHasReactions,
@@ -7,6 +7,8 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
+
+import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialReactionList.scss';
 
@@ -62,21 +64,23 @@ export const ReactionParticipants: React.FC = () => {
   const { isMyMessage, message } = useMessageContext();
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
+  const { reactionsOpen } = useViewContext();
 
   const isGroup =
     Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
     2;
 
   const myMessage = isMyMessage();
+  const hasReactions = messageHasReactions(message);
 
   return (
     <>
-      {message.latest_reactions?.length ? (
+      {hasReactions && reactionsOpen === message.id ? (
         <div className={`participants-wrapper ${myMessage && 'my-message'}`}>
           <div>{`${isGroup ? message.latest_reactions?.length : ''} Message Reactions`}</div>
           <div className='participants-wrapper-users'>
             {message.latest_reactions?.map((reaction) => (
-              <div className='participants-wrapper__user'>
+              <div key={reaction.updated_at} className='participants-wrapper__user'>
                 <Avatar
                   size={64}
                   image={message.user?.image}
@@ -85,8 +89,7 @@ export const ReactionParticipants: React.FC = () => {
                 <div className='participants-wrapper__user-name'>
                   {myMessage
                     ? 'You'
-                    : message.user?.name?.split('-').join('- ') ||
-                      message.user?.id.split('-').join('- ')}
+                    : message.user?.name?.split('-').join('- ') || message.user?.id}
                 </div>
               </div>
             ))}
@@ -98,14 +101,60 @@ export const ReactionParticipants: React.FC = () => {
 };
 
 export const SocialReactionList: React.FC = () => {
-  const { isReactionEnabled, message } = useMessageContext();
+  const { message } = useMessageContext();
+  const { reactionsOpen, setReactionsOpen } = useViewContext();
+
+  console.log({ reactionsOpen });
+
+
+  const reactionsRef = useRef<HTMLDivElement | null>(null);
+
 
   const hasReactions = messageHasReactions(message);
 
+  const handleReactionListClick = (id: string) => {
+    setReactionsOpen(id);
+  };
+
+  useEffect(() => {
+    const checkIfClickedOutside = (event: MouseEvent) => {
+      if (
+        reactionsOpen &&
+        reactionsRef.current &&
+        event.target instanceof Element &&
+        !reactionsRef.current?.contains(event.target)
+      ) {
+        setReactionsOpen('');
+      }
+    };
+
+    document.addEventListener('click', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('click', checkIfClickedOutside);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reactionsOpen]);
+
+  // useEffect(() => {
+  //   const handleClickOutside = (event: Event) => {
+  //     if (event.target instanceof HTMLElement) {
+  //       const elements = document.getElementsByClassName('reaction-list');
+  //       const reactionList = elements.item(0);
+
+  //       if (!reactionList?.contains(event.target)) {
+  //         setReactionsOpen('');
+  //       }
+  //     }
+  //   };
+
+  //   if (reactionsOpen) document.addEventListener('click', handleClickOutside);
+  //   return () => document.removeEventListener('click', handleClickOutside);
+  // }, [reactionsOpen]); // eslint-disable-line
+
   return (
     <>
-      {hasReactions && isReactionEnabled && (
-        <div className='reaction-list'>
+      {hasReactions && (
+        <div onClick={() => handleReactionListClick(message.id)} className='reaction-list'>
           <SimpleReactionsList reactionOptions={customReactions} />
           <div className='bubble-1'>
             <div className='bubble-2'></div>

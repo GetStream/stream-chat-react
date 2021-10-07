@@ -6,10 +6,12 @@ type ViewContextValue = {
   isSideDrawerOpen: boolean;
   isNewChat: boolean;
   mentionsUnreadCount: number;
+  reactionsOpen: string;
   setChatsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   setListMentions: React.Dispatch<React.SetStateAction<boolean>>;
   setMentionsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   setNewChat: React.Dispatch<React.SetStateAction<boolean>>;
+  setReactionsOpen: React.Dispatch<React.SetStateAction<string>>;
   setSideDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -21,6 +23,7 @@ export const ViewProvider: React.FC = ({ children }) => {
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [isNewChat, setNewChat] = useState(false);
   const [mentionsUnreadCount, setMentionsUnreadCount] = useState(0);
+  const [reactionsOpen, setReactionsOpen] = useState('');
 
   const contextValue: ViewContextValue = {
     chatsUnreadCount,
@@ -28,10 +31,12 @@ export const ViewProvider: React.FC = ({ children }) => {
     isSideDrawerOpen,
     isNewChat,
     mentionsUnreadCount,
+    reactionsOpen,
     setChatsUnreadCount,
     setListMentions,
     setMentionsUnreadCount,
     setNewChat,
+    setReactionsOpen,
     setSideDrawerOpen,
   };
 

@@ -19,9 +19,8 @@ export const ThreadReply: React.FC = () => {
               <RightReply />
               {uniqueThreadParticipants[0] &&
                 uniqueThreadParticipants.map((user, i) => (
-                  <div className={`${uniqueThreadParticipants[1] ? `left-avatar-${i + 1}` : ''}`}>
+                  <div key={user.id} className={`${uniqueThreadParticipants[1] ? `left-avatar-${i + 1}` : ''}`}>
                     <Avatar
-                      key={user.id}
                       size={16}
                       image={user.image}
                       name={user.name || user.id}
@@ -35,9 +34,8 @@ export const ThreadReply: React.FC = () => {
             <>
               {uniqueThreadParticipants[0] &&
                 uniqueThreadParticipants.reverse().map((user, i) => (
-                  <div className={`${uniqueThreadParticipants[1] ? `right-avatar-${i + 1}` : ''}`}>
+                  <div key={user.id} className={`${uniqueThreadParticipants[1] ? `right-avatar-${i + 1}` : ''}`}>
                     <Avatar
-                      key={user.id}
                       size={16}
                       image={user.image}
                       name={user.name || user.id}
