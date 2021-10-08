@@ -1840,16 +1840,16 @@
     eslint-visitor-keys "^2.0.0"
 
 "@virtuoso.dev/react-urx@^0.2.5":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@virtuoso.dev/react-urx/-/react-urx-0.2.6.tgz#e1d8bc717723b2fc23d80ea4e07703dbc276448b"
-  integrity sha512-+PLQ2iWmSH/rW7WGPEf+Kkql+xygHFL43Jij5aREde/O9mE0OFFGqeetA2a6lry3LDVWzupPntvvWhdaYw0TyA==
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@virtuoso.dev/react-urx/-/react-urx-0.2.7.tgz#54a32d7dcade67d89b098514026700b63a04cdbb"
+  integrity sha512-iaJ/1vz7dkfpIxEjOpgOme8X6KkUsz16RoqpFHtqbKiQW1FI+1h7YbyTxhz5D9xmg/VZU9gHpXvPHTzdKIKa3Q==
   dependencies:
-    "@virtuoso.dev/urx" "^0.2.6"
+    "@virtuoso.dev/urx" "^0.2.7"
 
-"@virtuoso.dev/urx@^0.2.5", "@virtuoso.dev/urx@^0.2.6":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@virtuoso.dev/urx/-/urx-0.2.6.tgz#0028c49e52037e673993900d32abea83262fbd53"
-  integrity sha512-EKJ0WvJgWaXIz6zKbh9Q63Bcq//p8OHXHbdz4Fy+ruhjJCyI8ADE8E5gwSqBoUchaiYlgwKrT+sX4L2h/H+hMg==
+"@virtuoso.dev/urx@^0.2.5", "@virtuoso.dev/urx@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@virtuoso.dev/urx/-/urx-0.2.7.tgz#080811a31b458819147f2875e7fe7fdefaef12dc"
+  integrity sha512-mv6V6Gzf1QnGUzb5Rwv5Eqs3DRX5R4nGIojVXtD+fAFnr2SAvpHNPMRNdAclvD/pcdiga6rTzUhFwq4FBC2MDw==
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
@@ -8525,9 +8525,9 @@ react-view-pager@^0.6.0:
     tabbable "1.1.2"
 
 react-virtuoso@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.1.tgz#a15dbd864745011a011ac5ee75be3c523fcb8ded"
-  integrity sha512-kS+9mns4slmpsUSQA/sIUjDwf9cA17Il8dvslHTuS5SpxCo7iRJIKJpjZd1ilLpvX3wYAYObbHVR3BxnUWRPfg==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.2.tgz#d6b3d7d80a9d7377bb90de1dc46f32f5a1cf3739"
+  integrity sha512-ESwiOyliO/0q58P1X9e3IQosIKWmCv0JYO/ZDeLxh2O0FNWPQlXC5xgRT2fVxMXPoi+EaNI671foJuqOOITrOg==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
