@@ -165,6 +165,7 @@ export const useUserTrigger = <
         const params: SearchLocalUserParams<Us> = {
           ownUserId: client.userID,
           query,
+          text,
           useMentionsTransliteration,
           users,
         };
@@ -175,7 +176,6 @@ export const useUserTrigger = <
         const data = matchingUsers.slice(0, usersToShow);
 
         if (onReady) onReady(filterMutes(data), query);
-
         return data;
       }
 
