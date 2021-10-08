@@ -8,7 +8,7 @@ export const accentsMap: { [key: string]: string } = {
   e: 'é|è|ê|É|È|Ê',
   i: 'í|ì|î|Í|Ì|Î',
   n: 'ñ|Ñ',
-  o: 'ó|ò|ô|õ|Ó|Ò|Ô|Õ',
+  o: 'ó|ò|ô|ő|õ|Ó|Ò|Ô|Õ',
   u: 'ú|ù|û|ü|Ú|Ù|Û|Ü',
 };
 
@@ -58,6 +58,7 @@ export const calculateLevenshtein = (query: string, name: string) => {
 export type SearchLocalUserParams<Us extends DefaultUserType<Us> = DefaultUserType> = {
   ownUserId: string | undefined;
   query: string;
+  text: string;
   users: UserResponse<Us>[];
   useMentionsTransliteration?: boolean;
 };
@@ -65,7 +66,7 @@ export type SearchLocalUserParams<Us extends DefaultUserType<Us> = DefaultUserTy
 export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserType>(
   params: SearchLocalUserParams<Us>,
 ): UserResponse<Us>[] => {
-  const { ownUserId, query, useMentionsTransliteration, users } = params;
+  const { ownUserId, query, text, useMentionsTransliteration, users } = params;
 
   const matchingUsers = users.filter((user) => {
     if (user.id === ownUserId) return false;
@@ -84,15 +85,17 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
       })();
     }
 
+    // check to see if the text contains '@' within last few characters
+    const lastDigits = text.slice(-5).includes('@');
+
     if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
-
-      if (updatedName.includes(updatedQuery) || levenshtein <= 3) return true;
+      if (updatedName.includes(updatedQuery) || (levenshtein <= 3 && lastDigits)) return true;
     }
 
     const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
 
-    return updatedId.includes(updatedQuery) || levenshtein <= 3;
+    return updatedId.includes(updatedQuery) || (levenshtein <= 3 && lastDigits);
   });
 
   return matchingUsers;
