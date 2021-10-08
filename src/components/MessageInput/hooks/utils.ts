@@ -85,17 +85,18 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
       })();
     }
 
-    // check to see if the text contains '@' within last few characters
-    const lastDigits = text.slice(-4).includes('@');
+    const maxDistance = 3;
+    const lastDigits = text.slice(-(maxDistance + 1)).includes('@');
 
     if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
-      if (updatedName.includes(updatedQuery) || (levenshtein <= 3 && lastDigits)) return true;
+      if (updatedName.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits))
+        return true;
     }
 
     const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
 
-    return updatedId.includes(updatedQuery) || (levenshtein <= 3 && lastDigits);
+    return updatedId.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits);
   });
 
   return matchingUsers;
