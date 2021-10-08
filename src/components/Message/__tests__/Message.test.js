@@ -811,6 +811,7 @@ describe('<Message /> component', () => {
 
     await renderComponent({
       channelStateOpts: {
+        channelCapabilities: { 'pin-message': true },
         state: { members: {}, membership: { role: 'user' }, watchers: {} },
         type: 'messaging',
       },
@@ -818,7 +819,6 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      props: { pinPermissions: { messaging: { user: true } } },
     });
 
     expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
@@ -829,12 +829,15 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { state: { members: {}, membership: {}, watchers: {} }, type: 'messaging' },
+      channelStateOpts: {
+        channelCapabilities: { 'pin-message': false },
+        state: { members: {}, membership: {}, watchers: {} },
+        type: 'messaging',
+      },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
-      props: { pinPermissions: { messaging: { user: false } } },
     });
 
     expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);

@@ -124,7 +124,7 @@ const MessageListWithContext = <
     messages = [],
     notifications,
     noGroupByUser = false,
-    pinPermissions = defaultPinPermissions,
+    pinPermissions = defaultPinPermissions, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     returnAllReadData = false,
     threadList = false,
     unsafeHTML = false,
@@ -253,7 +253,7 @@ type PropsDrilledToMessage =
   | 'onUserClick'
   | 'onUserHover'
   | 'openThread'
-  | 'pinPermissions'
+  | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'renderText'
   | 'retrySendMessage'
   | 'unsafeHTML';
