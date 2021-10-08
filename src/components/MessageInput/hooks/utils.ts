@@ -90,8 +90,9 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
     if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
-      if (updatedName.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits))
+      if (updatedName.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits)) {
         return true;
+      }
     }
 
     const levenshtein = calculateLevenshtein(updatedQuery, updatedId);
