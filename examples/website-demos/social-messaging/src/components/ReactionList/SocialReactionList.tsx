@@ -7,6 +7,7 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
+import { Emoji } from 'emoji-mart';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
@@ -83,13 +84,23 @@ export const ReactionParticipants: React.FC = () => {
               <div key={reaction.updated_at} className='participants-wrapper__user'>
                 <Avatar
                   size={64}
-                  image={message.user?.image}
-                  name={message.user?.name || message.user?.id}
+                  image={reaction.user?.image}
+                  name={reaction.user?.name || reaction.user?.id}
                 />
+                <div className={`${reaction.user?.id === client.user?.id ? 'my-reaction' : ''}`}>
+                  <div className='avatar-bubble-1'>
+                    <div className='avatar-bubble-2'>
+                      <div className='avatar-bubble-3'></div>
+                    </div>
+                  </div>
+                  <span className='avatar-emoji'>
+                    <Emoji emoji={reaction.type} size={16} />
+                  </span>
+                </div>
                 <div className='participants-wrapper__user-name'>
-                  {myMessage
+                  {reaction.user?.id === client.user?.id
                     ? 'You'
-                    : message.user?.name?.split('-').join('- ') || message.user?.id}
+                    : reaction.user?.name?.split('-').join('- ') || reaction.user?.id}
                 </div>
               </div>
             ))}
@@ -104,11 +115,7 @@ export const SocialReactionList: React.FC = () => {
   const { message } = useMessageContext();
   const { reactionsOpen, setReactionsOpen } = useViewContext();
 
-  console.log({ reactionsOpen });
-
-
   const reactionsRef = useRef<HTMLDivElement | null>(null);
-
 
   const hasReactions = messageHasReactions(message);
 
@@ -128,33 +135,20 @@ export const SocialReactionList: React.FC = () => {
       }
     };
 
-    document.addEventListener('click', checkIfClickedOutside);
+    document.addEventListener('mousedown', checkIfClickedOutside);
     return () => {
-      document.removeEventListener('click', checkIfClickedOutside);
+      document.removeEventListener('mousedown', checkIfClickedOutside);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reactionsOpen]);
-
-  // useEffect(() => {
-  //   const handleClickOutside = (event: Event) => {
-  //     if (event.target instanceof HTMLElement) {
-  //       const elements = document.getElementsByClassName('reaction-list');
-  //       const reactionList = elements.item(0);
-
-  //       if (!reactionList?.contains(event.target)) {
-  //         setReactionsOpen('');
-  //       }
-  //     }
-  //   };
-
-  //   if (reactionsOpen) document.addEventListener('click', handleClickOutside);
-  //   return () => document.removeEventListener('click', handleClickOutside);
-  // }, [reactionsOpen]); // eslint-disable-line
+  }, [reactionsOpen]); // eslint-disable-line
 
   return (
     <>
       {hasReactions && (
-        <div onClick={() => handleReactionListClick(message.id)} className='reaction-list'>
+        <div
+          ref={reactionsRef}
+          onClick={() => handleReactionListClick(message.id)}
+          className='reaction-list'
+        >
           <SimpleReactionsList reactionOptions={customReactions} />
           <div className='bubble-1'>
             <div className='bubble-2'></div>
