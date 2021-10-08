@@ -5,9 +5,10 @@ on:
     branches:
       - master
 
-coverage:
-  status:
-    project:
-      default:
-        target: 70% # the required coverage value
-        threshold: 1% # the leniency in hitting the target
+jobs:
+  coverage:
+    status:
+      project:
+        default:
+          target: 70% # the required coverage value
+          threshold: 1% # the leniency in hitting the target
