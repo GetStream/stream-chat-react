@@ -86,7 +86,7 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
     }
 
     // check to see if the text contains '@' within last few characters
-    const lastDigits = text.slice(-5).includes('@');
+    const lastDigits = text.slice(-4).includes('@');
 
     if (updatedName) {
       const levenshtein = calculateLevenshtein(updatedQuery, updatedName);
