@@ -347,7 +347,9 @@ const ChannelInner = <
       logChatPromiseExecution(channel.markRead(), 'mark read');
     }
 
-    if (originalTitle.current) {
+    if (activeUnreadHandler) {
+      activeUnreadHandler(0, originalTitle.current);
+    } else if (originalTitle.current) {
       document.title = originalTitle.current;
     }
   };
