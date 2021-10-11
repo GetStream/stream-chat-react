@@ -10,7 +10,7 @@ export type EmptyStateIndicatorProps = {
 const UnMemoizedEmptyStateIndicator: React.FC<EmptyStateIndicatorProps> = (props) => {
   const { listType } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('EmptyStateIndicator');
 
   if (listType === 'channel') return <p>{t('You have no channels currently')}</p>;
 

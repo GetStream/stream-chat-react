@@ -111,10 +111,10 @@ const UnMemoizedChatAutoComplete = <
   const {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
-  const { t } = useTranslationContext();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
+  const { t } = useTranslationContext('ChatAutoComplete');
 
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
   const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
 
   const placeholder = props.placeholder || t('Type your message');

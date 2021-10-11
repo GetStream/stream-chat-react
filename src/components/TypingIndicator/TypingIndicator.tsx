@@ -41,9 +41,11 @@ const UnMemoizedTypingIndicator = <
 ) => {
   const { Avatar = DefaultAvatar, avatarSize = 32, threadList } = props;
 
-  const { channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'TypingIndicator',
+  );
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
+  const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
 
   if (channelConfig?.typing_events === false) {
     return null;

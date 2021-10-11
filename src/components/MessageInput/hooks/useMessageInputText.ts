@@ -29,7 +29,7 @@ export const useMessageInputText = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
 ) => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 

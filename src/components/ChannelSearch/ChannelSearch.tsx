@@ -114,7 +114,7 @@ const UnMemoizedChannelSearch = <
     SearchResultsHeader,
   } = props;
 
-  const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelSearch');
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>(

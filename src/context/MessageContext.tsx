@@ -166,7 +166,9 @@ export const useMessageContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(MessageContext);
 
   if (!contextValue) {
@@ -175,7 +177,7 @@ export const useMessageContext = <
     }
 
     throw new Error(
-      "The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component.",
+      `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
     );
   }
 

@@ -83,7 +83,9 @@ export const useChatContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(ChatContext);
 
   if (!contextValue) {
@@ -92,7 +94,7 @@ export const useChatContext = <
     }
 
     throw new Error(
-      'The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component.',
+      `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
   }
 

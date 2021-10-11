@@ -121,7 +121,9 @@ export const useComponentContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(ComponentContext);
 
   if (!contextValue) {
@@ -130,7 +132,7 @@ export const useComponentContext = <
     }
 
     throw new Error(
-      'The useComponentContext hook was called outside of the ComponentContext provider. Make sure this hook is called within a child of the Channel component.',
+      `The useComponentContext hook was called outside of the ComponentContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
   }
 
