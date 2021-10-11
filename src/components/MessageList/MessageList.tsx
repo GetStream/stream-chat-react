@@ -55,7 +55,7 @@ export type MessageListNotificationsProps = {
 const DefaultMessageListNotifications = (props: MessageListNotificationsProps) => {
   const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('DefaultMessageListNotifications');
 
   return (
     <div className='str-chat__list-notifications'>
@@ -78,7 +78,9 @@ const useInternalInfiniteScrollProps = (
     'hasMore' | 'internalInfiniteScrollProps' | 'loadMore' | 'loadingMore' | 'messageLimit'
   >,
 ) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
+    'useInternalInfiniteScrollProps',
+  );
 
   return {
     hasMore: props.hasMore,
@@ -124,7 +126,7 @@ const MessageListWithContext = <
     messages = [],
     notifications,
     noGroupByUser = false,
-    pinPermissions = defaultPinPermissions,
+    pinPermissions = defaultPinPermissions, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     returnAllReadData = false,
     threadList = false,
     unsafeHTML = false,
@@ -132,14 +134,14 @@ const MessageListWithContext = <
     read,
   } = props;
 
-  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
 
   const {
     hasNewMessages,
@@ -253,7 +255,7 @@ type PropsDrilledToMessage =
   | 'onUserClick'
   | 'onUserHover'
   | 'openThread'
-  | 'pinPermissions'
+  | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'renderText'
   | 'retrySendMessage'
   | 'unsafeHTML';
@@ -316,14 +318,14 @@ export const MessageList = <
 >(
   props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...restChannelStateContext
-  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
 
   return (
     <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>

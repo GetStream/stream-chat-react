@@ -25,7 +25,7 @@ export const useIsChannelMuted = <
 >(
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useIsChannelMuted');
 
   const [muted, setMuted] = useState(channel.muteStatus());
 

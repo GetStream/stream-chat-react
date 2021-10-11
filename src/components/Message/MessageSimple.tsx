@@ -84,7 +84,7 @@ const MessageSimpleWithContext = <
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -215,7 +215,7 @@ export const MessageSimple = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

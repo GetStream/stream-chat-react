@@ -29,7 +29,7 @@ export const useChannelHiddenListener = <
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useChannelHiddenListener');
 
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {

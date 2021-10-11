@@ -25,7 +25,7 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('Gallery');
 
   const toggleModal = (selectedIndex: number) => {
     if (modalOpen) {

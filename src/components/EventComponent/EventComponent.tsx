@@ -47,7 +47,7 @@ const UnMemoizedEventComponent = <
 ) => {
   const { Avatar = DefaultAvatar, message } = props;
 
-  const { tDateTimeParser } = useTranslationContext();
+  const { tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;
 
   const dateFormatter = (date: string | Date, format: string) => {

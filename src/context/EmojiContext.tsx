@@ -86,14 +86,14 @@ export const EmojiProvider = ({
   return <EmojiContext.Provider value={emojiContextValue}>{children}</EmojiContext.Provider>;
 };
 
-export const useEmojiContext = () => {
+export const useEmojiContext = (componentName?: string) => {
   const contextValue = useContext(EmojiContext);
 
   if (!contextValue) {
     if (process.env.NODE_ENV === 'test') return {} as Required<EmojiContextValue>;
 
     throw new Error(
-      'The useEmojiContext hook was called outside of the EmojiContext provider. Make sure this hook is called within a child of the Channel component.',
+      `The useEmojiContext hook was called outside of the EmojiContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
   }
 

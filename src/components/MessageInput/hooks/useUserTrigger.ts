@@ -52,8 +52,8 @@ export const useUserTrigger = <
 
   const [searching, setSearching] = useState(false);
 
-  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
 
   const { members } = channel.state;
   const { watchers } = channel.state;
@@ -165,6 +165,7 @@ export const useUserTrigger = <
         const params: SearchLocalUserParams<Us> = {
           ownUserId: client.userID,
           query,
+          text,
           useMentionsTransliteration,
           users,
         };
@@ -175,7 +176,6 @@ export const useUserTrigger = <
         const data = matchingUsers.slice(0, usersToShow);
 
         if (onReady) onReady(filterMutes(data), query);
-
         return data;
       }
 
