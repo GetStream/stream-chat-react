@@ -66,12 +66,12 @@ export const TranslationProvider: React.FC<{
   <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 );
 
-export const useTranslationContext = () => {
+export const useTranslationContext = (componentName?: string) => {
   const contextValue = useContext(TranslationContext);
 
   if (!contextValue) {
     throw new Error(
-      'The useTranslationContext hook was called outside of the TranslationContext provider. Make sure this hook is called within a child of the Chat component.',
+      `The useTranslationContext hook was called outside of the TranslationContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
   }
 

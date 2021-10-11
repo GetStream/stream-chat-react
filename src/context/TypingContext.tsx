@@ -54,7 +54,9 @@ export const useTypingContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(TypingContext);
 
   if (!contextValue) {
@@ -63,7 +65,7 @@ export const useTypingContext = <
     }
 
     throw new Error(
-      'The useTypingContext hook was called outside of the TypingContext provider. Make sure this hook is called within a child of the Channel component.',
+      `The useTypingContext hook was called outside of the TypingContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
   }
 

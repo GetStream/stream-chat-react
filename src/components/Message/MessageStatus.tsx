@@ -40,8 +40,10 @@ const UnMemoizedMessageStatus = <
 ) => {
   const { Avatar: propAvatar, messageType = 'simple' } = props;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageStatus');
+  const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageStatus',
+  );
   const { isMyMessage, lastReceivedId, message, readBy, threadList } = useMessageContext<
     At,
     Ch,
@@ -50,8 +52,8 @@ const UnMemoizedMessageStatus = <
     Me,
     Re,
     Us
-  >();
-  const { t } = useTranslationContext();
+  >('MessageStatus');
+  const { t } = useTranslationContext('MessageStatus');
 
   const Avatar = propAvatar || contextAvatar || DefaultAvatar;
 

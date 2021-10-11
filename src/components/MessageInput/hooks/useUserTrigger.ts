@@ -52,8 +52,8 @@ export const useUserTrigger = <
 
   const [searching, setSearching] = useState(false);
 
-  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
 
   const { members } = channel.state;
   const { watchers } = channel.state;

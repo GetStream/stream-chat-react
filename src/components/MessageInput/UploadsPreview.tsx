@@ -25,16 +25,10 @@ export const UploadsPreview = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >() => {
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'UploadsPreview',
+  );
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('UploadsPreview');
   const {
     fileOrder,
     fileUploads,

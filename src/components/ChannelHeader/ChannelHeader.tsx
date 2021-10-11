@@ -40,9 +40,11 @@ const UnMemoizedChannelHeader = <
 ) => {
   const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
 
-  const { channel, watcher_count } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { channel, watcher_count } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'ChannelHeader',
+  );
+  const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelHeader');
+  const { t } = useTranslationContext('ChannelHeader');
 
   const { image: channelImage, member_count, name, subtitle } = channel?.data || {};
 

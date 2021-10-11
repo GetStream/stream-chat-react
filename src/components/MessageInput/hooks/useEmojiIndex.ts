@@ -4,7 +4,7 @@ import type { NimbleEmojiIndex } from 'emoji-mart';
 import { useEmojiContext } from '../../../context/EmojiContext';
 
 export const useEmojiIndex = () => {
-  const { emojiConfig, EmojiIndex } = useEmojiContext();
+  const { emojiConfig, EmojiIndex } = useEmojiContext('useEmojiIndex');
 
   const { emojiData } = emojiConfig || {};
 

@@ -76,12 +76,14 @@ export const useMessageListElements = <
     threadList,
   } = props;
 
-  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useMessageListElements',
+  );
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
     MessageSystem = EventComponent,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData({

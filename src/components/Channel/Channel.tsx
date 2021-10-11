@@ -247,7 +247,7 @@ const UnMemoizedChannel = <
 ) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
-  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Channel');
 
   const channel = propsChannel || contextChannel;
 
@@ -298,8 +298,8 @@ const ChannelInner = <
     Me,
     Re,
     Us
-  >();
-  const { t } = useTranslationContext();
+  >('Channel');
+  const { t } = useTranslationContext('Channel');
 
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();

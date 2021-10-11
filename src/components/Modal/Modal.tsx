@@ -12,7 +12,7 @@ export type ModalProps = {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
 

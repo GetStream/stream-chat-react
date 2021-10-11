@@ -36,7 +36,7 @@ export const useEditMessageHandler = <
 >(
   doUpdateMessageRequest?: UpdateHandler<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { channel, client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useEditMessageHandler');
 
   return (updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>) => {
     if (doUpdateMessageRequest && channel) {

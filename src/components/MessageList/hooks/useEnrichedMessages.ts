@@ -48,8 +48,10 @@ export const useEnrichedMessages = <
     threadList,
   } = args;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { HeaderComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useEnrichedMessages');
+  const { HeaderComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useEnrichedMessages',
+  );
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 

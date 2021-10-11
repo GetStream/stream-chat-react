@@ -32,7 +32,7 @@ export const useChannelVisibleListener = <
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useChannelVisibleListener');
 
   useEffect(() => {
     const handleEvent = async (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {

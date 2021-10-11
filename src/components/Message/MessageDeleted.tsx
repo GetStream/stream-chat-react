@@ -41,7 +41,7 @@ export const MessageDeleted = <
 ) => {
   const { message } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('MessageDeleted');
 
   const { isMyMessage } = useUserRole(message);
 

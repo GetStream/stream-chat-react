@@ -46,8 +46,8 @@ export const useFlagHandler = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: FlagMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ): ReactEventHandler => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFlagHandler');
+  const { t } = useTranslationContext('useFlagHandler');
 
   return async (event) => {
     event.preventDefault();
