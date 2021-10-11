@@ -17,6 +17,7 @@ import type {
   DefaultUserType,
 } from '../../../types/types';
 
+// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinEnabledUserRoles<T extends string = string> = Partial<Record<T, boolean>> & {
   admin?: boolean;
   anonymous?: boolean;
@@ -29,6 +30,7 @@ export type PinEnabledUserRoles<T extends string = string> = Partial<Record<T, b
   user?: boolean;
 };
 
+// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinPermissions<T extends string = string, U extends string = string> = Partial<
   Record<T, PinEnabledUserRoles<U>>
 > & {
@@ -62,30 +64,20 @@ export const usePinHandler = <
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
   message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  permissions: PinPermissions = defaultPinPermissions,
+  // @ts-expect-error @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+  permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
   notifications: PinMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;
 
   const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('usePinHandler');
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('usePinHandler');
+  const { channelCapabilities = {} } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'usePinHandler',
+  );
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('usePinHandler');
   const { t } = useTranslationContext('usePinHandler');
 
-  const canPin = () => {
-    if (!channel || !permissions || !permissions[channel.type]) {
-      return false;
-    }
-
-    const currentChannelPermissions = permissions[channel.type];
-    const currentRole = channel.state.membership.role;
-
-    if (currentChannelPermissions && currentRole && currentChannelPermissions[currentRole]) {
-      return true;
-    }
-
-    return false;
-  };
+  const canPin = !!channelCapabilities['pin-message'];
 
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();
@@ -138,5 +130,5 @@ export const usePinHandler = <
     }
   };
 
-  return { canPin: canPin(), handlePin };
+  return { canPin, handlePin };
 };

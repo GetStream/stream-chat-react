@@ -159,13 +159,22 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionClick');
+  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('useReactionClick');
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 
   const hasListener = useRef(false);
 
-  const isReactionEnabled = channel?.getConfig?.()?.reactions !== false;
+  const isReactionEnabled =
+    channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
   const messageDeleted = !!message?.deleted_at;
 
   const closeDetailedReactions: EventListener = useCallback(

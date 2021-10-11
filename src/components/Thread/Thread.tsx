@@ -74,9 +74,11 @@ export const Thread = <
 >(
   props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
+  const { channel, channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'Thread',
+  );
 
-  if (!thread || channel?.getConfig?.()?.replies === false) return null;
+  if (!thread || channelConfig?.replies === false) return null;
 
   // The wrapper ensures a key variable is set and the component recreates on thread switch
   return <ThreadInner {...props} key={`thread-${thread.id}-${channel?.cid}`} />;

@@ -121,7 +121,7 @@ export type MessageContextValue<
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute<Us>[];
-  /** The user roles allowed to pin Messages in various channel types */
+  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];

@@ -74,6 +74,7 @@ export type ChannelStateContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo<Co> | undefined;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
