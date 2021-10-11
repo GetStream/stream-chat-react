@@ -33,9 +33,11 @@ export const useReactionHandler = <
 >(
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useReactionHandler',
+  );
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionHandler');
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionHandler');
 
   const createMessagePreview = useCallback(
     (
@@ -165,7 +167,7 @@ export const useReactionClick = <
     Me,
     Re,
     Us
-  >();
+  >('useReactionClick');
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 

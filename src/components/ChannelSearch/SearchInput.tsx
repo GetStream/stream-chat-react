@@ -70,7 +70,7 @@ export const SearchInput = <
 ) => {
   const { channelSearchParams, inputRef, onSearch, query, searchFunction } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('SearchInput');
 
   return (
     <input

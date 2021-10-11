@@ -51,7 +51,7 @@ export const useSubmitHandler = <
     text,
   } = state;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useSubmitHandler');
   const { addNotification, editMessage, sendMessage } = useChannelActionContext<
     At,
     Ch,
@@ -60,8 +60,8 @@ export const useSubmitHandler = <
     Me,
     Re,
     Us
-  >();
-  const { t } = useTranslationContext();
+  >('useSubmitHandler');
+  const { t } = useTranslationContext('useSubmitHandler');
 
   const getAttachmentsFromUploads = () => {
     const imageAttachments = imageOrder

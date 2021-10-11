@@ -104,10 +104,12 @@ const VirtualizedMessageListWithContext = <
     MessageSystem = EventComponent,
     TypingIndicator = null,
     VirtualMessage: contextMessage = MessageSimple,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('VirtualizedMessageList');
 
-  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'VirtualizedMessageList',
+  );
+  const { t } = useTranslationContext('VirtualizedMessageList');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -416,7 +418,9 @@ export function VirtualizedMessageList<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>) {
-  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'VirtualizedMessageList',
+  );
   const { channel, hasMore, loadingMore, messages: contextMessages } = useChannelStateContext<
     At,
     Ch,
@@ -425,7 +429,7 @@ export function VirtualizedMessageList<
     Me,
     Re,
     Us
-  >();
+  >('VirtualizedMessageList');
 
   const messages = props.messages || contextMessages;
 

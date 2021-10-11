@@ -199,7 +199,7 @@ const UnMemoizedChannelList = <
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
-  } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelList');
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);

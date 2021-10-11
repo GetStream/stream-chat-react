@@ -105,8 +105,10 @@ const UnMemoizedMessageTimestamp = <
     message: propMessage,
   } = props;
 
-  const { formatDate, message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { tDateTimeParser } = useTranslationContext();
+  const { formatDate, message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageTimestamp',
+  );
+  const { tDateTimeParser } = useTranslationContext('MessageTimestamp');
 
   const message = propMessage || contextMessage;
 

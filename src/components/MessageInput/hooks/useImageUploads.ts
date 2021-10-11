@@ -36,9 +36,11 @@ export const useImageUploads = <
   const { doImageUploadRequest, errorHandler } = props;
   const { imageUploads } = state;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useImageUploads',
+  );
+  const { t } = useTranslationContext('useImageUploads');
 
   const removeImage = useCallback((id) => {
     dispatch({ id, type: 'removeImageUpload' });

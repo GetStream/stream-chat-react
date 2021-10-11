@@ -33,8 +33,10 @@ export function useActionHandler<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>): ActionHandlerReturnType {
-  const { removeMessage, updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { removeMessage, updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useActionHandler',
+  );
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useActionHandler');
 
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();

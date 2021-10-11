@@ -45,9 +45,9 @@ export const useDeleteHandler = <
 ): ReactEventHandler => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useDeleteHandler');
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useDeleteHandler');
+  const { t } = useTranslationContext('useDeleteHandler');
 
   return async (event) => {
     event.preventDefault();

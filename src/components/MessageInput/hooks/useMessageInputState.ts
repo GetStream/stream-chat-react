@@ -365,7 +365,7 @@ export const useMessageInputState = <
     Me,
     Re,
     Us
-  >();
+  >('useMessageInputState');
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,

@@ -70,10 +70,12 @@ export const usePinHandler = <
 ) => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channelCapabilities = {} } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('usePinHandler');
+  const { channelCapabilities = {} } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'usePinHandler',
+  );
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('usePinHandler');
+  const { t } = useTranslationContext('usePinHandler');
 
   const canPin = !!channelCapabilities['pin-message'];
 
