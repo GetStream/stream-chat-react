@@ -20,8 +20,6 @@ export type ModalWrapperProps = {
 export const ModalComponent: React.FC<ModalWrapperProps> = (props) => {
   const { images, index, modalIsOpen, toggleModal } = props;
 
-  console.log('images IS:', images);
-
   return (
     <ModalGateway>
       {modalIsOpen ? (

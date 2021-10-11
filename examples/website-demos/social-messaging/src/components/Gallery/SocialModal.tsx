@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 // import { Modal, ModalGateway } from 'react-images';
 
 import { ModalWrapperProps } from 'stream-chat-react';
+import { CloseXCircle } from '../../assets';
 
 import './SocialGallery.scss';
 
@@ -24,42 +25,28 @@ type SocialModalProps = {
   modalIsOpen: boolean;
 };
 
-const MODAL_STYLES: { [key: string]: string | number } = {
-  position: 'fixed',
-  top: '95%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '100%',
-  height: '75%',
-  backgroundColor: 'red',
-  padding: '50px',
-  zIndex: 1001,
-};
-
-const OVERLAY_STYLES: { [key: string]: string | number } = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  bottom: 0,
-  right: 0,
-  background: 'rgba(0,0,0, 7)',
-  zIndex: 1000,
-};
-
 const SocialModal = (props: PropsWithChildren<SocialModalProps>) => {
   const { children, modalIsOpen } = props;
   if (!modalIsOpen) return null;
 
   return createPortal(
     <>
-      <div style={OVERLAY_STYLES} />
-      <div style={MODAL_STYLES}>{children}</div>
+      <div className='gallery-overlay' />
+      <div className='gallery-modal'>
+        <div className='gallery-modal-header'>
+          <span>Photos</span>
+          <CloseXCircle />
+        </div>
+        <div className='gallery-modal-children'>
+          {children}
+        </div>
+      </div>
     </>,
     document.getElementById('portal')!,
   );
 };
 
-export const SocialModalComponent: React.FC<ModalWrapperProps> = (props) => {
+export const SocialModalWrapper: React.FC<ModalWrapperProps> = (props) => {
   const { images, modalIsOpen, toggleModal } = props;
 
   return (
@@ -72,12 +59,19 @@ export const SocialModalComponent: React.FC<ModalWrapperProps> = (props) => {
     //         </div>
     //   ) : null}
     //   </div>
-    <div onClick={() => toggleModal}>
-      <SocialModal modalIsOpen={modalIsOpen}>
-        {images.map((image: any, i: number) => (
-          <img alt='social-demo' key={i} src={image.source} />
-        ))}
-      </SocialModal>
-    </div>
+    // <div onClick={() => toggleModal}>
+    <SocialModal modalIsOpen={modalIsOpen}>
+      {images.map((image: any, i: number) => (
+        <div className='gallery-modal-images' key={`modal-container-${i}`}>
+          <img
+            className='gallery-modal-images-image'
+            alt='social-demo'
+            key={i}
+            src={image.source}
+          />
+        </div>
+      ))}
+    </SocialModal>
+    // </div>
   );
 };

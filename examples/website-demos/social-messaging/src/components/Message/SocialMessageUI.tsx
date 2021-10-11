@@ -79,7 +79,9 @@ export const SocialMessage: React.FC<
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
         <div className='message-wrapper-inner-text'>
           <SocialReactionList />
-          {message.attachments?.length ? <Attachment attachments={message.attachments} Gallery={SocialGallery} /> : null}
+          {message.attachments?.length ? (
+            <Attachment attachments={message.attachments} Gallery={SocialGallery} />
+          ) : null}
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
         </div>
         {showDetailedReactions && isReactionEnabled && (

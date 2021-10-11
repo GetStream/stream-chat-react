@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 
-import { GalleryProps, ModalComponent as ModalWrapper } from 'stream-chat-react';
+import { GalleryProps } from 'stream-chat-react';
 
 // import type { Attachment } from 'stream-chat';
 
-import { SocialModalComponent } from './SocialModal';
+import { SocialModalWrapper } from './SocialModal';
 
 import { SocialAttachmentType } from '../ChatContainer/ChatContainer';
 
@@ -67,7 +67,7 @@ export const SocialGallery: React.FC<GalleryProps<SocialAttachmentType>> = (prop
           <p>{images.length - 3} more</p>
         </div>
       )}
-      <SocialModalComponent
+      <SocialModalWrapper
         images={formattedArray}
         // index={index}
         modalIsOpen={modalOpen}
