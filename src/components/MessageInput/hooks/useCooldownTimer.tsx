@@ -67,8 +67,8 @@ export const useCooldownTimer = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(): CooldownTimerState => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useCooldownTimer');
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useCooldownTimer');
 
   const { cooldown: cooldownInterval } = (channel.data || {}) as ChannelResponse<Ch, Co, Us>;
 

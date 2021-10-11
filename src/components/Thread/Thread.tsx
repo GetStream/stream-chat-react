@@ -74,7 +74,7 @@ export const Thread = <
 >(
   props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V>,
 ) => {
-  const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
 
   if (!thread || channel?.getConfig?.()?.replies === false) return null;
 
@@ -108,7 +108,7 @@ const DefaultThreadHeader = <
 ) => {
   const { closeThread, thread } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('Thread');
 
   const getReplyCount = () => {
     if (!thread.reply_count) return '';
@@ -141,7 +141,7 @@ const DefaultThreadHeader = <
 };
 
 const DefaultThreadStart: React.FC = () => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('Thread');
 
   return <div className='str-chat__thread-start'>{t('Start of a new thread')}</div>;
 };
@@ -178,16 +178,18 @@ const ThreadInner = <
     Me,
     Re,
     Us
-  >();
-  const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  >('Thread');
+  const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'Thread',
+  );
+  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
     VirtualMessage = FixedHeightMessage,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
 
   const messageList = useRef<HTMLDivElement | null>(null);
 

@@ -29,7 +29,9 @@ export const useNotificationRemovedFromChannelListener = <
     event: Event<At, Ch, Co, Ev, Me, Re, Us>,
   ) => void,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useNotificationRemovedFromChannelListener',
+  );
 
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {

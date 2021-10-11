@@ -25,7 +25,7 @@ export const useUserPresenceChangedListener = <
 >(
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserPresenceChangedListener');
 
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {

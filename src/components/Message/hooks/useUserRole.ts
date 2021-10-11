@@ -24,8 +24,10 @@ export const useUserRole = <
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const { channel, channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useUserRole',
+  );
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserRole');
 
   const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
   const isMyMessage = client.userID === message.user?.id;

@@ -65,7 +65,7 @@ export const useMentionsHandler = <
   const {
     onMentionsClick: contextOnMentionsClick,
     onMentionsHover: contextOnMentionsHover,
-  } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useMentionsHandler');
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);

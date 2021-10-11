@@ -357,7 +357,7 @@ export const useMessageInputState = <
 ): MessageInputState<At, Us> & MessageInputHookProps<At, Me, Us> & CommandsListState => {
   const { message } = props;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageInputState');
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,

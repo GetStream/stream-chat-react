@@ -66,7 +66,9 @@ export const useMessageInputContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
@@ -75,7 +77,7 @@ export const useMessageInputContext = <
     }
 
     throw new Error(
-      "The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component.",
+      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
     );
   }
 

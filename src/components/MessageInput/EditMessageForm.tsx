@@ -38,8 +38,10 @@ export const EditMessageForm = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'EditMessageForm',
+  );
+  const { t } = useTranslationContext('EditMessageForm');
 
   const {
     clearEditingState,
@@ -48,12 +50,12 @@ export const EditMessageForm = <
     maxFilesLeft,
     openEmojiPicker,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('EditMessageForm');
 
   const {
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('EditMessageForm');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

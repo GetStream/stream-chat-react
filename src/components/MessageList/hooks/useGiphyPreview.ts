@@ -31,7 +31,7 @@ export const useGiphyPreview = <
     StreamMessage<At, Ch, Co, Ev, Me, Re, Us>
   >();
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useGiphyPreview');
 
   useEffect(() => {
     const handleEvent: EventHandler<At, Ch, Co, Ev, Me, Re, Us> = (event) => {

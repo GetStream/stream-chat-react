@@ -12,7 +12,7 @@ export type SuggestionListHeaderProps = {
 export const DefaultSuggestionListHeader: React.FC<SuggestionListHeaderProps> = (props) => {
   const { currentTrigger, value } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('DefaultSuggestionListHeader');
 
   const triggerIndex = value.lastIndexOf(currentTrigger);
 

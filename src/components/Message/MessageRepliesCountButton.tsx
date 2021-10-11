@@ -16,7 +16,7 @@ export type MessageRepliesCountButtonProps = {
 const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps> = (props) => {
   const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('MessageRepliesCountButton');
 
   let singleReplyText;
   let pluralReplyText;
