@@ -65,7 +65,7 @@ export const ReactionParticipants: React.FC = () => {
   const { isMyMessage, message } = useMessageContext();
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { reactionsOpen } = useViewContext();
+  const { reactionsOpenId } = useViewContext();
 
   const isGroup =
     Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
@@ -76,8 +76,8 @@ export const ReactionParticipants: React.FC = () => {
 
   return (
     <>
-      {hasReactions && reactionsOpen === message.id ? (
-        <div className={`participants-wrapper ${myMessage && 'my-message'}`}>
+      {hasReactions && reactionsOpenId === message.id ? (
+        <div className={`participants-wrapper ${myMessage ? 'my-message' : ''}`}>
           <div>{`${isGroup ? message.latest_reactions?.length : ''} Message Reactions`}</div>
           <div className='participants-wrapper-users'>
             {message.latest_reactions?.map((reaction) => (
@@ -113,25 +113,21 @@ export const ReactionParticipants: React.FC = () => {
 
 export const SocialReactionList: React.FC = () => {
   const { message } = useMessageContext();
-  const { reactionsOpen, setReactionsOpen } = useViewContext();
+  const { reactionsOpenId, setReactionsOpenId } = useViewContext();
 
   const reactionsRef = useRef<HTMLDivElement | null>(null);
 
   const hasReactions = messageHasReactions(message);
 
-  const handleReactionListClick = (id: string) => {
-    setReactionsOpen(id);
-  };
-
   useEffect(() => {
     const checkIfClickedOutside = (event: MouseEvent) => {
       if (
-        reactionsOpen &&
+        reactionsOpenId &&
         reactionsRef.current &&
-        event.target instanceof Element &&
+        event.target instanceof HTMLElement &&
         !reactionsRef.current?.contains(event.target)
       ) {
-        setReactionsOpen('');
+        setReactionsOpenId('');
       }
     };
 
@@ -139,14 +135,14 @@ export const SocialReactionList: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', checkIfClickedOutside);
     };
-  }, [reactionsOpen]); // eslint-disable-line
+  }, [reactionsOpenId]); // eslint-disable-line
 
   return (
     <>
       {hasReactions && (
         <div
           ref={reactionsRef}
-          onClick={() => handleReactionListClick(message.id)}
+          onClick={() => setReactionsOpenId(message.id)}
           className='reaction-list'
         >
           <SimpleReactionsList reactionOptions={customReactions} />
