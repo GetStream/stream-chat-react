@@ -45,9 +45,8 @@ div.str-chat__reaction-selector {
   }
 }
 
-.message-wrapper-inner.my-message.my-message > div.str-chat__reaction-selector {
-  transform: translateX(-35%);
-  left: auto;
+.my-message div.str-chat__reaction-selector {
+  transform: translateX(-75%);
 }
 
 li.str-chat__message-reactions-list-item {
@@ -86,6 +85,10 @@ ul.str-chat__simple-reactions-list {
 li.str-chat__simple-reactions-list-item {
   padding-left: 4px;
   height: 16px;
+}
+
+li.str-chat__message-reactions-list-item .latest-user {
+  left: 8px;
 }
 
 .bubble-1 {
