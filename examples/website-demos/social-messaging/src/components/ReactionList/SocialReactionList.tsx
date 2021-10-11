@@ -1,4 +1,15 @@
-import { messageHasReactions, SimpleReactionsList, useMessageContext } from 'stream-chat-react';
+import { useEffect, useRef } from 'react';
+import {
+  Avatar,
+  messageHasReactions,
+  SimpleReactionsList,
+  useChannelStateContext,
+  useChatContext,
+  useMessageContext,
+} from 'stream-chat-react';
+import { Emoji } from 'emoji-mart';
+
+import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialReactionList.scss';
 
@@ -50,15 +61,90 @@ export const customReactions = [
   },
 ];
 
-export const SocialReactionList: React.FC = () => {
-  const { isReactionEnabled, message } = useMessageContext();
+export const ReactionParticipants: React.FC = () => {
+  const { isMyMessage, message } = useMessageContext();
+  const { channel } = useChannelStateContext();
+  const { client } = useChatContext();
+  const { reactionsOpenId } = useViewContext();
 
+  const isGroup =
+    Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
+    2;
+
+  const myMessage = isMyMessage();
   const hasReactions = messageHasReactions(message);
 
   return (
     <>
-      {hasReactions && isReactionEnabled && (
-        <div className='reaction-list'>
+      {hasReactions && reactionsOpenId === message.id ? (
+        <div className={`participants-wrapper ${myMessage ? 'my-message' : ''}`}>
+          <div>{`${isGroup ? message.latest_reactions?.length : ''} Message Reactions`}</div>
+          <div className='participants-wrapper-users'>
+            {message.latest_reactions?.map((reaction) => (
+              <div key={reaction.updated_at} className='participants-wrapper__user'>
+                <Avatar
+                  size={64}
+                  image={reaction.user?.image}
+                  name={reaction.user?.name || reaction.user?.id}
+                />
+                <div className={`${reaction.user?.id === client.user?.id ? 'my-reaction' : ''}`}>
+                  <div className='avatar-bubble-1'>
+                    <div className='avatar-bubble-2'>
+                      <div className='avatar-bubble-3'></div>
+                    </div>
+                  </div>
+                  <span className='avatar-emoji'>
+                    <Emoji emoji={reaction.type} size={16} />
+                  </span>
+                </div>
+                <div className='participants-wrapper__user-name'>
+                  {reaction.user?.id === client.user?.id
+                    ? 'You'
+                    : reaction.user?.name?.split('-').join('- ') || reaction.user?.id}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
+export const SocialReactionList: React.FC = () => {
+  const { message } = useMessageContext();
+  const { reactionsOpenId, setReactionsOpenId } = useViewContext();
+
+  const reactionsRef = useRef<HTMLDivElement | null>(null);
+
+  const hasReactions = messageHasReactions(message);
+
+  useEffect(() => {
+    const checkIfClickedOutside = (event: MouseEvent) => {
+      if (
+        reactionsOpenId &&
+        reactionsRef.current &&
+        event.target instanceof HTMLElement &&
+        !reactionsRef.current?.contains(event.target)
+      ) {
+        setReactionsOpenId('');
+      }
+    };
+
+    document.addEventListener('mousedown', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside);
+    };
+  }, [reactionsOpenId]); // eslint-disable-line
+
+  return (
+    <>
+      {hasReactions && (
+        <div
+          ref={reactionsRef}
+          onClick={() => setReactionsOpenId(message.id)}
+          className='reaction-list'
+        >
           <SimpleReactionsList reactionOptions={customReactions} />
           <div className='bubble-1'>
             <div className='bubble-2'></div>
