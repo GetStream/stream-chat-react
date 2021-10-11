@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
   Attachment,
   Avatar,
@@ -9,8 +10,14 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
+  StreamMessage,
 } from 'stream-chat-react';
-import { DeliveredCheckmark, DoubleCheckmark } from '../../assets';
+import {
+  DeliveredCheckmark,
+  DoubleCheckmark,
+  MessageActionsEllipse,
+  ReactionSmiley,
+} from '../../assets';
 
 import {
   SocialAttachmentType,
@@ -23,9 +30,62 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { ThreadReply } from '../ThreadReply/ThreadReply';
-import { SocialReactionList, customReactions, ReactionParticipants } from '../ReactionList/SocialReactionList';
+import {
+  SocialReactionList,
+  customReactions,
+  ReactionParticipants,
+} from '../ReactionList/SocialReactionList';
+import { UserActionsDropdown } from '../MessageActions/SocialMessageActions';
 
 import './SocialMessageUI.scss';
+
+type OptionsProps = {
+  dropdownOpen: boolean;
+  // isRecentMessage: boolean;
+  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  // setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+// const MessageOptions: React.FC<OptionsProps> = (props) => {
+//   const {
+//     dropdownOpen,
+//     // isRecentMessage,
+//     setDropdownOpen,
+//     // setMessageActionUser,
+//     setShowReactionSelector,
+//   } = props;
+
+//   const { thread } = useChannelStateContext();
+//   const { handleOpenThread, isMyMessage, message } = useMessageContext();
+
+//   const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
+
+//   return (
+//     <div className='message-ui-options'>
+//       <span onClick={() => setShowReactionSelector((prev) => !prev)}>
+//         <ReactionSmiley />
+//       </span>
+//       {!hideActions && (
+//         <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+//           <MessageActionsEllipse />
+//         </span>
+//       )}
+//       {dropdownOpen && (
+//         <div className={`message-ui-options-dropdown ${isMyMessage() ? 'mine' : ''}`}>
+//           <UserActionsDropdown
+//             dropdownOpen={dropdownOpen}
+//             openThread={handleOpenThread}
+//             setDropdownOpen={setDropdownOpen}
+//             // setMessageActionUser={setMessageActionUser}
+//             thread={!thread}
+//             user={message.user}
+//           />
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 export const SocialMessage: React.FC<
   MessageUIComponentProps<
@@ -57,6 +117,26 @@ export const SocialMessage: React.FC<
     SocialUserType
   >();
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showReactionSelector, setShowReactionSelector] = useState(false);
+  const [threadParent, setThreadParent] = useState<StreamMessage>();
+
+  const clearModals = () => {
+    setDropdownOpen(false);
+    setShowOptions(false);
+    setShowReactionSelector(false);
+  };
+
+  useEffect(() => {
+    if (!dropdownOpen) clearModals();
+  }, [dropdownOpen]);
+
+  useEffect(() => {
+    if (showReactionSelector) document.addEventListener('click', clearModals);
+    return () => document.removeEventListener('click', clearModals);
+  }, [showReactionSelector]);
+
   const isGroup =
     Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
     2;
@@ -87,7 +167,13 @@ export const SocialMessage: React.FC<
         )}
         <ThreadReply />
         <div className='message-wrapper-inner-options'>
-          <MessageOptions />
+          <MessageOptions
+            // dropdownOpen={dropdownOpen}
+            // // isRecentMessage={isRecentMessage}
+            // setDropdownOpen={setDropdownOpen}
+            // // setMessageActionUser={setMessageActionUser}
+            // setShowReactionSelector={setShowReactionSelector}
+          />
           <div className='message-wrapper-inner-data'>
             {myMessage &&
               message.status === 'received' &&
