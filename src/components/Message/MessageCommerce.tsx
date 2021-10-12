@@ -78,7 +78,7 @@ const MessageCommerceWithContext = <
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageCommerce');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -186,7 +186,7 @@ export const MessageCommerce = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageCommerce');
 
   return <MemoizedMessageCommerce {...messageContext} {...props} />;
 };

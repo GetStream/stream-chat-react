@@ -93,8 +93,8 @@ export const ChannelPreview = <
     Me,
     Re,
     Us
-  >();
-  const { t, userLanguage } = useTranslationContext();
+  >('ChannelPreview');
+  const { t, userLanguage } = useTranslationContext('ChannelPreview');
 
   const [lastMessage, setLastMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>(
     channel.state.messages[channel.state.messages.length - 1],

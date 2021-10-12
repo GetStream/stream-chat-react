@@ -116,7 +116,7 @@ describe('<MessageOptions />', () => {
       defaultMessageProps,
       {},
       {},
-      { channelConfig: { replies: true } },
+      { channelCapabilities: { 'send-reply': true }, channelConfig: { replies: true } },
     );
     expect(getByTestId(threadActionTestId)).toBeInTheDocument();
   });
@@ -138,7 +138,7 @@ describe('<MessageOptions />', () => {
       { message, openThread: handleOpenThread, threadList: false },
       {},
       {},
-      { channelConfig: { replies: true } },
+      { channelCapabilities: { 'send-reply': true }, channelConfig: { replies: true } },
     );
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
@@ -151,7 +151,7 @@ describe('<MessageOptions />', () => {
       {},
       {},
       {},
-      { channelConfig: { reactions: true } },
+      { channelCapabilities: { 'send-reaction': true }, channelConfig: { reactions: true } },
     );
     expect(getByTestId(reactionActionTestId)).toBeInTheDocument();
   });

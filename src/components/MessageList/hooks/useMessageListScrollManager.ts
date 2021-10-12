@@ -53,7 +53,7 @@ export function useMessageListScrollManager<
     showNewMessages,
   } = params;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageListScrollManager');
 
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,

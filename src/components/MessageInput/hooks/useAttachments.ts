@@ -41,15 +41,9 @@ export const useAttachments = <
   const { noFiles } = props;
   const { fileUploads, imageUploads } = state;
 
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useAttachments',
+  );
 
   const { removeFile, uploadFile } = useFileUploads<At, Ch, Co, Ev, Me, Re, Us, V>(
     props,

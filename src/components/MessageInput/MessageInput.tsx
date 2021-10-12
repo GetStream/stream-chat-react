@@ -120,7 +120,7 @@ const UnMemoizedMessageInput = <
     Re,
     Us,
     V
-  >();
+  >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
 

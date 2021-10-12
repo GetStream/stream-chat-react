@@ -24,7 +24,7 @@ import {
 
 import { SocialGallery } from '../Gallery/SocialGallery';
 import { ThreadReply } from '../ThreadReply/ThreadReply';
-import { SocialReactionList, customReactions } from '../ReactionList/SocialReactionList';
+import { SocialReactionList, customReactions, ReactionParticipants } from '../ReactionList/SocialReactionList';
 
 import './SocialMessageUI.scss';
 
@@ -83,6 +83,7 @@ export const SocialMessage: React.FC<
             <Attachment attachments={message.attachments} Gallery={SocialGallery} />
           ) : null}
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+          <ReactionParticipants />
         </div>
         {showDetailedReactions && isReactionEnabled && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />

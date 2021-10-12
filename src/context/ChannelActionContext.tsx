@@ -123,7 +123,9 @@ export const useChannelActionContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(ChannelActionContext);
 
   if (!contextValue) {
@@ -132,7 +134,7 @@ export const useChannelActionContext = <
     }
 
     throw new Error(
-      'The useChannelActionContext hook was called outside of the ChannelActionContext provider. Make sure this hook is called within a child of the Channel component.',
+      `The useChannelActionContext hook was called outside of the ChannelActionContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
   }
 

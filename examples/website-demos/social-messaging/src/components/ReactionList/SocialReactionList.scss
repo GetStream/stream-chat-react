@@ -5,6 +5,7 @@
   position: relative;
   display: flex;
   justify-content: flex-end;
+  cursor: pointer;
 }
 
 .my-message .reaction-list {
@@ -74,7 +75,7 @@ ul.str-chat__simple-reactions-list {
   height: 32px;
   border-radius: 34px;
   align-items: center;
-  background: $app-bg;
+  background: $white;
   box-shadow: 0 0 0 2px $app-bg;
 }
 
@@ -127,4 +128,118 @@ li.str-chat__message-reactions-list-item .latest-user {
 
 li.str-chat__simple-reactions-list-item--last-number {
   display: none;
+}
+
+.participants-wrapper {
+  position: absolute;
+  top: 70px;
+  width: 336px;
+  border-radius: 16px;
+  background: $white;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 16px 0 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+  z-index: 3;
+
+  &-users {
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 16px 0 0;
+  }
+
+  &__user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    width: 64px;
+    margin: 8px 16px 24px 0;
+    position: relative;
+
+    .avatar-bubble-1 {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 25px;
+        left: 32px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-bubble-2 {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 26px;
+        left: 2px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-bubble-3 {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 6px;
+        left: -5px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-emoji {
+        position: absolute;
+        top: 33px;
+        left: 40px;
+      }
+
+    .my-reaction {
+      .avatar-bubble-1 {
+        background: $white;
+        left: 0;
+      }
+
+      .avatar-bubble-2 {
+        background: $white;
+        left: 20px;
+      }
+
+      .avatar-bubble-3 {
+        background: $white;
+        left: 5px;
+      }
+
+      .avatar-emoji {
+        left: 8px;
+      }
+    }
+
+    &-name {
+      width: 64px;
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &.my-message {
+    right: 0;
+  }
+}
+
+div.str-chat__avatar {
+  margin: 0;
+}
+
+.str-chat__simple-reactions-list-item > span {
+  font-size: 0;
 }

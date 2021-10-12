@@ -67,7 +67,7 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -78,7 +78,7 @@ export const MessageActions = <
     isMyMessage,
     message: contextMessage,
     setEditingState,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
 
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
