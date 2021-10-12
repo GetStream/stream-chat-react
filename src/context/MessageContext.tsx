@@ -121,7 +121,7 @@ export type MessageContextValue<
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute<Us>[];
-  /** The user roles allowed to pin Messages in various channel types */
+  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
@@ -166,7 +166,9 @@ export const useMessageContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(MessageContext);
 
   if (!contextValue) {
@@ -175,7 +177,7 @@ export const useMessageContext = <
     }
 
     throw new Error(
-      "The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component.",
+      `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
     );
   }
 

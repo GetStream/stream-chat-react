@@ -158,7 +158,7 @@ export const SearchResults = <
     selectResult,
   } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('SearchResults');
 
   const [focusedUser, setFocusedUser] = useState<number>();
 

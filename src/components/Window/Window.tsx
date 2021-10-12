@@ -39,7 +39,7 @@ const UnMemoizedWindow = <
 ) => {
   const { children, hideOnThread = false } = props;
 
-  const { thread } = useChannelStateContext<At, Ch, Co, Me, Re, Us>();
+  const { thread } = useChannelStateContext<At, Ch, Co, Me, Re, Us>('Window');
 
   // If thread is active and window should hide on thread. Return null
   if (thread && hideOnThread) return null;

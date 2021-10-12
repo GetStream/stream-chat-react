@@ -68,8 +68,10 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
-    const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-    const { Emoji, emojiConfig } = useEmojiContext();
+    const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+      'ReactionSelector',
+    );
+    const { Emoji, emojiConfig } = useEmojiContext('ReactionSelector');
     const { handleReaction: contextHandleReaction, message } = useMessageContext<
       At,
       Ch,
@@ -78,7 +80,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
       Me,
       Re,
       Us
-    >();
+    >('ReactionSelector');
 
     const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 

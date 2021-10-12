@@ -41,10 +41,10 @@ export const EmojiPicker = <
 ) => {
   const { small } = props;
 
-  const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext();
-  const { t } = useTranslationContext();
+  const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext('EmojiPicker');
+  const { t } = useTranslationContext('EmojiPicker');
 
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('EmojiPicker');
 
   const { emojiData } = emojiConfig || {};
 

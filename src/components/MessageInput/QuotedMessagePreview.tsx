@@ -29,8 +29,10 @@ const QuotedMessagePreviewHeader = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >() => {
-  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'QuotedMessagePreview',
+  );
+  const { t } = useTranslationContext('QuotedMessagePreview');
 
   return (
     <div className='quoted-message-preview-header'>
@@ -72,8 +74,8 @@ export const QuotedMessagePreview = <
 ) => {
   const { quotedMessage } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { userLanguage } = useTranslationContext();
+  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessagePreview');
+  const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||

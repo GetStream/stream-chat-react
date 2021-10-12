@@ -53,7 +53,7 @@ const UnMemoizedSimpleReactionsList = <
     reactions: propReactions,
   } = props;
 
-  const { Emoji, emojiConfig } = useEmojiContext();
+  const { Emoji, emojiConfig } = useEmojiContext('SimpleReactionsList');
   const { handleReaction: contextHandleReaction, message } = useMessageContext<
     At,
     Ch,
@@ -62,7 +62,7 @@ const UnMemoizedSimpleReactionsList = <
     Me,
     Re,
     Us
-  >();
+  >('SimpleReactionsList');
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 

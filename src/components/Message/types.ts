@@ -94,7 +94,7 @@ export type MessageProps<
   onUserHover?: UserEventHandler<Us>;
   /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
-  /** The user roles allowed to pin messages in various channel types */
+  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];

@@ -39,8 +39,10 @@ export const MessageInputSmall = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageInputSmall',
+  );
+  const { t } = useTranslationContext('MessageInputSmall');
 
   const {
     closeEmojiPicker,
@@ -54,14 +56,14 @@ export const MessageInputSmall = <
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('MessageInputSmall');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputSmall');
 
   return (
     <div className='str-chat__small-message-input__wrapper'>

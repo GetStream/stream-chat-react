@@ -109,7 +109,9 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
-  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageActionsBox',
+  );
   const { customMessageActions, message, messageListRect } = useMessageContext<
     At,
     Ch,
@@ -118,9 +120,9 @@ const UnMemoizedMessageActionsBox = <
     Me,
     Re,
     Us
-  >();
+  >('MessageActionsBox');
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('MessageActionsBox');
 
   const [reverse, setReverse] = useState(false);
 

@@ -58,8 +58,10 @@ const UnMemoizedReactionsList = <
     reverse = false,
   } = props;
 
-  const { Emoji, emojiConfig } = useEmojiContext();
-  const { message, onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Emoji, emojiConfig } = useEmojiContext('ReactionsList');
+  const { message, onReactionListClick } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'ReactionsList',
+  );
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 

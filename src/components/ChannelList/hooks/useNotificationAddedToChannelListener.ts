@@ -33,7 +33,9 @@ export const useNotificationAddedToChannelListener = <
   ) => void,
   allowNewMessagesFromUnfilteredChannels = true,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useNotificationAddedToChannelListener',
+  );
 
   useEffect(() => {
     const handleEvent = async (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {

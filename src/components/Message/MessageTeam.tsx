@@ -99,9 +99,9 @@ const MessageTeamWithContext = <
     QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageTeam');
 
-  const { t, userLanguage } = useTranslationContext();
+  const { t, userLanguage } = useTranslationContext('MessageTeam');
 
   const messageActions = getMessageActions();
   const showActionsBox = showMessageActionsBox(messageActions);
@@ -314,7 +314,7 @@ export const MessageTeam = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageTeam');
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);

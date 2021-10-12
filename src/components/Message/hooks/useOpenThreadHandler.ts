@@ -29,7 +29,9 @@ export const useOpenThreadHandler = <
     event: React.BaseSyntheticEvent,
   ) => void,
 ): ReactEventHandler => {
-  const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useOpenThreadHandler',
+  );
 
   const openThread = customOpenThread || channelOpenThread;
 

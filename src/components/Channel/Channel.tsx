@@ -247,7 +247,7 @@ const UnMemoizedChannel = <
 ) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
-  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Channel');
 
   const channel = propsChannel || contextChannel;
 
@@ -298,8 +298,8 @@ const ChannelInner = <
     Me,
     Re,
     Us
-  >();
-  const { t } = useTranslationContext();
+  >('Channel');
+  const { t } = useTranslationContext('Channel');
 
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
@@ -317,6 +317,7 @@ const ChannelInner = <
   const lastRead = useRef(new Date());
   const online = useRef(true);
 
+  const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
   const channelConfig = channel.getConfig();
   const emojiConfig: EmojiConfig = {
     commonEmoji,
@@ -347,7 +348,9 @@ const ChannelInner = <
       logChatPromiseExecution(channel.markRead(), 'mark read');
     }
 
-    if (originalTitle.current) {
+    if (activeUnreadHandler) {
+      activeUnreadHandler(0, originalTitle.current);
+    } else if (originalTitle.current) {
       document.title = originalTitle.current;
     }
   };
@@ -731,6 +734,7 @@ const ChannelInner = <
     ...restState,
     acceptedFiles,
     channel,
+    channelCapabilitiesArray,
     channelConfig,
     maxNumberOfFiles,
     multipleUploads,
