@@ -60,17 +60,17 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
   const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
 
   return (
-    <>
-      <span onClick={() => setShowReactionSelector((prev) => !prev)}>
-        <ReactionSmiley />
-      </span>
+    <div className='inside'>
       {!hideActions && (
-        <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+        <span className='inside-ellipse' onClick={() => setDropdownOpen(!dropdownOpen)}>
           <MessageActionsEllipse />
         </span>
       )}
+      <span className='inside-smiley' onClick={() => setShowReactionSelector((prev) => !prev)}>
+        <ReactionSmiley />
+      </span>
       {dropdownOpen && (
-        <div className={`message-ui-options-dropdown ${isMyMessage() ? 'mine' : ''}`}>
+        <div className={`inside-dropdown ${isMyMessage() ? 'mine' : ''}`}>
           <UserActionsDropdown
             dropdownOpen={dropdownOpen}
             openThread={handleOpenThread}
@@ -81,7 +81,7 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -156,7 +156,7 @@ export const SocialMessage: React.FC<
       className={`message-wrapper ${myMessage ? 'right' : ''}`}
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={() => {
-        setDropdownOpen(false);
+        // setDropdownOpen(false);
         setShowOptions(false);
       }}
     >

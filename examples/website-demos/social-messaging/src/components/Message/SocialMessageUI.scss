@@ -48,17 +48,29 @@
 
       .message-wrapper-inner-options {
         flex-direction: initial;
+
+        .inside {
+          flex-direction: initial;
+          margin-left: unset;
+          margin-right: auto;
+        }
+      }
+
+      .dropdown {
+        left: -208px;
+        width: 240px;
       }
     }
 
     &-options {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
+      height: 18px;
+      margin-top: 3px;
     }
 
     &-data {
       display: flex;
-      margin-top: 3px;
       height: 15px;
 
       &-info {
@@ -129,6 +141,21 @@ p {
   margin: 8px 0;
 }
 
+.inside {
+  display: flex;
+  margin-left: auto;
+  position: relative;
+  flex-direction: row-reverse;
+
+  &-ellipse {
+    margin: 0 4px;
+  }
+
+  &-smiley {
+    margin: 0 4px;
+  }
+}
+
 svg {
   &:hover {
     cursor: pointer;
@@ -137,5 +164,46 @@ svg {
       transition: fill 0.2s;
       fill: $accent-primary;
     }
+  }
+}
+
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
+  left: unset;
+  right: -208px;
+  top: 18px;
+  position: absolute;
+  border-radius: 16px;
+  box-shadow: $shadow;
+  background: $app-canvas;
+  transition: background 1s;
+  overflow: hidden;
+
+  :first-child {
+    border: none;
+  }
+
+  &-option {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: $text-high-emphasis;
+    height: 42px;
+    width: 240px;
+    border-top: 1px solid $borders;
+    padding: 0 16px;
+    font-size: 17px;
+    box-sizing: border-box;
+
+    &-text {
+      padding-left: 16px;
+    }
+  }
+
+  &-option:hover {
+    background: $input-bg;
+    cursor: pointer;
   }
 }

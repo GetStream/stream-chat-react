@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { ReactEventHandler, useChatContext } from 'stream-chat-react';
 
-import { FlagMessage, MuteUser, StartThread } from '../../assets';
+import {
+  CopyMessage,
+  DeleteMessage,
+  EditMessage,
+  FlagMessage,
+  MuteUser,
+  PinMessage,
+  QuoteReply,
+  StartThread,
+} from '../../assets';
 import { useViewContext, UserActions } from '../../contexts/ViewContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -74,23 +83,49 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
   return (
     <div className='dropdown'>
       {thread && openThread && (
-        <div className='dropdown-option thread' onClick={openThread}>
-          <div>Start thread</div>
-          <StartThread />
+        <div className='dropdown-option' onClick={openThread}>
+          <QuoteReply />
+          <div className='dropdown-option-text'>Reply</div>
         </div>
       )}
+      {thread && openThread && (
+        <div className='dropdown-option' onClick={openThread}>
+          <StartThread />
+          <div className='dropdown-option-text'>Thread Reply</div>
+        </div>
+      )}
+      <div className='dropdown-option' onClick={openThread}>
+        <CopyMessage />
+        <div className='dropdown-option-text'>Copy Message</div>
+      </div>
+      <div className='dropdown-option' onClick={openThread}>
+        <PinMessage />
+        <div className='dropdown-option-text'>Pin to this Conversation</div>
+      </div>
       {!isOwnUser && (
         <>
+          <div className='dropdown-option' onClick={() => handleClick('flag')}>
+            <FlagMessage />
+            <div className='dropdown-option-text'>Flag Message</div>
+          </div>
           <div
             className='dropdown-option'
             onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}
           >
-            <div>{isUserMuted ? 'Unmute user' : 'Mute user'}</div>
             <MuteUser />
+            <div className='dropdown-option-text'>{isUserMuted ? 'Unmute User' : 'Mute User'}</div>
+          </div>
+        </>
+      )}
+      {isOwnUser && (
+        <>
+          <div className='dropdown-option' onClick={() => handleClick('flag')}>
+            <EditMessage />
+            <div className='dropdown-option-text'>Edit Message</div>
           </div>
           <div className='dropdown-option' onClick={() => handleClick('flag')}>
-            <div>Flag user</div>
-            <FlagMessage />
+            <DeleteMessage />
+            <div className='dropdown-option-text'>Delete Message</div>
           </div>
         </>
       )}
