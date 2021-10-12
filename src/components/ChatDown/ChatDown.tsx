@@ -17,7 +17,7 @@ export type ChatDownProps = {
 const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
   const { image, text, type = 'Error' } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('ChatDown');
 
   return (
     <div className='str-chat__down'>

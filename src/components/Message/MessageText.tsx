@@ -55,15 +55,9 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageText',
+  );
 
   const {
     message: contextMessage,
@@ -71,9 +65,9 @@ const UnMemoizedMessageTextComponent = <
     onMentionsHoverMessage,
     renderText = defaultRenderText,
     unsafeHTML,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageText');
 
-  const { t, userLanguage } = useTranslationContext();
+  const { t, userLanguage } = useTranslationContext('MessageText');
 
   const { handleMobilePress } = useMobilePress();
 

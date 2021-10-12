@@ -46,8 +46,8 @@ export const MessageInputFlat = <
     Me,
     Re,
     Us
-  >();
-  const { t } = useTranslationContext();
+  >('MessageInputFlat');
+  const { t } = useTranslationContext('MessageInputFlat');
 
   const {
     closeEmojiPicker,
@@ -61,7 +61,7 @@ export const MessageInputFlat = <
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputFlat');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
@@ -69,7 +69,7 @@ export const MessageInputFlat = <
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputFlat');
 
   return (
     <div

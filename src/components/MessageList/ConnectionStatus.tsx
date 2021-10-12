@@ -23,8 +23,8 @@ const UnMemoizedConnectionStatus: React.FC = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >() => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ConnectionStatus');
+  const { t } = useTranslationContext('ConnectionStatus');
 
   const [online, setOnline] = useState(true);
 

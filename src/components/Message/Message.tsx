@@ -89,7 +89,7 @@ const MessageWithContext = <
     userRoles,
   } = props;
 
-  const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage || contextMessage;
@@ -112,22 +112,20 @@ const MessageWithContext = <
     isMyMessage,
   } = userRoles;
 
-  const messageActionsHandler = useCallback(() => {
-    if (!message || !messageActions) {
-      return [];
-    }
-
-    return getMessageActions(messageActions, {
-      canDelete,
-      canEdit,
-      canFlag,
-      canMute,
-      canPin,
-      canQuote,
-      canReact,
-      canReply,
-    });
-  }, [canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply]);
+  const messageActionsHandler = useCallback(
+    () =>
+      getMessageActions(messageActions, {
+        canDelete,
+        canEdit,
+        canFlag,
+        canMute,
+        canPin,
+        canQuote,
+        canReact,
+        canReply,
+      }),
+    [canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply],
+  );
 
   const {
     canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -198,8 +196,8 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
+  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 

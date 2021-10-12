@@ -70,7 +70,7 @@ const UnMemoizedMessageOptions = <
     message,
     onReactionListClick,
     threadList,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageOptions');
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 

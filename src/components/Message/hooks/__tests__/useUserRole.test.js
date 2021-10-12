@@ -137,13 +137,22 @@ describe('useUserRole custom hook', () => {
     ['owner', false],
   ])('should allow user to edit or delete message if user role is %s', async (role, expected) => {
     const message = generateMessage();
-    const { canDelete, canEdit } = await renderUserRoleHook(message, {
-      state: {
-        membership: {
-          role,
+    const { canDelete, canEdit } = await renderUserRoleHook(
+      message,
+      {
+        state: {
+          membership: {
+            role,
+          },
         },
       },
-    });
+      {
+        channelCapabilities: {
+          'delete-any-message': expected,
+          'update-any-message': expected,
+        },
+      },
+    );
     expect(canEdit).toBe(expected);
     expect(canDelete).toBe(expected);
   });

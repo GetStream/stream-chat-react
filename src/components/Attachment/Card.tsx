@@ -25,7 +25,7 @@ export type CardProps = {
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const { image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
 
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('Card');
 
   const image = thumb_url || image_url;
 

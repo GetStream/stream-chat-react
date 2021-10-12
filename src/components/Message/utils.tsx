@@ -79,6 +79,7 @@ export type MessageActionsArray<T extends string = string> = Array<
   'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'quote' | 'react' | 'reply' | T
 >;
 
+// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export const defaultPinPermissions: PinPermissions = {
   commerce: {
     admin: true,

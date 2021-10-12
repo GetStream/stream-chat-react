@@ -50,17 +50,19 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageText(customProps, channelConfig = {}, renderer = render) {
+async function renderMessageText(customProps, channelConfigOverrides = {}, renderer = render) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
-    getConfig: () => ({ reactions: true, ...channelConfig }),
+    getConfig: () => ({ reactions: true, ...channelConfigOverrides }),
     state: { membership: {} },
   });
+  const channelCapabilities = { 'send-reaction': true };
+  const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return renderer(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
           value={{ onMentionsClick: onMentionsClickMock, onMentionsHover: onMentionsHoverMock }}
         >

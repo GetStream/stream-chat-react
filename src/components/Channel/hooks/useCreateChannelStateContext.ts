@@ -23,13 +23,15 @@ export const useCreateChannelStateContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  value: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  value: Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'channelCapabilities'> & {
+    channelCapabilitiesArray: string[];
     skipMessageDataMemoization?: boolean;
   },
 ) => {
   const {
     acceptedFiles,
     channel,
+    channelCapabilitiesArray = [],
     channelConfig,
     error,
     hasMore,
@@ -63,6 +65,12 @@ export const useCreateChannelStateContext = <
   const readUsersLastReads = readUsers.map(({ last_read }) => last_read.toISOString()).join();
   const threadMessagesLength = threadMessages?.length;
 
+  const channelCapabilities: Record<string, boolean> = {};
+
+  channelCapabilitiesArray.forEach((capability) => {
+    channelCapabilities[capability] = true;
+  });
+
   const memoizedMessageData = skipMessageDataMemoization
     ? messages
     : messages
@@ -95,6 +103,7 @@ export const useCreateChannelStateContext = <
     () => ({
       acceptedFiles,
       channel,
+      channelCapabilities,
       channelConfig,
       error,
       hasMore,
