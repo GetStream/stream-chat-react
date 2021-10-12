@@ -7,13 +7,13 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
-import { Emoji } from 'emoji-mart';
+import { Emoji, BaseEmoji } from 'emoji-mart';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialReactionList.scss';
 
-export const customReactions = [
+export const customReactions: BaseEmoji[] = [
   {
     colons: ':heart:',
     emoticons: ['<3'],

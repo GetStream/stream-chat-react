@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Attachment,
   Avatar,
   ReactionSelector,
-  MessageOptions,
+  // MessageOptions,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
@@ -41,51 +41,49 @@ import './SocialMessageUI.scss';
 
 type OptionsProps = {
   dropdownOpen: boolean;
-  // isRecentMessage: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   // setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-// const MessageOptions: React.FC<OptionsProps> = (props) => {
-//   const {
-//     dropdownOpen,
-//     // isRecentMessage,
-//     setDropdownOpen,
-//     // setMessageActionUser,
-//     setShowReactionSelector,
-//   } = props;
+const MessageOptions: React.FC<OptionsProps> = (props) => {
+  const {
+    dropdownOpen,
+    setDropdownOpen,
+    // setMessageActionUser,
+    setShowReactionSelector,
+  } = props;
 
-//   const { thread } = useChannelStateContext();
-//   const { handleOpenThread, isMyMessage, message } = useMessageContext();
+  const { thread } = useChannelStateContext();
+  const { handleOpenThread, isMyMessage, message } = useMessageContext();
 
-//   const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
+  const hideActions = (thread && isMyMessage()) || (!thread && message.show_in_channel);
 
-//   return (
-//     <div className='message-ui-options'>
-//       <span onClick={() => setShowReactionSelector((prev) => !prev)}>
-//         <ReactionSmiley />
-//       </span>
-//       {!hideActions && (
-//         <span onClick={() => setDropdownOpen(!dropdownOpen)}>
-//           <MessageActionsEllipse />
-//         </span>
-//       )}
-//       {dropdownOpen && (
-//         <div className={`message-ui-options-dropdown ${isMyMessage() ? 'mine' : ''}`}>
-//           <UserActionsDropdown
-//             dropdownOpen={dropdownOpen}
-//             openThread={handleOpenThread}
-//             setDropdownOpen={setDropdownOpen}
-//             // setMessageActionUser={setMessageActionUser}
-//             thread={!thread}
-//             user={message.user}
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+  return (
+    <>
+      <span onClick={() => setShowReactionSelector((prev) => !prev)}>
+        <ReactionSmiley />
+      </span>
+      {!hideActions && (
+        <span onClick={() => setDropdownOpen(!dropdownOpen)}>
+          <MessageActionsEllipse />
+        </span>
+      )}
+      {dropdownOpen && (
+        <div className={`message-ui-options-dropdown ${isMyMessage() ? 'mine' : ''}`}>
+          <UserActionsDropdown
+            dropdownOpen={dropdownOpen}
+            openThread={handleOpenThread}
+            setDropdownOpen={setDropdownOpen}
+            // setMessageActionUser={setMessageActionUser}
+            thread={!thread}
+            user={message.user}
+          />
+        </div>
+      )}
+    </>
+  );
+};
 
 export const SocialMessage: React.FC<
   MessageUIComponentProps<
@@ -100,14 +98,7 @@ export const SocialMessage: React.FC<
 > = (props) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const {
-    isMyMessage,
-    isReactionEnabled,
-    message,
-    readBy,
-    reactionSelectorRef,
-    showDetailedReactions,
-  } = useMessageContext<
+  const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
     SocialAttachmentType,
     SocialChannelType,
     SocialCommandType,
@@ -132,10 +123,24 @@ export const SocialMessage: React.FC<
     if (!dropdownOpen) clearModals();
   }, [dropdownOpen]);
 
+  const reactionsSelectorRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (showReactionSelector) document.addEventListener('click', clearModals);
-    return () => document.removeEventListener('click', clearModals);
-  }, [showReactionSelector]);
+    const checkIfClickedOutside = (event: MouseEvent) => {
+      if (
+        reactionsSelectorRef.current &&
+        event.target instanceof HTMLElement &&
+        !reactionsSelectorRef.current?.contains(event.target)
+      ) {
+        setShowReactionSelector(false);
+      }
+    };
+
+    document.addEventListener('mousedown', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside);
+    };
+  }, [showReactionSelector]); // eslint-disable-line
 
   const isGroup =
     Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
@@ -147,7 +152,14 @@ export const SocialMessage: React.FC<
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
 
   return (
-    <div className={`message-wrapper ${myMessage ? 'right' : ''}`}>
+    <div
+      className={`message-wrapper ${myMessage ? 'right' : ''}`}
+      onMouseEnter={() => setShowOptions(true)}
+      onMouseLeave={() => {
+        setDropdownOpen(false);
+        setShowOptions(false);
+      }}
+    >
       {!myMessage && (
         <Avatar
           size={36}
@@ -162,18 +174,21 @@ export const SocialMessage: React.FC<
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
           <ReactionParticipants />
         </div>
-        {showDetailedReactions && isReactionEnabled && (
-          <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
+        {showReactionSelector && (
+          <span ref={reactionsSelectorRef}>
+            <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
+          </span>
         )}
         <ThreadReply />
         <div className='message-wrapper-inner-options'>
-          <MessageOptions
-            // dropdownOpen={dropdownOpen}
-            // // isRecentMessage={isRecentMessage}
-            // setDropdownOpen={setDropdownOpen}
-            // // setMessageActionUser={setMessageActionUser}
-            // setShowReactionSelector={setShowReactionSelector}
-          />
+          {showOptions && (
+            <MessageOptions
+              dropdownOpen={dropdownOpen}
+              setDropdownOpen={setDropdownOpen}
+              // // setMessageActionUser={setMessageActionUser}
+              setShowReactionSelector={setShowReactionSelector}
+            />
+          )}
           <div className='message-wrapper-inner-data'>
             {myMessage &&
               message.status === 'received' &&

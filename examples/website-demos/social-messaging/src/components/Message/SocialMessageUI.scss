@@ -34,8 +34,8 @@
 
     &.my-message {
       .message-wrapper-inner-text {
-      align-self: flex-end;
-    }
+        align-self: flex-end;
+      }
 
       .message-wrapper-inner-reply {
         align-self: flex-end;
@@ -127,4 +127,15 @@ div.str-chat__message-attachment-card {
 
 p {
   margin: 8px 0;
+}
+
+svg {
+  &:hover {
+    cursor: pointer;
+
+    path {
+      transition: fill 0.2s;
+      fill: $accent-primary;
+    }
+  }
 }
