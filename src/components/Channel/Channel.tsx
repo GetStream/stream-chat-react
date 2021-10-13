@@ -301,6 +301,7 @@ const ChannelInner = <
   >('Channel');
   const { t } = useTranslationContext('Channel');
 
+  const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
 
@@ -318,7 +319,7 @@ const ChannelInner = <
   const online = useRef(true);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
-  const channelConfig = channel.getConfig();
+
   const emojiConfig: EmojiConfig = {
     commonEmoji,
     defaultMinimalEmojis,
@@ -414,6 +415,8 @@ const ChannelInner = <
       if (!channel.initialized) {
         try {
           await channel.watch();
+          const config = channel.getConfig();
+          setChannelConfig(config);
         } catch (e) {
           dispatch({ error: e as Error, type: 'setError' });
           errored = true;
