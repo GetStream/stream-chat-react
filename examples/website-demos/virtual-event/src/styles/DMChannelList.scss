@@ -1,0 +1,162 @@
+@import './_variables';
+
+.str-chat.messaging {
+  background: $app-canvas;
+  transition: background 1s;
+}
+
+.dm {
+  display: flex;
+  flex-direction: column;
+
+  &-list {
+    height: calc(100% - 56px); // height of chat start button
+    width: 320px;
+
+    &-preview {
+      position: relative;
+      display: flex;
+      height: 74px;
+      border-bottom: 1px solid $stroke;
+      padding: 8px;
+
+      svg {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+
+      &:hover {
+        background: $card-background;
+        cursor: pointer;
+      }
+
+      &-top {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+
+        div:first-child {
+          color: $text-high-emphasis;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        div:last-child {
+          color: $text-mid-emphasis;
+          font-size: 12px;
+          margin-left: 5px;
+        }
+      }
+
+      &-bottom {
+        color: $text-high-emphasis;
+        font-size: 14px;
+
+        p {
+          margin: 0;
+          max-height: 32px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        &.unread p {
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  &-error {
+    color: var(--text-high-emphasis);
+    padding: 8px;
+  }
+
+  &-loading {
+    margin: 0;
+    padding: 8px;
+
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      height: 40px;
+    }
+
+    &-avatar,
+    &-text {
+      display: inline-block;
+    }
+
+    &-avatar {
+      float: left;
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+      border-radius: 100px;
+    }
+
+    &-text div {
+      width: 220px;
+      height: 10px;
+      border-radius: 20px;
+    }
+
+    &-text div:nth-child(2) {
+      height: 16px;
+      margin-top: 8px;
+    }
+
+    &-avatar,
+    &-text div {
+      animation: placeHolderShimmer 1.5s linear infinite;
+      background: $card-background;
+      background-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0) 5%,
+        rgba(0, 0, 0, 0.2) 25%,
+        rgba(0, 0, 0, 0.25) 50%,
+        rgba(0, 0, 0, 0.2) 75%,
+        rgba(0, 0, 0, 0) 95%,
+        rgba(0, 0, 0, 0) 100%
+      );
+      background-repeat: no-repeat;
+      background-size: 400px 100%;
+    }
+
+    @keyframes placeHolderShimmer {
+      0% {
+        background-position: -400px 0;
+      }
+      100% {
+        background-position: 400px 0;
+      }
+    }
+  }
+
+  .start-chat {
+    position: absolute;
+    bottom: 0;
+    max-height: 56px;
+    padding: 8px;
+    box-sizing: border-box;
+    width: 320px;
+    border: 1px solid $stroke;
+
+    &-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: $primary-accent;
+      color: $white;
+      border-radius: 8px;
+      height: 40px;
+      font-size: 14px;
+      line-height: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 1s;
+    }
+  }
+}

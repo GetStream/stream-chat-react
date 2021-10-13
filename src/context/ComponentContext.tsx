@@ -90,9 +90,7 @@ export type ComponentContextValue<
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
 };
 
-export const ComponentContext = React.createContext<ComponentContextValue>(
-  {} as ComponentContextValue,
-);
+export const ComponentContext = React.createContext<ComponentContextValue | undefined>(undefined);
 
 export const ComponentProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -123,8 +121,21 @@ export const useComponentContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->() =>
-  (useContext(ComponentContext) as unknown) as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+>(
+  componentName?: string,
+) => {
+  const contextValue = useContext(ComponentContext);
+
+  if (!contextValue) {
+    console.warn(
+      `The useComponentContext hook was called outside of the ComponentContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
+    );
+
+    return {} as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+  }
+
+  return contextValue as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if ComponentContext

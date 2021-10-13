@@ -24,7 +24,7 @@ export type MMLProps = {
 export const MML: React.FC<MMLProps> = (props) => {
   const { actionHandler, align = 'right', source } = props;
 
-  const { theme } = useChatContext();
+  const { theme } = useChatContext('MML');
 
   return (
     <Suspense fallback={null}>

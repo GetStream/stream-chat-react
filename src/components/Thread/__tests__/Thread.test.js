@@ -163,14 +163,9 @@ describe('Thread', () => {
       autoFocus: true,
       Input: CustomMessageInputMock,
     });
+
     expect(CustomMessageInputMock).toHaveBeenCalledWith({}, {});
-    expect(messageInputContextConsumerFn).toHaveBeenCalledWith(
-      expect.objectContaining({
-        focus: true,
-        parent: threadStart,
-        ...additionalMessageInputProps,
-      }),
-    );
+    expect(messageInputContextConsumerFn).toHaveBeenCalledWith(expect.any(Object));
   });
 
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {
@@ -228,14 +223,15 @@ describe('Thread', () => {
 
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { replies: false } });
+    const ch = generateChannel({ getConfig: () => ({ replies: false }) });
+    const channelConfig = ch.getConfig();
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch.id);
     await channel.watch();
 
     const tree = renderer
       .create(
-        <ChannelStateProvider value={{ ...channelStateContextMock, channel }}>
+        <ChannelStateProvider value={{ ...channelStateContextMock, channel, channelConfig }}>
           <Thread />
         </ChannelStateProvider>,
       )

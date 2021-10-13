@@ -86,6 +86,14 @@ A list of accepted file upload types.
 | -------- |
 | string[] |
 
+### activeUnreadHandler
+
+Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab).
+
+| Type                                            |
+| ----------------------------------------------- |
+| (unread: number, documentTitle: string) => void |
+
 ### Attachment
 
 Custom UI component to display a message attachment.
@@ -429,6 +437,14 @@ Custom UI component for send button.
 | Type      | Default                                                                                                        |
 | --------- | -------------------------------------------------------------------------------------------------------------- |
 | component | [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
+
+### skipMessageDataMemoization
+
+If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages).
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### ThreadHeader
 

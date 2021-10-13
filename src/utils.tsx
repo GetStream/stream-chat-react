@@ -9,7 +9,7 @@ import uniqBy from 'lodash.uniqby';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType, UnknownType } from './types/types';
+import type { DefaultUserType } from './types/types';
 
 export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;
@@ -38,7 +38,7 @@ const allowedMarkups: NodeType[] = [
   'delete',
 ];
 
-const matchMarkdownLinks = (message: string) => {
+export const matchMarkdownLinks = (message: string) => {
   const regexMdLinks = /\[([^[]+)\](\(.*\))/gm;
   const matches = message.match(regexMdLinks);
   const singleMatch = /\[([^[]+)\]\((.*)\)/;
@@ -53,7 +53,7 @@ const matchMarkdownLinks = (message: string) => {
   return links.flat();
 };
 
-const messageCodeBlocks = (message: string) => {
+export const messageCodeBlocks = (message: string) => {
   const codeRegex = /```[a-z]*\n[\s\S]*?\n```|`[a-z]*[\s\S]*?`/gm;
   const matches = message.match(codeRegex);
   return matches || [];
@@ -64,7 +64,7 @@ type MarkDownRenderers = {
   href?: string;
 };
 
-const markDownRenderers: { [nodeType: string]: React.ElementType } = {
+export const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
     const { children, href } = props;
@@ -90,7 +90,7 @@ const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   span: 'span',
 };
 
-const emojiMarkdownPlugin = () => {
+export const emojiMarkdownPlugin = () => {
   function replace(match: RegExpMatchArray | null) {
     return {
       children: [{ type: 'text', value: match }],
@@ -107,7 +107,7 @@ const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
+export const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
   mentioned_users: UserResponse<Us>[],
 ) => () => {
   const mentioned_usernames = mentioned_users
@@ -237,32 +237,37 @@ export function generateRandomId() {
   return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
 }
 
-export const smartRender = (
-  ElementOrComponentOrLiteral: React.ComponentType,
-  props?: UnknownType,
-  fallback?: React.ComponentType | null,
-) => {
-  if (ElementOrComponentOrLiteral === undefined && fallback) {
-    ElementOrComponentOrLiteral = fallback;
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt#getting_whole_characters
+export const getWholeChar = (str: string, i: number) => {
+  const code = str.charCodeAt(i);
+
+  if (Number.isNaN(code)) return '';
+
+  if (code < 0xd800 || code > 0xdfff) return str.charAt(i);
+
+  if (0xd800 <= code && code <= 0xdbff) {
+    if (str.length <= i + 1) {
+      throw 'High surrogate without following low surrogate';
+    }
+
+    const next = str.charCodeAt(i + 1);
+
+    if (0xdc00 > next || next > 0xdfff) {
+      throw 'High surrogate without following low surrogate';
+    }
+
+    return str.charAt(i) + str.charAt(i + 1);
   }
 
-  if (React.isValidElement(ElementOrComponentOrLiteral)) {
-    // Flow cast through any, to make flow believe it's a React.Element
-    const element = ElementOrComponentOrLiteral;
-    return element;
+  if (i === 0) {
+    throw 'Low surrogate without preceding high surrogate';
   }
 
-  // Flow cast through any to remove React.Element after previous check
-  const ComponentOrLiteral = ElementOrComponentOrLiteral;
+  const prev = str.charCodeAt(i - 1);
 
-  if (
-    typeof ComponentOrLiteral === 'string' ||
-    typeof ComponentOrLiteral === 'number' ||
-    typeof ComponentOrLiteral === 'boolean' ||
-    ComponentOrLiteral == null
-  ) {
-    return ComponentOrLiteral;
+  if (0xd800 > prev || prev > 0xdbff) {
+    throw 'Low surrogate without preceding high surrogate';
   }
 
-  return <ComponentOrLiteral {...props} />;
+  return '';
 };

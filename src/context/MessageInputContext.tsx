@@ -57,9 +57,6 @@ export const MessageInputContextProvider = <
   </MessageInputContext.Provider>
 );
 
-/**
- * hook for MessageInput context
- */
 export const useMessageInputContext = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
@@ -69,12 +66,17 @@ export const useMessageInputContext = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
->() => {
+>(
+  componentName?: string,
+) => {
   const contextValue = useContext(MessageInputContext);
-  if (contextValue === undefined) {
+
+  if (!contextValue) {
     console.warn(
-      'Empty MessageInputContext consumed. Make sure you wrap every component that uses MessageInputContext with a MessageInputContextProvider',
+      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
   }
 
   return contextValue as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;

@@ -37,7 +37,9 @@ async function renderMsg(message) {
 
   return render(
     <ChatProvider value={{ client, theme: 'dark' }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelStateProvider
+        value={{ channel, channelCapabilities: { 'delete-own-message': true } }}
+      >
         <TranslationProvider
           value={{
             t: (key) => key,

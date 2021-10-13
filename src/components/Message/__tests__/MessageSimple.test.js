@@ -19,6 +19,7 @@ import { Modal as ModalMock } from '../../Modal';
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   emojiDataMock,
@@ -28,7 +29,6 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { ComponentProvider } from '../../../context/ComponentContext';
 
 Dayjs.extend(calendar);
 
@@ -52,14 +52,22 @@ const retrySendMessageMock = jest.fn();
 async function renderMessageSimple(
   message,
   props = {},
-  channelConfig = { reactions: true, replies: true },
+  channelConfigOverrides = { reactions: true, replies: true },
   components = {},
 ) {
-  const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
+  const channel = generateChannel({
+    getConfig: () => channelConfigOverrides,
+    state: { membership: {} },
+  });
+  const channelCapabilities = { 'send-reaction': true };
+  const channelConfig = channel.getConfig();
   const client = await getTestClientWithUser(alice);
+
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, emojiConfig: emojiDataMock }}>
+      <ChannelStateProvider
+        value={{ channel, channelCapabilities, channelConfig, emojiConfig: emojiDataMock }}
+      >
         <ChannelActionProvider
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >

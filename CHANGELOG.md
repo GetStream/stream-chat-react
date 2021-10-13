@@ -1,5 +1,70 @@
 # Changelog
 
+## [6.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.10.0) 2021-10-13
+
+### Feature
+
+- Export markdown utils functions used within `renderText` [#1228](https://github.com/GetStream/stream-chat-react/pull/1228)
+- Use `own_capabilities` field on `channel` to determine connected user permissions [#1232](https://github.com/GetStream/stream-chat-react/pull/1232)
+- Pass component names to custom context hooks for error tracing [#1238](https://github.com/GetStream/stream-chat-react/pull/1238)
+
+### Chore
+ 
+- Update German i18n translations [#1224](https://github.com/GetStream/stream-chat-react/pull/1224)
+- Upgrade `react-virtuoso` for zoom fix [#1233](https://github.com/GetStream/stream-chat-react/pull/1233)
+- Use optional `activeUnreadHandler` in `Channel` component's `markRead` function when provided [#1237](https://github.com/GetStream/stream-chat-react/pull/1237)
+- Replace custom context hook error throws with console warnings [#1242](https://github.com/GetStream/stream-chat-react/pull/1242)
+
+### Bug
+
+- Fix UI header bug for Levenshtein autocomplete mention search [#1235](https://github.com/GetStream/stream-chat-react/pull/1235)
+- Ensure `channelConfig` is updated when `Channel` mounts an unwatched channel [#1239](https://github.com/GetStream/stream-chat-react/pull/1239)
+
+## [6.9.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.1) 2021-10-01
+
+### Feature
+
+- Add `chatContainer` custom CSS class name override [#1216](https://github.com/GetStream/stream-chat-react/pull/1216)
+
+### Chore
+ 
+- Add descriptive error messages to custom context consumer hooks [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
+- Pass `value` prop to `SuggestionItem` component [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
+- Update docs for custom `ChannelList` event handler example [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)
+- Add `cooldownInterval` to `MessageInput` context value memoization [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)
+- Reduce packaged CSS bundle size [#1219](https://github.com/GetStream/stream-chat-react/pull/1219)
+
+### Bug
+
+- Prevent user start/stop watching events from resetting the channel state [#1206](https://github.com/GetStream/stream-chat-react/pull/1206)
+
+## [6.9.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.0) 2021-09-24
+
+### Feature
+
+- Add new virtual event example app [#1189](https://github.com/GetStream/stream-chat-react/pull/1189)
+- Memoize object values injected into context providers [#1194](https://github.com/GetStream/stream-chat-react/pull/1194)
+- Support emojis as the first character in a user name for the `Avatar` component's fallback [#1201](https://github.com/GetStream/stream-chat-react/pull/1201)
+- Provide the option to pass additional props to the `Virtuoso` component in the `VirtualizedMessageList` [#1202](https://github.com/GetStream/stream-chat-react/pull/1202)
+
+ ### Chore
+- Improve documentation around approved attachment types [#1190](https://github.com/GetStream/stream-chat-react/pull/1190)
+- Upgrade `react-virtuoso` dependency [#1194](https://github.com/GetStream/stream-chat-react/pull/1194)
+- Refactor `ChannelList` pagination offset logic to handle channels being added/removed from the list [#1200](https://github.com/GetStream/stream-chat-react/pull/1200)
+
+## [6.8.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.8.0) 2021-09-17
+
+### Feature
+
+- Improve user mention experience by ignoring diacritics, adding a `useMentionsTransliteration` prop to install an optional transliteration dependency, and using Levenshtein distance to match similar names [#1176](https://github.com/GetStream/stream-chat-react/pull/1176)
+- Add event listener to `ChannelPreview` to handle `markAllRead` function calls on the client [#1178](https://github.com/GetStream/stream-chat-react/pull/1178)
+- Add `setText` function to `MessageInputContext`, which overrides and sets the value of the `MessageInput` component's `textarea` element [#1184](https://github.com/GetStream/stream-chat-react/pull/1184)
+- Add `activeUnreadHandler` prop to `Channel`, which runs when the active channel has unread messages [#1185](https://github.com/GetStream/stream-chat-react/pull/1185)
+
+ ### Chore
+- Remove all SCSS files and import library styles from `stream-chat-css` dependency. This is non-breaking as the build process injects the external styles into the exact distributed directory as before. [#1168](https://github.com/GetStream/stream-chat-react/pull/1168)
+- Upgrade `stream-chat` and `react-file-utils` dependencies [#1178](https://github.com/GetStream/stream-chat-react/pull/1178)
+
 ## [6.7.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.7.2) 2021-09-15
 
 ### Feature

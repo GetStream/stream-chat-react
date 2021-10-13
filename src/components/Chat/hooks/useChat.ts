@@ -60,7 +60,7 @@ export const useChat = <
   const [mutes, setMutes] = useState<Array<Mute<Us>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
 
-  const clientMutes = client?.user?.mutes;
+  const clientMutes = client.user?.mutes;
 
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);

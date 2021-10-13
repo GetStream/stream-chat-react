@@ -202,8 +202,8 @@ Opens the `EmojiPicker` component on Enter or Spacebar key down.
 
 Function that runs onSubmit to the underlying `textarea` component.
 
-| Type                                                                  |
-| --------------------------------------------------------------------- |
+| Type                                                                   |
+| ---------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent, customMessageData?: Message) => void |
 
 ### imageOrder
@@ -299,7 +299,7 @@ If provided, the existing message will be edited on submit.
 
 ### noFiles
 
-If true, disables file uploads.
+If true, disables file uploads for all attachments except for those with type 'image'.
 
 | Type    | Default |
 | ------- | ------- |
@@ -401,6 +401,14 @@ React state hook function that sets the `cooldownRemaining` value.
 | --------------------------------------------- |
 | React.Dispatch<React.SetStateAction<number\>> |
 
+### setText
+
+Function that overrides and sets the text value of the underlying `textarea` component.
+
+| Type                   |
+| ---------------------- |
+| (text: string) => void |
+
 ### showCommandsList
 
 If true, show the list of supported slash commands above the text input.
@@ -440,3 +448,11 @@ Function to upload an array of files to the `fileUploads` and `imageUploads` map
 | Type                                |
 | ----------------------------------- |
 | (files: FileList \| File[]) => void |
+
+### useMentionsTransliteration
+
+If true, will use an optional dependency to support transliteration in the input for mentions. See: https://github.com/sindresorhus/transliterate
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

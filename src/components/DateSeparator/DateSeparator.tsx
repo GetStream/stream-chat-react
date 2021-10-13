@@ -16,7 +16,7 @@ export type DateSeparatorProps = {
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const { date, formatDate, position = 'right', unread } = props;
 
-  const { t, tDateTimeParser } = useTranslationContext();
+  const { t, tDateTimeParser } = useTranslationContext('DateSeparator');
 
   if (typeof date === 'string') return null;
 

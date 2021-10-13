@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { getWholeChar } from '../../utils';
+
 import type { UserResponse } from 'stream-chat';
 
 import type { DefaultUserType } from '../../types/types';
@@ -48,7 +50,8 @@ export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
     setLoaded(false);
   }, [image]);
 
-  const initials = (name?.toString() || '').charAt(0);
+  const nameStr = name?.toString() || '';
+  const initials = getWholeChar(nameStr, 0);
 
   return (
     <div

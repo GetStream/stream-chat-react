@@ -1,0 +1,59 @@
+:root {
+  --white: #ffffff;
+  --light-grey: #bcbec2;
+  --grey: #72757e;
+  --dark-grey: #0e1420;
+  --black: #000000;
+  --overlay: #000000cc;
+  --flagged-bg: #ff00001f;
+  --accent-red: #ff0000;
+  --accent-red-low: rgba(255, 153, 153, 1);
+  --accent-green: #00ddb5;
+  --accent-green-low: #a6f2e4;
+  --accent-orange: #f9ac17;
+  --accent-orange-low: #f9ac17;
+
+  --primary-accent: #006cff;
+  --app-canvas: #ffffff;
+  --text-high-emphasis: #0e1621;
+  --text-mid-emphasis: #8a898e;
+  --text-low-emphasis: #b2b1b5;
+  --text-self: #ffffff;
+  --text-pressed: #ffffff;
+  --card-background: #f2f2f2;
+  --card-alt-background: #ffffff;
+  --card-self-bg: #41affc;
+  --stroke: #e5e5e6;
+  --stroke-low-emphasis: #f2f2f2;
+  --shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+// shared colors
+$white: var(--white);
+$light-grey: var(--light-grey);
+$grey: var(--grey);
+$dark-grey: var(--dark-grey);
+$black: var(--black);
+$overlay: var(--overlay);
+$flagged-bg: var(--flagged-bg);
+$accent-red: var(--accent-red);
+$accent-red-low: var(--accent-red-low);
+$accent-green: var(--accent-green);
+$accent-green-low: var(--accent-green-low);
+$accent-orange: var(--accent-orange);
+$accent-orange-low: var(--accent-orange-low);
+
+// theme colors
+$primary-accent: var(--primary-accent);
+$app-canvas: var(--app-canvas);
+$text-high-emphasis: var(--text-high-emphasis);
+$text-mid-emphasis: var(--text-mid-emphasis);
+$text-low-emphasis: var(--text-low-emphasis);
+$text-self: var(--text-self);
+$text-pressed: var(--text-pressed);
+$card-background: var(--card-background);
+$card-alt-background: var(--card-alt-background);
+$card-self-bg: var(--card-self-bg);
+$stroke: var(--stroke);
+$stroke-low-emphasis: var(--stroke-low-emphasis);
+$shadow: var(--shadow);

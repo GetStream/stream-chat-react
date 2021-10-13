@@ -63,6 +63,7 @@ export type MessageInputState<
   imageOrder: string[];
   imageUploads: { [id: string]: ImageUpload };
   mentioned_users: UserResponse<Us>[];
+  setText: (text: string) => void;
   text: string;
 };
 
@@ -177,6 +178,7 @@ const initState = <
       imageOrder: [],
       imageUploads: { ...emptyImageUploads },
       mentioned_users: [],
+      setText: () => null,
       text: '',
     };
   }
@@ -233,6 +235,7 @@ const initState = <
     imageOrder,
     imageUploads,
     mentioned_users,
+    setText: () => null,
     text: message.text || '',
   };
 };
@@ -354,7 +357,15 @@ export const useMessageInputState = <
 ): MessageInputState<At, Us> & MessageInputHookProps<At, Me, Us> & CommandsListState => {
   const { message } = props;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('useMessageInputState');
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,
@@ -412,10 +423,15 @@ export const useMessageInputState = <
 
   const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
 
-  const isUploadEnabled = channel?.getConfig?.()?.uploads !== false;
+  const isUploadEnabled =
+    channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
 
   const onSelectUser = useCallback((item: UserResponse<Us>) => {
     dispatch({ type: 'addMentionedUser', user: item });
+  }, []);
+
+  const setText = useCallback((text: string) => {
+    dispatch({ getNewText: () => text, type: 'setText' });
   }, []);
 
   return {
@@ -442,6 +458,7 @@ export const useMessageInputState = <
     openEmojiPicker,
     removeFile,
     removeImage,
+    setText,
     showCommandsList,
     textareaRef,
     uploadFile,

@@ -29,7 +29,7 @@ export const useRetryHandler = <
     Me,
     Re,
     Us
-  >();
+  >('useRetryHandler');
 
   const retrySendMessage = customRetrySendMessage || contextRetrySendMessage;
 

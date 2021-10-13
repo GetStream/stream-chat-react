@@ -161,7 +161,7 @@ If provided, the existing message will be edited on submit.
 
 ### noFiles
 
-If true, disables file uploads.
+If true, disables file uploads for all attachments except for those with type 'image'.
 
 | Type    | Default |
 | ------- | ------- |
@@ -190,3 +190,12 @@ If true, triggers typing events on text input keystroke.
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+
+### useMentionsTransliteration
+
+If true, will use an optional dependency to support transliteration in the input for mentions. See: https://github.com/sindresorhus/transliterate
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

@@ -1,0 +1,193 @@
+@import './_variables';
+
+.room-video {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: $dark-grey;
+    height: 100%;
+    width: 100%;
+
+    .video-watermark {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    .video-watermark-small {
+      position: absolute;
+      height: 8%;
+      width: 100%;
+      z-index: 99;
+      pointer-events: none;
+      top: 50px;
+      left: 175px;
+    }
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+
+    height: 46px;
+    padding: 0 8px 0 16px;
+    color: $white;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      max-width: 50%;
+
+      &-arrow {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      &-title {
+        margin-left: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        font-size: 14px;
+      }
+
+      &-recording {
+        font-size: 12px;
+        margin-left: 4px;
+      }
+
+      &-dot {
+        min-width: 6px;
+        min-height: 6px;
+        margin-left: 8px;
+        background: $accent-red;
+        border-radius: 999px;
+      }
+
+      &-right {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+        font-size: 12px;
+
+        div {
+          margin: 0 16px 0 8px;
+        }
+
+        .event-card-label {
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  &-grid {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    width: 100%;
+    align-content: center;
+    justify-content: center;
+    overflow: scroll;
+
+    > div:first-child {
+      border: 4px solid $accent-green;
+      box-sizing: border-box;
+      border-radius: 8px;
+    }
+
+    &-participant {
+      display: flex;
+      position: relative;
+      justify-content: space-between;
+      width: 339px;
+      height: 191px;
+      border-radius: 8px;
+      margin: 4px;
+      cursor: pointer;
+      z-index: 1;
+      overflow: hidden;
+
+      video {
+        position: absolute;
+        z-index: -1;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      &-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: $overlay;
+        align-self: flex-end;
+        padding: 0 6px;
+        border-radius: 6px;
+        margin: 2px;
+
+        #speaking-animation {
+          display: flex;
+        }
+
+        &-name {
+          color: $white;
+          margin-right: 4px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 12px;
+        }
+      }
+
+      &-connection {
+        display: flex;
+        align-items: center;
+        align-self: flex-end;
+        background: $overlay;
+        border-radius: 6px;
+        margin: 2px;
+      }
+    }
+  }
+}
+
+.pinned {
+  overflow: hidden;
+  order: -1;
+  width: 100% !important;
+  height: 425px !important;
+  margin: 8px;
+
+  .room-video-grid-participant {
+    &-connection {
+      display: flex !important;
+    }
+
+    &-info {
+      width: unset !important;
+    }
+  }
+}
+
+.isPinned {
+  > div {
+    width: 140px;
+    height: 79px;
+    overflow: hidden;
+  }
+
+  .room-video-grid-participant {
+    &-connection {
+      display: none;
+    }
+
+    &-info {
+      width: 70%;
+    }
+  }
+}

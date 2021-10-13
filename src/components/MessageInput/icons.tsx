@@ -7,7 +7,7 @@ import type { Message } from 'stream-chat';
 import type { DefaultAttachmentType, DefaultMessageType, DefaultUserType } from '../../types/types';
 
 export const EmojiIconLarge: React.FC = () => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('EmojiIconLarge');
 
   return (
     <svg height='28' width='28' xmlns='http://www.w3.org/2000/svg'>
@@ -20,7 +20,7 @@ export const EmojiIconLarge: React.FC = () => {
 };
 
 export const EmojiIconSmall: React.FC = () => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('EmojiIconSmall');
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -33,7 +33,7 @@ export const EmojiIconSmall: React.FC = () => {
 };
 
 export const FileUploadIcon: React.FC = () => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('FileUploadIcon');
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -47,7 +47,7 @@ export const FileUploadIcon: React.FC = () => {
 };
 
 export const FileUploadIconFlat: React.FC = () => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('FileUploadIconFlat');
 
   return (
     <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
@@ -78,7 +78,7 @@ export const SendButton = <
 >({
   sendMessage,
 }: SendButtonProps<At, Me, Us>) => {
-  const { t } = useTranslationContext();
+  const { t } = useTranslationContext('SendButton');
 
   return (
     <button className='str-chat__send-button' onClick={sendMessage}>

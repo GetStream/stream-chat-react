@@ -90,7 +90,9 @@ export const DefaultTriggerProvider = <
 >({
   children,
 }: PropsWithChildren<Record<string, unknown>>) => {
-  const currentValue = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+  const currentValue = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>(
+    'DefaultTriggerProvider',
+  );
 
   const defaultAutocompleteTriggers: TriggerSettings<Co, Us> = {
     '/': useCommandTrigger<At, Ch, Co>(),
@@ -100,6 +102,7 @@ export const DefaultTriggerProvider = <
       mentionAllAppUsers: currentValue.mentionAllAppUsers,
       mentionQueryParams: currentValue.mentionQueryParams,
       onSelectUser: currentValue.onSelectUser,
+      useMentionsTransliteration: currentValue.useMentionsTransliteration,
     }),
   };
 
