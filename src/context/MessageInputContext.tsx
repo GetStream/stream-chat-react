@@ -72,13 +72,11 @@ export const useMessageInputContext = <
   const contextValue = useContext(MessageInputContext);
 
   if (!contextValue) {
-    if (process.env.NODE_ENV === 'test') {
-      return {} as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
-    }
-
-    throw new Error(
+    console.warn(
       `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
   }
 
   return contextValue as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;

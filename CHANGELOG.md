@@ -1,5 +1,25 @@
 # Changelog
 
+## [6.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.10.0) 2021-10-13
+
+### Feature
+
+- Export markdown utils functions used within `renderText` [#1228](https://github.com/GetStream/stream-chat-react/pull/1228)
+- Use `own_capabilities` field on `channel` to determine connected user permissions [#1232](https://github.com/GetStream/stream-chat-react/pull/1232)
+- Pass component names to custom context hooks for error tracing [#1238](https://github.com/GetStream/stream-chat-react/pull/1238)
+
+### Chore
+ 
+- Update German i18n translations [#1224](https://github.com/GetStream/stream-chat-react/pull/1224)
+- Upgrade `react-virtuoso` for zoom fix [#1233](https://github.com/GetStream/stream-chat-react/pull/1233)
+- Use optional `activeUnreadHandler` in `Channel` component's `markRead` function when provided [#1237](https://github.com/GetStream/stream-chat-react/pull/1237)
+- Replace custom context hook error throws with console warnings [#1242](https://github.com/GetStream/stream-chat-react/pull/1242)
+
+### Bug
+
+- Fix UI header bug for Levenshtein autocomplete mention search [#1235](https://github.com/GetStream/stream-chat-react/pull/1235)
+- Ensure `channelConfig` is updated when `Channel` mounts an unwatched channel [#1239](https://github.com/GetStream/stream-chat-react/pull/1239)
+
 ## [6.9.1](https://github.com/GetStream/stream-chat-react/releases/tag/v6.9.1) 2021-10-01
 
 ### Feature
