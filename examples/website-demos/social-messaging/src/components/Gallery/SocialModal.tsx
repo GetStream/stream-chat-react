@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 
 import { createPortal } from 'react-dom';
 import { ModalWrapperProps } from 'stream-chat-react';
@@ -13,13 +13,8 @@ type SocialModalProps = Partial<ModalWrapperProps> & {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const SocialModal = (
-  props: PropsWithChildren<
-    Partial<ModalWrapperProps> & { setModalOpen: React.Dispatch<React.SetStateAction<boolean>> }
-  >,
-) => {
-  const { children, modalIsOpen, setModalOpen } = props;
-  if (!modalIsOpen) return null;
+const SocialModal: React.FC<SocialModalProps> = (props) => {
+  const { children, setModalOpen } = props;
 
   return createPortal(
     <>
@@ -27,7 +22,7 @@ const SocialModal = (
       <div className='gallery-modal'>
         <div className='gallery-modal-header'>
           <span>Photos</span>
-          <CloseXCircle closeModal={setModalOpen} modalIsOpen={modalIsOpen} />
+          <CloseXCircle closeModal={setModalOpen} />
         </div>
         <div className='gallery-modal-children'>{children}</div>
       </div>
@@ -36,25 +31,21 @@ const SocialModal = (
   );
 };
 
-export const SocialModalWrapper = (props: PropsWithChildren<SocialModalProps>) => {
-  const { images, modalIsOpen, setModalOpen } = props;
+export const SocialModalWrapper: React.FC<SocialModalProps> = (props) => {
+  const { images, setModalOpen } = props;
 
   return (
-    <>
-      {modalIsOpen ? (
-        <SocialModal modalIsOpen={modalIsOpen} setModalOpen={setModalOpen}>
-          {images?.map((image: ViewType, i: number) => (
-            <div className='gallery-modal-image-wrapper' key={`modal-image-container-${i}`}>
-              <img
-                className='gallery-modal-image-wrapper-image'
-                alt='social-demo-gallery-element'
-                key={i}
-                src={image.source as string}
-              />
-            </div>
-          ))}
-        </SocialModal>
-      ) : null}
-    </>
+    <SocialModal setModalOpen={setModalOpen}>
+      {images?.map((image: ViewType, i: number) => (
+        <div className='gallery-modal-image-wrapper' key={`modal-image-container-${i}`}>
+          <img
+            className='gallery-modal-image-wrapper-image'
+            alt='social-demo-gallery-element'
+            key={i}
+            src={image.source as string}
+          />
+        </div>
+      ))}
+    </SocialModal>
   );
 };

@@ -1,10 +1,9 @@
 type Props = {
   closeModal: React.Dispatch<React.SetStateAction<boolean>>;
-  modalIsOpen: boolean;
 };
 
 export const CloseXCircle: React.FC<Props> = (props) => {
-  const { closeModal, modalIsOpen } = props;
+  const { closeModal } = props;
 
   return (
     <svg
@@ -12,7 +11,7 @@ export const CloseXCircle: React.FC<Props> = (props) => {
       height='24'
       viewBox='0 0 24 24'
       fill='none'
-      onClick={() => closeModal(!modalIsOpen)}
+      onClick={() => closeModal((prev) => !prev)}
       style={{ cursor: 'pointer' }}
       xmlns='http://www.w3.org/2000/svg'
     >

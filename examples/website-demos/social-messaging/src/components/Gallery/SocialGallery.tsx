@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 
 import { GalleryProps } from 'stream-chat-react';
 
@@ -11,13 +11,11 @@ export const SocialGallery: React.FC<GalleryProps<SocialAttachmentType>> = (prop
 
   const [modalOpen, setModalOpen] = useState(false);
 
-  const formattedArray = useMemo(
-    () =>
-      images.map((image) => ({
-        source: image.image_url || image.thumb_url || '',
-      })),
-    [images],
-  );
+  const formattedArray = () => {
+    return images.map((image) => ({
+      source: image.image_url || image.thumb_url || '',
+    }));
+  };
 
   const renderImages = images.slice(0, 3).map((image, i) => (
     <div
@@ -43,11 +41,7 @@ export const SocialGallery: React.FC<GalleryProps<SocialAttachmentType>> = (prop
           <p>+{images.length - 3}</p>
         </div>
       )}
-      <SocialModalWrapper
-        images={formattedArray}
-        modalIsOpen={modalOpen}
-        setModalOpen={setModalOpen}
-      />
+      {modalOpen && <SocialModalWrapper images={formattedArray()} setModalOpen={setModalOpen} />}
     </div>
   );
 };
