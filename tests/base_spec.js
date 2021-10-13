@@ -1,1 +1,1 @@
-cy.exec()
+cy.exec();
