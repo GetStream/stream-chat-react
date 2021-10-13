@@ -1,7 +1,7 @@
 import React from 'react';
-import { useChatContext } from 'stream-chat-react';
+import { useChatContext, useMessageContext } from 'stream-chat-react';
 
-import { FlagMessage, MuteUser } from '../../assets';
+import { CopyMessage, FlagMessage, MuteUser } from '../../assets';
 import { useViewContext, UserActions } from '../../contexts/ViewContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -17,16 +17,11 @@ type Props = {
 };
 
 export const ActionsModal: React.FC<Props> = (props) => {
-  const {
-    dmChannel,
-    messageActionUser,
-    participantProfile,
-    setSnackbar,
-    userActionType,
-  } = props;
+  const { dmChannel, messageActionUser, participantProfile, setSnackbar, userActionType } = props;
 
   const { client } = useChatContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
+  const { message } = useMessageContext();
 
   let Icon;
   let title;
@@ -50,6 +45,12 @@ export const ActionsModal: React.FC<Props> = (props) => {
       title = 'Flag message';
       description = 'You will flag them for moderation by the chat admin.';
       break;
+
+    case 'copy':
+      Icon = CopyMessage;
+      title = 'Copy message';
+      description = 'Copy this message.';
+      break;
   }
 
   const handleCancel = () => {
@@ -72,6 +73,8 @@ export const ActionsModal: React.FC<Props> = (props) => {
         await client.unmuteUser(actionUserId);
       } else if (action === 'flag') {
         await client.flagUser(actionUserId); // flagMessage(message.id)
+      } else if (action === 'copy') {
+        if (message.text) await navigator.clipboard.writeText(message.text);
       }
     } catch (err) {
       console.log(err);

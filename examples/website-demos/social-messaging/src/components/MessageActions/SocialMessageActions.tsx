@@ -81,9 +81,9 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   };
 
   const isOwnUser = client.userID === participantProfile?.id || client.userID === user?.id;
-  const copyText = () => {
-    if (message.text) navigator.clipboard.writeText(message.text);
-  }
+  // const copyText = () => {
+  //   if (message.text) navigator.clipboard.writeText(message.text);
+  // }
 
   return (
     <div className='dropdown'>
@@ -99,7 +99,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
           <div className='dropdown-option-text'>Thread Reply</div>
         </div>
       )}
-      <div className='dropdown-option' onClick={copyText}>
+      <div className='dropdown-option' onClick={() => handleClick('copy')}>
         <CopyMessage />
         <div className='dropdown-option-text'>Copy Message</div>
       </div>
