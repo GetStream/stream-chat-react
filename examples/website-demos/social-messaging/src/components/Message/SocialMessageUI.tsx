@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { UserResponse } from 'stream-chat';
 import {
   Attachment,
   Avatar,
   ReactionSelector,
-  // MessageOptions,
   MessageText,
   MessageTimestamp,
   MessageUIComponentProps,
@@ -35,24 +35,21 @@ import {
   customReactions,
   ReactionParticipants,
 } from '../ReactionList/SocialReactionList';
-import { UserActionsDropdown } from '../MessageActions/SocialMessageActions';
+import { SocialMessageActions } from '../MessageActions/SocialMessageActions';
+import { useViewContext } from '../../contexts/ViewContext';
+import { ActionsModal } from '../MessageActions/ActionsModal';
 
 import './SocialMessageUI.scss';
 
 type OptionsProps = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  // setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const {
-    dropdownOpen,
-    setDropdownOpen,
-    // setMessageActionUser,
-    setShowReactionSelector,
-  } = props;
+  const { dropdownOpen, setDropdownOpen, setMessageActionUser, setShowReactionSelector } = props;
 
   const { thread } = useChannelStateContext();
   const { handleOpenThread, isMyMessage, message } = useMessageContext();
@@ -71,11 +68,11 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
       </span>
       {dropdownOpen && (
         <div className={`inside-dropdown ${isMyMessage() ? 'mine' : ''}`}>
-          <UserActionsDropdown
+          <SocialMessageActions
             dropdownOpen={dropdownOpen}
             openThread={handleOpenThread}
             setDropdownOpen={setDropdownOpen}
-            // setMessageActionUser={setMessageActionUser}
+            setMessageActionUser={setMessageActionUser}
             thread={!thread}
             user={message.user}
           />
@@ -94,8 +91,12 @@ export const SocialMessage: React.FC<
     SocialMessageType,
     SocialReactionType,
     SocialUserType
-  >
+  > & { setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>> } & {
+    messageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  }
 > = (props) => {
+  // const { messageActionUser, setMessageActionUser } = props;
+
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
   const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
@@ -107,6 +108,12 @@ export const SocialMessage: React.FC<
     SocialReactionType,
     SocialUserType
   >();
+  const { actionsModalOpenId, userActionType } = useViewContext();
+
+  // const [dmChannel, setDmChannel] = useState<StreamChannel>();
+  const [messageActionUser, setMessageActionUser] = useState<string>();
+  const [participantProfile, setParticipantProfile] = useState<UserResponse>();
+  const [snackbar, setSnackbar] = useState(false);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -160,6 +167,15 @@ export const SocialMessage: React.FC<
         setShowOptions(false);
       }}
     >
+      {actionsModalOpenId === message.id && userActionType && (
+        <ActionsModal
+          // dmChannel={dmChannel}
+          messageActionUser={messageActionUser}
+          participantProfile={participantProfile}
+          setSnackbar={setSnackbar}
+          userActionType={userActionType}
+        />
+      )}
       {!myMessage && (
         <Avatar
           size={36}
@@ -185,7 +201,7 @@ export const SocialMessage: React.FC<
             <MessageOptions
               dropdownOpen={dropdownOpen}
               setDropdownOpen={setDropdownOpen}
-              // // setMessageActionUser={setMessageActionUser}
+              setMessageActionUser={setMessageActionUser}
               setShowReactionSelector={setShowReactionSelector}
             />
           )}

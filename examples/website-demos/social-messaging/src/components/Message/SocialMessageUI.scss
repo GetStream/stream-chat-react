@@ -197,6 +197,14 @@ svg {
     font-size: 17px;
     box-sizing: border-box;
 
+    &.delete:hover {
+      color: $accent-error;
+
+      svg path {
+        fill: $accent-error;
+      }
+    }
+
     &-text {
       padding-left: 16px;
     }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ReactEventHandler, useChatContext } from 'stream-chat-react';
+import { ReactEventHandler, useChatContext, useMessageContext } from 'stream-chat-react';
 
 import {
   CopyMessage,
@@ -26,7 +26,7 @@ type Props = {
   user?: UserResponse | null;
 };
 
-export const UserActionsDropdown: React.FC<Props> = (props) => {
+export const SocialMessageActions: React.FC<Props> = (props) => {
   const {
     dropdownOpen,
     dmChannel,
@@ -39,7 +39,9 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
   } = props;
 
   const { client, mutes } = useChatContext();
-  const { setMessageActionsOpen, setUserActionType } = useViewContext();
+  const { setActionsModalOpenId, setUserActionType } = useViewContext();
+  const { message } = useMessageContext();
+
 
   const [isUserMuted, setIsUserMuted] = useState(false);
 
@@ -73,12 +75,15 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
 
   const handleClick = (action: UserActions) => {
     if (user) setMessageActionUser?.(user.id);
-    setMessageActionsOpen(true);
+    setActionsModalOpenId(message.id);
     setDropdownOpen(false);
     setUserActionType(action);
   };
 
   const isOwnUser = client.userID === participantProfile?.id || client.userID === user?.id;
+  const copyText = () => {
+    if (message.text) navigator.clipboard.writeText(message.text);
+  }
 
   return (
     <div className='dropdown'>
@@ -94,13 +99,13 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
           <div className='dropdown-option-text'>Thread Reply</div>
         </div>
       )}
-      <div className='dropdown-option' onClick={openThread}>
+      <div className='dropdown-option' onClick={copyText}>
         <CopyMessage />
         <div className='dropdown-option-text'>Copy Message</div>
       </div>
       <div className='dropdown-option' onClick={openThread}>
         <PinMessage />
-        <div className='dropdown-option-text'>Pin to this Conversation</div>
+        <div className='dropdown-option-text'>Pin to Conversation</div>
       </div>
       {!isOwnUser && (
         <>
@@ -123,7 +128,7 @@ export const UserActionsDropdown: React.FC<Props> = (props) => {
             <EditMessage />
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
-          <div className='dropdown-option' onClick={() => handleClick('flag')}>
+          <div className='dropdown-option delete' onClick={() => handleClick('flag')}>
             <DeleteMessage />
             <div className='dropdown-option-text'>Delete Message</div>
           </div>
