@@ -22,6 +22,7 @@ import {
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 
+import { SocialGallery } from '../Gallery/SocialGallery';
 import { ThreadReply } from '../ThreadReply/ThreadReply';
 import { SocialReactionList, customReactions, ReactionParticipants } from '../ReactionList/SocialReactionList';
 
@@ -78,7 +79,9 @@ export const SocialMessage: React.FC<
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
         <div className='message-wrapper-inner-text'>
           <SocialReactionList />
-          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+          {message.attachments?.length ? (
+            <Attachment attachments={message.attachments} Gallery={SocialGallery} />
+          ) : null}
           <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
           <ReactionParticipants />
         </div>

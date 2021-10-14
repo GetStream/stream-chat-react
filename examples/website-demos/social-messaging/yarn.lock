@@ -7749,10 +7749,10 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mml-react@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.0.tgz#351f9629bc82f9ac8347fa9795b21ab9e81d3a10"
-  integrity sha512-xdm/wzcJ+4SjGW506V2YECsNHYj/kiPQDe0V+xhqsTN/bwqWIrGnjOP+o2nz4etpoD0jpPB6pFwMdYXb2Va/FQ==
+mml-react@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.1.tgz#24de3a878e5be38be5b10a185355c1dc15d384c5"
+  integrity sha512-1VLakWyYwH/TdPDlvXFk6/QGSRJ1ZiI8XVPBx/6owpRpUlA1FvOFwbv70LxvXFaqWd5Lo02s/bB4v7c8oq3euA==
   dependencies:
     "@braintree/sanitize-url" "^5.0.0"
     "@rgrove/parse-xml" "^3.0.0"
@@ -7761,7 +7761,7 @@ mml-react@^0.4.0:
     ical-expander "^3.1.0"
     linkifyjs "^2.1.9"
     react-markdown "^5.0.3"
-    react-virtuoso "^1.5.8"
+    react-virtuoso "^2.2.1"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -9780,23 +9780,13 @@ react-view-pager@^0.6.0:
     resize-observer-polyfill "1.5.0"
     tabbable "1.1.2"
 
-react-virtuoso@^1.10.8:
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.11.1.tgz#350dc88866b3f42cb396bf8f40b90efc6daaadde"
-  integrity sha512-NH8eLLmoowdq0x7/AEfXxOY9OY4PDpLuPPmCc8F2IoBQLvIcMait3A2TnR0fT9UT+gl8n7GHoORzeGqF5Ka0MA==
+react-virtuoso@^2.2.1:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.2.tgz#d6b3d7d80a9d7377bb90de1dc46f32f5a1cf3739"
+  integrity sha512-ESwiOyliO/0q58P1X9e3IQosIKWmCv0JYO/ZDeLxh2O0FNWPQlXC5xgRT2fVxMXPoi+EaNI671foJuqOOITrOg==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
-    resize-observer-polyfill "^1.5.1"
-
-react-virtuoso@^1.5.8:
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-1.10.2.tgz#7755c7e7a7cb3b6ac8bc64a789beb1522b8c84a5"
-  integrity sha512-Dv9CYWWsRoa0Jr+HPpa25B28ZV9H+Xzi15k9RpH7VRdPQj47P1d0YAkhuRXC5Zu623HWP/0U2CT0n/1EGb4nIA==
-  dependencies:
-    "@virtuoso.dev/react-urx" "^0.2.5"
-    "@virtuoso.dev/urx" "^0.2.5"
-    resize-observer-polyfill "^1.5.1"
 
 "react@link:../../../node_modules/react":
   version "0.0.0"
@@ -10024,11 +10014,6 @@ resize-observer-polyfill@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.0.tgz#660ff1d9712a2382baa2cad450a4716209f9ca69"
   integrity sha512-M2AelyJDVR/oLnToJLtuDJRBBWUGUvvGigj1411hXhAdyFWqMaqHp7TixW3FpiLuVaikIcR1QL+zqoJoZlOgpg==
-
-resize-observer-polyfill@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
-  integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
 
 resolve-cwd@^2.0.0:
   version "2.0.0"
@@ -10757,10 +10742,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.0.tgz#4bb204825edb8931784fb414253e284b2a2cb273"
-  integrity sha512-PqV7ikbV9WsWDjc48RolSHdCtdKC6U/zmmz2V8ZhTPz6DV1dpmkQnd0mKoSSi7jlmtwHzGEEQyCtzg/396tbwg==
+stream-chat-css@^1.0.17:
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.17.tgz#aad79b5c8e6f62334305d73e8cffe8ad2ac46f0e"
+  integrity sha512-CgfqyWAqFa2QMBn3Srk4sBnMdjMhd/ufErplnGeYZFlzL/C1czRmr2MN/ZgxWwW5uLO7ArGyETRqslYZxFMN1Q==
 
 "stream-chat-react@link:../../..":
   version "0.0.0"
