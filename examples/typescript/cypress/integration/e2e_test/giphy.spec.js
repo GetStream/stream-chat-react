@@ -18,7 +18,7 @@ context('Actions', () => {
     cy.get('[data-testid=image_action]').contains('Cancel').click().should('exist');
   });
   it('shuffle and cancel giphy animation message() - type into a DOM element', () => {
-    const input = '/giphy smile';
+    const input = '/giphy run';
     cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
       .type(input, { timeout: 10000 })
       .type('{enter}');
@@ -26,7 +26,7 @@ context('Actions', () => {
     cy.get('[data-testid=image_action]').contains('Cancel').click().should('exist');
   });
   it('send giphy animation message() - type into a DOM element', () => {
-    const input = '/giphy smile';
+    const input = '/giphy dance';
     cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
       .focus()
       .type(input, { timeout: 10000 })
