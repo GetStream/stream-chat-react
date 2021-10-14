@@ -14,15 +14,12 @@ context('Actions', () => {
 
   })  
     it('Get first channel text and send text', () => { 
-      const channel_last_preview = 'channel-preview-button'
       const channel_more = 'load-more-button'
       // get first channel text
       cy.xpath("//button[@data-testid='channel-preview-button']").first().invoke('text')
-      //cy.get('[data-testid="channel-preview-button"]').first().invoke('text')
       const input = 'Last channel text {enter}'
       cy.dataTestContains(channel_more).click({force: true}).should('be.visible')
       cy.wait(1000)
-      cy.dataTestContains(channel_more).click({force: true}).should('be.visible')
       cy.dataTestContains('channel-preview-button').last().click().invoke('text')
       cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
         .type(input, {timeout:100})
