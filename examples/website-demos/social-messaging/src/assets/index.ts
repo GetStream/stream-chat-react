@@ -7,6 +7,7 @@ export { BlankAvatar } from './BlankAvatar';
 export { Chats } from './Chats';
 export { ClearSearch } from './ClearSearch';
 export { CloseX } from './CloseX';
+export { CloseSnackbar } from './CloseSnackbar';
 export { ConnectionStatusError } from './ConnectionStatusError';
 export { CommandBolt } from './CommandBolt';
 export { CopyMessage } from './CopyMessage';

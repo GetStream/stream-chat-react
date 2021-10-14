@@ -9,7 +9,6 @@ import type { Channel, UserResponse } from 'stream-chat';
 import './ActionsModal.scss';
 
 type Props = {
-  setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   userActionType: UserActions;
   dmChannel?: Channel;
   messageActionUser?: string;
@@ -17,10 +16,10 @@ type Props = {
 };
 
 export const ActionsModal: React.FC<Props> = (props) => {
-  const { dmChannel, messageActionUser, participantProfile, setSnackbar, userActionType } = props;
+  const { dmChannel, messageActionUser, participantProfile, userActionType } = props;
 
   const { client } = useChatContext();
-  const { setActionsModalOpenId, setUserActionType } = useViewContext();
+  const { setActionsModalOpenId, setSnackbar, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
 
   let Icon;
@@ -43,7 +42,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
     case 'flag':
       Icon = FlagMessage;
       title = 'Flag message';
-      description = 'You will flag them for moderation by the chat admin.';
+      description = 'You will flag this message for moderation by the chat admin.';
       break;
 
     case 'copy':
@@ -76,7 +75,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
       } else if (action === 'unmute') {
         await client.unmuteUser(actionUserId);
       } else if (action === 'flag') {
-        await client.flagUser(actionUserId); // flagMessage(message.id)
+        await client.flagMessage(message.id);
       } else if (action === 'copy') {
         if (message.text) await navigator.clipboard.writeText(message.text);
       }

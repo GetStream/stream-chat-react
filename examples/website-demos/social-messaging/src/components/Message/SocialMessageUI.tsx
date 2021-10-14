@@ -113,7 +113,6 @@ export const SocialMessage: React.FC<
   // const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [messageActionUser, setMessageActionUser] = useState<string>();
   const [participantProfile, setParticipantProfile] = useState<UserResponse>();
-  const [snackbar, setSnackbar] = useState(false);
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
@@ -172,7 +171,6 @@ export const SocialMessage: React.FC<
           // dmChannel={dmChannel}
           messageActionUser={messageActionUser}
           participantProfile={participantProfile}
-          setSnackbar={setSnackbar}
           userActionType={userActionType}
         />
       )}

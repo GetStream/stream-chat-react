@@ -17,7 +17,9 @@ type ViewContextValue = {
   setNewChat: React.Dispatch<React.SetStateAction<boolean>>;
   setReactionsOpenId: React.Dispatch<React.SetStateAction<string>>;
   setSideDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
   setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
+  snackbar: boolean;
   userActionType?: UserActions;
 };
 
@@ -31,6 +33,7 @@ export const ViewProvider: React.FC = ({ children }) => {
   const [isNewChat, setNewChat] = useState(false);
   const [mentionsUnreadCount, setMentionsUnreadCount] = useState(0);
   const [reactionsOpenId, setReactionsOpenId] = useState('');
+  const [snackbar, setSnackbar] = useState(false);
   const [userActionType, setUserActionType] = useState<UserActions>();
 
   const contextValue: ViewContextValue = {
@@ -48,7 +51,9 @@ export const ViewProvider: React.FC = ({ children }) => {
     setNewChat,
     setReactionsOpenId,
     setSideDrawerOpen,
+    setSnackbar,
     setUserActionType,
+    snackbar,
     userActionType,
   };
 
