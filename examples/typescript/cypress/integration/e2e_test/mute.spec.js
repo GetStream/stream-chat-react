@@ -19,7 +19,7 @@ context('Actions', () => {
       .type('{enter}');
   });
   it('Mute User', function () {
-    // hiding sub-menu Mute
+    // hiding sub-menu Mute and requires message from another user 
     cy.dataTestContains('channel-preview-button')
       .first()
       .next()
@@ -43,7 +43,7 @@ context('Actions', () => {
       });
   });
   it('Unmute User', function () {
-    // hiding sub-menu Unmute
+    // hiding sub-menu Unmute and requires message from another user 
     cy.dataTestContains('channel-preview-button')
       .first()
       .next()
