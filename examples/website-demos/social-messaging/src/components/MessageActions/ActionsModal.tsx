@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 
-import { CopyMessage, FlagMessage, MuteUser } from '../../assets';
+import { CopyMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
 import { useViewContext, UserActions } from '../../contexts/ViewContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
@@ -54,6 +54,18 @@ export const ActionsModal: React.FC<Props> = (props) => {
         ? `"${message.text.slice(0, 18)}..."`
         : `"${message.text.slice(0, 20)}"`;
       break;
+
+    case 'pin':
+      Icon = PinMessage;
+      title = 'Pin message';
+      description = 'You will pin this message to the conversation.';
+      break;
+
+    case 'unpin':
+      Icon = PinMessage;
+      title = 'Unpin message';
+      description = 'You will unpin this message from the conversation.';
+      break;
   }
 
   const handleCancel = () => {
@@ -78,6 +90,10 @@ export const ActionsModal: React.FC<Props> = (props) => {
         await client.flagMessage(message.id);
       } else if (action === 'copy') {
         if (message.text) await navigator.clipboard.writeText(message.text);
+      } else if (action === 'pin') {
+        await client.pinMessage(message.id);
+      } else if (action === 'unpin') {
+        await client.unpinMessage(message.id);
       }
     } catch (err) {
       console.log(err);

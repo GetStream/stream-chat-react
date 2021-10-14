@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ReactEventHandler, useChatContext, useMessageContext } from 'stream-chat-react';
+import {
+  ReactEventHandler,
+  useChannelStateContext,
+  useChatContext,
+  useMessageContext,
+} from 'stream-chat-react';
 
 import {
   CopyMessage,
@@ -39,11 +44,12 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   } = props;
 
   const { client, mutes } = useChatContext();
+  const { pinnedMessages } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
 
-
   const [isUserMuted, setIsUserMuted] = useState(false);
+  const [isMessagePinned, setIsMessagePinned] = useState(false);
 
   useEffect(() => {
     if (mutes.length) {
@@ -56,6 +62,15 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       setIsUserMuted(actionUserIsMuted);
     }
   }, [mutes.length]); // eslint-disable-line
+
+  useEffect(() => {
+    if (pinnedMessages!.length) {
+      // fix !'s
+
+      const messageIsPinned = pinnedMessages!.some((pin) => pin.id === message.id);
+      setIsMessagePinned(messageIsPinned);
+    }
+  }, [pinnedMessages]); // eslint-disable-line
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
@@ -81,9 +96,6 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   };
 
   const isOwnUser = client.userID === participantProfile?.id || client.userID === user?.id;
-  // const copyText = () => {
-  //   if (message.text) navigator.clipboard.writeText(message.text);
-  // }
 
   return (
     <div className='dropdown'>
@@ -103,9 +115,12 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
         <CopyMessage />
         <div className='dropdown-option-text'>Copy Message</div>
       </div>
-      <div className='dropdown-option' onClick={openThread}>
+      <div
+        className='dropdown-option'
+        onClick={() => handleClick(isMessagePinned ? 'unpin' : 'pin')}
+      >
         <PinMessage />
-        <div className='dropdown-option-text'>Pin to Conversation</div>
+        <div className='dropdown-option-text'>{isMessagePinned ? 'Unpin from' : 'Pin to'} Conversation</div>
       </div>
       {!isOwnUser && (
         <>
@@ -118,7 +133,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
             onClick={() => handleClick(isUserMuted ? 'unmute' : 'mute')}
           >
             <MuteUser />
-            <div className='dropdown-option-text'>{isUserMuted ? 'Unmute User' : 'Mute User'}</div>
+            <div className='dropdown-option-text'>{isUserMuted ? 'Unmute' : 'Mute'} User</div>
           </div>
         </>
       )}

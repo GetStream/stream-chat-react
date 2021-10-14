@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CloseSnackbar, CopyMessage, FlagMessage, MuteUser } from '../../assets';
+import { CloseSnackbar, CopyMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
 import { UserActions, useViewContext } from '../../contexts/ViewContext';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 };
 
 export const Snackbar: React.FC<Props> = (props) => {
-  const {  userActionType } = props;
+  const { userActionType } = props;
   const { setSnackbar } = useViewContext();
 
   let Icon;
@@ -33,6 +33,16 @@ export const Snackbar: React.FC<Props> = (props) => {
     case 'copy':
       Icon = CopyMessage;
       title = 'Message successfully copied';
+      break;
+
+    case 'pin':
+      Icon = PinMessage;
+      title = 'Message successfully pinned';
+      break;
+
+    case 'unpin':
+      Icon = PinMessage;
+      title = 'Message successfully unpinned';
       break;
   }
 

@@ -77,6 +77,7 @@ ul.str-chat__simple-reactions-list {
   align-items: center;
   background: $white;
   box-shadow: 0 0 0 2px $app-bg;
+  // box-shadow: $shadow;
 }
 
 .my-message .str-chat__simple-reactions-list {
@@ -143,6 +144,7 @@ li.str-chat__simple-reactions-list-item--last-number {
   font-size: 20px;
   font-weight: 600;
   z-index: 3;
+  box-shadow: $shadow;
 
   &-users {
     font-size: 13px;

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 
-export type UserActions = 'reply' | 'flag' | 'mute' | 'unmute' | 'copy';
+export type UserActions = 'reply' | 'flag' | 'mute' | 'unmute' | 'copy' | 'pin' | 'unpin';
 
 type ViewContextValue = {
   actionsModalOpenId: string;
