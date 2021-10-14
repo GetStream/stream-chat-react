@@ -48,8 +48,12 @@ export const ActionsModal: React.FC<Props> = (props) => {
 
     case 'copy':
       Icon = CopyMessage;
-      title = 'Copy message';
-      description = 'Copy this message.';
+      title = 'Copy Message';
+      description = !message.text
+        ? 'No text to copy'
+        : message.text.length > 20
+        ? `"${message.text.slice(0, 18)}..."`
+        : `"${message.text.slice(0, 20)}"`;
       break;
   }
 
@@ -97,8 +101,10 @@ export const ActionsModal: React.FC<Props> = (props) => {
           <div>{description}</div>
         </div>
         <div className='actions-modal-buttons'>
-          <div onClick={handleCancel}>Cancel</div>
-          <div onClick={() => handleAction(userActionType)}>{title}</div>
+          <div onClick={handleCancel}>CANCEL</div>
+          <div onClick={() => handleAction(userActionType)}>
+            {title.split(' ')[0].toUpperCase()}
+          </div>
         </div>
       </div>
     </div>

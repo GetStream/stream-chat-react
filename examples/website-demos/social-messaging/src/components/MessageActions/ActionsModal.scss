@@ -20,7 +20,8 @@
     display: flex;
     flex-direction: column;
     color: $text-high-emphasis;
-    font-size: 14px;
+    font-size: 17px;
+    box-shadow: $shadow;
 
     &-content {
       display: flex;
