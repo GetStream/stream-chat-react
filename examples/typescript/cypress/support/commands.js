@@ -23,26 +23,26 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-import 'cypress-file-upload'
-import 'cypress-wait-until'
+import 'cypress-file-upload';
+import 'cypress-wait-until';
 import '@testing-library/cypress/add-commands';
 
 Cypress.Commands.add('dataTest', { prevSubject: 'optional' }, (subject, value, options) => {
-    if (subject) {
-      return cy.wrap(subject).find(`[data-testid=${value}]`, options);
-    }
-  
-    return cy.get(`[data-testid=${value}]`, options);
-  });
+  if (subject) {
+    return cy.wrap(subject).find(`[data-testid=${value}]`, options);
+  }
 
-  Cypress.Commands.add(
-    'dataTestContains',
-    { prevSubject: 'optional' },
-    (subject, value, wildCard = '*', options) => {
-      if (subject) {
-        return cy.wrap(subject).find(`[data-testid${wildCard}=${value}]`, options);
-      }
-  
-      return cy.get(`[data-testid${wildCard}=${value}]`, options);
+  return cy.get(`[data-testid=${value}]`, options);
+});
+
+Cypress.Commands.add(
+  'dataTestContains',
+  { prevSubject: 'optional' },
+  (subject, value, wildCard = '*', options) => {
+    if (subject) {
+      return cy.wrap(subject).find(`[data-testid${wildCard}=${value}]`, options);
     }
-  );
+
+    return cy.get(`[data-testid${wildCard}=${value}]`, options);
+  },
+);

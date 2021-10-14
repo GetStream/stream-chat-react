@@ -1,0 +1,159 @@
+@import './_variables';
+
+.rooms-list {
+  &-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 57px);
+    background: $stroke;
+    transition: background 1s;
+    overflow: scroll;
+
+    &-cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-header {
+    display: flex;
+    background: $app-canvas;
+    transition: background 1s;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid $stroke;
+    box-sizing: border-box;
+    position: relative;
+
+    &-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &-main {
+        font-size: 18px;
+        font-weight: 600;
+        color: $text-high-emphasis;
+      }
+
+      &-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: $text-mid-emphasis;
+        margin-left: 8px;
+      }
+    }
+
+    &-calendar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+      background: $card-background;
+      transition: background 1s;
+      cursor: pointer;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+  }
+
+  &-video {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 57px);
+
+    &-hidden {
+      display: none;
+    }
+  }
+
+  &-card {
+    border-radius: 16px;
+    width: 300px;
+    margin: 16px 0;
+    background: $app-canvas;
+
+    .event-card-container {
+      flex-direction: column;
+      margin: 0;
+      height: 100%;
+    }
+
+    .event-card-title {
+      margin-bottom: 8px;
+      flex: unset;
+
+      svg {
+        width: 18px;
+      }
+    }
+
+    .event-card-content {
+      width: unset;
+      height: 100%;
+      margin: 10px;
+      &-content {
+        margin-bottom: 8px;
+      }
+    }
+
+    .event-card-image {
+      width: 100%;
+
+      svg {
+        height: auto;
+        width: 100%;
+      }
+    }
+
+    .event-card-viewers {
+      &-right {
+        margin-left: 16px;
+
+        &-count {
+          margin-left: 4px;
+        }
+      }
+
+      &-left {
+        &-count {
+          margin-left: 4px;
+        }
+      }
+    }
+  }
+
+  &-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: scroll;
+    box-shadow: $shadow;
+    height: 660px;
+    width: 280px;
+    background: $stroke;
+    position: absolute;
+    right: 0px;
+    top: 56px;
+    border-radius: 2px;
+    padding-top: 16px;
+    z-index: 999;
+
+    .rooms-list-card {
+      margin: 0;
+      margin-bottom: 16px;
+      width: calc(100% - 32px);
+    }
+  }
+}

@@ -24,8 +24,16 @@ export const useUserRole = <
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const { channel, channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('useUserRole');
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserRole');
 
   const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
   const isMyMessage = client.userID === message.user?.id;
@@ -36,13 +44,19 @@ export const useUserRole = <
     channel.state.membership.role === 'channel_moderator' ||
     channel.state.membership.role === 'moderator';
 
-  const canEdit = isMyMessage || (!onlySenderCanEdit && (isModerator || isAdmin));
-  const canDelete = isMyMessage || isModerator || isAdmin;
+  const canEdit =
+    (!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
+    (isMyMessage && channelCapabilities['update-own-message']);
+
+  const canDelete =
+    channelCapabilities['delete-any-message'] ||
+    (isMyMessage && channelCapabilities['delete-own-message']);
+
   const canFlag = !isMyMessage;
   const canMute = !isMyMessage && channelConfig?.mutes;
   const canQuote = !disableQuotedMessages;
-  const canReact = channelConfig?.reactions;
-  const canReply = channelConfig?.replies;
+  const canReact = channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
+  const canReply = channelConfig?.replies !== false && channelCapabilities['send-reply'];
 
   return {
     canDelete,

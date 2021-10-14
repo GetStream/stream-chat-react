@@ -121,7 +121,7 @@ export type MessageContextValue<
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute<Us>[];
-  /** The user roles allowed to pin Messages in various channel types */
+  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
   readBy?: UserResponse<Us>[];
@@ -137,7 +137,7 @@ export type MessageContextValue<
   unsafeHTML?: boolean;
 };
 
-export const MessageContext = React.createContext<MessageContextValue>({} as MessageContextValue);
+export const MessageContext = React.createContext<MessageContextValue | undefined>(undefined);
 
 export const MessageProvider = <
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -166,7 +166,21 @@ export const useMessageContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() => (useContext(MessageContext) as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+>(
+  componentName?: string,
+) => {
+  const contextValue = useContext(MessageContext);
+
+  if (!contextValue) {
+    console.warn(
+      `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
+    );
+
+    return {} as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  }
+
+  return (contextValue as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if MessageContext

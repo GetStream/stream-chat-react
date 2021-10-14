@@ -1,0 +1,234 @@
+@import './_variables';
+
+.str-chat__virtual-list .str-chat__virtual-list-message-wrapper {
+  background: unset;
+  padding: 0px;
+}
+
+.str-chat__message-replies-count-button svg {
+  display: none;
+}
+
+.message-ui {
+  position: relative;
+  display: flex;
+  font-size: 14px;
+  color: $text-high-emphasis;
+  padding: 8px;
+  background: $app-canvas;
+  transition: background 0s;
+
+  &:hover {
+    background: $card-background;
+  }
+
+  &.theme-open {
+    transition: background 1s;
+  }
+
+  &-options {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+
+    span:first-child {
+      margin-right: 8px;
+    }
+
+    svg {
+      &:hover {
+        cursor: pointer;
+
+        path {
+          transition: fill 0.2s;
+          fill: $primary-accent;
+        }
+      }
+    }
+
+    &-dropdown {
+      position: absolute;
+      margin-top: 4px;
+      right: -8px;
+
+      &.recent {
+        margin-top: 0;
+        bottom: 145px;
+      }
+
+      &.recent.mine {
+        bottom: 64px;
+      }
+    }
+  }
+
+  &-reaction-selector {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 40px;
+    width: 216px;
+    background: $app-canvas;
+    border-radius: 20px;
+    filter: drop-shadow(0px 0px 8px rgba(0, 0, 0, 0.15));
+    right: 8px;
+    top: -40px;
+    z-index: 99999;
+
+    &.top {
+      top: 0px;
+    }
+
+    span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      width: 36px;
+
+      &:hover {
+        cursor: pointer;
+        background: $stroke;
+        border-radius: 20px;
+      }
+    }
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 4px;
+
+    &-top {
+      display: flex;
+      align-items: center;
+
+      &-name {
+        font-weight: 600;
+        margin-right: 4px;
+      }
+
+      &-title {
+        color: $primary-accent;
+        font-size: 12px;
+        margin-right: 4px;
+      }
+
+      &-time {
+        color: $text-mid-emphasis;
+        font-size: 12px;
+      }
+    }
+  }
+
+  &-qa {
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    margin-left: auto;
+    background: $card-background;
+    transition: background 1s;
+    cursor: pointer;
+
+    &.up-voted {
+      background: $primary-accent;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
+    }
+
+    svg {
+      margin: 14px 6px 14px 11px;
+      fill: $text-low-emphasis;
+    }
+
+    &-text {
+      margin-right: 14px;
+    }
+
+    &:hover {
+      cursor: pointer;
+      color: $primary-accent;
+      background: $app-canvas;
+      transition: none;
+
+      svg {
+        fill: $primary-accent;
+      }
+    }
+
+    &:active {
+      background: $primary-accent;
+      transition: none;
+      color: $white;
+
+      svg {
+        fill: $white;
+      }
+    }
+  }
+
+  .str-chat__avatar {
+    margin-right: 0;
+    margin-top: 4px;
+  }
+
+  .str-chat__message-attachment {
+    border-radius: 8px;
+  }
+
+  .str-chat__message-attachment-card {
+    border-width: 1px;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-width: 250px;
+    border-color: $stroke;
+
+    &--content {
+      background: $app-canvas;
+      transition: background 1s;
+    }
+  }
+
+  .str-chat__message-attachment--giphy {
+    max-width: 175px;
+
+    .str-chat__message-attachment-card--header {
+      height: 175px;
+    }
+
+    .str-chat__message-attachment-card--content {
+      display: none;
+    }
+
+    .str-chat__message-attachment-card--url {
+      font-size: 8px;
+    }
+  }
+
+  .str-chat__simple-reactions-list {
+    border-radius: 99px;
+    border-color: $stroke;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 1px 12px 0px;
+    margin-top: 4px;
+
+    .emoji-mart-emoji {
+      span {
+        height: 16px !important;
+        width: 16px !important;
+      }
+    }
+
+    .str-chat__simple-reactions-list-item--last-number {
+      color: $text-high-emphasis;
+      font-size: 12px;
+    }
+  }
+}

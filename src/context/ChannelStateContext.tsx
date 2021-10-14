@@ -74,6 +74,7 @@ export type ChannelStateContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo<Co> | undefined;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
@@ -83,8 +84,8 @@ export type ChannelStateContextValue<
   watcher_count?: number;
 };
 
-export const ChannelStateContext = React.createContext<ChannelStateContextValue>(
-  {} as ChannelStateContextValue,
+export const ChannelStateContext = React.createContext<ChannelStateContextValue | undefined>(
+  undefined,
 );
 
 export const ChannelStateProvider = <
@@ -114,16 +115,21 @@ export const useChannelStateContext = <
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
->() =>
-  (useContext(ChannelStateContext) as unknown) as ChannelStateContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >;
+>(
+  componentName?: string,
+) => {
+  const contextValue = useContext(ChannelStateContext);
+
+  if (!contextValue) {
+    console.warn(
+      `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
+    );
+
+    return {} as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  }
+
+  return (contextValue as unknown) as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+};
 
 /**
  * Typescript currently does not support partial inference, so if ChannelStateContext

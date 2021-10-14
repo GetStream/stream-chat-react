@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import throttle from 'lodash.throttle';
 
+import { SearchLocalUserParams, searchLocalUsers } from './utils';
+
 import { UserItem } from '../../UserItem/UserItem';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -26,6 +28,7 @@ export type UserTriggerParams<Us extends DefaultUserType<Us> = DefaultUserType> 
   disableMentions?: boolean;
   mentionAllAppUsers?: boolean;
   mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
+  useMentionsTransliteration?: boolean;
 };
 
 export const useUserTrigger = <
@@ -39,12 +42,18 @@ export const useUserTrigger = <
 >(
   params: UserTriggerParams<Us>,
 ): UserTriggerSetting<Us> => {
-  const { disableMentions, mentionAllAppUsers, mentionQueryParams = {}, onSelectUser } = params;
+  const {
+    disableMentions,
+    mentionAllAppUsers,
+    mentionQueryParams = {},
+    onSelectUser,
+    useMentionsTransliteration,
+  } = params;
 
   const [searching, setSearching] = useState(false);
 
-  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client, mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useUserTrigger');
 
   const { members } = channel.state;
   const { watchers } = channel.state;
@@ -153,22 +162,20 @@ export const useUserTrigger = <
       if (!query || Object.values(members || {}).length < 100) {
         const users = getMembersAndWatchers();
 
-        const matchingUsers = users.filter((user) => {
-          if (user.id === client.userID) return false;
-          if (!query) return true;
+        const params: SearchLocalUserParams<Us> = {
+          ownUserId: client.userID,
+          query,
+          text,
+          useMentionsTransliteration,
+          users,
+        };
 
-          if (user.name !== undefined && user.name.toLowerCase().includes(query.toLowerCase())) {
-            return true;
-          }
-
-          return user.id.toLowerCase().includes(query.toLowerCase());
-        });
+        const matchingUsers = searchLocalUsers<Us>(params);
 
         const usersToShow = mentionQueryParams.options?.limit || 10;
         const data = matchingUsers.slice(0, usersToShow);
 
         if (onReady) onReady(filterMutes(data), query);
-
         return data;
       }
 

@@ -23,7 +23,7 @@ export const useConnectionRecoveredListener = <
 >(
   forceUpdate?: () => void,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useConnectionRecoveredListener');
 
   useEffect(() => {
     const handleEvent = () => {

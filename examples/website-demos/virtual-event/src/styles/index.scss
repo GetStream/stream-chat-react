@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css?family=Inter');
+
+@import './App.scss';
+@import './CentralPanel.scss';
+@import './ChatContainer.scss';
+@import './DMChannel.scss';
+@import './DMChannelList.scss';
+@import './EventCard.scss';
+@import './EventsList.scss';
+@import './GiphyPreview.scss';
+@import './MessageUI.scss';
+@import './MessageInputUI.scss';
+@import './Navigation.scss';
+@import './OverviewContainer.scss';
+@import './ParticipantProfile.scss';
+@import './ParticipantSearch.scss';
+@import './RoomsList.scss';
+@import './ThreadUI.scss';
+@import './RoomVideo.scss';
+@import './UserActionsModal.scss';
+@import './VideoContainer.scss';
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

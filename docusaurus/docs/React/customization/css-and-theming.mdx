@@ -20,7 +20,8 @@ default container CSS.
 
 To override pre-defined library styles, follow this simple process:
 
-- Import our bundled CSS into the file where you instantiate your chat application
+- Import our bundled CSS into the file where you instantiate your chat application. We maintain a separate repository, `stream-chat-css`,
+  which houses all of the SCSS files for the components.
 
 - Use the browser inspector or view the library code and locate default styles you wish to override
 
@@ -31,7 +32,7 @@ To override pre-defined library styles, follow this simple process:
 For example:
 
 ```jsx
-import 'stream-chat-react/dist/css/index.css';
+import 'stream-chat-css/dist/css/index.css';
 import './App.css';
 ```
 
@@ -40,7 +41,7 @@ import './App.css';
 As an alternative to importing our entire style sheet (perhaps, due to it's size), there's also the option to easily assemble only
 what you need by importing individual scss files. The imports should happen in the file where you instantiate your application.
 
-Here's a complete [list of scss files](https://unpkg.com/browse/stream-chat-react@6.4.7/dist/scss/) broken down by size and with the
+Here's a complete [list of scss files](https://unpkg.com/browse/stream-chat-css@1.0.17/dist/scss/) broken down by size and with the
 option of filtering by SDK version.
 
 :::note
@@ -84,6 +85,7 @@ const App = () => (
 The accepted object keys and the default classnames they override are as follows:
 
 - chat - `str-chat`
+- chatContainer - `str-chat__container`
 - channel - `str-chat-channel`
 - channelList - `str-chat-channel-list`
 - message - `str-chat__li str-chat__li--${groupStyles}`
@@ -101,7 +103,7 @@ that makes the list UI perform optimally.
 ### CSS Variables
 
 To make more sweeping stylistic changes to the default CSS, the library exposes a variety of
-[CSS variables](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss) that can be
+[CSS variables](https://github.com/GetStream/stream-chat-css/blob/main/src/styles/_variables.scss) that can be
 adjusted with props. The `Chat` component accepts a `customStyles` prop, an object type with keys as the CSS variables
 you wish to change and values for the corresponding, adjusted CSS.
 
@@ -185,6 +187,6 @@ const darkModeTheme: CustomStyles = {
 #### Variables Reference
 
 A complete reference of all supported CSS variables, as well as their default values, can be found within our
-[SCSS variables file](https://github.com/GetStream/stream-chat-react/blob/master/src/styles/_variables.scss).
+[SCSS variables file](https://github.com/GetStream/stream-chat-css/blob/main/src/styles/_variables.scss).
 Any of the CSS variables (prepended with `--`) can be overridden via the `customStyles` approach detailed
 above.

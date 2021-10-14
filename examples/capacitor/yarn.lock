@@ -1540,6 +1540,14 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
+"@sindresorhus/transliterate@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@sindresorhus/transliterate/-/transliterate-1.4.0.tgz#4648facf68e665147281dce4207a89374a3725b7"
+  integrity sha512-4X91xgzgEnD96QAVmn3YXl14FRhZI8eyWVP7MwYr33kMdkLgoHeCOi7+Ad2Uar+0kpbfiDHW1qUXioJjcXnwPg==
+  dependencies:
+    escape-string-regexp "^5.0.0"
+    lodash.deburr "^4.1.0"
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -4706,6 +4714,11 @@ escape-string-regexp@^4.0.0:
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz#14ba83a5d373e3d311e5afca29cf5bfad965bf34"
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
+escape-string-regexp@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-5.0.0.tgz#4683126b500b61762f2dbebace1806e8be31b1c8"
+  integrity sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==
+
 escodegen@^1.11.0, escodegen@^1.9.1:
   version "1.14.3"
   resolved "https://registry.yarnpkg.com/escodegen/-/escodegen-1.14.3.tgz#4e7b81fba61581dc97582ed78cab7f0e8d63f503"
@@ -7629,6 +7642,11 @@ lodash.debounce@^4.0.8:
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
+lodash.deburr@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/lodash.deburr/-/lodash.deburr-4.1.0.tgz#ddb1bbb3ef07458c0177ba07de14422cb033ff9b"
+  integrity sha1-3bG7s+8HRYwBd7oH3hRCLLAz/5s=
+
 lodash.includes@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/lodash.includes/-/lodash.includes-4.3.0.tgz#60bb98a87cb923c68ca1e51325483314849f553f"
@@ -10101,10 +10119,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.5.tgz#3e7bba5bd63736747df98eb308ed1a8ad0012387"
-  integrity sha512-nYOA/BvyQU92byIJaA5p/mQtBsXCLQjzdM2KTJNQFapxIypXa6U49RaqUQCQ+N9xDTAir372kVDFQfDoEOoGmA==
+react-file-utils@1.1.7:
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.7.tgz#4888f7fecde43a0a67bdfac61af4a3ad0c7c8087"
+  integrity sha512-Y0gI0PnJDWqofxJosGNw2GnyAexsx1QTlkikP5o0SvkrZHySaL28GL5LZ8QMXolOvqErkgnREZQmsTsL/5CjTg==
   dependencies:
     react-dropzone "11.3.4"
 
@@ -11403,14 +11421,19 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
+stream-chat-css@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.0.tgz#4bb204825edb8931784fb414253e284b2a2cb273"
+  integrity sha512-PqV7ikbV9WsWDjc48RolSHdCtdKC6U/zmmz2V8ZhTPz6DV1dpmkQnd0mKoSSi7jlmtwHzGEEQyCtzg/396tbwg==
+
 "stream-chat-react@link:../..":
   version "0.0.0"
   uid ""
 
-stream-chat@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-4.0.0.tgz#7aec92015c8d1a2ee1344ca32b2f51a70cace600"
-  integrity sha512-u4oTd4d19E23t0IVj60G/DhJVNIEUUQt7SI8Zx8Rhum9GLfQ8VwXsgcJYUsLHaiIjpMVjttyoYmR/F8RP8f3+w==
+stream-chat@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-4.2.0.tgz#1ccf93d2e9e79708d876eabd421c5008beaf6da7"
+  integrity sha512-wfm6VwXfLSTBO1f4JN6J5SvRV8fFza0Wxqq8zcW1acLJtMAVZ2+vfLOwws86PKexRNeoe8dHSC/sIRhoAEpr+Q==
   dependencies:
     "@babel/runtime" "^7.13.10"
     "@types/jsonwebtoken" "^8.5.0"

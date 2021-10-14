@@ -36,9 +36,9 @@ export const useFileUploads = <
   const { doFileUploadRequest, errorHandler } = props;
   const { fileUploads } = state;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
+  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
+  const { t } = useTranslationContext('useFileUploads');
 
   const uploadFile = useCallback((id) => {
     dispatch({ id, state: 'uploading', type: 'setFileUpload' });

@@ -39,9 +39,9 @@ export const useMuteHandler = <
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
   notifications: MuteUserNotifications<Us> = {},
 ): ReactEventHandler => {
-  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t } = useTranslationContext();
+  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMuteHandler');
+  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useMuteHandler');
+  const { t } = useTranslationContext('useMuteHandler');
 
   return async (event) => {
     event.preventDefault();

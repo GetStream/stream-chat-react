@@ -24,8 +24,9 @@ export const useCommandTrigger = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(): CommandTriggerSetting<Co> => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const commands = channel?.getConfig?.()?.commands;
+  const { channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useCommandTrigger');
+
+  const commands = channelConfig?.commands;
 
   return {
     component: CommandItem,

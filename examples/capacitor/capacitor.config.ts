@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: 'capacitor.test',
   appName: 'capacitor',
   webDir: 'build',
-  bundledWebRuntime: false
+  bundledWebRuntime: false,
 };
 
 export default config;

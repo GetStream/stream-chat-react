@@ -1,33 +1,44 @@
 import React from 'react';
+
 import { useTranslationContext } from '../../context/TranslationContext';
 
+export type CurrentTrigger<T extends string = string> = '/' | '@' | ':' | T;
+
 export type SuggestionListHeaderProps = {
+  currentTrigger: CurrentTrigger;
   value: string;
 };
 
-export const DefaultSuggestionListHeader: React.FC<SuggestionListHeaderProps> = ({ value }) => {
-  const { t } = useTranslationContext();
+export const DefaultSuggestionListHeader: React.FC<SuggestionListHeaderProps> = (props) => {
+  const { currentTrigger, value } = props;
 
-  if (value[0] === '/') {
+  const { t } = useTranslationContext('DefaultSuggestionListHeader');
+
+  const triggerIndex = value.lastIndexOf(currentTrigger);
+
+  if (currentTrigger === '/') {
     return (
       <>
-        {t('Commands matching')} <strong>{value.replace('/', '')}</strong>
+        {t('Commands matching')} <strong>{value.slice(triggerIndex + 1)}</strong>
       </>
     );
   }
-  if (value[0] === ':') {
+
+  if (currentTrigger === ':') {
     return (
       <>
-        {t('Emoji matching')} <strong>{value.replace(':', '')}</strong>
+        {t('Emoji matching')} <strong>{value.slice(triggerIndex + 1)}</strong>
       </>
     );
   }
-  if (value[0] === '@') {
+
+  if (currentTrigger === '@') {
     return (
       <>
-        {t('People matching')} <strong>{value.replace('@', '')}</strong>
+        {t('People matching')} <strong>{value.slice(triggerIndex + 1)}</strong>
       </>
     );
   }
+
   return null;
 };

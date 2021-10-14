@@ -4,6 +4,7 @@ import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
 
 import { useCooldownTimer } from './hooks/useCooldownTimer';
+import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -81,7 +82,7 @@ export type MessageInputProps<
   mentionQueryParams?: SearchQueryParams<Us>['userFilters'];
   /** If provided, the existing message will be edited on submit */
   message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  /** If true, disables file uploads. Default: false */
+  /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
   overrideSubmitHandler?: (
@@ -92,6 +93,8 @@ export type MessageInputProps<
   parent?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
+  /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/sindresorhus/transliterate */
+  useMentionsTransliteration?: boolean;
 };
 
 const UnMemoizedMessageInput = <
@@ -117,7 +120,7 @@ const UnMemoizedMessageInput = <
     Re,
     Us,
     V
-  >();
+  >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
 
@@ -125,11 +128,11 @@ const UnMemoizedMessageInput = <
 
   const cooldownTimerState = useCooldownTimer<At, Ch, Co, Ev, Me, Re, Us>();
 
-  const messageInputContextValue = {
+  const messageInputContextValue = useCreateMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
-  };
+  });
 
   return (
     <MessageInputContextProvider<At, Ch, Co, Ev, Me, Re, Us, V> value={messageInputContextValue}>

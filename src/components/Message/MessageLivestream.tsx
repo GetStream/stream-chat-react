@@ -84,16 +84,6 @@ const MessageLivestreamWithContext = <
     unsafeHTML,
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >();
-
   const {
     Attachment,
     Avatar = DefaultAvatar,
@@ -101,10 +91,11 @@ const MessageLivestreamWithContext = <
     MessageDeleted = DefaultMessageDeleted,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     PinIndicator = DefaultPinIndicator,
+    QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
-  const { t, userLanguage } = useTranslationContext();
+  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
+  const { t, userLanguage } = useTranslationContext('MessageLivestream');
 
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
@@ -272,7 +263,9 @@ const MessageLivestreamActions = <
 ) => {
   const { messageWrapperRef, onReactionListClick } = props;
 
-  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'MessageLivestream',
+  );
 
   const {
     getMessageActions,
@@ -280,7 +273,7 @@ const MessageLivestreamActions = <
     initialMessage,
     message,
     threadList,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -380,7 +373,7 @@ export const MessageLivestream = <
 >(
   props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);

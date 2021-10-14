@@ -129,7 +129,7 @@ export const List = (props) => {
   return (
     <ul className={`rta__list ${className || ''}`} style={style}>
       <li className='rta__list-header'>
-        <SuggestionHeader value={propValue} />
+        <SuggestionHeader currentTrigger={currentTrigger} value={propValue} />
       </li>
       {values.map((item, i) => (
         <SuggestionItem
@@ -144,6 +144,7 @@ export const List = (props) => {
           }}
           selected={isSelected(item)}
           style={itemStyle}
+          value={propValue}
         />
       ))}
     </ul>

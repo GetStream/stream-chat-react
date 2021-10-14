@@ -1,11 +1,9 @@
 {
   "baseurl": "http://localhost:3000",
-  "yarn cypress open" : "./node_modules/.bin/cypress open",
+  "yarn cypress open": "./node_modules/.bin/cypress open",
   "env": {
     "cypress-react-selector": {
-        "root": "#root"
-      }
-  
+      "root": "#root"
+    }
   }
-    
-  }
+}
