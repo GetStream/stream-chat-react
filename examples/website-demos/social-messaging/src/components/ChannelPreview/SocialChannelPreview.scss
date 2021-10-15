@@ -40,7 +40,6 @@
     &-avatars {
       display: flex;
       align-items: center;
-      // height: 56px;
       min-width: 40px;
       max-width: 56px;
       min-height: 40px;
@@ -52,6 +51,7 @@
   &-contents {
     margin-left: 20px;
     min-width: 200px;
+    margin-bottom: 18px;
 
     &-last-message p {
       color: $text-low-emphasis;
@@ -60,6 +60,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       font-size: 13px;
+      margin: unset;
     }
 
     &-last-message {
@@ -72,12 +73,14 @@
     }
 
     &-name {
+      margin-bottom: 2px;
+    }
+
+    &-name span {
       color: $text-high-emphasis;
       font-size: 17px;
       font-weight: 500;
-      line-height: 19.92px;
-      margin-top: 20px;
-      margin-bottom: -8px;
+      margin-bottom: 5px;
     }
   }
 
@@ -86,13 +89,13 @@
     flex-direction: column;
     margin-left: 50px;
     align-items: flex-end;
+    margin-bottom: 10px;
 
     &-unread {
-      margin-top: 20px;
-      margin-bottom: -8px;
       background-color: $accent-error;
-      border-radius: 999px;
+      border-radius: 16px;
       padding: 2px 4px;
+      margin-bottom: -5px;
 
       &.unreadCount {
         display: none;
@@ -101,8 +104,8 @@
       &-text {
         color: $white;
         font-size: 13px;
-        font-weight: 600;
-        line-height: 15px;
+        font-weight: 400;
+        // line-height: 15px;
         text-align: center;
       }
     }
@@ -119,7 +122,7 @@
       &-timestamp {
         color: $text-low-emphasis;
         font-weight: 400;
-        line-height: 15.23px;
+        line-height: 15px;
         font-size: 13px;
       }
     }
