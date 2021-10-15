@@ -1,15 +1,10 @@
 import React from 'react';
 
-import { CloseSnackbar, CopyMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
-import { UserActions, useViewContext } from '../../contexts/ViewContext';
+import { CloseSnackbar, CopyMessage, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
+import { useViewContext } from '../../contexts/ViewContext';
 
-type Props = {
-  userActionType: UserActions;
-};
-
-export const Snackbar: React.FC<Props> = (props) => {
-  const { userActionType } = props;
-  const { setSnackbar } = useViewContext();
+export const Snackbar: React.FC = () => {
+  const { setSnackbar, userActionType } = useViewContext();
 
   let Icon;
   let title;
@@ -43,6 +38,11 @@ export const Snackbar: React.FC<Props> = (props) => {
     case 'unpin':
       Icon = PinMessage;
       title = 'Message successfully unpinned';
+      break;
+
+    case 'delete':
+      Icon = DeleteMessage;
+      title = 'Message successfully deleted';
       break;
   }
 

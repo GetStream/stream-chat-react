@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { UserResponse } from 'stream-chat';
 import {
   Attachment,
   Avatar,
@@ -10,7 +9,6 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
-  StreamMessage,
 } from 'stream-chat-react';
 import {
   DeliveredCheckmark,
@@ -110,14 +108,11 @@ export const SocialMessage: React.FC<
   >();
   const { actionsModalOpenId, userActionType } = useViewContext();
 
-  // const [dmChannel, setDmChannel] = useState<StreamChannel>();
   const [messageActionUser, setMessageActionUser] = useState<string>();
-  const [participantProfile, setParticipantProfile] = useState<UserResponse>();
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const [showReactionSelector, setShowReactionSelector] = useState(false);
-  const [threadParent, setThreadParent] = useState<StreamMessage>();
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [showReactionSelector, setShowReactionSelector] = useState<boolean>(false);
 
   const clearModals = () => {
     setDropdownOpen(false);
@@ -139,6 +134,7 @@ export const SocialMessage: React.FC<
         !reactionsSelectorRef.current?.contains(event.target)
       ) {
         setShowReactionSelector(false);
+        // maybe add to actions, too?
       }
     };
 
@@ -163,14 +159,12 @@ export const SocialMessage: React.FC<
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={() => {
         // setDropdownOpen(false);
-        setShowOptions(false);
+        setShowOptions(false); // change to click outside
       }}
     >
       {actionsModalOpenId === message.id && userActionType && (
         <ActionsModal
-          // dmChannel={dmChannel}
           messageActionUser={messageActionUser}
-          participantProfile={participantProfile}
           userActionType={userActionType}
         />
       )}

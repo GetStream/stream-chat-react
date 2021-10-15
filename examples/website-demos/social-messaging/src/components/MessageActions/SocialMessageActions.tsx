@@ -18,14 +18,12 @@ import {
 } from '../../assets';
 import { useViewContext, UserActions } from '../../contexts/ViewContext';
 
-import type { Channel, UserResponse } from 'stream-chat';
+import type { UserResponse } from 'stream-chat';
 
 type Props = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  dmChannel?: Channel;
   openThread?: ReactEventHandler;
-  participantProfile?: UserResponse;
   setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   thread?: boolean;
   user?: UserResponse | null;
@@ -34,9 +32,7 @@ type Props = {
 export const SocialMessageActions: React.FC<Props> = (props) => {
   const {
     dropdownOpen,
-    dmChannel,
     openThread,
-    participantProfile,
     setDropdownOpen,
     setMessageActionUser,
     thread,
@@ -47,16 +43,14 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   const { pinnedMessages } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
+console.log(pinnedMessages);
 
   const [isUserMuted, setIsUserMuted] = useState(false);
   const [isMessagePinned, setIsMessagePinned] = useState(false);
 
   useEffect(() => {
     if (mutes.length) {
-      const actionUserId =
-        participantProfile?.id ||
-        user?.id ||
-        Object.keys(dmChannel?.state.members || []).filter((member) => member !== client.userID)[0];
+      const actionUserId = user?.id
 
       const actionUserIsMuted = mutes.some((mute) => mute.target.id === actionUserId);
       setIsUserMuted(actionUserIsMuted);
@@ -95,7 +89,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
     setUserActionType(action);
   };
 
-  const isOwnUser = client.userID === participantProfile?.id || client.userID === user?.id;
+  const isOwnUser = client.userID === user?.id;
 
   return (
     <div className='dropdown'>
@@ -139,11 +133,11 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       )}
       {isOwnUser && (
         <>
-          <div className='dropdown-option' onClick={() => handleClick('flag')}>
+          <div className='dropdown-option' onClick={() => handleClick('edit')}>
             <EditMessage />
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
-          <div className='dropdown-option delete' onClick={() => handleClick('flag')}>
+          <div className='dropdown-option delete' onClick={() => handleClick('delete')}>
             <DeleteMessage />
             <div className='dropdown-option-text'>Delete Message</div>
           </div>

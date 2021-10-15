@@ -1,5 +1,6 @@
 @import '../../styles/_variables';
 
+// Modal
 .actions {
   position: absolute;
   top: 0;
@@ -16,7 +17,7 @@
     background: $app-canvas;
     transition: background 1s;
     border-radius: 16px;
-    width: 300px;
+    width: 359px;
     display: flex;
     flex-direction: column;
     color: $text-high-emphasis;
@@ -34,6 +35,14 @@
       :nth-child(2) {
         font-weight: 600;
         margin: 8px 0;
+      }
+
+      &.delete {
+        svg {
+          path {
+            fill: $accent-error;
+          }
+        }
       }
     }
 

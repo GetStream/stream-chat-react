@@ -74,7 +74,6 @@ export const ChatContainer: React.FC = () => {
     setChatsUnreadCount,
     setMentionsUnreadCount,
     snackbar,
-    userActionType,
   } = useViewContext();
 
   // useChecklist(chatClient, targetOrigin);
@@ -138,7 +137,7 @@ export const ChatContainer: React.FC = () => {
           />
         </div>
         {isSideDrawerOpen && <SideDrawer />}
-        {snackbar && userActionType && <Snackbar userActionType={userActionType} />}
+        {snackbar && <Snackbar />}
         <Channel
           AutocompleteSuggestionHeader={SocialSuggestionListHeader}
           AutocompleteSuggestionItem={SocialSuggestionList}

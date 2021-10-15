@@ -1,22 +1,18 @@
 import React from 'react';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 
-import { CopyMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
+import { CopyMessage, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
 import { useViewContext, UserActions } from '../../contexts/ViewContext';
-
-import type { Channel, UserResponse } from 'stream-chat';
 
 import './ActionsModal.scss';
 
 type Props = {
   userActionType: UserActions;
-  dmChannel?: Channel;
   messageActionUser?: string;
-  participantProfile?: UserResponse;
 };
 
 export const ActionsModal: React.FC<Props> = (props) => {
-  const { dmChannel, messageActionUser, participantProfile, userActionType } = props;
+  const { messageActionUser, userActionType } = props;
 
   const { client } = useChatContext();
   const { setActionsModalOpenId, setSnackbar, setUserActionType } = useViewContext();
@@ -29,19 +25,19 @@ export const ActionsModal: React.FC<Props> = (props) => {
   switch (userActionType) {
     case 'mute':
       Icon = MuteUser;
-      title = 'Mute user';
+      title = 'Mute User';
       description = "You won't receive any more notifications from them.";
       break;
 
     case 'unmute':
       Icon = MuteUser;
-      title = 'Unmute user';
+      title = 'Unmute User';
       description = 'You will resume receiving notifications from them.';
       break;
 
     case 'flag':
       Icon = FlagMessage;
-      title = 'Flag message';
+      title = 'Flag Message';
       description = 'You will flag this message for moderation by the chat admin.';
       break;
 
@@ -57,14 +53,20 @@ export const ActionsModal: React.FC<Props> = (props) => {
 
     case 'pin':
       Icon = PinMessage;
-      title = 'Pin message';
+      title = 'Pin Message';
       description = 'You will pin this message to the conversation.';
       break;
 
     case 'unpin':
       Icon = PinMessage;
-      title = 'Unpin message';
+      title = 'Unpin Message';
       description = 'You will unpin this message from the conversation.';
+      break;
+
+    case 'delete':
+      Icon = DeleteMessage;
+      title = 'Delete Message';
+      description = 'Are you sure you want to permanently delete this message?';
       break;
   }
 
@@ -74,10 +76,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
   };
 
   const handleAction = async (action: UserActions) => {
-    const actionUserId =
-      participantProfile?.id ||
-      messageActionUser ||
-      Object.keys(dmChannel?.state.members || []).filter((member) => member !== client.userID)[0];
+    const actionUserId = messageActionUser;
 
     if (!actionUserId) return;
 
@@ -94,6 +93,8 @@ export const ActionsModal: React.FC<Props> = (props) => {
         await client.pinMessage(message.id);
       } else if (action === 'unpin') {
         await client.unpinMessage(message.id);
+      } else if (action === 'delete') {
+        await client.deleteMessage(message.id);
       }
     } catch (err) {
       console.log(err);
@@ -110,7 +111,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
   return (
     <div className='actions'>
       <div className='actions-modal'>
-        <div className='actions-modal-content'>
+        <div className={`actions-modal-content ${userActionType === 'delete' ? 'delete' : ''}`}>
           <Icon />
           <div>{title}</div>
           <div>{description}</div>
