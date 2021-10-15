@@ -10,6 +10,9 @@ import {
   useChatContext,
   useMessageContext,
 } from 'stream-chat-react';
+
+import { SocialMessageDeleted } from './SocialMessageDeleted';
+
 import {
   DeliveredCheckmark,
   DoubleCheckmark,
@@ -93,8 +96,6 @@ export const SocialMessage: React.FC<
     messageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
 > = (props) => {
-  // const { messageActionUser, setMessageActionUser } = props;
-
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
   const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
@@ -152,6 +153,10 @@ export const SocialMessage: React.FC<
 
   const readByMembers = readBy?.filter((user) => user.id !== client.user?.id);
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
+
+  if (message.deleted_at || message.type === 'deleted') {
+    return <SocialMessageDeleted message={message} />;
+  }
 
   return (
     <div

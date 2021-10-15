@@ -142,6 +142,22 @@ p {
   margin: 8px 0;
 }
 
+// Message Deleted
+div.str-chat__message--deleted-inner {
+  font-size: 17px;
+}
+
+.visible {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: $text-low-emphasis;
+  height: 18px;
+  width: 180px;
+  justify-content: space-between;
+}
+
+// Message Options & Reactions
 .inside {
   display: flex;
   margin-left: auto;
