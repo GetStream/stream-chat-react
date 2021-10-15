@@ -183,6 +183,10 @@ svg {
   transition: background 1s;
   overflow: hidden;
 
+  &.recent {
+    top: -256px;
+  }
+
   :first-child {
     border: none;
   }

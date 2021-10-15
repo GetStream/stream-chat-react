@@ -33,7 +33,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, thread, user } = props;
 
   const { client, mutes } = useChatContext();
-  const { pinnedMessages } = useChannelStateContext();
+  const { pinnedMessages, messages } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
 
@@ -80,9 +80,13 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   };
 
   const isOwnUser = client.userID === user?.id;
+  const isRecentMessage =
+    messages?.[messages.length - 1].id === message.id ||
+    messages?.[messages.length - 2]?.id === message.id ||
+    messages?.[messages.length - 3]?.id === message.id;
 
   return (
-    <div className='dropdown'>
+    <div className={`dropdown ${isRecentMessage ? 'recent' : ''}`}>
       {thread && openThread && (
         <div className='dropdown-option' onClick={openThread}>
           <QuoteReply />
