@@ -30,27 +30,19 @@ type Props = {
 };
 
 export const SocialMessageActions: React.FC<Props> = (props) => {
-  const {
-    dropdownOpen,
-    openThread,
-    setDropdownOpen,
-    setMessageActionUser,
-    thread,
-    user,
-  } = props;
+  const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, thread, user } = props;
 
   const { client, mutes } = useChatContext();
   const { pinnedMessages } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
-console.log(pinnedMessages);
 
   const [isUserMuted, setIsUserMuted] = useState(false);
   const [isMessagePinned, setIsMessagePinned] = useState(false);
 
   useEffect(() => {
     if (mutes.length) {
-      const actionUserId = user?.id
+      const actionUserId = user?.id;
 
       const actionUserIsMuted = mutes.some((mute) => mute.target.id === actionUserId);
       setIsUserMuted(actionUserIsMuted);
@@ -58,10 +50,8 @@ console.log(pinnedMessages);
   }, [mutes.length]); // eslint-disable-line
 
   useEffect(() => {
-    if (pinnedMessages!.length) {
-      // fix !'s
-
-      const messageIsPinned = pinnedMessages!.some((pin) => pin.id === message.id);
+    if (pinnedMessages && pinnedMessages.length) {
+      const messageIsPinned = pinnedMessages.some((pin) => pin.id === message.id);
       setIsMessagePinned(messageIsPinned);
     }
   }, [pinnedMessages]); // eslint-disable-line
@@ -114,7 +104,9 @@ console.log(pinnedMessages);
         onClick={() => handleClick(isMessagePinned ? 'unpin' : 'pin')}
       >
         <PinMessage />
-        <div className='dropdown-option-text'>{isMessagePinned ? 'Unpin from' : 'Pin to'} Conversation</div>
+        <div className='dropdown-option-text'>
+          {isMessagePinned ? 'Unpin from' : 'Pin to'} Conversation
+        </div>
       </div>
       {!isOwnUser && (
         <>

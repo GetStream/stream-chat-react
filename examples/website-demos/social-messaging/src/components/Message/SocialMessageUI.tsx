@@ -157,16 +157,10 @@ export const SocialMessage: React.FC<
     <div
       className={`message-wrapper ${myMessage ? 'right' : ''}`}
       onMouseEnter={() => setShowOptions(true)}
-      onMouseLeave={() => {
-        // setDropdownOpen(false);
-        setShowOptions(false); // change to click outside
-      }}
+      onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
     >
       {actionsModalOpenId === message.id && userActionType && (
-        <ActionsModal
-          messageActionUser={messageActionUser}
-          userActionType={userActionType}
-        />
+        <ActionsModal messageActionUser={messageActionUser} userActionType={userActionType} />
       )}
       {!myMessage && (
         <Avatar
