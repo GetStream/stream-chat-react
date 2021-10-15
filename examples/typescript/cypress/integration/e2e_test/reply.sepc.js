@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+
 context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000';
@@ -28,7 +29,6 @@ context('Actions', () => {
           .last()
           .then((element) => {
             cy.wrap(element).contains('Reply').click({ force: true })
-            //cy.contains('Reply').click({force: true})
             const input = 'this is a reply text!,{enter}'
             cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
               .focus()
@@ -42,20 +42,29 @@ context('Actions', () => {
 
   it('Reply received conversation', function () {
     // hiding sub-menu Reply
-    cy.get('li').then((element) => {
-      console.log(element);
-      const cls = element.attr('class')
-      cy.contains('Reply').click({ force: true })
-      const input = 'This is a reply text!{enter}'
-      cy.xpath("//button[contains(@class,'square-button')]").click({ force: true })
-      //cy.dataTestContains('close-button').click({force: true})
+
+      cy.get('li')
+          //.contains('Hello Ear')
+          //.first()
+          .then((element) => {
+            console.log(element)
+            const cls = element.attr('class')
+            cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
+              .then((element) => {
+                cy.wrap(element).contains('Reply').click({ force: true })
+                const input = 'This is a reply text!{enter}'
+            cy.xpath("//button[contains(@class,'square-button')]").click({ force: true })
       //Repeat step
-      cy.contains('Reply').click({ force: true })
+      cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
+              .then((element) => {
+                cy.wrap(element).contains('Reply').click({ force: true })
+                const input = 'This is a reply text!{enter}'
       cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
         .focus()
         .type(input, { timeout: 10000 })
         .type('{enter}')
-      cy.wait(4000)
+    })
+  })
     })
   })
 })
