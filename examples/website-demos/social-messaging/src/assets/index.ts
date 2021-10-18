@@ -36,4 +36,5 @@ export { SendArrow } from './SendArrow';
 export { StartThread } from './StartThread';
 export { ThemeIcon } from './ThemeIcon';
 export { PinMessage } from './PinMessage';
+export { PinnedBy } from './PinnedBy';
 export { QuoteReply } from './QuoteReply';

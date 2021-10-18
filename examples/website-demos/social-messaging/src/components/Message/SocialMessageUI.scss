@@ -237,3 +237,24 @@ svg {
     cursor: pointer;
   }
 }
+
+// Pinned Message
+.pinned {
+  background: $highlight;
+  position: relative;
+  left: -40px;
+  width: calc(100% + 80px);
+  padding: 0 40px;
+
+  &-by {
+    height: 12px;
+    color: $text-low-emphasis;
+    font-size: 13px;
+    font-weight: 400;
+    margin: 4px 0 8px;
+
+    svg {
+      margin-right: 5px;
+    }
+  }
+}

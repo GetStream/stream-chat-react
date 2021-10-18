@@ -17,6 +17,7 @@ import {
   DeliveredCheckmark,
   DoubleCheckmark,
   MessageActionsEllipse,
+  PinnedBy,
   ReactionSmiley,
 } from '../../assets';
 
@@ -95,7 +96,7 @@ export const SocialMessage: React.FC<
   > & { setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>> } & {
     messageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
-> = (props) => {
+> = () => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
   const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
@@ -108,12 +109,16 @@ export const SocialMessage: React.FC<
     SocialUserType
   >();
   const { actionsModalOpenId, userActionType } = useViewContext();
+  const { pinnedMessages } = useChannelStateContext();
 
   const [messageActionUser, setMessageActionUser] = useState<string>();
-
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [showReactionSelector, setShowReactionSelector] = useState<boolean>(false);
+
+  const messageIsPinned = pinnedMessages
+    ? pinnedMessages.some((pin) => pin.id === message.id)
+    : false;
 
   const clearModals = () => {
     setDropdownOpen(false);
@@ -160,7 +165,7 @@ export const SocialMessage: React.FC<
 
   return (
     <div
-      className={`message-wrapper ${myMessage ? 'right' : ''}`}
+      className={`message-wrapper ${myMessage ? 'right' : ''} ${messageIsPinned ? 'pinned' : ''}`}
       onMouseEnter={() => setShowOptions(true)}
       onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
     >
@@ -175,6 +180,17 @@ export const SocialMessage: React.FC<
         />
       )}
       <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
+        {messageIsPinned ? (
+          <div className='pinned-by'>
+            <PinnedBy />
+            Pinned
+            {message.pinned_by && client.user
+              ? message.pinned_by.name === client.user.name
+                ? ' by You'
+                : ` by ${message.pinned_by.name || message.pinned_by.id}`
+              : ''}
+          </div>
+        ) : null}
         <div className='message-wrapper-inner-text'>
           <SocialReactionList />
           {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
