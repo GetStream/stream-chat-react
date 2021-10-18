@@ -7,10 +7,14 @@ import { NewChatUser } from './NewChatUser';
 import { SocialUserType } from '../ChatContainer/ChatContainer';
 import { AddChat } from '../../assets';
 
+import { useViewContext } from '../../contexts/ViewContext';
+
 import './NewChat.scss';
 
 export const NewChat = () => {
   const { client, setActiveChannel } = useChatContext();
+  const { setNewChat } = useViewContext();
+
   const [focusedUser, setFocusedUser] = useState<number>();
   const [inputText, setInputText] = useState('');
   const [resultsOpen, setResultsOpen] = useState(false);
@@ -81,6 +85,7 @@ export const NewChat = () => {
     setSelectedUsers([]);
     setUsers([]);
     setInputText('');
+    setNewChat(false);
   };
 
   const addUser = (addedUser: UserResponse<SocialUserType>) => {
@@ -139,7 +144,7 @@ export const NewChat = () => {
       <div className='new-chat-input'>
         <div className='new-chat-input-to'>TO: </div>
         <div className='new-chat-input-main'>
-          {!selectedUsers?.length && (
+          {selectedUsers?.length > 0 && (
             <div className='new-chat-input-main-selected'>
               {selectedUsers.map((user) => (
                 <div
@@ -167,13 +172,13 @@ export const NewChat = () => {
                 type='text'
               />
             </form>
-            <AddChat createChannel={createChannel} />
+            {!resultsOpen && <AddChat createChannel={createChannel} />}
           </div>
         </div>
       </div>
       {inputText && (
         <div className='new-chat-options'>
-          {users?.length && !searchEmpty && (
+          {users?.length > 0 && !searchEmpty && (
             <>
               {users.map((user, i) => (
                 <div

@@ -38,6 +38,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     mentionsUnreadCount,
     setChatsUnreadCount,
     setMentionsUnreadCount,
+    setNewChat,
   } = useViewContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
@@ -55,10 +56,19 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     if (unread && isListMentions) setMentionsUnreadCount(mentionsUnreadCount - unread);
   };
 
+  const createChannelName = () => {
+    const memberNames = members
+      .map(({ user }) => user?.name || user?.id)
+      .slice(0, 2)
+      .join(', ');
+    return `${memberNames}${members.length > 2 ? '...' : ''}`;
+  };
+
   return (
     <button
       className={`channel-preview ${activeClass}`}
       onClick={() => {
+        setNewChat(false);
         handleUnreadCounts();
         setActiveChannel?.(channel);
       }}
@@ -70,7 +80,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
       </div>
       <div className='channel-preview-contents'>
         <div className='channel-preview-contents-name'>
-          <span>{displayTitle}</span>
+          <span>{displayTitle || createChannelName()}</span>
         </div>
         <div className='channel-preview-contents-last-message'>{latestMessage}</div>
       </div>

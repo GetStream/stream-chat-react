@@ -1,5 +1,10 @@
 import React from 'react';
-import { ChannelHeaderProps, useChannelStateContext, useChatContext } from 'stream-chat-react';
+import {
+  ChannelHeaderProps,
+  Tooltip,
+  useChannelStateContext,
+  useChatContext,
+} from 'stream-chat-react';
 
 import { AvatarGroup } from '../ChannelPreview/utils';
 import { ArrowLeft } from '../../assets';
