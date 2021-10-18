@@ -127,13 +127,11 @@ export const useComponentContext = <
   const contextValue = useContext(ComponentContext);
 
   if (!contextValue) {
-    if (process.env.NODE_ENV === 'test') {
-      return {} as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
-    }
-
-    throw new Error(
+    console.warn(
       `The useComponentContext hook was called outside of the ComponentContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
   }
 
   return contextValue as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;

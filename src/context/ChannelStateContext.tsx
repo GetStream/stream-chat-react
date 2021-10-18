@@ -121,13 +121,11 @@ export const useChannelStateContext = <
   const contextValue = useContext(ChannelStateContext);
 
   if (!contextValue) {
-    if (process.env.NODE_ENV === 'test') {
-      return {} as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
-    }
-
-    throw new Error(
+    console.warn(
       `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
   }
 
   return (contextValue as unknown) as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;

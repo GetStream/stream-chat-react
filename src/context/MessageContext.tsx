@@ -172,13 +172,11 @@ export const useMessageContext = <
   const contextValue = useContext(MessageContext);
 
   if (!contextValue) {
-    if (process.env.NODE_ENV === 'test') {
-      return {} as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
-    }
-
-    throw new Error(
+    console.warn(
       `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
   }
 
   return (contextValue as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
