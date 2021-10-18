@@ -33,7 +33,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, thread, user } = props;
 
   const { client, mutes } = useChatContext();
-  const { pinnedMessages, messages } = useChannelStateContext();
+  const { pinnedMessages, messages, quotedMessage } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
 

@@ -9,7 +9,10 @@ import {
   UploadsPreview,
   useMessageInputContext,
   useChannelStateContext,
+  // QuotedMessagePreview,
 } from 'stream-chat-react';
+
+import { QuotedMessagePreview } from './SocialQuotedMessage';
 
 import {
   Attach,
@@ -47,7 +50,13 @@ export const SocialMessageInput = (props: Props) => {
     text,
   } = useMessageInputContext();
 
-  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
+  const {
+    acceptedFiles,
+    maxNumberOfFiles,
+    multipleUploads,
+    quotedMessage,
+  } = useChannelStateContext();
+console.log(quotedMessage); //////////////////
 
   const { giphyState, setGiphyState } = useGiphyContext();
 
@@ -141,6 +150,7 @@ export const SocialMessageInput = (props: Props) => {
             giphyState
           }
         >
+          {quotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
