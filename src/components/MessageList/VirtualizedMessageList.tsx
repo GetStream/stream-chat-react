@@ -330,13 +330,13 @@ const VirtualizedMessageListWithContext = <
           {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
           {...(defaultItemHeight ? { defaultItemHeight } : {})}
         />
-        <MessageListNotifications
-          hasNewMessages={newMessagesNotification}
-          MessageNotification={MessageNotification}
-          notifications={notifications}
-          scrollToBottom={scrollToBottom}
-        />
       </div>
+      <MessageListNotifications
+        hasNewMessages={newMessagesNotification}
+        MessageNotification={MessageNotification}
+        notifications={notifications}
+        scrollToBottom={scrollToBottom}
+      />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
   );
