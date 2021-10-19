@@ -2,7 +2,7 @@ import React from 'react';
 import { ChannelHeaderProps, useChannelStateContext, useChatContext } from 'stream-chat-react';
 
 import { AvatarGroup } from '../ChannelPreview/utils';
-import { ArrowLeft } from '../../assets';
+import { ArrowLeft, CloseX } from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelHeader.scss';
@@ -10,7 +10,7 @@ import './SocialChannelHeader.scss';
 export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   const { live } = props;
   const { client } = useChatContext();
-  const { isNewChat } = useViewContext();
+  const { isChatInfoOpen, isNewChat } = useViewContext();
 
   const { channel } = useChannelStateContext();
 
@@ -29,6 +29,15 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
         <span className='social-channel-header-new-chat'>New Chat</span>
       </div>
     );
+  }
+
+  if (isChatInfoOpen) {
+    return (
+      <div className='social-channel-header'>
+        <CloseX />
+        <span className='social-channel-header-chat-info'>Chat Info</span>
+      </div>
+    )
   }
 
   return (

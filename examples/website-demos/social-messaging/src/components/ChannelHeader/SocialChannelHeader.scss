@@ -10,6 +10,14 @@
   border-bottom: 1px solid $borders;
   flex-direction: row;
 
+  &-chat-info {
+    font-size: 17px;
+    color: $text-high-emphasis;
+    line-height: 20px;
+    font-weight: 500;
+    margin-left: 15px
+  }
+
   &-new-chat {
       font-size: 17px;
       color: $text-high-emphasis;

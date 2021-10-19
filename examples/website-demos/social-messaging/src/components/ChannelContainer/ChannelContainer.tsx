@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { MessageInput, MessageList, useChatContext, Window } from 'stream-chat-react';
 
+import { ChatInfo } from '../ChatInfo/ChatInfo';
 import { NewChat } from '../NewChat/NewChat';
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
 import {
@@ -34,6 +35,7 @@ export const ChannelContainer: React.FC = () => {
 
   const {
     chatsUnreadCount,
+    isChatInfoOpen,
     isNewChat,
     mentionsUnreadCount,
     setChatsUnreadCount,
@@ -53,7 +55,6 @@ export const ChannelContainer: React.FC = () => {
       const { message, user } = event;
 
       if (user?.id !== client?.userID && channel?.cid !== message?.cid) {
-        console.log('in the no channel');
         setChatsUnreadCount(chatsUnreadCount + 1);
 
         const mentions = message?.mentioned_users?.filter((user) => user.id === client?.userID);
@@ -75,12 +76,49 @@ export const ChannelContainer: React.FC = () => {
     setMentionsUnreadCount,
   ]);
 
+  // const getCommandIcon = (name?: string) => {
+  //   let description;
+  //   let Icon;
+  
+  //   switch (name) {
+  //     case 'ban':
+  //       description = '/ban [@username] [text]';
+  //       Icon = Ban;
+  //       break;
+  //     case 'flag':
+  //       description = '/flag [@username]';
+  //       Icon = Flag;
+  //       break;
+  //     case 'giphy':
+  //       description = '/giphy [query]';
+  //       Icon = Giphy;
+  //       break;
+  //     case 'mute':
+  //       description = '[@username]';
+  //       Icon = Mute;
+  //       break;
+  //     case 'unban':
+  //       description = '[@username]';
+  //       Icon = Unban;
+  //       break;
+  //     case 'unmute':
+  //       description = '[@username]';
+  //       Icon = Unmute;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  
+  //   return { description, Icon };
+  // };
+
   return (
     <>
       <Window>
         <SocialChannelHeader />
         {isNewChat ? <NewChat /> : <MessageList />}
-        <MessageInput mentionAllAppUsers />
+        {isChatInfoOpen && !isNewChat ? <ChatInfo /> : <MessageList />}
+        {!isChatInfoOpen && <MessageInput mentionAllAppUsers />}
       </Window>
       <SocialThread />
     </>

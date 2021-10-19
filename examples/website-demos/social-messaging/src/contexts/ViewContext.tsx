@@ -2,11 +2,13 @@ import React, { useContext, useState } from 'react';
 
 type ViewContextValue = {
   chatsUnreadCount: number;
+  isChatInfoOpen: boolean;
   isListMentions: boolean;
   isSideDrawerOpen: boolean;
   isNewChat: boolean;
   mentionsUnreadCount: number;
   reactionsOpenId: string;
+  setChatInfoOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setChatsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   setListMentions: React.Dispatch<React.SetStateAction<boolean>>;
   setMentionsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
@@ -18,6 +20,7 @@ type ViewContextValue = {
 const ViewContext = React.createContext({} as ViewContextValue);
 
 export const ViewProvider: React.FC = ({ children }) => {
+  const [isChatInfoOpen, setChatInfoOpen] = useState(false);
   const [chatsUnreadCount, setChatsUnreadCount] = useState(0);
   const [isListMentions, setListMentions] = useState(false);
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
@@ -27,11 +30,13 @@ export const ViewProvider: React.FC = ({ children }) => {
 
   const contextValue: ViewContextValue = {
     chatsUnreadCount,
+    isChatInfoOpen,
     isListMentions,
     isSideDrawerOpen,
     isNewChat,
     mentionsUnreadCount,
     reactionsOpenId,
+    setChatInfoOpen,
     setChatsUnreadCount,
     setListMentions,
     setMentionsUnreadCount,
