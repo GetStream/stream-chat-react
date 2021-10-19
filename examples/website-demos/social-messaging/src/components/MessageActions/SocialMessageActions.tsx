@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ReactEventHandler,
+  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   useMessageContext,
@@ -33,12 +34,25 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, thread, user } = props;
 
   const { client, mutes } = useChatContext();
-  const { pinnedMessages, messages, quotedMessage } = useChannelStateContext();
+  const { pinnedMessages, messages } = useChannelStateContext();
   const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
+  const { setQuotedMessage } = useChannelActionContext();
 
   const [isUserMuted, setIsUserMuted] = useState(false);
   const [isMessagePinned, setIsMessagePinned] = useState(false);
+
+  const handleQuote = () => {
+    setQuotedMessage(message);
+
+    const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+    const textarea = elements.item(0);
+
+    if (textarea instanceof HTMLTextAreaElement) {
+      textarea.focus();
+    }
+    setDropdownOpen(false);
+  };
 
   useEffect(() => {
     if (mutes.length) {
@@ -88,7 +102,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   return (
     <div className={`dropdown ${isRecentMessage ? 'recent' : ''}`}>
       {thread && openThread && (
-        <div className='dropdown-option' onClick={openThread}>
+        <div className='dropdown-option' onClick={handleQuote}>
           <QuoteReply />
           <div className='dropdown-option-text'>Reply</div>
         </div>

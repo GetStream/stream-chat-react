@@ -9,10 +9,9 @@ import {
   UploadsPreview,
   useMessageInputContext,
   useChannelStateContext,
-  // QuotedMessagePreview,
 } from 'stream-chat-react';
 
-import { QuotedMessagePreview } from './SocialQuotedMessage';
+import { SocialQuotedMessage, SocialQuotedMessageHeader } from './SocialQuotedMessage';
 
 import {
   Attach,
@@ -20,6 +19,7 @@ import {
   EmojiPickerIcon,
   GiphyIcon,
   GiphySearch,
+  QuoteArrow,
   SendArrow,
 } from '../../assets';
 
@@ -56,7 +56,6 @@ export const SocialMessageInput = (props: Props) => {
     multipleUploads,
     quotedMessage,
   } = useChannelStateContext();
-console.log(quotedMessage); //////////////////
 
   const { giphyState, setGiphyState } = useGiphyContext();
 
@@ -126,20 +125,28 @@ console.log(quotedMessage); //////////////////
     <>
       <div className='input-ui'>
         <div className='input-ui-icons'>
-          <div className='input-ui-icons-attach'>
-            <FileUploadButton
-              disabled={Boolean(cooldownRemaining)}
-              handleFiles={messageInput.uploadNewFiles}
-            >
-              <Attach cooldownRemaining={cooldownRemaining} />
-            </FileUploadButton>
-          </div>
-          <div
-            className='input-ui-icons-bolt'
-            onClick={!numberOfUploads && !cooldownRemaining ? handleCommandsClick : () => null}
-          >
-            <CommandBolt cooldownRemaining={cooldownRemaining} />
-          </div>
+          {quotedMessage ? (
+            <div className='input-ui-icons-arrow'>
+              <QuoteArrow />
+            </div>
+          ) : (
+            <>
+              <div className='input-ui-icons-attach'>
+                <FileUploadButton
+                  disabled={Boolean(cooldownRemaining)}
+                  handleFiles={messageInput.uploadNewFiles}
+                >
+                  <Attach cooldownRemaining={cooldownRemaining} />
+                </FileUploadButton>
+              </div>
+              <div
+                className='input-ui-icons-bolt'
+                onClick={!numberOfUploads && !cooldownRemaining ? handleCommandsClick : () => null}
+              >
+                <CommandBolt cooldownRemaining={cooldownRemaining} />
+              </div>
+            </>
+          )}
         </div>
         <ImageDropzone
           accept={acceptedFiles}
@@ -150,8 +157,9 @@ console.log(quotedMessage); //////////////////
             giphyState
           }
         >
-          {quotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
+          {quotedMessage && <SocialQuotedMessageHeader />}
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
+            {quotedMessage && <SocialQuotedMessage quotedMessage={quotedMessage} />}
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
             <div className='input-ui-input-textarea'>

@@ -7,7 +7,7 @@
   border-top: 1px solid $stroke;
   background: $app-canvas;
   transition: background 1s;
-  box-shadow: 0px -1px 0px #dbdde1;
+  box-shadow: $border-top;
 
   &-icons {
     display: flex;
@@ -22,6 +22,11 @@
 
     svg:hover path {
       fill: $accent-primary;
+    }
+
+    &-arrow {
+      display: flex;
+      padding: 8px 0 8px 8px;
     }
 
     &-attach {
@@ -209,7 +214,7 @@
 }
 
 .rfu-dropzone {
-  width: calc(100% - 111px);
+  width: -webkit-fill-available;
 }
 
 .rfu-image {
@@ -272,3 +277,64 @@ div.rta__autocomplete.str-chat__emojisearch {
     margin: 0;
   }
 }
+
+// Quoted Message Reply
+.quoted-message-preview {
+      display: flex;
+      align-items: flex-end;
+      margin: 10px 16px 8px;
+
+      &-header {
+        display: flex;
+        justify-content: center;
+        font-size: 17px;
+        font-weight: 500;
+        margin: 10px 0;
+
+        .str-chat__square-button {
+          position: absolute;
+          right: -40px;
+          top: 10px;
+          margin: unset;
+          padding: var(--xs-p);
+          border-radius: var(--border-radius);
+          cursor: pointer;
+        }
+      }
+
+      &-content {
+        display: flex;
+        align-items: flex-end;
+        font-size: 13px;
+        background: $white;
+        border: 1px solid $borders;
+        border-radius: 8px 8px 8px 0;
+        padding: 7px 8px 5px;
+        margin-left: 8px;
+        overflow: auto;
+
+        &-inner {
+          display: flex;
+          text-align: start;
+          align-items: flex-start;
+
+          .str-chat__message-attachment {
+            margin: 0;
+
+            &--image {
+              display: flex;
+              max-width: 36px;
+              height: 36px;
+            }
+
+            &--img {
+              border-radius: 8px;
+            }
+          }
+
+          :nth-child(2) {
+            margin-left: 8px;
+          }
+        }
+      }
+    }

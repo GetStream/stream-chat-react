@@ -1,6 +1,6 @@
 import { Avatar, useChannelActionContext, useComponentContext } from 'stream-chat-react';
 
-const QuotedMessagePreviewHeader = () => {
+export const SocialQuotedMessageHeader = () => {
   const { setQuotedMessage } = useChannelActionContext();
 
   return (
@@ -18,19 +18,7 @@ const QuotedMessagePreviewHeader = () => {
   );
 };
 
-// export type QuotedMessagePreviewProps<
-//   At extends DefaultAttachmentType = DefaultAttachmentType,
-//   Ch extends DefaultChannelType = DefaultChannelType,
-//   Co extends DefaultCommandType = DefaultCommandType,
-//   Ev extends DefaultEventType = DefaultEventType,
-//   Me extends DefaultMessageType = DefaultMessageType,
-//   Re extends DefaultReactionType = DefaultReactionType,
-//   Us extends DefaultUserType<Us> = DefaultUserType
-// > = {
-//   quotedMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-// };
-
-export const QuotedMessagePreview = (props: any) => {
+export const SocialQuotedMessage = (props: any) => {
   const { quotedMessage } = props;
 
   const { Attachment } = useComponentContext();
@@ -45,16 +33,15 @@ export const QuotedMessagePreview = (props: any) => {
 
   return (
     <div className='quoted-message-preview'>
-      <QuotedMessagePreviewHeader />
-      <div className='quoted-message-preview-content'>
         {quotedMessage.user && (
           <Avatar
             image={quotedMessage.user.image}
             name={quotedMessage.user.name || quotedMessage.user.id}
-            size={20}
+            size={24}
             user={quotedMessage.user}
           />
         )}
+      <div className='quoted-message-preview-content'>
         <div className='quoted-message-preview-content-inner'>
           {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
           <div>{quotedMessageText}</div>
