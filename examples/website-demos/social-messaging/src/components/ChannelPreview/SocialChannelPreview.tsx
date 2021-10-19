@@ -44,7 +44,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
   const activeClass = active ? 'active' : '';
-  const online = channel.state.watcher_count > 0 ? true : false;
+  const online = channel.state.watcher_count > 1 ? true : false;
   const unreadCount = unread && unread > 0 ? true : false;
 
   const members = Object.values(channel.state.members).filter(
@@ -66,7 +66,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
 
   return (
     <button
-      className={`channel-preview ${activeClass}`}
+      className={`channel-preview ${activeClass} ${online ? '' : 'offline'}`}
       onClick={() => {
         setNewChat(false);
         handleUnreadCounts();

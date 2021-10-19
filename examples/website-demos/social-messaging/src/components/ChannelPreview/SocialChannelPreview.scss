@@ -22,6 +22,10 @@
     background: $borders;
   }
 
+  &.offline {
+    padding-top: 6px;
+  }
+
   &-avatar {
     margin-bottom: 5px;
 
