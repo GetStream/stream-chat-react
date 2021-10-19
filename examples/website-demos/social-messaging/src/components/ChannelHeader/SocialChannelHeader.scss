@@ -34,12 +34,15 @@
   &-contents {
     display: flex;
     flex-direction: column;
+    width: 100%;
 
     &-name {
       font-weight: 500;
       font-size: 17px;
       color: $text-high-emphasis;
       line-height: 20px;
+      max-width: 80%;
+      text-overflow: ellipsis;
     }
 
     &-status {
