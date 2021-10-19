@@ -19,7 +19,7 @@ export type MessageListNotificationsProps = {
 export const MessageListNotifications = (props: MessageListNotificationsProps) => {
   const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
 
-  const { t } = useTranslationContext('DefaultMessageListNotifications');
+  const { t } = useTranslationContext('MessageListNotifications');
 
   return (
     <div className='str-chat__list-notifications'>
