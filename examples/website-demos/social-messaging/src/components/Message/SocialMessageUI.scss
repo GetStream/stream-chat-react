@@ -258,3 +258,27 @@ svg {
     }
   }
 }
+
+// Quoted Message
+.quoted-message {
+  padding: 8px 0 0 0;
+}
+
+.message-wrapper .str-chat__message-text-inner {
+  padding: 0 8px;
+}
+
+.str-chat__li div.quoted-message-inner {
+  align-items: flex-start;
+  margin-left: 8px;
+
+  .str-chat__message-attachment {
+    margin-top: 4px;
+
+    &--image:first-of-type {
+      display: flex;
+      max-width: 36px;
+      min-height: 36px;
+    }
+  }
+}
