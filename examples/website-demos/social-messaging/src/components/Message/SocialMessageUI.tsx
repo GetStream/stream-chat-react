@@ -9,7 +9,6 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
-  Modal,
   useEditHandler,
   MessageInput,
   ReactEventHandler,
@@ -44,9 +43,10 @@ import {
 import { SocialMessageActions } from '../MessageActions/SocialMessageActions';
 import { useViewContext } from '../../contexts/ViewContext';
 import { ActionsModal } from '../MessageActions/ActionsModal';
+import { SocialModal } from '../MessageInput/SocialModal';
+import { EditInput } from '../MessageInput/EditInput';
 
 import './SocialMessageUI.scss';
-import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 type OptionsProps = {
   dropdownOpen: boolean;
@@ -181,13 +181,13 @@ export const SocialMessage: React.FC<
   return (
     <>
       {editing && (
-        <Modal onClose={clearEdit} open={editing}>
+        <SocialModal onClose={clearEdit} open={editing}>
           <MessageInput
             clearEditingState={clearEdit}
-            Input={SocialMessageInput}
+            Input={EditInput}
             message={message}
           />
-        </Modal>
+        </SocialModal>
       )}
       <div
         className={`message-wrapper ${myMessage ? 'right' : ''} ${messageIsPinned ? 'pinned' : ''}`}

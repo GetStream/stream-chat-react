@@ -280,61 +280,66 @@ div.rta__autocomplete.str-chat__emojisearch {
 
 // Quoted Message Reply
 .quoted-message-preview {
-      display: flex;
-      align-items: flex-end;
-      margin: 10px 16px 8px;
+  display: flex;
+  align-items: flex-end;
+  margin: 10px 16px 8px;
 
-      &-header {
-        display: flex;
-        justify-content: center;
-        font-size: 17px;
-        font-weight: 500;
-        margin: 10px 0;
+  &-header {
+    display: flex;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 10px 0;
+    position: relative;
 
-        .str-chat__square-button {
-          position: absolute;
-          right: -40px;
-          top: 10px;
-          margin: unset;
-          padding: var(--xs-p);
-          border-radius: var(--border-radius);
-          cursor: pointer;
-        }
-      }
+    .str-chat__square-button {
+      position: absolute;
+      right: -40px;
+      top: -2px;
+      margin: unset;
+      padding: var(--xs-p);
+      border-radius: var(--border-radius);
+      cursor: pointer;
 
-      &-content {
-        display: flex;
-        align-items: flex-end;
-        font-size: 13px;
-        background: $white;
-        border: 1px solid $borders;
-        border-radius: 8px 8px 8px 0;
-        padding: 7px 8px 5px;
-        margin-left: 8px;
-        overflow: auto;
-
-        &-inner {
-          display: flex;
-          text-align: start;
-          align-items: flex-start;
-
-          .str-chat__message-attachment {
-            margin: 0;
-
-            &--image {
-              display: flex;
-              max-width: 36px;
-              height: 36px;
-            }
-
-            &--img {
-              border-radius: 8px;
-            }
-          }
-
-          :nth-child(2) {
-            margin-left: 8px;
-          }
-        }
+      svg {
+        fill: $text-low-emphasis;
       }
     }
+  }
+
+  &-content {
+    display: flex;
+    align-items: flex-end;
+    font-size: 13px;
+    background: $white;
+    border: 1px solid $borders;
+    border-radius: 8px 8px 8px 0;
+    padding: 7px 8px 5px;
+    margin-left: 8px;
+    overflow: auto;
+
+    &-inner {
+      display: flex;
+      text-align: start;
+      align-items: flex-start;
+
+      .str-chat__message-attachment {
+        margin: 0;
+
+        &--image {
+          display: flex;
+          max-width: 36px;
+          height: 36px;
+        }
+
+        &--img {
+          border-radius: 8px;
+        }
+      }
+
+      :nth-child(2) {
+        margin-left: 8px;
+      }
+    }
+  }
+}
