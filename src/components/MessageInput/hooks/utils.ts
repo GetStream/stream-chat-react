@@ -109,7 +109,7 @@ export type ImageDimensions = { height?: number; width?: number };
 export const getImageDimensions = (
   imageFile: FileLike,
 ): Promise<ImageDimensions> | ImageDimensions => {
-  if (imageFile.type.includes('heic')) {
+  if (imageFile.type.includes('heic') || process.env.NODE_ENV === 'test') {
     return { height: undefined, width: undefined };
   }
 
@@ -119,10 +119,6 @@ export const getImageDimensions = (
     reader.readAsDataURL(imageFile);
 
     reader.onload = () => {
-      if (process.env.NODE_ENV === 'test') {
-        resolve({ height: undefined, width: undefined });
-      }
-
       const image = new Image();
 
       // setting the source starts downloading the image and calls `onload`
