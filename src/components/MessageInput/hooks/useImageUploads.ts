@@ -5,6 +5,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { SendFileAPIResponse } from 'stream-chat';
+
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
@@ -60,6 +61,9 @@ export const useImageUploads = <
 
       let response: SendFileAPIResponse;
 
+      // TODO: destructure height/width from img and pass into sendImage function after JS client is updated
+      // const imageToSend = { file, height, width };
+
       try {
         if (doImageUploadRequest) {
           response = await doImageUploadRequest(file, channel);
@@ -68,7 +72,9 @@ export const useImageUploads = <
         }
       } catch (error) {
         const errorMessage: string =
-          typeof error.message === 'string' ? error.message : t('Error uploading image');
+          typeof (error as Error).message === 'string'
+            ? (error as Error).message
+            : t('Error uploading image');
 
         addNotification(errorMessage, 'error');
 
@@ -81,8 +87,7 @@ export const useImageUploads = <
         }
 
         if (!alreadyRemoved && errorHandler) {
-          // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(error, 'upload-image', {
+          errorHandler(error as Error, 'upload-image', {
             ...file,
             id,
           });

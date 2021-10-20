@@ -48,8 +48,10 @@ export type ImageUpload = {
   };
   id: string;
   state: 'finished' | 'failed' | 'uploading';
+  height?: number;
   previewUri?: string;
   url?: string;
+  width?: number;
 };
 
 export type MessageInputState<
@@ -85,9 +87,11 @@ type SetImageUploadAction = {
   id: string;
   type: 'setImageUpload';
   file?: File | FileLike;
+  height?: number;
   previewUri?: string;
   state?: string;
   url?: string;
+  width?: number;
 };
 
 type SetFileUploadAction = {
@@ -280,7 +284,12 @@ const messageInputReducer = <
         imageOrder,
         imageUploads: {
           ...state.imageUploads,
-          [action.id]: { ...state.imageUploads[action.id], ...newUploadFields },
+          [action.id]: {
+            ...state.imageUploads[action.id],
+            ...newUploadFields,
+            height: action.height,
+            width: action.width,
+          },
         },
       };
     }

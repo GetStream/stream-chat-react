@@ -1,4 +1,5 @@
 import type { UserResponse } from 'stream-chat';
+import type { FileLike } from 'react-file-utils';
 
 import type { DefaultUserType } from '../../../types/types';
 
@@ -101,4 +102,34 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
   });
 
   return matchingUsers;
+};
+
+export type ImageDimensions = { height?: number; width?: number };
+
+export const getImageDimensions = (
+  imageFile: FileLike,
+): Promise<ImageDimensions> | ImageDimensions => {
+  if (imageFile.type.includes('heic')) {
+    return { height: undefined, width: undefined };
+  }
+
+  const reader = new FileReader();
+
+  return new Promise((resolve, reject) => {
+    reader.readAsDataURL(imageFile);
+
+    reader.onload = () => {
+      const image = new Image();
+
+      // setting the source starts downloading the image and calls `onload`
+      image.src = reader.result as string;
+
+      image.onload = () => {
+        const { height, width } = image;
+        resolve({ height, width });
+      };
+
+      image.onerror = reject;
+    };
+  });
 };

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
+import { getImageDimensions } from './utils';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { generateRandomId } from '../../../utils';
@@ -72,14 +73,15 @@ export const useAttachments = <
     (files: FileList | File[] | FileLike[]) => {
       Array.from(files)
         .slice(0, maxFilesLeft)
-        .forEach((file) => {
+        .forEach(async (file) => {
           const id = generateRandomId();
 
           if (
             file.type.startsWith('image/') &&
             !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
           ) {
-            dispatch({ file, id, state: 'uploading', type: 'setImageUpload' });
+            const { height, width } = await getImageDimensions(file);
+            dispatch({ file, height, id, state: 'uploading', type: 'setImageUpload', width });
           } else if (file instanceof File && !noFiles) {
             dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
           }
