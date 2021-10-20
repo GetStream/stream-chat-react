@@ -119,6 +119,10 @@ export const getImageDimensions = (
     reader.readAsDataURL(imageFile);
 
     reader.onload = () => {
+      if (process.env.NODE_ENV === 'test') {
+        resolve({ height: undefined, width: undefined });
+      }
+
       const image = new Image();
 
       // setting the source starts downloading the image and calls `onload`
@@ -129,7 +133,9 @@ export const getImageDimensions = (
         resolve({ height, width });
       };
 
-      image.onerror = reject;
+      image.onerror = () => {
+        reject({ height: undefined, width: undefined });
+      };
     };
   });
 };
