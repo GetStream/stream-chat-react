@@ -1,6 +1,16 @@
 import React, { useContext, useState } from 'react';
+import { ReactEventHandler } from 'stream-chat-react';
 
-export type UserActions = 'reply' | 'flag' | 'mute' | 'unmute' | 'copy' | 'pin' | 'unpin' | 'delete' | 'edit';
+export type UserActions =
+  | 'copy'
+  | 'delete'
+  | 'flag'
+  | 'mute'
+  | 'pin'
+  | ReactEventHandler
+  | 'reply'
+  | 'unmute'
+  | 'unpin';
 
 type ViewContextValue = {
   actionsModalOpenId: string;

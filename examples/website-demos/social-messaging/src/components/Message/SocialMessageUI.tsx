@@ -9,6 +9,10 @@ import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
+  Modal,
+  useEditHandler,
+  MessageInput,
+  ReactEventHandler,
 } from 'stream-chat-react';
 
 import { SocialMessageDeleted } from './SocialMessageDeleted';
@@ -42,16 +46,24 @@ import { useViewContext } from '../../contexts/ViewContext';
 import { ActionsModal } from '../MessageActions/ActionsModal';
 
 import './SocialMessageUI.scss';
+import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 
 type OptionsProps = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
+  setEdit: ReactEventHandler;
 };
 
 const MessageOptions: React.FC<OptionsProps> = (props) => {
-  const { dropdownOpen, setDropdownOpen, setMessageActionUser, setShowReactionSelector } = props;
+  const {
+    dropdownOpen,
+    setDropdownOpen,
+    setEdit,
+    setMessageActionUser,
+    setShowReactionSelector,
+  } = props;
 
   const { thread } = useChannelStateContext();
   const { handleOpenThread, isMyMessage, message } = useMessageContext();
@@ -77,6 +89,7 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
             setMessageActionUser={setMessageActionUser}
             thread={!thread}
             user={message.user}
+            setEdit={setEdit}
           />
         </div>
       )}
@@ -115,6 +128,8 @@ export const SocialMessage: React.FC<
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [showReactionSelector, setShowReactionSelector] = useState<boolean>(false);
+
+  const { clearEdit, editing, setEdit } = useEditHandler();
 
   const messageIsPinned = pinnedMessages
     ? pinnedMessages.some((pin) => pin.id === message.id)
@@ -164,76 +179,88 @@ export const SocialMessage: React.FC<
   }
 
   return (
-    <div
-      className={`message-wrapper ${myMessage ? 'right' : ''} ${messageIsPinned ? 'pinned' : ''}`}
-      onMouseEnter={() => setShowOptions(true)}
-      onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
-    >
-      {actionsModalOpenId === message.id && userActionType && (
-        <ActionsModal messageActionUser={messageActionUser} userActionType={userActionType} />
+    <>
+      {editing && (
+        <Modal onClose={clearEdit} open={editing}>
+          <MessageInput
+            clearEditingState={clearEdit}
+            Input={SocialMessageInput}
+            message={message}
+          />
+        </Modal>
       )}
-      {!myMessage && (
-        <Avatar
-          size={36}
-          image={message.user?.image}
-          name={message.user?.name || message.user?.id}
-        />
-      )}
-      <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
-        {messageIsPinned ? (
-          <div className='pinned-by'>
-            <PinnedBy />
-            Pinned
-            {message.pinned_by && client.user
-              ? message.pinned_by.name === client.user.name
-                ? ' by You'
-                : ` by ${message.pinned_by.name || message.pinned_by.id}`
-              : ''}
-          </div>
-        ) : null}
-        <div className='message-wrapper-inner-text'>
-          <SocialReactionList />
-          {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
-          <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
-          <ReactionParticipants />
-        </div>
-        {showReactionSelector && (
-          <span ref={reactionsSelectorRef}>
-            <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
-          </span>
+      <div
+        className={`message-wrapper ${myMessage ? 'right' : ''} ${messageIsPinned ? 'pinned' : ''}`}
+        onMouseEnter={() => setShowOptions(true)}
+        onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
+      >
+        {actionsModalOpenId === message.id && userActionType && (
+          <ActionsModal messageActionUser={messageActionUser} userActionType={userActionType} />
         )}
-        <ThreadReply />
-        <div className='message-wrapper-inner-options'>
-          {showOptions && (
-            <MessageOptions
-              dropdownOpen={dropdownOpen}
-              setDropdownOpen={setDropdownOpen}
-              setMessageActionUser={setMessageActionUser}
-              setShowReactionSelector={setShowReactionSelector}
-            />
+        {!myMessage && (
+          <Avatar
+            size={36}
+            image={message.user?.image}
+            name={message.user?.name || message.user?.id}
+          />
+        )}
+        <div className={`message-wrapper-inner ${myMessage ? 'my-message' : ''}`}>
+          {messageIsPinned ? (
+            <div className='pinned-by'>
+              <PinnedBy />
+              Pinned
+              {message.pinned_by && client.user
+                ? message.pinned_by.name === client.user.name
+                  ? ' by You'
+                  : ` by ${message.pinned_by.name || message.pinned_by.id}`
+                : ''}
+            </div>
+          ) : null}
+          <div className='message-wrapper-inner-text'>
+            <SocialReactionList />
+            {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+            <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+            <ReactionParticipants />
+          </div>
+          {showReactionSelector && (
+            <span ref={reactionsSelectorRef}>
+              <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
+            </span>
           )}
-          <div className='message-wrapper-inner-data'>
-            {myMessage &&
-              message.status === 'received' &&
-              readByMembers &&
-              readByMembers?.length < 1 && <DeliveredCheckmark />}
-            {myMessage && readByMembersLength && (
-              <>
-                {isGroup && (
-                  <span className='message-wrapper-inner-data-readby'>{readByMembersLength}</span>
-                )}
-                <DoubleCheckmark />
-              </>
+          <ThreadReply />
+          <div className='message-wrapper-inner-options'>
+            {showOptions && (
+              <MessageOptions
+                dropdownOpen={dropdownOpen}
+                setDropdownOpen={setDropdownOpen}
+                setMessageActionUser={setMessageActionUser}
+                setShowReactionSelector={setShowReactionSelector}
+                setEdit={setEdit}
+              />
             )}
-            {!myMessage && isGroup && (
-              <div className='message-wrapper-inner-data-info'>
-                {message.user?.name || message.user?.id}
-              </div>
-            )}
-            <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+            <div className='message-wrapper-inner-data'>
+              {myMessage &&
+                message.status === 'received' &&
+                readByMembers &&
+                readByMembers?.length < 1 && <DeliveredCheckmark />}
+              {myMessage && readByMembersLength && (
+                <>
+                  {isGroup && (
+                    <span className='message-wrapper-inner-data-readby'>{readByMembersLength}</span>
+                  )}
+                  <DoubleCheckmark />
+                </>
+              )}
+              {!myMessage && isGroup && (
+                <div className='message-wrapper-inner-data-info'>
+                  {message.user?.name || message.user?.id}
+                </div>
+              )}
+              <MessageTimestamp customClass='message-wrapper-inner-data-time' />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

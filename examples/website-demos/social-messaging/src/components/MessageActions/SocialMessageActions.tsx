@@ -28,10 +28,19 @@ type Props = {
   setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   thread?: boolean;
   user?: UserResponse | null;
+  setEdit: ReactEventHandler;
 };
 
 export const SocialMessageActions: React.FC<Props> = (props) => {
-  const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, thread, user } = props;
+  const {
+    dropdownOpen,
+    openThread,
+    setDropdownOpen,
+    setMessageActionUser,
+    thread,
+    user,
+    setEdit,
+  } = props;
 
   const { client, mutes } = useChatContext();
   const { pinnedMessages, messages } = useChannelStateContext();
@@ -143,7 +152,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       )}
       {isOwnUser && (
         <>
-          <div className='dropdown-option' onClick={() => handleClick('edit')}>
+          <div className='dropdown-option' onClick={setEdit}>
             <EditMessage />
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
