@@ -6,5 +6,5 @@ export * from './icons';
 export * from './MessageInput';
 export * from './MessageInputFlat';
 export * from './MessageInputSmall';
-export * from './UploadsPreview';
 export * from './QuotedMessagePreview';
+export * from './UploadsPreview';

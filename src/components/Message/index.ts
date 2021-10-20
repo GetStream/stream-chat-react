@@ -12,6 +12,6 @@ export * from './MessageStatus';
 export * from './MessageTeam';
 export * from './MessageText';
 export * from './MessageTimestamp';
+export * from './QuotedMessage';
 export * from './types';
 export * from './utils';
-export * from './QuotedMessage';
