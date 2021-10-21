@@ -171,15 +171,15 @@ div.str-chat__message--deleted-inner {
   &-smiley {
     margin: 0 4px;
   }
-}
 
-svg {
-  &:hover {
-    cursor: pointer;
+  svg {
+    &:hover {
+      cursor: pointer;
 
-    path {
-      transition: fill 0.2s;
-      fill: $accent-primary;
+      path {
+        transition: fill 0.2s;
+        fill: $accent-primary;
+      }
     }
   }
 }
@@ -287,6 +287,13 @@ svg {
 .str-chat__modal__inner {
   width: 414px;
   height: 88px;
+  opacity: 1;
+
+  svg {
+    &:hover {
+      cursor: pointer;
+    }
+  }
 
   .edit-header {
     display: flex;

@@ -20,7 +20,6 @@ export const SocialModal: React.FC<ModalProps> = (props) => {
       xRef.current?.contains(event.target) &&
       onClose
     ) {
-      console.log('close');
       onClose();
     }
 
@@ -29,7 +28,6 @@ export const SocialModal: React.FC<ModalProps> = (props) => {
       xInnerRef.current?.contains(event.target) &&
       onClose
     ) {
-      console.log('close');
       onClose();
     }
 
@@ -43,16 +41,14 @@ export const SocialModal: React.FC<ModalProps> = (props) => {
   };
 
   useEffect(() => {
-    if (!open) return () => null;
-
-    const handleEscKey: EventListener = (event) => {
+    const closeModal: EventListener = (event) => {
       if (event instanceof KeyboardEvent && event.key === 'Escape' && onClose) {
         onClose();
       }
     };
 
-    document.addEventListener('keypress', handleEscKey);
-    return () => document.removeEventListener('keypress', handleEscKey);
+    window.addEventListener('keydown', closeModal);
+    return () => window.removeEventListener('keydown', closeModal);
   }, [onClose, open]);
 
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, MouseEvent } from 'react';
 import {
   ReactEventHandler,
   useChannelActionContext,
@@ -50,6 +50,12 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
 
   const [isUserMuted, setIsUserMuted] = useState(false);
   const [isMessagePinned, setIsMessagePinned] = useState(false);
+
+  const handleEdit = (event: MouseEvent) => {
+    event.preventDefault();
+    setEdit(event);
+    setDropdownOpen(false);
+  };
 
   const handleQuote = () => {
     setQuotedMessage(message);
@@ -152,7 +158,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       )}
       {isOwnUser && (
         <>
-          <div className='dropdown-option' onClick={setEdit}>
+          <div className='dropdown-option' onClick={handleEdit}>
             <EditMessage />
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
