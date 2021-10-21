@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { ReactEventHandler } from 'stream-chat-react';
 
 export type UserActions =
   | 'copy'
@@ -7,7 +6,6 @@ export type UserActions =
   | 'flag'
   | 'mute'
   | 'pin'
-  | ReactEventHandler
   | 'reply'
   | 'unmute'
   | 'unpin';

@@ -32,8 +32,6 @@ export const EditInput = (props: Props) => {
 
   const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
-  const messageInput = useMessageInputContext();
-
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
       handleChange(event);
@@ -51,10 +49,11 @@ export const EditInput = (props: Props) => {
         </div>
         <ImageDropzone
           accept={acceptedFiles}
-          handleFiles={messageInput.uploadNewFiles}
+          handleFiles={useMessageInputContext().uploadNewFiles}
           multiple={multipleUploads}
           disabled={
-            maxNumberOfFiles !== undefined && messageInput.numberOfUploads >= maxNumberOfFiles
+            maxNumberOfFiles !== undefined &&
+            useMessageInputContext().numberOfUploads >= maxNumberOfFiles // eslint-disable-line
           }
         >
           <div className='input-ui-input'>

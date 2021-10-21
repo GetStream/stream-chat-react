@@ -59,7 +59,7 @@ export const SocialMessageInput = (props: Props) => {
 
   const { giphyState, setGiphyState } = useGiphyContext();
 
-  const messageInput = useMessageInputContext();
+  // const useMessageInputContext() = useMessageInputContext();
 
   const onCheckChange = () => setChecked?.(!checked);
 
@@ -134,7 +134,7 @@ export const SocialMessageInput = (props: Props) => {
               <div className='input-ui-icons-attach'>
                 <FileUploadButton
                   disabled={Boolean(cooldownRemaining)}
-                  handleFiles={messageInput.uploadNewFiles}
+                  handleFiles={useMessageInputContext().uploadNewFiles} // eslint-disable-line
                 >
                   <Attach cooldownRemaining={cooldownRemaining} />
                 </FileUploadButton>
@@ -150,10 +150,11 @@ export const SocialMessageInput = (props: Props) => {
         </div>
         <ImageDropzone
           accept={acceptedFiles}
-          handleFiles={messageInput.uploadNewFiles}
+          handleFiles={useMessageInputContext().uploadNewFiles}
           multiple={multipleUploads}
           disabled={
-            (maxNumberOfFiles !== undefined && messageInput.numberOfUploads >= maxNumberOfFiles) ||
+            (maxNumberOfFiles !== undefined &&
+              useMessageInputContext().numberOfUploads >= maxNumberOfFiles) || // eslint-disable-line
             giphyState
           }
         >

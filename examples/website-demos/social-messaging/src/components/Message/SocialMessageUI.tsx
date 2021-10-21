@@ -126,15 +126,16 @@ export const SocialMessage: React.FC<
   const { pinnedMessages } = useChannelStateContext();
 
   const [messageActionUser, setMessageActionUser] = useState<string>();
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
-  const [showReactionSelector, setShowReactionSelector] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [showReactionSelector, setShowReactionSelector] = useState(false);
 
   const { clearEdit, editing, setEdit } = useEditHandler();
 
-  const messageIsPinned = pinnedMessages
-    ? pinnedMessages.some((pin) => pin.id === message.id)
-    : false;
+  const messageIsPinned =
+    pinnedMessages && pinnedMessages.length
+      ? pinnedMessages.some((pin) => pin.id === message.id)
+      : false;
 
   const clearModals = () => {
     setDropdownOpen(false);
@@ -176,7 +177,7 @@ export const SocialMessage: React.FC<
   const readByMembersLength = readByMembers?.length === 0 ? undefined : readByMembers?.length;
 
   if (message.deleted_at || message.type === 'deleted') {
-    return <SocialMessageDeleted message={message} />;
+    return <SocialMessageDeleted />;
   }
 
   return (

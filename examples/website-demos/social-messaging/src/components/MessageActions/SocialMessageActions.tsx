@@ -57,6 +57,12 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
     setDropdownOpen(false);
   };
 
+  const handleThread = (event: MouseEvent) => {
+    event.preventDefault();
+    openThread && openThread(event);
+    setDropdownOpen(false);
+  };
+
   const handleQuote = () => {
     setQuotedMessage(message);
 
@@ -83,7 +89,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       const messageIsPinned = pinnedMessages.some((pin) => pin.id === message.id);
       setIsMessagePinned(messageIsPinned);
     }
-  }, [pinnedMessages]); // eslint-disable-line
+  }, [pinnedMessages && pinnedMessages.length]); // eslint-disable-line
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
@@ -116,18 +122,14 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
 
   return (
     <div className={`dropdown ${isRecentMessage ? 'recent' : ''}`}>
-      {thread && openThread && (
-        <div className='dropdown-option' onClick={handleQuote}>
-          <QuoteReply />
-          <div className='dropdown-option-text'>Reply</div>
-        </div>
-      )}
-      {thread && openThread && (
-        <div className='dropdown-option' onClick={openThread}>
-          <StartThread />
-          <div className='dropdown-option-text'>Thread Reply</div>
-        </div>
-      )}
+      <div className='dropdown-option' onClick={handleQuote}>
+        <QuoteReply />
+        <div className='dropdown-option-text'>Reply</div>
+      </div>
+      <div className='dropdown-option' onClick={handleThread}>
+        <StartThread />
+        <div className='dropdown-option-text'>Thread Reply</div>
+      </div>
       <div className='dropdown-option' onClick={() => handleClick('copy')}>
         <CopyMessage />
         <div className='dropdown-option-text'>Copy Message</div>
