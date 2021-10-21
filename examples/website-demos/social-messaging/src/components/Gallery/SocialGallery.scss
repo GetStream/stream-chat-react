@@ -1,0 +1,108 @@
+@import '../../styles/_variables';
+
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 304px;
+    overflow: hidden;
+
+    &-placeholder {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        color: $white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 28px;
+        color: $white;
+        font-weight: 500;
+        line-height: 34px;
+    }
+
+    &-image {
+        width: 150px;
+        height: 150px;
+        background: $white;
+        margin-bottom: 1px;
+        margin-right: 1px;
+
+        :hover {
+            cursor: pointer;
+        }
+
+        img {
+            width: inherit;
+            height: inherit;
+            object-fit: cover;
+        }
+    }
+
+    &-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        background-color: $overlay;
+        backdrop-filter: blur(10px);
+    }
+
+    &-modal {
+        position: fixed;
+        top: 95%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 99%;
+        height: 75%;
+        background-color: $bars-bg;
+        z-index: 1001;
+        border-radius: 16px;
+
+        &-header {
+            background-color: $bars-bg;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;   
+            border-radius: 16px;       
+
+            span {
+                margin-right: 50%;
+                font-size: 17px;
+                font-weight: 500;
+                line-height: 20px;
+                color: $text-high-emphasis;
+            }
+
+            svg {
+                margin-right: 8px;
+            }
+        }
+
+        &-children {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            overflow: scroll;
+            background-color: $bars-bg;
+        }
+
+        &-image-wrapper {
+            max-height: 166px;
+            max-width: 166px;
+            padding: 1px;
+
+            &-image {
+                max-width:100%;
+                max-height:100%;
+            }
+        }
+    }
+}
+

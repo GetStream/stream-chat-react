@@ -70,9 +70,11 @@ export const useTranslationContext = (componentName?: string) => {
   const contextValue = useContext(TranslationContext);
 
   if (!contextValue) {
-    throw new Error(
+    console.warn(
       `The useTranslationContext hook was called outside of the TranslationContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as TranslationContextValue;
   }
 
   return contextValue;

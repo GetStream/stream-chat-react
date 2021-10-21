@@ -89,13 +89,11 @@ export const useChatContext = <
   const contextValue = useContext(ChatContext);
 
   if (!contextValue) {
-    if (process.env.NODE_ENV === 'test') {
-      return {} as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
-    }
-
-    throw new Error(
+    console.warn(
       `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
+
+    return {} as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
   }
 
   return (contextValue as unknown) as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;

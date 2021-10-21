@@ -9781,9 +9781,9 @@ react-view-pager@^0.6.0:
     tabbable "1.1.2"
 
 react-virtuoso@^2.2.1:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.3.tgz#e41f66e69ef577f69190a65b9503ee04c8198286"
-  integrity sha512-9bI+6cXCURjku1w0gF/c+1a6D/uq1C4gvGZAUOLnpLsofSJUFSSm3XG2GSLDXIXr1sn0eS9nDIKjks97+Vjuxg==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.2.tgz#d6b3d7d80a9d7377bb90de1dc46f32f5a1cf3739"
+  integrity sha512-ESwiOyliO/0q58P1X9e3IQosIKWmCv0JYO/ZDeLxh2O0FNWPQlXC5xgRT2fVxMXPoi+EaNI671foJuqOOITrOg==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"

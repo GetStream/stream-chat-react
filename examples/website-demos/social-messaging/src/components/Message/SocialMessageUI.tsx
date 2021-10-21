@@ -34,6 +34,7 @@ import {
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 
+import { SocialGallery } from '../Gallery/SocialGallery';
 import { ThreadReply } from '../ThreadReply/ThreadReply';
 import {
   SocialReactionList,
@@ -182,11 +183,7 @@ export const SocialMessage: React.FC<
     <>
       {editing && (
         <SocialModal onClose={clearEdit} open={editing}>
-          <MessageInput
-            clearEditingState={clearEdit}
-            Input={EditInput}
-            message={message}
-          />
+          <MessageInput clearEditingState={clearEdit} Input={EditInput} message={message} />
         </SocialModal>
       )}
       <div
@@ -218,7 +215,9 @@ export const SocialMessage: React.FC<
           ) : null}
           <div className='message-wrapper-inner-text'>
             <SocialReactionList />
-            {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
+            {message.attachments?.length ? (
+              <Attachment attachments={message.attachments} Gallery={SocialGallery} />
+            ) : null}
             <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
             <ReactionParticipants />
           </div>
