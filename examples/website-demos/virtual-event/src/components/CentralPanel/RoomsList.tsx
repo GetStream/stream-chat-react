@@ -1,4 +1,5 @@
 import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { rooms } from './data';
 import { EventCard } from './EventCard';
@@ -43,6 +44,11 @@ export const RoomsList = () => {
     setDropdownOpen((prev) => !prev);
   };
 
+  const variants = {
+    open: { opacity: 1, height: '660px' },
+    closed: { opacity: 0, height: 0 },
+  };
+
   return (
     <>
       <div className='rooms-list-header'>
@@ -53,24 +59,33 @@ export const RoomsList = () => {
         <div className='rooms-list-header-calendar' onClick={calendarClick}>
           <CalendarButton />
         </div>
-        {dropdownOpen && (
-          <div className='rooms-list-dropdown' ref={dropdownRef}>
-            {rooms.map((room, i) => (
-              <div className='rooms-list-card' key={i}>
-                <EventCard
-                  chatType={room.chatType}
-                  content={room.content}
-                  eventName={room.eventName}
-                  eventNumber={i}
-                  label={room.label}
-                  presenters={room.presenters}
-                  title={room.title}
-                  viewers={room.viewers}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {dropdownOpen && (
+            <motion.div
+              className='rooms-list-dropdown'
+              ref={dropdownRef}
+              variants={variants}
+              initial='closed'
+              animate='open'
+              exit='closed'
+            >
+              {rooms.map((room, i) => (
+                <div className='rooms-list-card' key={i}>
+                  <EventCard
+                    chatType={room.chatType}
+                    content={room.content}
+                    eventName={room.eventName}
+                    eventNumber={i}
+                    label={room.label}
+                    presenters={room.presenters}
+                    title={room.title}
+                    viewers={room.viewers}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <div className={`rooms-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
