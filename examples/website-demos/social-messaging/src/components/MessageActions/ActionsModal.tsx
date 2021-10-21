@@ -117,10 +117,10 @@ export const ActionsModal: React.FC<Props> = (props) => {
           <div>{description}</div>
         </div>
         <div className='actions-modal-buttons'>
-          <div onClick={handleCancel}>CANCEL</div>
-          <div onClick={() => handleAction(userActionType)}>
+          <button onClick={handleCancel}>CANCEL</button>
+          <button disabled={!message.text} onClick={() => handleAction(userActionType)}>
             {title.split(' ')[0].toUpperCase()}
-          </div>
+          </button>
         </div>
       </div>
     </div>

@@ -54,8 +54,13 @@
       padding: 0 32px;
       font-weight: 600;
 
-      div {
+      button {
         padding: 16px 0;
+        border: none;
+        background: none;
+        font-weight: 600;
+        font-size: 17px;
+
 
         &:hover {
           cursor: pointer;
