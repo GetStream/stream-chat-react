@@ -1,5 +1,5 @@
 import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 
 import { mainEvents } from './data';
 import { EventCard } from './EventCard';
@@ -47,7 +47,7 @@ export const EventsList = () => {
   const currentEvents = [mainEvents[0], mainEvents[1]];
   const upcomingEvents = [mainEvents[2], mainEvents[3]];
 
-  const variants = {
+  const variants: Variants = {
     open: { opacity: 1, height: '660px' },
     closed: { opacity: 0, height: 0 },
   };
