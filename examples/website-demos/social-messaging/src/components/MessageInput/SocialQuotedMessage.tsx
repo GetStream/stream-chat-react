@@ -33,14 +33,14 @@ export const SocialQuotedMessage = (props: any) => {
 
   return (
     <div className='quoted-message-preview'>
-        {quotedMessage.user && (
-          <Avatar
-            image={quotedMessage.user.image}
-            name={quotedMessage.user.name || quotedMessage.user.id}
-            size={24}
-            user={quotedMessage.user}
-          />
-        )}
+      {quotedMessage.user && (
+        <Avatar
+          image={quotedMessage.user.image}
+          name={quotedMessage.user.name || quotedMessage.user.id}
+          size={24}
+          user={quotedMessage.user}
+        />
+      )}
       <div className='quoted-message-preview-content'>
         <div className='quoted-message-preview-content-inner'>
           {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}

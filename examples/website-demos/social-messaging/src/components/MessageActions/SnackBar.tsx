@@ -1,6 +1,13 @@
 import React from 'react';
 
-import { CloseSnackbar, CopyMessage, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
+import {
+  CloseSnackbar,
+  CopyMessage,
+  DeleteMessage,
+  FlagMessage,
+  MuteUser,
+  PinMessage,
+} from '../../assets';
 import { useViewContext } from '../../contexts/ViewContext';
 
 export const Snackbar: React.FC = () => {
