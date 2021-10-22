@@ -112,7 +112,7 @@ export const SocialMessage: React.FC<
     messageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
 > = () => {
-  const { channel } = useChannelStateContext();
+  const { channel, pinnedMessages } = useChannelStateContext();
   const { client } = useChatContext();
   const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<
     SocialAttachmentType,
@@ -124,7 +124,6 @@ export const SocialMessage: React.FC<
     SocialUserType
   >();
   const { actionsModalOpenId, userActionType } = useViewContext();
-  const { pinnedMessages } = useChannelStateContext();
 
   const [messageActionUser, setMessageActionUser] = useState<string>();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -157,7 +156,6 @@ export const SocialMessage: React.FC<
         !reactionsSelectorRef.current?.contains(event.target)
       ) {
         setShowReactionSelector(false);
-        // maybe add to actions, too?
       }
     };
 
@@ -219,7 +217,6 @@ export const SocialMessage: React.FC<
           {message.show_in_channel ? (
             <div className='send-also'>
               <SendAlso />
-              Replied to a thread
             </div>
           ) : null}
           <div className='message-wrapper-inner-text'>

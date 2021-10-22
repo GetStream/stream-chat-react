@@ -287,11 +287,15 @@ div.str-chat__message--deleted-inner {
 .send-also {
   color: $text-low-emphasis;
   padding: 4px 0 8px;
-  width: 130px;
   font-size: 13px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+
+  &:after {
+    padding-left: 6px;
+    content: 'Replied to a thread';
+  }
 }
 
 .message-wrapper {
@@ -307,7 +311,6 @@ div.str-chat__message--deleted-inner {
     .str-chat__message-attachment-card {
       background: $link-bg;
       border: 10px solid $link-bg;
-
     }
   }
 }
