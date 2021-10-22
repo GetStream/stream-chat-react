@@ -132,10 +132,9 @@ export const SocialMessage: React.FC<
 
   const { clearEdit, editing, setEdit } = useEditHandler();
 
-  const messageIsPinned =
-    pinnedMessages && pinnedMessages.length
-      ? pinnedMessages.some((pin) => pin.id === message.id)
-      : false;
+  const messageIsPinned = pinnedMessages?.length
+    ? pinnedMessages.some((pin) => pin.id === message.id)
+    : false;
 
   const clearModals = () => {
     setDropdownOpen(false);

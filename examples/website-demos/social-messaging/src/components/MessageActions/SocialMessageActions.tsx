@@ -89,7 +89,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
       const messageIsPinned = pinnedMessages.some((pin) => pin.id === message.id);
       setIsMessagePinned(messageIsPinned);
     }
-  }, [pinnedMessages && pinnedMessages.length]); // eslint-disable-line
+  }, [pinnedMessages?.length]); // eslint-disable-line
 
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
