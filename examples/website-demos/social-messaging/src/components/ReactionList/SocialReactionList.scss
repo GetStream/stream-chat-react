@@ -143,6 +143,7 @@ li.str-chat__simple-reactions-list-item--last-number {
   font-size: 20px;
   font-weight: 600;
   z-index: 3;
+  box-shadow: $shadow;
 
   &-users {
     font-size: 13px;

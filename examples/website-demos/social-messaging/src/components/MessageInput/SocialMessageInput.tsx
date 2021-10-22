@@ -11,12 +11,15 @@ import {
   useChannelStateContext,
 } from 'stream-chat-react';
 
+import { SocialQuotedMessage, SocialQuotedMessageHeader } from './SocialQuotedMessage';
+
 import {
   Attach,
   CommandBolt,
   EmojiPickerIcon,
   GiphyIcon,
   GiphySearch,
+  QuoteArrow,
   SendArrow,
 } from '../../assets';
 
@@ -47,11 +50,16 @@ export const SocialMessageInput = (props: Props) => {
     text,
   } = useMessageInputContext();
 
-  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
+  const {
+    acceptedFiles,
+    maxNumberOfFiles,
+    multipleUploads,
+    quotedMessage,
+  } = useChannelStateContext();
 
   const { giphyState, setGiphyState } = useGiphyContext();
 
-  const messageInput = useMessageInputContext();
+  // const useMessageInputContext() = useMessageInputContext();
 
   const onCheckChange = () => setChecked?.(!checked);
 
@@ -117,31 +125,42 @@ export const SocialMessageInput = (props: Props) => {
     <>
       <div className='input-ui'>
         <div className='input-ui-icons'>
-          <div className='input-ui-icons-attach'>
-            <FileUploadButton
-              disabled={Boolean(cooldownRemaining)}
-              handleFiles={messageInput.uploadNewFiles}
-            >
-              <Attach cooldownRemaining={cooldownRemaining} />
-            </FileUploadButton>
-          </div>
-          <div
-            className='input-ui-icons-bolt'
-            onClick={!numberOfUploads && !cooldownRemaining ? handleCommandsClick : () => null}
-          >
-            <CommandBolt cooldownRemaining={cooldownRemaining} />
-          </div>
+          {quotedMessage ? (
+            <div className='input-ui-icons-arrow'>
+              <QuoteArrow />
+            </div>
+          ) : (
+            <>
+              <div className='input-ui-icons-attach'>
+                <FileUploadButton
+                  disabled={Boolean(cooldownRemaining)}
+                  handleFiles={useMessageInputContext().uploadNewFiles} // eslint-disable-line
+                >
+                  <Attach cooldownRemaining={cooldownRemaining} />
+                </FileUploadButton>
+              </div>
+              <div
+                className='input-ui-icons-bolt'
+                onClick={!numberOfUploads && !cooldownRemaining ? handleCommandsClick : () => null}
+              >
+                <CommandBolt cooldownRemaining={cooldownRemaining} />
+              </div>
+            </>
+          )}
         </div>
         <ImageDropzone
           accept={acceptedFiles}
-          handleFiles={messageInput.uploadNewFiles}
+          handleFiles={useMessageInputContext().uploadNewFiles}
           multiple={multipleUploads}
           disabled={
-            (maxNumberOfFiles !== undefined && messageInput.numberOfUploads >= maxNumberOfFiles) ||
+            (maxNumberOfFiles !== undefined &&
+              useMessageInputContext().numberOfUploads >= maxNumberOfFiles) || // eslint-disable-line
             giphyState
           }
         >
+          {quotedMessage && <SocialQuotedMessageHeader />}
           <div className={`input-ui-input ${giphyState ? 'giphy' : ''}`}>
+            {quotedMessage && <SocialQuotedMessage quotedMessage={quotedMessage} />}
             {giphyState && !numberOfUploads && <GiphyIcon />}
             <UploadsPreview />
             <div className='input-ui-input-textarea'>

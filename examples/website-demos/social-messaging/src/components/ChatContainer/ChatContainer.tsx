@@ -5,6 +5,7 @@ import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
+import { Snackbar } from '../MessageActions/SnackBar';
 import { SocialMessageListNotifications } from '../MessageListNotifications/SocialMessageListNotifications';
 import { SocialMessageInput } from '../MessageInput/SocialMessageInput';
 import { SocialChannelPreview } from '../ChannelPreview/SocialChannelPreview';
@@ -72,6 +73,7 @@ export const ChatContainer: React.FC = () => {
     // mentionsUnreadCount,
     setChatsUnreadCount,
     setMentionsUnreadCount,
+    snackbar,
   } = useViewContext();
 
   // useChecklist(chatClient, targetOrigin);
@@ -135,6 +137,7 @@ export const ChatContainer: React.FC = () => {
           />
         </div>
         {isSideDrawerOpen && <SideDrawer />}
+        {snackbar && <Snackbar />}
         <Channel
           AutocompleteSuggestionHeader={SocialSuggestionListHeader}
           AutocompleteSuggestionItem={SocialSuggestionList}
