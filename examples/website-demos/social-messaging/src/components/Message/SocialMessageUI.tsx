@@ -22,6 +22,7 @@ import {
   MessageActionsEllipse,
   PinnedBy,
   ReactionSmiley,
+  SendAlso,
 } from '../../assets';
 
 import {
@@ -187,7 +188,9 @@ export const SocialMessage: React.FC<
         </SocialModal>
       )}
       <div
-        className={`message-wrapper ${myMessage ? 'right' : ''} ${messageIsPinned ? 'pinned' : ''}`}
+        className={`message-wrapper ${myMessage ? 'right' : ''} ${
+          messageIsPinned ? 'pinned' : ''
+        } ${message.show_in_channel ? 'show' : ''}`}
         onMouseEnter={() => setShowOptions(true)}
         onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
       >
@@ -213,12 +216,20 @@ export const SocialMessage: React.FC<
                 : ''}
             </div>
           ) : null}
+          {message.show_in_channel ? (
+            <div className='send-also'>
+              <SendAlso />
+              Replied to a thread
+            </div>
+          ) : null}
           <div className='message-wrapper-inner-text'>
             <SocialReactionList />
-            {message.attachments?.length ? (
-              <Attachment attachments={message.attachments} Gallery={SocialGallery} />
-            ) : null}
-            <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+            <div className={`${message.show_in_channel ? 'send-also-text' : ''}`}>
+              {message.attachments?.length ? (
+                <Attachment attachments={message.attachments} Gallery={SocialGallery} />
+              ) : null}
+              <MessageText customWrapperClass={`${myMessage ? 'my-message' : ''}`} />
+            </div>
             <ReactionParticipants />
           </div>
           {showReactionSelector && (

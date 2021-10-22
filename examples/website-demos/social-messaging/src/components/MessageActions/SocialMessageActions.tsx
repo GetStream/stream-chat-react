@@ -32,15 +32,7 @@ type Props = {
 };
 
 export const SocialMessageActions: React.FC<Props> = (props) => {
-  const {
-    dropdownOpen,
-    openThread,
-    setDropdownOpen,
-    setMessageActionUser,
-    thread,
-    user,
-    setEdit,
-  } = props;
+  const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, user, setEdit } = props;
 
   const { client, mutes } = useChatContext();
   const { pinnedMessages, messages } = useChannelStateContext();

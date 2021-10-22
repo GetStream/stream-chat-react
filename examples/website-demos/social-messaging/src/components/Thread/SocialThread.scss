@@ -62,3 +62,9 @@ div.messaging.str-chat .str-chat__thread {
 div.messaging.str-chat .str-chat__thread-list {
   padding: 0 40px;
 }
+
+.str-chat__thread-list {
+  .show {
+    background: $highlight;
+  }
+}

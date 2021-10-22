@@ -37,6 +37,7 @@ export { QuoteReply } from './QuoteReply';
 export { ReactionSmiley } from './ReactionSmiley';
 export { RightReply } from './RightReply';
 export { SearchIcon } from './SearchIcon';
+export { SendAlso } from './SendAlso';
 export { SendArrow } from './SendArrow';
 export { SendCheck } from './SendCheck';
 export { StartThread } from './StartThread';

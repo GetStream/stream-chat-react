@@ -343,3 +343,44 @@ div.rta__autocomplete.str-chat__emojisearch {
     }
   }
 }
+
+// Edit Message
+.str-chat__modal__inner {
+  width: 424px;
+  height: 88px;
+  opacity: 1;
+
+  svg {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .edit-header {
+    display: flex;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 500;
+    position: relative;
+
+    button {
+      border-radius: 24px;
+      position: relative;
+      right: -137px;
+
+      svg {
+        fill: $text-low-emphasis;
+      }
+    }
+  }
+
+  .input-ui {
+    box-shadow: none;
+    border: none;
+  }
+}
+
+div.str-chat__modal__inner {
+  padding: 8px 0 0;
+  border-radius: unset;
+}
