@@ -62,3 +62,24 @@ div.messaging.str-chat .str-chat__thread {
 div.messaging.str-chat .str-chat__thread-list {
   padding: 0 40px;
 }
+
+.str-chat__thread-list {
+  .show {
+    background: $highlight;
+    padding-right: 8px;
+  }
+
+  .send-also {
+    color: $text-low-emphasis;
+    padding: 4px 0 8px;
+    font-size: 13px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    &:after {
+      content: 'Also sent to the channel';
+      padding-left: 6px;
+    }
+  }
+}
