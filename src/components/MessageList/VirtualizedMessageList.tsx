@@ -213,12 +213,14 @@ const VirtualizedMessageListWithContext = <
       }
 
       const message = messageList[streamMessageIndex];
-
+      const emptyElement = <div style={{ height: '1px' }}></div>
       if (message.customType === 'message.date' && message.date && isDate(message.date)) {
+        // do not show the first date separator in the message list
+        if(streamMessageIndex === 0) return emptyElement
         return <DateSeparator date={message.date} unread={message.unread} />;
       }
 
-      if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
+      if (!message)  return emptyElement; // returning null or zero height breaks the virtuoso
 
       if (message.type === 'system') {
         return <MessageSystem message={message} />;
