@@ -2,7 +2,6 @@
 context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000';
-    console.log(screen);
     cy.viewport('macbook-11');
     cy.visit(url, { timeout: 40000 });
     cy.dataTestContains('channel-preview-button').first().click().should('exist');
@@ -29,7 +28,6 @@ context('Actions', () => {
       .last()
       .invoke('mouseover')
       .then((element) => {
-        console.log(element);
         const cls = element.attr('class');
         cy.wrap(element).click({ force: true }).should('have.class', cls);
         cy.wait(100);
@@ -38,7 +36,6 @@ context('Actions', () => {
         cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
           .last()
           .then((element) => {
-            console.log(element);
             const cls = element.attr('class');
             cy.wrap(element).type(input, { delay: 100 }).should('have.class', cls).type('{enter}');
             // close thread reply

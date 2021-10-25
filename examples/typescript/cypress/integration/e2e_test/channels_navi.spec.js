@@ -3,7 +3,6 @@
 context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000'
-    console.log(screen)
     cy.waitFor(10000)
     cy.viewport('macbook-11')
     cy.visit(url, { timeout: 120000 })
@@ -19,7 +18,6 @@ context('Actions', () => {
     cy.dataTestContains(channel_more).click({force: true}).should('be.visible')
     cy.wait(1000)
     cy.get('[data-testid="channel-preview-button"]').each(element => {
-      console.log()
     cy.wrap(element).click({force: true})
     cy.xpath("//textarea[contains(@placeholder,'Type your message')]").focus()
       .type(input, {timeout:100})

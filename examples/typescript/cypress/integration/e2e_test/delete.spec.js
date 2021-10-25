@@ -2,7 +2,6 @@
 context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000';
-    console.log(screen);
     cy.viewport('macbook-11');
     cy.visit(url, { timeout: 40000 });
     cy.dataTestContains('channel-preview-button').first().click().should('exist');
@@ -21,7 +20,6 @@ context('Actions', () => {
     cy.get('li')
       .last()
       .then((element) => {
-        console.log(element);
         const cls = element.attr('class');
         cy.get('[data-testid="message-inner"]')
           .should('include.text', 'Greetings2 text to delete')

@@ -2,7 +2,6 @@
 context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000'
-    console.log(screen);
     cy.viewport('macbook-11')
     cy.visit(url, { timeout: 40000 })
     cy.dataTestContains('channel-preview-button').first().click().should('exist')
@@ -29,7 +28,6 @@ context('Actions', () => {
           .contains('Hello Ear')
           .first()
           .then((element) => {
-            console.log(element);
             const cls = element.attr('class');
             cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
             //cy.get('[data-testid="message-inner"]')
@@ -54,7 +52,6 @@ context('Actions', () => {
           .contains('Hello Ear')
           .first()
           .then((element) => {
-            console.log(element);
             const cls = element.attr('class')
             cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
               .then((element) => {
