@@ -1,3 +1,11 @@
+// import { useViewContext } from "../../contexts/ViewContext";
+
 export const ChatInfo = () => {
-    return <div>ChatInfo Screen</div>
+
+    // const { setChatInfoOpen } = useViewContext();
+    return (
+        <>
+        <div>ChatInfo Screen</div>
+        </>
+    )
 }

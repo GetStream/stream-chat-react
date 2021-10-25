@@ -18,6 +18,23 @@
     margin-left: 15px
   }
 
+  div svg {
+    fill: $black;
+    margin-left: 15px;
+
+    &:hover path {
+      fill: $accent-primary;
+      cursor: pointer;
+    }
+  }
+
+  svg {
+    &:hover path {
+      fill: $accent-primary;
+      cursor: pointer;
+    }
+  }
+
   &-new-chat {
       font-size: 17px;
       color: $text-high-emphasis;

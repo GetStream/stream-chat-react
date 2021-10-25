@@ -76,48 +76,18 @@ export const ChannelContainer: React.FC = () => {
     setMentionsUnreadCount,
   ]);
 
-  // const getCommandIcon = (name?: string) => {
-  //   let description;
-  //   let Icon;
-  
-  //   switch (name) {
-  //     case 'ban':
-  //       description = '/ban [@username] [text]';
-  //       Icon = Ban;
-  //       break;
-  //     case 'flag':
-  //       description = '/flag [@username]';
-  //       Icon = Flag;
-  //       break;
-  //     case 'giphy':
-  //       description = '/giphy [query]';
-  //       Icon = Giphy;
-  //       break;
-  //     case 'mute':
-  //       description = '[@username]';
-  //       Icon = Mute;
-  //       break;
-  //     case 'unban':
-  //       description = '[@username]';
-  //       Icon = Unban;
-  //       break;
-  //     case 'unmute':
-  //       description = '[@username]';
-  //       Icon = Unmute;
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  
-  //   return { description, Icon };
-  // };
+  const channelRenderer = () => {
+    if (isNewChat) return <NewChat />
+    if (isChatInfoOpen) return <ChatInfo />
+
+    return <MessageList />
+  };
 
   return (
     <>
       <Window>
         <SocialChannelHeader />
-        {isNewChat ? <NewChat /> : <MessageList />}
-        {isChatInfoOpen && !isNewChat ? <ChatInfo /> : <MessageList />}
+        {channelRenderer()}
         {!isChatInfoOpen && <MessageInput mentionAllAppUsers />}
       </Window>
       <SocialThread />

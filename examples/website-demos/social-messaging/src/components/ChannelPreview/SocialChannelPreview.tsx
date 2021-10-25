@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
 
@@ -17,6 +17,7 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { useViewContext } from '../../contexts/ViewContext';
+import { OptionsIcons } from '../../assets';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
 
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
@@ -36,6 +37,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     chatsUnreadCount,
     isListMentions,
     mentionsUnreadCount,
+    setChatInfoOpen,
     setChatsUnreadCount,
     setMentionsUnreadCount,
     setNewChat,
@@ -64,6 +66,18 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     return `${memberNames}${members.length > 2 ? '...' : ''}`;
   };
 
+  // useEffect(() => {
+  //   const handleHover = (event: MouseEvent) => {
+  //     if (hoverRef.current) {
+  //     }
+  //   };
+
+  //   document.addEventListener('mouseover', handleHover);
+  //   return () => {
+  //     document.removeEventListener('mouseover', handleHover);
+  //   };
+  // }, [hoverRef]);
+
   return (
     <button
       className={`channel-preview ${activeClass} ${online ? '' : 'offline'}`}
@@ -85,9 +99,14 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
         <div className='channel-preview-contents-last-message'>{latestMessage}</div>
       </div>
       <div className='channel-preview-end'>
-        <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
-          <span className='channel-preview-end-unread-text'>{unread}</span>
-        </div>
+        <>
+        <span onClick={() => setChatInfoOpen(true)}>
+          <OptionsIcons />
+        </span>
+          <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
+            <span className='channel-preview-end-unread-text'>{unread}</span>
+          </div>
+        </>
         <div className='channel-preview-end-statuses'>
           {/* <div className='channel-preview-end-statuses-arrows'>
               {members.length === 2 && <DoubleCheckmark />}

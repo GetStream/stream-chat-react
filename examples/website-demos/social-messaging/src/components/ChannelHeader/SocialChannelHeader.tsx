@@ -10,7 +10,7 @@ import './SocialChannelHeader.scss';
 export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   const { live } = props;
   const { client } = useChatContext();
-  const { isChatInfoOpen, isNewChat } = useViewContext();
+  const { isChatInfoOpen, isNewChat, setChatInfoOpen } = useViewContext();
 
   const { channel } = useChannelStateContext();
 
@@ -40,7 +40,7 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   if (isChatInfoOpen) {
     return (
       <div className='social-channel-header'>
-        <CloseX />
+        <div onClick={() =>setChatInfoOpen(false)}><CloseX /></div>
         <span className='social-channel-header-chat-info'>Chat Info</span>
       </div>
     )
