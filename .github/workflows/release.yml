@@ -8,6 +8,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    branches: ['master', 'automated-release']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -23,5 +24,3 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         run: npx semantic-release
-        with:
-          branches: ['master', 'automated-release']
