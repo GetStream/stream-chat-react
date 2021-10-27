@@ -1,8 +1,8 @@
 name: Release
 on:
   push:
-    branches:
-      - master
+    branches: [master, automated-release]
+
 jobs:
   release:
     name: Release
@@ -20,6 +20,5 @@ jobs:
         run: npm ci
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         run: npx semantic-release
