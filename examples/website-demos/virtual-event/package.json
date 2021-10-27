@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "framer-motion": "^4.1.17",
     "lottie-web": "^5.7.13",
     "react": "link:../../../node_modules/react",
     "react-dom": "link:../../../node_modules/react-dom",

@@ -1,3 +1,5 @@
+import { motion, Variants } from 'framer-motion';
+
 import {
   DefaultLight,
   DefaultDark,
@@ -92,8 +94,19 @@ export const ThemeModal = () => {
     setTheme(theme.option);
   };
 
+  const variants: Variants = {
+    open: { opacity: 1, scale: 1, transition: { duration: 0.01 } },
+    closed: { opacity: 0.5, scale: 0.9 },
+  };
+
   return (
-    <div className='navigation-top-theme-modal'>
+    <motion.div
+      className='navigation-top-theme-modal'
+      variants={variants}
+      initial='closed'
+      animate='open'
+      exit='closed'
+    >
       {Object.entries(themes).map((theme, i) => {
         const Icon = theme[1].icon;
 
@@ -108,6 +121,6 @@ export const ThemeModal = () => {
           </div>
         );
       })}
-    </div>
+    </motion.div>
   );
 };
