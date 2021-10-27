@@ -1,7 +1,9 @@
 name: Release
 on:
   push:
-    branches: [master, automated-release]
+    branches:
+    -master
+    -automated-release
 
 jobs:
   release:
