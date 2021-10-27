@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - master
-      - 'automated-release'
 
 jobs:
   release:
@@ -24,3 +23,5 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
         run: npx semantic-release
+        with:
+          branches: ['master', 'automated-release']
