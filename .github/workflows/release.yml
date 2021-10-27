@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 'lts/*'
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
