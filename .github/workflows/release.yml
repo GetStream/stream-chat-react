@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - automated-release
+      - 'automated-release'
 
 jobs:
   release:
