@@ -1,4 +1,5 @@
 import React from 'react';
+import { AnimatePresence } from 'framer-motion';
 
 import { ThemeModal } from './ThemeModal';
 
@@ -13,7 +14,7 @@ export const Navigation: React.FC = () => {
     <div className='navigation'>
       <div className='navigation-top'>
         <MainLogo setThemeModalOpen={setThemeModalOpen} themeModalOpen={themeModalOpen} />
-        {themeModalOpen && <ThemeModal />}
+        <AnimatePresence>{themeModalOpen && <ThemeModal />}</AnimatePresence>
         <div className='navigation-top-tabs'>
           <OverviewButton />
           <MainEventButton />
