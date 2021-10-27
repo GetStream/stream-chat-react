@@ -8,7 +8,6 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    branches: ['master', 'automated-release']
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -23,4 +22,5 @@ jobs:
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
