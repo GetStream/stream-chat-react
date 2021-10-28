@@ -77,8 +77,8 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     return `${memberNames}${members.length > 2 ? '...' : ''}`;
   };
 
-  console.log('actionId in preview IS:', actionId);
-  console.log('actionsModalOpenId in preview IS:', actionsModalOpenId);
+  // console.log('actionId in preview IS:', actionId);
+  // console.log('actionsModalOpenId in preview IS:', actionsModalOpenId);
 
   return (
     <>

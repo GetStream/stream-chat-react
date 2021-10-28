@@ -9,7 +9,7 @@ import {
 } from 'stream-chat-react';
 import { Emoji, BaseEmoji } from 'emoji-mart';
 
-import { useViewContext } from '../../contexts/ViewContext';
+import { useActionsContext } from '../../contexts/ActionsContext';
 
 import './SocialReactionList.scss';
 
@@ -62,10 +62,10 @@ export const customReactions: BaseEmoji[] = [
 ];
 
 export const ReactionParticipants: React.FC = () => {
+  const { reactionsOpenId } = useActionsContext();
   const { isMyMessage, message } = useMessageContext();
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
-  const { reactionsOpenId } = useViewContext();
 
   const isGroup =
     Object.values(channel.state.members).filter(({ user }) => user?.id !== client.userID).length >
@@ -112,8 +112,8 @@ export const ReactionParticipants: React.FC = () => {
 };
 
 export const SocialReactionList: React.FC = () => {
+  const { reactionsOpenId, setReactionsOpenId } = useActionsContext();
   const { message } = useMessageContext();
-  const { reactionsOpenId, setReactionsOpenId } = useViewContext();
 
   const reactionsRef = useRef<HTMLDivElement | null>(null);
 

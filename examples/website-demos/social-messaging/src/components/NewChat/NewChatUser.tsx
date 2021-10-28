@@ -9,11 +9,13 @@ import { SocialUserType } from '../ChatContainer/ChatContainer';
 import './NewChatUser.scss';
 
 type Props<SocialUserType> = {
-  user: UserResponse<SocialUserType>;
+  user: UserResponse<SocialUserType> | undefined;
 };
 
 export const NewChatUser = (props: Props<SocialUserType>) => {
   const { user } = props;
+
+  if (!user) return null;
 
   Dayjs.extend(relativeTime);
   let status = Dayjs().from(Dayjs(user.last_active), true);

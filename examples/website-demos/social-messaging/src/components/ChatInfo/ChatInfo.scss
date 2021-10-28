@@ -1,0 +1,63 @@
+@import '../../styles/_variables';
+
+.chat-info {
+    &-divider {
+        background: $borders;
+        height: 8px;
+        width: 100%;
+    }
+
+    &-option {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        flex-grow: 0;
+        // text-align: left;
+        background-color: $app-bg;
+        border-bottom: 1px solid $borders;
+        padding: 8px 5px;
+        height: 56px;
+        // color: $accent-error;
+        font-size: 17px;
+        font-weight: 500;
+
+        svg {
+            margin: 0 10px;
+          }
+
+        &:hover {
+            background: $borders;
+            cursor: pointer;
+        }
+
+        &-delete {
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            flex-grow: 0;
+            // text-align: left;
+            background-color: $app-bg;
+            // border-bottom: 1px solid $borders;
+            padding: 8px 5px;
+            height: 56px;
+            color: $accent-error;
+            font-size: 17px;
+            font-weight: 500;
+
+            &:hover {
+                background: $borders;
+                cursor: pointer;
+            }
+
+            svg {
+                path {
+                  fill: $accent-error;
+                }
+      
+                margin: 0 10px;
+              }
+        }
+    }
+}

@@ -44,7 +44,7 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
   const [isUserMuted, setIsUserMuted] = useState(false);
 
   const handleAction = (action: UserActions) => {
-    console.log('members[0].user?.id IS:', members[0].user?.id);
+    // console.log('members[0].user?.id IS:', members[0].user?.id);
     //   setMessageActionUser?.(user.id);
     const user = members[0].user?.id;
     setActionId(user);
@@ -55,7 +55,6 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
 
   useEffect(() => {
     if (mutes.length) {
-      console.log('in the mutes length');
       const actionUserId = members[0].user?.id;
 
       const actionUserIsMuted = mutes.some((mute) => mute.target.id === actionUserId);

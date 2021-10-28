@@ -8,10 +8,10 @@ import {
   MuteUser,
   PinMessage,
 } from '../../assets';
-import { useViewContext } from '../../contexts/ViewContext';
+import { useActionsContext } from '../../contexts/ActionsContext';
 
 export const Snackbar: React.FC = () => {
-  const { setSnackbar, userActionType } = useViewContext();
+  const { setSnackbar, userActionType } = useActionsContext();
 
   let Icon;
   let title;
@@ -50,6 +50,16 @@ export const Snackbar: React.FC = () => {
     case 'delete':
       Icon = DeleteMessage;
       title = 'Message successfully deleted';
+      break;
+
+    case 'unmuteChannel':
+      Icon = MuteUser;
+      title = 'Channel successfully unmuted';
+      break;
+
+    case 'muteChannel':
+      Icon = MuteUser;
+      title = 'Channel successfully muted';
       break;
   }
 
