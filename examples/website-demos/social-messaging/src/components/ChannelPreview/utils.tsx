@@ -60,12 +60,7 @@ export const AvatarGroup = (props: Props<SocialUserType>) => {
             shape='square'
             size={modifiedSize}
           />
-          <Avatar
-            image={''}
-            name={''}
-            shape='square'
-            size={modifiedSize}
-          />
+          <Avatar image={''} name={''} shape='square' size={modifiedSize} />
         </span>
         <span>
           <Avatar

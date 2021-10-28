@@ -2,21 +2,23 @@ import React from 'react';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 
 import { CopyMessage, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
-import { useViewContext, UserActions } from '../../contexts/ViewContext';
+import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
 import './ActionsModal.scss';
 
 type Props = {
   userActionType: UserActions;
-  messageActionUser?: string;
+  actionId?: string;
 };
 
 export const ActionsModal: React.FC<Props> = (props) => {
-  const { messageActionUser, userActionType } = props;
+  const { actionId, userActionType } = props;
 
+  const { setActionsModalOpenId, setSnackbar, setUserActionType } = useActionsContext();
   const { client } = useChatContext();
-  const { setActionsModalOpenId, setSnackbar, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
+
+  console.log('action IS before click:', actionId);
 
   let Icon;
   let title;
@@ -68,6 +70,18 @@ export const ActionsModal: React.FC<Props> = (props) => {
       title = 'Delete Message';
       description = 'Are you sure you want to permanently delete this message?';
       break;
+
+    case 'muteChannel':
+      Icon = MuteUser;
+      title = 'Mute Channel';
+      description = "You won't receive any unread notifications for this channel.";
+      break;
+
+    case 'unmuteChannel':
+      Icon = MuteUser;
+      title = 'Unmute Channel';
+      description = 'You will resume receiving channel unread notifications.';
+      break;
   }
 
   const handleCancel = () => {
@@ -76,15 +90,18 @@ export const ActionsModal: React.FC<Props> = (props) => {
   };
 
   const handleAction = async (action: UserActions) => {
-    const actionUserId = messageActionUser;
+    // const actionId = actionId;
 
-    if (!actionUserId) return;
+    console.log('action IS:', action);
+
+    if (!actionId) return;
 
     try {
       if (action === 'mute') {
-        await client.muteUser(actionUserId);
+        console.log('actionID in mute:', actionId);
+        await client.muteUser(actionId);
       } else if (action === 'unmute') {
-        await client.unmuteUser(actionUserId);
+        await client.unmuteUser(actionId);
       } else if (action === 'flag') {
         await client.flagMessage(message.id);
       } else if (action === 'copy') {
@@ -95,6 +112,10 @@ export const ActionsModal: React.FC<Props> = (props) => {
         await client.unpinMessage(message.id);
       } else if (action === 'delete') {
         await client.deleteMessage(message.id);
+      } else if (action === 'muteChannel') {
+        // await channel.mute(channel);
+      } else if (action === 'unmuteChannel') {
+        // await channel.unMute(channel);
       }
     } catch (err) {
       console.log(err);
@@ -118,7 +139,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
         </div>
         <div className='actions-modal-buttons'>
           <button onClick={handleCancel}>CANCEL</button>
-          <button disabled={!message.text} onClick={() => handleAction(userActionType)}>
+          <button onClick={() => handleAction(userActionType)}>
             {title.split(' ')[0].toUpperCase()}
           </button>
         </div>

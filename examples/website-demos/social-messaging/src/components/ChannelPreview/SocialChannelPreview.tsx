@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
+
+import { ActionsModal } from '../MessageActions/ActionsModal';
 
 import { AvatarGroup, getTimeStamp } from './utils';
 
@@ -17,8 +19,10 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { useViewContext } from '../../contexts/ViewContext';
-import { OptionsIcons } from '../../assets';
+import { ActionsEllipse } from '../../assets';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
+
+import { SocialPreviewActions } from './SocialPreviewActions';
 
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
   const { active, channel, displayTitle, latestMessage, setActiveChannel, unread } = props;
@@ -34,6 +38,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
   >();
 
   const {
+    actionsModalOpenId,
     chatsUnreadCount,
     isListMentions,
     mentionsUnreadCount,
@@ -41,9 +46,14 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     setChatsUnreadCount,
     setMentionsUnreadCount,
     setNewChat,
+    userActionType,
   } = useViewContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [actionId, setActionId] = useState<string>();
+  const [showInfoOptions, setShowInfoOptions] = useState(false);
 
   const activeClass = active ? 'active' : '';
   const online = channel.state.watcher_count > 1 ? true : false;
@@ -66,54 +76,68 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     return `${memberNames}${members.length > 2 ? '...' : ''}`;
   };
 
-  // useEffect(() => {
-  //   const handleHover = (event: MouseEvent) => {
-  //     if (hoverRef.current) {
-  //     }
-  //   };
-
-  //   document.addEventListener('mouseover', handleHover);
-  //   return () => {
-  //     document.removeEventListener('mouseover', handleHover);
-  //   };
-  // }, [hoverRef]);
+  console.log('actionId in preview IS:', actionId);
+  console.log('actionsModalOpenId in preview IS:', actionsModalOpenId);
 
   return (
-    <button
-      className={`channel-preview ${activeClass} ${online ? '' : 'offline'}`}
-      onClick={() => {
-        setNewChat(false);
-        handleUnreadCounts();
-        setActiveChannel?.(channel);
-      }}
-      ref={channelPreviewButton}
-    >
-      <div className='channel-preview-avatar'>
-        {online && <div className='channel-preview-avatar-online'></div>}
-        <AvatarGroup members={members} size={56} />
-      </div>
-      <div className='channel-preview-contents'>
-        <div className='channel-preview-contents-name'>
-          <span>{displayTitle || createChannelName()}</span>
+    <>
+      <button
+        className={`channel-preview ${activeClass} ${online ? '' : 'offline'}`}
+        onClick={() => {
+          setNewChat(false);
+          handleUnreadCounts();
+          setActiveChannel?.(channel);
+        }}
+        onMouseEnter={() => setShowInfoOptions(true)}
+        onMouseLeave={() => setShowInfoOptions(false)}
+        ref={channelPreviewButton}
+      >
+        <div className='channel-preview-avatar'>
+          {online && <div className='channel-preview-avatar-online'></div>}
+          <AvatarGroup members={members} size={56} />
         </div>
-        <div className='channel-preview-contents-last-message'>{latestMessage}</div>
-      </div>
-      <div className='channel-preview-end'>
-        <>
-        <span onClick={() => setChatInfoOpen(true)}>
-          <OptionsIcons />
-        </span>
-          <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
-            <span className='channel-preview-end-unread-text'>{unread}</span>
+        <div className='channel-preview-contents'>
+          <div className='channel-preview-contents-name'>
+            <span>{displayTitle || createChannelName()}</span>
           </div>
-        </>
-        <div className='channel-preview-end-statuses'>
-          {/* <div className='channel-preview-end-statuses-arrows'>
+          <div className='channel-preview-contents-last-message'>{latestMessage}</div>
+        </div>
+        <div className='channel-preview-end'>
+          <>
+            {showInfoOptions && (
+              <span
+                className='channel-preview-end-options'
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <ActionsEllipse />
+              </span>
+            )}
+            {!showInfoOptions && (
+              <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
+                <span className='channel-preview-end-unread-text'>{unread}</span>
+              </div>
+            )}
+          </>
+          <div className='channel-preview-end-statuses'>
+            {/* <div className='channel-preview-end-statuses-arrows'>
               {members.length === 2 && <DoubleCheckmark />}
             </div> */}
-          <p className='channel-preview-end-statuses-timestamp'>{getTimeStamp(channel)}</p>
+            <p className='channel-preview-end-statuses-timestamp'>{getTimeStamp(channel)}</p>
+          </div>
         </div>
-      </div>
-    </button>
+      </button>
+      {dropdownOpen && (
+        <SocialPreviewActions
+          channelId={channel.id || ''}
+          members={members}
+          setChatInfoOpen={setChatInfoOpen}
+          setActionId={setActionId}
+          setDropdownOpen={setDropdownOpen}
+        />
+      )}
+      {actionsModalOpenId === channel.id && userActionType && (
+        <ActionsModal actionId={actionId} userActionType={userActionType} />
+      )}
+    </>
   );
 };

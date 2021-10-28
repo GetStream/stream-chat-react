@@ -77,10 +77,10 @@ export const ChannelContainer: React.FC = () => {
   ]);
 
   const channelRenderer = () => {
-    if (isNewChat) return <NewChat />
-    if (isChatInfoOpen) return <ChatInfo />
+    if (isNewChat) return <NewChat />;
+    if (isChatInfoOpen) return <ChatInfo />;
 
-    return <MessageList />
+    return <MessageList />;
   };
 
   return (

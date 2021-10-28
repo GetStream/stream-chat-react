@@ -1,6 +1,7 @@
 export * from './commandIcons';
 
 export { AddChat } from './AddChat';
+export { ActionsEllipse } from './ActionsEllipse';
 export { ArrowLeft } from './ArrowLeft';
 export { Attach } from './Attach';
 export { BlankAvatar } from './BlankAvatar';
@@ -24,12 +25,10 @@ export { HamburgerIcon } from './HamburgerIcon';
 export { LeftReply } from './LeftReply';
 export { Mention } from './Mention';
 export { Mentions } from './Mentions';
-export { MessageActionsEllipse } from './MessageActionsEllipse';
 export { MuteUser } from './MuteUser';
 export { NewChat } from './NewChat';
 export { NewDirectMessage } from './NewDirectMessage';
 export { NewGroupMessage } from './NewGroupMessage';
-export { OptionsIcons } from './OptionsIcons';
 export { PinMessage } from './PinMessage';
 export { PinnedBy } from './PinnedBy';
 export { QuoteArrow } from './QuoteArrow';
@@ -42,3 +41,4 @@ export { SendArrow } from './SendArrow';
 export { SendCheck } from './SendCheck';
 export { StartThread } from './StartThread';
 export { ThemeIcon } from './ThemeIcon';
+export { UserInfo } from './UserInfo';

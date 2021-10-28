@@ -17,7 +17,7 @@ import {
   QuoteReply,
   StartThread,
 } from '../../assets';
-import { useViewContext, UserActions } from '../../contexts/ViewContext';
+import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
 import type { UserResponse } from 'stream-chat';
 
@@ -25,7 +25,7 @@ type Props = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   openThread?: ReactEventHandler;
-  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setMessageActionUser: React.Dispatch<React.SetStateAction<string | undefined>>;
   thread?: boolean;
   user?: UserResponse | null;
   setEdit: ReactEventHandler;
@@ -34,9 +34,9 @@ type Props = {
 export const SocialMessageActions: React.FC<Props> = (props) => {
   const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, user, setEdit } = props;
 
+  const { setActionsModalOpenId, setUserActionType } = useActionsContext();
   const { client, mutes } = useChatContext();
   const { pinnedMessages, messages } = useChannelStateContext();
-  const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
   const { setQuotedMessage } = useChannelActionContext();
 
@@ -100,7 +100,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   }, [dropdownOpen]); // eslint-disable-line
 
   const handleClick = (action: UserActions) => {
-    if (user) setMessageActionUser?.(user.id);
+    if (user) setMessageActionUser(user.id);
     setActionsModalOpenId(message.id);
     setDropdownOpen(false);
     setUserActionType(action);

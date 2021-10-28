@@ -1,73 +1,75 @@
 import React, { useContext, useState } from 'react';
 
-export type UserActions =
-  | 'copy'
-  | 'delete'
-  | 'flag'
-  | 'mute'
-  | 'pin'
-  | 'reply'
-  | 'unmute'
-  | 'unpin';
+// export type UserActions =
+//   | 'copy'
+//   | 'delete'
+//   | 'flag'
+//   | 'mute'
+//   | 'muteChannel'
+//   | 'pin'
+//   | 'reply'
+//   | 'unmute'
+//   | 'unmuteChannel'
+//   | 'unpin';
 
 type ViewContextValue = {
-  actionsModalOpenId: string;
+  // actionsModalOpenId: string;
   chatsUnreadCount: number;
   isChatInfoOpen: boolean;
   isListMentions: boolean;
   isSideDrawerOpen: boolean;
   isNewChat: boolean;
   mentionsUnreadCount: number;
-  reactionsOpenId: string;
+  // reactionsOpenId: string;
   setChatInfoOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setActionsModalOpenId: React.Dispatch<React.SetStateAction<string>>;
+  // setActionsModalOpenId: React.Dispatch<React.SetStateAction<string>>;
   setChatsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   setListMentions: React.Dispatch<React.SetStateAction<boolean>>;
   setMentionsUnreadCount: React.Dispatch<React.SetStateAction<number>>;
   setNewChat: React.Dispatch<React.SetStateAction<boolean>>;
-  setReactionsOpenId: React.Dispatch<React.SetStateAction<string>>;
+  // setReactionsOpenId: React.Dispatch<React.SetStateAction<string>>;
   setSideDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
-  setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
-  snackbar: boolean;
-  userActionType?: UserActions;
+  // setSnackbar: React.Dispatch<React.SetStateAction<boolean>>;
+  // setUserActionType: React.Dispatch<React.SetStateAction<UserActions | undefined>>;
+  // snackbar: boolean;
+  // userActionType?: UserActions;
 };
 
 const ViewContext = React.createContext({} as ViewContextValue);
 
 export const ViewProvider: React.FC = ({ children }) => {
   const [isChatInfoOpen, setChatInfoOpen] = useState(false);
-  const [actionsModalOpenId, setActionsModalOpenId] = useState('');
+  // const [actionsModalOpenId, setActionsModalOpenId] = useState('');
   const [chatsUnreadCount, setChatsUnreadCount] = useState(0);
   const [isListMentions, setListMentions] = useState(false);
   const [isSideDrawerOpen, setSideDrawerOpen] = useState(false);
   const [isNewChat, setNewChat] = useState(false);
   const [mentionsUnreadCount, setMentionsUnreadCount] = useState(0);
-  const [reactionsOpenId, setReactionsOpenId] = useState('');
-  const [snackbar, setSnackbar] = useState(false);
-  const [userActionType, setUserActionType] = useState<UserActions>();
+  // const [reactionsOpenId, setReactionsOpenId] = useState('');
+  // const [snackbar, setSnackbar] = useState(false);
+  // const [userActionType, setUserActionType] = useState<UserActions>();
 
   const contextValue: ViewContextValue = {
-    actionsModalOpenId,
+    // actionsModalOpenId,
     chatsUnreadCount,
     isChatInfoOpen,
     isListMentions,
     isSideDrawerOpen,
     isNewChat,
     mentionsUnreadCount,
-    reactionsOpenId,
+    // reactionsOpenId,
     setChatInfoOpen,
-    setActionsModalOpenId,
+    // setActionsModalOpenId,
     setChatsUnreadCount,
     setListMentions,
     setMentionsUnreadCount,
     setNewChat,
-    setReactionsOpenId,
+    // setReactionsOpenId,
     setSideDrawerOpen,
-    setSnackbar,
-    setUserActionType,
-    snackbar,
-    userActionType,
+    // setSnackbar,
+    // setUserActionType,
+    // snackbar,
+    // userActionType,
   };
 
   return <ViewContext.Provider value={contextValue}>{children}</ViewContext.Provider>;

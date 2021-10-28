@@ -95,6 +95,19 @@
     align-items: flex-end;
     margin-bottom: 10px;
 
+    &-options {
+      margin-bottom: -5px;
+
+      svg {
+        &:hover {
+          path {
+            fill: $accent-primary;
+          }
+        }
+        fill: $accent-primary;
+      }
+    }
+
     &-unread {
       background-color: $accent-error;
       border-radius: 16px;
@@ -135,3 +148,57 @@
 .str-chat__avatar {
   margin-right: 0px;
 }
+
+// Preview Options
+.preview-actions {
+  display: flex;
+    flex-direction: column;
+    z-index: 3;
+    // overflow: visible;
+    // left: unset;
+    // right: -208px;
+    // top: 18px;
+    // position: absolute;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    background: var(--app-canvas);
+    // transition: background 1s;
+    // overflow: hidden;
+
+    &-action {
+      color: $text-high-emphasis;
+      font-size: 17px;
+      font-weight: 400;
+      padding: 10px;
+
+      &:hover {
+        background: $input-bg;
+        cursor: pointer;
+      }
+
+      svg {
+        margin-right: 10px;
+      }
+
+      &-delete {
+        color: $accent-error;
+        font-size: 17px;
+        font-weight: 400;
+        padding: 10px;
+
+        &:hover {
+          background: $input-bg;
+          cursor: pointer;
+        }
+
+        svg {
+          path {
+            fill: $accent-error;
+          }
+
+          margin-right: 10px;
+        }
+      }
+    }
+}
+

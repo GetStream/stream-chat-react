@@ -23,9 +23,7 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   const channelName = members.length === 1 ? members[0].user?.name || members[0].user?.id : name;
 
   const createChannelName = () => {
-    return members
-      .map(({ user }) => user?.name || user?.id)
-      .join(', ');
+    return members.map(({ user }) => user?.name || user?.id).join(', ');
   };
 
   if (isNewChat) {
@@ -40,10 +38,12 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
   if (isChatInfoOpen) {
     return (
       <div className='social-channel-header'>
-        <div onClick={() =>setChatInfoOpen(false)}><CloseX /></div>
+        <div onClick={() => setChatInfoOpen(false)}>
+          <CloseX />
+        </div>
         <span className='social-channel-header-chat-info'>Chat Info</span>
       </div>
-    )
+    );
   }
 
   return (
@@ -52,7 +52,9 @@ export const SocialChannelHeader: React.FC<ChannelHeaderProps> = (props) => {
         <AvatarGroup members={members} size={40} />
       </div>
       <div className='social-channel-header-contents'>
-        <span className='social-channel-header-contents-name'>{channelName || createChannelName()}</span>
+        <span className='social-channel-header-contents-name'>
+          {channelName || createChannelName()}
+        </span>
         {!live && !!member_count && member_count > 0 && (
           <span className='social-channel-header-contents-status'>
             {member_count || '0'} Members, {watcher_count || '0'} Online
