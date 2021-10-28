@@ -6,7 +6,7 @@ import { DeleteMessage, MuteUser, UserInfo } from '../../assets';
 
 import { SocialUserType } from '../ChatContainer/ChatContainer';
 
-import { UserActions, useViewContext } from '../../contexts/ViewContext';
+import { UserActions, useActionsContext } from '../../contexts/ActionsContext';
 
 // import {
 //   CopyMessage,
@@ -39,7 +39,7 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
   const { channelId, members, setChatInfoOpen, setDropdownOpen, setActionId } = props;
 
   const { mutes } = useChatContext();
-  const { setActionsModalOpenId, setUserActionType } = useViewContext();
+  const { setActionsModalOpenId, setUserActionType } = useActionsContext();
 
   const [isUserMuted, setIsUserMuted] = useState(false);
 

@@ -18,6 +18,7 @@ import {
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 
+import { useActionsContext } from '../../contexts/ActionsContext';
 import { useViewContext } from '../../contexts/ViewContext';
 import { ActionsEllipse } from '../../assets';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
@@ -37,8 +38,9 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     SocialUserType
   >();
 
+  const { actionsModalOpenId, userActionType } = useActionsContext();
+
   const {
-    actionsModalOpenId,
     chatsUnreadCount,
     isListMentions,
     mentionsUnreadCount,
@@ -46,7 +48,6 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     setChatsUnreadCount,
     setMentionsUnreadCount,
     setNewChat,
-    userActionType,
   } = useViewContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
