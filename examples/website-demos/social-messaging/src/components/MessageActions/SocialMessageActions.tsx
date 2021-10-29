@@ -8,7 +8,7 @@ import {
 } from 'stream-chat-react';
 
 import {
-  CopyMessage,
+  Copy,
   DeleteMessage,
   EditMessage,
   FlagMessage,
@@ -123,7 +123,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
         <div className='dropdown-option-text'>Thread Reply</div>
       </div>
       <div className='dropdown-option' onClick={() => handleClick('copy')}>
-        <CopyMessage />
+        <Copy />
         <div className='dropdown-option-text'>Copy Message</div>
       </div>
       <div

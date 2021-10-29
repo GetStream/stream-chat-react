@@ -154,16 +154,9 @@
   display: flex;
     flex-direction: column;
     z-index: 3;
-    // overflow: visible;
-    // left: unset;
-    // right: -208px;
-    // top: 18px;
-    // position: absolute;
     border-radius: 16px;
     box-shadow: var(--shadow);
     background: var(--app-canvas);
-    // transition: background 1s;
-    // overflow: hidden;
 
     &-action {
       color: $text-high-emphasis;

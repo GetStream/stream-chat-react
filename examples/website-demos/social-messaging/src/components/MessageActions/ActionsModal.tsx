@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 
-import { CopyMessage, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
+import { Copy, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
 import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
 import './ActionsModal.scss';
@@ -44,7 +44,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
       break;
 
     case 'copy':
-      Icon = CopyMessage;
+      Icon = Copy;
       title = 'Copy Message';
       description = !message.text
         ? 'No text to copy'

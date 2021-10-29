@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   CloseSnackbar,
-  CopyMessage,
+  Copy,
   DeleteMessage,
   FlagMessage,
   MuteUser,
@@ -33,7 +33,7 @@ export const Snackbar: React.FC = () => {
       break;
 
     case 'copy':
-      Icon = CopyMessage;
+      Icon = Copy;
       title = 'Message successfully copied';
       break;
 

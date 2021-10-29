@@ -7,39 +7,81 @@
         width: 100%;
     }
 
+    &-name {
+        display: flex;
+        background: $app-bg;
+        height: 56px;
+        align-items: center;
+        padding: 8px 5px;
+
+        &-contents {
+            flex-grow: 3;
+
+            &-label {
+                color: $text-low-emphasis;
+                font-weight: 400;
+                font-size: 13px;
+                margin: 0 15px;
+            }
+        }
+
+        &-save {
+            color: $accent-primary;
+            font-weight: 400;
+            font-size: 13px;
+            margin-right: 15px;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        &-edit {
+            background: $app-bg;
+            color: $text-high-emphasis;
+            font-size: 17px;
+            border: none;
+            font-weight: 500;
+            
+            &:focus {
+                border: none;
+                outline: none;
+                box-shadow: none;
+                background: $app-bg;
+            }
+        }
+    }
+
     &-option {
         display: flex;
         width: 100%;
         flex-direction: row;
         align-items: center;
-        flex-grow: 0;
-        // text-align: left;
         background-color: $app-bg;
         border-bottom: 1px solid $borders;
         padding: 8px 5px;
         height: 56px;
-        // color: $accent-error;
         font-size: 17px;
         font-weight: 500;
 
-        svg {
-            margin: 0 10px;
-          }
-
-        &:hover {
-            background: $borders;
-            cursor: pointer;
+        &-start {
+            flex-grow: 3;
         }
+
+        &-end {
+            margin-right: 15px;
+        }
+
+        svg {
+            margin: 0 15px;
+          }
 
         &-delete {
             display: flex;
             width: 100%;
             flex-direction: row;
             align-items: center;
-            flex-grow: 0;
-            // text-align: left;
             background-color: $app-bg;
-            // border-bottom: 1px solid $borders;
             padding: 8px 5px;
             height: 56px;
             color: $accent-error;
@@ -56,7 +98,7 @@
                   fill: $accent-error;
                 }
       
-                margin: 0 10px;
+                margin: 0 15px;
               }
         }
     }
