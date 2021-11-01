@@ -173,7 +173,7 @@ export const useReactionClick = <
 
   const hasListener = useRef(false);
 
-  const isFrozen = channel.data?.frozen;
+  const isFrozen = !!channel.data?.frozen;
 
   const isReactionEnabled =
     (channelConfig?.reactions !== false && channelCapabilities['send-reaction']) || isFrozen;
