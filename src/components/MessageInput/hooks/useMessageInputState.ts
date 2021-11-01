@@ -349,6 +349,12 @@ export type CommandsListState = {
   showCommandsList: boolean;
 };
 
+export type MentionsListState = {
+  closeMentionsList: () => void;
+  openMentionsList: () => void;
+  showMentionsList: boolean;
+};
+
 /**
  * hook for MessageInput state
  */
@@ -363,7 +369,10 @@ export const useMessageInputState = <
   V extends CustomTrigger = CustomTrigger
 >(
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-): MessageInputState<At, Us> & MessageInputHookProps<At, Me, Us> & CommandsListState => {
+): MessageInputState<At, Us> &
+  MessageInputHookProps<At, Me, Us> &
+  CommandsListState &
+  MentionsListState => {
   const { message } = props;
 
   const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
@@ -394,6 +403,7 @@ export const useMessageInputState = <
   >(props, state, dispatch);
 
   const [showCommandsList, setShowCommandsList] = useState(false);
+  const [showMentionsList, setShowMentionsList] = useState(false);
 
   const openCommandsList = () => {
     dispatch({
@@ -404,6 +414,16 @@ export const useMessageInputState = <
   };
 
   const closeCommandsList = () => setShowCommandsList(false);
+
+  const openMentionsList = () => {
+    dispatch({
+      getNewText: () => '@',
+      type: 'setText',
+    });
+    setShowMentionsList(true);
+  };
+
+  const closeMentionsList = () => setShowMentionsList(false);
 
   const {
     closeEmojiPicker,
@@ -451,6 +471,7 @@ export const useMessageInputState = <
      * and just forced to not have warnings currently with the unknown casting
      */
     closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
+    closeMentionsList,
     emojiIndex: useEmojiIndex(),
     emojiPickerRef,
     handleChange,
@@ -465,10 +486,12 @@ export const useMessageInputState = <
     onSelectUser,
     openCommandsList,
     openEmojiPicker,
+    openMentionsList,
     removeFile,
     removeImage,
     setText,
     showCommandsList,
+    showMentionsList,
     textareaRef,
     uploadFile,
     uploadImage,
