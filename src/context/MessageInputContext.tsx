@@ -4,6 +4,7 @@ import type { TriggerSettings } from '../components/MessageInput/DefaultTriggerP
 import type { CooldownTimerState, MessageInputProps } from '../components/MessageInput';
 import type {
   CommandsListState,
+  MentionsListState,
   MessageInputHookProps,
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
@@ -31,7 +32,8 @@ export type MessageInputContextValue<
 > = MessageInputState<At, Us> &
   MessageInputHookProps<At, Me, Us> &
   Omit<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>, 'Input'> &
-  CooldownTimerState & { autocompleteTriggers?: TriggerSettings<Co, Us, V> } & CommandsListState;
+  CooldownTimerState & { autocompleteTriggers?: TriggerSettings<Co, Us, V> } & CommandsListState &
+  MentionsListState;
 
 export const MessageInputContext = createContext<
   (MessageInputState & MessageInputHookProps) | undefined

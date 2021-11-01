@@ -47,6 +47,7 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
+  /** @deprecated */
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;

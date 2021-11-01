@@ -16,7 +16,6 @@ import './App.css';
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
 const userId = process.env.REACT_APP_USER_ID as string;
 const userToken = process.env.REACT_APP_USER_TOKEN as string;
-const theme = 'light';
 
 const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
@@ -31,7 +30,7 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 chatClient.connectUser({ id: userId }, userToken);
 
 const App = () => (
-  <Chat client={chatClient} theme={`messaging ${theme}`}>
+  <Chat client={chatClient}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
     <Channel>
       <Window>

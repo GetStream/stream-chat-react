@@ -15,7 +15,6 @@ import 'stream-chat-css/dist/css/index.css';
 const apiKey = import.meta.env.VITE_STREAM_KEY as string;
 const userId = import.meta.env.VITE_USER_ID as string;
 const userToken = import.meta.env.VITE_USER_TOKEN as string;
-const theme = 'light';
 
 const filters: ChannelFilters = { type: 'messaging' };
 const options: ChannelOptions = { limit: 10, presence: true, state: true };
@@ -30,7 +29,7 @@ if (import.meta.env.VITE_CHAT_SERVER_ENDPOINT) {
 chatClient.connectUser({ id: userId }, userToken);
 
 const App = () => (
-  <Chat client={chatClient} theme={`messaging ${theme}`}>
+  <Chat client={chatClient}>
     <ChannelList filters={filters} options={options} showChannelSearch sort={sort} />
     <Channel>
       <Window>
