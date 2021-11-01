@@ -21,6 +21,7 @@ export type DefaultAttachmentType = UnknownType & {
 };
 
 export type DefaultChannelType = UnknownType & {
+  frozen?: boolean;
   image?: string;
   member_count?: number;
   subtitle?: string;
