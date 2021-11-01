@@ -70,6 +70,14 @@ Function to close the `EmojiPicker` component.
 | ------------------------------------------- |
 | React.MouseEventHandler<HTMLButtonElement\> |
 
+### closeMentionsList
+
+Function to manually close the list of potential users to mention.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### cooldownInterval
 
 If slow mode is enabled, the required wait time between messages for each user.
@@ -353,6 +361,14 @@ Function to open the `EmojiPicker` component.
 | ----------------------------------------- |
 | React.MouseEventHandler<HTMLSpanElement\> |
 
+### openMentionsList
+
+Function to manually open the list of potential users to mention.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### overrideSubmitHandler
 
 Function to override the default submit handler.
@@ -412,6 +428,14 @@ Function that overrides and sets the text value of the underlying `textarea` com
 ### showCommandsList
 
 If true, show the list of supported slash commands above the text input.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### showMentionsList
+
+If true, show the list of potential users to mention above the text input.
 
 | Type    | Default |
 | ------- | ------- |

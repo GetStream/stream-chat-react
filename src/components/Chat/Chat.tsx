@@ -55,7 +55,7 @@ export type ChatProps<
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
   initialNavOpen?: boolean;
-  /** UI theme used for custom styling of components. Default themes are available by channel type and custom themes are supported  */
+  /** @deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#css-variables) of your app  */
   theme?: Theme;
   /** Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
    * Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending on the platform).
