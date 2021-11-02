@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
@@ -27,9 +27,13 @@ export const QuotedMessage = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >() => {
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessage');
+  const { Attachment, Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'QuotedMessage',
+  );
   const { isMyMessage, message } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessage');
   const { userLanguage } = useTranslationContext('QuotedMessage');
+
+  const Avatar = ContextAvatar || DefaultAvatar;
 
   const { quoted_message } = message;
   if (!quoted_message) return null;

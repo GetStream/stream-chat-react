@@ -57,7 +57,7 @@ export type ComponentContextValue<
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps<Us>>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
