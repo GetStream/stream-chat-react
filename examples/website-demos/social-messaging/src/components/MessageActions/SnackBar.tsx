@@ -1,13 +1,6 @@
 import React from 'react';
 
-import {
-  CloseSnackbar,
-  Copy,
-  DeleteMessage,
-  FlagMessage,
-  MuteUser,
-  PinMessage,
-} from '../../assets';
+import { CloseSnackbar, Copy, FlagMessage, MuteUser, PinMessage, Trashcan } from '../../assets';
 import { useActionsContext } from '../../contexts/ActionsContext';
 
 export const Snackbar: React.FC = () => {
@@ -48,7 +41,7 @@ export const Snackbar: React.FC = () => {
       break;
 
     case 'delete':
-      Icon = DeleteMessage;
+      Icon = Trashcan;
       title = 'Message successfully deleted';
       break;
 

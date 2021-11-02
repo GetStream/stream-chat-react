@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChannelMemberResponse } from 'stream-chat';
 import { useChatContext } from 'stream-chat-react';
 
-import { DeleteMessage, MuteUser, UserInfo } from '../../assets';
+import { MuteUser, Trashcan, UserInfo } from '../../assets';
 
 import { SocialUserType } from '../ChatContainer/ChatContainer';
 
@@ -78,7 +78,7 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
         </div>
       )}
       <div className='preview-actions-action-delete'>
-        <DeleteMessage />
+        <Trashcan />
         Delete conversation
       </div>
     </div>

@@ -57,7 +57,7 @@
         width: 100%;
         flex-direction: row;
         align-items: center;
-        background-color: $app-bg;
+        background-color: $bars-bg;
         border-bottom: 1px solid $borders;
         padding: 8px 5px;
         height: 56px;
@@ -66,10 +66,30 @@
 
         &-start {
             flex-grow: 3;
+            display: flex;
+            align-items: center;
         }
 
         &-end {
-            margin-right: 15px;
+            display: flex;
+            align-items: center;
+
+            &-items {
+                background-color: $text-low-emphasis;
+                border-radius: 16px;
+                padding: 2px 4px;
+          
+                &.showNumber {
+                  display: none;
+                }
+          
+                &-text {
+                  color: $white;
+                  font-size: 13px;
+                  font-weight: 400;
+                  display: flex;
+                }
+              }
         }
 
         svg {
@@ -81,7 +101,7 @@
             width: 100%;
             flex-direction: row;
             align-items: center;
-            background-color: $app-bg;
+            background-color: $bars-bg;
             padding: 8px 5px;
             height: 56px;
             color: $accent-error;

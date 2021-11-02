@@ -9,13 +9,13 @@ import {
 
 import {
   Copy,
-  DeleteMessage,
   EditMessage,
   FlagMessage,
   MuteUser,
   PinMessage,
   QuoteReply,
   StartThread,
+  Trashcan,
 } from '../../assets';
 import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
@@ -157,7 +157,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
           <div className='dropdown-option delete' onClick={() => handleClick('delete')}>
-            <DeleteMessage />
+            <Trashcan />
             <div className='dropdown-option-text'>Delete Message</div>
           </div>
         </>

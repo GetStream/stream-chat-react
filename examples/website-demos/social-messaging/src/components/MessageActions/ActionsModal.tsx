@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChatContext, useMessageContext } from 'stream-chat-react';
 
-import { Copy, DeleteMessage, FlagMessage, MuteUser, PinMessage } from '../../assets';
+import { Copy, FlagMessage, MuteUser, PinMessage, Trashcan } from '../../assets';
 import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
 import './ActionsModal.scss';
@@ -66,7 +66,7 @@ export const ActionsModal: React.FC<Props> = (props) => {
       break;
 
     case 'delete':
-      Icon = DeleteMessage;
+      Icon = Trashcan;
       title = 'Delete Message';
       description = 'Are you sure you want to permanently delete this message?';
       break;

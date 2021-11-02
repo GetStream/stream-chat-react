@@ -7,20 +7,39 @@ import { NewChatUser } from '../NewChat/NewChatUser';
 
 import {
   Copy,
-  DeleteMessage,
+  ExpandArrow,
   Files,
   MuteUser,
   Photos,
   PinMessage,
   SharedGroups,
+  Trashcan,
   UserInfo,
 } from '../../assets';
+
+import {
+  SocialAttachmentType,
+  SocialChannelType,
+  SocialCommandType,
+  SocialEventType,
+  SocialMessageType,
+  SocialReactionType,
+  SocialUserType,
+} from '../ChatContainer/ChatContainer';
 
 import './ChatInfo.scss';
 
 export const ChatInfo = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
+  const { channel } = useChannelStateContext<
+    SocialAttachmentType,
+    SocialChannelType,
+    SocialCommandType,
+    SocialEventType,
+    SocialMessageType,
+    SocialReactionType,
+    SocialUserType
+  >();
 
   const members = Object.values(channel.state.members)
     .filter(({ user }) => user?.id !== client.userID)
@@ -40,6 +59,20 @@ export const ChatInfo = () => {
       );
     }
   };
+
+  const pinnedMessages = channel.state.pinnedMessages.length;
+
+  const photosAndImages = channel.state.messages
+    .map(({ attachments }) => {
+      return attachments?.filter(({ type }) => type !== 'file').length;
+    })
+    .reduce((total, count) => (total || 0) + (count || 0), 0);
+
+  const files = channel.state.messages
+    .map(({ attachments }) => {
+      return attachments?.filter(({ type }) => type === 'file').length;
+    })
+    .reduce((total, count) => (total || 0) + (count || 0), 0);
 
   const actions = () => {
     return (
@@ -62,21 +95,53 @@ export const ChatInfo = () => {
           <div className='chat-info-option-end'>TOGGLE HERE</div>
         </div>
         <div className='chat-info-option'>
-          <PinMessage />
-          Pinned Messages
+          <div className='chat-info-option-start'>
+            <PinMessage />
+            Pinned Messages
+          </div>
+          <div className='chat-info-option-end'>
+            <div className={`chat-info-option-end-items ${pinnedMessages ? '' : 'showNumber'}`}>
+              <span className='chat-info-option-end-items-text'>{pinnedMessages}</span>
+            </div>
+            <ExpandArrow />
+          </div>
         </div>
         <div className='chat-info-option'>
-          <Photos />
-          Photos & Videos
+          <div className='chat-info-option-start'>
+            <Photos />
+            Photos & Videos
+          </div>
+          <div className='chat-info-option-end'>
+            <div className={`chat-info-option-end-items ${photosAndImages ? '' : 'showNumber'}`}>
+              <span className='chat-info-option-end-items-text'>{photosAndImages}</span>
+            </div>
+            <ExpandArrow />
+          </div>
         </div>
         <div className='chat-info-option'>
-          <Files />
-          Files
+          <div className='chat-info-option-start'>
+            <Files />
+            Files
+          </div>
+          <div className='chat-info-option-end'>
+            <div className={`chat-info-option-end-items ${files ? '' : 'showNumber'}`}>
+              <span className='chat-info-option-end-items-text'>{files}</span>
+            </div>
+            <ExpandArrow />
+          </div>
         </div>
         {members.length === 1 && (
           <div className='chat-info-option'>
-            <SharedGroups />
-            Shared Groups
+            <div className='chat-info-option-start'>
+              <SharedGroups />
+              Shared Groups
+            </div>
+            <div className='chat-info-option-end'>
+              <div className={`chat-info-option-end-items ${pinnedMessages ? '' : 'showNumber'}`}>
+                <span className='chat-info-option-end-items-text'>{pinnedMessages}</span>
+              </div>
+              <ExpandArrow />
+            </div>
           </div>
         )}
       </>
@@ -105,7 +170,7 @@ export const ChatInfo = () => {
       {actions()}
       <div className='chat-info-divider'></div>
       <div className='chat-info-option-delete'>
-        <DeleteMessage />
+        <Trashcan />
         Delete conversation
       </div>
     </>
