@@ -89,7 +89,7 @@ export const useReactionHandler = <
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message) return;
+    if (!message || channel.data?.frozen) return;
 
     const newReaction = creatReactionPreview(type) as ReactionResponse<Re, Us>;
     const tempMessage = createMessagePreview(add, newReaction, message);
@@ -159,7 +159,7 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
+  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -173,8 +173,11 @@ export const useReactionClick = <
 
   const hasListener = useRef(false);
 
+  const isFrozen = !!channel.data?.frozen;
+
   const isReactionEnabled =
-    channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
+    (channelConfig?.reactions !== false && channelCapabilities['send-reaction']) || isFrozen;
+
   const messageDeleted = !!message?.deleted_at;
 
   const closeDetailedReactions: EventListener = useCallback(

@@ -15,6 +15,7 @@ import {
 } from './utils';
 
 import { CommandItem } from '../CommandItem/CommandItem';
+import { UserItem } from '../UserItem/UserItem';
 
 export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
@@ -204,10 +205,16 @@ export class ReactTextareaAutocomplete extends React.Component {
   };
 
   _onSelect = (newToken) => {
-    const { closeCommandsList, onChange, showCommandsList } = this.props;
+    const {
+      closeCommandsList,
+      closeMentionsList,
+      onChange,
+      showCommandsList,
+      showMentionsList,
+    } = this.props;
     const { currentTrigger: stateTrigger, selectionEnd, value: textareaValue } = this.state;
 
-    const currentTrigger = showCommandsList ? '/' : stateTrigger;
+    const currentTrigger = showCommandsList ? '/' : showMentionsList ? '@' : stateTrigger;
 
     if (!currentTrigger) return;
 
@@ -227,7 +234,11 @@ export class ReactTextareaAutocomplete extends React.Component {
       }
     };
 
-    const textToModify = showCommandsList ? '/' : textareaValue.slice(0, selectionEnd);
+    const textToModify = showCommandsList
+      ? '/'
+      : showMentionsList
+      ? '@'
+      : textareaValue.slice(0, selectionEnd);
 
     const startOfTokenPosition = textToModify.lastIndexOf(currentTrigger);
 
@@ -258,8 +269,10 @@ export class ReactTextareaAutocomplete extends React.Component {
         this.setCaretPosition(newCaretPosition);
       },
     );
+
     this._closeAutocomplete();
-    closeCommandsList();
+    if (showCommandsList) closeCommandsList();
+    if (showMentionsList) closeMentionsList();
   };
 
   _getItemOnSelect = (paramTrigger) => {
@@ -453,6 +466,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'additionalTextareaProps',
       'className',
       'closeCommandsList',
+      'closeMentionsList',
       'closeOnClickOutside',
       'containerClassName',
       'containerStyle',
@@ -478,6 +492,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'replaceWord',
       'scrollToItem',
       'showCommandsList',
+      'showMentionsList',
       'SuggestionItem',
       'SuggestionList',
       'trigger',
@@ -636,7 +651,7 @@ export class ReactTextareaAutocomplete extends React.Component {
   };
 
   getTriggerProps = () => {
-    const { showCommandsList, trigger } = this.props;
+    const { showCommandsList, showMentionsList, trigger } = this.props;
     const { component, currentTrigger, selectionEnd, value } = this.state;
 
     const selectedItem = this._getItemOnSelect();
@@ -653,20 +668,20 @@ export class ReactTextareaAutocomplete extends React.Component {
       values: suggestionData,
     };
 
-    if (showCommandsList && trigger['/']) {
+    if ((showCommandsList && trigger['/']) || (showMentionsList && trigger['@'])) {
       let currentCommands;
-      const getCommands = trigger['/'].dataProvider;
+      const getCommands = trigger[showCommandsList ? '/' : '@'].dataProvider;
 
-      getCommands?.('', '/', (data) => {
+      getCommands?.('', showCommandsList ? '/' : '@', (data) => {
         currentCommands = data;
       });
 
-      triggerProps.component = CommandItem;
-      triggerProps.currentTrigger = '/';
-      triggerProps.getTextToReplace = this._getTextToReplace('/');
-      triggerProps.getSelectedItem = this._getItemOnSelect('/');
+      triggerProps.component = showCommandsList ? CommandItem : UserItem;
+      triggerProps.currentTrigger = showCommandsList ? '/' : '@';
+      triggerProps.getTextToReplace = this._getTextToReplace(showCommandsList ? '/' : '@');
+      triggerProps.getSelectedItem = this._getItemOnSelect(showCommandsList ? '/' : '@');
       triggerProps.selectionEnd = 1;
-      triggerProps.value = '/';
+      triggerProps.value = showCommandsList ? '/' : '@';
       triggerProps.values = currentCommands;
     }
 

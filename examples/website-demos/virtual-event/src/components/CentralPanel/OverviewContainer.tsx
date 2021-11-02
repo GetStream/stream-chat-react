@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 
 import { EventCard } from './EventCard';
 
@@ -68,30 +69,75 @@ type Tabs = 'description' | 'partners' | 'schedule' | 'speakers';
 export const OverviewContainer = () => {
   const [selected, setSelected] = useState<Tabs>('description');
 
+  const variants: Variants = {
+    open: { opacity: 1, y: 0, zIndex: 1 },
+    closed: { opacity: 0, y: -4, zIndex: -1 },
+  };
+
   return (
     <div className='overview-container'>
       <img alt='hero' src={HackerSummitHero} />
       <div className='overview-tabs'>
         <span>
-          {selected === 'description' && <div className='selected' />}
+          <AnimatePresence>
+            {selected === 'description' && (
+              <motion.div
+                className='selected'
+                variants={variants}
+                initial='closed'
+                animate='open'
+                exit='closed'
+              />
+            )}
+          </AnimatePresence>
           <a href='#description' onClick={() => setSelected('description')}>
             Description
           </a>
         </span>
         <span>
-          {selected === 'partners' && <div className='selected' />}
+          <AnimatePresence>
+            {selected === 'partners' && (
+              <motion.div
+                variants={variants}
+                className='selected'
+                initial='closed'
+                animate='open'
+                exit='closed'
+              />
+            )}
+          </AnimatePresence>
           <a href='#partners' onClick={() => setSelected('partners')}>
             Partners
           </a>
         </span>
         <span>
-          {selected === 'schedule' && <div className='selected' />}
+          <AnimatePresence>
+            {selected === 'schedule' && (
+              <motion.div
+                variants={variants}
+                className='selected'
+                initial='closed'
+                animate='open'
+                exit='closed'
+              />
+            )}
+          </AnimatePresence>
           <a href='#schedule' onClick={() => setSelected('schedule')}>
             Schedule
           </a>
         </span>
         <span>
-          {selected === 'speakers' && <div className='selected' />}
+          <AnimatePresence>
+            {selected === 'speakers' && (
+              <motion.div
+                className='selected'
+                variants={variants}
+                initial='closed'
+                animate='open'
+                exit='closed'
+              />
+            )}
+          </AnimatePresence>
           <a href='#schedule' onClick={() => setSelected('speakers')}>
             Speakers
           </a>

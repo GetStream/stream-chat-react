@@ -1,4 +1,5 @@
 import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 
 import { mainEvents } from './data';
 import { EventCard } from './EventCard';
@@ -46,6 +47,11 @@ export const EventsList = () => {
   const currentEvents = [mainEvents[0], mainEvents[1]];
   const upcomingEvents = [mainEvents[2], mainEvents[3]];
 
+  const variants: Variants = {
+    open: { opacity: 1, height: '660px' },
+    closed: { opacity: 0, height: 0 },
+  };
+
   return (
     <>
       <div className='events-list-header'>
@@ -56,39 +62,48 @@ export const EventsList = () => {
         <div className='events-list-header-calendar' onClick={calendarClick}>
           <CalendarButton />
         </div>
-        {dropdownOpen && (
-          <div className='events-list-dropdown' ref={dropdownRef}>
-            {currentEvents.map((event, i) => (
-              <div className='events-list-card' key={i}>
-                <EventCard
-                  chatType={event.chatType}
-                  content={event.content}
-                  eventName={event.eventName}
-                  eventNumber={i}
-                  label={event.label}
-                  presenters={event.presenters}
-                  title={event.title}
-                  viewers={event.viewers}
-                />
-              </div>
-            ))}
-            {upcomingEvents.map((event, i) => (
-              <div className='events-list-card' key={i}>
-                <EventCard
-                  chatType={event.chatType}
-                  content={event.content}
-                  eventName={event.eventName}
-                  eventNumber={i + 2}
-                  label={event.label}
-                  presenters={event.presenters}
-                  title={event.title}
-                  upcoming
-                  viewers={event.viewers}
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {dropdownOpen && (
+            <motion.div
+              className='events-list-dropdown'
+              ref={dropdownRef}
+              variants={variants}
+              initial='closed'
+              animate='open'
+              exit='closed'
+            >
+              {currentEvents.map((event, i) => (
+                <div className='events-list-card' key={i}>
+                  <EventCard
+                    chatType={event.chatType}
+                    content={event.content}
+                    eventName={event.eventName}
+                    eventNumber={i}
+                    label={event.label}
+                    presenters={event.presenters}
+                    title={event.title}
+                    viewers={event.viewers}
+                  />
+                </div>
+              ))}
+              {upcomingEvents.map((event, i) => (
+                <div className='events-list-card' key={i}>
+                  <EventCard
+                    chatType={event.chatType}
+                    content={event.content}
+                    eventName={event.eventName}
+                    eventNumber={i + 2}
+                    label={event.label}
+                    presenters={event.presenters}
+                    title={event.title}
+                    upcoming
+                    viewers={event.viewers}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <div className={`events-list-video${videoOpen ? '' : '-hidden'}`}>
         <RoomVideo handleBackArrow={handleBackArrow} />
