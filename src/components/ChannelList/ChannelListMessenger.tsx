@@ -34,6 +34,8 @@ export type ChannelListMessengerProps<
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display a loading indicator, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
+  /** Local state hook that resets the currently loaded channels */
+  setChannels?: React.Dispatch<React.SetStateAction<Channel<At, Ch, Co, Ev, Me, Re, Us>[]>>;
 };
 
 /**
