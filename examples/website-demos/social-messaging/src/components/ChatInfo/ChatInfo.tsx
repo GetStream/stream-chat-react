@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import Dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { useChannelStateContext, useChatContext } from 'stream-chat-react';
+import { Avatar, useChannelStateContext, useChatContext } from 'stream-chat-react';
 
 import { ChannelNameInput } from './ChannelNameInput';
 import { NewChatUser } from '../NewChat/NewChatUser';
@@ -45,6 +47,8 @@ export const ChatInfo = () => {
     .filter(({ user }) => user?.id !== client.userID)
     .map(({ user }) => user);
 
+  const online = channel.state.watcher_count > 1 ? true : false;
+
   const [channelName, setChannelName] = useState<string | undefined>(channel?.data?.name);
 
   const updateChannel = async (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -73,6 +77,36 @@ export const ChatInfo = () => {
       return attachments?.filter(({ type }) => type === 'file').length;
     })
     .reduce((total, count) => (total || 0) + (count || 0), 0);
+
+  const users = () => {
+    const user = Object.values(channel.state.members)
+      .filter(({ user }) => user?.id !== client.userID)
+      .map(({ user }) => user)[0];
+
+    Dayjs.extend(relativeTime);
+    let status = Dayjs().from(Dayjs(user?.last_active), true);
+
+    if (members.length === 1) {
+      return (
+        <div className='single-user'>
+          <Avatar image={user?.image || ''} name={user?.name || user?.id} size={64} />
+          <div className='single-user-name'>{user?.name || user?.id}</div>
+          <div className='single-user-status'>
+            {online && <div className='single-user-status-online'></div>}
+            {user?.last_active ? <span>Last online {status} ago</span> : <span>Not online</span>}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        {members.map((user) => (
+          <NewChatUser key={user?.id} user={user} />
+        ))}
+      </div>
+    );
+  };
 
   const actions = () => {
     return (
@@ -149,12 +183,8 @@ export const ChatInfo = () => {
   };
 
   return (
-    <>
-      <div className='chat-info-members'>
-        {members.map((user, i) => (
-          <NewChatUser key={user?.id} user={user} />
-        ))}
-      </div>
+    <div className='chat-info'>
+      <div className='chat-info-members'>{users()}</div>
       <div className='chat-info-divider'></div>
       {members.length !== 1 && (
         <div className='chat-info-name'>
@@ -173,6 +203,6 @@ export const ChatInfo = () => {
         <Trashcan />
         Delete conversation
       </div>
-    </>
+    </div>
   );
 };

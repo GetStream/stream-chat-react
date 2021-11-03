@@ -1,6 +1,9 @@
 @import '../../styles/_variables';
 
 .chat-info {
+    background: $input-bg;
+    height: 100vh;
+
     &-members {
         overflow: auto;
         max-height: 40vh;
@@ -67,6 +70,7 @@
         height: 56px;
         font-size: 17px;
         font-weight: 500;
+        color: $text-high-emphasis;
 
         &-start {
             flex-grow: 3;
@@ -125,5 +129,38 @@
                 margin: 0 15px;
               }
         }
+    }
+}
+
+.single-user {
+    background: $bars-bg;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+
+    &-name {
+        color: $text-high-emphasis;
+        font-size: 20px;
+        font-weight: 500;
+        margin: 10px 0;
+    }
+
+    &-status {
+        color: $text-low-emphasis;
+        font-size: 13px;
+        font-weight: 400;
+        display: flex;
+
+        &-online {
+            width: 12px;
+            height: 12px;
+            background-color: $accent-info;
+            border-radius: 7px;
+            border: 1px solid $white;
+            padding: 0.25px;
+            margin: 1px 5px;
+          }
     }
 }
