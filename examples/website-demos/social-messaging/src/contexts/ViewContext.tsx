@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react';
 
+export type UserInfoItem = 'pinned' | 'photos' | 'files' | 'sharedGroups';
+
 type ViewContextValue = {
   isChatInfoOpen: boolean;
   isListMentions: boolean;

@@ -8,31 +8,12 @@ import { SocialUserType } from '../ChatContainer/ChatContainer';
 
 import { UserActions, useActionsContext } from '../../contexts/ActionsContext';
 
-// import {
-//   CopyMessage,
-//   DeleteMessage,
-//   EditMessage,
-//   FlagMessage,
-//   MuteUser,
-//   PinMessage,
-//   QuoteReply,
-//   StartThread,
-// } from '../../assets';
-// import { useViewContext, UserActions } from '../../contexts/ViewContext';
-
-// import type { UserResponse } from 'stream-chat';
-
 type Props<SocialUserType> = {
-  channelId: string;
+  channelId?: string;
   members: ChannelMemberResponse<SocialUserType>[];
   setChatInfoOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  //   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  //   openThread?: ReactEventHandler;
   setActionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  //   thread?: boolean;
-  //   user?: UserResponse | null;
-  //   setEdit: ReactEventHandler;
 };
 
 export const SocialPreviewActions = (props: Props<SocialUserType>) => {
@@ -44,11 +25,9 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
   const [isUserMuted, setIsUserMuted] = useState(false);
 
   const handleAction = (action: UserActions) => {
-    // console.log('members[0].user?.id IS:', members[0].user?.id);
-    //   setMessageActionUser?.(user.id);
     const user = members[0].user?.id;
-    setActionId(user);
-    setActionsModalOpenId(channelId);
+    if (user) setActionId(user);
+    setActionsModalOpenId(channelId!);
     setDropdownOpen(false);
     setUserActionType(action);
   };

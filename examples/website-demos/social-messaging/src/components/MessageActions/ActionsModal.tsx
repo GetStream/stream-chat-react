@@ -90,18 +90,16 @@ export const ActionsModal: React.FC<Props> = (props) => {
   };
 
   const handleAction = async (action: UserActions) => {
-    // const actionId = actionId;
+    const actionUserId = actionId;
 
-    console.log('action IS:', action);
-
-    if (!actionId) return;
+    if (!actionUserId) return;
 
     try {
       if (action === 'mute') {
-        console.log('actionID in mute:', actionId);
-        await client.muteUser(actionId);
+        console.log('actionUserId in mute:', actionUserId);
+        await client.muteUser(actionUserId);
       } else if (action === 'unmute') {
-        await client.unmuteUser(actionId);
+        await client.unmuteUser(actionUserId);
       } else if (action === 'flag') {
         await client.flagMessage(message.id);
       } else if (action === 'copy') {
