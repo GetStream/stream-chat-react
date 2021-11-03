@@ -1,6 +1,10 @@
 @import '../../styles/_variables';
 
 .chat-info {
+    &-members {
+        overflow: auto;
+        max-height: 40vh;
+    }
     &-divider {
         background: $borders;
         height: 8px;

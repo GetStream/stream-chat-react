@@ -16,6 +16,7 @@ import {
 } from '../ChatContainer/ChatContainer';
 import { SocialThread } from '../Thread/SocialThread';
 
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import type { EventHandler } from 'stream-chat';
@@ -35,12 +36,12 @@ export const ChannelContainer: React.FC = () => {
 
   const {
     chatsUnreadCount,
-    isChatInfoOpen,
-    isNewChat,
     mentionsUnreadCount,
     setChatsUnreadCount,
     setMentionsUnreadCount,
-  } = useViewContext();
+  } = useUnreadContext();
+
+  const { isChatInfoOpen, isNewChat } = useViewContext();
 
   useEffect(() => {
     const handlerNewMessageEvent: EventHandler<

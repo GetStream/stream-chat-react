@@ -19,6 +19,7 @@ import {
 } from '../ChatContainer/ChatContainer';
 
 import { useActionsContext } from '../../contexts/ActionsContext';
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 import { ActionsEllipse } from '../../assets';
 // import { DoubleCheckmark } from '../../assets/DoubleCheckmark';
@@ -42,13 +43,12 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
 
   const {
     chatsUnreadCount,
-    isListMentions,
     mentionsUnreadCount,
-    setChatInfoOpen,
     setChatsUnreadCount,
     setMentionsUnreadCount,
-    setNewChat,
-  } = useViewContext();
+  } = useUnreadContext();
+
+  const { isListMentions, setChatInfoOpen, setNewChat } = useViewContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 

@@ -19,6 +19,7 @@ import { SocialThreadHeader } from '../Thread/SocialThreadHeader';
 
 import { useActionsContext } from '../../contexts/ActionsContext';
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './ChatContainer.scss';
@@ -68,14 +69,8 @@ export const ChatContainer: React.FC = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
 
   const { snackbar } = useActionsContext();
-  const {
-    // chatsUnreadCount,
-    isListMentions,
-    isSideDrawerOpen,
-    // mentionsUnreadCount,
-    setChatsUnreadCount,
-    setMentionsUnreadCount,
-  } = useViewContext();
+  const { setChatsUnreadCount, setMentionsUnreadCount } = useUnreadContext();
+  const { isListMentions, isSideDrawerOpen } = useViewContext();
 
   // useChecklist(chatClient, targetOrigin);
 
