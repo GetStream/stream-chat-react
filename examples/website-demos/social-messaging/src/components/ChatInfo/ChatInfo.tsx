@@ -103,7 +103,7 @@ export const ChatInfo = () => {
             <div className={`chat-info-option-end-items ${pinnedMessages ? '' : 'showNumber'}`}>
               <span className='chat-info-option-end-items-text'>{pinnedMessages}</span>
             </div>
-            <ExpandArrow />
+            <ExpandArrow chatInfoItem='Pinned Messages' />
           </div>
         </div>
         <div className='chat-info-option'>
@@ -115,7 +115,7 @@ export const ChatInfo = () => {
             <div className={`chat-info-option-end-items ${photosAndImages ? '' : 'showNumber'}`}>
               <span className='chat-info-option-end-items-text'>{photosAndImages}</span>
             </div>
-            <ExpandArrow />
+            <ExpandArrow chatInfoItem='Photos & Videos' />
           </div>
         </div>
         <div className='chat-info-option'>
@@ -127,7 +127,7 @@ export const ChatInfo = () => {
             <div className={`chat-info-option-end-items ${files ? '' : 'showNumber'}`}>
               <span className='chat-info-option-end-items-text'>{files}</span>
             </div>
-            <ExpandArrow />
+            <ExpandArrow chatInfoItem='Files' />
           </div>
         </div>
         {members.length === 1 && (
@@ -140,7 +140,7 @@ export const ChatInfo = () => {
               <div className={`chat-info-option-end-items ${pinnedMessages ? '' : 'showNumber'}`}>
                 <span className='chat-info-option-end-items-text'>{pinnedMessages}</span>
               </div>
-              <ExpandArrow />
+              <ExpandArrow chatInfoItem='Shared Groups' />
             </div>
           </div>
         )}

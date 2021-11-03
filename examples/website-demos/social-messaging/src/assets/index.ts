@@ -18,6 +18,7 @@ export { DoubleCheckmark } from './DoubleCheckmark';
 export { EditMessage } from './EditMessage';
 export { EmojiPickerIcon } from './EmojiPickerIcon';
 export { ExpandArrow } from './ExpandArrow';
+export { ExpandArrowLeft } from './ExpandArrowLeft';
 export { Files } from './Files';
 export { FlagMessage } from './FlagMessage';
 export { GiphyIcon } from './GiphyIcon';

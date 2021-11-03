@@ -18,6 +18,14 @@
     margin-left: 15px
   }
 
+  &-chat-info-item {
+    font-size: 17px;
+    color: $text-high-emphasis;
+    line-height: 20px;
+    font-weight: 500;
+    margin-left: 15px
+  }
+
   div svg {
     fill: $black;
     margin-left: 15px;
@@ -29,6 +37,9 @@
   }
 
   svg {
+    fill: $black;
+    margin-left: 15px;
+    
     &:hover path {
       fill: $accent-primary;
       cursor: pointer;

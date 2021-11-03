@@ -22,6 +22,7 @@ import { useViewContext } from '../../contexts/ViewContext';
 import type { EventHandler } from 'stream-chat';
 
 import './ChannelContainer.scss';
+import { ChatInfoItem } from '../ChatInfo/ChatInfoItem';
 
 export const ChannelContainer: React.FC = () => {
   const { channel, client } = useChatContext<
@@ -41,7 +42,7 @@ export const ChannelContainer: React.FC = () => {
     setMentionsUnreadCount,
   } = useUnreadContext();
 
-  const { isChatInfoOpen, isNewChat } = useViewContext();
+  const { isChatInfoOpen, chatInfoItem, isNewChat } = useViewContext();
 
   useEffect(() => {
     const handlerNewMessageEvent: EventHandler<
@@ -80,6 +81,7 @@ export const ChannelContainer: React.FC = () => {
   const channelRenderer = () => {
     if (isNewChat) return <NewChat />;
     if (isChatInfoOpen) return <ChatInfo />;
+    if (chatInfoItem) return <ChatInfoItem />;
 
     return <MessageList />;
   };
@@ -89,7 +91,7 @@ export const ChannelContainer: React.FC = () => {
       <Window>
         <SocialChannelHeader />
         {channelRenderer()}
-        {!isChatInfoOpen && <MessageInput mentionAllAppUsers />}
+        {!isChatInfoOpen && !chatInfoItem && <MessageInput mentionAllAppUsers />}
       </Window>
       <SocialThread />
     </>
