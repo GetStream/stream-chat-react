@@ -3,10 +3,10 @@ context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000';
     cy.viewport('macbook-11');
-    cy.visit(url, { timeout: 40000 });
+    cy.visit(url, { timeout: 4000 });
     cy.dataTestContains('channel-preview-button').first().click().should('exist');
     cy.title();
-    cy.waitFor(10000);
+    cy.waitFor(1000);
   });
 
   it('Files Upload1 - attach images', () => {

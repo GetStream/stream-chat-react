@@ -5,7 +5,7 @@ context('Actions', () => {
     const url = 'http://localhost:3000'
     cy.waitFor(10000)
     cy.viewport('macbook-11')
-    cy.visit(url, { timeout: 120000 })
+    cy.visit(url, { timeout: 5000 })
     cy.dataTestContains('channel-preview-button').first().click().should('exist')
     cy.title()
     cy.waitFor(10000)
@@ -25,12 +25,12 @@ context('Actions', () => {
     cy.wait(100)
   })
   })
-  it('Get first channel text and send text', () => {
+  it('Verify First Channel Interaction - Get first channel text and send text', () => {
     // get first channel text
     cy.xpath("//button[@data-testid='channel-preview-button']").first().invoke('text')
     const input = 'Last channel text {enter}'
     cy.dataTestContains('channel-preview-button').last().click().invoke('text')
-    cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
+    cy.xpath("//textarea[contains(@placeholder,'Type your message')]").focus()
       .type(input, {timeout:100})
       .type('{enter}')
     cy.waitFor(1000)

@@ -16,47 +16,19 @@ context('Actions', () => {
       .should('exist')
       .type('{enter}')
   })
-  it('Flag conversation', function () {
+  it('Flag conversation for moderation', function () {
     // hiding sub-menu flag
+    console.log(screen)
     cy.dataTestContains('channel-preview-button')
       .first()
       //.next()
       .then((element) => {
         cy.wrap(element).first().scrollIntoView().click({ force: true })
-        cy.get('[data-testid="message-text-inner-wrapper"]').first();
-        cy.get('li')
-          .contains('Hello Ear')
-          .first()
-          .then((element) => {
-            const cls = element.attr('class');
-            cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
-            //cy.get('[data-testid="message-inner"]')
-              //.should('include.text', 'Hello Ear')
-              //.first()
-              .then((element) => {
-                cy.wrap(element).contains('Flag').click({ force: true })
-                cy.get('[data-testid="custom-notification"]').invoke('text')
-              })
-          })
-      })
-  })
-  it('Unflag conversation', function () {
-    // hiding sub-menu Unflag
-    cy.dataTestContains('channel-preview-button')
-      .first()
-      //.next()
-      .then((element) => {
-        cy.wrap(element).first().scrollIntoView().click({ force: true })
-        cy.get('[data-testid="message-text-inner-wrapper"]').first();
-        cy.get('li')
-          .contains('Hello Ear')
-          .first()
-          .then((element) => {
-            const cls = element.attr('class')
+        cy.get('li').should('have', '09/30/2021').scrollIntoView().then((element) => {
+          cy.wrap(element).scrollTo('topRight').invoke('text')
             cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
               .then((element) => {
                 cy.wrap(element).contains('Flag').click({ force: true })
-                // there a bug the text says Flag instead of UnFlag
                 cy.get('[data-testid="custom-notification"]').invoke('text')
               })
           })

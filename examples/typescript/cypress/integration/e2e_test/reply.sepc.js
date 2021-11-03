@@ -4,10 +4,10 @@ context('Actions', () => {
   beforeEach(() => {
     const url = 'http://localhost:3000';
     cy.viewport('macbook-11');
-    cy.visit(url, { timeout: 40000 });
+    cy.visit(url, { timeout: 1000 });
     cy.dataTestContains('channel-preview-button').first().click().should('exist');
     cy.title();
-    cy.waitFor(10000);
+    cy.waitFor(5000);
   });
 
   it('open hidden menu and click Reply', function () {
@@ -33,7 +33,7 @@ context('Actions', () => {
               .type(input)
               .type('{enter}')
               .should('exist')
-            cy.wait(4000)
+            cy.wait(1000)
           })
       })
   })
@@ -42,8 +42,6 @@ context('Actions', () => {
     // hiding sub-menu Reply
 
       cy.get('li')
-          //.contains('Hello Ear')
-          //.first()
           .then((element) => {
             console.log(element)
             const cls = element.attr('class')
@@ -59,7 +57,7 @@ context('Actions', () => {
                 const input = 'This is a reply text!{enter}'
       cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
         .focus()
-        .type(input, { timeout: 10000 })
+        .type(input, { timeout: 500 })
         .type('{enter}')
     })
   })
