@@ -78,6 +78,8 @@ export const ChatInfo = () => {
     })
     .reduce((total, count) => (total || 0) + (count || 0), 0);
 
+  const sharedGroups = 0; // todo
+
   const users = () => {
     const user = Object.values(channel.state.members)
       .filter(({ user }) => user?.id !== client.userID)
@@ -171,8 +173,8 @@ export const ChatInfo = () => {
               Shared Groups
             </div>
             <div className='chat-info-option-end'>
-              <div className={`chat-info-option-end-items ${pinnedMessages ? '' : 'showNumber'}`}>
-                <span className='chat-info-option-end-items-text'>{pinnedMessages}</span>
+              <div className={`chat-info-option-end-items ${sharedGroups ? '' : 'showNumber'}`}>
+                <span className='chat-info-option-end-items-text'>{sharedGroups}</span>
               </div>
               <ExpandArrow chatInfoItem='Shared Groups' />
             </div>

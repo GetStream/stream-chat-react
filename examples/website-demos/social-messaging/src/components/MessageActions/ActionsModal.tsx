@@ -18,8 +18,6 @@ export const ActionsModal: React.FC<Props> = (props) => {
   const { client } = useChatContext();
   const { message } = useMessageContext();
 
-  console.log('action IS before click:', actionId);
-
   let Icon;
   let title;
   let description;
