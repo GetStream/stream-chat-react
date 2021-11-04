@@ -111,19 +111,11 @@ When the screen width is at a mobile breakpoint, whether or not the mobile navig
 
 ### theme
 
-UI theme used for custom styling of components. Default themes are available by channel type and custom themes are supported.
+Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../customization/css_and_theming.mdx#css-variables) of your app.
 
-```jsx
-const theme = 'messaging dark'
-
-<Chat client={client} theme={theme}>
-  {// children of Chat component}
-</Chat>
-```
-
-| Type  | Default           |
-| ----- | ----------------- |
-| Theme | `messaging light` |
+| Type  |
+| ----- |
+| Theme |
 
 ### useImageFlagEmojisOnWindows
 

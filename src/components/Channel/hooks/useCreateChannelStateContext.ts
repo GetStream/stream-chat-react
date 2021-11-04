@@ -75,27 +75,27 @@ export const useCreateChannelStateContext = <
     ? messages
     : messages
         .map(
-          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at }) =>
+          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at, user }) =>
             `${deleted_at}${
               latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
             }${pinned}${reply_count}${status}${
               updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
                 ? updated_at.toISOString()
                 : updated_at || ''
-            }`,
+            }${user?.image}${user?.name}`,
         )
         .join();
 
   const memoizedThreadMessageData = threadMessages
     .map(
-      ({ deleted_at, latest_reactions, pinned, status, updated_at }) =>
+      ({ deleted_at, latest_reactions, pinned, status, updated_at, user }) =>
         `${deleted_at}${
           latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
         }${pinned}${status}${
           updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
             ? updated_at.toISOString()
             : updated_at || ''
-        }`,
+        }${user?.image}${user?.name}`,
     )
     .join();
 

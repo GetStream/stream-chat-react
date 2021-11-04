@@ -1,5 +1,19 @@
 # Changelog
 
+## [6.11.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.11.0) 2021-10-28
+
+### Feature
+
+- Support custom notifications in the `VirtualizedMessageList` component [#1245](https://github.com/GetStream/stream-chat-react/pull/1245)
+
+### Chore
+ 
+- Update type definitions for `emoji-mart` and `moment` dependencies [#1254](https://github.com/GetStream/stream-chat-react/pull/1254)
+- Add Vite app to examples directory [#1255](https://github.com/GetStream/stream-chat-react/pull/1255)
+- Upgrade `react-virtuoso` to fix Safari v15 edge case [#1257](https://github.com/GetStream/stream-chat-react/pull/1257)
+- Deprecate the `theme` prop on the `Chat` component [#1258](https://github.com/GetStream/stream-chat-react/pull/1258)
+- Upgrade `mml-react` dependency [#1260](https://github.com/GetStream/stream-chat-react/pull/1260)
+
 ## [6.10.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.10.0) 2021-10-13
 
 ### Feature
