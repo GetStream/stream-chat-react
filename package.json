@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "6.10.0",
+  "version": "6.11.0",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -49,14 +49,14 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "^2.2.1",
+    "react-virtuoso": "2.2.6",
     "stream-chat-css": "^1.0.17",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
   "optionalDependencies": {
     "@sindresorhus/transliterate": "^1.4.0",
-    "mml-react": "^0.4.1"
+    "mml-react": "^0.4.2"
   },
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
@@ -88,12 +88,13 @@
     "@testing-library/react": "^11.2.2",
     "@testing-library/react-hooks": "^3.4.2",
     "@types/deep-equal": "^1.0.1",
-    "@types/emoji-mart": "^3.0.4",
+    "@types/emoji-mart": "^3.0.8",
     "@types/linkifyjs": "^2.1.3",
     "@types/lodash.debounce": "^4.0.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.throttle": "^4.1.6",
     "@types/lodash.uniqby": "^4.7.6",
+    "@types/moment": "^2.13.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-is": "^17.0.0",
     "@types/textarea-caret": "3.0.0",

@@ -4,6 +4,7 @@ import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
 
 import type {
@@ -16,9 +17,9 @@ import type {
   DefaultUserType,
 } from '../../types/types';
 
-export type TypingIndicatorProps = {
+export type TypingIndicatorProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps<Us>>;
   /** Avatar size in pixels, @default 32px */
   avatarSize?: number;
   /** Whether or not the typing indicator is in a thread */
@@ -37,15 +38,20 @@ const UnMemoizedTypingIndicator = <
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 >(
-  props: TypingIndicatorProps,
+  props: TypingIndicatorProps<Us>,
 ) => {
-  const { Avatar = DefaultAvatar, avatarSize = 32, threadList } = props;
+  const { Avatar: PropAvatar, avatarSize = 32, threadList } = props;
 
   const { channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
     'TypingIndicator',
   );
   const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
+  const { Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'TypingIndicator',
+  );
   const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
+
+  const Avatar = PropAvatar || ContextAvatar || DefaultAvatar;
 
   if (channelConfig?.typing_events === false) {
     return null;

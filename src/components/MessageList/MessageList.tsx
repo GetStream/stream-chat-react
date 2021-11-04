@@ -6,25 +6,19 @@ import { useMessageListElements } from './hooks/useMessageListElements';
 import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
 
 import { Center } from './Center';
-import { ConnectionStatus } from './ConnectionStatus';
-import { CustomNotification } from './CustomNotification';
-import {
-  MessageNotification as DefaultMessageNotification,
-  MessageNotificationProps,
-} from './MessageNotification';
+import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
+import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 
 import {
   ChannelActionContextValue,
   useChannelActionContext,
 } from '../../context/ChannelActionContext';
 import {
-  ChannelNotifications,
   ChannelStateContextValue,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { useTranslationContext } from '../../context/TranslationContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
@@ -44,33 +38,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-
-export type MessageListNotificationsProps = {
-  hasNewMessages: boolean;
-  MessageNotification: React.ComponentType<MessageNotificationProps>;
-  notifications: ChannelNotifications;
-  scrollToBottom: () => void;
-};
-
-const DefaultMessageListNotifications = (props: MessageListNotificationsProps) => {
-  const { hasNewMessages, MessageNotification, notifications, scrollToBottom } = props;
-
-  const { t } = useTranslationContext('DefaultMessageListNotifications');
-
-  return (
-    <div className='str-chat__list-notifications'>
-      {notifications.map((notification) => (
-        <CustomNotification active={true} key={notification.id} type={notification.type}>
-          {notification.text}
-        </CustomNotification>
-      ))}
-      <ConnectionStatus />
-      <MessageNotification onClick={scrollToBottom} showNotification={hasNewMessages}>
-        {t('New Messages!')}
-      </MessageNotification>
-    </div>
-  );
-};
 
 const useInternalInfiniteScrollProps = (
   props: Pick<

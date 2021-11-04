@@ -4,11 +4,8 @@ import {
   Channel,
   ChannelHeader,
   ChannelList,
-  ChannelListMessenger,
-  ChannelPreviewMessenger,
   Chat,
   MessageInput,
-  MessageInputFlat,
   MessageList,
   Thread,
   Window,
@@ -17,15 +14,10 @@ import {
 const apiKey = process.env.NEXT_PUBLIC_REACT_APP_STREAM_KEY;
 const userId = process.env.NEXT_PUBLIC_REACT_APP_USER_ID;
 const userToken = process.env.NEXT_PUBLIC_REACT_APP_USER_TOKEN;
-const theme = 'light';
 
 const filters = { type: 'messaging' };
 const options = { state: true, presence: true, limit: 10 };
-const sort = {
-  cid: 1,
-  last_message_at: -1,
-  updated_at: -1,
-};
+const sort = { last_message_at: -1, updated_at: -1 };
 
 const chatClient = StreamChat.getInstance(apiKey);
 
@@ -38,19 +30,13 @@ if (typeof window !== 'undefined') {
 }
 
 const App = () => (
-  <Chat client={chatClient} theme={`messaging ${theme}`}>
-    <ChannelList
-      filters={filters}
-      List={ChannelListMessenger}
-      options={options}
-      Preview={ChannelPreviewMessenger}
-      sort={sort}
-    />
+  <Chat client={chatClient}>
+    <ChannelList filters={filters} options={options} showChannelSearch sort={sort} />
     <Channel>
       <Window>
         <ChannelHeader />
         <MessageList />
-        <MessageInput focus Input={MessageInputFlat} />
+        <MessageInput focus />
       </Window>
       <Thread />
     </Channel>

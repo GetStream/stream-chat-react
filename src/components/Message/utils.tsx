@@ -253,7 +253,9 @@ export const areMessagePropsEqual = <
     prevMessage.status === nextMessage.status &&
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
-    prevMessage.updated_at === nextMessage.updated_at;
+    prevMessage.updated_at === nextMessage.updated_at &&
+    prevMessage.user?.image === nextMessage.user?.image &&
+    prevMessage.user?.name === nextMessage.user?.name;
 
   if (!messagesAreEqual) return false;
 
@@ -314,7 +316,9 @@ export const areMessageUIPropsEqual = <
     prevMessage.status === nextMessage.status &&
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
-    prevMessage.updated_at === nextMessage.updated_at;
+    prevMessage.updated_at === nextMessage.updated_at &&
+    prevMessage.user?.image === nextMessage.user?.image &&
+    prevMessage.user?.name === nextMessage.user?.name;
 
   if (!messagesAreEqual) return false;
 

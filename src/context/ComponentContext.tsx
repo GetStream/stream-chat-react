@@ -10,7 +10,7 @@ import type { FixedHeightMessageProps } from '../components/Message/FixedHeightM
 import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPreviewMessage';
-import type { MessageListNotificationsProps } from '../components/MessageList/MessageList';
+import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
 import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
@@ -57,7 +57,7 @@ export type ComponentContextValue<
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<AvatarProps<Us>>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;

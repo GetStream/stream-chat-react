@@ -212,7 +212,7 @@ const UnMemoizedChannelList = <
     channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
   ) => {
-    if (channels.length === 0 || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
+    if (!channels.length || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
       return;
     }
 
@@ -284,7 +284,7 @@ const UnMemoizedChannelList = <
 
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
-      if (setActiveChannel && event?.cid === channel?.cid) {
+      if (event.cid === channel?.cid) {
         setActiveChannel();
       }
     };
@@ -296,11 +296,9 @@ const UnMemoizedChannelList = <
       client.off('channel.deleted', handleEvent);
       client.off('channel.hidden', handleEvent);
     };
-  }, [channel]);
+  }, [channel?.cid]);
 
   const renderChannel = (item: Channel<At, Ch, Co, Ev, Me, Re, Us>) => {
-    if (!item) return null;
-
     const previewProps = {
       activeChannel: channel,
       Avatar,
@@ -314,28 +312,6 @@ const UnMemoizedChannelList = <
 
     return <ChannelPreview {...previewProps} />;
   };
-
-  const renderList = () => (
-    <List
-      error={status.error}
-      loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-      loading={status.loadingChannels}
-      LoadingErrorIndicator={LoadingErrorIndicator}
-      LoadingIndicator={LoadingIndicator}
-    >
-      {!loadedChannels || loadedChannels.length === 0 ? (
-        <EmptyStateIndicator listType='channel' />
-      ) : (
-        <Paginator
-          hasNextPage={hasNextPage}
-          loadNextPage={loadNextPage}
-          refreshing={status.refreshing}
-        >
-          {loadedChannels.map(renderChannel)}
-        </Paginator>
-      )}
-    </List>
-  );
 
   const chatClass = customClasses?.chat || 'str-chat';
   const channelListClass = customClasses?.channelList || 'str-chat-channel-list';
@@ -352,7 +328,26 @@ const UnMemoizedChannelList = <
         ref={channelListRef}
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
-        {renderList()}
+        <List
+          error={status.error}
+          loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+          loading={status.loadingChannels}
+          LoadingErrorIndicator={LoadingErrorIndicator}
+          LoadingIndicator={LoadingIndicator}
+          setChannels={setChannels}
+        >
+          {!loadedChannels?.length ? (
+            <EmptyStateIndicator listType='channel' />
+          ) : (
+            <Paginator
+              hasNextPage={hasNextPage}
+              loadNextPage={loadNextPage}
+              refreshing={status.refreshing}
+            >
+              {loadedChannels.map(renderChannel)}
+            </Paginator>
+          )}
+        </List>
       </div>
     </>
   );

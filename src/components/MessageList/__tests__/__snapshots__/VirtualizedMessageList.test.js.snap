@@ -37,10 +37,10 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           <div />
         </div>
       </div>
-      <div
-        className="str-chat__list-notifications"
-      />
     </div>
+    <div
+      className="str-chat__list-notifications"
+    />
   </div>
 </div>
 `;
