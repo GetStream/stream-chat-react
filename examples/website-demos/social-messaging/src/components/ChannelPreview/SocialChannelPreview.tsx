@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 
-import { ChannelMemberResponse } from 'stream-chat';
 import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
 
 import { ActionsModal } from '../MessageActions/ActionsModal';
@@ -17,37 +16,6 @@ import { ActionsEllipse } from '../../assets';
 
 import { SocialPreviewActions } from './SocialPreviewActions';
 
-type OptionsProps = {
-  channelId?: string;
-  dropdownOpen: boolean;
-  members: ChannelMemberResponse[];
-  setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setActionId: React.Dispatch<React.SetStateAction<string | undefined>>;
-};
-
-const Options: React.FC<OptionsProps> = (props) => {
-  const { channelId, dropdownOpen, members, setDropdownOpen, setActionId } = props;
-
-  const { setChatInfoOpen } = useViewContext();
-
-  return (
-    <>
-      <span className='channel-preview-end-options' onClick={() => setDropdownOpen(!dropdownOpen)}>
-        <ActionsEllipse />
-      </span>
-      {dropdownOpen && (
-        <SocialPreviewActions
-          channelId={channelId}
-          members={members}
-          setChatInfoOpen={setChatInfoOpen}
-          setActionId={setActionId}
-          setDropdownOpen={setDropdownOpen}
-        />
-      )}
-    </>
-  );
-};
-
 export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (props) => {
   const { active, channel, displayTitle, latestMessage, setActiveChannel, unread } = props;
 
@@ -62,7 +30,7 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
     setMentionsUnreadCount,
   } = useUnreadContext();
 
-  const { isListMentions, setNewChat } = useViewContext();
+  const { isListMentions, setChatInfoOpen, setNewChat } = useViewContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -120,13 +88,12 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
         <div className='channel-preview-end'>
           <>
             {showInfoOptions && (
-              <Options
-                channelId={channel.id}
-                dropdownOpen={dropdownOpen}
-                members={members}
-                setActionId={setActionId}
-                setDropdownOpen={setDropdownOpen}
-              ></Options>
+              <span
+                className='channel-preview-end-options'
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <ActionsEllipse />
+              </span>
             )}
             {!showInfoOptions && (
               <div className={`channel-preview-end-unread ${unreadCount ? '' : 'unreadCount'}`}>
@@ -142,6 +109,15 @@ export const SocialChannelPreview: React.FC<ChannelPreviewUIComponentProps> = (p
           </div>
         </div>
       </button>
+      {dropdownOpen && (
+        <SocialPreviewActions
+          channelId={channel.id}
+          members={members}
+          setChatInfoOpen={setChatInfoOpen}
+          setActionId={setActionId}
+          setDropdownOpen={setDropdownOpen}
+        />
+      )}
     </>
   );
 };
