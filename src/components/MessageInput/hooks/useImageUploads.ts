@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 
+import { checkUploadPermissions } from './utils';
+
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { SendFileAPIResponse } from 'stream-chat';
@@ -37,6 +40,7 @@ export const useImageUploads = <
   const { imageUploads } = state;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
+  const { appSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'useImageUploads',
   );
@@ -58,6 +62,16 @@ export const useImageUploads = <
         dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
 
+      const canUpload = checkUploadPermissions({
+        addNotification,
+        appSettings,
+        file,
+        t,
+        uploadType: 'image',
+      });
+
+      if (!canUpload) return removeImage(id);
+
       let response: SendFileAPIResponse;
 
       try {
@@ -68,7 +82,9 @@ export const useImageUploads = <
         }
       } catch (error) {
         const errorMessage: string =
-          typeof error.message === 'string' ? error.message : t('Error uploading image');
+          typeof (error as Error).message === 'string'
+            ? (error as Error).message
+            : t('Error uploading image');
 
         addNotification(errorMessage, 'error');
 
@@ -82,7 +98,7 @@ export const useImageUploads = <
 
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(error, 'upload-image', {
+          errorHandler(error as Error, 'upload-image', {
             ...file,
             id,
           });
@@ -127,7 +143,7 @@ export const useImageUploads = <
             type: 'setImageUpload',
           });
         };
-        reader.readAsDataURL(file as Blob);
+        reader.readAsDataURL((file as unknown) as Blob);
         uploadImage(id);
         return () => {
           reader.onload = null;

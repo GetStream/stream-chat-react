@@ -55,6 +55,7 @@
   "Type your message": "अपना मैसेज लिखे",
   "Unmute": "अनम्यूट",
   "Unpin": "अनपिन",
+  "Upload type: \"{{ type }}\" is not allowed": "अपलोड प्रकार: \"{{ type }}\" की अनुमति नहीं है",
   "Wait until all attachments have uploaded": "सभी अटैचमेंट अपलोड होने तक प्रतीक्षा करें",
   "You have no channels currently": "आपके पास कोई चैनल नहीं है",
   "You've reached the maximum number of files": "आप अधिकतम फ़ाइलों तक पहुँच गए हैं",

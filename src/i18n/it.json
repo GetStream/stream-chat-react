@@ -55,6 +55,7 @@
   "Type your message": "Scrivi il tuo messaggio",
   "Unmute": "Riattiva le notifiche",
   "Unpin": "Sblocca",
+  "Upload type: \"{{ type }}\" is not allowed": "Tipo di caricamento: \"{{ type }}\" non è consentito",
   "Wait until all attachments have uploaded": "Attendi il caricamento di tutti gli allegati",
   "You have no channels currently": "Al momento non sono presenti canali",
   "You've reached the maximum number of files": "Hai raggiunto il numero massimo di file",
