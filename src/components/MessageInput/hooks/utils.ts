@@ -1,6 +1,18 @@
-import type { UserResponse } from 'stream-chat';
+import type { ImageUpload } from 'react-file-utils';
+import type { FileUploadConfig, UserResponse } from 'stream-chat';
 
-import type { DefaultUserType } from '../../../types/types';
+import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';
+import type { ChatContextValue } from '../../../context/ChatContext';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
+import type {
+  DefaultAttachmentType,
+  DefaultChannelType,
+  DefaultCommandType,
+  DefaultEventType,
+  DefaultMessageType,
+  DefaultReactionType,
+  DefaultUserType,
+} from '../../../types/types';
 
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
@@ -101,4 +113,96 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
   });
 
   return matchingUsers;
+};
+
+type CheckUploadPermissionsParams<
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+> = {
+  addNotification: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['addNotification'];
+  appSettings: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['appSettings'];
+  file: ImageUpload['file'];
+  t: TranslationContextValue['t'];
+  uploadType: 'image' | 'file';
+};
+
+export const checkUploadPermissions = <
+  At extends DefaultAttachmentType = DefaultAttachmentType,
+  Ch extends DefaultChannelType = DefaultChannelType,
+  Co extends DefaultCommandType = DefaultCommandType,
+  Ev extends DefaultEventType = DefaultEventType,
+  Me extends DefaultMessageType = DefaultMessageType,
+  Re extends DefaultReactionType = DefaultReactionType,
+  Us extends DefaultUserType<Us> = DefaultUserType
+>(
+  params: CheckUploadPermissionsParams<At, Ch, Co, Ev, Me, Re, Us>,
+) => {
+  const { addNotification, appSettings, file, t, uploadType } = params;
+
+  const {
+    allowed_file_extensions,
+    allowed_mime_types,
+    blocked_file_extensions,
+    blocked_mime_types,
+  } =
+    ((uploadType === 'image'
+      ? appSettings?.app?.image_upload_config
+      : appSettings?.app?.file_upload_config) as FileUploadConfig) || {};
+
+  const sendErrorNotification = () =>
+    addNotification(
+      t(`Upload type: "{{ type }}" is not allowed`, { type: file.type || 'unknown type' }),
+      'error',
+    );
+
+  if (allowed_file_extensions?.length) {
+    const allowed = allowed_file_extensions.some((ext) =>
+      file.name.toLowerCase().endsWith(ext.toLowerCase()),
+    );
+
+    if (!allowed) {
+      sendErrorNotification();
+      return false;
+    }
+  }
+
+  if (blocked_file_extensions?.length) {
+    const blocked = blocked_file_extensions.some((ext) =>
+      file.name.toLowerCase().endsWith(ext.toLowerCase()),
+    );
+
+    if (blocked) {
+      sendErrorNotification();
+      return false;
+    }
+  }
+
+  if (allowed_mime_types?.length) {
+    const allowed = allowed_mime_types.some(
+      (type) => type.toLowerCase() === file.type?.toLowerCase(),
+    );
+
+    if (!allowed) {
+      sendErrorNotification();
+      return false;
+    }
+  }
+
+  if (blocked_mime_types?.length) {
+    const blocked = blocked_mime_types.some(
+      (type) => type.toLowerCase() === file.type?.toLowerCase(),
+    );
+
+    if (blocked) {
+      sendErrorNotification();
+      return false;
+    }
+  }
+
+  return true;
 };

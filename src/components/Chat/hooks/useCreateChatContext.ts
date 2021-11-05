@@ -23,6 +23,7 @@ export const useCreateChatContext = <
   value: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    appSettings,
     channel,
     client,
     closeMobileNav,
@@ -44,6 +45,7 @@ export const useCreateChatContext = <
 
   const chatContext: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
+      appSettings,
       channel,
       client,
       closeMobileNav,

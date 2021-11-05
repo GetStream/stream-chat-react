@@ -9,7 +9,7 @@ import {
 import { Streami18n } from '../../../i18n';
 import { version } from '../../../version';
 
-import type { Channel, Event, Mute, StreamChat } from 'stream-chat';
+import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
 
 import type {
   DefaultAttachmentType,
@@ -56,6 +56,7 @@ export const useChat = <
     userLanguage: 'en',
   });
 
+  const [appSettings, setAppSettings] = useState<AppSettingsAPIResponse<Co>>();
   const [channel, setChannel] = useState<Channel<At, Ch, Co, Ev, Me, Re, Us>>();
   const [mutes, setMutes] = useState<Array<Mute<Us>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
@@ -66,16 +67,23 @@ export const useChat = <
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
   useEffect(() => {
-    if (client) {
+    const setAgentAndSettings = async () => {
       const userAgent = client.getUserAgent();
       if (!userAgent.includes('stream-chat-react')) {
-        /**
-         * results in something like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-         */
+        // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
         client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
       }
-    }
-  }, [client]);
+
+      try {
+        const settingsResponse = await client.getAppSettings();
+        setAppSettings(settingsResponse);
+      } catch (err) {
+        setAppSettings(undefined);
+      }
+    };
+
+    setAgentAndSettings();
+  }, []);
 
   useEffect(() => {
     setMutes(clientMutes || []);
@@ -86,7 +94,7 @@ export const useChat = <
 
     client.on('notification.mutes_updated', handleEvent);
     return () => client.off('notification.mutes_updated', handleEvent);
-  }, [client, clientMutes]);
+  }, [clientMutes?.length]);
 
   useEffect(() => {
     let userLanguage = client.user?.language;
@@ -108,7 +116,7 @@ export const useChat = <
         userLanguage: userLanguage || defaultLanguage,
       });
     });
-  }, [client, i18nInstance]);
+  }, [i18nInstance]);
 
   const setActiveChannel = useCallback(
     async (
@@ -129,6 +137,7 @@ export const useChat = <
   );
 
   return {
+    appSettings,
     channel,
     closeMobileNav,
     mutes,
