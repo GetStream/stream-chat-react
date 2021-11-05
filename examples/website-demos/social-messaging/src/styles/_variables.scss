@@ -1,0 +1,75 @@
+:root {
+  --white: #ffffff;
+  --black: #000000;
+
+  // greys
+  --text-high-emphasis: #000000;
+  --text-low-emphasis: #72767e;
+  --disabled: #b4b7bb;
+  --borders: #dbdde1;
+  --input-bg: #e9eaed;
+  --app-bg: #f7f7f8;
+  --bars-bg: #ffffff;
+  --link-bg: #e9f2ff;
+  --stroke: #e5e5e6;
+  --app-canvas: #ffffff;
+  --card-alt-background: #ffffff;
+  --text-mid-emphasis: #8a898e;
+  --card-background: #f2f2f2;
+  --stroke-low-emphasis: #f2f2f2;
+
+  --accent-primary: #006cff;
+  --accent-error: #ff3742;
+  --accent-info: #20e070;
+
+  // specials
+  --section-bg-gradient: linear-gradient(180deg, #f7f7f8 0%, #e9eaed 100%);
+  --highlight: #fbf4dd;
+  --overlay-light: rgba(252, 252, 252, 0.9);
+  --overlay: rgba(0, 0, 0, 0.2);
+  --overlay-dark: rgba(0, 0, 0, 0.6);
+  --overlay-android: rgba(190, 190, 190, 0.9);
+  --shadow: 0px 2px 5px rgba(0, 0, 0, 0.15);
+
+  // effects
+  --border-top: 0px -1px 0px #dbdde1;
+  --border-bottom: 0px 1px 0px #dbdde1;
+  --icon-button-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+  --modal-shadow: 0px 0px 4px rgba(0, 0, 0, 0.6);
+  --background-blur: blur(10pt);
+}
+
+$white: var(--white);
+$black: var(--black);
+$text-high-emphasis: var(--text-high-emphasis);
+$text-low-emphasis: var(--text-low-emphasis);
+$disabled: var(--disabled);
+$borders: var(--borders);
+$input-bg: var(--input-bg);
+$app-bg: var(--app-bg);
+$bars-bg: var(--bars-bg);
+$link-bg: var(--link-bg);
+$accent-primary: var(--accent-primary);
+$accent-error: var(--accent-error);
+$accent-info: var(--accent-info);
+
+$section-bg-gradient: var(--linear-gradient(180deg, #f7f7f8 0%, #e9eaed 100%));
+$highlight: var(--highlight);
+$overlay-light: var(--rgba(252, 252, 252, 0.9));
+$overlay: var(--rgba(0, 0, 0, 0.2));
+$overlay-dark: var(--rgba(0, 0, 0, 0.6));
+$overlay-android: var(--rgba(190, 190, 190, 0.9));
+
+$border-top: var(--border-top);
+$border-bottom: var(--border-bottom);
+$icon-button-shadow: var(--icon-button-shadow);
+$modal-shadow: var(--modal-shadow);
+$background-blur: var(-background-blur);
+
+$app-canvas: var(--app-canvas);
+$card-alt-background: var(--card-alt-background);
+$stroke: var(--stroke);
+$text-mid-emphasis: var(--text-mid-emphasis);
+$card-background: var(--card-background);
+$shadow: var(--shadow);
+$stroke-low-emphasis: var(--stroke-low-emphasis);

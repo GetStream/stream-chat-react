@@ -1,0 +1,109 @@
+@import '../../styles/_variables';
+
+.new-chat {
+  height: 100%;
+  background: $app-bg;
+
+  &-input {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    background: $bars-bg;
+    padding: 16px 8px;
+
+    &-to {
+      color: $text-low-emphasis;
+      size: 13px;
+      line-height: 15px;
+      padding: 5px;
+      background-color: $bars-bg;
+      display: flex;
+      align-items: center;
+    }
+  
+    &-main {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+
+      &-selected {
+        display: flex;
+        margin: 0 8px;
+        flex-wrap: wrap;
+        padding: 5px 0px;
+
+      &-user {
+        background-color: $borders;
+        padding: 3px 12px 3px 0px;
+        border-radius: 999px;
+        margin-right: 3px;
+        cursor: pointer;
+        display: inherit;
+
+        &-name {
+          font-size: 17px;
+          color: $text-high-emphasis;
+          margin-left: 3px;
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+    &-form {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      overflow-y: hidden;
+      padding-right: 10px;
+      
+      input {
+        border: none;
+        background-color: $bars-bg;
+        color: $text-low-emphasis;
+        padding: 5px;
+        width: 100%;
+        font-weight: 500;
+        outline: none;
+        font-size: 17px;
+      }
+    }
+    }
+  }
+
+  &-options {
+    &-option {
+      cursor: pointer;
+    }
+
+    &-empty {
+      width: 100%;
+      min-height: 72px;
+      background-color: $app-bg;
+      border-bottom: 1px solid $borders;
+      padding: 25px;
+      color: $text-high-emphasis
+    }
+  }
+}
+
+.new-chat-preview {
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  background-color: $borders;
+
+  max-height: 72px;
+  border-bottom: 1px solid $app-bg;
+
+    &-avatar {
+        padding-left: 5px;
+    }
+
+    span {
+        color: $text-high-emphasis;
+        margin-left: 20px;
+        font-weight: 500;
+        line-height: 9.92px;
+        font-size: 17px;
+    }
+}

@@ -1,0 +1,29 @@
+@import '../../styles/_variables';
+
+div.str-chat-channel.messaging .str-chat__main-panel {
+  padding: 0;
+}
+
+.str-chat {
+  width: 100%;
+  overflow-y: hidden;
+}
+
+.str-chat__main-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel-list-container {
+  min-width: 418px;
+  max-width: 418px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $input-bg;
+  border-bottom: $border-top;
+
+  &.sideDrawerOpen {
+    display: none;
+  }
+}

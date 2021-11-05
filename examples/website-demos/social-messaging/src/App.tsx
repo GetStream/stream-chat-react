@@ -1,21 +1,21 @@
-import './App.css';
+import { ChatContainer } from './components/ChatContainer/ChatContainer';
+import { ActionsProvider } from './contexts/ActionsContext';
+import { UnreadProvider } from './contexts/UnreadContext';
+import { ViewProvider } from './contexts/ViewContext';
+
+import 'stream-chat-react/dist/css/index.css';
+import './styles/App.scss';
 
 function App() {
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app-container'>
+      <ViewProvider>
+        <UnreadProvider>
+          <ActionsProvider>
+            <ChatContainer />
+          </ActionsProvider>
+        </UnreadProvider>
+      </ViewProvider>
     </div>
   );
 }

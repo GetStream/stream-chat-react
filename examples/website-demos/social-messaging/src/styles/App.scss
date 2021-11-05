@@ -1,0 +1,7 @@
+@import './_variables';
+
+.app-container {
+  background-color: $modal-shadow;
+  display: flex;
+  max-height: 100vh;
+}

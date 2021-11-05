@@ -1,0 +1,246 @@
+@import '../../styles/_variables';
+
+.reaction-list {
+  margin-top: 28px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+}
+
+.my-message .reaction-list {
+  justify-content: initial;
+}
+
+.message-wrapper-inner-options {
+  flex-direction: row-reverse;
+}
+
+.message-wrapper-inner:hover .str-chat__message-simple__actions {
+  svg:hover {
+    fill: $accent-primary;
+  }
+
+  &__action--reactions {
+    display: flex;
+    position: relative;
+  }
+
+  &__action--options {
+    display: flex;
+  }
+}
+
+div.str-chat__reaction-selector {
+  background: $white;
+  height: 40px;
+  bottom: -45px;
+  transform: translateX(35%);
+
+  .emoji-mart-emoji:hover {
+    transform: none;
+  }
+
+  ul {
+    margin: 0 8px;
+  }
+}
+
+.my-message div.str-chat__reaction-selector {
+  transform: translateX(-75%);
+}
+
+li.str-chat__message-reactions-list-item {
+  padding: 8px;
+  margin: 0;
+
+  &:hover {
+    background: $input-bg;
+    border-radius: 50%;
+  }
+}
+
+span.str-chat__message-reactions-list-item__count {
+  display: none;
+}
+
+ul.str-chat__simple-reactions-list {
+  position: absolute;
+  padding: 4px 8px 2px 4px;
+  width: min-content;
+  top: -34px;
+  transform: translateX(44%);
+  z-index: 2;
+  border: 1px solid $borders;
+  height: 32px;
+  border-radius: 34px;
+  align-items: center;
+  background: $white;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .str-chat__simple-reactions-list {
+  transform: translateX(-44%);
+}
+
+li.str-chat__simple-reactions-list-item {
+  padding-left: 4px;
+  height: 16px;
+}
+
+li.str-chat__message-reactions-list-item .latest-user {
+  left: 8px;
+}
+
+.bubble-1 {
+  position: absolute;
+  height: 8px;
+  width: 8px;
+  background: $app-bg;
+  top: 3px;
+  right: 2px;
+  z-index: 1;
+  border: 1px solid $borders;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.bubble-2 {
+  position: absolute;
+  height: 4px;
+  width: 4px;
+  background: $app-bg;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  border: 1px solid $borders;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px $app-bg;
+}
+
+.my-message .bubble-1 {
+  left: 2px;
+}
+
+.my-message .bubble-2 {
+  left: 5px;
+}
+
+li.str-chat__simple-reactions-list-item--last-number {
+  display: none;
+}
+
+.participants-wrapper {
+  position: absolute;
+  top: 70px;
+  width: 336px;
+  border-radius: 16px;
+  background: $white;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 16px 0 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+  z-index: 3;
+  box-shadow: $shadow;
+
+  &-users {
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 16px 0 0;
+  }
+
+  &__user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    width: 64px;
+    margin: 8px 16px 24px 0;
+    position: relative;
+
+    .avatar-bubble-1 {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 25px;
+        left: 32px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-bubble-2 {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 26px;
+        left: 2px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-bubble-3 {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: $stroke;
+        position: absolute;
+        top: 6px;
+        left: -5px;
+        border: 1px solid $stroke;
+        box-shadow: 0 0 0 2px $white;
+      }
+
+      .avatar-emoji {
+        position: absolute;
+        top: 33px;
+        left: 40px;
+      }
+
+    .my-reaction {
+      .avatar-bubble-1 {
+        background: $white;
+        left: 0;
+      }
+
+      .avatar-bubble-2 {
+        background: $white;
+        left: 20px;
+      }
+
+      .avatar-bubble-3 {
+        background: $white;
+        left: 5px;
+      }
+
+      .avatar-emoji {
+        left: 8px;
+      }
+    }
+
+    &-name {
+      width: 64px;
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  &.my-message {
+    right: 0;
+  }
+}
+
+div.str-chat__avatar {
+  margin: 0;
+}
+
+.str-chat__simple-reactions-list-item > span {
+  font-size: 0;
+}

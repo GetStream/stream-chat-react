@@ -1,0 +1,47 @@
+@import '../../styles/variables';
+
+.loading-wireframe {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    height: 72px;
+    align-items: center;
+    justify-content: space-around;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+
+    &-avatar {
+        background-color: $disabled;
+        height: 50px;
+        width: 50px;
+        border-radius: 100%;
+    }
+
+    &-contents {
+        display: flex;
+        flex-direction: column;
+
+        div {
+            background-color: $disabled;
+            height: 16px;
+            width: 66px;
+            border-radius: 11px;
+            margin-bottom: 5px;
+        }
+
+        div:nth-child(2) {
+            background-color: $disabled;
+            height: 16px;
+            width: 230px;
+            border-radius: 11px;
+        }
+    }
+
+    &-end {
+        background-color: $disabled;
+        height: 16px;
+        width: 50px;
+        border-radius: 11px;
+        margin-top: 15px;
+    }
+}

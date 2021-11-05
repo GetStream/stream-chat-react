@@ -1,0 +1,13 @@
+@import '../../styles/_variables';
+
+.empty-state-indicator {
+  width: 100%;
+  min-height: 72px;
+  background-color: $app-bg;
+  border-bottom: 1px solid $borders;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  padding: 25px;
+  color: $text-high-emphasis
+}

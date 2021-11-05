@@ -1,0 +1,133 @@
+@import '../../styles/_variables';
+
+.channel-list {
+  min-width: 416px;
+  max-width: 416px;
+  background-color: $input-bg;
+  border-bottom: 1px solid $borders;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  height: calc(100vh - 117px);
+
+  &-header {
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $bars-bg;
+    border-bottom: 1px solid $borders;
+    border-right: 1px solid $borders;
+    bottom: 20px;
+
+    &-text {
+      color: $text-high-emphasis;
+    }
+  }
+  
+    &-footer {
+        background-color: $bars-bg;
+        border-top: 1px solid $borders;
+        border-right: 1px solid $borders;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px;
+        height: 56px;
+
+        .chats {
+        cursor: pointer;
+        width: 50%;
+        margin-top: -12px;
+
+        &-text {
+            color: $text-high-emphasis;
+            font-size: 12px;
+            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        &-unread {
+            background-color: $accent-error;
+            border-radius: 999px;
+            padding: 0px 4px 2px 4px;
+            display: inline-block;
+
+            position: relative;
+            left: 110px;
+            top: 15px;
+
+            &.unreadCount {
+            visibility: hidden;
+            }
+
+            &-text {
+            color: $white;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 7px;
+            text-align: center;
+            }
+        }
+        }
+
+        .mentions {
+            cursor: pointer;
+            width: 50%;
+            margin-top: -12px;
+
+            &-text {
+                color: $text-low-emphasis;
+                font-size: 12px;
+                font-weight: 400;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+
+            &-unread {
+                background-color: $accent-error;
+                border-radius: 999px;
+                padding: 0px 4px 2px 4px;
+                display: inline-block;
+
+                position: relative;
+                left: 110px;
+                top: 15px;
+
+                &.unreadCount {
+                visibility: hidden;
+                }
+
+                &-text {
+                color: $white;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 7px;
+                text-align: center;
+                }
+            }
+        }
+    }
+}
+
+.connection-error {
+    background-color: $text-low-emphasis;
+    opacity: 90%;
+    height: 28px;
+    padding: 4px 0px;
+    display: flex;
+    justify-content: center;
+
+    span {
+        font-weight: 400;
+        font-size: 17px;
+        color: $white
+    }
+}

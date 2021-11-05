@@ -1,0 +1,33 @@
+@import '../../styles/_variables';
+
+.message-wrapper-inner-reply div.str-chat__avatar {
+  margin: 0;
+  border: 1px solid var(--app-bg);
+}
+
+.str-chat__message-replies-count-button svg {
+  display: none;
+}
+
+button.str-chat__message-replies-count-button {
+  padding: 0 8px;
+  height: 16px;
+}
+
+.left-avatar-2 {
+  position: absolute;
+  left: 25px;
+}
+
+.left-avatar-1 {
+  margin-right: 8px;
+}
+
+.right-avatar-1 {
+  position: absolute;
+  right: 25px;
+}
+
+.right-avatar-2 {
+  margin-left: 8px;
+}

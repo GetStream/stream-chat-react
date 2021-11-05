@@ -1,7 +1,7 @@
 ---
 id: giphy_preview
 sidebar_position: 20
-title: Giphy Preview Component
+title: Giphy Preview
 ---
 
 import GiphyPreview from '../assets/GiphyPreview.png';
@@ -24,62 +24,57 @@ Our custom preview component will render an `Attachment` component with a custom
 This functionality is handled with the `handleAction` method via the `Message` component's `useActionHandler` hook.
 
 ```jsx
-    const CustomAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
-        const { actionHandler, actions } = props;
+const CustomAttachmentActions: React.FC<AttachmentActionsProps> = (props) => {
+  const { actionHandler, actions } = props;
 
-        const handleClick = async (
-            event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-            value?: string,
-            name?: string,
-        ) => {
-            try {
-            if (actionHandler) await actionHandler(name, value, event);
-            } catch (err) {
-            console.log(err);
-            }
-        };
-
-        return (
-            <>
-            {actions.map((action) => (
-                <button
-                onClick={(event) => handleClick(event, action.value, action.name)}
-                >
-                {action.value}
-                </button>
-            ))}
-            </>
-        );
-    };
-  
-    const customGiphyPreview: React.FC<GiphyPreviewMessageProps> = (props) => {
-        const { message } = props;
-
-        const handleAction = useActionHandler(message)
-
-        if (!message.attachments) return null;
-
-        return (
-            <Attachment
-            actionHandler={handleAction}
-            AttachmentActions={CustomAttachmentActions}
-            attachments={message.attachments}
-            />
-        );
+  const handleClick = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    value?: string,
+    name?: string,
+  ) => {
+    try {
+      if (actionHandler) await actionHandler(name, value, event);
+    } catch (err) {
+      console.log(err);
     }
+  };
 
-    <Chat client={chatClient}>
-        <Channel GiphyPreviewMessage={customGiphyPreview}>
-            <ChannelHeader />
-            <VirtualizedMessageList separateGiphyPreview />
-            <MessageInput />
-        </Channel>
-    </Chat>
+  return (
+    <>
+      {actions.map((action) => (
+        <button onClick={(event) => handleClick(event, action.value, action.name)}>
+          {action.value}
+        </button>
+      ))}
+    </>
+  );
+};
+
+const CustomGiphyPreview: React.FC<GiphyPreviewMessageProps> = (props) => {
+  const { message } = props;
+
+  const handleAction = useActionHandler(message);
+
+  if (!message.attachments) return null;
+
+  return (
+    <Attachment
+      actionHandler={handleAction}
+      AttachmentActions={CustomAttachmentActions}
+      attachments={message.attachments}
+    />
+  );
+};
+
+<Chat client={chatClient}>
+  <Channel GiphyPreviewMessage={CustomGiphyPreview}>
+    <ChannelHeader />
+    <VirtualizedMessageList separateGiphyPreview />
+    <MessageInput />
+  </Channel>
+</Chat>;
 ```
 
 ## The Result
 
 <img src={GiphyPreview} alt='Custom GiphyPreview component for Chat' width='700' />
-
-
-
