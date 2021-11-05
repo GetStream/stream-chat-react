@@ -55,6 +55,7 @@
   "Type your message": "メッセージを入力してください",
   "Unmute": "無音を解除する",
   "Unpin": "ピンを解除する",
+  "Upload type: \"{{ type }}\" is not allowed": "アップロードタイプ：\"{{ type }}\"は許可されていません",
   "Wait until all attachments have uploaded": "すべての添付ファイルがアップロードされるまでお待ちください",
   "You have no channels currently": "現在チャンネルはありません",
   "You've reached the maximum number of files": "ファイルの最大数に達しました",

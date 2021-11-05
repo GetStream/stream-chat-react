@@ -1,7 +1,10 @@
 import { useCallback, useEffect } from 'react';
 
+import { checkUploadPermissions } from './utils';
+
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { SendFileAPIResponse } from 'stream-chat';
@@ -38,6 +41,7 @@ export const useFileUploads = <
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
+  const { appSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
   const { t } = useTranslationContext('useFileUploads');
 
   const uploadFile = useCallback((id) => {
@@ -59,6 +63,16 @@ export const useFileUploads = <
 
       const { file, id } = upload;
 
+      const canUpload = checkUploadPermissions({
+        addNotification,
+        appSettings,
+        file,
+        t,
+        uploadType: 'file',
+      });
+
+      if (!canUpload) return removeFile(id);
+
       let response: SendFileAPIResponse;
 
       try {
@@ -69,7 +83,9 @@ export const useFileUploads = <
         }
       } catch (error) {
         const errorMessage: string =
-          typeof error.message === 'string' ? error.message : t('Error uploading file');
+          typeof (error as Error).message === 'string'
+            ? (error as Error).message
+            : t('Error uploading file');
 
         addNotification(errorMessage, 'error');
 
@@ -83,7 +99,7 @@ export const useFileUploads = <
 
         if (!alreadyRemoved && errorHandler) {
           // TODO: verify if the parameters passed to the error handler actually make sense
-          errorHandler(error, 'upload-file', file);
+          errorHandler(error as Error, 'upload-file', file);
         }
 
         return;

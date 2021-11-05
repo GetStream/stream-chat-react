@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Channel, Mute, StreamChat } from 'stream-chat';
+import type { AppSettingsAPIResponse, Channel, Mute, StreamChat } from 'stream-chat';
 
 import { getDisplayName } from './utils/getDisplayName';
 import type { Theme } from '../components/Chat/Chat';
@@ -50,6 +50,7 @@ export type ChatContextValue<
   /** @deprecated */
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
+  appSettings?: AppSettingsAPIResponse<Co>;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   customClasses?: CustomClasses;
   navOpen?: boolean;
