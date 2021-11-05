@@ -55,6 +55,7 @@
   "Type your message": "Type your message",
   "Unmute": "Unmute",
   "Unpin": "Unpin",
+  "Upload type: \"{{ type }}\" is not allowed": "Upload type: \"{{ type }}\" is not allowed",
   "Wait until all attachments have uploaded": "Wait until all attachments have uploaded",
   "You have no channels currently": "You have no channels currently",
   "You've reached the maximum number of files": "You've reached the maximum number of files",

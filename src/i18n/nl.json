@@ -55,6 +55,7 @@
   "Type your message": "Type je bericht",
   "Unmute": "Unmute",
   "Unpin": "Losmaken",
+  "Upload type: \"{{ type }}\" is not allowed": "Uploadtype: \"{{ type }}\" is niet toegestaan",
   "Wait until all attachments have uploaded": "Wacht tot alle bijlagen zijn geüpload",
   "You have no channels currently": "Er zijn geen chats beschikbaar",
   "You've reached the maximum number of files": "Je hebt het maximale aantal bestanden bereikt",

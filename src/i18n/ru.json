@@ -55,6 +55,7 @@
   "Type your message": "Ваше сообщение",
   "Unmute": "Включить уведомления",
   "Unpin": "Открепить",
+  "Upload type: \"{{ type }}\" is not allowed": "Тип загрузки: \"{{ type }}\" не разрешен",
   "Wait until all attachments have uploaded": "Подождите, пока все вложения загрузятся",
   "You have no channels currently": "У вас нет каналов в данный момент",
   "You've reached the maximum number of files": "Вы достигли максимального количества файлов",

@@ -55,6 +55,7 @@
   "Type your message": "Geben Sie Ihre Nachricht ein",
   "Unmute": "Stummschaltung aufheben",
   "Unpin": "Lösen Sie den Stift",
+  "Upload type: \"{{ type }}\" is not allowed": "Upload-Typ: \"{{ type }}\" ist nicht erlaubt",
   "Wait until all attachments have uploaded": "Warten Sie, bis alle Anhänge hochgeladen wurden",
   "You have no channels currently": "Sie haben derzeit keine Kanäle",
   "You've reached the maximum number of files": "Sie haben die maximale Anzahl von Dateien erreicht",
