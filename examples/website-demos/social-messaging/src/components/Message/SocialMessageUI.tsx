@@ -17,9 +17,9 @@ import {
 import { SocialMessageDeleted } from './SocialMessageDeleted';
 
 import {
+  ActionsEllipse,
   DeliveredCheckmark,
   DoubleCheckmark,
-  MessageActionsEllipse,
   PinnedBy,
   ReactionSmiley,
   SendAlso,
@@ -43,17 +43,18 @@ import {
   ReactionParticipants,
 } from '../ReactionList/SocialReactionList';
 import { SocialMessageActions } from '../MessageActions/SocialMessageActions';
-import { useViewContext } from '../../contexts/ViewContext';
 import { ActionsModal } from '../MessageActions/ActionsModal';
 import { SocialModal } from '../MessageInput/SocialModal';
 import { EditInput } from '../MessageInput/EditInput';
+
+import { useActionsContext } from '../../contexts/ActionsContext';
 
 import './SocialMessageUI.scss';
 
 type OptionsProps = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setMessageActionUser: React.Dispatch<React.SetStateAction<string | undefined>>;
   setShowReactionSelector: React.Dispatch<React.SetStateAction<boolean>>;
   setEdit: ReactEventHandler;
 };
@@ -76,7 +77,7 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
     <div className='inside'>
       {!hideActions && (
         <span className='inside-ellipse' onClick={() => setDropdownOpen(!dropdownOpen)}>
-          <MessageActionsEllipse />
+          <ActionsEllipse />
         </span>
       )}
       <span className='inside-smiley' onClick={() => setShowReactionSelector((prev) => !prev)}>
@@ -108,9 +109,7 @@ export const SocialMessage: React.FC<
     SocialMessageType,
     SocialReactionType,
     SocialUserType
-  > & { setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>> } & {
-    messageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
-  }
+  >
 > = () => {
   const { channel, pinnedMessages } = useChannelStateContext();
   const { client } = useChatContext();
@@ -123,7 +122,7 @@ export const SocialMessage: React.FC<
     SocialReactionType,
     SocialUserType
   >();
-  const { actionsModalOpenId, userActionType } = useViewContext();
+  const { actionsModalOpenId, userActionType } = useActionsContext();
 
   const [messageActionUser, setMessageActionUser] = useState<string>();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -193,7 +192,7 @@ export const SocialMessage: React.FC<
         onMouseLeave={() => !dropdownOpen && setShowOptions(false)}
       >
         {actionsModalOpenId === message.id && userActionType && (
-          <ActionsModal messageActionUser={messageActionUser} userActionType={userActionType} />
+          <ActionsModal actionId={messageActionUser} userActionType={userActionType} />
         )}
         {!myMessage && (
           <Avatar

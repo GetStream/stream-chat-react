@@ -1,12 +1,15 @@
 import React from 'react';
 
 import { Chats, Mentions } from '../../assets';
+
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './SocialChannelList.scss';
 
 export const SocialChannelListFooter: React.FC = () => {
-  const { chatsUnreadCount, mentionsUnreadCount, setListMentions } = useViewContext();
+  const { chatsUnreadCount, mentionsUnreadCount } = useUnreadContext();
+  const { setListMentions } = useViewContext();
 
   return (
     <div className='channel-list-footer'>

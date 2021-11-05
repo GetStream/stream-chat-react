@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { useChatContext } from 'stream-chat-react';
+import { MessageListNotificationsProps } from '../../../../../../dist/components/MessageList/MessageListNotifications';
 
 import { ConnectionStatusError } from '../../assets';
-
-import type { MessageListNotificationsProps } from 'stream-chat-react';
 
 import './SocialMessageListNotifications.scss';
 

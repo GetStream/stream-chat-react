@@ -11,15 +11,7 @@ import {
 } from 'stream-chat-react';
 
 import { AvatarGroup, getTimeStamp } from '../ChannelPreview/utils';
-import {
-  // SocialAttachmentType,
-  // SocialChannelType,
-  // SocialCommandType,
-  // SocialEventType,
-  // SocialMessageType,
-  // SocialReactionType,
-  SocialUserType,
-} from '../ChatContainer/ChatContainer';
+import { SocialUserType } from '../ChatContainer/ChatContainer';
 
 import './SocialChannelSearch.scss';
 

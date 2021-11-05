@@ -29,7 +29,7 @@ export const AvatarGroup = (props: Props<SocialUserType>) => {
 
   if (members.length === 2) {
     return (
-      <div className='channel-preview-avatar-avatars two'>
+      <div className='channel-preview-avatar-avatars'>
         <span>
           <Avatar
             image={(members[0].user?.image as string) || ''}
@@ -52,7 +52,7 @@ export const AvatarGroup = (props: Props<SocialUserType>) => {
 
   if (members.length === 3) {
     return (
-      <div className='channel-preview-avatar-avatars three'>
+      <div className='channel-preview-avatar-avatars'>
         <span>
           <Avatar
             image={(members[0].user?.image as string) || ''}
@@ -60,6 +60,7 @@ export const AvatarGroup = (props: Props<SocialUserType>) => {
             shape='square'
             size={modifiedSize}
           />
+          <Avatar image={''} name={''} shape='square' size={modifiedSize} />
         </span>
         <span>
           <Avatar

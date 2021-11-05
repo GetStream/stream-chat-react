@@ -17,7 +17,9 @@ import { SocialSuggestionList } from '../SuggestionList/SocialSuggestionList';
 import { SocialSuggestionListHeader } from '../SuggestionList/SocialSuggestionListHeader';
 import { SocialThreadHeader } from '../Thread/SocialThreadHeader';
 
+import { useActionsContext } from '../../contexts/ActionsContext';
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import './ChatContainer.scss';
@@ -66,15 +68,9 @@ export type SocialUserType = { image?: string };
 export const ChatContainer: React.FC = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
 
-  const {
-    // chatsUnreadCount,
-    isListMentions,
-    isSideDrawerOpen,
-    // mentionsUnreadCount,
-    setChatsUnreadCount,
-    setMentionsUnreadCount,
-    snackbar,
-  } = useViewContext();
+  const { snackbar } = useActionsContext();
+  const { setChatsUnreadCount, setMentionsUnreadCount } = useUnreadContext();
+  const { isListMentions, isSideDrawerOpen } = useViewContext();
 
   // useChecklist(chatClient, targetOrigin);
 

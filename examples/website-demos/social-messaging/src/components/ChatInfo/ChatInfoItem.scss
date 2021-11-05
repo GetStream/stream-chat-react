@@ -1,0 +1,44 @@
+@import '../../styles/_variables';
+
+.chat-info-item {
+    background: $app-bg;
+    overflow-y: auto;
+    height: 100vh;
+
+    &-wrapper {
+        padding: 2px 40px;
+        margin: 24px 0 0;
+    }
+
+    &-empty {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        background: $app-bg;
+        height: 100vh;
+        margin-top: 20%;
+
+        svg {
+            width: 114px;
+            height: 110px;
+            margin-bottom: 10px;
+        }
+
+        svg path {
+            fill: $disabled;
+        }
+
+        &-title {
+            color: $text-high-emphasis;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        &-description {
+            color: $text-low-emphasis;
+            font-size: 17px;
+            font-weight: 400;
+        }
+    }
+}

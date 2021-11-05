@@ -1,17 +1,10 @@
 import React from 'react';
 
-import {
-  CloseSnackbar,
-  CopyMessage,
-  DeleteMessage,
-  FlagMessage,
-  MuteUser,
-  PinMessage,
-} from '../../assets';
-import { useViewContext } from '../../contexts/ViewContext';
+import { CloseSnackbar, Copy, FlagMessage, MuteUser, PinMessage, Trashcan } from '../../assets';
+import { useActionsContext } from '../../contexts/ActionsContext';
 
 export const Snackbar: React.FC = () => {
-  const { setSnackbar, userActionType } = useViewContext();
+  const { setSnackbar, userActionType } = useActionsContext();
 
   let Icon;
   let title;
@@ -33,7 +26,7 @@ export const Snackbar: React.FC = () => {
       break;
 
     case 'copy':
-      Icon = CopyMessage;
+      Icon = Copy;
       title = 'Message successfully copied';
       break;
 
@@ -48,8 +41,18 @@ export const Snackbar: React.FC = () => {
       break;
 
     case 'delete':
-      Icon = DeleteMessage;
+      Icon = Trashcan;
       title = 'Message successfully deleted';
+      break;
+
+    case 'unmuteChannel':
+      Icon = MuteUser;
+      title = 'Channel successfully unmuted';
+      break;
+
+    case 'muteChannel':
+      Icon = MuteUser;
+      title = 'Channel successfully muted';
       break;
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { MessageInput, MessageList, useChatContext, Window } from 'stream-chat-react';
 
+import { ChatInfo } from '../ChatInfo/ChatInfo';
 import { NewChat } from '../NewChat/NewChat';
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
 import {
@@ -15,11 +16,13 @@ import {
 } from '../ChatContainer/ChatContainer';
 import { SocialThread } from '../Thread/SocialThread';
 
+import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
 
 import type { EventHandler } from 'stream-chat';
 
 import './ChannelContainer.scss';
+import { ChatInfoItem } from '../ChatInfo/ChatInfoItem';
 
 export const ChannelContainer: React.FC = () => {
   const { channel, client } = useChatContext<
@@ -34,11 +37,12 @@ export const ChannelContainer: React.FC = () => {
 
   const {
     chatsUnreadCount,
-    isNewChat,
     mentionsUnreadCount,
     setChatsUnreadCount,
     setMentionsUnreadCount,
-  } = useViewContext();
+  } = useUnreadContext();
+
+  const { isChatInfoOpen, chatInfoItem, isNewChat } = useViewContext();
 
   useEffect(() => {
     const handlerNewMessageEvent: EventHandler<
@@ -53,7 +57,6 @@ export const ChannelContainer: React.FC = () => {
       const { message, user } = event;
 
       if (user?.id !== client?.userID && channel?.cid !== message?.cid) {
-        console.log('in the no channel');
         setChatsUnreadCount(chatsUnreadCount + 1);
 
         const mentions = message?.mentioned_users?.filter((user) => user.id === client?.userID);
@@ -75,12 +78,20 @@ export const ChannelContainer: React.FC = () => {
     setMentionsUnreadCount,
   ]);
 
+  const channelRenderer = () => {
+    if (isNewChat) return <NewChat />;
+    if (isChatInfoOpen) return <ChatInfo />;
+    if (chatInfoItem) return <ChatInfoItem />;
+
+    return <MessageList />;
+  };
+
   return (
     <>
       <Window>
         <SocialChannelHeader />
-        {isNewChat ? <NewChat /> : <MessageList />}
-        <MessageInput mentionAllAppUsers />
+        {channelRenderer()}
+        {!isChatInfoOpen && !chatInfoItem && <MessageInput mentionAllAppUsers />}
       </Window>
       <SocialThread />
     </>

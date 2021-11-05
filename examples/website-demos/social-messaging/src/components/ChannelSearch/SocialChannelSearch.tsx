@@ -14,6 +14,8 @@ import {
   SocialUserType,
 } from '../ChatContainer/ChatContainer';
 
+import './SocialChannelSearch.scss';
+
 import type { ChannelFilters } from 'stream-chat';
 
 const SearchInput = (

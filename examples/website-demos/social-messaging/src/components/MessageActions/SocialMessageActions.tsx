@@ -8,16 +8,16 @@ import {
 } from 'stream-chat-react';
 
 import {
-  CopyMessage,
-  DeleteMessage,
+  Copy,
   EditMessage,
   FlagMessage,
   MuteUser,
   PinMessage,
   QuoteReply,
   StartThread,
+  Trashcan,
 } from '../../assets';
-import { useViewContext, UserActions } from '../../contexts/ViewContext';
+import { useActionsContext, UserActions } from '../../contexts/ActionsContext';
 
 import type { UserResponse } from 'stream-chat';
 
@@ -25,7 +25,7 @@ type Props = {
   dropdownOpen: boolean;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   openThread?: ReactEventHandler;
-  setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setMessageActionUser: React.Dispatch<React.SetStateAction<string | undefined>>;
   thread?: boolean;
   user?: UserResponse | null;
   setEdit: ReactEventHandler;
@@ -34,9 +34,9 @@ type Props = {
 export const SocialMessageActions: React.FC<Props> = (props) => {
   const { dropdownOpen, openThread, setDropdownOpen, setMessageActionUser, user, setEdit } = props;
 
+  const { setActionsModalOpenId, setUserActionType } = useActionsContext();
   const { client, mutes } = useChatContext();
   const { pinnedMessages, messages } = useChannelStateContext();
-  const { setActionsModalOpenId, setUserActionType } = useViewContext();
   const { message } = useMessageContext();
   const { setQuotedMessage } = useChannelActionContext();
 
@@ -100,7 +100,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
   }, [dropdownOpen]); // eslint-disable-line
 
   const handleClick = (action: UserActions) => {
-    if (user) setMessageActionUser?.(user.id);
+    if (user) setMessageActionUser(user.id);
     setActionsModalOpenId(message.id);
     setDropdownOpen(false);
     setUserActionType(action);
@@ -123,7 +123,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
         <div className='dropdown-option-text'>Thread Reply</div>
       </div>
       <div className='dropdown-option' onClick={() => handleClick('copy')}>
-        <CopyMessage />
+        <Copy />
         <div className='dropdown-option-text'>Copy Message</div>
       </div>
       <div
@@ -157,7 +157,7 @@ export const SocialMessageActions: React.FC<Props> = (props) => {
             <div className='dropdown-option-text'>Edit Message</div>
           </div>
           <div className='dropdown-option delete' onClick={() => handleClick('delete')}>
-            <DeleteMessage />
+            <Trashcan />
             <div className='dropdown-option-text'>Delete Message</div>
           </div>
         </>
