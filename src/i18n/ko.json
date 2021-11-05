@@ -55,6 +55,7 @@
   "Type your message": "메시지 입력",
   "Unmute": "음소거 해제",
   "Unpin": "핀 해제",
+  "Upload type: \"{{ type }}\" is not allowed": "업로드 유형: \"{{ type }}\"은(는) 허용되지 않습니다.",
   "Wait until all attachments have uploaded": "모든 첨부 파일이 업로드될 때까지 기다립니다.",
   "You have no channels currently": "현재 채널이 없습니다.",
   "You've reached the maximum number of files": "최대 파일 수에 도달했습니다.",

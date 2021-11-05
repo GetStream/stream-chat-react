@@ -55,6 +55,7 @@
   "Type your message": "Mesajınızı yazın",
   "Unmute": "Sesini aç",
   "Unpin": "Sabitlemeyi kaldır",
+  "Upload type: \"{{ type }}\" is not allowed": "Yükleme türü: \"{{ type }}\" izin verilmez",
   "Wait until all attachments have uploaded": "Tüm ekler yüklenene kadar bekleyin",
   "You have no channels currently": "Henüz kanalınız yok",
   "You've reached the maximum number of files": "Maksimum dosya sayısına ulaştınız",
