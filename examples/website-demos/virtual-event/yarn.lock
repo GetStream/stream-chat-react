@@ -8550,9 +8550,9 @@ path-key@^3.0.0, path-key@^3.1.0:
   integrity sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==
 
 path-parse@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.6.tgz#d62dbb5679405d72c4737ec58600e9ddcf06d24c"
-  integrity sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/path-parse/-/path-parse-1.0.7.tgz#fbc114b60ca42b30d9daf5858e4bd68bbedb6735"
+  integrity sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==
 
 path-to-regexp@0.1.7:
   version "0.1.7"
@@ -9681,10 +9681,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.7.tgz#4888f7fecde43a0a67bdfac61af4a3ad0c7c8087"
-  integrity sha512-Y0gI0PnJDWqofxJosGNw2GnyAexsx1QTlkikP5o0SvkrZHySaL28GL5LZ8QMXolOvqErkgnREZQmsTsL/5CjTg==
+react-file-utils@1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.8.tgz#0b9104a45c9130dab2f61e93ce3f9d2e6898e9bc"
+  integrity sha512-dYr/vwFKlSUbV6h2EEBO9iitaRrLNhscNNLckbTPX77GMVC1zU6SPsyEsJu8zWY8icxdRBAuvnUy6+q3POacbw==
   dependencies:
     react-dropzone "11.3.4"
 
@@ -10956,7 +10956,7 @@ stream-chat-css@^1.0.17:
     pretty-bytes "^5.4.1"
     prop-types "^15.7.2"
     react-fast-compare "^3.2.0"
-    react-file-utils "1.1.7"
+    react-file-utils "1.1.8"
     react-images "1.2.0-beta.7"
     react-is "^17.0.1"
     react-markdown "^5.0.3"
