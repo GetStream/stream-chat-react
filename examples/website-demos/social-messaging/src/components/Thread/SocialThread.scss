@@ -1,0 +1,85 @@
+@import '../../styles/_variables';
+
+.thread {
+  &-header {
+    &-container {
+      display: flex;
+      background: $app-canvas;
+      transition: background 1s;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      padding: 8px;
+      border-bottom: 1px solid $stroke;
+      height: 60px;
+      box-sizing: border-box;
+    }
+
+    &-close {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      cursor: pointer;
+
+      svg {
+        fill: $black;
+
+        &:hover path {
+          fill: $accent-primary;
+        }
+      }
+    }
+
+    &-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      color: $text-high-emphasis;
+      font-weight: 500;
+      font-size: 17px;
+      padding-left: 16px;
+
+      &-sub-title {
+        color: $text-low-emphasis;
+        font-size: 13px;
+        font-weight: 400px;
+      }
+    }
+  }
+}
+
+div.messaging.str-chat .str-chat__thread {
+  margin: 0;
+  border-left: 1px solid $stroke;
+  flex: 1;
+  max-width: none;
+  border-top-left-radius: 0;
+  background: $app-bg;
+}
+
+div.messaging.str-chat .str-chat__thread-list {
+  padding: 0 40px;
+}
+
+.str-chat__thread-list {
+  .show {
+    background: $highlight;
+    padding-right: 8px;
+  }
+
+  .send-also {
+    color: $text-low-emphasis;
+    padding: 4px 0 8px;
+    font-size: 13px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    &:after {
+      content: 'Also sent to the channel';
+      padding-left: 6px;
+    }
+  }
+}

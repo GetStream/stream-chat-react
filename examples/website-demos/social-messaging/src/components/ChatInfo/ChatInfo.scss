@@ -1,0 +1,166 @@
+@import '../../styles/_variables';
+
+.chat-info {
+    background: $input-bg;
+    height: 100vh;
+
+    &-members {
+        overflow: auto;
+        max-height: 40vh;
+    }
+    &-divider {
+        background: $borders;
+        height: 8px;
+        width: 100%;
+    }
+
+    &-name {
+        display: flex;
+        background: $app-bg;
+        height: 56px;
+        align-items: center;
+        padding: 8px 5px;
+
+        &-contents {
+            flex-grow: 3;
+
+            &-label {
+                color: $text-low-emphasis;
+                font-weight: 400;
+                font-size: 13px;
+                margin: 0 15px;
+            }
+        }
+
+        &-save {
+            color: $accent-primary;
+            font-weight: 400;
+            font-size: 13px;
+            margin-right: 15px;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        &-edit {
+            background: $app-bg;
+            color: $text-high-emphasis;
+            font-size: 17px;
+            border: none;
+            font-weight: 500;
+            
+            &:focus {
+                border: none;
+                outline: none;
+                box-shadow: none;
+                background: $app-bg;
+            }
+        }
+    }
+
+    &-option {
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        background-color: $bars-bg;
+        border-bottom: 1px solid $borders;
+        padding: 8px 5px;
+        height: 56px;
+        font-size: 17px;
+        font-weight: 500;
+        color: $text-high-emphasis;
+
+        &-start {
+            flex-grow: 3;
+            display: flex;
+            align-items: center;
+        }
+
+        &-end {
+            display: flex;
+            align-items: center;
+
+            &-items {
+                background-color: $text-low-emphasis;
+                border-radius: 16px;
+                padding: 2px 4px;
+          
+                &.showNumber {
+                  display: none;
+                }
+          
+                &-text {
+                  color: $white;
+                  font-size: 13px;
+                  font-weight: 400;
+                  display: flex;
+                }
+              }
+        }
+
+        svg {
+            margin: 0 15px;
+          }
+
+        &-delete {
+            display: flex;
+            width: 100%;
+            flex-direction: row;
+            align-items: center;
+            background-color: $bars-bg;
+            padding: 8px 5px;
+            height: 56px;
+            color: $accent-error;
+            font-size: 17px;
+            font-weight: 500;
+
+            &:hover {
+                background: $borders;
+                cursor: pointer;
+            }
+
+            svg {
+                path {
+                  fill: $accent-error;
+                }
+      
+                margin: 0 15px;
+              }
+        }
+    }
+}
+
+.single-user {
+    background: $bars-bg;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+
+    &-name {
+        color: $text-high-emphasis;
+        font-size: 20px;
+        font-weight: 500;
+        margin: 10px 0;
+    }
+
+    &-status {
+        color: $text-low-emphasis;
+        font-size: 13px;
+        font-weight: 400;
+        display: flex;
+
+        &-online {
+            width: 12px;
+            height: 12px;
+            background-color: $accent-info;
+            border-radius: 7px;
+            border: 1px solid $white;
+            padding: 0.25px;
+            margin: 1px 5px;
+          }
+    }
+}

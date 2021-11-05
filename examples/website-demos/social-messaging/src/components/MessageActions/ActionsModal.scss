@@ -1,0 +1,123 @@
+@import '../../styles/_variables';
+
+// Modal
+.actions {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: $overlay;
+  transition: all 1s;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &-modal {
+    background: $app-canvas;
+    transition: background 1s;
+    border-radius: 16px;
+    width: 359px;
+    display: flex;
+    flex-direction: column;
+    color: $text-high-emphasis;
+    font-size: 17px;
+    box-shadow: $shadow;
+
+    &-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px;
+      text-align: center;
+      border-bottom: 1px solid $stroke;
+
+      :nth-child(2) {
+        font-weight: 600;
+        margin: 8px 0;
+      }
+
+      &.delete {
+        svg {
+          path {
+            fill: $accent-error;
+          }
+        }
+      }
+    }
+
+    &-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 50px;
+      padding: 0 32px;
+      font-weight: 600;
+
+      button {
+        padding: 16px 0;
+        border: none;
+        background: none;
+        font-weight: 600;
+        font-size: 17px;
+
+
+        &:hover {
+          cursor: pointer;
+        }
+      }
+
+      :first-child {
+        color: $accent-primary;
+      }
+
+      :last-child {
+        color: $accent-error;
+      }
+    }
+  }
+}
+
+// Snackbar
+.snackbar {
+  @keyframes fade {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    20%,
+    80% {
+      opacity: 1;
+    }
+  }
+
+  z-index: 10;
+  position: absolute;
+  bottom: 64px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  background: $app-canvas;
+  border-radius: 16px;
+  height: 56px;
+  width: 354px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  filter: drop-shadow($shadow);
+  animation: fade 3s linear;
+
+  div {
+    color: $text-high-emphasis;
+    font-size: 17px;
+    margin-left: 16px;
+  }
+
+  :last-child {
+    position: absolute;
+    right: 20px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}

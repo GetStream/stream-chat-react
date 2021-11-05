@@ -1,0 +1,230 @@
+@import '../../styles/_variables';
+
+.search {
+  &-social-input {
+    background: $app-bg;
+    border-radius: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 10px;
+
+    &-close {
+      padding-right: 10px;
+    }
+  }
+
+  &-loading {
+      width: 100%;
+      min-height: 72px;
+      background-color: $app-bg;
+      border-bottom: 1px solid $borders;
+      padding: 25px;
+      color: $text-high-emphasis
+  }
+
+  &-empty {
+    width: 100%;
+    min-height: 72px;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 25px;
+    color: $text-high-emphasis
+  }
+}
+
+.search-result {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  max-height: 72px;
+  align-items: flex-end;
+  flex-grow: 0;
+  text-align: left;
+  background-color: $app-bg;
+  border-bottom: 1px solid $borders;
+  border-top: none;
+  border-right: none;
+  border-left: none;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &.active {
+    background: $borders;
+  }
+
+  &-avatar {
+    margin-bottom: 5px;
+
+    &-online {
+      width: 12px;
+      height: 12px;
+      background-color: $accent-info;
+      border-radius: 7px;
+      border: 1px solid $white;
+      padding: 0.25px;
+      position: relative;
+      left: 45px;
+      top: 15px;
+    }
+
+    &-avatars {
+      display: flex;
+      align-items: center;
+      // height: 56px;
+      min-width: 40px;
+      max-width: 56px;
+      min-height: 40px;
+      border-radius: 25px;
+      overflow: hidden;
+    }
+  }
+
+  &-contents {
+    margin-left: 20px;
+    min-width: 200px;
+    margin-bottom: 18px;
+
+    &-last-message p {
+      color: $text-low-emphasis;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      margin: unset;
+    }
+
+    &-last-message {
+      color: $text-low-emphasis;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+    }
+
+    &-name {
+      margin-bottom: 2px;
+    }
+
+    &-name span {
+      color: $text-high-emphasis;
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+  }
+
+  &-end {
+    display: flex;
+    flex-direction: column;
+    margin-left: 50px;
+    align-items: flex-end;
+    margin-bottom: 10px;
+
+    &-unread {
+      background-color: $accent-error;
+      border-radius: 16px;
+      padding: 2px 4px;
+      margin-bottom: -5px;
+
+      &.unreadCount {
+        display: none;
+      }
+
+      &-text {
+        color: $white;
+        font-size: 13px;
+        font-weight: 400;
+        text-align: center;
+      }
+    }
+
+    &-statuses {
+      display: flex;
+      flex-direction: row;
+
+      &-arrows {
+        padding-top: 18px;
+        padding-right: 3px;
+      }
+
+      &-timestamp {
+        color: $text-low-emphasis;
+        font-weight: 400;
+        line-height: 15px;
+        font-size: 13px;
+      }
+    }
+  }
+
+  &-user {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    max-height: 72px;
+    align-items: center;
+    flex-grow: 0;
+    text-align: left;
+    background-color: $app-bg;
+    border-bottom: 1px solid $borders;
+    padding: 8px 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  
+    &-contents {
+        margin-left: 20px;
+  
+        &-name {
+            color: $text-high-emphasis;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 20px;
+            padding-bottom: 5px;
+        }
+  
+        &-status {
+            span {
+                color: $text-low-emphasis;
+                font-size: 13px;
+                font-weight: 400;
+                line-height: 15px;
+            }
+        }
+    }
+  }
+}
+
+div.str-chat__channel-search {
+  padding: 8px 8px 8px 16px;
+  background: $input-bg;
+
+  &-container {
+    width: 100%;
+    padding: 0px;
+  }
+
+  input {
+    background: $app-bg;
+    color: $text-high-emphasis;
+    font-size: 17px;
+    font-weight: 400;
+    height: 40px;
+
+    &:focus {
+      border: none;
+      box-shadow: none;
+      background: $app-bg;
+    }
+  }
+}
+
+.str-chat__avatar {
+  margin-right: 0px;
+}

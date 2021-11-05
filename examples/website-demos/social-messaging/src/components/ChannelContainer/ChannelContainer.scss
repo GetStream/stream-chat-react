@@ -1,0 +1,10 @@
+@import '../../styles/_variables';
+
+div.messaging.str-chat .str-chat__list {
+  background: $app-bg;
+}
+
+.str-chat.messaging,
+.str-chat.commerce {
+  background-color: unset;
+}

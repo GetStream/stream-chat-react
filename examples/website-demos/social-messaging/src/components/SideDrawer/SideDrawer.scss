@@ -1,0 +1,44 @@
+@import '../../styles/_variables';
+
+.side-drawer {
+  min-width: 418px;
+  max-width: 418px;
+  height: 100vh;
+  visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  left: 0px;
+  border-right: 1px solid $borders;
+
+    &.isSideDrawerOpen {
+        visibility: unset;
+    }
+
+    &-content-line {
+        height: 56px;
+        max-height: 56px;
+        display: flex;
+        flex-direction: row;
+        cursor: pointer;
+        padding-left: 15px;
+        align-items: center;
+        background-color: $bars-bg;
+
+        span {
+            color: $text-high-emphasis;
+            font-weight: 500;
+            font-size: 17px;
+            padding-left: 10px;
+        }
+    }
+
+    &-theme {
+        display: flex;
+        background-color: $bars-bg;
+        align-items: flex-end;
+        justify-content: flex-end;
+        height: calc(100vh - 168px);
+        padding: 15px 15px;
+        cursor: pointer;
+    }
+}

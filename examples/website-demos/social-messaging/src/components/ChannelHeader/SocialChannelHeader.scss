@@ -1,0 +1,83 @@
+@import '../../styles/_variables';
+
+.social-channel-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 60px;
+  width: 100%;
+  background-color: $bars-bg;
+  border-bottom: 1px solid $borders;
+  flex-direction: row;
+
+  &-chat-info {
+    font-size: 17px;
+    color: $text-high-emphasis;
+    line-height: 20px;
+    font-weight: 500;
+    margin-left: 15px
+  }
+
+  &-chat-info-item {
+    font-size: 17px;
+    color: $text-high-emphasis;
+    line-height: 20px;
+    font-weight: 500;
+    margin-left: 15px
+  }
+
+  div svg {
+    fill: $black;
+    margin-left: 15px;
+
+    &:hover path {
+      fill: $accent-primary;
+      cursor: pointer;
+    }
+  }
+
+  svg {
+    fill: $black;
+    margin-left: 15px;
+    
+    &:hover path {
+      fill: $accent-primary;
+      cursor: pointer;
+    }
+  }
+
+  &-new-chat {
+      font-size: 17px;
+      color: $text-high-emphasis;
+      line-height: 20px;
+      font-weight: 500;
+      margin-left: 15px
+  }
+
+  &-avatar {
+    margin-left: 8px;
+    margin-right: 15px;
+  }
+
+  &-contents {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    &-name {
+      font-weight: 500;
+      font-size: 17px;
+      color: $text-high-emphasis;
+      line-height: 20px;
+      max-width: 80%;
+      text-overflow: ellipsis;
+    }
+
+    &-status {
+      color: $text-low-emphasis;
+      font-size: 13px;
+      line-height: 15px;
+      font-weight: 400;
+    }
+  }
+}
