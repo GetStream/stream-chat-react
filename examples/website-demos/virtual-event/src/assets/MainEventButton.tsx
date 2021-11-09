@@ -1,4 +1,5 @@
 import React from 'react';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 
 import { useEventContext } from '../contexts/EventContext';
 
@@ -21,9 +22,24 @@ export const MainEventButton: React.FC = () => {
     if (showChannelList) setShowChannelList(false);
   };
 
+  const variants: Variants = {
+    open: { opacity: 1, x: 0 },
+    closed: { opacity: 0, x: -10 },
+  };
+
   return (
     <div>
-      {selected === 'main-event' ? <div className='selected' /> : null}
+      <AnimatePresence>
+        {selected === 'main-event' ? (
+          <motion.div
+            className='selected'
+            variants={variants}
+            initial='closed'
+            animate='open'
+            exit='closed'
+          />
+        ) : null}
+      </AnimatePresence>
       <svg
         onClick={handleClick}
         xmlns='http://www.w3.org/2000/svg'

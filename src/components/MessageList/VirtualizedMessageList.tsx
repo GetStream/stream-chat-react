@@ -14,6 +14,7 @@ import { useNewMessageNotification } from './hooks/useNewMessageNotification';
 import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
+import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { processMessages } from './utils';
 
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
@@ -26,10 +27,14 @@ import {
   ChannelActionContextValue,
   useChannelActionContext,
 } from '../../context/ChannelActionContext';
-import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import {
+  ChannelNotifications,
+  StreamMessage,
+  useChannelStateContext,
+} from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { isDate, useTranslationContext } from '../../context/TranslationContext';
+import { isDate } from '../../context/TranslationContext';
 
 import type { Channel } from 'stream-chat';
 
@@ -58,6 +63,7 @@ type VirtualizedMessageListWithContextProps<
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   hasMore: boolean;
   loadingMore: boolean;
+  notifications: ChannelNotifications;
 };
 
 const VirtualizedMessageListWithContext = <
@@ -86,6 +92,7 @@ const VirtualizedMessageListWithContext = <
     Message: propMessage,
     messageLimit = 100,
     messages,
+    notifications,
     overscan = 0,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     scrollSeekPlaceHolder,
@@ -100,6 +107,7 @@ const VirtualizedMessageListWithContext = <
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     LoadingIndicator = DefaultLoadingIndicator,
+    MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
     TypingIndicator = null,
@@ -109,7 +117,6 @@ const VirtualizedMessageListWithContext = <
   const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
     'VirtualizedMessageList',
   );
-  const { t } = useTranslationContext('VirtualizedMessageList');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -323,12 +330,13 @@ const VirtualizedMessageListWithContext = <
           {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
           {...(defaultItemHeight ? { defaultItemHeight } : {})}
         />
-        <div className='str-chat__list-notifications'>
-          <MessageNotification onClick={scrollToBottom} showNotification={newMessagesNotification}>
-            {t('New Messages!')}
-          </MessageNotification>
-        </div>
       </div>
+      <MessageListNotifications
+        hasNewMessages={newMessagesNotification}
+        MessageNotification={MessageNotification}
+        notifications={notifications}
+        scrollToBottom={scrollToBottom}
+      />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
   );
@@ -421,15 +429,13 @@ export function VirtualizedMessageList<
   const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'VirtualizedMessageList',
   );
-  const { channel, hasMore, loadingMore, messages: contextMessages } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('VirtualizedMessageList');
+  const {
+    channel,
+    hasMore,
+    loadingMore,
+    messages: contextMessages,
+    notifications,
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('VirtualizedMessageList');
 
   const messages = props.messages || contextMessages;
 
@@ -440,6 +446,7 @@ export function VirtualizedMessageList<
       loadingMore={!!loadingMore}
       loadMore={loadMore}
       messages={messages}
+      notifications={notifications}
       {...props}
     />
   );
