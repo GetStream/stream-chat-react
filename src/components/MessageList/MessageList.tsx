@@ -38,6 +38,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
+import type { GroupStyle } from './utils';
 
 const useInternalInfiniteScrollProps = (
   props: Pick<
@@ -87,6 +88,7 @@ const MessageListWithContext = <
   const {
     channel,
     disableDateSeparator = false,
+    groupStyles,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -125,6 +127,7 @@ const MessageListWithContext = <
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
     disableDateSeparator,
+    groupStyles,
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
@@ -238,6 +241,13 @@ export type MessageListProps<
 > = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
+  /** Callback function to set group styles for each message */
+  groupStyles?: (
+    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    noGroupByUser: boolean,
+  ) => GroupStyle;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
   /** Position to render HeaderComponent */

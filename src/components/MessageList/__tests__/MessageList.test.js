@@ -80,4 +80,48 @@ describe('MessageList', () => {
       expect(getByTestId('custom-avatar')).toBeInTheDocument();
     });
   });
+
+  it('should accept a custom group style function', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+      messages: [generateMessage({ user: user1 })],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const groupStyles = (
+      message,
+      previousMessage,
+      nextMessage,
+      noGroupByUser
+    ) => {
+      return 'msg-list-test';
+    };
+
+    const { getByTestId, getAllByTestId } = render(
+      <Chat client={chatClient}>
+        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
+          <MessageList groupStyles={groupStyles} />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const newMessage = generateMessage({ user: user2 });
+      act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel));
+    }
+
+    await waitFor(() => {
+      expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test').length).toBe(4) // 1 for channel initial message + 3 just sent
+    });
+  });
 });
