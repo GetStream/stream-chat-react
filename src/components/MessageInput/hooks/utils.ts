@@ -145,11 +145,7 @@ export const checkUploadPermissions = async <
   const { addNotification, file, getAppSettings, t, uploadType } = params;
 
   let appSettings: AppSettingsAPIResponse<Co> | null = null;
-  try {
-    appSettings = await getAppSettings();
-  } catch (err) {
-    console.log(err);
-  }
+  appSettings = await getAppSettings();
 
   const {
     allowed_file_extensions,

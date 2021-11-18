@@ -62,7 +62,7 @@ export const useImageUploads = <
         dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
 
-      const canUpload = checkUploadPermissions({
+      const canUpload = await checkUploadPermissions({
         addNotification,
         file,
         getAppSettings,

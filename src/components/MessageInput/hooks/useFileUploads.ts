@@ -63,7 +63,7 @@ export const useFileUploads = <
 
       const { file, id } = upload;
 
-      const canUpload = checkUploadPermissions({
+      const canUpload = await checkUploadPermissions({
         addNotification,
         file,
         getAppSettings,
