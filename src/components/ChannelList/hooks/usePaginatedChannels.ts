@@ -42,6 +42,8 @@ export const usePaginatedChannels = <
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
   const queryChannels = async (queryType?: string) => {
+    setError(false);
+
     if (queryType === 'reload') {
       setChannels([]);
       setLoadingChannels(true);
