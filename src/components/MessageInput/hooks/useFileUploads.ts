@@ -45,7 +45,6 @@ export const useFileUploads = <
   const { t } = useTranslationContext('useFileUploads');
 
   const uploadFile = useCallback((id) => {
-    console.log('uploadFile');
     dispatch({ id, state: 'uploading', type: 'setFileUpload' });
   }, []);
 

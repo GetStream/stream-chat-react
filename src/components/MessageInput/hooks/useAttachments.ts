@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { useCallback } from 'react';
 
 import { useImageUploads } from './useImageUploads';
