@@ -370,7 +370,7 @@ export const useMessageInputState = <
   MessageInputHookProps<At, Me, Us> &
   CommandsListState &
   MentionsListState => {
-  const { message } = props;
+  const { closeEmojiPickerOnClick, message } = props;
 
   const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
     At,
@@ -428,7 +428,7 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,
-  } = useEmojiPicker<At, Us>(state, dispatch, insertText);
+  } = useEmojiPicker<At, Us>(state, dispatch, insertText, closeEmojiPickerOnClick);
 
   const {
     maxFilesLeft,

@@ -12,6 +12,7 @@ export const useEmojiPicker = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
   insertText: (textToInsert: string) => void,
+  closeEmojiPickerOnClick?: boolean,
 ) => {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
@@ -71,10 +72,12 @@ export const useEmojiPicker = <
   const onSelectEmoji = useCallback(
     (emoji: EmojiData) => {
       insertText((emoji as BaseEmoji).native);
-      dispatch({
-        type: 'setEmojiPickerIsOpen',
-        value: false,
-      });
+      if (closeEmojiPickerOnClick) {
+        dispatch({
+          type: 'setEmojiPickerIsOpen',
+          value: false,
+        });
+      }
       const elements = document.getElementsByClassName('str-chat__textarea__textarea');
       const textarea = elements.item(0);
 
