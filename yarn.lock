@@ -13734,10 +13734,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.17.tgz#aad79b5c8e6f62334305d73e8cffe8ad2ac46f0e"
-  integrity sha512-CgfqyWAqFa2QMBn3Srk4sBnMdjMhd/ufErplnGeYZFlzL/C1czRmr2MN/ZgxWwW5uLO7ArGyETRqslYZxFMN1Q==
+stream-chat-css@^1.0.21:
+  version "1.0.21"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.21.tgz#3a923e349ce01820333f6ec75482226c8868815b"
+  integrity sha512-Ei7bq1rAHCRShSPqJcTEkLesOVWA+xvG5jEy6pSr71taeJyHN/QIKLQg44gwCWwA8yBeAqbrFW3vgsyiwUQKkw==
 
 stream-chat@4.2.0:
   version "4.2.0"

@@ -50,7 +50,7 @@
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "2.2.6",
-    "stream-chat-css": "^1.0.17",
+    "stream-chat-css": "^1.0.21",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
