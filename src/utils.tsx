@@ -192,7 +192,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
     newText = newText.replace(
       new RegExp(escapeRegExp(value), 'g'),
-      `[${displayLink}](${encodeURI(href)})`,
+      `[${displayLink}](${encodeURI(decodeURI(href))})`,
     );
   });
 

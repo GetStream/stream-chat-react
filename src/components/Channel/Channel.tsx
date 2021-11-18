@@ -40,6 +40,7 @@ import {
   LoadingErrorIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message/MessageSimple';
+import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
 import {
   ChannelActionContextValue,
@@ -61,7 +62,10 @@ import defaultEmojiData from '../../stream-emoji.json';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageInputProps } from '../MessageInput/MessageInput';
+
 import type {
+  CustomTrigger,
   DefaultAttachmentType,
   DefaultChannelType,
   DefaultCommandType,
@@ -78,7 +82,8 @@ export type ChannelProps<
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 > = {
   /** List of accepted file types */
   acceptedFiles?: string[];
@@ -138,6 +143,8 @@ export type ChannelProps<
     cid: string,
     updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
   ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
+  /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
+  dragAndDropWindow?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EditMessageInput'];
   /** Custom UI component to override default `NimbleEmoji` from `emoji-mart` */
@@ -208,6 +215,8 @@ export type ChannelProps<
   onMentionsClick?: OnMentionAction<Us>;
   /** Custom action handler function to run on hover of an @mention in a message */
   onMentionsHover?: OnMentionAction<Us>;
+  /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
+  optionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['PinIndicator'];
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
@@ -241,9 +250,10 @@ const UnMemoizedChannel = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
-  props: PropsWithChildren<ChannelProps<At, Ch, Co, Ev, Me, Re, Us>>,
+  props: PropsWithChildren<ChannelProps<At, Ch, Co, Ev, Me, Re, Us, V>>,
 ) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
@@ -263,10 +273,11 @@ const ChannelInner = <
   Ev extends DefaultEventType = DefaultEventType,
   Me extends DefaultMessageType = DefaultMessageType,
   Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  Us extends DefaultUserType<Us> = DefaultUserType,
+  V extends CustomTrigger = CustomTrigger
 >(
   props: PropsWithChildren<
-    ChannelProps<At, Ch, Co, Ev, Me, Re, Us> & {
+    ChannelProps<At, Ch, Co, Ev, Me, Re, Us, V> & {
       channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
       key: string;
     }
@@ -280,6 +291,7 @@ const ChannelInner = <
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
+    dragAndDropWindow = false,
     emojiData = defaultEmojiData,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
@@ -287,6 +299,7 @@ const ChannelInner = <
     multipleUploads = true,
     onMentionsClick,
     onMentionsHover,
+    optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
 
@@ -739,6 +752,7 @@ const ChannelInner = <
     channel,
     channelCapabilitiesArray,
     channelConfig,
+    dragAndDropWindow,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
@@ -831,6 +845,13 @@ const ChannelInner = <
       ? 'str-chat--windows-flags'
       : '';
 
+  const NullProvider: React.FC = ({ children }) => <>{children}</>;
+
+  const OptionalMessageInputProvider = useMemo(
+    () => (dragAndDropWindow ? DropzoneProvider : NullProvider),
+    [dragAndDropWindow],
+  );
+
   if (state.error) {
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
@@ -862,7 +883,11 @@ const ChannelInner = <
           <ComponentProvider value={componentContextValue}>
             <EmojiProvider value={emojiContextValue}>
               <TypingProvider value={typingContextValue}>
-                <div className={`${chatContainerClass}`}>{children}</div>
+                <div className={`${chatContainerClass}`}>
+                  <OptionalMessageInputProvider {...optionalMessageInputProps}>
+                    {children}
+                  </OptionalMessageInputProvider>
+                </div>
               </TypingProvider>
             </EmojiProvider>
           </ComponentProvider>

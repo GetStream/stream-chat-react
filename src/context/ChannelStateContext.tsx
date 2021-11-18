@@ -79,6 +79,7 @@ export type ChannelStateContextValue<
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
+  dragAndDropWindow?: boolean;
   maxNumberOfFiles?: number;
   mutes?: Mute<Us>[];
   watcher_count?: number;
