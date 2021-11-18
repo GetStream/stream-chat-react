@@ -68,9 +68,26 @@ export const useEmojiPicker = <
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
-  const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
-    insertText,
-  ]);
+  // const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
+  //   insertText,
+  // ]);
+
+  const onSelectEmoji = useCallback(
+    (emoji: EmojiData) => {
+      insertText((emoji as BaseEmoji).native);
+      dispatch({
+        type: 'setEmojiPickerIsOpen',
+        value: false,
+      });
+      const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+      const textarea = elements.item(0);
+
+      if (textarea instanceof HTMLTextAreaElement) {
+        textarea.focus();
+      }
+    },
+    [insertText],
+  );
 
   return {
     closeEmojiPicker,

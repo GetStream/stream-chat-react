@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useCallback } from 'react';
 
 import { useImageUploads } from './useImageUploads';
@@ -84,6 +85,12 @@ export const useAttachments = <
             dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
           }
         });
+      const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+      const textarea = elements.item(0);
+
+      if (textarea instanceof HTMLTextAreaElement) {
+        textarea.focus();
+      }
     },
     [maxFilesLeft, noFiles],
   );
