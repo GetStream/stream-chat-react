@@ -68,10 +68,6 @@ export const useEmojiPicker = <
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
-  // const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
-  //   insertText,
-  // ]);
-
   const onSelectEmoji = useCallback(
     (emoji: EmojiData) => {
       insertText((emoji as BaseEmoji).native);
