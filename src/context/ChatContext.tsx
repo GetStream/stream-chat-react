@@ -40,6 +40,7 @@ export type ChatContextValue<
 > = {
   client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
   closeMobileNav: () => void;
+  getAppSettings: () => Promise<AppSettingsAPIResponse<Co>> | null;
   mutes: Mute<Us>[];
   openMobileNav: () => void;
   setActiveChannel: (
@@ -50,7 +51,6 @@ export type ChatContextValue<
   /** @deprecated */
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
-  appSettings?: AppSettingsAPIResponse<Co>;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   customClasses?: CustomClasses;
   navOpen?: boolean;

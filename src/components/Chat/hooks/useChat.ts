@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Dayjs from 'dayjs';
 
 import {
@@ -56,7 +56,6 @@ export const useChat = <
     userLanguage: 'en',
   });
 
-  const [appSettings, setAppSettings] = useState<AppSettingsAPIResponse<Co>>();
   const [channel, setChannel] = useState<Channel<At, Ch, Co, Ev, Me, Re, Us>>();
   const [mutes, setMutes] = useState<Array<Mute<Us>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
@@ -66,24 +65,25 @@ export const useChat = <
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
+  const appSettings = useRef<Promise<AppSettingsAPIResponse<Co>> | null>(null);
+
+  const getAppSettings = () => {
+    if (appSettings.current) {
+      return appSettings.current;
+    }
+    appSettings.current = client.getAppSettings();
+    return appSettings.current;
+  };
+
   useEffect(() => {
-    const setAgentAndSettings = async () => {
+    if (client) {
       const userAgent = client.getUserAgent();
       if (!userAgent.includes('stream-chat-react')) {
         // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
         client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
       }
-
-      try {
-        const settingsResponse = await client.getAppSettings();
-        setAppSettings(settingsResponse);
-      } catch (err) {
-        setAppSettings(undefined);
-      }
-    };
-
-    setAgentAndSettings();
-  }, []);
+    }
+  }, [client]);
 
   useEffect(() => {
     setMutes(clientMutes || []);
@@ -137,9 +137,9 @@ export const useChat = <
   );
 
   return {
-    appSettings,
     channel,
     closeMobileNav,
+    getAppSettings,
     mutes,
     navOpen,
     openMobileNav,
