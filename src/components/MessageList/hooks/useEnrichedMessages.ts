@@ -30,17 +30,17 @@ export const useEnrichedMessages = <
 >(args: {
   channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
   disableDateSeparator: boolean;
+  hideDeletedMessages: boolean;
+  hideNewMessageSeparator: boolean;
+  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  noGroupByUser: boolean;
+  threadList: boolean;
   groupStyles?: (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
     noGroupByUser: boolean,
   ) => GroupStyle;
-  hideDeletedMessages: boolean;
-  hideNewMessageSeparator: boolean;
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  noGroupByUser: boolean;
-  threadList: boolean;
   headerPosition?: number;
 }) => {
   const {
@@ -79,7 +79,7 @@ export const useEnrichedMessages = <
     messagesWithDates = insertIntro(messagesWithDates, headerPosition);
   }
 
-  const groupStylesFn = groupStyles ? groupStyles : getGroupStyles;
+  const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
       messagesWithDates.reduce((acc, message, i) => {

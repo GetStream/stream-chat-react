@@ -25,6 +25,8 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 
+import type { GroupStyle } from './utils';
+
 import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -38,7 +40,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import type { GroupStyle } from './utils';
 
 const useInternalInfiniteScrollProps = (
   props: Pick<

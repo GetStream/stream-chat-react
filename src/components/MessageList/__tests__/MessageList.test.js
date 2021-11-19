@@ -103,7 +103,7 @@ describe('MessageList', () => {
       return 'msg-list-test';
     };
 
-    const { getByTestId, getAllByTestId } = render(
+    const { getAllByTestId, getByTestId } = render(
       <Chat client={chatClient}>
         <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
           <MessageList groupStyles={groupStyles} />
