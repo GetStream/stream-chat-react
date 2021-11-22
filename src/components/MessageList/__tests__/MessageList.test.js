@@ -94,14 +94,7 @@ describe('MessageList', () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const groupStyles = (
-      message,
-      previousMessage,
-      nextMessage,
-      noGroupByUser
-    ) => {
-      return 'msg-list-test';
-    };
+    const groupStyles = () => 'msg-list-test';
 
     const { getAllByTestId, getByTestId } = render(
       <Chat client={chatClient}>
@@ -121,7 +114,7 @@ describe('MessageList', () => {
     }
 
     await waitFor(() => {
-      expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test').length).toBe(4) // 1 for channel initial message + 3 just sent
+      expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test')).toHaveLength(4); // 1 for channel initial message + 3 just sent
     });
   });
 });
