@@ -166,6 +166,14 @@ pinned [message object](https://getstream.io/chat/docs/javascript/message_format
 | ---------------------------------- |
 | (message: StreamMessage) => string |
 
+### groupStyles
+
+Callback function to set group styles for each message.
+
+| Type                                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------------- |
+| (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean) => GroupStyle |
+
 ### hasMore
 
 Whether or not the list has more items to load.
