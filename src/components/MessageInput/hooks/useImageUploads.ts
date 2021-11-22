@@ -40,7 +40,7 @@ export const useImageUploads = <
   const { imageUploads } = state;
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
-  const { appSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
+  const { getAppSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useImageUploads');
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'useImageUploads',
   );
@@ -62,10 +62,10 @@ export const useImageUploads = <
         dispatch({ id, state: 'uploading', type: 'setImageUpload' });
       }
 
-      const canUpload = checkUploadPermissions({
+      const canUpload = await checkUploadPermissions({
         addNotification,
-        appSettings,
         file,
+        getAppSettings,
         t,
         uploadType: 'image',
       });

@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "6.11.0",
+  "version": "0.0.0-development",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -50,7 +50,7 @@
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "2.2.6",
-    "stream-chat-css": "^1.0.17",
+    "stream-chat-css": "^1.0.21",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
@@ -151,6 +151,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-url": "^3.0.1",
     "rollup-plugin-visualizer": "^4.2.0",
+    "semantic-release-cli": "^5.4.4",
     "stream-chat": "4.2.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
@@ -159,7 +160,8 @@
     "url-loader": "^4.1.1",
     "webpack": "4.44.2",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "~3.11.0"
+    "webpack-dev-server": "~3.11.0",
+    "semantic-release": "^18.0.0"
   },
   "husky": {
     "hooks": {
@@ -185,7 +187,8 @@
     "preversion": "yarn install && yarn lint && yarn test",
     "test": "jest",
     "types": "tsc --strict",
-    "validate-translations": "node scripts/validate-translations.js"
+    "validate-translations": "node scripts/validate-translations.js",
+    "semantic-release": "semantic-release"
   },
   "resolutions": {
     "ast-types": "^0.14.0"
