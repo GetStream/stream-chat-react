@@ -41,7 +41,7 @@ export const useFileUploads = <
 
   const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
   const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
-  const { appSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
+  const { getAppSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
   const { t } = useTranslationContext('useFileUploads');
 
   const uploadFile = useCallback((id) => {
@@ -63,10 +63,10 @@ export const useFileUploads = <
 
       const { file, id } = upload;
 
-      const canUpload = checkUploadPermissions({
+      const canUpload = await checkUploadPermissions({
         addNotification,
-        appSettings,
         file,
+        getAppSettings,
         t,
         uploadType: 'file',
       });

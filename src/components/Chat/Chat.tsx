@@ -93,9 +93,9 @@ export const Chat = <
   } = props;
 
   const {
-    appSettings,
     channel,
     closeMobileNav,
+    getAppSettings,
     mutes,
     navOpen,
     openMobileNav,
@@ -106,11 +106,11 @@ export const Chat = <
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
   const chatContextValue = useCreateChatContext({
-    appSettings,
     channel,
     client,
     closeMobileNav,
     customClasses,
+    getAppSettings,
     mutes,
     navOpen,
     openMobileNav,

@@ -1,5 +1,26 @@
 # Changelog
 
+## [6.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.12.0) 2021-11-22
+
+### Feature
+
+* Add ability to manually open/close mentions list [#1261](https://github.com/GetStream/stream-chat-react/pull/1261)
+* Support custom message group CSS classes [#1287](https://github.com/GetStream/stream-chat-react/pull/1287)
+* Ability to drag and drop files to the entire window [#1283](https://github.com/GetStream/stream-chat-react/pull/1283)
+* Add semantic release [#1293](https://github.com/GetStream/stream-chat-react/pull/1293)
+
+### Chore
+
+* Render reaction list for frozen channels [#1262](https://github.com/GetStream/stream-chat-react/pull/1262)
+* Remove unsafe props from `Textarea` component [#1263](https://github.com/GetStream/stream-chat-react/pull/1263)
+* Use context `Avatar` in `QuotedMessage` and `TypingIndicator` [#1264](https://github.com/GetStream/stream-chat-react/pull/1264)
+* Pass `setChannels` state hook to list UI component [#1265](https://github.com/GetStream/stream-chat-react/pull/1265)
+* Update user info in messages when subscribed to presence events [#1267](https://github.com/GetStream/stream-chat-react/pull/1267)
+* File and image attachments are now filtered according [to the application settings](https://getstream.io/chat/docs/other-rest/app_setting_overview/#file-uploads) [#1291](https://github.com/GetStream/stream-chat-react/pull/1291)
+* Check for already encoded URLs in a message [#1288](https://github.com/GetStream/stream-chat-react/pull/1288)
+* Set reset state to false in `usePaginatedChannels` [#1289](https://github.com/GetStream/stream-chat-react/pull/1289)
+
+
 ## [6.11.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.11.0) 2021-10-28
 
 ### Feature

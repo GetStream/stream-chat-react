@@ -1,5 +1,5 @@
 import type { ImageUpload } from 'react-file-utils';
-import type { FileUploadConfig, UserResponse } from 'stream-chat';
+import type { AppSettingsAPIResponse, FileUploadConfig, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';
 import type { ChatContextValue } from '../../../context/ChatContext';
@@ -125,13 +125,13 @@ type CheckUploadPermissionsParams<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   addNotification: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['addNotification'];
-  appSettings: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['appSettings'];
   file: ImageUpload['file'];
+  getAppSettings: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['getAppSettings'];
   t: TranslationContextValue['t'];
   uploadType: 'image' | 'file';
 };
 
-export const checkUploadPermissions = <
+export const checkUploadPermissions = async <
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Ch extends DefaultChannelType = DefaultChannelType,
   Co extends DefaultCommandType = DefaultCommandType,
@@ -142,7 +142,10 @@ export const checkUploadPermissions = <
 >(
   params: CheckUploadPermissionsParams<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { addNotification, appSettings, file, t, uploadType } = params;
+  const { addNotification, file, getAppSettings, t, uploadType } = params;
+
+  let appSettings: AppSettingsAPIResponse<Co> | null = null;
+  appSettings = await getAppSettings();
 
   const {
     allowed_file_extensions,

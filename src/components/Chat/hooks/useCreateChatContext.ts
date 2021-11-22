@@ -23,11 +23,11 @@ export const useCreateChatContext = <
   value: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
-    appSettings,
     channel,
     client,
     closeMobileNav,
     customClasses,
+    getAppSettings,
     mutes,
     navOpen,
     openMobileNav,
@@ -45,11 +45,11 @@ export const useCreateChatContext = <
 
   const chatContext: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
-      appSettings,
       channel,
       client,
       closeMobileNav,
       customClasses,
+      getAppSettings,
       mutes,
       navOpen,
       openMobileNav,
@@ -57,7 +57,7 @@ export const useCreateChatContext = <
       theme,
       useImageFlagEmojisOnWindows,
     }),
-    [channelCid, clientValues, mutedUsersLength, navOpen],
+    [channelCid, clientValues, getAppSettings, mutedUsersLength, navOpen],
   );
 
   return chatContext;
