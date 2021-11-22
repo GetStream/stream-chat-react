@@ -184,7 +184,7 @@
     "start": "tsc --watch",
     "postversion": "git push && git push --tags && npm publish",
     "prepare": "yarn run build",
-    "preversion": "yarn install && yarn lint && yarn test",
+    "preversion": "yarn install",
     "test": "jest",
     "types": "tsc --strict",
     "validate-translations": "node scripts/validate-translations.js",
