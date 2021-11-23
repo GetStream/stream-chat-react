@@ -92,12 +92,10 @@ export const MessageInputFlat = <
               <Tooltip>
                 {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
-              <span
+              <button
                 className='str-chat__input-flat-emojiselect'
                 onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
                 onKeyDown={handleEmojiKeyDown}
-                role='button'
-                tabIndex={0}
               >
                 {cooldownRemaining ? (
                   <div className='str-chat__input-flat-cooldown'>
@@ -109,7 +107,7 @@ export const MessageInputFlat = <
                 ) : (
                   <EmojiIcon />
                 )}
-              </span>
+              </button>
             </div>
             <EmojiPicker />
             <ChatAutoComplete />

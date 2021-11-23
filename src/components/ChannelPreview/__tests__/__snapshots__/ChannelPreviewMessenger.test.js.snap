@@ -2,9 +2,11 @@
 
 exports[`ChannelPreviewMessenger should render correctly 1`] = `
 <button
+  aria-label="Select Channel: Channel name"
   className="str-chat__channel-preview-messenger str-chat__channel-preview-messenger--unread "
   data-testid="channel-preview-button"
   onClick={[Function]}
+  role="option"
 >
   <div
     className="str-chat__channel-preview-messenger--left"

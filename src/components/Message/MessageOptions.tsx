@@ -100,22 +100,24 @@ const UnMemoizedMessageOptions = <
           <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
         )}
         {shouldShowReplies && (
-          <div
+          <button
+            aria-label='Open Thread'
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
             data-testid='thread-action'
             onClick={handleOpenThread}
           >
             <ThreadIcon />
-          </div>
+          </button>
         )}
         {shouldShowReactions && (
-          <div
+          <button
+            aria-label='Open Reaction Selector'
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
             data-testid='message-reaction-action'
             onClick={onReactionListClick}
           >
             <ReactionIcon />
-          </div>
+          </button>
         )}
       </div>
     );
@@ -124,22 +126,24 @@ const UnMemoizedMessageOptions = <
   return (
     <div className={`str-chat__message-${theme}__actions`} data-testid='message-options'>
       {shouldShowReactions && (
-        <div
+        <button
+          aria-label='Open Reaction Selector'
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
           data-testid='message-reaction-action'
           onClick={onReactionListClick}
         >
           <ReactionIcon />
-        </div>
+        </button>
       )}
       {shouldShowReplies && (
-        <div
+        <button
+          aria-label='Open Thread'
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
           <ThreadIcon />
-        </div>
+        </button>
       )}
       {showActionsBox && (
         <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />

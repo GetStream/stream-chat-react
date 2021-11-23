@@ -138,6 +138,7 @@ const UnMemoizedSimpleReactionsList = <
             className='str-chat__simple-reactions-list-item'
             key={`${emojiObject.id}-${i}`}
             onClick={(event) => handleReaction(reactionType, event)}
+            onKeyPress={(event) => handleReaction(reactionType, event)}
           >
             <span onMouseEnter={() => setTooltipReactionType(reactionType)}>
               {

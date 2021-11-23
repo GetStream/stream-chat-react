@@ -21,6 +21,11 @@
 * Set reset state to false in `usePaginatedChannels` [#1289](https://github.com/GetStream/stream-chat-react/pull/1289)
 
 
+* File and Image attachments are now filtered according [to the application settings](https://getstream.io/chat/docs/other-rest/app_setting_overview/#file-uploads) [#1291](https://github.com/GetStream/stream-chat-react/pull/1291)
+* Check for already encoded URLs in a message [#1288](https://github.com/GetStream/stream-chat-react/pull/1288)
+* Set reset state to false in `usePaginatedChannels` [#1289](https://github.com/GetStream/stream-chat-react/pull/1289)
+
+
 ## [6.11.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.11.0) 2021-10-28
 
 ### Feature
@@ -28,7 +33,7 @@
 - Support custom notifications in the `VirtualizedMessageList` component [#1245](https://github.com/GetStream/stream-chat-react/pull/1245)
 
 ### Chore
- 
+
 - Update type definitions for `emoji-mart` and `moment` dependencies [#1254](https://github.com/GetStream/stream-chat-react/pull/1254)
 - Add Vite app to examples directory [#1255](https://github.com/GetStream/stream-chat-react/pull/1255)
 - Upgrade `react-virtuoso` to fix Safari v15 edge case [#1257](https://github.com/GetStream/stream-chat-react/pull/1257)
@@ -44,7 +49,7 @@
 - Pass component names to custom context hooks for error tracing [#1238](https://github.com/GetStream/stream-chat-react/pull/1238)
 
 ### Chore
- 
+
 - Update German i18n translations [#1224](https://github.com/GetStream/stream-chat-react/pull/1224)
 - Upgrade `react-virtuoso` for zoom fix [#1233](https://github.com/GetStream/stream-chat-react/pull/1233)
 - Use optional `activeUnreadHandler` in `Channel` component's `markRead` function when provided [#1237](https://github.com/GetStream/stream-chat-react/pull/1237)
@@ -62,7 +67,7 @@
 - Add `chatContainer` custom CSS class name override [#1216](https://github.com/GetStream/stream-chat-react/pull/1216)
 
 ### Chore
- 
+
 - Add descriptive error messages to custom context consumer hooks [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
 - Pass `value` prop to `SuggestionItem` component [#1207](https://github.com/GetStream/stream-chat-react/pull/1207)
 - Update docs for custom `ChannelList` event handler example [#1209](https://github.com/GetStream/stream-chat-react/pull/1209)

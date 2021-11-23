@@ -15,17 +15,15 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
 
   return (
     <li className={`rta__item ${className || ''}`} style={style}>
-      <div
+      <button
         className={`rta__entity ${selected ? 'rta__entity--selected' : ''}`}
         onClick={onClickHandler}
         onFocus={selectItem}
         onMouseEnter={selectItem}
         ref={innerRef}
-        role='button'
-        tabIndex={0}
       >
         <Component entity={item} selected={selected} />
-      </div>
+      </button>
     </li>
   );
 });
