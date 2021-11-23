@@ -70,7 +70,9 @@ export const ChannelListMessenger = <
 
   return (
     <div className='str-chat__channel-list-messenger'>
-      <div className='str-chat__channel-list-messenger__main'>{children}</div>
+      <div className='str-chat__channel-list-messenger__main' role='role'>
+        {children}
+      </div>
     </div>
   );
 };

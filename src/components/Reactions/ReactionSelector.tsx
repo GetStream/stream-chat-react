@@ -183,7 +183,8 @@ const UnMemoizedReactionSelector = React.forwardRef(
             const count = reactionCounts && reactionCounts[reactionOption.id];
 
             return (
-              <li
+              <button
+                aria-label={`Select Reaction: ${reactionOption.name}`}
                 className='str-chat__message-reactions-list-item'
                 data-text={reactionOption.id}
                 key={`item-${reactionOption.id}`}
@@ -225,7 +226,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                     {count || ''}
                   </span>
                 )}
-              </li>
+              </button>
             );
           })}
         </ul>

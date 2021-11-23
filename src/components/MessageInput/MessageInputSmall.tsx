@@ -104,9 +104,9 @@ export const MessageInputSmall = <
                       handleFiles={uploadNewFiles}
                       multiple={multipleUploads}
                     >
-                      <span className='str-chat__small-message-input-fileupload'>
+                      <button className='str-chat__small-message-input-fileupload'>
                         <FileUploadIcon />
-                      </span>
+                      </button>
                     </FileUploadButton>
                   </div>
                 )}
@@ -114,15 +114,13 @@ export const MessageInputSmall = <
                   <Tooltip>
                     {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
                   </Tooltip>
-                  <span
+                  <button
                     className='str-chat__small-message-input-emojiselect'
                     onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
                     onKeyDown={handleEmojiKeyDown}
-                    role='button'
-                    tabIndex={0}
                   >
                     <EmojiIcon />
-                  </span>
+                  </button>
                 </div>
               </>
             )}

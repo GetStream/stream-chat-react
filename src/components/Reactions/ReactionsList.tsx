@@ -121,7 +121,7 @@ const UnMemoizedReactionsList = <
           const emojiObject = getEmojiByReactionType(reactionType);
 
           return emojiObject ? (
-            <li key={emojiObject.id}>
+            <button aria-label={`Reactions: ${reactionType}`} key={emojiObject.id}>
               {
                 <Suspense fallback={null}>
                   <Emoji
@@ -133,7 +133,7 @@ const UnMemoizedReactionsList = <
                 </Suspense>
               }
               &nbsp;
-            </li>
+            </button>
           ) : null;
         })}
         <li>

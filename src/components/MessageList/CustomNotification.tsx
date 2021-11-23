@@ -12,8 +12,10 @@ const UnMemoizedCustomNotification: React.FC<CustomNotificationProps> = (props) 
 
   return (
     <div
+      aria-live='polite'
       className={`str-chat__custom-notification notification-${type}`}
       data-testid='custom-notification'
+      role='log'
     >
       {children}
     </div>
