@@ -94,12 +94,13 @@ describe('Modal', () => {
   it('should render the expected html', () => {
     const tree = renderer.create(<Modal onClose={() => {}} open={false} />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      <button
+      <div
         className="str-chat__modal str-chat__modal--closed"
         onClick={[Function]}
       >
-        <div
+        <button
           className="str-chat__modal__close-button"
+          onClick={[Function]}
         >
           Close
           <svg
@@ -112,11 +113,11 @@ describe('Modal', () => {
               fillRule="evenodd"
             />
           </svg>
-        </div>
+        </button>
         <div
           className="str-chat__modal__inner"
         />
-      </button>
+      </div>
     `);
   });
 });
