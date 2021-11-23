@@ -6,6 +6,7 @@ exports[`ChannelListMessenger by default, children should be rendered 1`] = `
 >
   <div
     className="str-chat__channel-list-messenger__main"
+    role="listbox"
   >
     <div>
       children 1

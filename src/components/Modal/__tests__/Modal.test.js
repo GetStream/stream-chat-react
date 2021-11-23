@@ -94,7 +94,7 @@ describe('Modal', () => {
   it('should render the expected html', () => {
     const tree = renderer.create(<Modal onClose={() => {}} open={false} />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      <div
+      <button
         className="str-chat__modal str-chat__modal--closed"
         onClick={[Function]}
       >
@@ -116,7 +116,7 @@ describe('Modal', () => {
         <div
           className="str-chat__modal__inner"
         />
-      </div>
+      </button>
     `);
   });
 });

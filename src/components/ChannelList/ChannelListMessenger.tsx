@@ -70,7 +70,7 @@ export const ChannelListMessenger = <
 
   return (
     <div className='str-chat__channel-list-messenger'>
-      <div className='str-chat__channel-list-messenger__main' role='role'>
+      <div className='str-chat__channel-list-messenger__main' role='listbox'>
         {children}
       </div>
     </div>
