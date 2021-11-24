@@ -138,10 +138,10 @@ Dayjs.updateLocale('it', {
 Dayjs.updateLocale('ja', {
   calendar: {
     lastDay: '[昨日] LT',
-    lastWeek: '[過去] dddd [で] LT',
+    lastWeek: 'dddd LT',
     nextDay: '[明日] LT',
-    nextWeek: 'dddd [で] LT',
-    sameDay: '[今日は] LT',
+    nextWeek: '[次の] dddd LT',
+    sameDay: '[今日] LT',
     sameElse: 'L',
   },
 });
