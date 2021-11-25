@@ -183,50 +183,51 @@ const UnMemoizedReactionSelector = React.forwardRef(
             const count = reactionCounts && reactionCounts[reactionOption.id];
 
             return (
-              <button
-                aria-label={`Select Reaction: ${reactionOption.name}`}
-                className='str-chat__message-reactions-list-item'
-                data-text={reactionOption.id}
-                key={`item-${reactionOption.id}`}
-                onClick={(event) => handleReaction(reactionOption.id, event)}
-              >
-                {!!count && detailedView && (
-                  <>
-                    <div
-                      className='latest-user'
-                      onClick={hideTooltip}
-                      onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
-                      onMouseLeave={hideTooltip}
-                    >
-                      {latestUser ? (
-                        <Avatar
-                          image={latestUser.image}
-                          name={latestUser.name}
-                          size={20}
-                          user={latestUser}
-                        />
-                      ) : (
-                        <div className='latest-user-not-found' />
-                      )}
-                    </div>
-                  </>
-                )}
-                {
-                  <Suspense fallback={null}>
-                    <Emoji
-                      data={emojiData}
-                      emoji={reactionOption}
-                      size={20}
-                      {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                    />
-                  </Suspense>
-                }
-                {Boolean(count) && detailedView && (
-                  <span className='str-chat__message-reactions-list-item__count'>
-                    {count || ''}
-                  </span>
-                )}
-              </button>
+              <li key={`item-${reactionOption.id}`}>
+                <button
+                  aria-label={`Select Reaction: ${reactionOption.name}`}
+                  className='str-chat__message-reactions-list-item'
+                  data-text={reactionOption.id}
+                  onClick={(event) => handleReaction(reactionOption.id, event)}
+                >
+                  {!!count && detailedView && (
+                    <>
+                      <div
+                        className='latest-user'
+                        onClick={hideTooltip}
+                        onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
+                        onMouseLeave={hideTooltip}
+                      >
+                        {latestUser ? (
+                          <Avatar
+                            image={latestUser.image}
+                            name={latestUser.name}
+                            size={20}
+                            user={latestUser}
+                          />
+                        ) : (
+                          <div className='latest-user-not-found' />
+                        )}
+                      </div>
+                    </>
+                  )}
+                  {
+                    <Suspense fallback={null}>
+                      <Emoji
+                        data={emojiData}
+                        emoji={reactionOption}
+                        size={20}
+                        {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                      />
+                    </Suspense>
+                  }
+                  {Boolean(count) && detailedView && (
+                    <span className='str-chat__message-reactions-list-item__count'>
+                      {count || ''}
+                    </span>
+                  )}
+                </button>
+              </li>
             );
           })}
         </ul>
