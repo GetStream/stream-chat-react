@@ -149,9 +149,9 @@ Dayjs.updateLocale('ja', {
 Dayjs.updateLocale('ko', {
   calendar: {
     lastDay: '[어제] LT',
-    lastWeek: '[마지막] dddd [~에] LT',
+    lastWeek: '[지난] dddd LT',
     nextDay: '[내일] LT',
-    nextWeek: 'dddd [~에] LT',
+    nextWeek: 'dddd LT',
     sameDay: '[오늘] LT',
     sameElse: 'L',
   },
