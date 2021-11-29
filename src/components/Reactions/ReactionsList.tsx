@@ -121,19 +121,21 @@ const UnMemoizedReactionsList = <
           const emojiObject = getEmojiByReactionType(reactionType);
 
           return emojiObject ? (
-            <button aria-label={`Reactions: ${reactionType}`} key={emojiObject.id}>
-              {
-                <Suspense fallback={null}>
-                  <Emoji
-                    data={emojiData}
-                    emoji={emojiObject}
-                    size={16}
-                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                  />
-                </Suspense>
-              }
-              &nbsp;
-            </button>
+            <li key={emojiObject.id}>
+              <button aria-label={`Reactions: ${reactionType}`}>
+                {
+                  <Suspense fallback={null}>
+                    <Emoji
+                      data={emojiData}
+                      emoji={emojiObject}
+                      size={16}
+                      {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                    />
+                  </Suspense>
+                }
+                &nbsp;
+              </button>
+            </li>
           ) : null;
         })}
         <li>

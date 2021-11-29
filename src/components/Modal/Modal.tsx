@@ -15,19 +15,19 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (
-      event.target instanceof HTMLDivElement &&
-      !innerRef.current?.contains(event.target) &&
-      onClose
+      (event.target instanceof HTMLDivElement &&
+        !innerRef.current?.contains(event.target) &&
+        onClose) ||
+      (event.target instanceof HTMLButtonElement &&
+        closeRef.current?.contains(event.target) &&
+        onClose)
     ) {
       onClose();
     }
-  };
-
-  const handleCloseClick = () => {
-    if (onClose) onClose();
   };
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
 
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>
-      <button className='str-chat__modal__close-button' onClick={handleCloseClick}>
+      <button className='str-chat__modal__close-button' ref={closeRef}>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
