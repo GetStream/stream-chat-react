@@ -100,7 +100,6 @@ describe('Modal', () => {
       >
         <button
           className="str-chat__modal__close-button"
-          onClick={[Function]}
         >
           Close
           <svg
