@@ -174,7 +174,7 @@ const UnMemoizedMessageActionsBox = <
       data-testid='message-actions-box'
       ref={checkIfReverse}
     >
-      <div className='str-chat__message-actions-list' role='listbox'>
+      <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
@@ -182,6 +182,7 @@ const UnMemoizedMessageActionsBox = <
           !message.parent_id &&
           !message.quoted_message && (
             <button
+              aria-selected='false'
               className='str-chat__message-actions-list-item'
               onClick={handleQuote}
               role='option'
@@ -190,12 +191,18 @@ const UnMemoizedMessageActionsBox = <
             </button>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
-          <button className='str-chat__message-actions-list-item' onClick={handlePin} role='option'>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handlePin}
+            role='option'
+          >
             {!message.pinned ? t('Pin') : t('Unpin')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button
+            aria-selected='false'
             className='str-chat__message-actions-list-item'
             onClick={handleFlag}
             role='option'
@@ -205,6 +212,7 @@ const UnMemoizedMessageActionsBox = <
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
           <button
+            aria-selected='false'
             className='str-chat__message-actions-list-item'
             onClick={handleMute}
             role='option'
@@ -214,6 +222,7 @@ const UnMemoizedMessageActionsBox = <
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
           <button
+            aria-selected='false'
             className='str-chat__message-actions-list-item'
             onClick={handleEdit}
             role='option'
@@ -223,6 +232,7 @@ const UnMemoizedMessageActionsBox = <
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
           <button
+            aria-selected='false'
             className='str-chat__message-actions-list-item'
             onClick={handleDelete}
             role='option'
