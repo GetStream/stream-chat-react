@@ -61,7 +61,7 @@
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "^3.8.0"
+    "stream-chat": "^5.0.0"
   },
   "files": [
     "dist",
