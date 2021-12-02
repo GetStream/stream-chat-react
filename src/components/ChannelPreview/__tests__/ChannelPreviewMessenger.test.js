@@ -46,14 +46,6 @@ describe('ChannelPreviewMessenger', () => {
     await initializeChannel(generateChannel());
   });
 
-  // afterEach(async () => {
-  //   // if (!container) return;
-  //   const { container } = render(renderComponent());
-
-  //   console.log('bar', container);
-  //   expect(await axe(container)).toHaveNoViolations();
-  // });
-
   it('should render correctly', () => {
     const tree = renderer.create(renderComponent()).toJSON();
     expect(tree).toMatchSnapshot();
@@ -67,7 +59,7 @@ describe('ChannelPreviewMessenger', () => {
 
     // console.log(html, 'foo');
     // const results = await axe(container);
-    console.log(results, 'foo');
+    // console.log(results, 'foo');
     expect(results).toHaveNoViolations();
   });
 

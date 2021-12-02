@@ -33,57 +33,54 @@ async function renderComponent(props, channelData) {
 afterEach(cleanup); // eslint-disable-line
 
 describe('ChannelHeader', () => {
-  it('should not have a11y violations', async () => {
-    const { container } = await renderComponent(
-      { live: true },
-      { data: { image: 'image.jpg', name: 'test-channel-1' } },
-    );
-
-    const results = await axe(container);
-    console.log(results, 'foo');
-    expect(results).toHaveNoViolations();
-  });
-
   it('should display live label when prop live is true', async () => {
     const { container } = await renderComponent(
       { live: true },
       { data: { image: 'image.jpg', name: 'test-channel-1' } },
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     expect(
       container.querySelector('.str-chat__header-livestream-left--livelabel'),
     ).toBeInTheDocument();
   });
 
   it('should display avatar when channel has an image', async () => {
-    const { getByTestId } = await renderComponent(
+    const { container, getByTestId } = await renderComponent(
       { live: false },
       { data: { image: 'image.jpg', name: 'test-channel-1' } },
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     expect(getByTestId('avatar-img')).toBeInTheDocument();
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'image.jpg');
   });
 
   it('should display custom title', async () => {
-    const { getByText } = await renderComponent(
+    const { container, getByText } = await renderComponent(
       { title: 'Custom Title' },
       { data: { image: 'image.jpg', name: 'test-channel-1' } },
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     expect(getByText('Custom Title')).toBeInTheDocument();
   });
 
   it('should display subtitle if present in channel data', async () => {
-    const { getByText } = await renderComponent(null, {
+    const { container, getByText } = await renderComponent(null, {
       data: {
         image: 'image.jpg',
         name: 'test-channel-1',
         subtitle: 'test subtitle',
       },
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     expect(getByText('test subtitle')).toBeInTheDocument();
   });
 
   it('should display bigger image if channelType is commerce', async () => {
-    const { getByTestId } = await renderComponent(null, {
+    const { container, getByTestId } = await renderComponent(null, {
       data: {
         image: 'image.jpg',
         name: 'test-channel-1',
@@ -91,6 +88,8 @@ describe('ChannelHeader', () => {
       },
       type: 'commerce',
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     expect(getByTestId('avatar-img')).toHaveStyle({
       flexBasis: '60px',
       height: '60px',
@@ -108,7 +107,7 @@ describe('ChannelHeader', () => {
   });
 
   it('should display watcher_count', async () => {
-    const { getByText } = await renderComponent(null, {
+    const { container, getByText } = await renderComponent(null, {
       data: {
         image: 'image.jpg',
         name: 'test-channel-1',
@@ -116,13 +115,15 @@ describe('ChannelHeader', () => {
         watcher_count: 34,
       },
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     waitFor(() => {
       expect(getByText('34 online')).toBeInTheDocument();
     });
   });
 
   it('should display correct member_count', async () => {
-    const { getByText } = await renderComponent(null, {
+    const { container, getByText } = await renderComponent(null, {
       data: {
         image: 'image.jpg',
         member_count: 34,
@@ -130,6 +131,8 @@ describe('ChannelHeader', () => {
         subtitle: 'test subtitle',
       },
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
     waitFor(() => {
       expect(getByText('34 members')).toBeInTheDocument();
     });

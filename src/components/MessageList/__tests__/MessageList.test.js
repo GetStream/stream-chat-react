@@ -1,6 +1,8 @@
 import React from 'react';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import {
   dispatchMessageNewEvent,
@@ -35,7 +37,7 @@ describe('MessageList', () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const { getByTestId, getByText } = render(
+    const { container, getByTestId, getByText } = render(
       <Chat client={chatClient}>
         <Channel channel={channel}>
           <MessageList />
@@ -52,6 +54,16 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
     });
+    const results = await axe(container);
+    console.log(
+      'pass',
+      results.passes.map((r) => r.id),
+      'incomplete:',
+      results.incomplete[0]?.id,
+      'fail:',
+      results.violations.map((r) => r.id),
+    );
+    expect(results).toHaveNoViolations();
   });
 
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
