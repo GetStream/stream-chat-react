@@ -8,6 +8,8 @@ import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import { generateChannel, generateUser, getTestClientWithUser } from '../../../mock-builders';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 const alice = generateUser();
 let testChannel1;
@@ -31,6 +33,17 @@ async function renderComponent(props, channelData) {
 afterEach(cleanup); // eslint-disable-line
 
 describe('ChannelHeader', () => {
+  it('should not have a11y violations', async () => {
+    const { container } = await renderComponent(
+      { live: true },
+      { data: { image: 'image.jpg', name: 'test-channel-1' } },
+    );
+
+    const results = await axe(container);
+    console.log(results, 'foo');
+    expect(results).toHaveNoViolations();
+  });
+
   it('should display live label when prop live is true', async () => {
     const { container } = await renderComponent(
       { live: true },
