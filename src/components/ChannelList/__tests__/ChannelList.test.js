@@ -2,6 +2,8 @@ import React from 'react';
 import { getNodeText } from '@testing-library/dom';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import {
   dispatchChannelDeletedEvent,
@@ -92,7 +94,7 @@ describe('ChannelList', () => {
       useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { getByRole, getByTestId } = render(
+      const { container, getByRole, getByTestId } = render(
         <ChatContext.Provider value={{ client: chatClientUthred, closeMobileNav, navOpen: true }}>
           <ChannelList {...props} />
           <div data-testid='outside-channellist' />
@@ -108,6 +110,16 @@ describe('ChannelList', () => {
       await waitFor(() => {
         expect(closeMobileNav).toHaveBeenCalledTimes(1);
       });
+      const results = await axe(container);
+      console.log(
+        'pass:',
+        results.passes.map((r) => r.id),
+        'incomplete:',
+        results.incomplete[0]?.id,
+        'fail:',
+        results.violations.map((r) => r.id),
+      );
+      expect(results).toHaveNoViolations();
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {

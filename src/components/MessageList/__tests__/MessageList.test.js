@@ -55,14 +55,6 @@ describe('MessageList', () => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
     });
     const results = await axe(container);
-    console.log(
-      'pass',
-      results.passes.map((r) => r.id),
-      'incomplete:',
-      results.incomplete[0]?.id,
-      'fail:',
-      results.violations.map((r) => r.id),
-    );
     expect(results).toHaveNoViolations();
   });
 
@@ -79,7 +71,7 @@ describe('MessageList', () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const { getByTestId } = render(
+    const { container, getByTestId } = render(
       <Chat client={chatClient}>
         <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
           <MessageList />
@@ -91,6 +83,8 @@ describe('MessageList', () => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
       expect(getByTestId('custom-avatar')).toBeInTheDocument();
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should accept a custom group style function', async () => {
@@ -108,7 +102,7 @@ describe('MessageList', () => {
 
     const groupStyles = () => 'msg-list-test';
 
-    const { getAllByTestId, getByTestId } = render(
+    const { container, getAllByTestId, getByTestId } = render(
       <Chat client={chatClient}>
         <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
           <MessageList groupStyles={groupStyles} />
@@ -128,5 +122,7 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test')).toHaveLength(4); // 1 for channel initial message + 3 just sent
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });
