@@ -8,7 +8,7 @@ context('Actions', () => {
     cy.waitFor(10000)
   })
 
-  it.skip('send message to active member () - type into a DOM element', () => {
+  it('send message to active member () - type into a DOM element', () => {
     const input = 'Hello World!'
     cy.xpath("//textarea[contains(@placeholder,'Type your message')]")
       .focus()
@@ -23,9 +23,8 @@ context('Actions', () => {
       .first()
       //.next()
       .then((element) => {
-        cy.wrap(element).first().scrollIntoView().click({ force: true })
-        cy.get('li').should('have', '09/30/2021').scrollIntoView().then((element) => {
-          cy.wrap(element).scrollTo('topRight').invoke('text')
+        // cy.wrap(element).first().scrollIntoView().click({ force: true })
+        // cy.get('li').should('include.text', 'Q').first().scrollIntoView().then((element) => {
             cy.contains('[data-testid="message-inner"]', 'Hello Earth!')
               .then((element) => {
                 cy.wrap(element).contains('Flag').click({ force: true })
@@ -33,5 +32,6 @@ context('Actions', () => {
               })
           })
       })
+      
   })
 })

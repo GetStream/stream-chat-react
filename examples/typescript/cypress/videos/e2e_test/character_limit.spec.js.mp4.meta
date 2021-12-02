@@ -1,0 +1,11 @@
+;FFMETADATA1
+[CHAPTER]
+TIMEBASE=1/1000
+START=1272
+END=2162
+title=Actions Negative Test - Send above 5000 characters limits - should be rejected() - type into a DOM element
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=null
+title=Actions Positive Test - Send 5000 characters limits should be accepted() - type into a DOM element
