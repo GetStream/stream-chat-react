@@ -1253,10 +1253,10 @@
   resolved "https://registry.yarnpkg.com/@rgrove/parse-xml/-/parse-xml-3.0.0.tgz#29d45eadeb6c9a701038cfb9fab2356a7bdc71d5"
   integrity sha512-GFGDywRwGbuGq9yeL8wTjjLOsZ5Ps4O5tQ71eDcAfaZrZeA7Oe8QJzrnmFgplWtnoaBIBaFBB3n5Ht9iU4jLLw==
 
-"@sindresorhus/transliterate@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@sindresorhus/transliterate/-/transliterate-1.4.0.tgz#4648facf68e665147281dce4207a89374a3725b7"
-  integrity sha512-4X91xgzgEnD96QAVmn3YXl14FRhZI8eyWVP7MwYr33kMdkLgoHeCOi7+Ad2Uar+0kpbfiDHW1qUXioJjcXnwPg==
+"@stream-io/transliterate@^1.4.0":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@stream-io/transliterate/-/transliterate-1.5.2.tgz#525a23fc22d8982862abd9d7cc45aed8471d49c6"
+  integrity sha512-lefoBT7koGsLTUtRUgymZm92gD6a2mNv6w1WHPBPmvKODibVOC2+izO+atKLEOdytth85R7o2N+dvgE37jXjCQ==
   dependencies:
     escape-string-regexp "^5.0.0"
     lodash.deburr "^4.1.0"
@@ -10753,10 +10753,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.17.tgz#aad79b5c8e6f62334305d73e8cffe8ad2ac46f0e"
-  integrity sha512-CgfqyWAqFa2QMBn3Srk4sBnMdjMhd/ufErplnGeYZFlzL/C1czRmr2MN/ZgxWwW5uLO7ArGyETRqslYZxFMN1Q==
+stream-chat-css@^1.0.21:
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.23.tgz#5016c6d34e2b210bc48893671740abd9be5bf8dd"
+  integrity sha512-ab7NFnFKbhAm8dbCzRPiSyfhGHXlbwro5Q/BxXhjLCdalEUN3dRvHOmW7mqWY7TdloJAs+3QTM9ORNxDTV7usg==
 
 "stream-chat-react@link:../..":
   version "0.0.0"
