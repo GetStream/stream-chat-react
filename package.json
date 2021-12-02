@@ -71,6 +71,7 @@
     "README.md"
   ],
   "devDependencies": {
+    "@axe-core/react": "^4.3.2",
     "@babel/cli": "^7.12.8",
     "@babel/core": "^7.12.9",
     "@babel/node": "^7.12.6",

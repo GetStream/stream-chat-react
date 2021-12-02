@@ -29,6 +29,13 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 
 chatClient.connectUser({ id: userId }, userToken);
 
+const ReactDOM = require('react-dom');
+
+if (process.env.NODE_ENV !== 'production') {
+  const axe = require('@axe-core/react');
+  axe(React, ReactDOM, 2000);
+}
+
 const App = () => (
   <Chat client={chatClient}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
