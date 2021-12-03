@@ -1521,6 +1521,11 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@stream-io/stream-chat-css@^1.0.25":
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.26.tgz#2b438155792dfdf0cd87524634e8baf3e6eae89e"
+  integrity sha512-8V2KKIfkVOZis5R0GqlWJ+51SFo75PCg4z7fiq6yZAplEssH+e1oT8nQoz5RnrVjlVYDDsD9rBMQH1Y1D9TNmQ==
+
 "@surma/rollup-plugin-off-main-thread@^1.1.1":
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@surma/rollup-plugin-off-main-thread/-/rollup-plugin-off-main-thread-1.4.2.tgz#e6786b6af5799f82f7ab3a82e53f6182d2b91a58"
@@ -7515,7 +7520,7 @@ loglevel@^1.6.8:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.1.tgz#005fde2f5e6e47068f935ff28573e125ef72f197"
   integrity sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==
 
-loose-envify@^1.0.0, loose-envify@^1.4.0:
+loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -9661,6 +9666,7 @@ react-dev-utils@^11.0.3:
 
 "react-dom@link:../../../node_modules/react-dom":
   version "0.0.0"
+  uid ""
 
 react-dropzone@11.3.4:
   version "11.3.4"
@@ -9933,6 +9939,7 @@ react-virtuoso@^2.2.1:
 
 "react@link:../../../node_modules/react":
   version "0.0.0"
+  uid ""
 
 read-pkg-up@^2.0.0:
   version "2.0.0"
@@ -10458,6 +10465,14 @@ saxes@^5.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
+scheduler@^0.20.1:
+  version "0.20.2"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
+  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
 schema-utils@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-1.0.0.tgz#0b79a93204d7b600d4b2850d1f66c2a34951c770"
@@ -10932,43 +10947,9 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat-css@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.17.tgz#aad79b5c8e6f62334305d73e8cffe8ad2ac46f0e"
-  integrity sha512-CgfqyWAqFa2QMBn3Srk4sBnMdjMhd/ufErplnGeYZFlzL/C1czRmr2MN/ZgxWwW5uLO7ArGyETRqslYZxFMN1Q==
-
 "stream-chat-react@link:../../..":
-  version "6.11.0"
-  dependencies:
-    "@braintree/sanitize-url" "5.0.0"
-    custom-event "^1.0.1"
-    dayjs "^1.10.4"
-    emoji-mart "3.0.1"
-    emoji-regex "^9.2.0"
-    i18next "^19.8.4"
-    isomorphic-ws "^4.0.1"
-    linkifyjs "^2.1.9"
-    lodash.debounce "^4.0.8"
-    lodash.isequal "^4.5.0"
-    lodash.throttle "^4.1.1"
-    lodash.uniqby "^4.7.0"
-    mdast-util-find-and-replace "1.1.1"
-    pretty-bytes "^5.4.1"
-    prop-types "^15.7.2"
-    react-fast-compare "^3.2.0"
-    react-file-utils "1.1.8"
-    react-images "1.2.0-beta.7"
-    react-is "^17.0.1"
-    react-markdown "^5.0.3"
-    react-player "^2.7.0"
-    react-textarea-autosize "^8.3.0"
-    react-virtuoso "2.2.6"
-    stream-chat-css "^1.0.17"
-    textarea-caret "^3.1.0"
-    uuid "^8.3.1"
-  optionalDependencies:
-    "@sindresorhus/transliterate" "^1.4.0"
-    mml-react "^0.4.2"
+  version "0.0.0"
+  uid ""
 
 stream-chat@4.2.0:
   version "4.2.0"
