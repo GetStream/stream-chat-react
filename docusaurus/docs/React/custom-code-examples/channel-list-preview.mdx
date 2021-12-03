@@ -135,7 +135,7 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
 Let's take advantage of the SDK's [CSS classes](../customization/css-and-theming.mdx) for styling. We'll import the bundled CSS into the file where the application is instantiated then apply a class to the button element.
 
 ```tsx
-import 'stream-chat-css/dist/css/index.css';
+import '@stream-io/stream-chat-css/dist/css/index.css';
 
 <div
   className={'str-chat__channel-preview-messenger'}
