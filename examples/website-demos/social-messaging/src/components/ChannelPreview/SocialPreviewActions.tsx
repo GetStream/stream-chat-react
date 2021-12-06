@@ -25,7 +25,7 @@ export const SocialPreviewActions = (props: Props<SocialUserType>) => {
   const [isUserMuted, setIsUserMuted] = useState(false);
 
   const handleAction = (action: UserActions) => {
-    const user = members[0].user?.id;    
+    const user = members[0].user?.id;
     if (user) setActionId(user);
     setActionsModalOpenId(channelId!);
     setDropdownOpen(false);

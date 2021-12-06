@@ -10,7 +10,7 @@ import {
   Thread,
   Window,
 } from 'stream-chat-react';
-import 'stream-chat-css/dist/css/index.css';
+import '@stream-io/stream-chat-css/dist/css/index.css';
 
 const apiKey = import.meta.env.VITE_STREAM_KEY as string;
 const userId = import.meta.env.VITE_USER_ID as string;
