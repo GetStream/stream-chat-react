@@ -220,21 +220,13 @@ describe('ChannelList', () => {
       expect(getByTestId('error-indicator')).toBeInTheDocument();
     });
     const results = await axe(container);
-    console.log(
-      'pass:',
-      results.passes.map((r) => r.id),
-      'incomplete:',
-      results.incomplete[0]?.id,
-      'fail:',
-      results.violations.map((r) => r.id),
-    );
     expect(results).toHaveNoViolations();
   });
 
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
     useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
 
-    const { container, getByTestId, rerender } = render(
+    const { getByTestId, rerender } = render(
       <Chat client={chatClientUthred}>
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-compact'>Avatar</div>}
@@ -243,20 +235,9 @@ describe('ChannelList', () => {
         />
       </Chat>,
     );
-
     await waitFor(() => {
       expect(getByTestId('custom-avatar-compact')).toBeInTheDocument();
     });
-    const results = await axe(container);
-    console.log(
-      'pass:',
-      results.passes.map((r) => r.id),
-      'incomplete:',
-      results.incomplete[0]?.id,
-      'fail:',
-      results.violations.map((r) => r.id),
-    );
-    expect(results).toHaveNoViolations();
 
     rerender(
       <Chat client={chatClientUthred}>
@@ -290,7 +271,7 @@ describe('ChannelList', () => {
   it('when queryChannels api returns no channels, `EmptyStateIndicator` should be rendered', async () => {
     useMockedApis(chatClientUthred, [queryChannelsApi([])]);
 
-    const EmptyStateIndicator = () => <div data-testid='empty-state-indicator' />;
+    const EmptyStateIndicator = () => <div data-testid='empty-state-indicator' role='listitem' />;
 
     const { container, getByTestId } = render(
       <Chat client={chatClientUthred}>
@@ -307,14 +288,6 @@ describe('ChannelList', () => {
       expect(getByTestId('empty-state-indicator')).toBeInTheDocument();
     });
     const results = await axe(container);
-    console.log(
-      'pass:',
-      results.passes.map((r) => r.id),
-      'incomplete:',
-      results.incomplete[0]?.id,
-      'fail:',
-      results.violations.map((r) => r.id),
-    );
     expect(results).toHaveNoViolations();
   });
 
@@ -408,6 +381,8 @@ describe('ChannelList', () => {
       const channelPreview = getByTestId(testChannel2.channel.id).closest(ROLE_LIST_ITEM_SELECTOR);
 
       expect(channelPreview.isEqualNode(items[0])).toBe(true);
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
   });
 
@@ -455,6 +430,8 @@ describe('ChannelList', () => {
         // Get the closes listitem to the channel that received new message.
         const channelPreview = getByText(newMessage.text).closest(ROLE_LIST_ITEM_SELECTOR);
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should not alter order if `lockChannelOrder` prop is true', async () => {
@@ -480,6 +457,8 @@ describe('ChannelList', () => {
         // Get the closes listitem to the channel that received new message.
         const channelPreview = getByText(newMessage.text).closest(ROLE_LIST_ITEM_SELECTOR);
         expect(channelPreview.isEqualNode(items[2])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -516,6 +495,8 @@ describe('ChannelList', () => {
         // Get the closes listitem to the channel that received new message.
         const channelPreview = getByTestId(testChannel3.channel.id);
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onMessageNew` function prop, if provided', async () => {
@@ -547,6 +528,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onMessageNew).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -588,6 +571,8 @@ describe('ChannelList', () => {
         // Get the closes listitem to the channel that received new message.
         const channelPreview = getByTestId(testChannel3.channel.id);
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onAddedToChannel` function prop, if provided', async () => {
@@ -608,6 +593,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onAddedToChannel).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -641,6 +628,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onRemovedFromChannel` function prop, if provided', async () => {
@@ -660,6 +649,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onRemovedFromChannel).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -697,6 +688,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(getByText(newChannelName)).toBeInTheDocument();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onChannelUpdated` function prop, if provided', async () => {
@@ -724,6 +717,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onChannelUpdated).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -756,6 +751,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onChannelDeleted` function prop, if provided', async () => {
@@ -776,6 +773,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onChannelDeleted).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should unset activeChannel if it was deleted', async () => {
@@ -800,6 +799,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -832,6 +833,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should unset activeChannel if it was hidden', async () => {
@@ -856,6 +859,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -897,6 +902,8 @@ describe('ChannelList', () => {
         // Get the closes listitem to the channel that received new message.
         const channelPreview = getByTestId(testChannel3.channel.id);
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should call `onChannelVisible` function prop, if provided', async () => {
@@ -917,6 +924,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onChannelVisible).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -953,6 +962,8 @@ describe('ChannelList', () => {
             updateCount + 1,
           );
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -995,6 +1006,8 @@ describe('ChannelList', () => {
         await waitFor(() => {
           expect(onChannelTruncated).toHaveBeenCalledTimes(1);
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
   });
