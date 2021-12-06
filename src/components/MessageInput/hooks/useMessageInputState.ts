@@ -428,7 +428,7 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,
-  } = useEmojiPicker<At, Us>(state, dispatch, insertText, closeEmojiPickerOnClick);
+  } = useEmojiPicker<At, Us>(state, dispatch, insertText, textareaRef, closeEmojiPickerOnClick);
 
   const {
     maxFilesLeft,
@@ -438,7 +438,7 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch);
+  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch, textareaRef);
 
   const { handleSubmit } = useSubmitHandler<At, Ch, Co, Ev, Me, Re, Us, V>(
     props,

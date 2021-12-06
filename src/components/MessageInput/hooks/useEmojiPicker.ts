@@ -12,6 +12,7 @@ export const useEmojiPicker = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
   insertText: (textToInsert: string) => void,
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
   closeEmojiPickerOnClick?: boolean,
 ) => {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
@@ -78,12 +79,8 @@ export const useEmojiPicker = <
           value: false,
         });
       }
-      const elements = document.getElementsByClassName('str-chat__textarea__textarea');
-      const textarea = elements.item(0);
 
-      if (textarea instanceof HTMLTextAreaElement) {
-        textarea.focus();
-      }
+      textareaRef?.current?.focus();
     },
     [insertText],
   );
