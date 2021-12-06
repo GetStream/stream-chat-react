@@ -290,6 +290,11 @@
     escape-string-regexp "^5.0.0"
     lodash.deburr "^4.1.0"
 
+"@stream-io/stream-chat-css@^1.0.25":
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.26.tgz#2b438155792dfdf0cd87524634e8baf3e6eae89e"
+  integrity sha512-8V2KKIfkVOZis5R0GqlWJ+51SFo75PCg4z7fiq6yZAplEssH+e1oT8nQoz5RnrVjlVYDDsD9rBMQH1Y1D9TNmQ==
+
 "@types/jsonwebtoken@^8.5.0":
   version "8.5.5"
   resolved "https://registry.yarnpkg.com/@types/jsonwebtoken/-/jsonwebtoken-8.5.5.tgz#da5f2f4baee88f052ef3e4db4c1a0afb46cff22c"
@@ -1431,10 +1436,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.7.tgz#4888f7fecde43a0a67bdfac61af4a3ad0c7c8087"
-  integrity sha512-Y0gI0PnJDWqofxJosGNw2GnyAexsx1QTlkikP5o0SvkrZHySaL28GL5LZ8QMXolOvqErkgnREZQmsTsL/5CjTg==
+react-file-utils@1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.8.tgz#0b9104a45c9130dab2f61e93ce3f9d2e6898e9bc"
+  integrity sha512-dYr/vwFKlSUbV6h2EEBO9iitaRrLNhscNNLckbTPX77GMVC1zU6SPsyEsJu8zWY8icxdRBAuvnUy6+q3POacbw==
   dependencies:
     react-dropzone "11.3.4"
 
@@ -1710,11 +1715,6 @@ source-map@^0.5.0:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=
-
-stream-chat-css@^1.0.17:
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.17.tgz#aad79b5c8e6f62334305d73e8cffe8ad2ac46f0e"
-  integrity sha512-CgfqyWAqFa2QMBn3Srk4sBnMdjMhd/ufErplnGeYZFlzL/C1czRmr2MN/ZgxWwW5uLO7ArGyETRqslYZxFMN1Q==
 
 "stream-chat-react@link:../..":
   version "0.0.0"
