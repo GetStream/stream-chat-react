@@ -1261,6 +1261,11 @@
     escape-string-regexp "^5.0.0"
     lodash.deburr "^4.1.0"
 
+"@stream-io/stream-chat-css@^1.0.25":
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.26.tgz#2b438155792dfdf0cd87524634e8baf3e6eae89e"
+  integrity sha512-8V2KKIfkVOZis5R0GqlWJ+51SFo75PCg4z7fiq6yZAplEssH+e1oT8nQoz5RnrVjlVYDDsD9rBMQH1Y1D9TNmQ==
+
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@svgr/babel-plugin-add-jsx-attribute/-/babel-plugin-add-jsx-attribute-4.2.0.tgz#dadcb6218503532d6884b210e7f3c502caaa44b1"
@@ -10752,11 +10757,6 @@ stream-browserify@^2.0.1:
   dependencies:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
-
-stream-chat-css@^1.0.21:
-  version "1.0.23"
-  resolved "https://registry.yarnpkg.com/stream-chat-css/-/stream-chat-css-1.0.23.tgz#5016c6d34e2b210bc48893671740abd9be5bf8dd"
-  integrity sha512-ab7NFnFKbhAm8dbCzRPiSyfhGHXlbwro5Q/BxXhjLCdalEUN3dRvHOmW7mqWY7TdloJAs+3QTM9ORNxDTV7usg==
 
 "stream-chat-react@link:../..":
   version "0.0.0"

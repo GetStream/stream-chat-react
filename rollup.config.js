@@ -86,8 +86,8 @@ const basePlugins = [
   copy({
     targets: [
       { dest: 'dist/assets', src: 'src/assets/*' },
-      { dest: 'dist/css', src: './node_modules/stream-chat-css/dist/css/index.css' },
-      { dest: 'dist/scss', src: './node_modules/stream-chat-css/dist/scss/*' },
+      { dest: 'dist/css', src: './node_modules/@stream-io/stream-chat-css/dist/css/index.css' },
+      { dest: 'dist/scss', src: './node_modules/@stream-io/stream-chat-css/dist/scss/*' },
     ],
     verbose: process.env.VERBOSE,
     watch: process.env.ROLLUP_WATCH,
