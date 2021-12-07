@@ -55,7 +55,7 @@ const UnMemoizedAudio = <At extends DefaultAttachmentType = DefaultAttachmentTyp
         <div className='str-chat__audio__image'>
           <div className='str-chat__audio__image--overlay'>
             {!isPlaying ? (
-              <div
+              <button
                 className='str-chat__audio__image--button'
                 data-testid='play-audio'
                 onClick={() => setIsPlaying(true)}
@@ -66,9 +66,9 @@ const UnMemoizedAudio = <At extends DefaultAttachmentType = DefaultAttachmentTyp
                     fillRule='nonzero'
                   />
                 </svg>
-              </div>
+              </button>
             ) : (
-              <div
+              <button
                 className='str-chat__audio__image--button'
                 data-testid='pause-audio'
                 onClick={() => setIsPlaying(false)}
@@ -79,7 +79,7 @@ const UnMemoizedAudio = <At extends DefaultAttachmentType = DefaultAttachmentTyp
                     fillRule='nonzero'
                   />
                 </svg>
-              </div>
+              </button>
             )}
           </div>
           {image_url && <img alt={`${description}`} src={image_url} />}

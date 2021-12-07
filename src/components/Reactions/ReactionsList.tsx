@@ -112,9 +112,12 @@ const UnMemoizedReactionsList = <
 
   return (
     <div
+      aria-label='Reaction list'
       className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
       data-testid='reaction-list'
       onClick={onClick || onReactionListClick}
+      onKeyPress={onClick || onReactionListClick}
+      role='listbox'
     >
       <ul>
         {messageReactionTypes.map((reactionType) => {

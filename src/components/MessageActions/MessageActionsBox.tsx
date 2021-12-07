@@ -56,6 +56,7 @@ const CustomMessageActionsList = <
 
         return (
           <button
+            aria-selected='false'
             className='str-chat__message-actions-list-item'
             key={customAction}
             onClick={(event) => customHandler(message, event)}
