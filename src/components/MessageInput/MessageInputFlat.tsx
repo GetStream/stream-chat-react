@@ -124,9 +124,9 @@ export const MessageInputFlat = <
                   handleFiles={uploadNewFiles}
                   multiple={multipleUploads}
                 >
-                  <button className='str-chat__input-flat-fileupload'>
+                  <span className='str-chat__input-flat-fileupload'>
                     <FileUploadIcon />
-                  </button>
+                  </span>
                 </FileUploadButton>
               </div>
             )}
