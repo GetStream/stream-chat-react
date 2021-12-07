@@ -43,7 +43,7 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['flag']);
     const handleFlag = jest.fn();
     const { container, getByText } = renderComponent({ handleFlag });
-    fireEvent.click(getByText('Flagg'));
+    fireEvent.click(getByText('Flag'));
     expect(handleFlag).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();

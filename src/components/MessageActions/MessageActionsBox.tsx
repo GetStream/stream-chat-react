@@ -176,45 +176,41 @@ const UnMemoizedMessageActionsBox = <
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
           !message.parent_id &&
           !message.quoted_message && (
-            <button onClick={handleQuote}>
-              <li className='str-chat__message-actions-list-item'>{t('Reply')}</li>
-            </button>
+            <li className='str-chat__message-actions-list-item'>
+              <button onClick={handleQuote}>{t('Reply')}</button>
+            </li>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
-          <button onClick={handlePin}>
-            <li className='str-chat__message-actions-list-item'>
-              {!message.pinned ? t('Pin') : t('Unpin')}
-            </li>
-          </button>
+          <li className='str-chat__message-actions-list-item'>
+            <button onClick={handlePin}>{!message.pinned ? t('Pin') : t('Unpin')}</button>
+          </li>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
-          <button onClick={handleFlag}>
-            <li className='str-chat__message-actions-list-item'>{t('Flag')}</li>
-          </button>
+          <li className='str-chat__message-actions-list-item'>
+            <button onClick={handleFlag}>{t('Flag')}</button>
+          </li>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
-          <button onClick={handleMute}>
-            <li className='str-chat__message-actions-list-item'>
-              {isUserMuted() ? t('Unmute') : t('Mute')}
-            </li>
-          </button>
+          <li className='str-chat__message-actions-list-item'>
+            <button onClick={handleMute}>{isUserMuted() ? t('Unmute') : t('Mute')}</button>
+          </li>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-          <button onClick={handleEdit}>
-            <li className='str-chat__message-actions-list-item'>{t('Edit Message')}</li>
-          </button>
+          <li className='str-chat__message-actions-list-item'>
+            <button onClick={handleEdit}>{t('Edit Message')}</button>
+          </li>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
-          <button onClick={handleDelete}>
-            <li className='str-chat__message-actions-list-item'>{t('Delete')}</li>
-          </button>
+          <li className='str-chat__message-actions-list-item'>
+            <button onClick={handleDelete}>{t('Delete')}</button>
+          </li>
         )}
       </ul>
     </div>
   );
 };
-
 /**
+
  * A popup box that displays the available actions on a message, such edit, delete, pin, etc.
  */
 export const MessageActionsBox = React.memo(
