@@ -1,6 +1,8 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { MessageActionsBox } from '../MessageActionsBox';
 
@@ -37,12 +39,19 @@ describe('MessageActionsBox', () => {
     expect(queryByText('Unpin')).not.toBeInTheDocument();
   });
 
-  it('should call the handleFlag prop if the flag button is clicked', () => {
+  it('should call the handleFlag prop if the flag button is clicked', async () => {
     getMessageActionsMock.mockImplementationOnce(() => ['flag']);
     const handleFlag = jest.fn();
-    const { getByText } = renderComponent({ handleFlag });
-    fireEvent.click(getByText('Flag'));
+    const { container, getByText } = renderComponent({ handleFlag });
+    fireEvent.click(getByText('Flagg'));
     expect(handleFlag).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+    screen.debug();
+    console.log(
+      '*********',
+      results.passes.map((r) => r.id),
+    );
   });
 
   it('should call the handleMute prop if the mute button is clicked', () => {
