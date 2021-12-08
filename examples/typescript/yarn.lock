@@ -1426,18 +1426,18 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
-"@sindresorhus/transliterate@^1.4.0":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@sindresorhus/transliterate/-/transliterate-1.4.0.tgz#4648facf68e665147281dce4207a89374a3725b7"
-  integrity sha512-4X91xgzgEnD96QAVmn3YXl14FRhZI8eyWVP7MwYr33kMdkLgoHeCOi7+Ad2Uar+0kpbfiDHW1qUXioJjcXnwPg==
-  dependencies:
-    escape-string-regexp "^5.0.0"
-    lodash.deburr "^4.1.0"
-
 "@stream-io/stream-chat-css@^1.0.25":
   version "1.0.26"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.26.tgz#2b438155792dfdf0cd87524634e8baf3e6eae89e"
   integrity sha512-8V2KKIfkVOZis5R0GqlWJ+51SFo75PCg4z7fiq6yZAplEssH+e1oT8nQoz5RnrVjlVYDDsD9rBMQH1Y1D9TNmQ==
+
+"@stream-io/transliterate@^1.4.0":
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/@stream-io/transliterate/-/transliterate-1.5.2.tgz#525a23fc22d8982862abd9d7cc45aed8471d49c6"
+  integrity sha512-lefoBT7koGsLTUtRUgymZm92gD6a2mNv6w1WHPBPmvKODibVOC2+izO+atKLEOdytth85R7o2N+dvgE37jXjCQ==
+  dependencies:
+    escape-string-regexp "^5.0.0"
+    lodash.deburr "^4.1.0"
 
 "@svgr/babel-plugin-add-jsx-attribute@^4.2.0":
   version "4.2.0"

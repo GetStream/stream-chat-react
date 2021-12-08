@@ -2,7 +2,6 @@ import React from 'react';
 
 import { SafeAnchor } from '../SafeAnchor';
 
-import giphyLogo from '../../assets/Poweredby_100px-White_VertText.png';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type CardProps = {
@@ -78,14 +77,6 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
             </SafeAnchor>
           )}
         </div>
-        {type === 'giphy' && (
-          <img
-            alt='giphy logo'
-            className='str-chat__message-attachment-card__giphy-logo'
-            data-testid='card-giphy'
-            src={giphyLogo}
-          />
-        )}
       </div>
     </div>
   );

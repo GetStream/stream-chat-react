@@ -1702,7 +1702,11 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-<<<<<<< HEAD
+"@stream-io/stream-chat-css@^1.0.25":
+  version "1.0.25"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.25.tgz#56f2b3a54ae91cd79a49ed168ab09ff9fc457139"
+  integrity sha512-nXQS9EGXzJGKnICBHJuWUAJ/aMjCAiOGGtaUsjnpCZabEJm19gN3gQP0zz2fIhSIvuhBy/CijzWFeBuEGMiCnw==
+
 "@stream-io/transliterate@^1.4.0":
   version "1.5.2"
   resolved "https://registry.yarnpkg.com/@stream-io/transliterate/-/transliterate-1.5.2.tgz#525a23fc22d8982862abd9d7cc45aed8471d49c6"
@@ -1710,12 +1714,6 @@
   dependencies:
     escape-string-regexp "^5.0.0"
     lodash.deburr "^4.1.0"
-=======
-"@stream-io/stream-chat-css@^1.0.25":
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.0.25.tgz#56f2b3a54ae91cd79a49ed168ab09ff9fc457139"
-  integrity sha512-nXQS9EGXzJGKnICBHJuWUAJ/aMjCAiOGGtaUsjnpCZabEJm19gN3gQP0zz2fIhSIvuhBy/CijzWFeBuEGMiCnw==
->>>>>>> develop
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
