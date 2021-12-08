@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { MessageInput } from '../MessageInput';
 import { MessageInputFlat } from '../MessageInputFlat';
@@ -117,12 +119,19 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       jest.fn().mockImplementation(() => Promise.reject(cause));
 
     it('Should shift focus to the textarea if the `focus` prop is true', async () => {
-      const { getByPlaceholderText } = renderComponent({
+      const { container, getByPlaceholderText } = renderComponent({
         focus: true,
       });
       await waitFor(() => {
         expect(getByPlaceholderText(inputPlaceholder)).toHaveFocus();
       });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+      screen.debug();
+      console.log(
+        '*********',
+        results.passes.map((r) => r.id),
+      );
     });
 
     it('Should render default emoji svg', async () => {
