@@ -37,6 +37,7 @@ export const useAttachments = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
   const { noFiles } = props;
   const { fileUploads, imageUploads } = state;
@@ -84,6 +85,8 @@ export const useAttachments = <
             dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
           }
         });
+
+      textareaRef?.current?.focus();
     },
     [maxFilesLeft, noFiles],
   );

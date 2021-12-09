@@ -28,6 +28,7 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "5.0.0",
+    "@stream-io/stream-chat-css": "^1.1.2",
     "custom-event": "^1.0.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
@@ -49,8 +50,7 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "2.2.6",
-    "stream-chat-css": "^1.0.21",
+    "react-virtuoso": "^2.3.1",
     "textarea-caret": "^3.1.0",
     "uuid": "^8.3.1"
   },
@@ -61,7 +61,7 @@
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "^3.8.0"
+    "stream-chat": "^5.0.0"
   },
   "files": [
     "dist",
@@ -151,8 +151,9 @@
     "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-url": "^3.0.1",
     "rollup-plugin-visualizer": "^4.2.0",
+    "semantic-release": "^18.0.0",
     "semantic-release-cli": "^5.4.4",
-    "stream-chat": "4.2.0",
+    "stream-chat": "^5.0.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
@@ -160,8 +161,7 @@
     "url-loader": "^4.1.1",
     "webpack": "4.44.2",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "~3.11.0",
-    "semantic-release": "^18.0.0"
+    "webpack-dev-server": "~3.11.0"
   },
   "husky": {
     "hooks": {
