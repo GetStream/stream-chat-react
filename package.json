@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "5.0.0",
-    "@stream-io/stream-chat-css": "^1.1.1",
+    "@stream-io/stream-chat-css": "^1.1.2",
     "custom-event": "^1.0.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
@@ -153,7 +153,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^18.0.0",
     "semantic-release-cli": "^5.4.4",
-    "stream-chat": "4.2.0",
+    "stream-chat": "^5.0.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
