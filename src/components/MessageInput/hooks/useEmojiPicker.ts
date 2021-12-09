@@ -12,6 +12,8 @@ export const useEmojiPicker = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
   insertText: (textToInsert: string) => void,
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
+  closeEmojiPickerOnClick?: boolean,
 ) => {
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
@@ -68,9 +70,20 @@ export const useEmojiPicker = <
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
 
-  const onSelectEmoji = useCallback((emoji: EmojiData) => insertText((emoji as BaseEmoji).native), [
-    insertText,
-  ]);
+  const onSelectEmoji = useCallback(
+    (emoji: EmojiData) => {
+      insertText((emoji as BaseEmoji).native);
+      if (closeEmojiPickerOnClick) {
+        dispatch({
+          type: 'setEmojiPickerIsOpen',
+          value: false,
+        });
+      }
+
+      textareaRef?.current?.focus();
+    },
+    [insertText],
+  );
 
   return {
     closeEmojiPicker,

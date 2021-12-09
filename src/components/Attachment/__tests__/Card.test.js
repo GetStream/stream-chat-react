@@ -184,13 +184,6 @@ describe('Card', () => {
     `);
   });
 
-  it('should render giphy logo when type is giphy', () => {
-    const { getByTestId } = render(
-      <Card og_scrape_url='https://google.com' title='test' type='giphy' />,
-    );
-    expect(getByTestId('card-giphy')).toBeInTheDocument();
-  });
-
   it('should render trimmed url', () => {
     const { getByText } = render(
       <Card

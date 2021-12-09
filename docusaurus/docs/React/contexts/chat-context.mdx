@@ -17,14 +17,6 @@ const { client, setActiveChannel } = useChatContext();
 
 ## Values
 
-### appSettings
-
-The available client-side app settings, includes image and file upload config.
-
-| Type   |
-| ------ |
-| object |
-
 ### client
 
 The `StreamChat` client instance. Any methods from the `stream-chat-js` API interface can be run off this object.
@@ -57,6 +49,14 @@ for implementation assistance.
 | Type   |
 | ------ |
 | object |
+
+### getAppSettings
+
+The callback function used to get available client-side app settings, includes image and file upload config.
+
+| Type     |
+| -------- |
+| function |
 
 ### mutes
 
@@ -93,7 +93,7 @@ You can override the default behavior by pulling it from context and then utiliz
 
 ### theme
 
-Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../customization/css_and_theming.mdx#css-variables) of your app.
+Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../customization/css-and-theming.mdx#css-variables) of your app.
 
 | Type  |
 | ----- |

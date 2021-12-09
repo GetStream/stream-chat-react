@@ -8,11 +8,11 @@ For information regarding some common troubleshooting and support issues, please
 
 ### Context Providers
 
-The Stream Chat React SDK uses a variety of [Context Providers](../contexts/chat_context) that share values and data to all their children. This is instead of prop drilling through many levels of components.
+The Stream Chat React SDK uses a variety of [Context Providers](../contexts/chat-context.mdx) that share values and data to all their children. This is instead of prop drilling through many levels of components.
 If you're creating a custom component, utilizing our contexts via our custom hooks makes this process very straightforward.
 
 A common issue is when one of the exposed hooks from a context provider is being utilized, but not within the related Context. Each value you pull will be undefined.
-A good resource for knowing which of our components are Context Providers is within [Core Components](../core-components/chat).
+A good resource for knowing which of our components are Context Providers is within [Core Components](../core-components/chat.mdx).
 
 ### User Roles and Permission Policies
 
