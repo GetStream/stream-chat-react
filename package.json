@@ -182,7 +182,6 @@
     "prettier": "prettier --list-different '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
     "prettier-fix": "prettier --write '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
     "start": "tsc --watch",
-    "postversion": "git push && git push --tags && npm publish",
     "prepare": "yarn run build",
     "preversion": "yarn install",
     "test": "jest",
