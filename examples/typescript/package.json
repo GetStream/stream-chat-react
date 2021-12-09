@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@stream-io/stream-chat-css": "^1.1.2",
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
     "react-scripts": "3.4.1",
-    "stream-chat": "4.2.0",
+    "stream-chat": "^5.0.0",
     "stream-chat-react": "link:../../",
     "typescript": "4.3.5"
   },
