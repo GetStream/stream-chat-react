@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "5.0.0",
-    "@stream-io/stream-chat-css": "^1.0.25",
+    "@stream-io/stream-chat-css": "^1.1.1",
     "custom-event": "^1.0.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
