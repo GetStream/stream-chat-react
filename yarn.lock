@@ -1710,10 +1710,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.1.2.tgz#109050f8e762e0a6026f181a4ea7584741ccb02f"
-  integrity sha512-8/hP6DME+a4maO7yY9InTTxayMH8ZvYf1eAlf4iNBg3aWC8g0vzDL504SlzyMZBfNh0/MRwE1Uij56FrKZK/bg==
+"@stream-io/stream-chat-css@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-1.1.3.tgz#dfa8c4877f21e83b6c82f0838550a2cf037bc566"
+  integrity sha512-Sg/KZcDrzxx4rhxfPShyO7njb2j5EuGf4xiG/jFAxNmvugZrfoaUxjLaqO/harml2zNmbSeioR9jg8NAt6TiyA==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
