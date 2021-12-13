@@ -45,6 +45,8 @@ export const EditMessageForm = <
 
   const {
     clearEditingState,
+    closeEmojiPicker,
+    emojiPickerIsOpen,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -81,11 +83,14 @@ export const EditMessageForm = <
           <ChatAutoComplete />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
-              <button className='str-chat__input-emojiselect' onClick={openEmojiPicker}>
+              <button
+                className='str-chat__input-emojiselect'
+                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
+              >
                 <EmojiIcon />
               </button>
               {isUploadEnabled && (
-                <button className='str-chat__fileupload-wrapper' data-testid='fileinput'>
+                <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>
                     {maxFilesLeft
                       ? t('Attach files')
@@ -101,7 +106,7 @@ export const EditMessageForm = <
                       <FileUploadIcon />
                     </span>
                   </FileUploadButton>
-                </button>
+                </div>
               )}
             </div>
             <div>

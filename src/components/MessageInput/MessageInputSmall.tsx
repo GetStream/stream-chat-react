@@ -49,7 +49,6 @@ export const MessageInputSmall = <
     cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
-    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -104,9 +103,9 @@ export const MessageInputSmall = <
                       handleFiles={uploadNewFiles}
                       multiple={multipleUploads}
                     >
-                      <button className='str-chat__small-message-input-fileupload'>
+                      <span className='str-chat__small-message-input-fileupload'>
                         <FileUploadIcon />
-                      </button>
+                      </span>
                     </FileUploadButton>
                   </div>
                 )}
@@ -117,7 +116,6 @@ export const MessageInputSmall = <
                   <button
                     className='str-chat__small-message-input-emojiselect'
                     onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                    onKeyDown={handleEmojiKeyDown}
                   >
                     <EmojiIcon />
                   </button>

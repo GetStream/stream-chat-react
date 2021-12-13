@@ -54,7 +54,6 @@ export const MessageInputFlat = <
     cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
-    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -95,7 +94,6 @@ export const MessageInputFlat = <
               <button
                 className='str-chat__input-flat-emojiselect'
                 onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                onKeyDown={handleEmojiKeyDown}
               >
                 {cooldownRemaining ? (
                   <div className='str-chat__input-flat-cooldown'>
