@@ -23,7 +23,7 @@ const UnMemoizedSafeAnchor: React.FC<SafeAnchorProps> = (props) => {
   const sanitized = sanitizeUrl(href);
   return (
     <a
-      aria-label='attachment'
+      aria-label='Attachment'
       className={className}
       download={download}
       href={sanitized}
