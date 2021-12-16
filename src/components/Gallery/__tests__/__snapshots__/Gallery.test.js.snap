@@ -10,7 +10,7 @@ exports[`Gallery should render component with 3 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -19,7 +19,7 @@ exports[`Gallery should render component with 3 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -28,7 +28,7 @@ exports[`Gallery should render component with 3 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
 </div>
@@ -44,7 +44,7 @@ exports[`Gallery should render component with 4 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -53,7 +53,7 @@ exports[`Gallery should render component with 4 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -62,7 +62,7 @@ exports[`Gallery should render component with 4 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -91,7 +91,7 @@ exports[`Gallery should render component with 6 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -100,7 +100,7 @@ exports[`Gallery should render component with 6 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -109,7 +109,7 @@ exports[`Gallery should render component with 6 images 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -138,7 +138,7 @@ exports[`Gallery should render component with default props 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
   <button
@@ -147,7 +147,7 @@ exports[`Gallery should render component with default props 1`] = `
     onClick={[Function]}
   >
     <img
-      alt="User uploaded content1"
+      alt="User uploaded content"
     />
   </button>
 </div>

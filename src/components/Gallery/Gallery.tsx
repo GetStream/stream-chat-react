@@ -51,7 +51,7 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
       key={`gallery-image-${i}`}
       onClick={() => toggleModal(i)}
     >
-      <img alt='User uploaded content1' src={image.image_url || image.thumb_url} />
+      <img alt='User uploaded content' src={image.image_url || image.thumb_url} />
     </button>
   ));
 
