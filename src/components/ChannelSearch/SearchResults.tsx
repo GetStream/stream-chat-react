@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChannelOrUserResponse, isChannel } from './utils';
 
@@ -90,27 +90,37 @@ const DefaultSearchResultItem = <
 
   const focused = focusedUser === index;
 
+  const resultRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (resultRef.current && focused) resultRef.current.focus();
+  }, [resultRef]);
+
   if (isChannel(result)) {
     const channel = result;
 
     return (
-      <div
+      <button
+        aria-label={`Select Channel: ${channel.data?.name || ''}`}
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(channel)}
+        ref={resultRef}
       >
         <div className='result-hashtag'>#</div>
         <p className='channel-search__result-text'>{channel.data?.name}</p>
-      </div>
+      </button>
     );
   } else {
     return (
-      <div
+      <button
+        aria-label={`Select User Channel: ${result.name || result.id}`}
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(result)}
+        ref={resultRef}
       >
         <Avatar image={result.image} user={result} />
         {result.name || result.id}
-      </div>
+      </button>
     );
   }
 };
@@ -193,6 +203,21 @@ export const SearchResults = <
           return setFocusedUser(undefined);
         }
       }
+      if (event.key === 'Tab' && !event.shiftKey) {
+        event.preventDefault();
+        if (focusedUser !== undefined) {
+          // selectResult(results[focusedUser]);
+          return;
+        }
+      }
+
+      // if (event.key === 'Escape') {
+      //   event.preventDefault();
+      //   if (focusedUser !== undefined) {
+      //     // selectResult(results[focusedUser]);
+      //     return;
+      //   }
+      // }
     },
     [focusedUser],
   );
@@ -220,7 +245,9 @@ export const SearchResults = <
         {SearchEmpty ? (
           <SearchEmpty />
         ) : (
-          <div className='str-chat__channel-search-container-empty'>{t('No results found')}</div>
+          <div aria-live='polite' className='str-chat__channel-search-container-empty'>
+            {t('No results found')}
+          </div>
         )}
       </ResultsContainer>
     );

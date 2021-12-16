@@ -70,7 +70,14 @@ export const ChannelListMessenger = <
 
   return (
     <div className='str-chat__channel-list-messenger'>
-      <div className='str-chat__channel-list-messenger__main'>{children}</div>
+      <div
+        aria-label='Channel list'
+        className='str-chat__channel-list-messenger__main'
+        role='listbox'
+        tabIndex={0}
+      >
+        {children}
+      </div>
     </div>
   );
 };

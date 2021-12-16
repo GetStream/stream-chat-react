@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
@@ -203,6 +203,7 @@ const UnMemoizedChannelList = <
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
+  const [focusedChannel, setFocusedChannel] = useState<number>();
 
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
@@ -282,6 +283,30 @@ const UnMemoizedChannelList = <
   useConnectionRecoveredListener(forceUpdate);
   useUserPresenceChangedListener(setChannels);
 
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'ArrowUp') {
+        setFocusedChannel((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === 0 ? loadedChannels.length - 1 : prevFocused - 1;
+        });
+      }
+
+      if (event.key === 'ArrowDown') {
+        setFocusedChannel((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === loadedChannels.length - 1 ? 0 : prevFocused + 1;
+        });
+      }
+    },
+    [focusedChannel],
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   useEffect(() => {
     const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
       if (event.cid === channel?.cid) {
@@ -304,7 +329,9 @@ const UnMemoizedChannelList = <
       Avatar,
       channel: item,
       channelUpdateCount, // forces the update of preview component on channel update
+      focusedChannel,
       key: item.id,
+      loadedChannels,
       Preview,
       setActiveChannel,
       watchers,

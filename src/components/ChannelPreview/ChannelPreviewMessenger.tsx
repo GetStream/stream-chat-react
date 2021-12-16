@@ -1,8 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
+
+// import { useMessageInputText } from '../MessageInput/hooks/useMessageInputText';
 
 import type {
   DefaultAttachmentType,
@@ -31,11 +33,15 @@ const UnMemoizedChannelPreviewMessenger = <
     channel,
     displayImage,
     displayTitle,
+    focusedChannel,
     latestMessage,
+    loadedChannels,
     setActiveChannel,
     unread,
     watchers,
   } = props;
+
+  // const { textareaRef } = useMessageInputText();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -54,12 +60,22 @@ const UnMemoizedChannelPreviewMessenger = <
     }
   };
 
+  const focused = focusedChannel === loadedChannels.indexOf(channel);
+
+  useEffect(() => {
+    if (focused && channelPreviewButton.current) channelPreviewButton.current.focus();
+  }, [focused]);
+
   return (
     <button
+      aria-label={`Select Channel: ${displayTitle || ''}`}
+      aria-selected={active}
       className={`str-chat__channel-preview-messenger ${unreadClass} ${activeClass}`}
       data-testid='channel-preview-button'
       onClick={onSelectChannel}
       ref={channelPreviewButton}
+      role='option'
+      tabIndex={-1}
     >
       <div className='str-chat__channel-preview-messenger--left'>
         <Avatar image={displayImage} name={avatarName} size={40} />
