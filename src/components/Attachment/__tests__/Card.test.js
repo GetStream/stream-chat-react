@@ -74,6 +74,7 @@ describe('Card', () => {
               test
             </div>
             <a
+              aria-label="attachment"
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
               rel="noopener noreferrer"
@@ -115,6 +116,7 @@ describe('Card', () => {
               test
             </div>
             <a
+              aria-label="attachment"
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
               rel="noopener noreferrer"
@@ -168,6 +170,7 @@ describe('Card', () => {
               test text
             </div>
             <a
+              aria-label="attachment"
               className="str-chat__message-attachment-card--url"
               href="https://google.com"
               rel="noopener noreferrer"

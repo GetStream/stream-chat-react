@@ -33,8 +33,6 @@
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.6",
     "i18next": "^19.8.4",
     "isomorphic-ws": "^4.0.1",
     "linkifyjs": "^2.1.9",

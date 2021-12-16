@@ -4,7 +4,6 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
-// import { render as rendered } from 'react-dom';
 
 import {
   generateChannel,
@@ -51,21 +50,9 @@ describe('ChannelPreviewMessenger', () => {
     expect(tree).toMatchSnapshot();
   });
 
-  it('should demonstrate this matcher`s usage with react testing library', async () => {
-    const { container } = render(renderComponent());
-    // rendered(renderComponent(), document.body);
-    // const results = await axe(document.body);
-    const results = await axe(container);
-
-    // console.log(html, 'foo');
-    // const results = await axe(container);
-    // console.log(results, 'foo');
-    expect(results).toHaveNoViolations();
-  });
-
   it('should call setActiveChannel on click', async () => {
     const setActiveChannel = jest.fn();
-    const { getByTestId } = render(
+    const { container, getByTestId } = render(
       renderComponent({
         setActiveChannel,
         watchers: {},
@@ -83,5 +70,7 @@ describe('ChannelPreviewMessenger', () => {
       expect(setActiveChannel).toHaveBeenCalledTimes(1);
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

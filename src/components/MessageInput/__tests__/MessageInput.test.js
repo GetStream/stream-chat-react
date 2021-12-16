@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
@@ -127,20 +127,17 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
-      screen.debug();
-      console.log(
-        '*********',
-        results.passes.map((r) => r.id),
-      );
     });
 
     it('Should render default emoji svg', async () => {
-      const { findByTitle } = renderComponent();
+      const { container, findByTitle } = renderComponent();
       const emojiIcon = await findByTitle('Open emoji picker');
 
       await waitFor(() => {
         expect(emojiIcon).toBeInTheDocument();
       });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('Should render custom emoji svg provided as prop', async () => {
@@ -150,22 +147,26 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({}, { EmojiIcon });
+      const { container, findByTitle } = renderComponent({}, { EmojiIcon });
 
       const emojiIcon = await findByTitle('NotEmoji');
 
       await waitFor(() => {
         expect(emojiIcon).toBeInTheDocument();
       });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('Should render default file upload icon', async () => {
-      const { findByTitle } = renderComponent();
+      const { container, findByTitle } = renderComponent();
       const fileUploadIcon = await findByTitle('Attach files');
 
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
       });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('Should render custom file upload svg provided as prop', async () => {
@@ -175,13 +176,15 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { findByTitle } = renderComponent({}, { FileUploadIcon });
+      const { container, findByTitle } = renderComponent({}, { FileUploadIcon });
 
       const fileUploadIcon = await findByTitle('NotFileUploadIcon');
 
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
       });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
@@ -206,13 +209,15 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       // close picker
       fireEvent.click(container);
       expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     describe('Attachments', () => {
       it('Pasting images and files should result in uploading the files and showing previewers', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = renderComponent({
           doFileUploadRequest,
           doImageUploadRequest,
         });
@@ -245,11 +250,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
           expect(doImageUploadRequest).toHaveBeenCalledWith(image, expect.any(Object));
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = renderComponent({
           doImageUploadRequest,
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -260,10 +267,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         await waitFor(() => {
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
-        const { findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = renderComponent({
           doFileUploadRequest: mockUploadApi(),
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -274,10 +283,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
         expect(filenameText).toBeInTheDocument();
         expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should allow uploading files with the file upload button', async () => {
-        const { findByTestId, findByText } = renderComponent({
+        const { container, findByTestId, findByText } = renderComponent({
           doFileUploadRequest: mockUploadApi(),
         });
         const file = getFile();
@@ -293,13 +304,15 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
         expect(filenameText).toBeInTheDocument();
         expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should call error handler if an image failed to upload', async () => {
         const cause = new Error('failed to upload');
         const doImageUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
-        const { findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = renderComponent({
           doImageUploadRequest,
           errorHandler,
         });
@@ -312,6 +325,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should call error handler if a file failed to upload and allow retrying', async () => {
@@ -319,7 +334,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const doFileUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
 
-        const { findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = renderComponent({
           doFileUploadRequest,
           errorHandler,
         });
@@ -340,10 +355,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         await waitFor(() =>
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
-        const { findByTestId } = renderComponent(
+        const { container, findByTestId } = renderComponent(
           {},
           {
             multipleUploads: false,
@@ -351,10 +368,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         );
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).not.toHaveAttribute('multiple');
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should set multiple attribute on the file input if multipleUploads is true', async () => {
-        const { findByTestId } = renderComponent(
+        const { container, findByTestId } = renderComponent(
           {},
           {
             multipleUploads: true,
@@ -362,12 +381,14 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         );
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).toHaveAttribute('multiple');
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       const filename1 = '1.txt';
       const filename2 = '2.txt';
       it('should only allow dropping maxNumberOfFiles files into the dropzone', async () => {
-        const { findByPlaceholderText, queryByText } = renderComponent(
+        const { container, findByPlaceholderText, queryByText } = renderComponent(
           {
             doFileUploadRequest: mockUploadApi(),
           },
@@ -385,10 +406,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should only allow uploading 1 file if multipleUploads is false', async () => {
-        const { findByPlaceholderText, queryByText } = renderComponent(
+        const { container, findByPlaceholderText, queryByText } = renderComponent(
           {
             doFileUploadRequest: mockUploadApi(),
           },
@@ -406,6 +429,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
@@ -422,15 +447,17 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         channel.getConfig = originalConfig;
       });
 
-      it('should not render file upload button', () => {
-        const { queryByTestId } = renderComponent();
+      it('should not render file upload button', async () => {
+        const { container, queryByTestId } = renderComponent();
         expect(queryByTestId('fileinput')).not.toBeInTheDocument();
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Pasting images and files should do nothing', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, queryByText } = renderComponent({
+        const { container, findByPlaceholderText, queryByText } = renderComponent({
           doFileUploadRequest,
           doImageUploadRequest,
         });
@@ -453,11 +480,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect(doFileUploadRequest).not.toHaveBeenCalled();
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should not upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = renderComponent({
           doImageUploadRequest,
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -468,12 +497,14 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         await waitFor(() => {
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
     describe('Submitting', () => {
       it('Should submit the input value when clicking the submit button', async () => {
-        const { findByPlaceholderText, submit } = renderComponent();
+        const { container, findByPlaceholderText, submit } = renderComponent();
 
         const messageText = 'Some text';
 
@@ -491,11 +522,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             text: messageText,
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
         const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           overrideSubmitHandler: overrideMock,
         });
         const messageText = 'Some text';
@@ -513,19 +546,23 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
           channel.cid,
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('Should not do anything if the message is empty and has no files', async () => {
-        const { submit } = renderComponent();
+        const { container, submit } = renderComponent();
 
         await submit();
 
         expect(submitMock).not.toHaveBeenCalled();
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should add image as attachment if a message is submitted with an image', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           doImageUploadRequest,
         });
 
@@ -548,11 +585,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             ]),
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should add file as attachment if a message is submitted with an file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           doFileUploadRequest,
         });
 
@@ -575,11 +614,13 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             ]),
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           doFileUploadRequest,
         });
 
@@ -604,9 +645,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             ]),
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
+
       it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
-        const { findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = renderComponent({
           keycodeSubmitKeys: [[17]],
         });
         const input = await findByPlaceholderText(inputPlaceholder);
@@ -616,9 +660,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         });
 
         expect(submitMock).not.toHaveBeenCalled();
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
+
       it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [[17, 13]],
         });
         const messageText = 'Submission text.';
@@ -646,9 +693,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             text: messageText,
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
+
       it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [[16, 13], [57], [48]],
         });
         const messageText = 'Submission text.';
@@ -672,9 +722,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             text: messageText,
           }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
+
       it('should submit if just a tuple is provided and keycode events do match', async () => {
-        const { findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = renderComponent({
           keycodeSubmitKeys: [[76, 77]],
         });
         const messageText = 'Submission text.';
@@ -700,6 +753,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           channel.cid,
           expect.objectContaining({ text: messageText }),
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
     });
 
@@ -723,7 +778,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         mentioned_users,
         text: `@${username} what's up!`,
       });
-      const { submit } = renderComponent({
+      const { container, submit } = renderComponent({
         clearEditingState: () => {},
         message,
       });
@@ -740,10 +795,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           text: message.text,
         }),
       );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('Should add a mentioned user if @ is typed and a user is selected', async () => {
-      const { findByPlaceholderText, getByTestId, submit } = renderComponent();
+      const { container, findByPlaceholderText, getByTestId, submit } = renderComponent();
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
       fireEvent.change(formElement, {
@@ -764,10 +821,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
       );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
-      const { findByPlaceholderText, submit } = renderComponent({
+      const { container, findByPlaceholderText, submit } = renderComponent({
         message: {
           mentioned_users: [{ id: userId, name: username }],
           text: `@${username}`,
@@ -792,6 +851,8 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           }),
         ),
       );
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
     it('should override the default List component when SuggestionList is provided as a prop', async () => {
@@ -799,7 +860,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         <div data-testid='suggestion-list'>Suggestion List</div>
       );
 
-      const { findByPlaceholderText, getByTestId, queryByText } = renderComponent(
+      const { container, findByPlaceholderText, getByTestId, queryByText } = renderComponent(
         {},
         { AutocompleteSuggestionList },
       );
@@ -816,7 +877,11 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         await waitFor(
           () => expect(getByTestId('suggestion-list')).toBeInTheDocument(), // eslint-disable-line
         );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       }
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
   });
 });

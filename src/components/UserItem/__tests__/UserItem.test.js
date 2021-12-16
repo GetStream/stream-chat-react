@@ -2,6 +2,8 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { UserItem } from '../UserItem';
 
@@ -44,8 +46,8 @@ describe('UserItem', () => {
     `);
   });
 
-  it('should render username if provided', () => {
-    const { getByText } = render(
+  it('should render username if provided', async () => {
+    const { container, getByText } = render(
       <UserItem
         entity={{
           itemNameParts: { match: 'g', parts: ['Frits Sissin', 'g'] },
@@ -55,10 +57,12 @@ describe('UserItem', () => {
     );
     expect(getByText('Frits Sissin')).toBeInTheDocument();
     expect(getByText('g')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should render profile picture if provided', () => {
-    const { getByTestId } = render(
+  it('should render profile picture if provided', async () => {
+    const { container, getByTestId } = render(
       <UserItem
         entity={{
           id: '123',
@@ -69,5 +73,7 @@ describe('UserItem', () => {
       />,
     );
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'frits.jpg');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

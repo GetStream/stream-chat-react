@@ -1,8 +1,5 @@
-// import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { axe, toHaveNoViolations } from 'jest-axe';
-expect.extend(toHaveNoViolations);
 
 import {
   generateChannel,
@@ -35,19 +32,6 @@ describe('ChannelPreview utils', () => {
     chatClient = await getTestClientWithUser(clientUser);
   });
 
-  // afterEach(async () => {
-  //   console.log('foo');
-  //   // if (!container) return;
-  //   const container = render(
-  //     generateChannel({
-  //       messages: [generateMessage({ deleted_at: new Date() })],
-  //     }),
-  //   );
-
-  //   console.log('bar', container);
-  //   expect(await axe(container)).toHaveNoViolations();
-  // });
-
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
     const channelWithDeletedMessage = generateChannel({
@@ -60,18 +44,6 @@ describe('ChannelPreview utils', () => {
           text: undefined,
         }),
       ],
-    });
-
-    it('should have no a11y violations', async () => {
-      // console.log('foo', channelWithDeletedMessage);
-      // const container = render(channelWithDeletedMessage);
-      const t = (text) => text;
-      const channel = await getQueriedChannelInstance(channelWithAttachmentMessage);
-      // expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
-      const render = () => `<div>${getLatestMessagePreview(channel, t)}</div>`;
-      const html = render();
-      // console.log('bar', container);
-      expect(await axe(html)).toHaveNoViolations();
     });
 
     it.each([
