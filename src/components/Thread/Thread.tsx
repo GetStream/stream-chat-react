@@ -127,7 +127,7 @@ const DefaultThreadHeader = <
         <small>{getReplyCount()}</small>
       </div>
       <button
-        aria-label='Close Thread'
+        aria-label='Close thread'
         className='str-chat__square-button'
         data-testid='close-button'
         onClick={(event) => closeThread(event)}
