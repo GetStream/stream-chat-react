@@ -157,7 +157,9 @@ export const SearchResults = <
   props: SearchResultsProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
   const {
+    clearState,
     DropdownContainer = DefaultDropdownContainer,
+    inputRef,
     popupResults,
     results,
     searching,
@@ -203,21 +205,27 @@ export const SearchResults = <
           return setFocusedUser(undefined);
         }
       }
+
       if (event.key === 'Tab' && !event.shiftKey) {
         event.preventDefault();
-        if (focusedUser !== undefined) {
-          // selectResult(results[focusedUser]);
-          return;
-        }
+        return;
       }
 
-      // if (event.key === 'Escape') {
-      //   event.preventDefault();
-      //   if (focusedUser !== undefined) {
-      //     // selectResult(results[focusedUser]);
-      //     return;
-      //   }
-      // }
+      if (event.key === 'Tab' && event.shiftKey) {
+        event.preventDefault();
+        if (focusedUser !== undefined && inputRef.current === document.activeElement) {
+          return inputRef.current.focus();
+        } else return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        if (inputRef.current === document.activeElement) {
+          return clearState();
+        } else if (focusedUser !== undefined) {
+          return inputRef.current.focus();
+        } else return;
+      }
     },
     [focusedUser],
   );

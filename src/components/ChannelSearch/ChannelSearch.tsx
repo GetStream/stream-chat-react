@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 
 import {
@@ -146,6 +146,22 @@ const UnMemoizedChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [resultsOpen]);
 
+  useEffect(() => {
+    const keyPressListener = (event: KeyboardEvent) => {
+      if (resultsOpen) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          console.log('escape!');
+
+          return clearState();
+        }
+      }
+    };
+
+    document.addEventListener('keypress', keyPressListener);
+    return () => document.removeEventListener('keypress', keyPressListener);
+  }, [resultsOpen]);
+
   const selectResult = async (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => {
     if (!client.userID) return;
 
@@ -234,7 +250,9 @@ const UnMemoizedChannelSearch = <
       />
       {query && (
         <SearchResults
+          clearState={clearState}
           DropdownContainer={DropdownContainer}
+          inputRef={inputRef}
           popupResults={popupResults}
           results={results}
           SearchEmpty={SearchEmpty}
