@@ -134,10 +134,12 @@ export type SearchResultsProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  clearState: () => void | ((event?: React.BaseSyntheticEvent) => void);
   results: Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>> | [];
   searching: boolean;
   selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
   DropdownContainer?: React.ComponentType<DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  inputRef?: React.RefObject<HTMLInputElement>;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
@@ -211,19 +213,20 @@ export const SearchResults = <
         return;
       }
 
-      if (event.key === 'Tab' && event.shiftKey) {
+      if (event.key === 'Tab' && event.shiftKey && inputRef) {
         event.preventDefault();
         if (focusedUser !== undefined && inputRef.current === document.activeElement) {
-          return inputRef.current.focus();
+          return inputRef?.current.focus();
         } else return;
       }
 
       if (event.key === 'Escape') {
         event.preventDefault();
-        if (inputRef.current === document.activeElement) {
+        if (inputRef?.current === document.activeElement) {
           return clearState();
+          // } else if (focusedUser !== undefined && inputRef !== null) {
         } else if (focusedUser !== undefined) {
-          return inputRef.current.focus();
+          return inputRef?.current.focus();
         } else return;
       }
     },
