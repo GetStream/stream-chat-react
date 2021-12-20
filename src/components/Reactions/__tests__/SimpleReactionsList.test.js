@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { SimpleReactionsList } from '../SimpleReactionsList';
 
@@ -58,15 +60,17 @@ const expectEmojiToHaveBeenRendered = (id) => {
 describe('SimpleReactionsList', () => {
   afterEach(jest.clearAllMocks);
 
-  it('should not render anything if there are no reactions', () => {
+  it('should not render anything if there are no reactions', async () => {
     const { container } = renderComponent({
       reaction_counts: {},
     });
     expect(container).toBeEmptyDOMElement();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should render the total reaction count', () => {
-    const { getByText } = renderComponent({
+  it('should render the total reaction count', async () => {
+    const { container, getByText } = renderComponent({
       reaction_counts: {
         angry: 2,
         love: 5,
@@ -75,27 +79,31 @@ describe('SimpleReactionsList', () => {
     const count = getByText('7');
     expect(count).toBeInTheDocument();
     expect(count).toHaveClass('str-chat__simple-reactions-list-item--last-number');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should render an emoji for each type of reaction', () => {
+  it('should render an emoji for each type of reaction', async () => {
     const reaction_counts = {
       angry: 2,
       love: 5,
     };
-    renderComponent({ reaction_counts });
+    const { container } = renderComponent({ reaction_counts });
 
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should handle custom reaction options', () => {
+  it('should handle custom reaction options', async () => {
     const reaction_counts = {
       banana: 1,
       cowboy: 2,
     };
 
-    renderComponent({
+    const { container } = renderComponent({
       reaction_counts,
       reactionOptions: [
         { emoji: '🍌', id: 'banana' },
@@ -106,26 +114,30 @@ describe('SimpleReactionsList', () => {
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should call handleReaction callback if a reaction emoji is clicked', () => {
+  it('should call handleReaction callback if a reaction emoji is clicked', async () => {
     const reaction_counts = {
       love: 1,
     };
 
-    const { getByTestId } = renderComponent({ reaction_counts });
+    const { container, getByTestId } = renderComponent({ reaction_counts });
 
     fireEvent.click(getByTestId(loveEmojiTestId));
 
     expect(handleReactionMock).toHaveBeenCalledWith('love', expect.any(Object));
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should render a tooltip with all users that reacted a certain way if the emoji is hovered', () => {
+  it('should render a tooltip with all users that reacted a certain way if the emoji is hovered', async () => {
     const reaction_counts = {
       love: 3,
     };
 
-    const { getByTestId, queryByText, reactions } = renderComponent({
+    const { container, getByTestId, queryByText, reactions } = renderComponent({
       reaction_counts,
     });
 
@@ -140,5 +152,7 @@ describe('SimpleReactionsList', () => {
     reactions.forEach(({ user }) => {
       expect(queryByText(user.id, { exact: false })).not.toBeInTheDocument();
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });
