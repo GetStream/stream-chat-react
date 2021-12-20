@@ -55,7 +55,7 @@
     "uuid": "^8.3.1"
   },
   "optionalDependencies": {
-    "@stream-io/transliterate": "^1.4.0",
+    "@stream-io/transliterate": "^1.5.5",
     "mml-react": "^0.4.2"
   },
   "peerDependencies": {
