@@ -21,6 +21,7 @@ exports[`File should render File component 1`] = `
     className="str-chat__message-attachment-file--item-text"
   >
     <a
+      aria-label="Attachment"
       download={true}
       href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
       target="_blank"

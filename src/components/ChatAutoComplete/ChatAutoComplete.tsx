@@ -141,6 +141,7 @@ const UnMemoizedChatAutoComplete = <
   return (
     <AutoCompleteTextarea
       additionalTextareaProps={messageInput.additionalTextareaProps}
+      aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       className='str-chat__textarea__textarea'
       closeCommandsList={messageInput.closeCommandsList}
       closeMentionsList={messageInput.closeMentionsList}

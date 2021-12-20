@@ -3,6 +3,8 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { TypingIndicator } from '../TypingIndicator';
 
@@ -124,6 +126,8 @@ describe('TypingIndicator', () => {
       true,
     );
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render TypingIndicator when you and someone else are typing', async () => {
@@ -138,16 +142,20 @@ describe('TypingIndicator', () => {
     // eslint-disable-next-line jest-dom/prefer-in-document
     expect(getAllByTestId('avatar-img')).toHaveLength(1);
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'jessica.jpg');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render multiple avatars', async () => {
-    const { getAllByTestId } = await renderComponent({
+    const { container, getAllByTestId } = await renderComponent({
       alice: { user: alice },
       jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
     expect(getAllByTestId('avatar-img')).toHaveLength(3);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render null if typing_events is disabled', async () => {

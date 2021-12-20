@@ -55,8 +55,14 @@ const CustomMessageActionsList = <
         const customHandler = customMessageActions[customAction];
 
         return (
-          <button key={customAction} onClick={(event) => customHandler(message, event)}>
-            <li className='str-chat__message-actions-list-item'>{customAction}</li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            key={customAction}
+            onClick={(event) => customHandler(message, event)}
+            role='option'
+          >
+            {customAction}
           </button>
         );
       })}
@@ -169,53 +175,79 @@ const UnMemoizedMessageActionsBox = <
       data-testid='message-actions-box'
       ref={checkIfReverse}
     >
-      <ul className='str-chat__message-actions-list'>
+      <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
           !message.parent_id &&
           !message.quoted_message && (
-            <button onClick={handleQuote}>
-              <li className='str-chat__message-actions-list-item'>{t('Reply')}</li>
+            <button
+              aria-selected='false'
+              className='str-chat__message-actions-list-item'
+              onClick={handleQuote}
+              role='option'
+            >
+              {t('Reply')}
             </button>
           )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
-          <button onClick={handlePin}>
-            <li className='str-chat__message-actions-list-item'>
-              {!message.pinned ? t('Pin') : t('Unpin')}
-            </li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handlePin}
+            role='option'
+          >
+            {!message.pinned ? t('Pin') : t('Unpin')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
-          <button onClick={handleFlag}>
-            <li className='str-chat__message-actions-list-item'>{t('Flag')}</li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleFlag}
+            role='option'
+          >
+            {t('Flag')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
-          <button onClick={handleMute}>
-            <li className='str-chat__message-actions-list-item'>
-              {isUserMuted() ? t('Unmute') : t('Mute')}
-            </li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleMute}
+            role='option'
+          >
+            {isUserMuted() ? t('Unmute') : t('Mute')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-          <button onClick={handleEdit}>
-            <li className='str-chat__message-actions-list-item'>{t('Edit Message')}</li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleEdit}
+            role='option'
+          >
+            {t('Edit Message')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
-          <button onClick={handleDelete}>
-            <li className='str-chat__message-actions-list-item'>{t('Delete')}</li>
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleDelete}
+            role='option'
+          >
+            {t('Delete')}
           </button>
         )}
-      </ul>
+      </div>
     </div>
   );
 };
 
 /**
- * A popup box that displays the available actions on a message, such edit, delete, pin, etc.
+ * A popup box that displays the available actions on a message, such as edit, delete, pin, etc.
  */
 export const MessageActionsBox = React.memo(
   UnMemoizedMessageActionsBox,

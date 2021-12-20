@@ -93,6 +93,7 @@ export const MessageInputFlat = <
                 {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
               <span
+                aria-label='Emoji picker'
                 className='str-chat__input-flat-emojiselect'
                 onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
                 onKeyDown={handleEmojiKeyDown}

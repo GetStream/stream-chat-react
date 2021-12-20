@@ -2,6 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { ReactionsList } from '../ReactionsList';
 
@@ -47,8 +49,8 @@ const expectEmojiToHaveBeenRendered = (id) => {
 describe('ReactionsList', () => {
   afterEach(jest.clearAllMocks);
 
-  it('should render the total reaction count', () => {
-    const { getByText } = renderComponent({
+  it('should render the total reaction count', async () => {
+    const { container, getByText } = renderComponent({
       reaction_counts: {
         angry: 2,
         love: 5,
@@ -57,27 +59,31 @@ describe('ReactionsList', () => {
     const count = getByText('7');
     expect(count).toBeInTheDocument();
     expect(count).toHaveClass('str-chat__reaction-list--counter');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should render an emoji for each type of reaction', () => {
+  it('should render an emoji for each type of reaction', async () => {
     const reaction_counts = {
       angry: 2,
       love: 5,
     };
-    renderComponent({ reaction_counts });
+    const { container } = renderComponent({ reaction_counts });
 
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
-  it('should handle custom reaction options', () => {
+  it('should handle custom reaction options', async () => {
     const reaction_counts = {
       banana: 1,
       cowboy: 2,
     };
 
-    renderComponent({
+    const { container } = renderComponent({
       reaction_counts,
       reactionOptions: [
         { emoji: '🍌', id: 'banana' },
@@ -88,6 +94,8 @@ describe('ReactionsList', () => {
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
     Object.keys(reaction_counts).forEach(expectEmojiToHaveBeenRendered);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should add reverse class if the prop is set to true', () => {

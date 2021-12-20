@@ -45,21 +45,21 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
   );
 
   const renderImages = images.slice(0, 3).map((image, i) => (
-    <div
+    <button
       className='str-chat__gallery-image'
       data-testid='gallery-image'
       key={`gallery-image-${i}`}
       onClick={() => toggleModal(i)}
     >
-      <img src={image.image_url || image.thumb_url} />
-    </div>
+      <img alt='User uploaded content' src={image.image_url || image.thumb_url} />
+    </button>
   ));
 
   return (
     <div className={`str-chat__gallery ${images.length > 3 ? 'str-chat__gallery--square' : ''}`}>
       {renderImages}
       {images.length > 3 && (
-        <div
+        <button
           className='str-chat__gallery-placeholder'
           onClick={() => toggleModal(3)}
           style={{
@@ -71,7 +71,7 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
               imageCount: images.length - 3,
             })}
           </p>
-        </div>
+        </button>
       )}
       <ModalWrapper
         images={formattedArray}
