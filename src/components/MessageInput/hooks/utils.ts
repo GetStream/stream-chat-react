@@ -90,7 +90,7 @@ export const searchLocalUsers = <Us extends DefaultUserType<Us> = DefaultUserTyp
 
     if (useMentionsTransliteration) {
       (async () => {
-        const { default: transliterate } = await import('@sindresorhus/transliterate');
+        const { default: transliterate } = await import('@stream-io/transliterate');
         updatedName = transliterate(user.name || '').toLowerCase();
         updatedQuery = transliterate(query).toLowerCase();
         updatedId = transliterate(user.id).toLowerCase();

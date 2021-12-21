@@ -33,7 +33,7 @@ const externalDependencies = [
   '@braintree/sanitize-url',
   '@fortawesome/free-regular-svg-icons',
   '@fortawesome/react-fontawesome',
-  '@sindresorhus/transliterate',
+  '@stream-io/transliterate',
   'custom-event',
   /dayjs/,
   /emoji-mart/,
