@@ -38,10 +38,14 @@ export type ChannelPreviewUIComponentProps<
   displayImage?: string;
   /** Title of Channel to display */
   displayTitle?: string;
+  /** The channel with current focus */
+  focusedChannel?: number;
   /** The last message received in a channel */
   lastMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /** The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true */
+  loadedChannels?: Channel<At, Ch, Co, Ev, Me, Re, Us>[];
   /** Number of unread Messages */
   unread?: number;
 };

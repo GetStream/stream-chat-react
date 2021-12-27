@@ -4,8 +4,6 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
-// import { useMessageInputText } from '../MessageInput/hooks/useMessageInputText';
-
 import type {
   DefaultAttachmentType,
   DefaultChannelType,
@@ -41,8 +39,6 @@ const UnMemoizedChannelPreviewMessenger = <
     watchers,
   } = props;
 
-  // const { textareaRef } = useMessageInputText();
-
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
   const activeClass = active ? 'str-chat__channel-preview-messenger--active' : '';
@@ -60,7 +56,7 @@ const UnMemoizedChannelPreviewMessenger = <
     }
   };
 
-  const focused = focusedChannel === loadedChannels.indexOf(channel);
+  const focused = focusedChannel === loadedChannels?.indexOf(channel);
 
   useEffect(() => {
     if (focused && channelPreviewButton.current) channelPreviewButton.current.focus();

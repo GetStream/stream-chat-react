@@ -213,20 +213,17 @@ export const SearchResults = <
         return;
       }
 
-      if (event.key === 'Tab' && event.shiftKey && inputRef) {
+      if (event.key === 'Tab' && event.shiftKey) {
         event.preventDefault();
-        if (focusedUser !== undefined && inputRef.current === document.activeElement) {
-          return inputRef?.current.focus();
-        } else return;
+        if (inputRef?.current) return inputRef?.current.focus();
       }
 
       if (event.key === 'Escape') {
         event.preventDefault();
         if (inputRef?.current === document.activeElement) {
           return clearState();
-          // } else if (focusedUser !== undefined && inputRef !== null) {
         } else if (focusedUser !== undefined) {
-          return inputRef?.current.focus();
+          if (inputRef?.current) return inputRef?.current.focus();
         } else return;
       }
     },
