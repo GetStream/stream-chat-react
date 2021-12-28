@@ -285,18 +285,24 @@ const UnMemoizedChannelList = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'ArrowUp') {
-        setFocusedChannel((prevFocused) => {
-          if (prevFocused === undefined) return 0;
-          return prevFocused === 0 ? loadedChannels.length - 1 : prevFocused - 1;
-        });
-      }
+      if (
+        channelListRef &&
+        event.target instanceof HTMLElement &&
+        channelListRef.current?.contains(event.target)
+      ) {
+        if (event.key === 'ArrowUp') {
+          setFocusedChannel((prevFocused) => {
+            if (prevFocused === undefined) return 0;
+            return prevFocused === 0 ? loadedChannels.length - 1 : prevFocused - 1;
+          });
+        }
 
-      if (event.key === 'ArrowDown') {
-        setFocusedChannel((prevFocused) => {
-          if (prevFocused === undefined) return 0;
-          return prevFocused === loadedChannels.length - 1 ? 0 : prevFocused + 1;
-        });
+        if (event.key === 'ArrowDown') {
+          setFocusedChannel((prevFocused) => {
+            if (prevFocused === undefined) return 0;
+            return prevFocused === loadedChannels.length - 1 ? 0 : prevFocused + 1;
+          });
+        }
       }
     },
     [focusedChannel],

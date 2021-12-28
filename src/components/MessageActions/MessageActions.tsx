@@ -37,6 +37,7 @@ export type MessageActionsProps<
 > = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
   ActionsIcon?: React.FunctionComponent;
   customWrapperClass?: string;
+  /** @deprecated */
   inline?: boolean;
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
   mine?: () => boolean;
@@ -61,7 +62,6 @@ export const MessageActions = <
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
-    /** @deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#css-variables) of your app  */
     inline,
     message: propMessage,
     messageWrapperRef,
