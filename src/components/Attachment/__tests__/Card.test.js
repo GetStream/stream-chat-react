@@ -99,7 +99,7 @@ describe('Card', () => {
           className="str-chat__message-attachment-card--header"
         >
           <img
-            alt="test.jpg"
+            alt="Attachment"
             src="test.jpg"
           />
         </div>
@@ -147,7 +147,7 @@ describe('Card', () => {
           className="str-chat__message-attachment-card--header"
         >
           <img
-            alt="test.jpg"
+            alt="Attachment"
             src="test.jpg"
           />
         </div>

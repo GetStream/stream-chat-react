@@ -59,7 +59,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
     <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
       {image && (
         <div className='str-chat__message-attachment-card--header'>
-          <img alt={image} src={image} />
+          <img alt={'Attachment'} src={image} />
         </div>
       )}
       <div className='str-chat__message-attachment-card--content'>

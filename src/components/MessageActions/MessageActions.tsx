@@ -94,6 +94,11 @@ export const MessageActions = <
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
+  const escapePressHandler = useCallback((event) => {
+    if (event?.keyCode === 27) {
+      hideOptions();
+    }
+  }, []);
 
   useEffect(() => {
     if (messageWrapperRef?.current) {
@@ -110,26 +115,14 @@ export const MessageActions = <
   useEffect(() => {
     if (actionsBoxOpen) {
       document.addEventListener('click', hideOptions);
+      document.addEventListener('keydown', escapePressHandler);
     } else {
       document.removeEventListener('click', hideOptions);
+      document.removeEventListener('keydown', escapePressHandler);
     }
 
     return () => document.removeEventListener('click', hideOptions);
   }, [actionsBoxOpen, hideOptions]);
-
-  const escPressHandler = useCallback((event) => {
-    if (event.keyCode === 27) {
-      setActionsBoxOpen(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('keydown', escPressHandler);
-
-    return () => {
-      document.removeEventListener('keydown', escPressHandler);
-    };
-  }, []);
 
   if (!messageActions.length && !customMessageActions) return null;
 
