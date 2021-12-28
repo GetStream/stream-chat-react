@@ -29,7 +29,9 @@ export const ImageComponent: React.FC<ImageProps> = (props) => {
         className='str-chat__message-attachment--img'
         data-testid='image-test'
         onClick={toggleModal}
+        onKeyPress={toggleModal}
         src={imageSrc}
+        tabIndex={0}
       />
 
       <ModalWrapper

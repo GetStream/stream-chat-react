@@ -14,7 +14,7 @@ const UnMemoizedLoadMoreButton: React.FC<LoadMoreButtonProps> = (props) => {
   return (
     <div className='str-chat__load-more-button'>
       <button
-        aria-label={'Load More Channels'}
+        aria-label='Load More Channels'
         className='str-chat__load-more-button__button'
         data-testid='load-more-button'
         disabled={refreshing}

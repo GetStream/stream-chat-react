@@ -46,7 +46,7 @@ const DefaultDropdownContainer = <
   const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
 
   return (
-    <div>
+    <>
       {results.map((result, index) => (
         <SearchResultItem
           focusedUser={focusedUser}
@@ -56,7 +56,7 @@ const DefaultDropdownContainer = <
           selectResult={selectResult}
         />
       ))}
-    </div>
+    </>
   );
 };
 
@@ -113,7 +113,7 @@ const DefaultSearchResultItem = <
   } else {
     return (
       <button
-        aria-label={`Select User Channel: ${result.name || result.id}`}
+        aria-label={`Select User Channel: ${result.name || ''}`}
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(result)}
         ref={resultRef}
