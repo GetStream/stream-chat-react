@@ -67,7 +67,6 @@ export const MessageActions = <
     messageWrapperRef,
     mine,
   } = props;
-  console.log('foo', inline);
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
