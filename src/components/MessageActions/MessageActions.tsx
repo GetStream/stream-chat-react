@@ -61,11 +61,13 @@ export const MessageActions = <
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
-    // inline,
+    /** @deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#css-variables) of your app  */
+    inline,
     message: propMessage,
     messageWrapperRef,
     mine,
   } = props;
+  console.log('foo', inline);
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
@@ -126,29 +128,12 @@ export const MessageActions = <
 
   if (!messageActions.length && !customMessageActions) return null;
 
-  const defaultWrapperClass =
-    'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
-
-  const wrapperClass = customWrapperClass || defaultWrapperClass;
-
-  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
-    event.stopPropagation();
-    setActionsBoxOpen(true);
-  };
-
   return (
-    // <MessageActionsWrapper
-    //   customWrapperClass={customWrapperClass}
-    //   inline={inline}
-    //   setActionsBoxOpen={setActionsBoxOpen}
-    // >
-    <button
-      aria-expanded={actionsBoxOpen}
-      aria-haspopup='true'
-      aria-label={'Open Message Actions Selector'}
-      className={wrapperClass}
-      data-testid={'message-actions'}
-      onClick={onClickOptionsAction}
+    <MessageActionsWrapper
+      actionsBoxOpen
+      customWrapperClass={customWrapperClass}
+      inline={inline}
+      setActionsBoxOpen={setActionsBoxOpen}
     >
       <MessageActionsBox
         getMessageActions={getMessageActions}
@@ -162,37 +147,59 @@ export const MessageActions = <
         open={actionsBoxOpen}
       />
       <ActionsIcon />
-    </button>
-    // </MessageActionsWrapper>
+    </MessageActionsWrapper>
   );
 };
 
 export type MessageActionsWrapperProps = {
+  actionsBoxOpen: boolean;
   setActionsBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
   customWrapperClass?: string;
   inline?: boolean;
 };
 
-// const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
-//   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
+const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
+  const { actionsBoxOpen, children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
-// const defaultWrapperClass =
-// 'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
+  const defaultWrapperClass =
+    'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
 
-// const wrapperClass = customWrapperClass || defaultWrapperClass;
+  const wrapperClass = customWrapperClass || defaultWrapperClass;
 
-// const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
-//   event.stopPropagation();
-//   setActionsBoxOpen(true);
-// };
+  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setActionsBoxOpen(true);
+  };
 
-// const wrapperProps = {
-//   className: wrapperClass,
-//   'data-testid': 'message-actions',
-//   onClick: onClickOptionsAction,
-// };
+  const wrapperProps = {
+    className: wrapperClass,
+    'data-testid': 'message-actions',
+    onClick: onClickOptionsAction,
+  };
 
-// if (inline) return <span {...wrapperProps}>{children}</span>;
+  if (inline)
+    return (
+      <span
+        aria-expanded={actionsBoxOpen}
+        aria-haspopup='true'
+        aria-label={'Open Message Actions Selector'}
+        onKeyPress={onClickOptionsAction}
+        role='button'
+        tabIndex={0}
+        {...wrapperProps}
+      >
+        {children}
+      </span>
+    );
 
-// return <div {...wrapperProps}>{children}</div>;
-// };
+  return (
+    <button
+      aria-expanded={actionsBoxOpen}
+      aria-haspopup='true'
+      aria-label={'Open Message Actions Selector'}
+      {...wrapperProps}
+    >
+      {children}
+    </button>
+  );
+};

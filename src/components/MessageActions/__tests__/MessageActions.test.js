@@ -58,7 +58,7 @@ describe('<MessageActions /> component', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <button
-        aria-expanded={false}
+        aria-expanded={true}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
@@ -159,7 +159,7 @@ describe('<MessageActions /> component', () => {
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <button
-        aria-expanded={false}
+        aria-expanded={true}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="custom-wrapper-class"
@@ -190,13 +190,16 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <button
-        aria-expanded={false}
+      <span
+        aria-expanded={true}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
         data-testid="message-actions"
         onClick={[Function]}
+        onKeyPress={[Function]}
+        role="button"
+        tabIndex={0}
       >
         <div />
         <svg
@@ -210,7 +213,7 @@ describe('<MessageActions /> component', () => {
             fillRule="nonzero"
           />
         </svg>
-      </button>
+      </span>
     `);
   });
 });
