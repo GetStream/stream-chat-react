@@ -244,6 +244,20 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
+  const escPressHandler = useCallback((event) => {
+    if (event?.keyCode === 27) {
+      setShowDetailedReactions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', escPressHandler);
+
+    return () => {
+      document.removeEventListener('keydown', escPressHandler);
+    };
+  }, []);
+
   const onReactionListClick: ReactEventHandler = (event) => {
     if (event?.stopPropagation) {
       event.stopPropagation();

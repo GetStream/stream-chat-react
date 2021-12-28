@@ -57,7 +57,10 @@ describe('<MessageActions /> component', () => {
   it('should render correctly', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
+      <button
+        aria-expanded={false}
+        aria-haspopup="true"
+        aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
         data-testid="message-actions"
         onClick={[Function]}
@@ -74,7 +77,7 @@ describe('<MessageActions /> component', () => {
             fillRule="nonzero"
           />
         </svg>
-      </div>
+      </button>
     `);
   });
 
@@ -155,7 +158,10 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
+      <button
+        aria-expanded={false}
+        aria-haspopup="true"
+        aria-label="Open Message Actions Selector"
         className="custom-wrapper-class"
         data-testid="message-actions"
         onClick={[Function]}
@@ -172,7 +178,7 @@ describe('<MessageActions /> component', () => {
             fillRule="nonzero"
           />
         </svg>
-      </div>
+      </button>
     `);
   });
 
@@ -184,7 +190,10 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <span
+      <button
+        aria-expanded={false}
+        aria-haspopup="true"
+        aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
         data-testid="message-actions"
         onClick={[Function]}
@@ -201,7 +210,7 @@ describe('<MessageActions /> component', () => {
             fillRule="nonzero"
           />
         </svg>
-      </span>
+      </button>
     `);
   });
 });

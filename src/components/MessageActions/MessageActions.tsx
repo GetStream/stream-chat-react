@@ -61,7 +61,7 @@ export const MessageActions = <
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
-    inline,
+    // inline,
     message: propMessage,
     messageWrapperRef,
     mine,
@@ -117,13 +117,45 @@ export const MessageActions = <
     return () => document.removeEventListener('click', hideOptions);
   }, [actionsBoxOpen, hideOptions]);
 
+  const escPressHandler = useCallback((event) => {
+    if (event.keyCode === 27) {
+      setActionsBoxOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', escPressHandler);
+
+    return () => {
+      document.removeEventListener('keydown', escPressHandler);
+    };
+  }, []);
+
   if (!messageActions.length && !customMessageActions) return null;
 
+  const defaultWrapperClass =
+    'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
+
+  const wrapperClass = customWrapperClass || defaultWrapperClass;
+
+  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setActionsBoxOpen(true);
+  };
+
   return (
-    <MessageActionsWrapper
-      customWrapperClass={customWrapperClass}
-      inline={inline}
-      setActionsBoxOpen={setActionsBoxOpen}
+    // <MessageActionsWrapper
+    //   customWrapperClass={customWrapperClass}
+    //   inline={inline}
+    //   setActionsBoxOpen={setActionsBoxOpen}
+    // >
+    <button
+      aria-expanded={actionsBoxOpen}
+      aria-haspopup='true'
+      aria-label={'Open Message Actions Selector'}
+      className={wrapperClass}
+      data-testid={'message-actions'}
+      onClick={onClickOptionsAction}
     >
       <MessageActionsBox
         getMessageActions={getMessageActions}
@@ -137,7 +169,8 @@ export const MessageActions = <
         open={actionsBoxOpen}
       />
       <ActionsIcon />
-    </MessageActionsWrapper>
+    </button>
+    // </MessageActionsWrapper>
   );
 };
 
@@ -147,26 +180,26 @@ export type MessageActionsWrapperProps = {
   inline?: boolean;
 };
 
-const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
-  const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
+// const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
+//   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
-  const defaultWrapperClass =
-    'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
+// const defaultWrapperClass =
+// 'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
 
-  const wrapperClass = customWrapperClass || defaultWrapperClass;
+// const wrapperClass = customWrapperClass || defaultWrapperClass;
 
-  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
-    event.stopPropagation();
-    setActionsBoxOpen(true);
-  };
+// const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
+//   event.stopPropagation();
+//   setActionsBoxOpen(true);
+// };
 
-  const wrapperProps = {
-    className: wrapperClass,
-    'data-testid': 'message-actions',
-    onClick: onClickOptionsAction,
-  };
+// const wrapperProps = {
+//   className: wrapperClass,
+//   'data-testid': 'message-actions',
+//   onClick: onClickOptionsAction,
+// };
 
-  if (inline) return <span {...wrapperProps}>{children}</span>;
+// if (inline) return <span {...wrapperProps}>{children}</span>;
 
-  return <div {...wrapperProps}>{children}</div>;
-};
+// return <div {...wrapperProps}>{children}</div>;
+// };

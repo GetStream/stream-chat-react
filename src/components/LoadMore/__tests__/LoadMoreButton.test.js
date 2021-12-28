@@ -17,6 +17,7 @@ describe('LoadMoreButton', () => {
         className="str-chat__load-more-button"
       >
         <button
+          aria-label="Load More Channels"
           className="str-chat__load-more-button__button"
           data-testid="load-more-button"
           disabled={false}

@@ -95,6 +95,8 @@ const MessageSimpleWithContext = <
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
 
+  const messageFailed = message.status === 'failed' && message.errorStatusCode !== 403;
+
   if (message.customType === 'message.date') {
     return null;
   }
@@ -109,6 +111,7 @@ const MessageSimpleWithContext = <
         <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
             clearEditingState={clearEditingState}
+            focus
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}
@@ -131,6 +134,7 @@ const MessageSimpleWithContext = <
 					`.trim()}
           key={message.id}
           ref={messageWrapperRef}
+          tabIndex={0}
         >
           <MessageStatus />
           {message.user && (
@@ -145,11 +149,10 @@ const MessageSimpleWithContext = <
           <div
             className='str-chat__message-inner'
             data-testid='message-inner'
-            onClick={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
+            onClick={messageFailed ? () => handleRetry(message) : undefined}
+            onKeyPress={messageFailed ? () => handleRetry(message) : undefined}
+            role={messageFailed ? 'button' : ''}
+            tabIndex={messageFailed ? 0 : -1}
           >
             <>
               <MessageOptions messageWrapperRef={messageWrapperRef} />

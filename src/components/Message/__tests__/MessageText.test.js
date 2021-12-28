@@ -247,10 +247,13 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
           data-testid="message-inner"
+          role=""
+          tabIndex={-1}
         >
           <div />
           <div
@@ -289,10 +292,13 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
           data-testid="message-inner"
+          role=""
+          tabIndex={-1}
         >
           <div />
           <div
@@ -330,10 +336,13 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
           data-testid="message-inner"
+          role=""
+          tabIndex={-1}
         >
           <div />
           <div
