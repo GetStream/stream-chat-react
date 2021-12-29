@@ -24,3 +24,8 @@ body {
 .str-chat__message-actions-list button:focus {
   outline: 5px auto -webkit-focus-ring-color;
 }
+
+.rfu-file-upload-button:focus-within {
+  outline: 5px auto -webkit-focus-ring-color;
+  height: 25%;
+}
