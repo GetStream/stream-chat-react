@@ -262,7 +262,7 @@ export const useReactionClick = <
     if (event?.stopPropagation) {
       event.stopPropagation();
     }
-    setShowDetailedReactions(true);
+    setShowDetailedReactions(!showDetailedReactions);
   };
 
   return {

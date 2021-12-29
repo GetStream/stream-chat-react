@@ -27,5 +27,4 @@ body {
 
 .rfu-file-upload-button:focus-within {
   outline: 5px auto -webkit-focus-ring-color;
-  height: 25%;
 }

@@ -69,6 +69,7 @@ const UnMemoizedMessageOptions = <
     isMyMessage,
     message,
     onReactionListClick,
+    showDetailedReactions,
     threadList,
   } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageOptions');
 
@@ -111,6 +112,7 @@ const UnMemoizedMessageOptions = <
         )}
         {shouldShowReactions && (
           <button
+            aria-expanded={showDetailedReactions}
             aria-label='Open Reaction Selector'
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
             data-testid='message-reaction-action'
@@ -127,6 +129,7 @@ const UnMemoizedMessageOptions = <
     <div className={`str-chat__message-${theme}__actions`} data-testid='message-options'>
       {shouldShowReactions && (
         <button
+          aria-expanded={showDetailedReactions}
           aria-label='Open Reaction Selector'
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
           data-testid='message-reaction-action'
