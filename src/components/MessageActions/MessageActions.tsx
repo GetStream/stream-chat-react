@@ -129,7 +129,7 @@ export const MessageActions = <
 
   return (
     <MessageActionsWrapper
-      actionsBoxOpen
+      actionsBoxOpen={actionsBoxOpen}
       customWrapperClass={customWrapperClass}
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
@@ -145,13 +145,7 @@ export const MessageActions = <
         mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
-      {/* <button
-        aria-expanded={actionsBoxOpen}
-        aria-haspopup='true'
-        aria-label='Open Message Actions Menu'
-      > */}
       <ActionsIcon />
-      {/* </button> */}
     </MessageActionsWrapper>
   );
 };
@@ -198,13 +192,16 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
     );
 
   return (
-    <button
+    <a
       aria-expanded={actionsBoxOpen}
       aria-haspopup='true'
       aria-label={'Open Message Actions Selector'}
+      onKeyPress={onClickOptionsAction}
+      role='button'
+      tabIndex={0}
       {...wrapperProps}
     >
       {children}
-    </button>
+    </a>
   );
 };

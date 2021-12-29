@@ -57,33 +57,30 @@ describe('<MessageActions /> component', () => {
   it('should render correctly', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <button
-        aria-expanded={true}
+      <a
+        aria-expanded={false}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
         data-testid="message-actions"
         onClick={[Function]}
+        onKeyPress={[Function]}
+        role="button"
+        tabIndex={0}
       >
         <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
-      </button>
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </a>
     `);
   });
 
@@ -164,33 +161,30 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <button
-        aria-expanded={true}
+      <a
+        aria-expanded={false}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="custom-wrapper-class"
         data-testid="message-actions"
         onClick={[Function]}
+        onKeyPress={[Function]}
+        role="button"
+        tabIndex={0}
       >
         <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
-      </button>
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
+      </a>
     `);
   });
 
@@ -203,7 +197,7 @@ describe('<MessageActions /> component', () => {
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <span
-        aria-expanded={true}
+        aria-expanded={false}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
         className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
@@ -214,23 +208,17 @@ describe('<MessageActions /> component', () => {
         tabIndex={0}
       >
         <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
+        <svg
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          <svg
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fillRule="nonzero"
+          />
+        </svg>
       </span>
     `);
   });
