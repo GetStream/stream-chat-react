@@ -14,6 +14,7 @@ const UnMemoizedMessageNotification: React.FC<MessageNotificationProps> = (props
 
   return (
     <button
+      aria-live='polite'
       className='str-chat__message-notification'
       data-testid='message-notification'
       onClick={onClick}

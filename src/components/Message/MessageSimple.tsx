@@ -150,6 +150,11 @@ const MessageSimpleWithContext = <
                 ? () => handleRetry(message)
                 : undefined
             }
+            onKeyPress={
+              message.status === 'failed' && message.errorStatusCode !== 403
+                ? () => handleRetry(message)
+                : undefined
+            }
           >
             <>
               <MessageOptions messageWrapperRef={messageWrapperRef} />
