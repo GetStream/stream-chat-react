@@ -122,11 +122,12 @@ const { client } = useChatContext();
 ### Channel
 
 The [`Channel`](../core-components/channel.mdx) component is a React Context provider that wraps all of the logic, functionality, and UI for an individual chat channel.
-It provides four separate contexts to its children:
+It provides five separate contexts to its children:
 
 - [`ChannelStateContext`](../contexts/channel-state-context.mdx) - stateful data (ex: `messages` or `members`)
 - [`ChannelActionContext`](../contexts/channel-action-context.mdx) - action handlers (ex: `sendMessage` or `openThread`)
 - [`ComponentContext`](../contexts/component-context.mdx) - custom component UI overrides (ex: `Avatar` or `Message`)
+- [`EmojiContext`](../contexts/emoji-context.mdx) - emoji UI components and data (ex: `EmojiPicker` or `emojiConfig`)
 - [`TypingContext`](../contexts/typing-context.mdx) - object of currently typing users (i.e., `typing`)
 
 ### ChannelList
