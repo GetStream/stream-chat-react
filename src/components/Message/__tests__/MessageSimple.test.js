@@ -3,6 +3,8 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
@@ -123,8 +125,10 @@ describe('<MessageSimple />', () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-17T03:24:00'),
     });
-    const { getByTestId } = await renderMessageSimple(deletedMessage);
+    const { container, getByTestId } = await renderMessageSimple(deletedMessage);
     expect(getByTestId('message-deleted-component')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
@@ -132,10 +136,12 @@ describe('<MessageSimple />', () => {
       deleted_at: new Date('2019-12-25T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => <p data-testid='custom-message-deleted'>Gone!</p>;
-    const { getByTestId } = await renderMessageSimple(deletedMessage, null, null, {
+    const { container, getByTestId } = await renderMessageSimple(deletedMessage, null, null, {
       MessageDeleted: CustomMessageDeletedComponent,
     });
     expect(getByTestId('custom-message-deleted')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message with custom timestamp component when one is given', async () => {
@@ -143,28 +149,34 @@ describe('<MessageSimple />', () => {
     const CustomMessageTimestamp = () => (
       <div data-testid='custom-message-timestamp'>Timestamp</div>
     );
-    const { getByTestId } = await renderMessageSimple(message, null, null, {
+    const { container, getByTestId } = await renderMessageSimple(message, null, null, {
       MessageTimestamp: CustomMessageTimestamp,
     });
     expect(getByTestId('custom-message-timestamp')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message with custom replies count button when one is given', async () => {
     const message = generateAliceMessage({ reply_count: 1 });
     const CustomRepliesCount = () => <div data-testid='custom-message-replies-count'>Replies</div>;
-    const { getByTestId } = await renderMessageSimple(message, null, null, {
+    const { container, getByTestId } = await renderMessageSimple(message, null, null, {
       MessageRepliesCountButton: CustomRepliesCount,
     });
     expect(getByTestId('custom-message-replies-count')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message with custom options component when one is given', async () => {
     const message = generateAliceMessage({ text: '' });
     const CustomOptions = () => <div data-testid='custom-message-options'>Options</div>;
-    const { getByTestId } = await renderMessageSimple(message, null, null, {
+    const { container, getByTestId } = await renderMessageSimple(message, null, null, {
       MessageOptions: CustomOptions,
     });
     expect(getByTestId('custom-message-options')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render custom edit message input component when one is given', async () => {
@@ -173,9 +185,14 @@ describe('<MessageSimple />', () => {
 
     const CustomEditMessageInput = () => <div>Edit Input</div>;
 
-    await renderMessageSimple(message, { clearEditingState, editing: true }, null, {
-      EditMessageInput: CustomEditMessageInput,
-    });
+    const { container } = await renderMessageSimple(
+      message,
+      { clearEditingState, editing: true },
+      null,
+      {
+        EditMessageInput: CustomEditMessageInput,
+      },
+    );
 
     expect(MessageInputMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -185,6 +202,8 @@ describe('<MessageSimple />', () => {
       }),
       {},
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should not render reaction list if reaction is disabled in channel config', async () => {
@@ -194,8 +213,14 @@ describe('<MessageSimple />', () => {
       text: undefined,
     });
 
-    const { queryByTestId } = await renderMessageSimple(message, {}, { reactions: false });
+    const { container, queryByTestId } = await renderMessageSimple(
+      message,
+      {},
+      { reactions: false },
+    );
     expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render reaction list with custom component when one is given', async () => {
@@ -208,22 +233,24 @@ describe('<MessageSimple />', () => {
       <ul data-testid='custom-reaction-list'>
         {reactions.map((reaction) => {
           if (reaction.type === 'cool-reaction') {
-            return <li key={reaction.type + reaction.user_id}>:)</li>;
+            return <li key={reaction.type + reaction.user_id}>`:)`</li>;
           }
           return <li key={reaction.type + reaction.user_id}>?</li>;
         })}
       </ul>
     );
-    const { getByTestId } = await renderMessageSimple(message, null, null, {
+    const { container, getByTestId } = await renderMessageSimple(message, null, null, {
       ReactionsList: CustomReactionsList,
     });
     expect(getByTestId('custom-reaction-list')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render an edit form in a modal when in edit mode', async () => {
     const message = generateAliceMessage();
     const clearEditingState = jest.fn();
-    await renderMessageSimple(message, {
+    const { container } = await renderMessageSimple(message, {
       clearEditingState,
       editing: true,
     });
@@ -242,62 +269,78 @@ describe('<MessageSimple />', () => {
       }),
       {},
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render no status when message not from the current user', async () => {
     const message = generateAliceMessage();
-    const { queryByTestId } = await renderMessageSimple(message);
+    const { container, queryByTestId } = await renderMessageSimple(message);
     expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should not render status when message is an error message', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { queryByTestId } = await renderMessageSimple(message);
+    const { container, queryByTestId } = await renderMessageSimple(message);
     expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render sending status when sending message', async () => {
     const message = generateAliceMessage({ status: 'sending' });
-    const { getByTestId } = await renderMessageSimple(message);
+    const { container, getByTestId } = await renderMessageSimple(message);
     expect(getByTestId('message-status-sending')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render the "read by" status when the message is not part of a thread and was read by another chat members', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { container, getByTestId } = await renderMessageSimple(message, {
       readBy: [alice, bob],
     });
     expect(getByTestId('message-status-read-by')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render the "read by many" status when the message is not part of a thread and was read by more than one other chat members', async () => {
     const message = generateAliceMessage();
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { container, getByTestId } = await renderMessageSimple(message, {
       readBy: [alice, bob, carol],
     });
     expect(getByTestId('message-status-read-by-many')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render a received status when the message has a received status and it is the same message as the last received one', async () => {
     const message = generateAliceMessage({ status: 'received' });
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { container, getByTestId } = await renderMessageSimple(message, {
       lastReceivedId: message.id,
     });
     expect(getByTestId('message-status-received')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should not render status when rendered in a thread list and was read by other members', async () => {
     const message = generateAliceMessage();
-    const { queryByTestId } = await renderMessageSimple(message, {
+    const { container, queryByTestId } = await renderMessageSimple(message, {
       readBy: [alice, bob, carol],
       threadList: true,
     });
     expect(queryByTestId(/message-status/)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it("should render the message user's avatar", async () => {
     const message = generateBobMessage();
-    await renderMessageSimple(message, {
+    const { container } = await renderMessageSimple(message, {
       onUserClick: jest.fn(),
       onUserHover: jest.fn(),
     });
@@ -311,45 +354,55 @@ describe('<MessageSimple />', () => {
       },
       {},
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should allow message to be retried when it failed', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { container, getByTestId } = await renderMessageSimple(message, {
       handleRetry: retrySendMessageMock,
     });
     expect(retrySendMessageMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('message-inner'));
     expect(retrySendMessageMock).toHaveBeenCalledWith(message);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message options', async () => {
     const message = generateAliceMessage({ text: undefined });
-    await renderMessageSimple(message, {
+    const { container } = await renderMessageSimple(message, {
       handleOpenThread: jest.fn(),
     });
     // eslint-disable-next-line jest/prefer-called-with
     expect(MessageOptionsMock).toHaveBeenCalled();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render MML', async () => {
     const mml = '<mml>text</mml>';
     const message = generateAliceMessage({ mml });
-    await renderMessageSimple(message);
+    const { container } = await renderMessageSimple(message);
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'right', source: mml }),
       {},
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render MML on left for others', async () => {
     const mml = '<mml>text</mml>';
     const message = generateBobMessage({ mml });
-    await renderMessageSimple(message, { isMyMessage: () => false });
+    const { container } = await renderMessageSimple(message, { isMyMessage: () => false });
     expect(MMLMock).toHaveBeenCalledWith(
       expect.objectContaining({ align: 'left', source: mml }),
       {},
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message text when message has text', async () => {
@@ -367,13 +420,15 @@ describe('<MessageSimple />', () => {
       y: 0,
     };
     const unsafeHTML = false;
-    await renderMessageSimple(message, {
+    const { container } = await renderMessageSimple(message, {
       actionsEnabled,
       messageListRect,
       unsafeHTML,
     });
     // eslint-disable-next-line jest/prefer-called-with
     expect(MessageTextMock).toHaveBeenCalled();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {
@@ -384,8 +439,10 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { queryAllByTestId } = await renderMessageSimple(message);
+    const { container, queryAllByTestId } = await renderMessageSimple(message);
     expect(queryAllByTestId('attachment-file')).toHaveLength(3);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should display image attachments in gallery when message has image attachments', async () => {
@@ -396,23 +453,27 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { queryAllByTestId } = await renderMessageSimple(message);
+    const { container, queryAllByTestId } = await renderMessageSimple(message);
     expect(queryAllByTestId('gallery-image')).toHaveLength(3);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should display reply count and handle replies count button click when not in thread list and reply count is not 0', async () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { getByTestId } = await renderMessageSimple(message);
+    const { container, getByTestId } = await renderMessageSimple(message);
     expect(getByTestId('replies-count-button')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should open thread when reply count button is clicked', async () => {
     const message = generateAliceMessage({
       reply_count: 1,
     });
-    const { getByTestId } = await renderMessageSimple(message, {
+    const { container, getByTestId } = await renderMessageSimple(message, {
       handleOpenThread: openThreadMock,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
@@ -420,14 +481,18 @@ describe('<MessageSimple />', () => {
     expect(openThreadMock).toHaveBeenCalledWith(
       expect.any(Object), // The event object
     );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it("should display message's user name when message not from the current user", async () => {
     const message = generateBobMessage();
-    const { getByText } = await renderMessageSimple(message, {
+    const { container, getByText } = await renderMessageSimple(message, {
       isMyMessage: () => false,
     });
     expect(getByText(bob.name)).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it("should display message's timestamp with calendar formatting", async () => {
@@ -435,7 +500,9 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       created_at: messageDate,
     });
-    const { getByText } = await renderMessageSimple(message);
+    const { container, getByText } = await renderMessageSimple(message);
     expect(getByText('12/12/2019')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

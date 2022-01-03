@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.12.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.12.2) 2021-12-09
+
+### Feature
+
+* Add `closeEmojiPickerOnClick` and added focus to input after Emoji or attachment selection [#1292](https://github.com/GetStream/stream-chat-react/pull/1292)
+
+### Chore
+
+* Update Japanese and Korean translations [#1296](https://github.com/GetStream/stream-chat-react/pull/1296)
+* Fix broken documentation links [#1300](https://github.com/GetStream/stream-chat-react/pull/1300)
+* Add updated scoped CSS dependency `stream-chat-css` NPM package [#1301](https://github.com/GetStream/stream-chat-react/pull/1301)
+* Upgrade `stream-chat-css` dependency to v1.1.3 [#1306](https://github.com/GetStream/stream-chat-react/pull/1306)
+* Upgrade `react-virtuoso` to improve stability [#1304](https://github.com/GetStream/stream-chat-react/pull/1304)
+* Upgrade `stream-chat` dependency to v4.0.0
+
 ## [6.12.0](https://github.com/GetStream/stream-chat-react/releases/tag/v6.12.0) 2021-11-22
 
 ### Feature

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -78,8 +78,12 @@ export const QuotedMessagePreview = <
 ) => {
   const { quotedMessage } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessagePreview');
+  const { Attachment, Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'QuotedMessagePreview',
+  );
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
+
+  const Avatar = ContextAvatar || DefaultAvatar;
 
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
