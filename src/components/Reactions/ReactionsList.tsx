@@ -112,9 +112,12 @@ const UnMemoizedReactionsList = <
 
   return (
     <div
+      aria-label='Reaction list'
       className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
       data-testid='reaction-list'
       onClick={onClick || onReactionListClick}
+      onKeyPress={onClick || onReactionListClick}
+      role='figure'
     >
       <ul>
         {messageReactionTypes.map((reactionType) => {
@@ -122,17 +125,19 @@ const UnMemoizedReactionsList = <
 
           return emojiObject ? (
             <li key={emojiObject.id}>
-              {
-                <Suspense fallback={null}>
-                  <Emoji
-                    data={emojiData}
-                    emoji={emojiObject}
-                    size={16}
-                    {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                  />
-                </Suspense>
-              }
-              &nbsp;
+              <button aria-label={`Reactions: ${reactionType}`}>
+                {
+                  <Suspense fallback={null}>
+                    <Emoji
+                      data={emojiData}
+                      emoji={emojiObject}
+                      size={16}
+                      {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                    />
+                  </Suspense>
+                }
+                &nbsp;
+              </button>
             </li>
           ) : null;
         })}

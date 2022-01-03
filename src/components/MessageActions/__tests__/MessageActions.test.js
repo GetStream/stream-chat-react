@@ -63,17 +63,23 @@ describe('<MessageActions /> component', () => {
         onClick={[Function]}
       >
         <div />
-        <svg
-          height="4"
-          viewBox="0 0 11 4"
-          width="11"
-          xmlns="http://www.w3.org/2000/svg"
+        <button
+          aria-expanded={false}
+          aria-haspopup="true"
+          aria-label="Open Message Actions Menu"
         >
-          <path
-            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-            fillRule="nonzero"
-          />
-        </svg>
+          <svg
+            height="4"
+            viewBox="0 0 11 4"
+            width="11"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+              fillRule="nonzero"
+            />
+          </svg>
+        </button>
       </div>
     `);
   });
@@ -161,17 +167,23 @@ describe('<MessageActions /> component', () => {
         onClick={[Function]}
       >
         <div />
-        <svg
-          height="4"
-          viewBox="0 0 11 4"
-          width="11"
-          xmlns="http://www.w3.org/2000/svg"
+        <button
+          aria-expanded={false}
+          aria-haspopup="true"
+          aria-label="Open Message Actions Menu"
         >
-          <path
-            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-            fillRule="nonzero"
-          />
-        </svg>
+          <svg
+            height="4"
+            viewBox="0 0 11 4"
+            width="11"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+              fillRule="nonzero"
+            />
+          </svg>
+        </button>
       </div>
     `);
   });
@@ -190,17 +202,23 @@ describe('<MessageActions /> component', () => {
         onClick={[Function]}
       >
         <div />
-        <svg
-          height="4"
-          viewBox="0 0 11 4"
-          width="11"
-          xmlns="http://www.w3.org/2000/svg"
+        <button
+          aria-expanded={false}
+          aria-haspopup="true"
+          aria-label="Open Message Actions Menu"
         >
-          <path
-            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-            fillRule="nonzero"
-          />
-        </svg>
+          <svg
+            height="4"
+            viewBox="0 0 11 4"
+            width="11"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+              fillRule="nonzero"
+            />
+          </svg>
+        </button>
       </span>
     `);
   });

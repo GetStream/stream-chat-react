@@ -46,7 +46,7 @@ const DefaultDropdownContainer = <
   const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
 
   return (
-    <div>
+    <>
       {results.map((result, index) => (
         <SearchResultItem
           focusedUser={focusedUser}
@@ -56,7 +56,7 @@ const DefaultDropdownContainer = <
           selectResult={selectResult}
         />
       ))}
-    </div>
+    </>
   );
 };
 
@@ -94,23 +94,25 @@ const DefaultSearchResultItem = <
     const channel = result;
 
     return (
-      <div
+      <button
+        aria-label={`Select Channel: ${channel.data?.name || ''}`}
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(channel)}
       >
         <div className='result-hashtag'>#</div>
         <p className='channel-search__result-text'>{channel.data?.name}</p>
-      </div>
+      </button>
     );
   } else {
     return (
-      <div
+      <button
+        aria-label={`Select User Channel: ${result.name || ''}`}
         className={`str-chat__channel-search-result ${focused ? 'focused' : ''}`}
         onClick={() => selectResult(result)}
       >
         <Avatar image={result.image} user={result} />
         {result.name || result.id}
-      </div>
+      </button>
     );
   }
 };
@@ -220,7 +222,9 @@ export const SearchResults = <
         {SearchEmpty ? (
           <SearchEmpty />
         ) : (
-          <div className='str-chat__channel-search-container-empty'>{t('No results found')}</div>
+          <div aria-live='polite' className='str-chat__channel-search-container-empty'>
+            {t('No results found')}
+          </div>
         )}
       </ResultsContainer>
     );

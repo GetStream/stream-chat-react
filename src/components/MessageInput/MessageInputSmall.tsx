@@ -49,7 +49,6 @@ export const MessageInputSmall = <
     cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
-    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -114,16 +113,13 @@ export const MessageInputSmall = <
                   <Tooltip>
                     {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
                   </Tooltip>
-                  <span
+                  <button
                     aria-label='Emoji picker'
                     className='str-chat__small-message-input-emojiselect'
                     onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                    onKeyDown={handleEmojiKeyDown}
-                    role='button'
-                    tabIndex={0}
                   >
                     <EmojiIcon />
-                  </span>
+                  </button>
                 </div>
               </>
             )}
