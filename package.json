@@ -55,7 +55,7 @@
     "uuid": "^8.3.1"
   },
   "optionalDependencies": {
-    "@sindresorhus/transliterate": "^1.4.0",
+    "@stream-io/transliterate": "^1.5.5",
     "mml-react": "^0.4.2"
   },
   "peerDependencies": {
@@ -69,6 +69,7 @@
     "README.md"
   ],
   "devDependencies": {
+    "@axe-core/react": "^4.3.2",
     "@babel/cli": "^7.12.8",
     "@babel/core": "^7.12.9",
     "@babel/node": "^7.12.6",
@@ -135,6 +136,7 @@
     "htmlparser2": "^5.0.1",
     "husky": "^4.3.0",
     "jest": "^26.6.3",
+    "jest-axe": "^5.0.1",
     "moment": "^2.29.1",
     "postcss": "^8.1.10",
     "postcss-loader": "^4.1.0",
