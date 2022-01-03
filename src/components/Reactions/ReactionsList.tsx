@@ -117,7 +117,7 @@ const UnMemoizedReactionsList = <
       data-testid='reaction-list'
       onClick={onClick || onReactionListClick}
       onKeyPress={onClick || onReactionListClick}
-      role='listbox'
+      role='figure'
     >
       <ul>
         {messageReactionTypes.map((reactionType) => {

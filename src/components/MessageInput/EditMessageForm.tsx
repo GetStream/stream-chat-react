@@ -84,6 +84,7 @@ export const EditMessageForm = <
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
               <button
+                aria-label='Open Emoji Picker'
                 className='str-chat__input-emojiselect'
                 onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
               >

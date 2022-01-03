@@ -1,8 +1,6 @@
 import React from 'react';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
-expect.extend(toHaveNoViolations);
 
 import {
   dispatchMessageNewEvent,
@@ -37,7 +35,7 @@ describe('MessageList', () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const { container, getByTestId, getByText } = render(
+    const { getByTestId, getByText } = render(
       <Chat client={chatClient}>
         <Channel channel={channel}>
           <MessageList />
@@ -54,8 +52,6 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
     });
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
   });
 
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
@@ -71,7 +67,7 @@ describe('MessageList', () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
 
-    const { container, getByTestId } = render(
+    const { getByTestId } = render(
       <Chat client={chatClient}>
         <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
           <MessageList />
@@ -83,8 +79,6 @@ describe('MessageList', () => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
       expect(getByTestId('custom-avatar')).toBeInTheDocument();
     });
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
   });
 
   it('should accept a custom group style function', async () => {
@@ -102,7 +96,7 @@ describe('MessageList', () => {
 
     const groupStyles = () => 'msg-list-test';
 
-    const { container, getAllByTestId, getByTestId } = render(
+    const { getAllByTestId, getByTestId } = render(
       <Chat client={chatClient}>
         <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
           <MessageList groupStyles={groupStyles} />
@@ -122,7 +116,5 @@ describe('MessageList', () => {
     await waitFor(() => {
       expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test')).toHaveLength(4); // 1 for channel initial message + 3 just sent
     });
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
   });
 });

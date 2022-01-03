@@ -113,6 +113,7 @@ const UnMemoizedMessageOptions = <
         {shouldShowReactions && (
           <button
             aria-expanded={showDetailedReactions}
+            aria-haspopup='true'
             aria-label='Open Reaction Selector'
             className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
             data-testid='message-reaction-action'
@@ -130,6 +131,7 @@ const UnMemoizedMessageOptions = <
       {shouldShowReactions && (
         <button
           aria-expanded={showDetailedReactions}
+          aria-haspopup='true'
           aria-label='Open Reaction Selector'
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
           data-testid='message-reaction-action'
