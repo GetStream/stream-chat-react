@@ -16,6 +16,7 @@ Array [
   >
     <button
       className="str-chat__modal__close-button"
+      title="Close"
     >
       Close
       <svg
@@ -70,7 +71,7 @@ Array [
                 tabIndex="-1"
               >
                 <img
-                  alt=""
+                  alt="User uploaded content"
                   className="image-gallery-image"
                   height=""
                   onError={[Function]}
