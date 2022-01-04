@@ -39,6 +39,7 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
   const formattedArray = useMemo(
     () =>
       images.map((image) => ({
+        original: image.image_url || image.thumb_url || '',
         source: image.image_url || image.thumb_url || '',
       })),
     [images],
@@ -73,12 +74,14 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
           </p>
         </button>
       )}
-      <ModalWrapper
-        images={formattedArray}
-        index={index}
-        modalIsOpen={modalOpen}
-        toggleModal={() => setModalOpen(!modalOpen)}
-      />
+      {modalOpen && (
+        <ModalWrapper
+          images={formattedArray}
+          index={index}
+          modalIsOpen={modalOpen}
+          toggleModal={() => setModalOpen(!modalOpen)}
+        />
+      )}
     </div>
   );
 };

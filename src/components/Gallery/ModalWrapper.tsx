@@ -1,39 +1,43 @@
 import React from 'react';
-import Carousel, { Modal, ModalGateway, ViewType } from 'react-images';
+// import { createPortal } from 'react-dom';
+// import { ViewType } from 'react-images';
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+// import usePortal from './utils';
 
-import { ModalImage } from './ModalImage';
+import { Modal } from '../Modal';
 
 /**
  * Small modal component
  */
 export type ModalWrapperProps = {
   /** The images for the Carousel component */
-  images: ViewType[];
+  images: ReactImageGalleryItem[];
   /** Boolean for if modal is open*/
   modalIsOpen: boolean;
   /** click event handler for toggling modal */
-  toggleModal: (event: React.SyntheticEvent<HTMLButtonElement>) => void;
+  toggleModal: () => void | ((event?: React.BaseSyntheticEvent) => void);
   /** The index for the component */
   index?: number;
 };
 
 export const ModalComponent: React.FC<ModalWrapperProps> = (props) => {
-  const { images, index, modalIsOpen, toggleModal } = props;
+  const { images, modalIsOpen, toggleModal } = props;
+  // index, modalIsOpen,
+
+  if (!Modal) return null;
 
   return (
-    <ModalGateway>
-      {modalIsOpen ? (
-        <Modal onClose={toggleModal}>
-          <Carousel
-            components={{
-              // @ts-expect-error
-              View: ModalImage,
-            }}
-            currentIndex={index}
-            views={images}
-          />
-        </Modal>
-      ) : null}
-    </ModalGateway>
+    <Modal onClose={toggleModal} open={modalIsOpen}>
+      <ImageGallery
+        items={images}
+        // defaultImage={defaultImage}
+        // showBullets={true}
+        // showIndex={true}
+        // showThumbnails={false}
+        // lazyLoad={true}
+        // showPlayButton={false}
+        // renderCustomControls={someComponent}
+      />
+    </Modal>
   );
 };

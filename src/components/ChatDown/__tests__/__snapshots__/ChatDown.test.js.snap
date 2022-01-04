@@ -140,11 +140,6 @@ exports[`ChatDown should render component with its default props 1`] = `
   >
     <img
       data-testid="chatdown-img"
-      src={
-        Object {
-          "process": [Function],
-        }
-      }
     />
     <h1>
       Error
