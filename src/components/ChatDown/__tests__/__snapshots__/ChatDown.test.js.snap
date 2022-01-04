@@ -63,13 +63,16 @@ exports[`ChatDown should render component with custom image url 1`] = `
     className="str-chat__down-main"
   >
     <img
+      alt="Connection error"
       data-testid="chatdown-img"
       src="https://random.url/image.png"
     />
     <h1>
       Error
     </h1>
-    <h3>
+    <h3
+      aria-live="assertive"
+    >
       Error connecting to chat, refresh the page to try again.
     </h3>
   </div>
@@ -139,12 +142,20 @@ exports[`ChatDown should render component with its default props 1`] = `
     className="str-chat__down-main"
   >
     <img
+      alt="Connection error"
       data-testid="chatdown-img"
+      src={
+        Object {
+          "process": [Function],
+        }
+      }
     />
     <h1>
       Error
     </h1>
-    <h3>
+    <h3
+      aria-live="assertive"
+    >
       Error connecting to chat, refresh the page to try again.
     </h3>
   </div>

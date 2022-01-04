@@ -20,15 +20,17 @@ describe('ChannelPreviewMessenger', () => {
   let chatClient;
   let channel;
   const renderComponent = (props) => (
-    <ChannelPreviewMessenger
-      channel={channel}
-      displayImage='https://randomimage.com/src.jpg'
-      displayTitle='Channel name'
-      latestMessage='Latest message!'
-      setActiveChannel={jest.fn()}
-      unread={10}
-      {...props}
-    />
+    <div aria-label='Select Channel' role='listbox'>
+      <ChannelPreviewMessenger
+        channel={channel}
+        displayImage='https://randomimage.com/src.jpg'
+        displayTitle='Channel name'
+        latestMessage='Latest message!'
+        setActiveChannel={jest.fn()}
+        unread={10}
+        {...props}
+      />
+    </div>
   );
 
   const initializeChannel = async (c) => {

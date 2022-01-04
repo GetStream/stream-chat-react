@@ -136,7 +136,13 @@ export const MessageActions = <
         mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
       />
-      <ActionsIcon />
+      <button
+        aria-expanded={actionsBoxOpen}
+        aria-haspopup='true'
+        aria-label='Open Message Actions Menu'
+      >
+        <ActionsIcon />
+      </button>
     </MessageActionsWrapper>
   );
 };

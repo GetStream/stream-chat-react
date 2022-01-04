@@ -9,7 +9,7 @@ export const ModalImage: React.FC<ModalImageProps> = (props) => {
   const { data } = props;
   return (
     <div className='str-chat__modal-image__wrapper' data-testid='modal-image'>
-      <img className='str-chat__modal-image__image' src={data.source} />
+      <img alt='User uploaded content' className='str-chat__modal-image__image' src={data.source} />
     </div>
   );
 };

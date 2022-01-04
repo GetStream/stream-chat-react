@@ -1,9 +1,8 @@
 import React from 'react';
-// import { createPortal } from 'react-dom';
-// import { ViewType } from 'react-images';
-import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
-// import usePortal from './utils';
 
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+
+// import { ModalImage } from './ModalImage';
 import { Modal } from '../Modal';
 
 /**

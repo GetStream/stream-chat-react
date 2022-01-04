@@ -1,63 +1,70 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelPreviewMessenger should render correctly 1`] = `
-<button
-  className="str-chat__channel-preview-messenger str-chat__channel-preview-messenger--unread "
-  data-testid="channel-preview-button"
-  onClick={[Function]}
+<div
+  aria-label="Select Channel"
+  role="listbox"
 >
-  <div
-    className="str-chat__channel-preview-messenger--left"
+  <button
+    aria-label="Select Channel: Channel name"
+    className="str-chat__channel-preview-messenger str-chat__channel-preview-messenger--unread "
+    data-testid="channel-preview-button"
+    onClick={[Function]}
+    role="option"
   >
     <div
-      className="str-chat__avatar str-chat__avatar--circle"
-      data-testid="avatar"
-      onClick={[Function]}
-      onMouseOver={[Function]}
-      style={
-        Object {
-          "flexBasis": "40px",
-          "fontSize": "20px",
-          "height": "40px",
-          "lineHeight": "40px",
-          "width": "40px",
-        }
-      }
-      title="Channel name"
+      className="str-chat__channel-preview-messenger--left"
     >
-      <img
-        alt="C"
-        className="str-chat__avatar-image"
-        data-testid="avatar-img"
-        onError={[Function]}
-        onLoad={[Function]}
-        src="https://randomimage.com/src.jpg"
+      <div
+        className="str-chat__avatar str-chat__avatar--circle"
+        data-testid="avatar"
+        onClick={[Function]}
+        onMouseOver={[Function]}
         style={
           Object {
             "flexBasis": "40px",
+            "fontSize": "20px",
             "height": "40px",
-            "objectFit": "cover",
+            "lineHeight": "40px",
             "width": "40px",
           }
         }
-      />
+        title="Channel name"
+      >
+        <img
+          alt="C"
+          className="str-chat__avatar-image"
+          data-testid="avatar-img"
+          onError={[Function]}
+          onLoad={[Function]}
+          src="https://randomimage.com/src.jpg"
+          style={
+            Object {
+              "flexBasis": "40px",
+              "height": "40px",
+              "objectFit": "cover",
+              "width": "40px",
+            }
+          }
+        />
+      </div>
     </div>
-  </div>
-  <div
-    className="str-chat__channel-preview-messenger--right"
-  >
     <div
-      className="str-chat__channel-preview-messenger--name"
+      className="str-chat__channel-preview-messenger--right"
     >
-      <span>
-        Channel name
-      </span>
+      <div
+        className="str-chat__channel-preview-messenger--name"
+      >
+        <span>
+          Channel name
+        </span>
+      </div>
+      <div
+        className="str-chat__channel-preview-messenger--last-message"
+      >
+        Latest message!
+      </div>
     </div>
-    <div
-      className="str-chat__channel-preview-messenger--last-message"
-    >
-      Latest message!
-    </div>
-  </div>
-</button>
+  </button>
+</div>
 `;

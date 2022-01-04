@@ -11,12 +11,12 @@ import { Gallery } from '../Gallery';
 let chatClient;
 
 const mockGalleryAssets = [
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
+  { original: 'https://placeimg.com/640/480/any', src: 'https://placeimg.com/640/480/any' },
 ];
 
 afterEach(cleanup); // eslint-disable-line

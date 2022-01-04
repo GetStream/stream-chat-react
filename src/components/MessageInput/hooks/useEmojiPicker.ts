@@ -19,6 +19,8 @@ export const useEmojiPicker = <
 
   const closeEmojiPicker = useCallback(
     (event: MouseEvent) => {
+      event.preventDefault();
+
       if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
         dispatch({
           type: 'setEmojiPickerIsOpen',
@@ -29,7 +31,9 @@ export const useEmojiPicker = <
     [emojiPickerRef],
   );
 
-  const openEmojiPicker: React.MouseEventHandler<HTMLSpanElement> = useCallback((event) => {
+  const openEmojiPicker: React.MouseEventHandler<HTMLButtonElement> = useCallback((event) => {
+    event.preventDefault();
+
     dispatch({
       type: 'setEmojiPickerIsOpen',
       value: true,
@@ -39,14 +43,14 @@ export const useEmojiPicker = <
     event.stopPropagation();
   }, []);
 
-  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement> = (event) => {
+  const handleEmojiKeyDown: React.KeyboardEventHandler<HTMLButtonElement> = (event) => {
     if (event.key === ' ' || event.key === 'Enter' || event.key === 'Spacebar') {
       event.preventDefault();
       /**
        * TODO: fix the below at some point because this type casting is wrong
        * and just forced to not have warnings currently with the unknown casting
        */
-      openEmojiPicker((event as unknown) as React.MouseEvent<HTMLSpanElement, MouseEvent>);
+      openEmojiPicker((event as unknown) as React.MouseEvent<HTMLButtonElement, MouseEvent>);
     }
   };
 
