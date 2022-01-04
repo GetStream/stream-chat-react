@@ -86,27 +86,6 @@ Array [
               </div>
             </div>
             <button
-              aria-label="Play or Pause Slideshow"
-              className="image-gallery-icon image-gallery-play-button"
-              onClick={[Function]}
-              type="button"
-            >
-              <svg
-                className="image-gallery-svg"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <polygon
-                  points="5 3 19 12 5 21 5 3"
-                />
-              </svg>
-            </button>
-            <button
               aria-label="Open Fullscreen"
               className="image-gallery-icon image-gallery-fullscreen-button"
               onClick={[Function]}
@@ -127,6 +106,25 @@ Array [
                 />
               </svg>
             </button>
+            <div
+              className="image-gallery-index"
+            >
+              <span
+                className="image-gallery-index-current"
+              >
+                1
+              </span>
+              <span
+                className="image-gallery-index-separator"
+              >
+                 / 
+              </span>
+              <span
+                className="image-gallery-index-total"
+              >
+                1
+              </span>
+            </div>
           </div>
         </div>
       </div>

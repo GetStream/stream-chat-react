@@ -1,13 +1,8 @@
 import React from 'react';
-
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
 
-// import { ModalImage } from './ModalImage';
 import { Modal } from '../Modal';
 
-/**
- * Small modal component
- */
 export type ModalWrapperProps = {
   /** The images for the Carousel component */
   images: ReactImageGalleryItem[];
@@ -20,22 +15,16 @@ export type ModalWrapperProps = {
 };
 
 export const ModalComponent: React.FC<ModalWrapperProps> = (props) => {
-  const { images, modalIsOpen, toggleModal } = props;
-  // index, modalIsOpen,
-
-  if (!Modal) return null;
+  const { images, index, modalIsOpen, toggleModal } = props;
 
   return (
     <Modal onClose={toggleModal} open={modalIsOpen}>
       <ImageGallery
         items={images}
-        // defaultImage={defaultImage}
-        // showBullets={true}
-        // showIndex={true}
-        // showThumbnails={false}
-        // lazyLoad={true}
-        // showPlayButton={false}
-        // renderCustomControls={someComponent}
+        showIndex={true}
+        showPlayButton={false}
+        showThumbnails={false}
+        startIndex={index}
       />
     </Modal>
   );
