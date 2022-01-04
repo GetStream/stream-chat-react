@@ -75,14 +75,12 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
           </p>
         </button>
       )}
-      {modalOpen && (
-        <ModalWrapper
-          images={formattedArray}
-          index={index}
-          modalIsOpen={modalOpen}
-          toggleModal={() => setModalOpen(!modalOpen)}
-        />
-      )}
+      <ModalWrapper
+        images={formattedArray}
+        index={index}
+        modalIsOpen={modalOpen}
+        toggleModal={() => setModalOpen(!modalOpen)}
+      />
     </div>
   );
 };
