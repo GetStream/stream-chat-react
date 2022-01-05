@@ -475,6 +475,18 @@ const ChannelInner = <
     }
   }, [state.messages, state.thread]);
 
+  // Focuses last message instead of first
+  useEffect(() => {
+    const input = document.getElementsByClassName('rta');
+    if (document.activeElement !== input[0]?.childNodes[0]) {
+      if (state.messages?.length && !state.thread) {
+        const elements = document.getElementsByClassName('str-chat__message--regular');
+        const lastMessage = elements[elements.length - 1];
+        (lastMessage as HTMLElement)?.focus();
+      }
+    }
+  }, [document.activeElement]);
+
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
