@@ -477,9 +477,8 @@ const ChannelInner = <
 
   // Focuses last message instead of first
   useEffect(() => {
-    const input = document.getElementsByClassName('rta');
-    if (document.activeElement !== input[0]?.childNodes[0]) {
-      if (state.messages?.length && !state.thread) {
+    if (state.messages?.length && !state.thread) {
+      if (document.activeElement?.previousElementSibling) {
         const elements = document.getElementsByClassName('str-chat__message--regular');
         const lastMessage = elements[elements.length - 1];
         (lastMessage as HTMLElement)?.focus();

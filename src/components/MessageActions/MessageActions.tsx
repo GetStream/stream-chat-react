@@ -167,7 +167,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
 
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
-    setActionsBoxOpen(true);
+    setActionsBoxOpen(!actionsBoxOpen);
   };
 
   const wrapperProps = {
