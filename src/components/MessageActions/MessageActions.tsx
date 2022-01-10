@@ -95,8 +95,9 @@ export const MessageActions = <
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
+
   const escapePressHandler = useCallback((event) => {
-    if (event?.keyCode === 27) {
+    if (event.key === 'Escape') {
       hideOptions();
     }
   }, []);

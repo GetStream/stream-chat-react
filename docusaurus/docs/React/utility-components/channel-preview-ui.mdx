@@ -6,7 +6,7 @@ title: ChannelPreview UI
 
 The ChannelPreview UI component receives props via the [`ChannelPreview`](./channel-preview.mdx) wrapper, and
 these props are a combination of the `ChannelPreview` props with additional UI specific items. The wrapper also handles the required logic
-while the UI component is responsible for the UI display and the click functionality for channel selection. 
+while the UI component is responsible for the UI display and the click functionality for channel selection.
 
 This UI component is set via the `Preview` prop on `ChannelList`, and if nothing is provided then the default is used, [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
 
@@ -85,6 +85,13 @@ Title of channel to display.
 | ------ |
 | string |
 
+### focusedChannel
+The channel with current focus.
+
+| Type   |
+| ------ |
+| number |
+
 ### lastMessage
 The last message received in a channel.
 
@@ -98,6 +105,13 @@ Latest message preview to display. Will be either a string or a JSX.Element rend
 | Type                  |
 | --------------------- |
 | string \| JSX.Element |
+
+### loadedChannels
+The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true.
+
+| Type      |
+| --------- |
+| Channel[] |
 
 ### Preview
 
