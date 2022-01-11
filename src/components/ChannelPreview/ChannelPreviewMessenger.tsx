@@ -52,7 +52,12 @@ const UnMemoizedChannelPreviewMessenger = <
       setActiveChannel(channel, watchers);
     }
     if (channelPreviewButton?.current) {
-      channelPreviewButton.current.blur();
+      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+      const textarea = textareaElements.item(0);
+
+      if (textarea instanceof HTMLTextAreaElement) {
+        textarea.focus();
+      }
     }
   };
 
