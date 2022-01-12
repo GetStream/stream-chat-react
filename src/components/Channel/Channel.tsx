@@ -514,6 +514,16 @@ const ChannelInner = <
             setFocusedMessage((prevFocused) => prevFocused + 1);
           } else setFocusedMessage((prevFocused) => prevFocused + 1);
         }
+
+        if (event.key === 'ArrowRight') {
+          const message = channel.state.messages[focusedMessage];
+
+          if (!message?.parent_id && message) openThread(message, event);
+        }
+
+        if (event.key === 'ArrowLeft') {
+          closeThread(event);
+        }
       } else if (event.key === 'Tab' && !event.shiftKey) {
         const loadElements = document.getElementsByClassName('str-chat__load-more-button__button');
         const loadMoreButton = loadElements.item(0);
@@ -751,13 +761,13 @@ const ChannelInner = <
 
   const openThread = (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.BaseSyntheticEvent,
+    event: React.BaseSyntheticEvent | KeyboardEvent,
   ) => {
     event.preventDefault();
     dispatch({ channel, message, type: 'openThread' });
   };
 
-  const closeThread = (event: React.BaseSyntheticEvent) => {
+  const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
     event.preventDefault();
     dispatch({ type: 'closeThread' });
     if (textarea instanceof HTMLTextAreaElement) {
