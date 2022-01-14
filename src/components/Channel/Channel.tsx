@@ -509,9 +509,9 @@ const ChannelInner = <
 
           if (event.key === 'ArrowDown') {
             if (!regularMessages || focusedMessage === regularMessages) return;
-            event.preventDefault();
             if (focusedMessage === regularMessages - 1) {
               if (textarea instanceof HTMLTextAreaElement) {
+                event.preventDefault();
                 textarea.focus();
               }
               setFocusedMessage((prevFocused) => prevFocused + 1);
@@ -527,21 +527,42 @@ const ChannelInner = <
           if (event.key === 'ArrowLeft') {
             closeThread(event);
           }
+
+          if (event.key === 'Tab' && event.shiftKey && focusedMessage !== regularMessages) {
+            const channelList = document.getElementsByClassName(
+              'str-chat__channel-list-messenger__main',
+            )[0];
+
+            if (channelList instanceof HTMLDivElement) {
+              event.preventDefault();
+              channelList.focus();
+            }
+          }
         } else if (event.key === 'Tab' && !event.shiftKey) {
-          const loadElements = document.getElementsByClassName(
+          const loadMoreButton = document.getElementsByClassName(
             'str-chat__load-more-button__button',
-          );
-          const loadMoreButton = loadElements.item(0);
+          )[0];
 
           if (loadMoreButton === document.activeElement) {
-            event.preventDefault();
-            const textareaElements = document.getElementsByClassName(
-              'str-chat__textarea__textarea',
-            );
-            const textarea = textareaElements.item(0);
-
+            const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
             if (textarea instanceof HTMLTextAreaElement) {
+              event.preventDefault();
               textarea.focus();
+            }
+          } else {
+            const channelPreview = document.getElementsByClassName(
+              'str-chat__channel-preview-messenger',
+            );
+            const hasFocus = Array.from(channelPreview).some((channel) =>
+              channel.contains(document.activeElement),
+            );
+            if (hasFocus) {
+              const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
+
+              if (textarea instanceof HTMLTextAreaElement) {
+                event.preventDefault();
+                textarea.focus();
+              }
             }
           }
         }
