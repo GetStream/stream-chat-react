@@ -478,8 +478,7 @@ const ChannelInner = <
 
   /** Keyboard Navigation */
 
-  const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-  const textarea = textareaElements.item(0);
+  const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
 
   const messageElements = document.getElementsByClassName('str-chat__message--regular');
 
@@ -499,23 +498,29 @@ const ChannelInner = <
           event.target instanceof HTMLElement &&
           channelRef.current?.contains(event.target)
         ) {
-          if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            if (regularMessages) {
-              if (focusedMessage === 0) return;
-              else setFocusedMessage((prevFocused) => prevFocused - 1);
-            }
-          }
+          const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+          const textarea = textareaElements.item(0);
+          const threadTextarea = textareaElements.item(1);
 
-          if (event.key === 'ArrowDown') {
-            if (!regularMessages || focusedMessage === regularMessages) return;
-            if (focusedMessage === regularMessages - 1) {
-              if (textarea instanceof HTMLTextAreaElement) {
-                event.preventDefault();
-                textarea.focus();
+          if (threadTextarea !== document.activeElement) {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              if (regularMessages) {
+                if (focusedMessage === 0) return;
+                else setFocusedMessage((prevFocused) => prevFocused - 1);
               }
-              setFocusedMessage((prevFocused) => prevFocused + 1);
-            } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            }
+
+            if (event.key === 'ArrowDown') {
+              if (!regularMessages || focusedMessage === regularMessages) return;
+              if (focusedMessage === regularMessages - 1) {
+                if (textarea instanceof HTMLTextAreaElement) {
+                  event.preventDefault();
+                  textarea.focus();
+                }
+                setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            }
           }
 
           if (event.key === 'ArrowRight') {
@@ -528,7 +533,7 @@ const ChannelInner = <
             closeThread(event);
           }
 
-          if (event.key === 'Tab' && event.shiftKey && focusedMessage !== regularMessages) {
+          if (event.key === 'Tab' && event.shiftKey && textarea !== document.activeElement) {
             const channelList = document.getElementsByClassName(
               'str-chat__channel-list-messenger__main',
             )[0];
@@ -542,9 +547,9 @@ const ChannelInner = <
           const loadMoreButton = document.getElementsByClassName(
             'str-chat__load-more-button__button',
           )[0];
+          const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
 
           if (loadMoreButton === document.activeElement) {
-            const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
             if (textarea instanceof HTMLTextAreaElement) {
               event.preventDefault();
               textarea.focus();
@@ -557,8 +562,6 @@ const ChannelInner = <
               channel.contains(document.activeElement),
             );
             if (hasFocus) {
-              const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
-
               if (textarea instanceof HTMLTextAreaElement) {
                 event.preventDefault();
                 textarea.focus();
