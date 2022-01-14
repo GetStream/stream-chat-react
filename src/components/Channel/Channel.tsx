@@ -1,5 +1,6 @@
 import React, {
   PropsWithChildren,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -475,16 +476,112 @@ const ChannelInner = <
     }
   }, [state.messages, state.thread]);
 
-  // Focuses last message instead of first
-  useEffect(() => {
-    if (state.messages?.length && !state.thread) {
-      if (document.activeElement?.previousElementSibling) {
-        const elements = document.getElementsByClassName('str-chat__message--regular');
-        const lastMessage = elements[elements.length - 1];
-        (lastMessage as HTMLElement)?.focus();
+  /** Keyboard Navigation */
+
+  const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
+
+  const messageElements = document.getElementsByClassName('str-chat__message--regular');
+
+  const suggestionList = document.getElementsByClassName('rta__list');
+
+  const regularMessages = channel.state.messages.filter((m) => m.type === 'regular').length;
+
+  const [focusedMessage, setFocusedMessage] = useState<number>(regularMessages);
+
+  const channelRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!suggestionList[0] && !state.thread) {
+        if (
+          channelRef &&
+          event.target instanceof HTMLElement &&
+          channelRef.current?.contains(event.target)
+        ) {
+          const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+          const textarea = textareaElements.item(0);
+          const threadTextarea = textareaElements.item(1);
+
+          if (threadTextarea !== document.activeElement) {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              if (regularMessages) {
+                if (focusedMessage === 0) return;
+                else setFocusedMessage((prevFocused) => prevFocused - 1);
+              }
+            }
+
+            if (event.key === 'ArrowDown') {
+              if (!regularMessages || focusedMessage === regularMessages) return;
+              if (focusedMessage === regularMessages - 1) {
+                if (textarea instanceof HTMLTextAreaElement) {
+                  event.preventDefault();
+                  textarea.focus();
+                }
+                setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            }
+          }
+
+          if (event.key === 'ArrowRight') {
+            const message = channel.state.messages[focusedMessage];
+
+            if (message) openThread(message, event);
+          }
+
+          if (event.key === 'ArrowLeft') {
+            closeThread(event);
+          }
+
+          if (event.key === 'Tab' && event.shiftKey && textarea !== document.activeElement) {
+            const channelList = document.getElementsByClassName(
+              'str-chat__channel-list-messenger__main',
+            )[0];
+
+            if (channelList instanceof HTMLDivElement) {
+              event.preventDefault();
+              channelList.focus();
+            }
+          }
+        } else if (event.key === 'Tab' && !event.shiftKey) {
+          const loadMoreButton = document.getElementsByClassName(
+            'str-chat__load-more-button__button',
+          )[0];
+          const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
+
+          if (loadMoreButton === document.activeElement) {
+            if (textarea instanceof HTMLTextAreaElement) {
+              event.preventDefault();
+              textarea.focus();
+            }
+          } else {
+            const channelPreview = document.getElementsByClassName(
+              'str-chat__channel-preview-messenger',
+            );
+            const hasFocus = Array.from(channelPreview).some((channel) =>
+              channel.contains(document.activeElement),
+            );
+            if (hasFocus) {
+              if (textarea instanceof HTMLTextAreaElement) {
+                event.preventDefault();
+                textarea.focus();
+              }
+            }
+          }
+        }
       }
-    }
-  }, [document.activeElement]);
+    },
+    [focusedMessage],
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  useEffect(() => {
+    (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage]);
 
   /** MESSAGE */
 
@@ -554,6 +651,10 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
+    const offset = queryResponse.messages.length - 25 || 25;
+    console.log(queryResponse.messages.length, offset, messageElements.length);
+
+    setFocusedMessage(messageElements.length - 25);
 
     return queryResponse.messages.length;
   };
@@ -695,15 +796,19 @@ const ChannelInner = <
 
   const openThread = (
     message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    event: React.BaseSyntheticEvent,
+    event: React.BaseSyntheticEvent | KeyboardEvent,
   ) => {
     event.preventDefault();
     dispatch({ channel, message, type: 'openThread' });
   };
 
-  const closeThread = (event: React.BaseSyntheticEvent) => {
+  const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
     event.preventDefault();
     dispatch({ type: 'closeThread' });
+    if (textarea instanceof HTMLTextAreaElement) {
+      textarea.focus();
+      setFocusedMessage(regularMessages);
+    }
   };
 
   const loadMoreThreadFinished = debounce(
@@ -888,7 +993,7 @@ const ChannelInner = <
   }
 
   return (
-    <div className={`${chatClass} ${channelClass} ${theme} ${windowsEmojiClass}`}>
+    <div className={`${chatClass} ${channelClass} ${theme} ${windowsEmojiClass}`} ref={channelRef}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>

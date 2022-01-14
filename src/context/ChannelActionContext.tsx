@@ -67,7 +67,7 @@ export type ChannelActionContextValue<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
-  closeThread: (event: React.BaseSyntheticEvent) => void;
+  closeThread: (event: React.BaseSyntheticEvent | KeyboardEvent) => void;
   dispatch: React.Dispatch<ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>>;
   editMessage: (
     message: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
