@@ -138,15 +138,19 @@ const UnMemoizedMessageActionsBox = <
 
   const messageActions = getMessageActions();
 
+  const actions = {
+    deleteAction: messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1,
+    editAction: messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1,
+    flagAction: messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1,
+    muteAction: messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1,
+    pinAction: messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1,
+    quoteAction: messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1,
+  };
+
+  const actionsLength = Object.values(actions).filter((a) => a === true).length;
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      // console.log(actionBoxRef.current, event.target);
-
-      // if (
-      //   actionBoxRef &&
-      //   event.target instanceof HTMLElement &&
-      //   actionBoxRef.current?.contains(event.target)
-      // ) {
       if (event.key === 'ArrowUp') {
         event.preventDefault();
         setFocusedAction((prevFocused) => {
@@ -163,10 +167,9 @@ const UnMemoizedMessageActionsBox = <
         });
       }
 
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        return;
-      }
+      // if (event.key === 'Tab') {
+      //   event.preventDefault();
+      //   return;
       // }
     },
     [focusedAction],
@@ -178,17 +181,6 @@ const UnMemoizedMessageActionsBox = <
     }
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown, open]);
-
-  const actions: any = {
-    deleteAction: [messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1],
-    editAction: [messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1],
-    flagAction: [messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1],
-    muteAction: [messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1],
-    pinAction: [messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1],
-    quoteAction: [messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1],
-  };
-
-  const actionsLength = Object.values(actions).filter((a: any) => a === true).length;
 
   const checkIfReverse = useCallback(
     (containerElement: HTMLDivElement) => {
@@ -345,7 +337,7 @@ const UnMemoizedMessageActionsBox = <
     } else return null;
   };
 
-  const orderedActions = ['quote', 'pin', 'flag', 'mute', 'edit', 'delete'];
+  // const orderedActions = ['quote', 'pin', 'flag', 'mute', 'edit', 'delete'];
 
   return (
     <div
@@ -367,8 +359,8 @@ const UnMemoizedMessageActionsBox = <
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
-        {/* {messageActions.map((action, index) => ( */}
-        {orderedActions.map((action, index) => (
+        {/* {orderedActions.map((action, index) => ( */}
+        {messageActions.map((action, index) => (
           <ActionItem action={action} index={index} key={index} />
         ))}
         {/* <ActionBox /> */}

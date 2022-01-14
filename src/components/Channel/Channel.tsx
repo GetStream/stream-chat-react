@@ -501,46 +501,56 @@ const ChannelInner = <
           const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
           const textarea = textareaElements.item(0);
           const threadTextarea = textareaElements.item(1);
+          const actionsBox = document.getElementsByClassName(
+            'str-chat__message-actions-box--open',
+          )[0];
 
-          if (threadTextarea !== document.activeElement) {
-            if (event.key === 'ArrowUp') {
-              event.preventDefault();
-              if (regularMessages) {
-                if (focusedMessage === 0) return;
-                else setFocusedMessage((prevFocused) => prevFocused - 1);
+          if (!actionsBox) {
+            if (threadTextarea !== document.activeElement) {
+              if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (regularMessages) {
+                  if (focusedMessage === 0) return;
+                  else setFocusedMessage((prevFocused) => prevFocused - 1);
+                }
+              }
+
+              if (event.key === 'ArrowDown') {
+                if (!regularMessages || focusedMessage === regularMessages) return;
+                if (focusedMessage === regularMessages - 1) {
+                  if (textarea instanceof HTMLTextAreaElement) {
+                    event.preventDefault();
+                    textarea.focus();
+                  }
+                  setFocusedMessage((prevFocused) => prevFocused + 1);
+                } else setFocusedMessage((prevFocused) => prevFocused + 1);
               }
             }
 
-            if (event.key === 'ArrowDown') {
-              if (!regularMessages || focusedMessage === regularMessages) return;
-              if (focusedMessage === regularMessages - 1) {
-                if (textarea instanceof HTMLTextAreaElement) {
-                  event.preventDefault();
-                  textarea.focus();
-                }
-                setFocusedMessage((prevFocused) => prevFocused + 1);
-              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            if (event.key === 'ArrowRight') {
+              const message = channel.state.messages[focusedMessage];
+
+              if (message) openThread(message, event);
             }
-          }
 
-          if (event.key === 'ArrowRight') {
-            const message = channel.state.messages[focusedMessage];
+            if (event.key === 'ArrowLeft') {
+              closeThread(event);
+            }
 
-            if (message) openThread(message, event);
-          }
+            if (event.key === 'Tab' && event.shiftKey && textarea !== document.activeElement) {
+              const messageHasFocus = Array.from(messageElements).some(
+                (message) => message === document.activeElement,
+              );
+              if (messageHasFocus) {
+                const channelList = document.getElementsByClassName(
+                  'str-chat__channel-list-messenger__main',
+                )[0];
 
-          if (event.key === 'ArrowLeft') {
-            closeThread(event);
-          }
-
-          if (event.key === 'Tab' && event.shiftKey && textarea !== document.activeElement) {
-            const channelList = document.getElementsByClassName(
-              'str-chat__channel-list-messenger__main',
-            )[0];
-
-            if (channelList instanceof HTMLDivElement) {
-              event.preventDefault();
-              channelList.focus();
+                if (channelList instanceof HTMLDivElement) {
+                  event.preventDefault();
+                  channelList.focus();
+                }
+              }
             }
           }
         } else if (event.key === 'Tab' && !event.shiftKey) {
@@ -558,10 +568,10 @@ const ChannelInner = <
             const channelPreview = document.getElementsByClassName(
               'str-chat__channel-preview-messenger',
             );
-            const hasFocus = Array.from(channelPreview).some((channel) =>
+            const channelHasFocus = Array.from(channelPreview).some((channel) =>
               channel.contains(document.activeElement),
             );
-            if (hasFocus) {
+            if (channelHasFocus) {
               if (textarea instanceof HTMLTextAreaElement) {
                 event.preventDefault();
                 textarea.focus();
