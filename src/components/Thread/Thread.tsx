@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { FixedHeightMessage } from '../Message/FixedHeightMessage';
 import { Message } from '../Message/Message';
@@ -221,12 +221,79 @@ const ThreadInner = <
     }
   }, [threadMessages?.length]);
 
+  /** Keyboard Navigation */
+
+  const [focusedMessage, setFocusedMessage] = useState<number>(0);
+
+  const threadRef = useRef<HTMLDivElement>(null);
+
+  const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+  const textarea = textareaElements.item(textareaElements.length - 1);
+
+  const messageElements = document.getElementsByClassName('str-chat__message--reply');
+  const closeButton = document.getElementsByClassName('str-chat__square-button')[0];
+
+  useEffect(() => {
+    if (!focusedMessage) {
+      setFocusedMessage(messageElements.length);
+    }
+  }, [threadMessages]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (
+        threadMessages &&
+        threadRef &&
+        event.target instanceof HTMLElement &&
+        threadRef.current?.contains(event.target)
+      ) {
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          if (messageElements.length) {
+            if (focusedMessage === -1) return;
+            else if (focusedMessage === 0) {
+              if (closeButton instanceof HTMLButtonElement) {
+                closeButton.focus();
+                setFocusedMessage((prevFocused) => prevFocused - 1);
+              }
+            } else setFocusedMessage((prevFocused) => prevFocused - 1);
+          }
+        }
+
+        if (event.key === 'ArrowDown') {
+          if (!messageElements.length || focusedMessage === messageElements.length) return;
+          event.preventDefault();
+          if (focusedMessage === messageElements.length - 1) {
+            if (textarea instanceof HTMLTextAreaElement) {
+              textarea.focus();
+            }
+            setFocusedMessage((prevFocused) => prevFocused + 1);
+          } else setFocusedMessage((prevFocused) => prevFocused + 1);
+        }
+
+        if (event.key === 'ArrowLeft') {
+          closeThread(event);
+        }
+      }
+    },
+    [focusedMessage],
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
+  useEffect(() => {
+    (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage]);
+
   if (!thread) return null;
 
   const threadClass = customClasses?.thread || 'str-chat__thread';
 
   return (
-    <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
+    <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`} ref={threadRef}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message

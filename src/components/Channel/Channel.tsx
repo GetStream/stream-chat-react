@@ -483,6 +483,8 @@ const ChannelInner = <
 
   const messageElements = document.getElementsByClassName('str-chat__message--regular');
 
+  const suggestionList = document.getElementsByClassName('rta__list');
+
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular').length;
 
   const [focusedMessage, setFocusedMessage] = useState<number>(regularMessages);
@@ -491,50 +493,56 @@ const ChannelInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        channelRef &&
-        event.target instanceof HTMLElement &&
-        channelRef.current?.contains(event.target)
-      ) {
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          if (regularMessages) {
-            if (focusedMessage === 0) return;
-            else setFocusedMessage((prevFocused) => prevFocused - 1);
+      if (!suggestionList[0] && !state.thread) {
+        if (
+          channelRef &&
+          event.target instanceof HTMLElement &&
+          channelRef.current?.contains(event.target)
+        ) {
+          if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (regularMessages) {
+              if (focusedMessage === 0) return;
+              else setFocusedMessage((prevFocused) => prevFocused - 1);
+            }
           }
-        }
 
-        if (event.key === 'ArrowDown') {
-          if (!regularMessages || focusedMessage === regularMessages) return;
-          event.preventDefault();
-          if (focusedMessage === regularMessages - 1) {
+          if (event.key === 'ArrowDown') {
+            if (!regularMessages || focusedMessage === regularMessages) return;
+            event.preventDefault();
+            if (focusedMessage === regularMessages - 1) {
+              if (textarea instanceof HTMLTextAreaElement) {
+                textarea.focus();
+              }
+              setFocusedMessage((prevFocused) => prevFocused + 1);
+            } else setFocusedMessage((prevFocused) => prevFocused + 1);
+          }
+
+          if (event.key === 'ArrowRight') {
+            const message = channel.state.messages[focusedMessage];
+
+            if (message) openThread(message, event);
+          }
+
+          if (event.key === 'ArrowLeft') {
+            closeThread(event);
+          }
+        } else if (event.key === 'Tab' && !event.shiftKey) {
+          const loadElements = document.getElementsByClassName(
+            'str-chat__load-more-button__button',
+          );
+          const loadMoreButton = loadElements.item(0);
+
+          if (loadMoreButton === document.activeElement) {
+            event.preventDefault();
+            const textareaElements = document.getElementsByClassName(
+              'str-chat__textarea__textarea',
+            );
+            const textarea = textareaElements.item(0);
+
             if (textarea instanceof HTMLTextAreaElement) {
               textarea.focus();
             }
-            setFocusedMessage((prevFocused) => prevFocused + 1);
-          } else setFocusedMessage((prevFocused) => prevFocused + 1);
-        }
-
-        if (event.key === 'ArrowRight') {
-          const message = channel.state.messages[focusedMessage];
-
-          if (!message?.parent_id && message) openThread(message, event);
-        }
-
-        if (event.key === 'ArrowLeft') {
-          closeThread(event);
-        }
-      } else if (event.key === 'Tab' && !event.shiftKey) {
-        const loadElements = document.getElementsByClassName('str-chat__load-more-button__button');
-        const loadMoreButton = loadElements.item(0);
-
-        if (loadMoreButton === document.activeElement) {
-          event.preventDefault();
-          const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-          const textarea = textareaElements.item(0);
-
-          if (textarea instanceof HTMLTextAreaElement) {
-            textarea.focus();
           }
         }
       }
@@ -619,6 +627,9 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
+    const offset = queryResponse.messages.length - 25 || 25;
+    console.log(queryResponse.messages.length, offset, messageElements.length);
+
     setFocusedMessage(messageElements.length - 25);
 
     return queryResponse.messages.length;
