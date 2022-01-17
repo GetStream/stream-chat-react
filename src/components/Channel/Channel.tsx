@@ -486,9 +486,20 @@ const ChannelInner = <
 
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular').length;
 
+  // const actionsBoxx = document.getElementsByClassName('str-chat__message-actions-box--open');
+  const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+  const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+
   const [focusedMessage, setFocusedMessage] = useState<number>(regularMessages);
+  const [focusedAction, setFocusedAction] = useState<number>();
 
   const channelRef = useRef<HTMLDivElement>(null);
+
+  // useEffect(() => {
+  //   if (!focusedAction) {
+  //     setFocusedAction(0);
+  //   }
+  // }, [actionElements]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -501,11 +512,12 @@ const ChannelInner = <
           const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
           const textarea = textareaElements.item(0);
           const threadTextarea = textareaElements.item(1);
-          const actionsBox = document.getElementsByClassName(
-            'str-chat__message-actions-box--open',
-          )[0];
+          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+          const actionElements = actionsBox?.querySelectorAll(
+            '.str-chat__message-actions-list-item',
+          );
 
-          if (!actionsBox) {
+          if (!actionElements) {
             if (threadTextarea !== document.activeElement) {
               if (event.key === 'ArrowUp') {
                 event.preventDefault();
@@ -552,6 +564,28 @@ const ChannelInner = <
                 }
               }
             }
+          } else {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              setFocusedAction((prevFocused) => {
+                console.log(prevFocused, focusedAction, actionElements);
+                if (prevFocused === undefined) return 0;
+                if (actionElements) {
+                  return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
+                } else return 0;
+              });
+            }
+
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              setFocusedAction((prevFocused) => {
+                console.log(prevFocused, focusedAction, actionElements);
+                if (prevFocused === undefined) return 0;
+                if (actionElements) {
+                  return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
+                } else return 0;
+              });
+            }
           }
         } else if (event.key === 'Tab' && !event.shiftKey) {
           const loadMoreButton = document.getElementsByClassName(
@@ -592,6 +626,13 @@ const ChannelInner = <
   useEffect(() => {
     (messageElements[focusedMessage] as HTMLElement)?.focus();
   }, [focusedMessage]);
+
+  useEffect(() => {
+    // if (actionElements) console.log(focusedAction, actionElements, 'effect');
+    console.log('focusedAction', focusedAction);
+
+    if (actionElements && focusedAction) (actionElements[focusedAction] as HTMLElement)?.focus();
+  }, [focusedAction]);
 
   /** MESSAGE */
 

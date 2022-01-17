@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
@@ -60,7 +60,6 @@ const CustomMessageActionsList = <
             className='str-chat__message-actions-list-item'
             key={customAction}
             onClick={(event) => customHandler(message, event)}
-            // ref={actionRef}
             role='option'
           >
             {customAction}
@@ -132,55 +131,8 @@ const UnMemoizedMessageActionsBox = <
   const { t } = useTranslationContext('MessageActionsBox');
 
   const [reverse, setReverse] = useState(false);
-  const [focusedAction, setFocusedAction] = useState<number>(0);
-
-  const actionBoxRef = useRef<HTMLDivElement>(null);
 
   const messageActions = getMessageActions();
-
-  const actions = {
-    deleteAction: messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1,
-    editAction: messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1,
-    flagAction: messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1,
-    muteAction: messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1,
-    pinAction: messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1,
-    quoteAction: messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1,
-  };
-
-  const actionsLength = Object.values(actions).filter((a) => a === true).length;
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setFocusedAction((prevFocused) => {
-          if (prevFocused === undefined) return 0;
-          return prevFocused === 0 ? actionsLength - 1 : prevFocused - 1;
-        });
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setFocusedAction((prevFocused) => {
-          if (prevFocused === undefined) return 0;
-          return prevFocused === actionsLength - 1 ? 0 : prevFocused + 1;
-        });
-      }
-
-      // if (event.key === 'Tab') {
-      //   event.preventDefault();
-      //   return;
-      // }
-    },
-    [focusedAction],
-  );
-
-  useEffect(() => {
-    if (open) {
-      document.addEventListener('keydown', handleKeyDown, false);
-    }
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown, open]);
 
   const checkIfReverse = useCallback(
     (containerElement: HTMLDivElement) => {
@@ -213,132 +165,6 @@ const UnMemoizedMessageActionsBox = <
     }
   };
 
-  const ActionItem = (props: any) => {
-    const { action, index } = props;
-
-    const focused = focusedAction === index;
-
-    const actionRef = useRef<HTMLButtonElement>(null);
-
-    useEffect(() => {
-      if (actionRef.current && focused) {
-        actionRef.current.focus();
-      }
-    }, [focused]);
-
-    if (action === 'quote') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
-            !message.parent_id &&
-            !message.quoted_message && (
-              <button
-                aria-selected='false'
-                className='str-chat__message-actions-list-item'
-                onClick={handleQuote}
-                ref={actionRef}
-                role='option'
-              >
-                {t('Reply')}
-              </button>
-            )}
-        </>
-      );
-    }
-
-    if (action === 'pin') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handlePin}
-              ref={actionRef}
-              role='option'
-            >
-              {!message.pinned ? t('Pin') : t('Unpin')}
-            </button>
-          )}
-        </>
-      );
-    }
-
-    if (action === 'flag') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handleFlag}
-              ref={actionRef}
-              role='option'
-            >
-              {t('Flag')}
-            </button>
-          )}
-        </>
-      );
-    }
-
-    if (action === 'mute') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handleMute}
-              ref={actionRef}
-              role='option'
-            >
-              {isUserMuted() ? t('Unmute') : t('Mute')}
-            </button>
-          )}
-        </>
-      );
-    }
-
-    if (action === 'edit') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handleEdit}
-              ref={actionRef}
-              role='option'
-            >
-              {t('Edit Message')}
-            </button>
-          )}
-        </>
-      );
-    }
-
-    if (action === 'delete') {
-      return (
-        <>
-          {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handleDelete}
-              ref={actionRef}
-              role='option'
-            >
-              {t('Delete')}
-            </button>
-          )}
-        </>
-      );
-    } else return null;
-  };
-
-  // const orderedActions = ['quote', 'pin', 'flag', 'mute', 'edit', 'delete'];
-
   return (
     <div
       className={`str-chat__message-actions-box
@@ -348,22 +174,73 @@ const UnMemoizedMessageActionsBox = <
       `}
       data-testid='message-actions-box'
       ref={checkIfReverse}
-      // ref={actionBoxRef}
     >
-      <div
-        aria-label='Message Options'
-        className='str-chat__message-actions-list'
-        ref={actionBoxRef}
-        role='listbox'
-      >
+      <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
-        {/* {orderedActions.map((action, index) => ( */}
-        {messageActions.map((action, index) => (
-          <ActionItem action={action} index={index} key={index} />
-        ))}
-        {/* <ActionBox /> */}
+        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
+          !message.parent_id &&
+          !message.quoted_message && (
+            <button
+              aria-selected='false'
+              className='str-chat__message-actions-list-item'
+              onClick={handleQuote}
+              role='option'
+            >
+              {t('Reply')}
+            </button>
+          )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handlePin}
+            role='option'
+          >
+            {!message.pinned ? t('Pin') : t('Unpin')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleFlag}
+            role='option'
+          >
+            {t('Flag')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleMute}
+            role='option'
+          >
+            {isUserMuted() ? t('Unmute') : t('Mute')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleEdit}
+            role='option'
+          >
+            {t('Edit Message')}
+          </button>
+        )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleDelete}
+            role='option'
+          >
+            {t('Delete')}
+          </button>
+        )}
       </div>
     </div>
   );
