@@ -39,6 +39,8 @@ const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentT
   const formattedArray = useMemo(
     () =>
       images.map((image) => ({
+        original: image.image_url || image.thumb_url || '',
+        originalAlt: 'User uploaded content',
         source: image.image_url || image.thumb_url || '',
       })),
     [images],

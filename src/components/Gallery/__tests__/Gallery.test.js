@@ -11,12 +11,36 @@ import { Gallery } from '../Gallery';
 let chatClient;
 
 const mockGalleryAssets = [
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
-  { src: 'https://placeimg.com/640/480/any' },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
+  {
+    original: 'https://placeimg.com/640/480/any',
+    originalAlt: 'User uploaded content',
+    src: 'https://placeimg.com/640/480/any',
+  },
 ];
 
 afterEach(cleanup); // eslint-disable-line
@@ -45,11 +69,11 @@ describe('Gallery', () => {
   it('should open modal on image click', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => null);
 
-    const { getByTestId } = render(<Gallery images={mockGalleryAssets.slice(0, 1)} />);
+    const { getByTestId, getByTitle } = render(<Gallery images={mockGalleryAssets.slice(0, 1)} />);
     fireEvent.click(getByTestId('gallery-image'));
 
     await waitFor(() => {
-      expect(getByTestId('modal-image')).toBeInTheDocument();
+      expect(getByTitle('Close')).toBeInTheDocument();
     });
   });
 

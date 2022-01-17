@@ -47,7 +47,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
 
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>
-      <button className='str-chat__modal__close-button' ref={closeRef}>
+      <button className='str-chat__modal__close-button' ref={closeRef} title='Close'>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path

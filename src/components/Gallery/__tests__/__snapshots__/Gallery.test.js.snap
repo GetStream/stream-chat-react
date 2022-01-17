@@ -31,6 +31,250 @@ exports[`Gallery should render component with 3 images 1`] = `
       alt="User uploaded content"
     />
   </button>
+  <div
+    className="str-chat__modal str-chat__modal--closed"
+    onClick={[Function]}
+  >
+    <button
+      className="str-chat__modal__close-button"
+      title="Close"
+    >
+      Close
+      <svg
+        height="10"
+        width="10"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
+          fillRule="evenodd"
+        />
+      </svg>
+    </button>
+    <div
+      className="str-chat__modal__inner"
+    >
+      <div
+        aria-live="polite"
+        className="image-gallery"
+      >
+        <div
+          className="image-gallery-content bottom"
+        >
+          <div
+            className="image-gallery-slide-wrapper bottom"
+          >
+            <button
+              aria-label="Previous Slide"
+              className="image-gallery-icon image-gallery-left-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="15 18 9 12 15 6"
+                />
+              </svg>
+            </button>
+            <button
+              aria-label="Next Slide"
+              className="image-gallery-icon image-gallery-right-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="9 18 15 12 9 6"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-swipe"
+            >
+              <div
+                className="image-gallery-slides"
+              >
+                <div
+                  aria-label="Go to Slide 1"
+                  className="image-gallery-slide  center "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(0%, 0, 0)",
+                      "OTransform": "translate3d(0%, 0, 0)",
+                      "WebkitTransform": "translate3d(0%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(0%, 0, 0)",
+                      "transform": "translate3d(0%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 2"
+                  className="image-gallery-slide  right "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(100%, 0, 0)",
+                      "OTransform": "translate3d(100%, 0, 0)",
+                      "WebkitTransform": "translate3d(100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(100%, 0, 0)",
+                      "transform": "translate3d(100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 3"
+                  className="image-gallery-slide  left "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(-100%, 0, 0)",
+                      "OTransform": "translate3d(-100%, 0, 0)",
+                      "WebkitTransform": "translate3d(-100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(-100%, 0, 0)",
+                      "transform": "translate3d(-100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+              </div>
+            </div>
+            <button
+              aria-label="Open Fullscreen"
+              className="image-gallery-icon image-gallery-fullscreen-button"
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-index"
+            >
+              <span
+                className="image-gallery-index-current"
+              >
+                1
+              </span>
+              <span
+                className="image-gallery-index-separator"
+              >
+                 / 
+              </span>
+              <span
+                className="image-gallery-index-total"
+              >
+                3
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 `;
 
@@ -78,6 +322,288 @@ exports[`Gallery should render component with 4 images 1`] = `
       {{ imageCount }} more
     </p>
   </button>
+  <div
+    className="str-chat__modal str-chat__modal--closed"
+    onClick={[Function]}
+  >
+    <button
+      className="str-chat__modal__close-button"
+      title="Close"
+    >
+      Close
+      <svg
+        height="10"
+        width="10"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
+          fillRule="evenodd"
+        />
+      </svg>
+    </button>
+    <div
+      className="str-chat__modal__inner"
+    >
+      <div
+        aria-live="polite"
+        className="image-gallery"
+      >
+        <div
+          className="image-gallery-content bottom"
+        >
+          <div
+            className="image-gallery-slide-wrapper bottom"
+          >
+            <button
+              aria-label="Previous Slide"
+              className="image-gallery-icon image-gallery-left-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="15 18 9 12 15 6"
+                />
+              </svg>
+            </button>
+            <button
+              aria-label="Next Slide"
+              className="image-gallery-icon image-gallery-right-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="9 18 15 12 9 6"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-swipe"
+            >
+              <div
+                className="image-gallery-slides"
+              >
+                <div
+                  aria-label="Go to Slide 1"
+                  className="image-gallery-slide  center "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(0%, 0, 0)",
+                      "OTransform": "translate3d(0%, 0, 0)",
+                      "WebkitTransform": "translate3d(0%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(0%, 0, 0)",
+                      "transform": "translate3d(0%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 2"
+                  className="image-gallery-slide  right "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(100%, 0, 0)",
+                      "OTransform": "translate3d(100%, 0, 0)",
+                      "WebkitTransform": "translate3d(100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(100%, 0, 0)",
+                      "transform": "translate3d(100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 3"
+                  className="image-gallery-slide  "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(200%, 0, 0)",
+                      "OTransform": "translate3d(200%, 0, 0)",
+                      "WebkitTransform": "translate3d(200%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(200%, 0, 0)",
+                      "transform": "translate3d(200%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 4"
+                  className="image-gallery-slide  left "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(-100%, 0, 0)",
+                      "OTransform": "translate3d(-100%, 0, 0)",
+                      "WebkitTransform": "translate3d(-100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(-100%, 0, 0)",
+                      "transform": "translate3d(-100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+              </div>
+            </div>
+            <button
+              aria-label="Open Fullscreen"
+              className="image-gallery-icon image-gallery-fullscreen-button"
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-index"
+            >
+              <span
+                className="image-gallery-index-current"
+              >
+                1
+              </span>
+              <span
+                className="image-gallery-index-separator"
+              >
+                 / 
+              </span>
+              <span
+                className="image-gallery-index-total"
+              >
+                4
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 `;
 
@@ -125,6 +651,364 @@ exports[`Gallery should render component with 6 images 1`] = `
       {{ imageCount }} more
     </p>
   </button>
+  <div
+    className="str-chat__modal str-chat__modal--closed"
+    onClick={[Function]}
+  >
+    <button
+      className="str-chat__modal__close-button"
+      title="Close"
+    >
+      Close
+      <svg
+        height="10"
+        width="10"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
+          fillRule="evenodd"
+        />
+      </svg>
+    </button>
+    <div
+      className="str-chat__modal__inner"
+    >
+      <div
+        aria-live="polite"
+        className="image-gallery"
+      >
+        <div
+          className="image-gallery-content bottom"
+        >
+          <div
+            className="image-gallery-slide-wrapper bottom"
+          >
+            <button
+              aria-label="Previous Slide"
+              className="image-gallery-icon image-gallery-left-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="15 18 9 12 15 6"
+                />
+              </svg>
+            </button>
+            <button
+              aria-label="Next Slide"
+              className="image-gallery-icon image-gallery-right-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="9 18 15 12 9 6"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-swipe"
+            >
+              <div
+                className="image-gallery-slides"
+              >
+                <div
+                  aria-label="Go to Slide 1"
+                  className="image-gallery-slide  center "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(0%, 0, 0)",
+                      "OTransform": "translate3d(0%, 0, 0)",
+                      "WebkitTransform": "translate3d(0%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(0%, 0, 0)",
+                      "transform": "translate3d(0%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 2"
+                  className="image-gallery-slide  right "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(100%, 0, 0)",
+                      "OTransform": "translate3d(100%, 0, 0)",
+                      "WebkitTransform": "translate3d(100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(100%, 0, 0)",
+                      "transform": "translate3d(100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 3"
+                  className="image-gallery-slide  "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(200%, 0, 0)",
+                      "OTransform": "translate3d(200%, 0, 0)",
+                      "WebkitTransform": "translate3d(200%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(200%, 0, 0)",
+                      "transform": "translate3d(200%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 4"
+                  className="image-gallery-slide  "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(300%, 0, 0)",
+                      "OTransform": "translate3d(300%, 0, 0)",
+                      "WebkitTransform": "translate3d(300%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(300%, 0, 0)",
+                      "transform": "translate3d(300%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 5"
+                  className="image-gallery-slide  "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(400%, 0, 0)",
+                      "OTransform": "translate3d(400%, 0, 0)",
+                      "WebkitTransform": "translate3d(400%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(400%, 0, 0)",
+                      "transform": "translate3d(400%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 6"
+                  className="image-gallery-slide  left "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(-100%, 0, 0)",
+                      "OTransform": "translate3d(-100%, 0, 0)",
+                      "WebkitTransform": "translate3d(-100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(-100%, 0, 0)",
+                      "transform": "translate3d(-100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+              </div>
+            </div>
+            <button
+              aria-label="Open Fullscreen"
+              className="image-gallery-icon image-gallery-fullscreen-button"
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-index"
+            >
+              <span
+                className="image-gallery-index-current"
+              >
+                1
+              </span>
+              <span
+                className="image-gallery-index-separator"
+              >
+                 / 
+              </span>
+              <span
+                className="image-gallery-index-total"
+              >
+                6
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 `;
 
@@ -150,5 +1034,211 @@ exports[`Gallery should render component with default props 1`] = `
       alt="User uploaded content"
     />
   </button>
+  <div
+    className="str-chat__modal str-chat__modal--closed"
+    onClick={[Function]}
+  >
+    <button
+      className="str-chat__modal__close-button"
+      title="Close"
+    >
+      Close
+      <svg
+        height="10"
+        width="10"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z"
+          fillRule="evenodd"
+        />
+      </svg>
+    </button>
+    <div
+      className="str-chat__modal__inner"
+    >
+      <div
+        aria-live="polite"
+        className="image-gallery"
+      >
+        <div
+          className="image-gallery-content bottom"
+        >
+          <div
+            className="image-gallery-slide-wrapper bottom"
+          >
+            <button
+              aria-label="Previous Slide"
+              className="image-gallery-icon image-gallery-left-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="15 18 9 12 15 6"
+                />
+              </svg>
+            </button>
+            <button
+              aria-label="Next Slide"
+              className="image-gallery-icon image-gallery-right-nav"
+              disabled={false}
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1}
+                viewBox="6 0 12 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="9 18 15 12 9 6"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-swipe"
+            >
+              <div
+                className="image-gallery-slides"
+              >
+                <div
+                  aria-label="Go to Slide 1"
+                  className="image-gallery-slide  center "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(0%, 0, 0)",
+                      "OTransform": "translate3d(0%, 0, 0)",
+                      "WebkitTransform": "translate3d(0%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(0%, 0, 0)",
+                      "transform": "translate3d(0%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+                <div
+                  aria-label="Go to Slide 2"
+                  className="image-gallery-slide  right "
+                  onClick={null}
+                  onFocus={null}
+                  onKeyUp={[Function]}
+                  onMouseLeave={null}
+                  onMouseOver={null}
+                  onTouchEnd={null}
+                  onTouchMove={null}
+                  onTouchStart={null}
+                  role="button"
+                  style={
+                    Object {
+                      "MozTransform": "translate3d(100%, 0, 0)",
+                      "OTransform": "translate3d(100%, 0, 0)",
+                      "WebkitTransform": "translate3d(100%, 0, 0)",
+                      "display": "inherit",
+                      "msTransform": "translate3d(100%, 0, 0)",
+                      "transform": "translate3d(100%, 0, 0)",
+                    }
+                  }
+                  tabIndex="-1"
+                >
+                  <img
+                    alt="User uploaded content"
+                    className="image-gallery-image"
+                    height=""
+                    onError={[Function]}
+                    onLoad={[Function]}
+                    sizes=""
+                    src=""
+                    srcSet=""
+                    title=""
+                    width=""
+                  />
+                  
+                </div>
+              </div>
+            </div>
+            <button
+              aria-label="Open Fullscreen"
+              className="image-gallery-icon image-gallery-fullscreen-button"
+              onClick={[Function]}
+              type="button"
+            >
+              <svg
+                className="image-gallery-svg"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+              </svg>
+            </button>
+            <div
+              className="image-gallery-index"
+            >
+              <span
+                className="image-gallery-index-current"
+              >
+                1
+              </span>
+              <span
+                className="image-gallery-index-separator"
+              >
+                 / 
+              </span>
+              <span
+                className="image-gallery-index-total"
+              >
+                2
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 `;
