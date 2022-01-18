@@ -47,7 +47,7 @@ describe('Image', () => {
     fireEvent.click(getByTestId('image-test'));
 
     await waitFor(() => {
-      expect(getByTitle('Close (esc)')).toBeInTheDocument();
+      expect(getByTitle('Close')).toBeInTheDocument();
     });
   });
 });
