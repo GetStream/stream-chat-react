@@ -237,14 +237,10 @@ const VirtualizedMessageListWithContext = <
         message.user?.id === messageList[streamMessageIndex - 1].user?.id;
 
       const firstOfGroup =
-        shouldGroupByUser &&
-        message.user?.id === messageList[streamMessageIndex + 1]?.user?.id &&
-        message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+        shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
 
       const endOfGroup =
-        shouldGroupByUser &&
-        streamMessageIndex > 0 &&
-        message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+        shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
       return (
         <Message
