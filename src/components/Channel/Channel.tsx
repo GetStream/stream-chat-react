@@ -484,26 +484,20 @@ const ChannelInner = <
 
   const suggestionList = document.getElementsByClassName('rta__list');
 
-  const regularMessages = channel.state.messages.filter((m) => m.type === 'regular').length;
+  const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
+  const numberOfRegularMessages = regularMessages.length;
 
-  // const actionsBoxx = document.getElementsByClassName('str-chat__message-actions-box--open');
   const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
   const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
 
-  const [focusedMessage, setFocusedMessage] = useState<number>(regularMessages);
-  const [focusedAction, setFocusedAction] = useState<number>();
+  const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
+  const [focusedAction, setFocusedAction] = useState<number>(0);
 
   const channelRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   if (!focusedAction) {
-  //     setFocusedAction(0);
-  //   }
-  // }, [actionElements]);
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0] && !state.thread) {
+      if (!suggestionList[0]) {
         if (
           channelRef &&
           event.target instanceof HTMLElement &&
@@ -512,24 +506,26 @@ const ChannelInner = <
           const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
           const textarea = textareaElements.item(0);
           const threadTextarea = textareaElements.item(1);
+          const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
+
           const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
           const actionElements = actionsBox?.querySelectorAll(
             '.str-chat__message-actions-list-item',
           );
 
-          if (!actionElements) {
+          if (!actionElements && textarea !== document.activeElement && !threadMessageElements[0]) {
             if (threadTextarea !== document.activeElement) {
               if (event.key === 'ArrowUp') {
                 event.preventDefault();
-                if (regularMessages) {
+                if (numberOfRegularMessages) {
                   if (focusedMessage === 0) return;
                   else setFocusedMessage((prevFocused) => prevFocused - 1);
                 }
               }
 
               if (event.key === 'ArrowDown') {
-                if (!regularMessages || focusedMessage === regularMessages) return;
-                if (focusedMessage === regularMessages - 1) {
+                if (!numberOfRegularMessages || focusedMessage === numberOfRegularMessages) return;
+                if (focusedMessage === numberOfRegularMessages - 1) {
                   if (textarea instanceof HTMLTextAreaElement) {
                     event.preventDefault();
                     textarea.focus();
@@ -540,16 +536,21 @@ const ChannelInner = <
             }
 
             if (event.key === 'ArrowRight') {
-              const message = channel.state.messages[focusedMessage];
-
-              if (message) openThread(message, event);
+              const message = regularMessages[focusedMessage];
+              if (message) {
+                openThread(message, event);
+                if (threadTextarea instanceof HTMLTextAreaElement) {
+                  event.preventDefault();
+                  threadTextarea.focus();
+                }
+              }
             }
 
             if (event.key === 'ArrowLeft') {
               closeThread(event);
             }
 
-            if (event.key === 'Tab' && event.shiftKey && textarea !== document.activeElement) {
+            if (event.key === 'Tab' && event.shiftKey) {
               const messageHasFocus = Array.from(messageElements).some(
                 (message) => message === document.activeElement,
               );
@@ -557,19 +558,16 @@ const ChannelInner = <
                 const channelList = document.getElementsByClassName(
                   'str-chat__channel-list-messenger__main',
                 )[0];
-
                 if (channelList instanceof HTMLDivElement) {
                   event.preventDefault();
                   channelList.focus();
                 }
               }
             }
-          } else {
+          } else if (actionElements) {
             if (event.key === 'ArrowUp') {
               event.preventDefault();
               setFocusedAction((prevFocused) => {
-                console.log(prevFocused, focusedAction, actionElements);
-                if (prevFocused === undefined) return 0;
                 if (actionElements) {
                   return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
                 } else return 0;
@@ -579,8 +577,6 @@ const ChannelInner = <
             if (event.key === 'ArrowDown') {
               event.preventDefault();
               setFocusedAction((prevFocused) => {
-                console.log(prevFocused, focusedAction, actionElements);
-                if (prevFocused === undefined) return 0;
                 if (actionElements) {
                   return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
                 } else return 0;
@@ -602,10 +598,11 @@ const ChannelInner = <
             const channelPreview = document.getElementsByClassName(
               'str-chat__channel-preview-messenger',
             );
-            const channelHasFocus = Array.from(channelPreview).some((channel) =>
+            const channelPreviewHasFocus = Array.from(channelPreview).some((channel) =>
               channel.contains(document.activeElement),
             );
-            if (channelHasFocus) {
+
+            if (channelPreviewHasFocus) {
               if (textarea instanceof HTMLTextAreaElement) {
                 event.preventDefault();
                 textarea.focus();
@@ -624,15 +621,14 @@ const ChannelInner = <
   }, [handleKeyDown]);
 
   useEffect(() => {
-    (messageElements[focusedMessage] as HTMLElement)?.focus();
-  }, [focusedMessage]);
+    if (actionElements) {
+      (actionElements[focusedAction] as HTMLElement)?.focus();
+    }
+  }, [focusedAction]);
 
   useEffect(() => {
-    // if (actionElements) console.log(focusedAction, actionElements, 'effect');
-    console.log('focusedAction', focusedAction);
-
-    if (actionElements && focusedAction) (actionElements[focusedAction] as HTMLElement)?.focus();
-  }, [focusedAction]);
+    (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage]);
 
   /** MESSAGE */
 
@@ -851,6 +847,10 @@ const ChannelInner = <
   ) => {
     event.preventDefault();
     dispatch({ channel, message, type: 'openThread' });
+    const threadTextarea = document.getElementsByClassName('str-chat__textarea__textarea')[1];
+    if (threadTextarea instanceof HTMLTextAreaElement) {
+      threadTextarea.focus();
+    }
   };
 
   const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
@@ -858,7 +858,7 @@ const ChannelInner = <
     dispatch({ type: 'closeThread' });
     if (textarea instanceof HTMLTextAreaElement) {
       textarea.focus();
-      setFocusedMessage(regularMessages);
+      setFocusedMessage(numberOfRegularMessages);
     }
   };
 

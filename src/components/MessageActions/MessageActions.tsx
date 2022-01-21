@@ -92,7 +92,15 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
+  const hideOptions = useCallback(() => {
+    setActionsBoxOpen(false);
+    const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+    const textarea = textareaElements.item(0);
+    const threadTextarea = textareaElements.item(1);
+    if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
+    else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+  }, []);
+
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
@@ -118,6 +126,10 @@ export const MessageActions = <
     if (actionsBoxOpen) {
       document.addEventListener('click', hideOptions);
       document.addEventListener('keydown', escapePressHandler);
+      const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+      const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+
+      if (actionElements) (actionElements[0] as HTMLElement)?.focus();
     } else {
       document.removeEventListener('click', hideOptions);
       document.removeEventListener('keydown', escapePressHandler);

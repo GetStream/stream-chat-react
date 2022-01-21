@@ -232,6 +232,7 @@ const ThreadInner = <
 
   const messageElements = document.getElementsByClassName('str-chat__message--reply');
   const closeButton = document.getElementsByClassName('str-chat__square-button')[0];
+  const suggestionList = document.getElementsByClassName('rta__list');
 
   useEffect(() => {
     if (!focusedMessage) {
@@ -241,38 +242,46 @@ const ThreadInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        threadMessages &&
-        threadRef &&
-        event.target instanceof HTMLElement &&
-        threadRef.current?.contains(event.target)
-      ) {
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          if (messageElements.length) {
-            if (focusedMessage === -1) return;
-            else if (focusedMessage === 0) {
-              if (closeButton instanceof HTMLButtonElement) {
-                closeButton.focus();
-                setFocusedMessage((prevFocused) => prevFocused - 1);
+      if (!suggestionList[0]) {
+        if (
+          threadMessages &&
+          threadRef &&
+          event.target instanceof HTMLElement &&
+          threadRef.current?.contains(event.target)
+        ) {
+          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+          const actionElements = actionsBox?.querySelectorAll(
+            '.str-chat__message-actions-list-item',
+          );
+          if (!actionElements && textarea !== document.activeElement) {
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              if (messageElements.length) {
+                if (focusedMessage === -1) return;
+                else if (focusedMessage === 0) {
+                  if (closeButton instanceof HTMLButtonElement) {
+                    closeButton.focus();
+                    setFocusedMessage((prevFocused) => prevFocused - 1);
+                  }
+                } else setFocusedMessage((prevFocused) => prevFocused - 1);
               }
-            } else setFocusedMessage((prevFocused) => prevFocused - 1);
-          }
-        }
-
-        if (event.key === 'ArrowDown') {
-          if (!messageElements.length || focusedMessage === messageElements.length) return;
-          event.preventDefault();
-          if (focusedMessage === messageElements.length - 1) {
-            if (textarea instanceof HTMLTextAreaElement) {
-              textarea.focus();
             }
-            setFocusedMessage((prevFocused) => prevFocused + 1);
-          } else setFocusedMessage((prevFocused) => prevFocused + 1);
-        }
 
-        if (event.key === 'ArrowLeft') {
-          closeThread(event);
+            if (event.key === 'ArrowDown') {
+              if (!messageElements.length || focusedMessage === messageElements.length) return;
+              event.preventDefault();
+              if (focusedMessage === messageElements.length - 1) {
+                if (textarea instanceof HTMLTextAreaElement) {
+                  textarea.focus();
+                }
+                setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            }
+
+            if (event.key === 'ArrowLeft') {
+              closeThread(event);
+            }
+          }
         }
       }
     },
