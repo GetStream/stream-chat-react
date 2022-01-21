@@ -101,9 +101,11 @@ const UnMemoizedReactionSelector = React.forwardRef(
       arrow: number;
       tooltip: number;
     } | null>(null);
+    const [focusedReaction, setFocusedReaction] = useState<number>(0);
 
     const targetRef = useRef<HTMLDivElement | null>(null);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
+    const reactionRef = useRef<HTMLButtonElement>(null);
 
     const showTooltip = useCallback((event, reactionType: string) => {
       targetRef.current = event.target;
@@ -152,6 +154,57 @@ const UnMemoizedReactionSelector = React.forwardRef(
       latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
       undefined;
 
+    const reactionElements = document.getElementsByClassName(
+      'str-chat__message-reactions-list-item',
+    );
+
+    const handleKeyDown = useCallback(
+      (event: KeyboardEvent) => {
+        if (event.key === 'ArrowLeft') {
+          setFocusedReaction((prevFocused) => {
+            if (prevFocused === undefined) return 0;
+            return prevFocused === 0 ? reactionOptions.length - 1 : prevFocused - 1;
+          });
+        }
+
+        if (event.key === 'ArrowRight') {
+          setFocusedReaction((prevFocused) => {
+            if (prevFocused === undefined) return 0;
+            return prevFocused === reactionOptions.length - 1 ? 0 : prevFocused + 1;
+          });
+        }
+
+        if (event.key === 'Tab') {
+          event.preventDefault();
+          return;
+        }
+
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+          const textarea = textareaElements.item(0);
+          const threadTextarea = textareaElements.item(1);
+          if (threadTextarea instanceof HTMLTextAreaElement) {
+            threadTextarea.focus();
+          } else if (textarea instanceof HTMLTextAreaElement) {
+            textarea.focus();
+          }
+        }
+      },
+      [focusedReaction],
+    );
+
+    useEffect(() => {
+      document.addEventListener('keydown', handleKeyDown, false);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [handleKeyDown]);
+
+    useEffect(() => {
+      if (reactionElements) {
+        (reactionElements[focusedReaction] as HTMLElement)?.focus();
+      }
+    }, [focusedReaction]);
+
     return (
       <div
         className={`str-chat__reaction-selector ${
@@ -189,6 +242,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                   className='str-chat__message-reactions-list-item'
                   data-text={reactionOption.id}
                   onClick={(event) => handleReaction(reactionOption.id, event)}
+                  ref={reactionRef}
                 >
                   {!!count && detailedView && (
                     <>

@@ -489,6 +489,7 @@ const ChannelInner = <
 
   const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
   const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+  const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [focusedAction, setFocusedAction] = useState<number>(0);
@@ -497,7 +498,7 @@ const ChannelInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0]) {
+      if (!suggestionList[0] && !reactionElements[0]) {
         if (
           channelRef &&
           event.target instanceof HTMLElement &&

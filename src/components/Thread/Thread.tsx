@@ -233,6 +233,7 @@ const ThreadInner = <
   const messageElements = document.getElementsByClassName('str-chat__message--reply');
   const closeButton = document.getElementsByClassName('str-chat__square-button')[0];
   const suggestionList = document.getElementsByClassName('rta__list');
+  const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
 
   useEffect(() => {
     if (!focusedMessage) {
@@ -242,7 +243,7 @@ const ThreadInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0]) {
+      if (!suggestionList[0] && !reactionElements[0]) {
         if (
           threadMessages &&
           threadRef &&
