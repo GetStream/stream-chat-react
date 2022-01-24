@@ -92,21 +92,19 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const hideOptions = useCallback(() => {
-    setActionsBoxOpen(false);
-    const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-    const textarea = textareaElements.item(0);
-    const threadTextarea = textareaElements.item(1);
-    if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-    else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
-  }, []);
+  const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
 
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
   const escapePressHandler = useCallback((event) => {
     if (event.key === 'Escape') {
-      hideOptions();
+      setActionsBoxOpen(false);
+      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+      const textarea = textareaElements.item(0);
+      const threadTextarea = textareaElements.item(1);
+      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
+      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
     }
   }, []);
 

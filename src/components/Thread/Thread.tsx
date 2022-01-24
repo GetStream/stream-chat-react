@@ -256,7 +256,6 @@ const ThreadInner = <
           );
           if (!actionElements && textarea !== document.activeElement) {
             if (event.key === 'ArrowUp') {
-              event.preventDefault();
               if (messageElements.length) {
                 if (focusedMessage === -1) return;
                 else if (focusedMessage === 0) {
@@ -270,7 +269,6 @@ const ThreadInner = <
 
             if (event.key === 'ArrowDown') {
               if (!messageElements.length || focusedMessage === messageElements.length) return;
-              event.preventDefault();
               if (focusedMessage === messageElements.length - 1) {
                 if (textarea instanceof HTMLTextAreaElement) {
                   textarea.focus();

@@ -245,18 +245,28 @@ export const useReactionClick = <
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
   const escPressHandler = useCallback((event) => {
-    if (event?.keyCode === 27) {
+    if (event.key === 'Escape') {
       setShowDetailedReactions(false);
+      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+      const textarea = textareaElements.item(0);
+      const threadTextarea = textareaElements.item(1);
+      if (threadTextarea instanceof HTMLTextAreaElement) {
+        threadTextarea.focus();
+      } else if (textarea instanceof HTMLTextAreaElement) {
+        textarea.focus();
+      }
     }
   }, []);
 
   useEffect(() => {
-    document.addEventListener('keydown', escPressHandler);
+    if (showDetailedReactions) {
+      document.addEventListener('keydown', escPressHandler);
+    }
 
     return () => {
       document.removeEventListener('keydown', escPressHandler);
     };
-  }, []);
+  }, [showDetailedReactions]);
 
   const onReactionListClick: ReactEventHandler = (event) => {
     if (event?.stopPropagation) {

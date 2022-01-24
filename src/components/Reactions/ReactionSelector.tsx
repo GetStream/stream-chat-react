@@ -160,14 +160,16 @@ const UnMemoizedReactionSelector = React.forwardRef(
 
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => {
-        if (event.key === 'ArrowLeft') {
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
+          event.preventDefault();
           setFocusedReaction((prevFocused) => {
             if (prevFocused === undefined) return 0;
             return prevFocused === 0 ? reactionOptions.length - 1 : prevFocused - 1;
           });
         }
 
-        if (event.key === 'ArrowRight') {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowUp') {
+          event.preventDefault();
           setFocusedReaction((prevFocused) => {
             if (prevFocused === undefined) return 0;
             return prevFocused === reactionOptions.length - 1 ? 0 : prevFocused + 1;
@@ -177,18 +179,6 @@ const UnMemoizedReactionSelector = React.forwardRef(
         if (event.key === 'Tab') {
           event.preventDefault();
           return;
-        }
-
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-          const textarea = textareaElements.item(0);
-          const threadTextarea = textareaElements.item(1);
-          if (threadTextarea instanceof HTMLTextAreaElement) {
-            threadTextarea.focus();
-          } else if (textarea instanceof HTMLTextAreaElement) {
-            textarea.focus();
-          }
         }
       },
       [focusedReaction],

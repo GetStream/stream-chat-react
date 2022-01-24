@@ -506,39 +506,38 @@ const ChannelInner = <
         ) {
           const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
           const textarea = textareaElements.item(0);
-          const threadTextarea = textareaElements.item(1);
-          const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
-
+          const threadElements = document.getElementsByClassName('str-chat__thread-list');
           const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
           const actionElements = actionsBox?.querySelectorAll(
             '.str-chat__message-actions-list-item',
           );
 
-          if (!actionElements && textarea !== document.activeElement && !threadMessageElements[0]) {
-            if (threadTextarea !== document.activeElement) {
-              if (event.key === 'ArrowUp') {
-                event.preventDefault();
-                if (numberOfRegularMessages) {
-                  if (focusedMessage === 0) return;
-                  else setFocusedMessage((prevFocused) => prevFocused - 1);
+          if (!actionElements && textarea !== document.activeElement && !threadElements[0]) {
+            if (event.key === 'ArrowUp') {
+              if (numberOfRegularMessages) {
+                if (focusedMessage === 0) return;
+                else {
+                  event.preventDefault();
+                  setFocusedMessage((prevFocused) => prevFocused - 1);
                 }
               }
+            }
 
-              if (event.key === 'ArrowDown') {
-                if (!numberOfRegularMessages || focusedMessage === numberOfRegularMessages) return;
-                if (focusedMessage === numberOfRegularMessages - 1) {
-                  if (textarea instanceof HTMLTextAreaElement) {
-                    event.preventDefault();
-                    textarea.focus();
-                  }
-                  setFocusedMessage((prevFocused) => prevFocused + 1);
-                } else setFocusedMessage((prevFocused) => prevFocused + 1);
-              }
+            if (event.key === 'ArrowDown') {
+              if (!numberOfRegularMessages || focusedMessage === numberOfRegularMessages) return;
+              if (focusedMessage === numberOfRegularMessages - 1) {
+                if (textarea instanceof HTMLTextAreaElement) {
+                  event.preventDefault();
+                  textarea.focus();
+                }
+                setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedMessage((prevFocused) => prevFocused + 1);
             }
 
             if (event.key === 'ArrowRight') {
               const message = regularMessages[focusedMessage];
               if (message) {
+                const threadTextarea = textareaElements.item(1);
                 openThread(message, event);
                 if (threadTextarea instanceof HTMLTextAreaElement) {
                   event.preventDefault();
@@ -583,6 +582,13 @@ const ChannelInner = <
                 } else return 0;
               });
             }
+
+            if (event.key === 'Tab') {
+              event.preventDefault();
+              return;
+            }
+
+            if (event.key === 'Enter') setFocusedAction(0);
           }
         } else if (event.key === 'Tab' && !event.shiftKey) {
           const loadMoreButton = document.getElementsByClassName(
