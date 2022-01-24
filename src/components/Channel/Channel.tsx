@@ -481,12 +481,9 @@ const ChannelInner = <
   const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
 
   const messageElements = document.getElementsByClassName('str-chat__message--regular');
-
-  const suggestionList = document.getElementsByClassName('rta__list');
-
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
-
+  const suggestionList = document.getElementsByClassName('rta__list');
   const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
   const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
@@ -512,7 +509,7 @@ const ChannelInner = <
             '.str-chat__message-actions-list-item',
           );
 
-          if (!actionElements && textarea !== document.activeElement && !threadElements[0]) {
+          if (!actionElements && !textarea?.childNodes[0] && !threadElements[0]) {
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
                 if (focusedMessage === 0) return;

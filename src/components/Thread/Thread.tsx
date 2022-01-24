@@ -254,7 +254,7 @@ const ThreadInner = <
           const actionElements = actionsBox?.querySelectorAll(
             '.str-chat__message-actions-list-item',
           );
-          if (!actionElements && textarea !== document.activeElement) {
+          if (!actionElements && !textarea?.childNodes[0]) {
             if (event.key === 'ArrowUp') {
               if (messageElements.length) {
                 if (focusedMessage === -1) return;
