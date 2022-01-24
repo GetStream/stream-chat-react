@@ -39,7 +39,13 @@ export const useChannelUpdatedListener = <
 
         if (channelIndex > -1 && event.channel) {
           const newChannels = channels;
-          newChannels[channelIndex].data = event.channel;
+          newChannels[channelIndex].data = {
+            ...event.channel,
+            hidden: event.channel?.hidden ?? newChannels[channelIndex].data?.hidden,
+            own_capabilities:
+              event.channel?.own_capabilities ?? newChannels[channelIndex].data?.own_capabilities,
+          };
+
           return [...newChannels];
         }
 
