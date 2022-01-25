@@ -487,6 +487,7 @@ const ChannelInner = <
   const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
   const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
+  const modalElement = document.getElementsByClassName('str-chat__modal--open');
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [focusedAction, setFocusedAction] = useState<number>(0);
@@ -495,7 +496,7 @@ const ChannelInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0] && !reactionElements[0]) {
+      if (!suggestionList[0] && !reactionElements[0] && !modalElement[0]) {
         if (
           channelRef &&
           event.target instanceof HTMLElement &&
@@ -612,6 +613,34 @@ const ChannelInner = <
                 textarea.focus();
               }
             }
+          }
+        }
+      } else if (modalElement[0]) {
+        if (event.key === 'Tab') {
+          const sendElement = document.getElementsByClassName('str-chat__send')[0];
+          const fullscreenElement = document.getElementsByClassName(
+            'image-gallery-fullscreen-button',
+          )[0];
+          const closeElement = document.getElementsByClassName('str-chat__modal__close-button')[0];
+
+          if (
+            !event.shiftKey &&
+            (sendElement === document.activeElement || fullscreenElement === document.activeElement)
+          ) {
+            event.preventDefault();
+            console.log(closeElement instanceof HTMLButtonElement);
+
+            if (closeElement instanceof HTMLButtonElement) {
+              console.log(closeElement, 'fi');
+
+              closeElement.focus();
+            }
+          }
+
+          if (event.shiftKey && closeElement === document.activeElement) {
+            console.log('foo');
+            event.preventDefault();
+            return;
           }
         }
       }

@@ -120,7 +120,9 @@ export const EditMessageForm = <
               >
                 {t('Cancel')}
               </button>
-              <button type='submit'>{t('Send')}</button>
+              <button className='str-chat__send' type='submit'>
+                {t('Send')}
+              </button>
             </div>
           </div>
         </form>
