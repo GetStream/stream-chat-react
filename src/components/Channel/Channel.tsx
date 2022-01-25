@@ -478,16 +478,14 @@ const ChannelInner = <
 
   /** Keyboard Navigation */
 
-  const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
-
-  const messageElements = document.getElementsByClassName('str-chat__message--regular');
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
-  const suggestionList = document.getElementsByClassName('rta__list');
+  const messageElements = document.getElementsByClassName('str-chat__message--regular');
   const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
   const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
   const modalElement = document.getElementsByClassName('str-chat__modal--open');
+  const emojiMart = document.getElementsByClassName('emoji-mart');
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [focusedAction, setFocusedAction] = useState<number>(0);
@@ -496,7 +494,7 @@ const ChannelInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0] && !reactionElements[0] && !modalElement[0]) {
+      if (!reactionElements[0] && !modalElement[0] && !emojiMart[0]) {
         if (
           channelRef &&
           event.target instanceof HTMLElement &&
@@ -600,6 +598,9 @@ const ChannelInner = <
               textarea.focus();
             }
           } else {
+            const channelList = document.getElementsByClassName(
+              'str-chat__channel-list-messenger__main',
+            )[0];
             const channelPreview = document.getElementsByClassName(
               'str-chat__channel-preview-messenger',
             );
@@ -607,7 +608,10 @@ const ChannelInner = <
               channel.contains(document.activeElement),
             );
 
-            if (channelPreviewHasFocus) {
+            if (
+              channelPreviewHasFocus ||
+              (!loadMoreButton && channelList === document.activeElement)
+            ) {
               if (textarea instanceof HTMLTextAreaElement) {
                 event.preventDefault();
                 textarea.focus();
@@ -889,6 +893,7 @@ const ChannelInner = <
   const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
     event.preventDefault();
     dispatch({ type: 'closeThread' });
+    const textarea = document.getElementsByClassName('str-chat__textarea__textarea')[0];
     if (textarea instanceof HTMLTextAreaElement) {
       textarea.focus();
       setFocusedMessage(numberOfRegularMessages);

@@ -229,11 +229,10 @@ const ThreadInner = <
 
   const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
   const textarea = textareaElements.item(textareaElements.length - 1);
-
   const messageElements = document.getElementsByClassName('str-chat__message--reply');
   const closeButton = document.getElementsByClassName('str-chat__square-button')[0];
-  const suggestionList = document.getElementsByClassName('rta__list');
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
+  const emojiMart = document.getElementsByClassName('emoji-mart');
 
   useEffect(() => {
     if (!focusedMessage) {
@@ -243,7 +242,7 @@ const ThreadInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!suggestionList[0] && !reactionElements[0]) {
+      if (!reactionElements[0] && !emojiMart[0]) {
         if (
           threadMessages &&
           threadRef &&

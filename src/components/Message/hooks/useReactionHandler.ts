@@ -244,7 +244,7 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  const escPressHandler = useCallback((event) => {
+  const escapePressHandler = useCallback((event) => {
     if (event.key === 'Escape') {
       setShowDetailedReactions(false);
       const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
@@ -260,11 +260,11 @@ export const useReactionClick = <
 
   useEffect(() => {
     if (showDetailedReactions) {
-      document.addEventListener('keydown', escPressHandler);
+      document.addEventListener('keydown', escapePressHandler);
     }
 
     return () => {
-      document.removeEventListener('keydown', escPressHandler);
+      document.removeEventListener('keydown', escapePressHandler);
     };
   }, [showDetailedReactions]);
 
