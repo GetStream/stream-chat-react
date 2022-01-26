@@ -622,27 +622,22 @@ const ChannelInner = <
       } else if (modalElement[0]) {
         if (event.key === 'Tab') {
           const sendElement = document.getElementsByClassName('str-chat__send')[0];
-          const fullscreenElement = document.getElementsByClassName(
-            'image-gallery-fullscreen-button',
-          )[0];
-          const closeElement = document.getElementsByClassName('str-chat__modal__close-button')[0];
 
           if (
             !event.shiftKey &&
-            (sendElement === document.activeElement || fullscreenElement === document.activeElement)
+            (sendElement === event.target ||
+              (event.target as HTMLButtonElement).classList.contains(
+                'image-gallery-fullscreen-button',
+              ))
           ) {
             event.preventDefault();
-            console.log(closeElement instanceof HTMLButtonElement);
-
-            if (closeElement instanceof HTMLButtonElement) {
-              console.log(closeElement, 'fi');
-
-              closeElement.focus();
-            }
+            return;
           }
 
-          if (event.shiftKey && closeElement === document.activeElement) {
-            console.log('foo');
+          if (
+            event.shiftKey &&
+            (event.target as HTMLButtonElement).classList.contains('str-chat__modal__close-button')
+          ) {
             event.preventDefault();
             return;
           }

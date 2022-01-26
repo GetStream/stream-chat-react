@@ -250,11 +250,8 @@ export const useReactionClick = <
       const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
       const textarea = textareaElements.item(0);
       const threadTextarea = textareaElements.item(1);
-      if (threadTextarea instanceof HTMLTextAreaElement) {
-        threadTextarea.focus();
-      } else if (textarea instanceof HTMLTextAreaElement) {
-        textarea.focus();
-      }
+      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
+      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
     }
   }, []);
 

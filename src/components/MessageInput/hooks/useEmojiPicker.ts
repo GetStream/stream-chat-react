@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
@@ -15,6 +15,8 @@ export const useEmojiPicker = <
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
   closeEmojiPickerOnClick?: boolean,
 ) => {
+  const [focusedEmoji, setFocusedEmoji] = useState<number>(0);
+
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const closeEmojiPicker = useCallback(
@@ -55,6 +57,25 @@ export const useEmojiPicker = <
   };
 
   const handleEmojiEscape = (event: KeyboardEvent) => {
+    const emojiMart = document.querySelector('.emoji-mart');
+    const tabbableElements = emojiMart?.querySelectorAll('button');
+
+    if (tabbableElements?.length) {
+      if (event.key === 'ArrowRight') {
+        setFocusedEmoji((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === tabbableElements.length - 1 ? 0 : prevFocused + 1;
+        });
+      }
+
+      if (event.key === 'ArrowLeft') {
+        setFocusedEmoji((prevFocused) => {
+          if (prevFocused === undefined) return 0;
+          return prevFocused === 0 ? tabbableElements.length - 1 : prevFocused - 1;
+        });
+      }
+    }
+
     if (event.key === 'Escape') {
       dispatch({
         type: 'setEmojiPickerIsOpen',
@@ -73,6 +94,16 @@ export const useEmojiPicker = <
       document.removeEventListener('keydown', handleEmojiEscape);
     };
   }, [closeEmojiPicker, state.emojiPickerIsOpen]);
+
+  useEffect(() => {
+    if (state.emojiPickerIsOpen) {
+      const emojiMart = document.querySelector('.emoji-mart');
+      const tabbableElements = emojiMart?.querySelectorAll('button');
+      if (tabbableElements) {
+        (tabbableElements[focusedEmoji] as HTMLElement)?.focus();
+      }
+    }
+  }, [focusedEmoji]);
 
   const onSelectEmoji = useCallback(
     (emoji: EmojiData) => {
