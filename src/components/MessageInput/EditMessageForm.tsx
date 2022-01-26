@@ -8,7 +8,6 @@ import {
 } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
-import { KEY_CODES } from '../AutoCompleteTextarea/listener';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
@@ -61,7 +60,7 @@ export const EditMessageForm = <
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.keyCode === KEY_CODES.ESC && clearEditingState) clearEditingState();
+      if (event.key === 'Escape' && clearEditingState) clearEditingState();
     };
 
     document.addEventListener('keydown', onKeyDown);

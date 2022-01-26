@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -17,11 +17,15 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
-  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleClose = (event: MouseEvent | KeyboardEvent) => {
     if (
-      event.target instanceof HTMLButtonElement &&
-      closeRef.current?.contains(event.target) &&
-      onClose
+      (event.target instanceof HTMLDivElement &&
+        !innerRef.current?.contains(event.target) &&
+        onClose) ||
+      (event.target instanceof HTMLButtonElement &&
+        closeRef.current?.contains(event.target) &&
+        onClose) ||
+      (event instanceof KeyboardEvent && event.key === 'Escape' && onClose)
     ) {
       onClose();
       const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
@@ -32,50 +36,19 @@ export const Modal: React.FC<ModalProps> = (props) => {
     }
   };
 
-  const escapePressHandler = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'Escape' && onClose) {
-      console.log('hi');
-
-      onClose();
-      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-      const textarea = textareaElements.item(0);
-      const threadTextarea = textareaElements.item(1);
-      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
-    }
-  }, []);
-
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', escapePressHandler);
+      document.addEventListener('keydown', handleClose);
     }
-
     return () => {
-      document.removeEventListener('keydown', escapePressHandler);
+      document.removeEventListener('keydown', handleClose);
     };
   }, [open]);
-
-  // const handleEscKey: EventListener = (event) => {
-  //   if (event instanceof KeyboardEvent && event.key === 'Escape' && onClose) {
-  //     console.log(event);
-
-  //     onClose();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (!open) return () => null;
-
-  //   console.log('foo');
-
-  //   document.addEventListener('keypress', handleEscKey);
-  //   return () => document.removeEventListener('keypress', handleEscKey);
-  // }, [onClose, open]);
 
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';
 
   return (
-    <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>
+    <div className={`str-chat__modal ${openClasses}`} onClick={handleClose}>
       <button className='str-chat__modal__close-button' ref={closeRef} title='Close'>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
