@@ -1,0 +1,105 @@
+---
+id: channel-user-lists
+sidebar_position: 2
+title: Channel Members and Online Status
+---
+
+In this example, we will demonstrate how to render the current channel members and their online status.
+
+## Render the Channel Members List
+
+Let's start the example by creating a simple members list component. To access the members list of the current channel, we will get the current channel using `useChannelStateContext` hook. 
+The example is a bit more convoluted, since we will add online presence updates at the next step.
+
+```tsx
+const Users = () => {
+  const { channel } = useChannelStateContext();
+  const [channelUsers, setChannelUsers] = useState<
+    Array<{ name: string; online: boolean }>
+  >([]);
+
+  useEffect(() => {
+    const updateChannelUsers = () => {
+      setChannelUsers(
+        Object.values(channel.state.members).map((user) => ({
+          name: user.user_id!,
+          online: !!user.user!.online,
+        }))
+      );
+    };
+
+    updateChannelUsers();
+  }, [client, channel]);
+
+  return (
+    <ul>
+      {channelUsers.map((member) => (
+        <li key={member.name}>
+          {member.name} - {member.online ? "online" : "offline"}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+We can put the component as a child of the `Channel` component:
+
+```tsx
+  <Channel>
+    <Window>
+      <Users />
+      <ChannelHeader />
+      <MessageList />
+      <MessageInput focus />
+    </Window>
+    <Thread />
+  </Channel>
+```
+
+## Real time updates 
+
+So far, our list looks good, but there's a catch: for performance purposes, the `useChannelStateContext` does not refresh when user presence changes. 
+To make the list refresh accordingly, we need to attach an additional listener to the `user.presence.changed` event of the chat client. 
+
+```tsx
+const Users = () => {
+  const { client } = useChatContext();
+  const { channel } = useChannelStateContext();
+  const [channelUsers, setChannelUsers] = useState<
+    Array<{ name: string; online: boolean }>
+  >([]);
+  useEffect(() => {
+    const updateChannelUsers = () => {
+      setChannelUsers(
+        Object.values(channel.state.members).map((user) => ({
+          name: user.user_id!,
+          online: !!user.user!.online,
+        }))
+      );
+    };
+
+    updateChannelUsers();
+
+    // 
+    client.on("user.presence.changed", updateChannelUsers);
+
+    return () => {
+      client.off("user.presence.changed", updateChannelUsers);
+    };
+  }, [client, channel]);
+
+  return (
+    <ul>
+      {channelUsers.map((member) => (
+        <li key={member.name}>
+          {member.name} - {member.online ? "online" : "offline"}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+With the above addition, `channelUsers` will be updated each time user comes online or goes offline.
+
