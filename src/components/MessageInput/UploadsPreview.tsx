@@ -51,6 +51,15 @@ export const UploadsPreview = <
   useEffect(() => {
     const elements = document.getElementsByClassName('str-chat__send-button');
     const sendButton = elements.item(0);
+    const threadSendButton = elements.item(1);
+
+    if (threadSendButton instanceof HTMLButtonElement) {
+      if ((numberOfUploads && !text) || device !== 'full') {
+        threadSendButton.style.display = 'block';
+      } else {
+        threadSendButton.style.display = 'none';
+      }
+    }
 
     if (sendButton instanceof HTMLButtonElement) {
       if ((numberOfUploads && !text) || device !== 'full') {
