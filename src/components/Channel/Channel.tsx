@@ -730,9 +730,6 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
-    const offset = queryResponse.messages.length - 25 || 25;
-    console.log(queryResponse.messages.length, offset, messageElements.length);
-
     setFocusedMessage(messageElements.length - 25);
 
     return queryResponse.messages.length;

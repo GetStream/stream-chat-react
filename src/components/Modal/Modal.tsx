@@ -15,24 +15,21 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
 
-  const handleClose = (event: MouseEvent | KeyboardEvent) => {
-    if (
-      (event.target instanceof HTMLDivElement &&
-        !innerRef.current?.contains(event.target) &&
-        onClose) ||
-      (event.target instanceof HTMLButtonElement &&
-        closeRef.current?.contains(event.target) &&
-        onClose) ||
-      (event instanceof KeyboardEvent && event.key === 'Escape' && onClose)
-    ) {
-      onClose();
-      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-      const textarea = textareaElements.item(0);
-      const threadTextarea = textareaElements.item(1);
-      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+  const handleClose = (event: React.MouseEvent | KeyboardEvent) => {
+    if (onClose) {
+      if (
+        (event.target instanceof HTMLDivElement && !innerRef.current?.contains(event.target)) ||
+        (event.target instanceof HTMLButtonElement && event.type === 'click') ||
+        (event instanceof KeyboardEvent && event.key === 'Escape')
+      ) {
+        onClose();
+        const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
+        const textarea = textareaElements.item(0);
+        const threadTextarea = textareaElements.item(1);
+        if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
+        else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+      }
     }
   };
 
@@ -49,7 +46,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
 
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClose}>
-      <button className='str-chat__modal__close-button' ref={closeRef} title='Close'>
+      <button className='str-chat__modal__close-button' onClick={handleClose} title='Close'>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
