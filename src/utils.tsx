@@ -213,7 +213,7 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
         `[${displayLink}](${encodeDecode(href)})`,
       );
     } catch (e) {
-      console.log('meh');
+      void e;
     }
   });
 
