@@ -188,11 +188,12 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
-    const displayLink = type === 'email' ? value : value.replace(detectHttp, '');
+    const displayLink =
+      type === 'email' ? value : decodeURIComponent(value).replace(detectHttp, '');
 
     newText = newText.replace(
       new RegExp(escapeRegExp(value), 'g'),
-      `[${displayLink}](${encodeURI(decodeURI(href))})`,
+      `[${displayLink}](${encodeURI(decodeURIComponent(href))})`,
     );
   });
 
