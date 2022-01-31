@@ -64,6 +64,24 @@ type MarkDownRenderers = {
   href?: string;
 };
 
+const detectHttp = /(http(s?):\/\/)?(www\.)?/;
+
+function formatUrlForDisplay(url: string) {
+  try {
+    return decodeURIComponent(url).replace(detectHttp, '');
+  } catch (e) {
+    return url;
+  }
+}
+
+function encodeDecode(url: string) {
+  try {
+    return encodeURI(decodeURIComponent(url));
+  } catch (error) {
+    return url;
+  }
+}
+
 export const markDownRenderers: { [nodeType: string]: React.ElementType } = {
   // eslint-disable-next-line react/display-name
   link: (props: MarkDownRenderers) => {
@@ -168,7 +186,6 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
   let newText = text;
   const markdownLinks = matchMarkdownLinks(newText);
   const codeBlocks = messageCodeBlocks(newText);
-  const detectHttp = /(http(s?):\/\/)?(www\.)?/;
 
   // extract all valid links/emails within text and replace it with proper markup
   uniqBy(linkify.find(newText), 'value').forEach(({ href, type, value }) => {
@@ -188,12 +205,16 @@ export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
 
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
-    const displayLink = type === 'email' ? value : value.replace(detectHttp, '');
+    try {
+      const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
 
-    newText = newText.replace(
-      new RegExp(escapeRegExp(value), 'g'),
-      `[${displayLink}](${encodeURI(decodeURI(href))})`,
-    );
+      newText = newText.replace(
+        new RegExp(escapeRegExp(value), 'g'),
+        `[${displayLink}](${encodeDecode(href)})`,
+      );
+    } catch (e) {
+      void e;
+    }
   });
 
   const plugins = [emojiMarkdownPlugin];
