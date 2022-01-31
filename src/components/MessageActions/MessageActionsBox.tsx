@@ -157,7 +157,9 @@ const UnMemoizedMessageActionsBox = <
   const handleQuote = () => {
     setQuotedMessage(message);
 
-    const elements = document.getElementsByClassName('str-chat__textarea__textarea');
+    const elements = message.parent_id
+      ? document.querySelectorAll('.str-chat__thread .str-chat__textarea__textarea')
+      : document.getElementsByClassName('str-chat__textarea__textarea');
     const textarea = elements.item(0);
 
     if (textarea instanceof HTMLTextAreaElement) {
@@ -179,18 +181,16 @@ const UnMemoizedMessageActionsBox = <
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 &&
-          !message.parent_id &&
-          !message.quoted_message && (
-            <button
-              aria-selected='false'
-              className='str-chat__message-actions-list-item'
-              onClick={handleQuote}
-              role='option'
-            >
-              {t('Reply')}
-            </button>
-          )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && !message.quoted_message && (
+          <button
+            aria-selected='false'
+            className='str-chat__message-actions-list-item'
+            onClick={handleQuote}
+            role='option'
+          >
+            {t('Reply')}
+          </button>
+        )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
           <button
             aria-selected='false'

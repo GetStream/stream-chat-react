@@ -74,7 +74,7 @@ export const MessageInputFlat = <
     <div
       className={`str-chat__input-flat ${
         SendButton ? 'str-chat__input-flat--send-button-active' : null
-      } ${quotedMessage ? 'str-chat__input-flat-quoted' : null}`}
+      } ${quotedMessage && !quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
     >
       <ImageDropzone
         accept={acceptedFiles}
@@ -83,7 +83,9 @@ export const MessageInputFlat = <
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
-        {quotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
+        {quotedMessage && !quotedMessage.parent_id && (
+          <QuotedMessagePreview quotedMessage={quotedMessage} />
+        )}
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
