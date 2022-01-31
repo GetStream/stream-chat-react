@@ -159,7 +159,7 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
+  const { channel, channelCapabilities = {}, channelConfig, textareaRef } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -247,11 +247,9 @@ export const useReactionClick = <
   const escapePressHandler = useCallback((event) => {
     if (event.key === 'Escape') {
       setShowDetailedReactions(false);
-      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-      const textarea = textareaElements.item(0);
-      const threadTextarea = textareaElements.item(1);
-      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+      // event.stopPropagation();
+      // setMessageToggle(!messageToggle)
+      textareaRef?.current?.focus();
     }
   }, []);
 

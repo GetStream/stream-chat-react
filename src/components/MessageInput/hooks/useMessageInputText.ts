@@ -29,11 +29,11 @@ export const useMessageInputText = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
 ) => {
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageInputText');
+  const { channel, textareaRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useMessageInputText',
+  );
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
-
-  const textareaRef = useRef<HTMLTextAreaElement>();
 
   // Focus
   useEffect(() => {
@@ -114,6 +114,5 @@ export const useMessageInputText = <
   return {
     handleChange,
     insertText,
-    textareaRef,
   };
 };

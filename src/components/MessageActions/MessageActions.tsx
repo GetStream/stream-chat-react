@@ -6,6 +6,7 @@ import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type {
@@ -69,6 +70,7 @@ export const MessageActions = <
   } = props;
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  const { textareaRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -100,11 +102,9 @@ export const MessageActions = <
   const escapePressHandler = useCallback((event) => {
     if (event.key === 'Escape') {
       setActionsBoxOpen(false);
-      const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-      const textarea = textareaElements.item(0);
-      const threadTextarea = textareaElements.item(1);
-      if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-      else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+      // event.stopPropagation(); ?????
+      // setMessageToggle(!messageToggle) ??????
+      textareaRef?.current?.focus();
     }
   }, []);
 

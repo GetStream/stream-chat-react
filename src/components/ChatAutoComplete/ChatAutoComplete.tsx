@@ -6,6 +6,7 @@ import { LoadingIndicator } from '../Loading/LoadingIndicator';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type { EmojiData } from 'emoji-mart';
 import type { CommandResponse, UserResponse } from 'stream-chat';
@@ -113,9 +114,11 @@ const UnMemoizedChatAutoComplete = <
     AutocompleteSuggestionList: SuggestionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
-
+  const { textareaRef: innerRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'ChatAutoComplete',
+  );
   const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
-  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
+  const { cooldownRemaining, disabled, emojiIndex } = messageInput;
 
   const placeholder = props.placeholder || t('Type your message');
 

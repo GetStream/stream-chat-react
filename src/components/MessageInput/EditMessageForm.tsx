@@ -37,9 +37,15 @@ export const EditMessageForm = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'EditMessageForm',
-  );
+  const { acceptedFiles, multipleUploads, textareaRef } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('EditMessageForm');
   const { t } = useTranslationContext('EditMessageForm');
 
   const {
@@ -58,14 +64,19 @@ export const EditMessageForm = <
     FileUploadIcon = DefaultFileUploadIcon,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('EditMessageForm');
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && clearEditingState) clearEditingState();
-    };
+  // useEffect(() => {
+  //   const onKeyDown = (event: KeyboardEvent) => {
+  //     if (event.key === 'Escape' && clearEditingState) clearEditingState();
+  //     console.log(channelTextareaRef, 'edit');
 
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [clearEditingState]);
+  //     // if (threadTextareaRef.current) threadTextareaRef?.current?.focus();
+  //     // else
+  //     channelTextareaRef?.current?.focus();
+  //   };
+  //
+  //   document.addEventListener('keydown', onKeyDown);
+  //   return () => document.removeEventListener('keydown', onKeyDown);
+  // }, [clearEditingState]);
 
   return (
     <div className='str-chat__edit-message-form'>
@@ -79,6 +90,9 @@ export const EditMessageForm = <
         <form onSubmit={handleSubmit}>
           {isUploadEnabled && <UploadsPreview />}
           <EmojiPicker small />
+          {/* <ChatAutoComplete
+            keyboardTextareaRef={threadTextareaRef ? threadTextareaRef : channelTextareaRef}
+          /> */}
           <ChatAutoComplete />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>

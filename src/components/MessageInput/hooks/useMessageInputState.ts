@@ -152,7 +152,6 @@ export type MessageInputHookProps<
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
@@ -388,16 +387,11 @@ export const useMessageInputState = <
     initState,
   );
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us,
-    V
-  >(props, state, dispatch);
+  const { handleChange, insertText } = useMessageInputText<At, Ch, Co, Ev, Me, Re, Us, V>(
+    props,
+    state,
+    dispatch,
+  );
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);
@@ -428,7 +422,7 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,
-  } = useEmojiPicker<At, Us>(state, dispatch, insertText, textareaRef, closeEmojiPickerOnClick);
+  } = useEmojiPicker<At, Us>(state, dispatch, insertText, closeEmojiPickerOnClick);
 
   const {
     maxFilesLeft,
@@ -438,7 +432,7 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch, textareaRef);
+  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch);
 
   const { handleSubmit } = useSubmitHandler<At, Ch, Co, Ev, Me, Re, Us, V>(
     props,
@@ -489,7 +483,6 @@ export const useMessageInputState = <
     setText,
     showCommandsList,
     showMentionsList,
-    textareaRef,
     uploadFile,
     uploadImage,
     uploadNewFiles,

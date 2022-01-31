@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ModalProps = {
@@ -12,6 +13,7 @@ export type ModalProps = {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
+  const { textareaRef } = useChannelStateContext('Modal');
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -24,11 +26,7 @@ export const Modal: React.FC<ModalProps> = (props) => {
         (event instanceof KeyboardEvent && event.key === 'Escape')
       ) {
         onClose();
-        const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-        const textarea = textareaElements.item(0);
-        const threadTextarea = textareaElements.item(1);
-        if (threadTextarea instanceof HTMLTextAreaElement) threadTextarea.focus();
-        else if (textarea instanceof HTMLTextAreaElement) textarea.focus();
+        textareaRef?.current?.focus();
       }
     }
   };

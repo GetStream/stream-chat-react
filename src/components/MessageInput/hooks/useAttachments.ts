@@ -37,14 +37,19 @@ export const useAttachments = <
   props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
   const { noFiles } = props;
   const { fileUploads, imageUploads } = state;
 
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'useAttachments',
-  );
+  const { maxNumberOfFiles, multipleUploads, textareaRef } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('useAttachments');
 
   const { removeFile, uploadFile } = useFileUploads<At, Ch, Co, Ev, Me, Re, Us, V>(
     props,

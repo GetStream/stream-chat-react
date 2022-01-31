@@ -93,6 +93,7 @@ export type ThreadHeaderProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
+  closeRef: React.MutableRefObject<HTMLButtonElement | null>;
   closeThread: (event: React.BaseSyntheticEvent) => void;
   thread: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
@@ -108,7 +109,7 @@ const DefaultThreadHeader = <
 >(
   props: ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  const { closeThread, thread } = props;
+  const { closeRef, closeThread, thread } = props;
 
   const { t } = useTranslationContext('Thread');
 
@@ -131,6 +132,7 @@ const DefaultThreadHeader = <
         className='str-chat__square-button'
         data-testid='close-button'
         onClick={(event) => closeThread(event)}
+        ref={closeRef}
       >
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
@@ -173,15 +175,13 @@ const ThreadInner = <
     virtualized,
   } = props;
 
-  const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('Thread');
+  const {
+    textareaRef,
+    thread,
+    threadHasMore,
+    threadLoadingMore,
+    threadMessages,
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'Thread',
   );
@@ -226,11 +226,9 @@ const ThreadInner = <
   const [focusedMessage, setFocusedMessage] = useState<number>(0);
 
   const threadRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
-  const textareaElements = document.getElementsByClassName('str-chat__textarea__textarea');
-  const textarea = textareaElements.item(textareaElements.length - 1);
   const messageElements = document.getElementsByClassName('str-chat__message--reply');
-  const closeButton = document.getElementsByClassName('str-chat__square-button')[0];
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
   const emojiMart = document.getElementsByClassName('emoji-mart');
 
@@ -253,15 +251,15 @@ const ThreadInner = <
           const actionElements = actionsBox?.querySelectorAll(
             '.str-chat__message-actions-list-item',
           );
-          if (!actionElements && !textarea?.childNodes[0]) {
+          const inputHasText = textareaRef?.current?.childNodes[0];
+
+          if (!actionElements && !inputHasText) {
             if (event.key === 'ArrowUp') {
               if (messageElements.length) {
                 if (focusedMessage === -1) return;
                 else if (focusedMessage === 0) {
-                  if (closeButton instanceof HTMLButtonElement) {
-                    closeButton.focus();
-                    setFocusedMessage((prevFocused) => prevFocused - 1);
-                  }
+                  closeRef?.current?.focus();
+                  setFocusedMessage((prevFocused) => prevFocused - 1);
                 } else setFocusedMessage((prevFocused) => prevFocused - 1);
               }
             }
@@ -269,9 +267,7 @@ const ThreadInner = <
             if (event.key === 'ArrowDown') {
               if (!messageElements.length || focusedMessage === messageElements.length) return;
               if (focusedMessage === messageElements.length - 1) {
-                if (textarea instanceof HTMLTextAreaElement) {
-                  textarea.focus();
-                }
+                textareaRef?.current?.focus();
                 setFocusedMessage((prevFocused) => prevFocused + 1);
               } else setFocusedMessage((prevFocused) => prevFocused + 1);
             }
@@ -301,7 +297,7 @@ const ThreadInner = <
 
   return (
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`} ref={threadRef}>
-      <ThreadHeader closeThread={closeThread} thread={thread} />
+      <ThreadHeader closeRef={closeRef} closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           initialMessage

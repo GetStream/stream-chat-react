@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
 
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import type { DefaultAttachmentType, DefaultUserType } from '../../../types/types';
 
 export const useEmojiPicker = <
@@ -12,12 +13,13 @@ export const useEmojiPicker = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
   insertText: (textToInsert: string) => void,
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
   closeEmojiPickerOnClick?: boolean,
 ) => {
   const [focusedEmoji, setFocusedEmoji] = useState<number>(0);
 
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+
+  const { textareaRef } = useChannelStateContext('useEmojiPicker');
 
   const closeEmojiPicker = useCallback(
     (event: MouseEvent) => {
@@ -28,6 +30,8 @@ export const useEmojiPicker = <
           type: 'setEmojiPickerIsOpen',
           value: false,
         });
+
+        textareaRef?.current?.focus();
       }
     },
     [emojiPickerRef],
@@ -40,6 +44,7 @@ export const useEmojiPicker = <
       type: 'setEmojiPickerIsOpen',
       value: true,
     });
+    // focus first emoji?????? also in handleEmojiKeyDown???
 
     // Prevent event from bubbling to document, so the close handler is never called for this event
     event.stopPropagation();
@@ -56,7 +61,9 @@ export const useEmojiPicker = <
     }
   };
 
+  // rename this method
   const handleEmojiEscape = (event: KeyboardEvent) => {
+    // refs????????
     const emojiMart = document.querySelector('.emoji-mart');
     const tabbableElements = emojiMart?.querySelectorAll('button');
 
@@ -81,6 +88,8 @@ export const useEmojiPicker = <
         type: 'setEmojiPickerIsOpen',
         value: false,
       });
+
+      textareaRef?.current?.focus();
     }
   };
 

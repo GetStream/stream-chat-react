@@ -78,6 +78,7 @@ export type ChannelStateContextValue<
   channelConfig: ChannelConfigWithInfo<Co> | undefined;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   acceptedFiles?: string[];
   dragAndDropWindow?: boolean;
   maxNumberOfFiles?: number;
