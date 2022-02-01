@@ -75,7 +75,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
+// import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
 
 export type ChannelProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react'; // useRef // useEffect,
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
