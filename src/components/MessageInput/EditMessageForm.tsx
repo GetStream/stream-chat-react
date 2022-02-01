@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
@@ -37,15 +37,9 @@ export const EditMessageForm = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads, textareaRef } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('EditMessageForm');
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'EditMessageForm',
+  );
   const { t } = useTranslationContext('EditMessageForm');
 
   const {

@@ -75,6 +75,7 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
+import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
 
 export type ChannelProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -478,6 +479,8 @@ const ChannelInner = <
 
   /** Keyboard Navigation */
 
+  const channelRef = useRef<HTMLDivElement>(null);
+  const messageWrapperRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>();
 
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
@@ -493,8 +496,6 @@ const ChannelInner = <
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [focusedAction, setFocusedAction] = useState<number>(0);
   const [focusMessage, setFocusMessage] = useState<boolean>(false);
-
-  const channelRef = useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -513,7 +514,7 @@ const ChannelInner = <
           if (
             !actionElements &&
             !state.thread &&
-            (!inputHasText || !textareaRef?.current?.contains(document.activeElement))
+            (!inputHasText || !textareaRef?.current?.contains(event.target))
           ) {
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
@@ -546,7 +547,7 @@ const ChannelInner = <
 
             if (event.key === 'Tab' && event.shiftKey) {
               const messageHasFocus = Array.from(messageElements).some(
-                (message) => message === document.activeElement,
+                (message) => message === event.target,
               );
               if (messageHasFocus) {
                 const channelList = document.getElementsByClassName(
@@ -589,7 +590,7 @@ const ChannelInner = <
             'str-chat__load-more-button__button',
           )[0];
 
-          if (loadMoreButton === document.activeElement) {
+          if (loadMoreButton === event.target) {
             event.preventDefault();
             textareaRef?.current?.focus();
           } else {
@@ -603,10 +604,7 @@ const ChannelInner = <
               channel.contains(document.activeElement),
             );
 
-            if (
-              channelPreviewHasFocus ||
-              (!loadMoreButton && channelList === document.activeElement)
-            ) {
+            if (channelPreviewHasFocus || (!loadMoreButton && channelList === event.target)) {
               event.preventDefault();
               textareaRef?.current?.focus();
             }
@@ -652,8 +650,97 @@ const ChannelInner = <
   }, [focusedAction]);
 
   useEffect(() => {
+    // console.log(focusedMessage, focusMessage);
     (messageElements[focusedMessage] as HTMLElement)?.focus();
   }, [focusedMessage, focusMessage]);
+
+  /** Thread Keyboard Navigation */
+
+  const [focusedThreadMessage, setFocusedThreadMessage] = useState<number>(0);
+
+  const threadRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
+  const threadReactionElements = document.getElementsByClassName(
+    'str-chat__message-reactions-list-item',
+  );
+  const threadEmojiMart = document.getElementsByClassName('emoji-mart');
+
+  useEffect(() => {
+    if (!focusedThreadMessage) {
+      const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
+      // console.log(focusedThreadMessage, threadMessageElements.length);
+      setTimeout(() => {
+        // console.log(focusedThreadMessage, threadMessageElements.length);
+        setFocusedThreadMessage(threadMessageElements.length);
+      }, 500);
+    }
+  }, [state.thread]);
+
+  const handleThreadKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!threadReactionElements[0] && !threadEmojiMart[0]) {
+        if (
+          threadRef &&
+          event.target instanceof HTMLElement &&
+          threadRef.current?.contains(event.target)
+        ) {
+          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+          const actionElements = actionsBox?.querySelectorAll(
+            '.str-chat__message-actions-list-item',
+          );
+          const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
+          const inputHasText = textareaRef?.current?.childNodes[0];
+
+          if (!actionElements && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
+            if (event.key === 'ArrowUp') {
+              if (threadMessageElements.length) {
+                if (focusedThreadMessage === -1) return;
+                else if (focusedThreadMessage === 0) {
+                  closeRef?.current?.focus();
+                  setFocusedThreadMessage((prevFocused) => prevFocused - 1);
+                } else setFocusedThreadMessage((prevFocused) => prevFocused - 1);
+              }
+            }
+
+            if (event.key === 'ArrowDown') {
+              if (
+                !threadMessageElements.length ||
+                focusedThreadMessage === threadMessageElements.length
+              )
+                return;
+              if (focusedThreadMessage === threadMessageElements.length - 1) {
+                textareaRef?.current?.focus();
+                setFocusedThreadMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedThreadMessage((prevFocused) => prevFocused + 1);
+            }
+
+            if (event.key === 'ArrowLeft') {
+              closeThread(event);
+            }
+          }
+        }
+      }
+    },
+    [focusedThreadMessage],
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleThreadKeyDown, false);
+    return () => document.removeEventListener('keydown', handleThreadKeyDown);
+  }, [handleThreadKeyDown]);
+
+  useEffect(() => {
+    (threadMessageElements[focusedThreadMessage] as HTMLElement)?.focus();
+  }, [focusedThreadMessage]);
+
+  // const { channelRef, setFocusedMessage, textareaRef } = useKeyboardNavigation(
+  //   channel,
+  //   state,
+  //   openThread,
+  //   closeThread,
+  // );
 
   /** MESSAGE */
 
@@ -723,7 +810,7 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
-    setFocusedMessage(messageElements.length - 25);
+    // setFocusedMessage(messageElements.length - 25);
 
     return queryResponse.messages.length;
   };
@@ -935,13 +1022,16 @@ const ChannelInner = <
     channel,
     channelCapabilitiesArray,
     channelConfig,
+    closeRef,
     dragAndDropWindow,
     maxNumberOfFiles,
+    messageWrapperRef,
     multipleUploads,
     mutes,
     notifications,
     quotedMessage,
     textareaRef,
+    threadRef,
     watcher_count: state.watcherCount,
   });
 

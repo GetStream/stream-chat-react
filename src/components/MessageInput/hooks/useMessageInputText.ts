@@ -37,7 +37,7 @@ export const useMessageInputText = <
 
   // Focus
   useEffect(() => {
-    if (focus && textareaRef.current) {
+    if (focus && textareaRef?.current) {
       textareaRef.current.focus();
     }
   }, [focus]);
@@ -49,7 +49,7 @@ export const useMessageInputText = <
     (textToInsert: string) => {
       const { maxLength } = additionalTextareaProps || {};
 
-      if (!textareaRef.current) {
+      if (!textareaRef?.current) {
         dispatch({
           getNewText: (text) => {
             const updatedText = text + textToInsert;
@@ -84,7 +84,7 @@ export const useMessageInputText = <
   );
 
   useEffect(() => {
-    const textareaElement = textareaRef.current;
+    const textareaElement = textareaRef?.current;
     if (textareaElement && newCursorPosition.current !== undefined) {
       textareaElement.selectionStart = newCursorPosition.current;
       textareaElement.selectionEnd = newCursorPosition.current;

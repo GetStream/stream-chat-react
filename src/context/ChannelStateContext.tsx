@@ -78,11 +78,14 @@ export type ChannelStateContextValue<
   channelConfig: ChannelConfigWithInfo<Co> | undefined;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
   acceptedFiles?: string[];
+  closeRef?: React.MutableRefObject<HTMLButtonElement | null>;
   dragAndDropWindow?: boolean;
   maxNumberOfFiles?: number;
+  messageWrapperRef?: React.MutableRefObject<HTMLDivElement | null>;
   mutes?: Mute<Us>[];
+  textareaRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  threadRef?: React.MutableRefObject<HTMLDivElement | null>;
   watcher_count?: number;
 };
 
