@@ -18,6 +18,8 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
+import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
+
 import type {
   CustomTrigger,
   DefaultAttachmentType,
@@ -39,9 +41,15 @@ export const MessageInputSmall = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'MessageInputSmall',
-  );
+  const { acceptedFiles, multipleUploads, quotedMessage } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('MessageInputSmall');
   const { t } = useTranslationContext('MessageInputSmall');
 
   const {
@@ -62,6 +70,7 @@ export const MessageInputSmall = <
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
+    QuotedMessagePreview = DefaultQuotedMessagePreview,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputSmall');
 
   return (
@@ -76,8 +85,11 @@ export const MessageInputSmall = <
         <div
           className={`str-chat__small-message-input ${
             SendButton ? 'str-chat__small-message-input--send-button-active' : null
-          }`}
+          } ${quotedMessage && quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
         >
+          {quotedMessage && quotedMessage.parent_id && (
+            <QuotedMessagePreview quotedMessage={quotedMessage} />
+          )}
           <div className='str-chat__small-message-input--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete />
