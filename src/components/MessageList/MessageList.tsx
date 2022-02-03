@@ -172,6 +172,8 @@ const MessageListWithContext = <
     threadList,
   });
 
+  const { messageListRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
+
   const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
   const messageListClass = customClasses?.messageList || 'str-chat__list';
@@ -190,7 +192,9 @@ const MessageListWithContext = <
             useWindow={false}
             {...finalInternalInfiniteScrollProps}
           >
-            <ul className='str-chat__ul'>{elements}</ul>
+            <ul className='str-chat__ul' ref={messageListRef}>
+              {elements}
+            </ul>
             <TypingIndicator threadList={threadList} />
             <div key='bottom' />
           </InfiniteScroll>

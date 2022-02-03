@@ -480,42 +480,39 @@ const ChannelInner = <
   /** Keyboard Navigation */
 
   const channelRef = useRef<HTMLDivElement>(null);
-  const messageWrapperRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<HTMLUListElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>();
 
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
-  const messageElements = document.getElementsByClassName('str-chat__message--regular');
-  const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-  const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+  // const messageElements = document.getElementsByClassName('str-chat__message--regular');
+  // let messageElements: NodeListOf<HTMLDivElement>;
+  const actionsBox = document.getElementsByClassName('str-chat__message-actions-box--open');
   const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
   const modalElement = document.getElementsByClassName('str-chat__modal--open');
-  // modalIsOpen - modalOpen
   const emojiMart = document.getElementsByClassName('emoji-mart');
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
-  const [focusedAction, setFocusedAction] = useState<number>(0);
-  const [focusMessage, setFocusMessage] = useState<boolean>(false);
+  const [messageElements, setMessageElements] = useState<NodeListOf<HTMLDivElement> | null>(null);
+  // const [focusMessage, setFocusMessage] = useState<boolean>(false);
 
-  const handleKeyDown = useCallback(
+  const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      if (!reactionElements[0] && !modalElement[0] && !emojiMart[0]) {
+      /** If a reaction selector, modal, emoji picker, or message actions box are open - skip these controls - they are handled in their own components */
+      if (!reactionElements[0] && !modalElement[0] && !emojiMart[0] && !actionsBox[0]) {
+        /** If the event is from within the channel (aka not the side nav or outside chat) - continue */
         if (
           channelRef &&
           event.target instanceof HTMLElement &&
           channelRef.current?.contains(event.target)
         ) {
-          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-          const actionElements = actionsBox?.querySelectorAll(
-            '.str-chat__message-actions-list-item',
-          );
+          /** Query for messages on first event - once they've been rendered to DOM */
+          if (messageListRef.current && !messageElements) {
+            setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
+          }
           const inputHasText = textareaRef.current?.childNodes[0];
-
-          if (
-            !actionElements &&
-            !state.thread &&
-            (!inputHasText || !textareaRef?.current?.contains(event.target))
-          ) {
+          /** If thread is open - skip these controls. If input contains text - skip because the arrows need to be used to control the cursor. If input has text and you want to navigate the message list - move focus with tab, then use arrows */
+          if (!state.thread && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
                 if (focusedMessage === 0) return;
@@ -533,20 +530,20 @@ const ChannelInner = <
                 setFocusedMessage((prevFocused) => prevFocused + 1);
               } else setFocusedMessage((prevFocused) => prevFocused + 1);
             }
-
+            /** If whole message has focus - open thread with current message. OpenThread calls focus on thread input */
             if (event.key === 'ArrowRight') {
               const message = regularMessages[focusedMessage];
               if (message) {
                 openThread(message, event);
               }
             }
-
-            if (event.key === 'ArrowLeft') {
-              closeThread(event);
-            }
-
+            /** closeThread calls focusMessage toggle to trigger a focus to last focused message */
+            // if (event.key === 'ArrowLeft') {
+            //   closeThread(event);
+            // }
+            /** If shift + tab while whole message has focus, move focus to channel list */
             if (event.key === 'Tab' && event.shiftKey) {
-              const messageHasFocus = Array.from(messageElements).some(
+              const messageHasFocus = Array.from(messageElements as NodeListOf<HTMLElement>).some(
                 (message) => message === event.target,
               );
               if (messageHasFocus) {
@@ -559,32 +556,8 @@ const ChannelInner = <
                 }
               }
             }
-          } else if (actionElements) {
-            if (event.key === 'ArrowUp') {
-              event.preventDefault();
-              setFocusedAction((prevFocused) => {
-                if (actionElements) {
-                  return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
-                } else return 0;
-              });
-            }
-
-            if (event.key === 'ArrowDown') {
-              event.preventDefault();
-              setFocusedAction((prevFocused) => {
-                if (actionElements) {
-                  return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
-                } else return 0;
-              });
-            }
-
-            if (event.key === 'Tab') {
-              event.preventDefault();
-              return;
-            }
-
-            if (event.key === 'Enter') setFocusedAction(0);
           }
+          /** If focus is outside channel - prevent moving focus to next element in tabIndex (oldest message) because that would trigger a loadMore messages event. Instead, move focus to channel input if right arrow or if tab from load more button or channel list if no load more button or if tab from a channel preview */
         } else if ((event.key === 'Tab' && !event.shiftKey) || event.key === 'ArrowRight') {
           const loadMoreButton = document.getElementsByClassName(
             'str-chat__load-more-button__button',
@@ -610,137 +583,19 @@ const ChannelInner = <
             }
           }
         }
-      } else if (modalElement[0]) {
-        if (event.key === 'Tab') {
-          const sendElement = document.getElementsByClassName('str-chat__send')[0];
-
-          if (
-            !event.shiftKey &&
-            (sendElement === event.target ||
-              (event.target as HTMLButtonElement).classList.contains(
-                'image-gallery-fullscreen-button',
-              ))
-          ) {
-            event.preventDefault();
-            return;
-          }
-
-          if (
-            event.shiftKey &&
-            (event.target as HTMLButtonElement).classList.contains('str-chat__modal__close-button')
-          ) {
-            event.preventDefault();
-            return;
-          }
-        }
       }
     },
     [focusedMessage, state.thread],
   );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown, false);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleKeyDown]);
+    document.addEventListener('keydown', handleKeyPress, false);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [handleKeyPress]);
 
   useEffect(() => {
-    if (actionElements) {
-      (actionElements[focusedAction] as HTMLElement)?.focus();
-    }
-  }, [focusedAction]);
-
-  useEffect(() => {
-    // console.log(focusedMessage, focusMessage);
-    (messageElements[focusedMessage] as HTMLElement)?.focus();
-  }, [focusedMessage, focusMessage]);
-
-  /** Thread Keyboard Navigation */
-
-  const [focusedThreadMessage, setFocusedThreadMessage] = useState<number>(0);
-
-  const threadRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
-  const threadReactionElements = document.getElementsByClassName(
-    'str-chat__message-reactions-list-item',
-  );
-  const threadEmojiMart = document.getElementsByClassName('emoji-mart');
-
-  useEffect(() => {
-    if (!focusedThreadMessage) {
-      const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
-      // console.log(focusedThreadMessage, threadMessageElements.length);
-      setTimeout(() => {
-        // console.log(focusedThreadMessage, threadMessageElements.length);
-        setFocusedThreadMessage(threadMessageElements.length);
-      }, 500);
-    }
-  }, [state.thread]);
-
-  const handleThreadKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (!threadReactionElements[0] && !threadEmojiMart[0]) {
-        if (
-          threadRef &&
-          event.target instanceof HTMLElement &&
-          threadRef.current?.contains(event.target)
-        ) {
-          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-          const actionElements = actionsBox?.querySelectorAll(
-            '.str-chat__message-actions-list-item',
-          );
-          const threadMessageElements = document.getElementsByClassName('str-chat__message--reply');
-          const inputHasText = textareaRef?.current?.childNodes[0];
-
-          if (!actionElements && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
-            if (event.key === 'ArrowUp') {
-              if (threadMessageElements.length) {
-                if (focusedThreadMessage === -1) return;
-                else if (focusedThreadMessage === 0) {
-                  closeRef?.current?.focus();
-                  setFocusedThreadMessage((prevFocused) => prevFocused - 1);
-                } else setFocusedThreadMessage((prevFocused) => prevFocused - 1);
-              }
-            }
-
-            if (event.key === 'ArrowDown') {
-              if (
-                !threadMessageElements.length ||
-                focusedThreadMessage === threadMessageElements.length
-              )
-                return;
-              if (focusedThreadMessage === threadMessageElements.length - 1) {
-                textareaRef?.current?.focus();
-                setFocusedThreadMessage((prevFocused) => prevFocused + 1);
-              } else setFocusedThreadMessage((prevFocused) => prevFocused + 1);
-            }
-
-            if (event.key === 'ArrowLeft') {
-              closeThread(event);
-            }
-          }
-        }
-      }
-    },
-    [focusedThreadMessage],
-  );
-
-  useEffect(() => {
-    document.addEventListener('keydown', handleThreadKeyDown, false);
-    return () => document.removeEventListener('keydown', handleThreadKeyDown);
-  }, [handleThreadKeyDown]);
-
-  useEffect(() => {
-    (threadMessageElements[focusedThreadMessage] as HTMLElement)?.focus();
-  }, [focusedThreadMessage]);
-
-  // const { channelRef, setFocusedMessage, textareaRef } = useKeyboardNavigation(
-  //   channel,
-  //   state,
-  //   openThread,
-  //   closeThread,
-  // );
+    if (messageElements) (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage]);
 
   /** MESSAGE */
 
@@ -962,7 +817,8 @@ const ChannelInner = <
   const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
     event.preventDefault();
     dispatch({ type: 'closeThread' });
-    setFocusMessage(!focusMessage);
+    // setFocusMessage(!focusMessage);
+    textareaRef?.current?.focus();
   };
 
   const loadMoreThreadFinished = debounce(
@@ -1016,22 +872,31 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
+  // const { channelRef, focusedMessage, setFocusMessage, textareaRef } = useKeyboardNavigation(
+  //   channel,
+  //   closeThread,
+  //   openThread,
+  //   state,
+  // );
+
   const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
     acceptedFiles,
     channel,
     channelCapabilitiesArray,
     channelConfig,
-    closeRef,
+    // closeRef,
     dragAndDropWindow,
+    focusedMessage,
     maxNumberOfFiles,
-    messageWrapperRef,
+    messageListRef,
+    // messageWrapperRef,
     multipleUploads,
     mutes,
     notifications,
     quotedMessage,
     textareaRef,
-    threadRef,
+    // threadRef,
     watcher_count: state.watcherCount,
   });
 

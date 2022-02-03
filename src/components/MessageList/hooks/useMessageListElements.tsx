@@ -17,6 +17,7 @@ import type { UserResponse } from 'stream-chat';
 import type { MessageProps } from '../../Message/types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
+// import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,

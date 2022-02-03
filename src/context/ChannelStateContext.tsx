@@ -81,7 +81,9 @@ export type ChannelStateContextValue<
   acceptedFiles?: string[];
   closeRef?: React.MutableRefObject<HTMLButtonElement | null>;
   dragAndDropWindow?: boolean;
+  focusedMessage?: number | undefined;
   maxNumberOfFiles?: number;
+  messageListRef?: React.MutableRefObject<HTMLUListElement | null>;
   messageWrapperRef?: React.MutableRefObject<HTMLDivElement | null>;
   mutes?: Mute<Us>[];
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;

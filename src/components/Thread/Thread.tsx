@@ -1,9 +1,4 @@
-import React, {
-  // useCallback,
-  useEffect,
-  useRef,
-  // useState
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { FixedHeightMessage } from '../Message/FixedHeightMessage';
 import { Message } from '../Message/Message';
@@ -98,7 +93,7 @@ export type ThreadHeaderProps<
   Re extends DefaultReactionType = DefaultReactionType,
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
-  // closeRef: React.MutableRefObject<HTMLButtonElement | null>;
+  closeRef: React.MutableRefObject<HTMLButtonElement | null>;
   closeThread: (event: React.BaseSyntheticEvent) => void;
   thread: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
 };
@@ -114,10 +109,8 @@ const DefaultThreadHeader = <
 >(
   props: ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>,
 ) => {
-  // const { closeRef, closeThread, thread } = props;
-  const { closeThread, thread } = props;
+  const { closeRef, closeThread, thread } = props;
 
-  const { closeRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
   const { t } = useTranslationContext('Thread');
 
   const getReplyCount = () => {
@@ -183,13 +176,11 @@ const ThreadInner = <
   } = props;
 
   const {
-    // closeRef,
-    // textareaRef,
+    textareaRef,
     thread,
     threadHasMore,
     threadLoadingMore,
     threadMessages,
-    threadRef,
   } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'Thread',
@@ -232,73 +223,73 @@ const ThreadInner = <
 
   /** Keyboard Navigation */
 
-  // const [focusedMessage, setFocusedMessage] = useState<number>(0);
+  const [focusedMessage, setFocusedMessage] = useState<number>(0);
 
-  // const threadRef = useRef<HTMLDivElement>(null);
-  // const closeRef = useRef<HTMLButtonElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
-  // const messageElements = document.getElementsByClassName('str-chat__message--reply');
-  // const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
-  // const emojiMart = document.getElementsByClassName('emoji-mart');
+  const messageElements = document.getElementsByClassName('str-chat__message--reply');
+  const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
+  const emojiMart = document.getElementsByClassName('emoji-mart');
 
-  // useEffect(() => {
-  //   if (!focusedMessage) {
-  //     setFocusedMessage(messageElements.length);
-  //   }
-  // }, [threadMessages]);
+  useEffect(() => {
+    if (!focusedMessage) {
+      setFocusedMessage(messageElements.length);
+    }
+  }, [threadMessages]);
 
-  // const handleKeyDown = useCallback(
-  //   (event: KeyboardEvent) => {
-  //     if (!reactionElements[0] && !emojiMart[0]) {
-  //       if (
-  //         threadMessages &&
-  //         threadRef &&
-  //         event.target instanceof HTMLElement &&
-  //         threadRef.current?.contains(event.target)
-  //       ) {
-  //         const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-  //         const actionElements = actionsBox?.querySelectorAll(
-  //           '.str-chat__message-actions-list-item',
-  //         );
-  //         const inputHasText = textareaRef?.current?.childNodes[0];
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (!reactionElements[0] && !emojiMart[0]) {
+        if (
+          threadMessages &&
+          threadRef &&
+          event.target instanceof HTMLElement &&
+          threadRef.current?.contains(event.target)
+        ) {
+          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+          const actionElements = actionsBox?.querySelectorAll(
+            '.str-chat__message-actions-list-item',
+          );
+          const inputHasText = textareaRef?.current?.childNodes[0];
 
-  //         if (!actionElements && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
-  //           if (event.key === 'ArrowUp') {
-  //             if (messageElements.length) {
-  //               if (focusedMessage === -1) return;
-  //               else if (focusedMessage === 0) {
-  //                 closeRef?.current?.focus();
-  //                 setFocusedMessage((prevFocused) => prevFocused - 1);
-  //               } else setFocusedMessage((prevFocused) => prevFocused - 1);
-  //             }
-  //           }
+          if (!actionElements && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
+            if (event.key === 'ArrowUp') {
+              if (messageElements.length) {
+                if (focusedMessage === -1) return;
+                else if (focusedMessage === 0) {
+                  closeRef?.current?.focus();
+                  setFocusedMessage((prevFocused) => prevFocused - 1);
+                } else setFocusedMessage((prevFocused) => prevFocused - 1);
+              }
+            }
 
-  //           if (event.key === 'ArrowDown') {
-  //             if (!messageElements.length || focusedMessage === messageElements.length) return;
-  //             if (focusedMessage === messageElements.length - 1) {
-  //               textareaRef?.current?.focus();
-  //               setFocusedMessage((prevFocused) => prevFocused + 1);
-  //             } else setFocusedMessage((prevFocused) => prevFocused + 1);
-  //           }
+            if (event.key === 'ArrowDown') {
+              if (!messageElements.length || focusedMessage === messageElements.length) return;
+              if (focusedMessage === messageElements.length - 1) {
+                textareaRef?.current?.focus();
+                setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+            }
 
-  //           if (event.key === 'ArrowLeft') {
-  //             closeThread(event);
-  //           }
-  //         }
-  //       }
-  //     }
-  //   },
-  //   [focusedMessage],
-  // );
+            if (event.key === 'ArrowLeft') {
+              closeThread(event);
+            }
+          }
+        }
+      }
+    },
+    [focusedMessage],
+  );
 
-  // useEffect(() => {
-  //   document.addEventListener('keydown', handleKeyDown, false);
-  //   return () => document.removeEventListener('keydown', handleKeyDown);
-  // }, [handleKeyDown]);
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown, false);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
-  // useEffect(() => {
-  //   (messageElements[focusedMessage] as HTMLElement)?.focus();
-  // }, [focusedMessage]);
+  useEffect(() => {
+    (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage]);
 
   if (!thread) return null;
 
@@ -306,8 +297,7 @@ const ThreadInner = <
 
   return (
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`} ref={threadRef}>
-      {/* <ThreadHeader closeRef={closeRef} closeThread={closeThread} thread={thread} /> */}
-      <ThreadHeader closeThread={closeThread} thread={thread} />
+      <ThreadHeader closeRef={closeRef} closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
         <Message
           initialMessage

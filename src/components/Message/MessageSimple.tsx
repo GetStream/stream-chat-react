@@ -1,4 +1,4 @@
-import React from 'react'; // useRef // useEffect,
+import React, { useRef } from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
@@ -31,7 +31,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 
 type MessageSimpleWithContextProps<
   At extends DefaultAttachmentType = DefaultAttachmentType,
@@ -87,8 +86,7 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
 
-  const { messageWrapperRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
-  // const messageWrapperRef = useRef<HTMLDivElement | null>(null);
+  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -98,12 +96,6 @@ const MessageSimpleWithContext = <
     : 'str-chat__message str-chat__message-simple';
 
   const messageFailed = message.status === 'failed' && message.errorStatusCode !== 403;
-
-  // const focused = focusedMessage === index;
-
-  // useEffect(() => {
-  //   if (messageWrapperRef?.current && focused) messageWrapperRef.current.focus();
-  // }, [messageWrapperRef]);
 
   if (message.customType === 'message.date') {
     return null;
@@ -140,6 +132,7 @@ const MessageSimpleWithContext = <
             ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}
             ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
 					`.trim()}
+          data-role='message'
           key={message.id}
           ref={messageWrapperRef}
           tabIndex={0}

@@ -8,6 +8,7 @@ import { isUserMuted } from '../Message/utils';
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+// import { useKeyboardNavigation } from '../Channel/hooks/useKeyboardNavigation';
 
 import type {
   DefaultAttachmentType,
@@ -71,6 +72,7 @@ export const MessageActions = <
 
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const { textareaRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  // const { focusMessage, setFocusMessage } = useKeyboardNavigation();
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -91,6 +93,7 @@ export const MessageActions = <
   const message = propMessage || contextMessage;
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
+  const [focusedAction, setFocusedAction] = useState<number>(0);
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
@@ -99,12 +102,41 @@ export const MessageActions = <
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
-  const escapePressHandler = useCallback((event) => {
+  const handleKeyPress = useCallback((event) => {
+    const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
+    const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setFocusedAction((prevFocused) => {
+        if (actionElements) {
+          return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
+        } else return 0;
+      });
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setFocusedAction((prevFocused) => {
+        if (actionElements) {
+          return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
+        } else return 0;
+      });
+    }
+
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      return;
+    }
+
+    if (event.key === 'Enter') setFocusedAction(0);
+
     if (event.key === 'Escape') {
       setActionsBoxOpen(false);
       // event.stopPropagation(); ?????
       // setMessageToggle(!messageToggle) ??????
       textareaRef?.current?.focus();
+      // setFocusMessage(!focusMessage);
     }
   }, []);
 
@@ -123,18 +155,20 @@ export const MessageActions = <
   useEffect(() => {
     if (actionsBoxOpen) {
       document.addEventListener('click', hideOptions);
-      document.addEventListener('keydown', escapePressHandler);
+      document.addEventListener('keydown', handleKeyPress);
       const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
       const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
 
-      if (actionElements) (actionElements[0] as HTMLElement)?.focus();
+      if (actionElements) {
+        (actionElements[focusedAction] as HTMLElement)?.focus();
+      }
     } else {
       document.removeEventListener('click', hideOptions);
-      document.removeEventListener('keydown', escapePressHandler);
+      document.removeEventListener('keydown', handleKeyPress);
     }
 
     return () => document.removeEventListener('click', hideOptions);
-  }, [actionsBoxOpen, hideOptions]);
+  }, [actionsBoxOpen, focusedAction, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
 
