@@ -40,7 +40,6 @@ export const SocialMessageInput = (props: Props) => {
     closeCommandsList,
     cooldownInterval,
     cooldownRemaining,
-    emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
@@ -52,6 +51,7 @@ export const SocialMessageInput = (props: Props) => {
 
   const {
     acceptedFiles,
+    emojiPickerRef,
     maxNumberOfFiles,
     multipleUploads,
     quotedMessage,

@@ -22,7 +22,6 @@ type Props = MessageInputProps & {
 
 export const EditInput = (props: Props) => {
   const {
-    emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
@@ -30,7 +29,7 @@ export const EditInput = (props: Props) => {
     text,
   } = useMessageInputContext();
 
-  const { acceptedFiles, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
+  const { acceptedFiles, emojiPickerRef, maxNumberOfFiles, multipleUploads } = useChannelStateContext();
 
   const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {

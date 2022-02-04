@@ -4,6 +4,7 @@ import {
   CooldownTimer,
   EmojiPicker,
   MessageInputProps,
+  useChannelStateContext,
   useMessageInputContext,
 } from 'stream-chat-react';
 
@@ -24,7 +25,6 @@ export const MessageInputUI = (props: Props) => {
     closeCommandsList,
     cooldownInterval,
     cooldownRemaining,
-    emojiPickerRef,
     handleChange,
     handleSubmit,
     numberOfUploads,
@@ -33,6 +33,8 @@ export const MessageInputUI = (props: Props) => {
     setCooldownRemaining,
     text,
   } = useMessageInputContext();
+
+  const { emojiPickerRef } = useChannelStateContext();
 
   const { chatType } = useEventContext();
   const { giphyState, setGiphyState } = useGiphyContext();
