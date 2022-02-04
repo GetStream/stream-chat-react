@@ -175,17 +175,19 @@ const ThreadInner = <
     virtualized,
   } = props;
 
-  const {
-    textareaRef,
-    thread,
-    threadHasMore,
-    threadLoadingMore,
-    threadMessages,
-  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
+  const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'Thread',
   );
-  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
+  const { customClasses, textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,

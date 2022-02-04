@@ -66,6 +66,9 @@ export const useChat = <
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
   const appSettings = useRef<Promise<AppSettingsAPIResponse<Co>> | null>(null);
+  const channelListRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLButtonElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -138,12 +141,15 @@ export const useChat = <
 
   return {
     channel,
+    channelListRef,
     closeMobileNav,
     getAppSettings,
+    loadMoreRef,
     mutes,
     navOpen,
     openMobileNav,
     setActiveChannel,
+    textareaRef,
     translators,
   };
 };

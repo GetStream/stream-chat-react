@@ -3,6 +3,8 @@ import React, { PropsWithChildren } from 'react';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 
+import { useChatContext } from '../../context/ChatContext';
+
 import type { Channel } from 'stream-chat';
 
 import type {
@@ -60,6 +62,8 @@ export const ChannelListMessenger = <
     LoadingIndicator = LoadingChannels,
   } = props;
 
+  const { channelListRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelListMessenger');
+
   if (error) {
     return <LoadingErrorIndicator type='Connection Error' />;
   }
@@ -73,6 +77,7 @@ export const ChannelListMessenger = <
       <div
         aria-label='Channel list'
         className='str-chat__channel-list-messenger__main'
+        ref={channelListRef}
         role='listbox'
         tabIndex={0}
       >

@@ -84,9 +84,6 @@ export const EditMessageForm = <
         <form onSubmit={handleSubmit}>
           {isUploadEnabled && <UploadsPreview />}
           <EmojiPicker small />
-          {/* <ChatAutoComplete
-            keyboardTextareaRef={threadTextareaRef ? threadTextareaRef : channelTextareaRef}
-          /> */}
           <ChatAutoComplete />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>

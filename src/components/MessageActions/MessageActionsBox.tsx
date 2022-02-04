@@ -10,7 +10,7 @@ import {
 } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { StreamMessage } from '../../context/ChannelStateContext';
+import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 
 import type {
   DefaultAttachmentType,
@@ -115,6 +115,8 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
+  const { actionBoxRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActionsBox');
+
   const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'MessageActionsBox',
   );
@@ -175,7 +177,12 @@ const UnMemoizedMessageActionsBox = <
       data-testid='message-actions-box'
       ref={checkIfReverse}
     >
-      <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
+      <div
+        aria-label='Message Options'
+        className='str-chat__message-actions-list'
+        ref={open ? actionBoxRef : null}
+        role='listbox'
+      >
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}

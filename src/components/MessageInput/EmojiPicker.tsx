@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useEmojiContext } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -41,6 +42,7 @@ export const EmojiPicker = <
 ) => {
   const { small } = props;
 
+  const { emojiPickerRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('EmojiPicker');
   const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext('EmojiPicker');
   const { t } = useTranslationContext('EmojiPicker');
 
@@ -54,7 +56,7 @@ export const EmojiPicker = <
       : 'str-chat__input--emojipicker';
 
     return (
-      <div className={className} ref={messageInput.emojiPickerRef}>
+      <div className={className} ref={emojiPickerRef}>
         <Suspense fallback={null}>
           <EmojiPickerComponent
             color='#006CFF'

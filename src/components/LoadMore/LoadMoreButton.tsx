@@ -1,6 +1,8 @@
 import React from 'react';
 import { LoadingIndicator } from 'react-file-utils';
 
+import { useChatContext } from '../../context/ChatContext';
+
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
   onClick: React.MouseEventHandler<HTMLButtonElement>;
@@ -11,6 +13,8 @@ export type LoadMoreButtonProps = {
 const UnMemoizedLoadMoreButton: React.FC<LoadMoreButtonProps> = (props) => {
   const { children = 'Load more', onClick, refreshing } = props;
 
+  const { loadMoreRef } = useChatContext('LoadMoreButton');
+
   return (
     <div className='str-chat__load-more-button'>
       <button
@@ -19,6 +23,7 @@ const UnMemoizedLoadMoreButton: React.FC<LoadMoreButtonProps> = (props) => {
         data-testid='load-more-button'
         disabled={refreshing}
         onClick={onClick}
+        ref={loadMoreRef}
       >
         {refreshing ? <LoadingIndicator /> : children}
       </button>

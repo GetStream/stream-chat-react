@@ -159,7 +159,7 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channel, channelCapabilities = {}, channelConfig, textareaRef } = useChannelStateContext<
+  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
     At,
     Ch,
     Co,
@@ -168,6 +168,7 @@ export const useReactionClick = <
     Re,
     Us
   >('useReactionClick');
+  const { textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionClick');
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 

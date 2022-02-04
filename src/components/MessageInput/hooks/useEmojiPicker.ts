@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
 
+import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import type { DefaultAttachmentType, DefaultUserType } from '../../../types/types';
 
@@ -17,15 +18,14 @@ export const useEmojiPicker = <
 ) => {
   const [focusedEmoji, setFocusedEmoji] = useState<number>(0);
 
-  const emojiPickerRef = useRef<HTMLDivElement>(null);
-
-  const { textareaRef } = useChannelStateContext('useEmojiPicker');
+  const { emojiPickerRef } = useChannelStateContext('useEmojiPicker');
+  const { textareaRef } = useChatContext('useEmojiPicker');
 
   const closeEmojiPicker = useCallback(
     (event: MouseEvent) => {
       event.preventDefault();
 
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+      if (emojiPickerRef?.current && !emojiPickerRef.current.contains(event.target as Node)) {
         dispatch({
           type: 'setEmojiPickerIsOpen',
           value: false,
@@ -131,7 +131,6 @@ export const useEmojiPicker = <
 
   return {
     closeEmojiPicker,
-    emojiPickerRef,
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,

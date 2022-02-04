@@ -135,7 +135,6 @@ export type MessageInputHookProps<
   Us extends DefaultUserType<Us> = DefaultUserType
 > = {
   closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
-  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: (
@@ -416,13 +415,10 @@ export const useMessageInputState = <
 
   const closeMentionsList = () => setShowMentionsList(false);
 
-  const {
-    closeEmojiPicker,
-    emojiPickerRef,
-    handleEmojiKeyDown,
-    onSelectEmoji,
-    openEmojiPicker,
-  } = useEmojiPicker<At, Us>(state, dispatch, insertText, closeEmojiPickerOnClick);
+  const { closeEmojiPicker, handleEmojiKeyDown, onSelectEmoji, openEmojiPicker } = useEmojiPicker<
+    At,
+    Us
+  >(state, dispatch, insertText, closeEmojiPickerOnClick);
 
   const {
     maxFilesLeft,
@@ -464,7 +460,6 @@ export const useMessageInputState = <
     closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
     closeMentionsList,
     emojiIndex: useEmojiIndex(),
-    emojiPickerRef,
     handleChange,
     handleEmojiKeyDown,
     handleSubmit,

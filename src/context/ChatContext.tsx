@@ -52,8 +52,11 @@ export type ChatContextValue<
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channelListRef?: React.MutableRefObject<HTMLDivElement | null>;
   customClasses?: CustomClasses;
+  loadMoreRef?: React.MutableRefObject<HTMLButtonElement | null>;
   navOpen?: boolean;
+  textareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
 };
 
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);

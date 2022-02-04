@@ -4,6 +4,7 @@ import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
 import { generateRandomId } from '../../../utils';
 
 import type { FileLike } from 'react-file-utils';
@@ -41,15 +42,10 @@ export const useAttachments = <
   const { noFiles } = props;
   const { fileUploads, imageUploads } = state;
 
-  const { maxNumberOfFiles, multipleUploads, textareaRef } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useAttachments');
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'useAttachments',
+  );
+  const { textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useAttachments');
 
   const { removeFile, uploadFile } = useFileUploads<At, Ch, Co, Ev, Me, Re, Us, V>(
     props,

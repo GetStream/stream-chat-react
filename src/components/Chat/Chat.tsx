@@ -94,12 +94,15 @@ export const Chat = <
 
   const {
     channel,
+    channelListRef,
     closeMobileNav,
     getAppSettings,
+    loadMoreRef,
     mutes,
     navOpen,
     openMobileNav,
     setActiveChannel,
+    textareaRef,
     translators,
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
@@ -107,14 +110,17 @@ export const Chat = <
 
   const chatContextValue = useCreateChatContext({
     channel,
+    channelListRef,
     client,
     closeMobileNav,
     customClasses,
     getAppSettings,
+    loadMoreRef,
     mutes,
     navOpen,
     openMobileNav,
     setActiveChannel,
+    textareaRef,
     theme,
     useImageFlagEmojisOnWindows,
   });

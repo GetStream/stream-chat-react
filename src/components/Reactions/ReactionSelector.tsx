@@ -5,6 +5,7 @@ import { isMutableRef } from './utils/utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
@@ -68,6 +69,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
+    const { reactionSelectorRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+      'ReactionList',
+    );
     const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
       'ReactionSelector',
     );
@@ -226,7 +230,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
             const count = reactionCounts && reactionCounts[reactionOption.id];
 
             return (
-              <li key={`item-${reactionOption.id}`}>
+              <li key={`item-${reactionOption.id}`} ref={reactionSelectorRef}>
                 <button
                   aria-label={`Select Reaction: ${reactionOption.name}`}
                   className='str-chat__message-reactions-list-item'

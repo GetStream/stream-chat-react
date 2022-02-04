@@ -201,7 +201,7 @@ const UnMemoizedChannelList = <
     useImageFlagEmojisOnWindows,
   } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelList');
 
-  const channelListRef = useRef<HTMLDivElement>(null);
+  const channelNavRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
   const [focusedChannel, setFocusedChannel] = useState<number>();
 
@@ -261,7 +261,7 @@ const UnMemoizedChannelList = <
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
-  useMobileNavigation(channelListRef, navOpen, closeMobileNav);
+  useMobileNavigation(channelNavRef, navOpen, closeMobileNav);
 
   useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
   useNotificationMessageNewListener(
@@ -286,9 +286,9 @@ const UnMemoizedChannelList = <
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (
-        channelListRef &&
+        channelNavRef &&
         event.target instanceof HTMLElement &&
-        channelListRef.current?.contains(event.target)
+        channelNavRef.current?.contains(event.target)
       ) {
         if (event.key === 'ArrowUp') {
           setFocusedChannel((prevFocused) => {
@@ -358,7 +358,7 @@ const UnMemoizedChannelList = <
     <>
       <div
         className={`${chatClass} ${channelListClass} ${theme} ${navigationClass} ${windowsEmojiClass}`}
-        ref={channelListRef}
+        ref={channelNavRef}
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         <List

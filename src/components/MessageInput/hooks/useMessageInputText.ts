@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { logChatPromiseExecution } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
+import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type {
@@ -29,9 +30,8 @@ export const useMessageInputText = <
   state: MessageInputState<At, Us>,
   dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
 ) => {
-  const { channel, textareaRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'useMessageInputText',
-  );
+  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageInputText');
+  const { textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 

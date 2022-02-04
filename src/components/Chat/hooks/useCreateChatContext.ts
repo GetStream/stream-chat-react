@@ -24,14 +24,17 @@ export const useCreateChatContext = <
 ) => {
   const {
     channel,
+    channelListRef,
     client,
     closeMobileNav,
     customClasses,
     getAppSettings,
+    loadMoreRef,
     mutes,
     navOpen,
     openMobileNav,
     setActiveChannel,
+    textareaRef,
     theme,
     useImageFlagEmojisOnWindows,
   } = value;
@@ -46,14 +49,17 @@ export const useCreateChatContext = <
   const chatContext: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
     () => ({
       channel,
+      channelListRef,
       client,
       closeMobileNav,
       customClasses,
       getAppSettings,
+      loadMoreRef,
       mutes,
       navOpen,
       openMobileNav,
       setActiveChannel,
+      textareaRef,
       theme,
       useImageFlagEmojisOnWindows,
     }),

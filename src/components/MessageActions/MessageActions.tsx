@@ -6,9 +6,7 @@ import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
-// import { useKeyboardNavigation } from '../Channel/hooks/useKeyboardNavigation';
 
 import type {
   DefaultAttachmentType,
@@ -70,9 +68,7 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
-  const { textareaRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
-  // const { focusMessage, setFocusMessage } = useKeyboardNavigation();
+  const { mutes, textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,

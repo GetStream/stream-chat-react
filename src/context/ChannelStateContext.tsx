@@ -79,14 +79,16 @@ export type ChannelStateContextValue<
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
+  actionBoxRef?: React.MutableRefObject<HTMLDivElement | null>;
   closeRef?: React.MutableRefObject<HTMLButtonElement | null>;
   dragAndDropWindow?: boolean;
+  emojiPickerRef?: React.MutableRefObject<HTMLDivElement | null>;
   focusedMessage?: number | undefined;
   maxNumberOfFiles?: number;
   messageListRef?: React.MutableRefObject<HTMLUListElement | null>;
-  messageWrapperRef?: React.MutableRefObject<HTMLDivElement | null>;
+  modalRef?: React.MutableRefObject<HTMLDivElement | null>;
   mutes?: Mute<Us>[];
-  textareaRef?: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  reactionSelectorRef?: React.MutableRefObject<HTMLLIElement | null>;
   threadRef?: React.MutableRefObject<HTMLDivElement | null>;
   watcher_count?: number;
 };

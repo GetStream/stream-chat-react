@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-// import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ModalProps = {
@@ -13,7 +13,7 @@ export type ModalProps = {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
-  // const { textareaRef } = useChannelStateContext('Modal');
+  const { modalRef } = useChannelStateContext('Modal');
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +70,11 @@ export const Modal: React.FC<ModalProps> = (props) => {
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';
 
   return (
-    <div className={`str-chat__modal ${openClasses}`} onClick={handleKeyPress}>
+    <div
+      className={`str-chat__modal ${openClasses}`}
+      onClick={handleKeyPress}
+      ref={open ? modalRef : null}
+    >
       <button className='str-chat__modal__close-button' onClick={handleKeyPress} title='Close'>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>

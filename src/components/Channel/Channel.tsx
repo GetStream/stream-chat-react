@@ -305,15 +305,16 @@ const ChannelInner = <
     skipMessageDataMemoization,
   } = props;
 
-  const { client, customClasses, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('Channel');
+  const {
+    channelListRef,
+    client,
+    customClasses,
+    loadMoreRef,
+    mutes,
+    textareaRef,
+    theme,
+    useImageFlagEmojisOnWindows,
+  } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Channel');
   const { t } = useTranslationContext('Channel');
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
@@ -481,44 +482,45 @@ const ChannelInner = <
 
   const channelRef = useRef<HTMLDivElement>(null);
   const messageListRef = useRef<HTMLUListElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>();
+  const actionBoxRef = useRef<HTMLDivElement>(null);
+  const reactionSelectorRef = useRef<HTMLLIElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
-  // const messageElements = document.getElementsByClassName('str-chat__message--regular');
-  // let messageElements: NodeListOf<HTMLDivElement>;
-  const actionsBox = document.getElementsByClassName('str-chat__message-actions-box--open');
-  const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
-  const modalElement = document.getElementsByClassName('str-chat__modal--open');
-  const emojiMart = document.getElementsByClassName('emoji-mart');
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [messageElements, setMessageElements] = useState<NodeListOf<HTMLDivElement> | null>(null);
-  // const [focusMessage, setFocusMessage] = useState<boolean>(false);
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      /** If a reaction selector, modal, emoji picker, or message actions box are open - skip these controls - they are handled in their own components */
-      if (!reactionElements[0] && !modalElement[0] && !emojiMart[0] && !actionsBox[0]) {
-        /** If the event is from within the channel (aka not the side nav or outside chat) - continue */
+      /** If the event is from within the channel (aka not the side nav or outside chat) - continue */
+      if (
+        channelRef &&
+        event.target instanceof HTMLElement &&
+        channelRef.current?.contains(event.target)
+      ) {
+        /** If a reaction selector, modal, emoji picker, or message actions box are open - skip these controls - they are handled in their own components */
         if (
-          channelRef &&
-          event.target instanceof HTMLElement &&
-          channelRef.current?.contains(event.target)
+          !reactionSelectorRef.current &&
+          !modalRef.current &&
+          !emojiPickerRef.current &&
+          !actionBoxRef.current
         ) {
-          /** Query for messages on first event - once they've been rendered to DOM */
-          if (messageListRef.current && !messageElements) {
+          /** Ensure all messages are in messageElements */
+          if (messageListRef.current && messageElements?.length !== numberOfRegularMessages) {
             setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
           }
-          const inputHasText = textareaRef.current?.childNodes[0];
-          /** If thread is open - skip these controls. If input contains text - skip because the arrows need to be used to control the cursor. If input has text and you want to navigate the message list - move focus with tab, then use arrows */
+          const inputHasText = textareaRef?.current?.childNodes[0];
+          /** If thread is open - skip these controls. If input contains text - skip because the arrow keys need to be used to control the cursor. To arrow up from input to message list while input has text - move focus with tab/shift + tab, then use up arrow */
           if (!state.thread && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
                 if (focusedMessage === 0) return;
                 else {
                   event.preventDefault();
-                  setFocusedMessage((prevFocused) => prevFocused - 1);
+                  return setFocusedMessage((prevFocused) => prevFocused - 1);
                 }
               }
             }
@@ -527,61 +529,41 @@ const ChannelInner = <
               if (!numberOfRegularMessages || focusedMessage === numberOfRegularMessages) return;
               if (focusedMessage === numberOfRegularMessages - 1) {
                 textareaRef?.current?.focus();
-                setFocusedMessage((prevFocused) => prevFocused + 1);
-              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+                return setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else return setFocusedMessage((prevFocused) => prevFocused + 1);
             }
             /** If whole message has focus - open thread with current message. OpenThread calls focus on thread input */
             if (event.key === 'ArrowRight') {
               const message = regularMessages[focusedMessage];
               if (message) {
-                openThread(message, event);
+                return openThread(message, event);
               }
             }
-            /** closeThread calls focusMessage toggle to trigger a focus to last focused message */
-            // if (event.key === 'ArrowLeft') {
-            //   closeThread(event);
-            // }
             /** If shift + tab while whole message has focus, move focus to channel list */
-            if (event.key === 'Tab' && event.shiftKey) {
+            if (event.key === 'Tab' && event.shiftKey && messageElements) {
               const messageHasFocus = Array.from(messageElements as NodeListOf<HTMLElement>).some(
                 (message) => message === event.target,
               );
-              if (messageHasFocus) {
-                const channelList = document.getElementsByClassName(
-                  'str-chat__channel-list-messenger__main',
-                )[0];
-                if (channelList instanceof HTMLDivElement) {
-                  event.preventDefault();
-                  channelList.focus();
-                }
+              if (messageHasFocus && channelListRef?.current) {
+                event.preventDefault();
+                return channelListRef?.current.focus();
               }
             }
           }
-          /** If focus is outside channel - prevent moving focus to next element in tabIndex (oldest message) because that would trigger a loadMore messages event. Instead, move focus to channel input if right arrow or if tab from load more button or channel list if no load more button or if tab from a channel preview */
-        } else if ((event.key === 'Tab' && !event.shiftKey) || event.key === 'ArrowRight') {
-          const loadMoreButton = document.getElementsByClassName(
-            'str-chat__load-more-button__button',
-          )[0];
+        }
+        /** If focus is outside channel - prevent moving focus to next element in tabIndex (oldest message) because that would trigger a loadMore messages event. Instead, move focus to channel input if right arrow or if tab from load more button or channel list if no load more button or if tab from a channel preview */
+      } else if ((event.key === 'Tab' && !event.shiftKey) || event.key === 'ArrowRight') {
+        const previewHasFocus = Array.from(
+          channelListRef?.current?.children as HTMLCollection,
+        ).some((channelPreview) => channelPreview === event.target);
 
-          if (loadMoreButton === event.target) {
-            event.preventDefault();
-            textareaRef?.current?.focus();
-          } else {
-            const channelList = document.getElementsByClassName(
-              'str-chat__channel-list-messenger__main',
-            )[0];
-            const channelPreview = document.getElementsByClassName(
-              'str-chat__channel-preview-messenger',
-            );
-            const channelPreviewHasFocus = Array.from(channelPreview).some((channel) =>
-              channel.contains(document.activeElement),
-            );
-
-            if (channelPreviewHasFocus || (!loadMoreButton && channelList === event.target)) {
-              event.preventDefault();
-              textareaRef?.current?.focus();
-            }
-          }
+        if (
+          loadMoreRef?.current === event.target ||
+          previewHasFocus ||
+          (!loadMoreRef?.current && channelListRef?.current === event.target)
+        ) {
+          event.preventDefault();
+          return textareaRef?.current?.focus();
         }
       }
     },
@@ -872,31 +854,24 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  // const { channelRef, focusedMessage, setFocusMessage, textareaRef } = useKeyboardNavigation(
-  //   channel,
-  //   closeThread,
-  //   openThread,
-  //   state,
-  // );
-
   const channelStateContextValue = useCreateChannelStateContext({
     ...restState,
     acceptedFiles,
+    actionBoxRef,
     channel,
     channelCapabilitiesArray,
     channelConfig,
-    // closeRef,
     dragAndDropWindow,
+    emojiPickerRef,
     focusedMessage,
     maxNumberOfFiles,
     messageListRef,
-    // messageWrapperRef,
+    modalRef,
     multipleUploads,
     mutes,
     notifications,
     quotedMessage,
-    textareaRef,
-    // threadRef,
+    reactionSelectorRef,
     watcher_count: state.watcherCount,
   });
 
