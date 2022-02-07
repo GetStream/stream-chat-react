@@ -159,16 +159,13 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useReactionClick');
-  const { textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionClick');
+  const {
+    channel,
+    channelCapabilities = {},
+    channelConfig,
+    setTriggerFocus,
+    triggerFocus,
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionClick');
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 
@@ -245,14 +242,15 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  const escapePressHandler = useCallback((event) => {
-    if (event.key === 'Escape') {
-      setShowDetailedReactions(false);
-      // event.stopPropagation();
-      // setMessageToggle(!messageToggle)
-      textareaRef?.current?.focus();
-    }
-  }, []);
+  const escapePressHandler = useCallback(
+    (event) => {
+      if (event.key === 'Escape' && setTriggerFocus) {
+        setShowDetailedReactions(false);
+        setTriggerFocus(!triggerFocus);
+      }
+    },
+    [triggerFocus],
+  );
 
   useEffect(() => {
     if (showDetailedReactions) {

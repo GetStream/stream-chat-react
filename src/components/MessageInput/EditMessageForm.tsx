@@ -64,20 +64,6 @@ export const EditMessageForm = <
     FileUploadIcon = DefaultFileUploadIcon,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('EditMessageForm');
 
-  // useEffect(() => {
-  //   const onKeyDown = (event: KeyboardEvent) => {
-  //     if (event.key === 'Escape' && clearEditingState) clearEditingState();
-  //     console.log(channelTextareaRef, 'edit');
-
-  //     // if (threadTextareaRef.current) threadTextareaRef?.current?.focus();
-  //     // else
-  //     channelTextareaRef?.current?.focus();
-  //   };
-  //
-  //   document.addEventListener('keydown', onKeyDown);
-  //   return () => document.removeEventListener('keydown', onKeyDown);
-  // }, [clearEditingState]);
-
   return (
     <div className='str-chat__edit-message-form'>
       <ImageDropzone

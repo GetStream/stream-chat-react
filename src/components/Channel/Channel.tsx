@@ -493,6 +493,7 @@ const ChannelInner = <
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
   const [messageElements, setMessageElements] = useState<NodeListOf<HTMLDivElement> | null>(null);
+  const [triggerFocus, setTriggerFocus] = useState<boolean>(false);
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -601,8 +602,8 @@ const ChannelInner = <
   }, [handleKeyPress]);
 
   useEffect(() => {
-    if (messageElements) (messageElements[focusedMessage] as HTMLElement)?.focus();
-  }, [focusedMessage]);
+    if (messageElements && !state.thread) (messageElements[focusedMessage] as HTMLElement)?.focus();
+  }, [focusedMessage, triggerFocus]);
 
   /** MESSAGE */
 
@@ -672,7 +673,11 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
+    console.log('focusedMessage: ', focusedMessage);
+
+    // setFocusedMessage(messageElements.length - channel.state.messages.length);
     // setFocusedMessage(messageElements.length - 25);
+    // setFocusedMessage(channel.state.messages.length - 25);
 
     return queryResponse.messages.length;
   };
@@ -824,8 +829,7 @@ const ChannelInner = <
   const closeThread = (event: React.BaseSyntheticEvent | KeyboardEvent) => {
     event.preventDefault();
     dispatch({ type: 'closeThread' });
-    // setFocusMessage(!focusMessage);
-    textareaRef?.current?.focus();
+    setTriggerFocus(!triggerFocus);
   };
 
   const loadMoreThreadFinished = debounce(
@@ -898,6 +902,8 @@ const ChannelInner = <
     quotedMessage,
     reactionSelectorRef,
     sendButtonRef,
+    setTriggerFocus,
+    triggerFocus,
     watcher_count: state.watcherCount,
   });
 

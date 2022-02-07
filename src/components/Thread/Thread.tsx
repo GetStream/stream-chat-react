@@ -184,6 +184,7 @@ const ThreadInner = <
     threadHasMore,
     threadLoadingMore,
     threadMessages,
+    triggerFocus,
   } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'Thread',
@@ -292,7 +293,7 @@ const ThreadInner = <
     if (messageElements) {
       (messageElements[focusedMessage] as HTMLElement)?.focus();
     }
-  }, [focusedMessage]);
+  }, [focusedMessage, triggerFocus]);
 
   if (!thread) return null;
 

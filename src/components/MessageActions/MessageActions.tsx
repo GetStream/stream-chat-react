@@ -69,8 +69,16 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { actionBoxRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
-  const { mutes, textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  const { actionBoxRef, setTriggerFocus, triggerFocus } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('MessageActions');
+  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -102,48 +110,48 @@ export const MessageActions = <
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
-  const handleKeyPress = useCallback((event) => {
-    if (
-      actionsWrapperRef &&
-      event.target instanceof HTMLElement &&
-      actionsWrapperRef.current?.contains(event.target)
-    ) {
-      const actionElements = actionBoxRef?.current?.children;
+  const handleKeyPress = useCallback(
+    (event) => {
+      if (
+        actionsWrapperRef &&
+        event.target instanceof HTMLElement &&
+        actionsWrapperRef.current?.contains(event.target)
+      ) {
+        const actionElements = actionBoxRef?.current?.children;
 
-      if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        setFocusedAction((prevFocused) => {
-          if (actionElements) {
-            return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
-          } else return 0;
-        });
+        if (event.key === 'ArrowUp') {
+          event.preventDefault();
+          setFocusedAction((prevFocused) => {
+            if (actionElements) {
+              return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
+            } else return 0;
+          });
+        }
+
+        if (event.key === 'ArrowDown') {
+          event.preventDefault();
+          setFocusedAction((prevFocused) => {
+            if (actionElements) {
+              return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
+            } else return 0;
+          });
+        }
+
+        if (event.key === 'Tab') {
+          event.preventDefault();
+          return;
+        }
+
+        if (event.key === 'Enter') setFocusedAction(0);
+
+        if (event.key === 'Escape' && setTriggerFocus) {
+          setActionsBoxOpen(false);
+          setTriggerFocus(!triggerFocus);
+        }
       }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setFocusedAction((prevFocused) => {
-          if (actionElements) {
-            return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
-          } else return 0;
-        });
-      }
-
-      if (event.key === 'Tab') {
-        event.preventDefault();
-        return;
-      }
-
-      if (event.key === 'Enter') setFocusedAction(0);
-
-      if (event.key === 'Escape') {
-        setActionsBoxOpen(false);
-        // event.stopPropagation(); ?????
-        // setMessageToggle(!messageToggle) ??????
-        textareaRef?.current?.focus();
-        // setFocusMessage(!focusMessage);
-      }
-    }
-  }, []);
+    },
+    [triggerFocus],
+  );
 
   useEffect(() => {
     if (messageWrapperRef?.current) {
@@ -227,6 +235,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
     setActionsBoxOpen(!actionsBoxOpen);
+    // setTriggerFocus(!triggerFocus);
   };
 
   const wrapperProps = {

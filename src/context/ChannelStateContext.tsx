@@ -90,7 +90,9 @@ export type ChannelStateContextValue<
   mutes?: Mute<Us>[];
   reactionSelectorRef?: React.MutableRefObject<HTMLLIElement | null>;
   sendButtonRef?: React.MutableRefObject<HTMLButtonElement | null>;
+  setTriggerFocus?: React.Dispatch<React.SetStateAction<boolean>>;
   threadRef?: React.MutableRefObject<HTMLDivElement | null>;
+  triggerFocus?: boolean;
   watcher_count?: number;
 };
 
