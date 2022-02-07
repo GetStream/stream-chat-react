@@ -488,7 +488,7 @@ const ChannelInner = <
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const sendButtonRef = useRef<HTMLButtonElement>(null);
 
-  const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
+  const regularMessages = channel.state.messages.filter((message) => message.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
@@ -515,13 +515,7 @@ const ChannelInner = <
           !emojiPickerRef.current &&
           !actionBoxRef.current
         ) {
-          /**
-           * Ensure all messages are in messageElements
-           * */
-          if (messageListRef.current && messageElements?.length !== numberOfRegularMessages) {
-            setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
-          }
-          const inputHasText = textareaRef?.current?.childNodes[0];
+          const inputHasText = textareaRef?.current?.childNodes[0] ? true : false;
           /**
            * If thread is open - skip these controls. If input contains text -
            * skip because the arrow keys need to be used to control the cursor.
@@ -529,6 +523,13 @@ const ChannelInner = <
            * move focus with tab/shift + tab, then use up arrow
            * */
           if (!state.thread && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
+            /**
+             * Ensure all messages are in messageElements
+             * */
+            if (messageListRef.current && messageElements?.length !== numberOfRegularMessages) {
+              setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
+            }
+
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
                 if (focusedMessage === 0) return;

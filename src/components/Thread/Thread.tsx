@@ -178,6 +178,7 @@ const ThreadInner = <
   const {
     actionBoxRef,
     emojiPickerRef,
+    messageListRef,
     reactionSelectorRef,
     thread,
     threadHasMore,
@@ -225,16 +226,16 @@ const ThreadInner = <
 
   /** Keyboard Navigation */
 
-  const [focusedMessage, setFocusedMessage] = useState<number>(0);
+  const replyMessages = threadMessages?.filter((message) => message.type === 'reply').length || 0;
+  const [focusedMessage, setFocusedMessage] = useState<number>(replyMessages);
+  const [messageElements, setMessageElements] = useState<NodeListOf<Element> | null>(null);
 
   const threadRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const messageElements = document.getElementsByClassName('str-chat__message--reply');
-
   useEffect(() => {
     if (!focusedMessage) {
-      setFocusedMessage(messageElements.length);
+      setFocusedMessage(replyMessages);
     }
   }, [threadMessages]);
 
@@ -250,8 +251,12 @@ const ThreadInner = <
           const inputHasText = textareaRef?.current?.childNodes[0];
 
           if (!inputHasText || !textareaRef?.current?.contains(event.target)) {
+            if (messageListRef?.current && messageElements?.length !== replyMessages) {
+              setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
+            }
+
             if (event.key === 'ArrowUp') {
-              if (messageElements.length) {
+              if (replyMessages) {
                 if (focusedMessage === -1) return;
                 else if (focusedMessage === 0) {
                   closeRef?.current?.focus();
@@ -261,8 +266,8 @@ const ThreadInner = <
             }
 
             if (event.key === 'ArrowDown') {
-              if (!messageElements.length || focusedMessage === messageElements.length) return;
-              if (focusedMessage === messageElements.length - 1) {
+              if (!messageElements?.length || focusedMessage === messageElements?.length) return;
+              if (focusedMessage === messageElements?.length - 1) {
                 textareaRef?.current?.focus();
                 return setFocusedMessage((prevFocused) => prevFocused + 1);
               } else return setFocusedMessage((prevFocused) => prevFocused + 1);
@@ -284,7 +289,9 @@ const ThreadInner = <
   }, [handleKeyDown]);
 
   useEffect(() => {
-    (messageElements[focusedMessage] as HTMLElement)?.focus();
+    if (messageElements) {
+      (messageElements[focusedMessage] as HTMLElement)?.focus();
+    }
   }, [focusedMessage]);
 
   if (!thread) return null;
