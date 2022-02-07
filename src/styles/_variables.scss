@@ -1,5 +1,9 @@
 /* fonts */
-$main-font: 'IBM Plex Sans', sans-serif;
+/* https://systemfontstack.com/ */
+$system-stack-font: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                    Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+                    "Helvetica Neue", sans-serif;
+$main-font: #{$system-stack-font};
 $second-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
 $base-font-weight: 400;
