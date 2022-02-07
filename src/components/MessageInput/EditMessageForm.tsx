@@ -37,9 +37,15 @@ export const EditMessageForm = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'EditMessageForm',
-  );
+  const { acceptedFiles, multipleUploads, sendButtonRef } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('EditMessageForm');
   const { t } = useTranslationContext('EditMessageForm');
 
   const {
@@ -124,7 +130,7 @@ export const EditMessageForm = <
               >
                 {t('Cancel')}
               </button>
-              <button className='str-chat__send' type='submit'>
+              <button className='str-chat__send' ref={sendButtonRef} type='submit'>
                 {t('Send')}
               </button>
             </div>

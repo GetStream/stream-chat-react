@@ -486,6 +486,7 @@ const ChannelInner = <
   const reactionSelectorRef = useRef<HTMLLIElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const sendButtonRef = useRef<HTMLButtonElement>(null);
 
   const regularMessages = channel.state.messages.filter((m) => m.type === 'regular');
   const numberOfRegularMessages = regularMessages.length;
@@ -495,25 +496,38 @@ const ChannelInner = <
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
-      /** If the event is from within the channel (aka not the side nav or outside chat) - continue */
+      /**
+       * If the event is from within the channel (aka not the channel nav or outside chat) -
+       * continue
+       * */
       if (
         channelRef &&
         event.target instanceof HTMLElement &&
         channelRef.current?.contains(event.target)
       ) {
-        /** If a reaction selector, modal, emoji picker, or message actions box are open - skip these controls - they are handled in their own components */
+        /**
+         * If a reaction selector, modal, emoji picker, or message actions box are open -
+         * skip these controls - they are handled in their own components
+         * */
         if (
           !reactionSelectorRef.current &&
           !modalRef.current &&
           !emojiPickerRef.current &&
           !actionBoxRef.current
         ) {
-          /** Ensure all messages are in messageElements */
+          /**
+           * Ensure all messages are in messageElements
+           * */
           if (messageListRef.current && messageElements?.length !== numberOfRegularMessages) {
             setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
           }
           const inputHasText = textareaRef?.current?.childNodes[0];
-          /** If thread is open - skip these controls. If input contains text - skip because the arrow keys need to be used to control the cursor. To arrow up from input to message list while input has text - move focus with tab/shift + tab, then use up arrow */
+          /**
+           * If thread is open - skip these controls. If input contains text -
+           * skip because the arrow keys need to be used to control the cursor.
+           * To arrow up from input to message list while input has text -
+           * move focus with tab/shift + tab, then use up arrow
+           * */
           if (!state.thread && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
             if (event.key === 'ArrowUp') {
               if (numberOfRegularMessages) {
@@ -532,14 +546,19 @@ const ChannelInner = <
                 return setFocusedMessage((prevFocused) => prevFocused + 1);
               } else return setFocusedMessage((prevFocused) => prevFocused + 1);
             }
-            /** If whole message has focus - open thread with current message. OpenThread calls focus on thread input */
+            /**
+             * If whole message has focus - open thread with current message.
+             * OpenThread calls focus on thread input
+             * */
             if (event.key === 'ArrowRight') {
               const message = regularMessages[focusedMessage];
               if (message) {
                 return openThread(message, event);
               }
             }
-            /** If shift + tab while whole message has focus, move focus to channel list */
+            /**
+             * If shift + tab while whole message has focus, move focus to channel list
+             * */
             if (event.key === 'Tab' && event.shiftKey && messageElements) {
               const messageHasFocus = Array.from(messageElements as NodeListOf<HTMLElement>).some(
                 (message) => message === event.target,
@@ -551,7 +570,12 @@ const ChannelInner = <
             }
           }
         }
-        /** If focus is outside channel - prevent moving focus to next element in tabIndex (oldest message) because that would trigger a loadMore messages event. Instead, move focus to channel input if right arrow or if tab from load more button or channel list if no load more button or if tab from a channel preview */
+        /**
+         * If focus is outside channel - prevent moving focus to next element in tabIndex
+         * (oldest message) because that would trigger a loadMore messages event.
+         * Instead, move focus to channel input if right arrow or if tab from load more
+         * button or channel list if no load more button or if tab from a channel preview
+         * */
       } else if ((event.key === 'Tab' && !event.shiftKey) || event.key === 'ArrowRight') {
         const previewHasFocus = Array.from(
           channelListRef?.current?.children as HTMLCollection,
@@ -872,6 +896,7 @@ const ChannelInner = <
     notifications,
     quotedMessage,
     reactionSelectorRef,
+    sendButtonRef,
     watcher_count: state.watcherCount,
   });
 

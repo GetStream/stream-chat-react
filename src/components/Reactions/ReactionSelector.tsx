@@ -110,6 +110,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const targetRef = useRef<HTMLDivElement | null>(null);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
     const reactionRef = useRef<HTMLButtonElement>(null);
+    const reactionElementRef = useRef<HTMLUListElement>(null);
 
     const showTooltip = useCallback((event, reactionType: string) => {
       targetRef.current = event.target;
@@ -158,10 +159,6 @@ const UnMemoizedReactionSelector = React.forwardRef(
       latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
       undefined;
 
-    const reactionElements = document.getElementsByClassName(
-      'str-chat__message-reactions-list-item',
-    );
-
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => {
         if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') {
@@ -194,8 +191,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
     }, [handleKeyDown]);
 
     useEffect(() => {
+      const reactionElements = reactionElementRef?.current?.children;
       if (reactionElements) {
-        (reactionElements[focusedReaction] as HTMLElement)?.focus();
+        (reactionElements[focusedReaction].children[0] as HTMLElement)?.focus();
       }
     }, [focusedReaction]);
 
@@ -205,7 +203,6 @@ const UnMemoizedReactionSelector = React.forwardRef(
           reverse ? 'str-chat__reaction-selector--reverse' : ''
         }`}
         data-testid='reaction-selector'
-        ref={ref}
       >
         {!!tooltipReactionType && detailedView && (
           <div
@@ -224,7 +221,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
             ))}
           </div>
         )}
-        <ul className='str-chat__message-reactions-list'>
+        <ul className='str-chat__message-reactions-list' ref={reactionElementRef}>
           {reactionOptions.map((reactionOption: ReactionEmoji) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
             const count = reactionCounts && reactionCounts[reactionOption.id];

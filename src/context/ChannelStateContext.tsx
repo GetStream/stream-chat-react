@@ -89,6 +89,7 @@ export type ChannelStateContextValue<
   modalRef?: React.MutableRefObject<HTMLDivElement | null>;
   mutes?: Mute<Us>[];
   reactionSelectorRef?: React.MutableRefObject<HTMLLIElement | null>;
+  sendButtonRef?: React.MutableRefObject<HTMLButtonElement | null>;
   threadRef?: React.MutableRefObject<HTMLDivElement | null>;
   watcher_count?: number;
 };

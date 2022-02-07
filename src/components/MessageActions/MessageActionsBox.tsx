@@ -11,6 +11,7 @@ import {
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 
 import type {
   DefaultAttachmentType,
@@ -130,6 +131,8 @@ const UnMemoizedMessageActionsBox = <
     Us
   >('MessageActionsBox');
 
+  const { textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActionsBox');
+
   const { t } = useTranslationContext('MessageActionsBox');
 
   const [reverse, setReverse] = useState(false);
@@ -158,13 +161,7 @@ const UnMemoizedMessageActionsBox = <
 
   const handleQuote = () => {
     setQuotedMessage(message);
-
-    const elements = document.getElementsByClassName('str-chat__textarea__textarea');
-    const textarea = elements.item(0);
-
-    if (textarea instanceof HTMLTextAreaElement) {
-      textarea.focus();
-    }
+    textareaRef?.current?.focus();
   };
 
   return (

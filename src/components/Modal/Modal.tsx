@@ -13,57 +13,48 @@ export type ModalProps = {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
-  const { modalRef } = useChannelStateContext('Modal');
+  const { modalRef, sendButtonRef } = useChannelStateContext('Modal');
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
 
-  const handleKeyPress = (event: React.MouseEvent | KeyboardEvent) => {
+  const handleEvent = (event: React.MouseEvent | KeyboardEvent) => {
     if (
       (event.target instanceof HTMLDivElement && !innerRef.current?.contains(event.target)) ||
       (event.target instanceof HTMLButtonElement && event.type === 'click') ||
       (event instanceof KeyboardEvent && event.key === 'Escape')
     ) {
-      console.log('in');
-
       if (onClose) {
         onClose();
         // textareaRef?.current?.focus();
         // focus message
       }
+      /**
+       * Prevent focus from leaving modal
+       */
     } else if (event instanceof KeyboardEvent && event.key === 'Tab') {
-      const sendElement = document.getElementsByClassName('str-chat__send')[0];
-
-      console.log('else', sendElement, event.target);
       if (
         !event.shiftKey &&
-        (sendElement === event.target ||
+        (sendButtonRef?.current === event.target ||
           (event.target as HTMLButtonElement).classList.contains('image-gallery-fullscreen-button'))
       ) {
-        console.log('not');
-
         event.preventDefault();
         return;
       }
 
-      if (
-        event.shiftKey &&
-        (event.target as HTMLButtonElement).classList.contains('str-chat__modal__close-button')
-      ) {
-        console.log('shift');
-
+      if (event.shiftKey && modalRef?.current?.children[0] === event.target) {
         event.preventDefault();
         return;
       }
-    } else console.log('final');
+    }
   };
 
   useEffect(() => {
     if (open) {
-      document.addEventListener('keydown', handleKeyPress);
+      document.addEventListener('keydown', handleEvent);
     }
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keydown', handleEvent);
     };
   }, [open]);
 
@@ -72,10 +63,10 @@ export const Modal: React.FC<ModalProps> = (props) => {
   return (
     <div
       className={`str-chat__modal ${openClasses}`}
-      onClick={handleKeyPress}
+      onClick={handleEvent}
       ref={open ? modalRef : null}
     >
-      <button className='str-chat__modal__close-button' onClick={handleKeyPress} title='Close'>
+      <button className='str-chat__modal__close-button' onClick={handleEvent} title='Close'>
         {t('Close')}
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path

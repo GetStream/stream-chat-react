@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -6,6 +6,7 @@ import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type {
@@ -68,6 +69,7 @@ export const MessageActions = <
     mine,
   } = props;
 
+  const { actionBoxRef } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const { mutes, textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
@@ -91,6 +93,8 @@ export const MessageActions = <
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
   const [focusedAction, setFocusedAction] = useState<number>(0);
 
+  const actionsWrapperRef = useRef<HTMLAnchorElement>(null);
+
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
   const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
@@ -99,40 +103,45 @@ export const MessageActions = <
   const messageDeletedAt = !!message?.deleted_at;
 
   const handleKeyPress = useCallback((event) => {
-    const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-    const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
+    if (
+      actionsWrapperRef &&
+      event.target instanceof HTMLElement &&
+      actionsWrapperRef.current?.contains(event.target)
+    ) {
+      const actionElements = actionBoxRef?.current?.children;
 
-    if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      setFocusedAction((prevFocused) => {
-        if (actionElements) {
-          return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
-        } else return 0;
-      });
-    }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setFocusedAction((prevFocused) => {
+          if (actionElements) {
+            return prevFocused === 0 ? actionElements?.length - 1 : prevFocused - 1;
+          } else return 0;
+        });
+      }
 
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      setFocusedAction((prevFocused) => {
-        if (actionElements) {
-          return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
-        } else return 0;
-      });
-    }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setFocusedAction((prevFocused) => {
+          if (actionElements) {
+            return prevFocused === actionElements?.length - 1 ? 0 : prevFocused + 1;
+          } else return 0;
+        });
+      }
 
-    if (event.key === 'Tab') {
-      event.preventDefault();
-      return;
-    }
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        return;
+      }
 
-    if (event.key === 'Enter') setFocusedAction(0);
+      if (event.key === 'Enter') setFocusedAction(0);
 
-    if (event.key === 'Escape') {
-      setActionsBoxOpen(false);
-      // event.stopPropagation(); ?????
-      // setMessageToggle(!messageToggle) ??????
-      textareaRef?.current?.focus();
-      // setFocusMessage(!focusMessage);
+      if (event.key === 'Escape') {
+        setActionsBoxOpen(false);
+        // event.stopPropagation(); ?????
+        // setMessageToggle(!messageToggle) ??????
+        textareaRef?.current?.focus();
+        // setFocusMessage(!focusMessage);
+      }
     }
   }, []);
 
@@ -145,6 +154,7 @@ export const MessageActions = <
   useEffect(() => {
     if (messageDeletedAt) {
       document.removeEventListener('click', hideOptions);
+      document.removeEventListener('keydown', hideOptions);
     }
   }, [hideOptions, messageDeletedAt]);
 
@@ -152,18 +162,17 @@ export const MessageActions = <
     if (actionsBoxOpen) {
       document.addEventListener('click', hideOptions);
       document.addEventListener('keydown', handleKeyPress);
-      const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-      const actionElements = actionsBox?.querySelectorAll('.str-chat__message-actions-list-item');
 
-      if (actionElements) {
-        (actionElements[focusedAction] as HTMLElement)?.focus();
-      }
+      (actionBoxRef?.current?.children[focusedAction] as HTMLElement)?.focus();
     } else {
       document.removeEventListener('click', hideOptions);
       document.removeEventListener('keydown', handleKeyPress);
     }
 
-    return () => document.removeEventListener('click', hideOptions);
+    return () => {
+      document.removeEventListener('click', hideOptions);
+      document.removeEventListener('keydown', hideOptions);
+    };
   }, [actionsBoxOpen, focusedAction, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
@@ -171,6 +180,7 @@ export const MessageActions = <
   return (
     <MessageActionsWrapper
       actionsBoxOpen={actionsBoxOpen}
+      actionsWrapperRef={actionsWrapperRef}
       customWrapperClass={customWrapperClass}
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
@@ -194,12 +204,20 @@ export const MessageActions = <
 export type MessageActionsWrapperProps = {
   actionsBoxOpen: boolean;
   setActionsBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  actionsWrapperRef?: React.MutableRefObject<HTMLAnchorElement | null>;
   customWrapperClass?: string;
   inline?: boolean;
 };
 
 const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
-  const { actionsBoxOpen, children, customWrapperClass, inline, setActionsBoxOpen } = props;
+  const {
+    actionsBoxOpen,
+    actionsWrapperRef,
+    children,
+    customWrapperClass,
+    inline,
+    setActionsBoxOpen,
+  } = props;
 
   const defaultWrapperClass =
     'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
@@ -224,6 +242,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
         aria-haspopup='true'
         aria-label={'Open Message Actions Selector'}
         onKeyPress={onClickOptionsAction}
+        ref={actionsWrapperRef}
         role='button'
         tabIndex={0}
         {...wrapperProps}
@@ -238,6 +257,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
       aria-haspopup='true'
       aria-label={'Open Message Actions Selector'}
       onKeyPress={onClickOptionsAction}
+      ref={actionsWrapperRef}
       role='button'
       tabIndex={0}
       {...wrapperProps}

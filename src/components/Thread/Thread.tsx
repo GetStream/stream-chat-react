@@ -175,15 +175,15 @@ const ThreadInner = <
     virtualized,
   } = props;
 
-  const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('Thread');
+  const {
+    actionBoxRef,
+    emojiPickerRef,
+    reactionSelectorRef,
+    thread,
+    threadHasMore,
+    threadLoadingMore,
+    threadMessages,
+  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
     'Thread',
   );
@@ -231,8 +231,6 @@ const ThreadInner = <
   const closeRef = useRef<HTMLButtonElement>(null);
 
   const messageElements = document.getElementsByClassName('str-chat__message--reply');
-  const reactionElements = document.getElementsByClassName('str-chat__message-reactions-list-item');
-  const emojiMart = document.getElementsByClassName('emoji-mart');
 
   useEffect(() => {
     if (!focusedMessage) {
@@ -242,27 +240,23 @@ const ThreadInner = <
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!reactionElements[0] && !emojiMart[0]) {
-        if (
-          threadMessages &&
-          threadRef &&
-          event.target instanceof HTMLElement &&
-          threadRef.current?.contains(event.target)
-        ) {
-          const actionsBox = document.querySelector('.str-chat__message-actions-box--open');
-          const actionElements = actionsBox?.querySelectorAll(
-            '.str-chat__message-actions-list-item',
-          );
+      if (
+        threadMessages &&
+        threadRef &&
+        event.target instanceof HTMLElement &&
+        threadRef.current?.contains(event.target)
+      ) {
+        if (!reactionSelectorRef?.current && !emojiPickerRef?.current && !actionBoxRef?.current) {
           const inputHasText = textareaRef?.current?.childNodes[0];
 
-          if (!actionElements && (!inputHasText || !textareaRef?.current?.contains(event.target))) {
+          if (!inputHasText || !textareaRef?.current?.contains(event.target)) {
             if (event.key === 'ArrowUp') {
               if (messageElements.length) {
                 if (focusedMessage === -1) return;
                 else if (focusedMessage === 0) {
                   closeRef?.current?.focus();
-                  setFocusedMessage((prevFocused) => prevFocused - 1);
-                } else setFocusedMessage((prevFocused) => prevFocused - 1);
+                  return setFocusedMessage((prevFocused) => prevFocused - 1);
+                } else return setFocusedMessage((prevFocused) => prevFocused - 1);
               }
             }
 
@@ -270,12 +264,12 @@ const ThreadInner = <
               if (!messageElements.length || focusedMessage === messageElements.length) return;
               if (focusedMessage === messageElements.length - 1) {
                 textareaRef?.current?.focus();
-                setFocusedMessage((prevFocused) => prevFocused + 1);
-              } else setFocusedMessage((prevFocused) => prevFocused + 1);
+                return setFocusedMessage((prevFocused) => prevFocused + 1);
+              } else return setFocusedMessage((prevFocused) => prevFocused + 1);
             }
 
             if (event.key === 'ArrowLeft') {
-              closeThread(event);
+              return closeThread(event);
             }
           }
         }
