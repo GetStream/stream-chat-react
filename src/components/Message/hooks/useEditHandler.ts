@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 import type { ReactEventHandler } from '../types';
 
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+
 export type EditHandlerReturnType = {
   clearEdit: (event?: React.BaseSyntheticEvent) => void;
   editing: boolean;
@@ -13,6 +15,8 @@ export const useEditHandler = (
   customSetEditing?: (event?: React.BaseSyntheticEvent) => void,
   customClearEditingHandler?: (event?: React.BaseSyntheticEvent) => void,
 ): EditHandlerReturnType => {
+  const { setTriggerFocus, triggerFocus } = useChannelStateContext('useEditHandler');
+
   const [editing, setEditing] = useState(customInitialState);
 
   const setEdit =
@@ -31,6 +35,9 @@ export const useEditHandler = (
         event.preventDefault();
       }
       setEditing(false);
+      if (setTriggerFocus) {
+        setTriggerFocus(!triggerFocus);
+      }
     });
 
   return { clearEdit, editing, setEdit };

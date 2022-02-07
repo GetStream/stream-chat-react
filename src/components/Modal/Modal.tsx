@@ -13,9 +13,7 @@ export type ModalProps = {
 export const Modal: React.FC<ModalProps> = (props) => {
   const { children, onClose, open } = props;
 
-  const { modalRef, sendButtonRef, setTriggerFocus, triggerFocus } = useChannelStateContext(
-    'Modal',
-  );
+  const { modalRef, sendButtonRef } = useChannelStateContext('Modal');
   const { t } = useTranslationContext('Modal');
 
   const innerRef = useRef<HTMLDivElement | null>(null);
@@ -26,9 +24,8 @@ export const Modal: React.FC<ModalProps> = (props) => {
       (event.target instanceof HTMLButtonElement && event.type === 'click') ||
       (event instanceof KeyboardEvent && event.key === 'Escape')
     ) {
-      if (onClose && setTriggerFocus) {
+      if (onClose) {
         onClose();
-        setTriggerFocus(!triggerFocus);
       }
       /**
        * Prevent focus from leaving modal

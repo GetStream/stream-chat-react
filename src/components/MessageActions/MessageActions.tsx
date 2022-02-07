@@ -81,6 +81,7 @@ export const MessageActions = <
   const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
   const {
     customMessageActions,
+    editing,
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
@@ -118,6 +119,7 @@ export const MessageActions = <
         actionsWrapperRef.current?.contains(event.target)
       ) {
         const actionElements = actionBoxRef?.current?.children;
+        console.log('bar');
 
         if (event.key === 'ArrowUp') {
           event.preventDefault();
@@ -171,7 +173,7 @@ export const MessageActions = <
       document.addEventListener('click', hideOptions);
       document.addEventListener('keydown', handleKeyPress);
 
-      (actionBoxRef?.current?.children[focusedAction] as HTMLElement)?.focus();
+      setTimeout(() => (actionBoxRef?.current?.children[focusedAction] as HTMLElement)?.focus(), 0);
     } else {
       document.removeEventListener('click', hideOptions);
       document.removeEventListener('keydown', handleKeyPress);
@@ -181,7 +183,7 @@ export const MessageActions = <
       document.removeEventListener('click', hideOptions);
       document.removeEventListener('keydown', hideOptions);
     };
-  }, [actionsBoxOpen, focusedAction, hideOptions]);
+  }, [actionsBoxOpen, editing, focusedAction, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
 
@@ -235,7 +237,6 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
     setActionsBoxOpen(!actionsBoxOpen);
-    // setTriggerFocus(!triggerFocus);
   };
 
   const wrapperProps = {

@@ -46,7 +46,7 @@ export const useDeleteHandler = <
   const { getErrorNotification, notify } = notifications;
 
   const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useDeleteHandler');
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useDeleteHandler');
+  const { client, textareaRef } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
   return async (event) => {
@@ -58,6 +58,7 @@ export const useDeleteHandler = <
     try {
       const data = await client.deleteMessage(message.id);
       updateMessage(data.message);
+      textareaRef?.current?.focus();
     } catch (e) {
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);

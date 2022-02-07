@@ -189,8 +189,9 @@ export const useReactionClick = <
       }
 
       setShowDetailedReactions(false);
+      if (setTriggerFocus) setTriggerFocus(!triggerFocus);
     },
-    [setShowDetailedReactions, reactionSelectorRef],
+    [setShowDetailedReactions, reactionSelectorRef, triggerFocus],
   );
 
   useEffect(() => {
