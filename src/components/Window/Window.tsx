@@ -41,10 +41,15 @@ const UnMemoizedWindow = <
 
   const { thread } = useChannelStateContext<At, Ch, Co, Me, Re, Us>('Window');
 
-  // If thread is active and window should hide on thread. Return null
-  if (thread && hideOnThread) return null;
-
-  return <div className={`str-chat__main-panel`}>{children}</div>;
+  return (
+    <div
+      className={`str-chat__main-panel   ${
+        hideOnThread && thread ? 'str-chat__main-panel--hideOnThread' : ''
+      }`}
+    >
+      {children}
+    </div>
+  );
 };
 
 /**
