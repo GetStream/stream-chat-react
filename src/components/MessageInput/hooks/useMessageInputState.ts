@@ -414,7 +414,7 @@ export const useMessageInputState = <
 
   const openMentionsList = () => {
     dispatch({
-      getNewText: () => '@',
+      getNewText: (currentText) => currentText + '@',
       type: 'setText',
     });
     setShowMentionsList(true);
