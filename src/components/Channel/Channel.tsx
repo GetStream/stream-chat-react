@@ -492,6 +492,7 @@ const ChannelInner = <
   const numberOfRegularMessages = regularMessages.length;
 
   const [focusedMessage, setFocusedMessage] = useState<number>(numberOfRegularMessages);
+  const [offset, setOffset] = useState<number>(numberOfRegularMessages);
   const [messageElements, setMessageElements] = useState<NodeListOf<HTMLDivElement> | null>(null);
   const [triggerFocus, setTriggerFocus] = useState<boolean>(false);
 
@@ -605,6 +606,20 @@ const ChannelInner = <
     if (messageElements && !state.thread) (messageElements[focusedMessage] as HTMLElement)?.focus();
   }, [focusedMessage, triggerFocus]);
 
+  useEffect(() => {
+    if (
+      messageElements &&
+      messageListRef.current &&
+      messageElements.length !== numberOfRegularMessages
+    ) {
+      setMessageElements(messageListRef.current.querySelectorAll('[data-role="message"]'));
+      if (messageElements.length > offset) {
+        setFocusedMessage(numberOfRegularMessages - offset);
+        setOffset(numberOfRegularMessages);
+      }
+    }
+  }, [state.loadingMore]);
+
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
@@ -673,11 +688,6 @@ const ChannelInner = <
 
     const hasMoreMessages = queryResponse.messages.length === perPage;
     loadMoreFinished(hasMoreMessages, channel.state.messages);
-    console.log('focusedMessage: ', focusedMessage);
-
-    // setFocusedMessage(messageElements.length - channel.state.messages.length);
-    // setFocusedMessage(messageElements.length - 25);
-    // setFocusedMessage(channel.state.messages.length - 25);
 
     return queryResponse.messages.length;
   };
@@ -892,7 +902,6 @@ const ChannelInner = <
     channelConfig,
     dragAndDropWindow,
     emojiPickerRef,
-    focusedMessage,
     maxNumberOfFiles,
     messageListRef,
     modalRef,

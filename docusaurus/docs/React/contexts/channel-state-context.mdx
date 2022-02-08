@@ -129,6 +129,14 @@ Array of [message objects](https://getstream.io/chat/docs/javascript/message_for
 | -------- |
 | object[] |
 
+### messageListRef
+
+React mutable ref placed on the `InfiniteScroll` container `ul`.
+
+| Type                                      |
+| ----------------------------------------- |
+| React.MutableRefObject<HTMLUListElement\> |
+
 ### modalRef
 
 React mutable ref placed on the `Modal` container `div`.
@@ -181,8 +189,8 @@ An inline message reply to another message.
 
 React mutable ref placed on the `ReactionSelector` reaction `li`.
 
-| Type                                    |
-| --------------------------------------- |
+| Type                                   |
+| -------------------------------------- |
 | React.MutableRefObject<HTMLLIElement\> |
 
 ### read
@@ -192,6 +200,22 @@ The read state for each `channel` member.
 | Type   |
 | ------ |
 | object |
+
+### sendButtonRef
+
+React mutable ref placed on the `EditMessageForm` `button`.
+
+| Type                                       |
+| ------------------------------------------ |
+| React.MutableRefObject<HTMLButtonElement\> |
+
+### setTriggerFocus
+
+Function to toggle the 'triggerFocus' state on 'ChannelStateContext'.
+
+| Type     |
+| -------- |
+| function |
 
 ### thread
 
@@ -224,6 +248,14 @@ Array of messages within a `thread`.
 | Type     |
 | -------- |
 | object[] |
+
+### triggerFocus
+
+Boolean used to trigger focus of the previous focused message if keyboard navigation is used.
+
+| Type    |
+| ------- |
+| boolean |
 
 ### watcherCount
 

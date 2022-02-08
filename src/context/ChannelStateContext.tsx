@@ -80,10 +80,8 @@ export type ChannelStateContextValue<
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
   actionBoxRef?: React.MutableRefObject<HTMLDivElement | null>;
-  closeRef?: React.MutableRefObject<HTMLButtonElement | null>;
   dragAndDropWindow?: boolean;
   emojiPickerRef?: React.MutableRefObject<HTMLDivElement | null>;
-  focusedMessage?: number | undefined;
   maxNumberOfFiles?: number;
   messageListRef?: React.MutableRefObject<HTMLUListElement | null>;
   modalRef?: React.MutableRefObject<HTMLDivElement | null>;
@@ -91,7 +89,6 @@ export type ChannelStateContextValue<
   reactionSelectorRef?: React.MutableRefObject<HTMLLIElement | null>;
   sendButtonRef?: React.MutableRefObject<HTMLButtonElement | null>;
   setTriggerFocus?: React.Dispatch<React.SetStateAction<boolean>>;
-  threadRef?: React.MutableRefObject<HTMLDivElement | null>;
   triggerFocus?: boolean;
   watcher_count?: number;
 };
