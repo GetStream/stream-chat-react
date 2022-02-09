@@ -281,6 +281,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        data-role="message"
         tabIndex={0}
       >
         <div
@@ -326,6 +327,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        data-role="message"
         tabIndex={0}
       >
         <div
@@ -370,6 +372,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        data-role="message"
         tabIndex={0}
       >
         <div

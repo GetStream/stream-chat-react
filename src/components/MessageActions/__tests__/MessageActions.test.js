@@ -196,7 +196,7 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <span
+      <a
         aria-expanded={false}
         aria-haspopup="true"
         aria-label="Open Message Actions Selector"
@@ -219,7 +219,7 @@ describe('<MessageActions /> component', () => {
             fillRule="nonzero"
           />
         </svg>
-      </span>
+      </a>
     `);
   });
 });

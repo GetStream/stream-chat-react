@@ -37,6 +37,7 @@ exports[`Gallery should render component with 3 images 1`] = `
   >
     <button
       className="str-chat__modal__close-button"
+      onClick={[Function]}
       title="Close"
     >
       Close
@@ -328,6 +329,7 @@ exports[`Gallery should render component with 4 images 1`] = `
   >
     <button
       className="str-chat__modal__close-button"
+      onClick={[Function]}
       title="Close"
     >
       Close
@@ -657,6 +659,7 @@ exports[`Gallery should render component with 6 images 1`] = `
   >
     <button
       className="str-chat__modal__close-button"
+      onClick={[Function]}
       title="Close"
     >
       Close
@@ -1040,6 +1043,7 @@ exports[`Gallery should render component with default props 1`] = `
   >
     <button
       className="str-chat__modal__close-button"
+      onClick={[Function]}
       title="Close"
     >
       Close

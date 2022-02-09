@@ -194,12 +194,23 @@ export const useReactionClick = <
     [setShowDetailedReactions, reactionSelectorRef, triggerFocus],
   );
 
+  const escapePressHandler = useCallback(
+    (event) => {
+      if (event.key === 'Escape' && setTriggerFocus) {
+        setShowDetailedReactions(false);
+        setTriggerFocus(!triggerFocus);
+      }
+    },
+    [triggerFocus],
+  );
+
   useEffect(() => {
     const messageWrapper = messageWrapperRef?.current;
 
     if (showDetailedReactions && !hasListener.current) {
       hasListener.current = true;
       document.addEventListener('click', closeDetailedReactions);
+      document.addEventListener('keydown', escapePressHandler);
 
       if (messageWrapper) {
         messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
@@ -208,6 +219,7 @@ export const useReactionClick = <
 
     if (!showDetailedReactions && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('keydown', escapePressHandler);
 
       if (messageWrapper) {
         messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
@@ -219,6 +231,7 @@ export const useReactionClick = <
     return () => {
       if (hasListener.current) {
         document.removeEventListener('click', closeDetailedReactions);
+        document.removeEventListener('keydown', escapePressHandler);
 
         if (messageWrapper) {
           messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
@@ -234,6 +247,7 @@ export const useReactionClick = <
 
     if (messageDeleted && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
+      document.removeEventListener('keydown', escapePressHandler);
 
       if (messageWrapper) {
         messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
@@ -243,25 +257,25 @@ export const useReactionClick = <
     }
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
-  const escapePressHandler = useCallback(
-    (event) => {
-      if (event.key === 'Escape' && setTriggerFocus) {
-        setShowDetailedReactions(false);
-        setTriggerFocus(!triggerFocus);
-      }
-    },
-    [triggerFocus],
-  );
+  // const escapePressHandler = useCallback(
+  //   (event) => {
+  //     if (event.key === 'Escape' && setTriggerFocus) {
+  //       setShowDetailedReactions(false);
+  //       setTriggerFocus(!triggerFocus);
+  //     }
+  //   },
+  //   [triggerFocus],
+  // );
 
-  useEffect(() => {
-    if (showDetailedReactions) {
-      document.addEventListener('keydown', escapePressHandler);
-    }
+  // useEffect(() => {
+  //   if (showDetailedReactions) {
+  //     // document.addEventListener('keydown', escapePressHandler);
+  //   }
 
-    return () => {
-      document.removeEventListener('keydown', escapePressHandler);
-    };
-  }, [showDetailedReactions]);
+  //   return () => {
+  //     document.removeEventListener('keydown', escapePressHandler);
+  //   };
+  // }, [showDetailedReactions]);
 
   const onReactionListClick: ReactEventHandler = (event) => {
     if (event?.stopPropagation) {

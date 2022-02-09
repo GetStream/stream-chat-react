@@ -37,7 +37,7 @@ describe('Modal', () => {
 
     fireEvent(
       document,
-      new KeyboardEvent('keypress', {
+      new KeyboardEvent('keydown', {
         key: 'Escape',
       }),
     );
@@ -100,6 +100,7 @@ describe('Modal', () => {
       >
         <button
           className="str-chat__modal__close-button"
+          onClick={[Function]}
           title="Close"
         >
           Close

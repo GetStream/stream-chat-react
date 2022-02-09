@@ -3,6 +3,7 @@
 exports[`Image should render component with default props 1`] = `
 Array [
   <img
+    alt="image"
     className="str-chat__message-attachment--img"
     data-testid="image-test"
     onClick={[Function]}
@@ -16,6 +17,7 @@ Array [
   >
     <button
       className="str-chat__modal__close-button"
+      onClick={[Function]}
       title="Close"
     >
       Close
@@ -82,7 +84,7 @@ Array [
                   title=""
                   width=""
                 />
-
+                
               </div>
             </div>
             <button
@@ -117,7 +119,7 @@ Array [
               <span
                 className="image-gallery-index-separator"
               >
-                 /
+                 / 
               </span>
               <span
                 className="image-gallery-index-total"

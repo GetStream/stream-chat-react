@@ -617,6 +617,8 @@ const ChannelInner = <
         setFocusedMessage(numberOfRegularMessages - offset);
         setOffset(numberOfRegularMessages);
       }
+    } else {
+      setFocusedMessage(numberOfRegularMessages);
     }
   }, [state.loadingMore]);
 

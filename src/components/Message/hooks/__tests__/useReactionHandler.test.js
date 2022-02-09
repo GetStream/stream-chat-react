@@ -182,8 +182,9 @@ describe('useReactionClick custom hook', () => {
     );
     act(() => result.current.onReactionListClick());
     expect(result.current.showDetailedReactions).toBe(true);
-    expect(document.addEventListener).toHaveBeenCalledTimes(1);
+    expect(document.addEventListener).toHaveBeenCalledTimes(2);
     expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('keydown', expect.any(Function));
     act(() => onDocumentClick(clickMock));
     expect(result.current.showDetailedReactions).toBe(false);
     addEventListenerSpy.mockRestore();
@@ -273,7 +274,7 @@ describe('useReactionClick custom hook', () => {
     act(() => result.current.onReactionListClick(clickMock));
     message.deleted_at = new Date();
     rerender();
-    expect(document.removeEventListener).toHaveBeenCalledWith('click', onDocumentClick);
+    expect(document.removeEventListener).toHaveBeenCalledWith('keydown', onDocumentClick);
     addEventListenerSpy.mockRestore();
     removeEventListenerSpy.mockRestore();
   });
