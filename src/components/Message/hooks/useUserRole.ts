@@ -54,7 +54,7 @@ export const useUserRole = <
 
   const canFlag = !isMyMessage;
   const canMute = !isMyMessage && channelConfig?.mutes;
-  const canQuote = !disableQuotedMessages;
+  const canQuote = !disableQuotedMessages && channelCapabilities['quote-message'];
   const canReact = channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
   const canReply = channelConfig?.replies !== false && channelCapabilities['send-reply'];
 
