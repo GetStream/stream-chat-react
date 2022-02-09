@@ -63,7 +63,6 @@ export const MessageActions = <
     handleFlag: propHandleFlag,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
-    inline,
     message: propMessage,
     messageWrapperRef,
     mine,
@@ -119,7 +118,6 @@ export const MessageActions = <
         actionsWrapperRef.current?.contains(event.target)
       ) {
         const actionElements = actionBoxRef?.current?.children;
-        console.log('bar');
 
         if (event.key === 'ArrowUp') {
           event.preventDefault();
@@ -181,7 +179,7 @@ export const MessageActions = <
 
     return () => {
       document.removeEventListener('click', hideOptions);
-      document.removeEventListener('keydown', hideOptions);
+      document.removeEventListener('keydown', handleKeyPress);
     };
   }, [actionsBoxOpen, editing, focusedAction, hideOptions]);
 
@@ -192,7 +190,6 @@ export const MessageActions = <
       actionsBoxOpen={actionsBoxOpen}
       actionsWrapperRef={actionsWrapperRef}
       customWrapperClass={customWrapperClass}
-      inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
       <MessageActionsBox
@@ -225,7 +222,6 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
     actionsWrapperRef,
     children,
     customWrapperClass,
-    inline,
     setActionsBoxOpen,
   } = props;
 
@@ -244,22 +240,6 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
     'data-testid': 'message-actions',
     onClick: onClickOptionsAction,
   };
-
-  if (inline)
-    return (
-      <span
-        aria-expanded={actionsBoxOpen}
-        aria-haspopup='true'
-        aria-label={'Open Message Actions Selector'}
-        onKeyPress={onClickOptionsAction}
-        ref={actionsWrapperRef}
-        role='button'
-        tabIndex={0}
-        {...wrapperProps}
-      >
-        {children}
-      </span>
-    );
 
   return (
     <a
