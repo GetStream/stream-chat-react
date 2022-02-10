@@ -71,17 +71,17 @@ export type SendButtonProps<
   ) => void;
 };
 
-export const SendButton = <
+export const SendButton = React.forwardRef(function SendButton<
   At extends DefaultAttachmentType = DefaultAttachmentType,
   Me extends DefaultMessageType = DefaultMessageType,
   Us extends DefaultUserType<Us> = DefaultUserType
->({
-  sendMessage,
-}: SendButtonProps<At, Me, Us>) => {
+>(props: SendButtonProps<At, Me, Us>, ref: React.ForwardedRef<HTMLButtonElement | null>) {
+  const { sendMessage } = props;
+  
   const { t } = useTranslationContext('SendButton');
 
   return (
-    <button aria-label='Send' className='str-chat__send-button' onClick={sendMessage}>
+    <button aria-label='Send' className='str-chat__send-button' onClick={sendMessage} ref={ref}>
       <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
         <title>{t('Send')}</title>
         <path
@@ -92,4 +92,4 @@ export const SendButton = <
       </svg>
     </button>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 
 import { EmojiPicker } from './EmojiPicker';
@@ -10,6 +10,7 @@ import {
 } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
+import { useBreakpoint } from '../Message/hooks';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
@@ -52,8 +53,10 @@ export const MessageInputSmall = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
+    text,
     uploadNewFiles,
   } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('MessageInputSmall');
 
@@ -63,6 +66,22 @@ export const MessageInputSmall = <
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputSmall');
+
+  const { device } = useBreakpoint();
+
+  const sendButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const sendButton = sendButtonRef.current;
+
+    if (sendButton) {
+      if ((numberOfUploads && !text) || device !== 'full') {
+        sendButton.style.display = 'block';
+      } else {
+        sendButton.style.display = 'none';
+      }
+    }
+  }, [device, numberOfUploads, text]);
 
   return (
     <div className='str-chat__small-message-input__wrapper'>
@@ -125,7 +144,12 @@ export const MessageInputSmall = <
             )}
             <EmojiPicker small />
           </div>
-          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
+          {!cooldownRemaining && (
+            <SendButton
+              ref={sendButtonRef}
+              sendMessage={(event: React.BaseSyntheticEvent) => handleSubmit(event, event.target.value)}
+            />
+          )}
         </div>
       </ImageDropzone>
     </div>
