@@ -77,7 +77,7 @@ export const SendButton = React.forwardRef(function SendButton<
   Us extends DefaultUserType<Us> = DefaultUserType
 >(props: SendButtonProps<At, Me, Us>, ref: React.ForwardedRef<HTMLButtonElement | null>) {
   const { sendMessage } = props;
-  
+
   const { t } = useTranslationContext('SendButton');
 
   return (

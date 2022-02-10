@@ -147,7 +147,9 @@ export const MessageInputSmall = <
           {!cooldownRemaining && (
             <SendButton
               ref={sendButtonRef}
-              sendMessage={(event: React.BaseSyntheticEvent) => handleSubmit(event, event.target.value)}
+              sendMessage={(event: React.BaseSyntheticEvent) =>
+                handleSubmit(event, event.target.value)
+              }
             />
           )}
         </div>
