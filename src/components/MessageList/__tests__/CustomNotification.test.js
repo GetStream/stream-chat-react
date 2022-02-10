@@ -22,6 +22,7 @@ describe('CustomNotification', () => {
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
+        aria-live="polite"
         className="str-chat__custom-notification notification-undefined"
         data-testid="custom-notification"
       >

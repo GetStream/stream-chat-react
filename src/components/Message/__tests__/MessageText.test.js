@@ -4,6 +4,8 @@ import testRenderer from 'react-test-renderer';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import { Message } from '../Message';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
@@ -100,13 +102,17 @@ const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
-    const { queryByTestId } = await renderMessageText({ message: {} });
+    const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should not render anything if message text is not set', async () => {
-    const { queryByTestId } = await renderMessageText({ message: {} });
+    const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
@@ -117,66 +123,82 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { getByTestId } = await renderMessageText({ message });
+    const { container, getByTestId } = await renderMessageText({ message });
     expect(getByTestId(messageTextTestId).className).toContain('--has-attachment');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
-    const { getByTestId } = await renderMessageText({ message });
+    const { container, getByTestId } = await renderMessageText({ message });
     expect(getByTestId(messageTextTestId).className).toContain('--is-emoji');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({
+    const { container, getByTestId } = await renderMessageText({
       message,
       onMentionsHoverMessage: onMentionsHoverMock,
     });
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTextTestId));
     expect(onMentionsHoverMock).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
-    const { getByTestId } = await renderMessageText({
+    const { container, getByTestId } = await renderMessageText({
       message,
       onMentionsClickMessage: onMentionsClickMock,
     });
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
     expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ message });
     expect(getByText('Error · Unsent')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ message });
     expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('render message html when unsafe html property is enabled', async () => {
     const message = generateAliceMessage({
       html: '<span data-testid="custom-html" />',
     });
-    const { getByTestId } = await renderMessageText({
+    const { container, getByTestId } = await renderMessageText({
       message,
       unsafeHTML: true,
     });
     expect(getByTestId('custom-html')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('render message text', async () => {
     const text = 'Hello, world!';
     const message = generateAliceMessage({ text });
-    const { getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ message });
     expect(getByText(text)).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should display text in users set language', async () => {
@@ -186,9 +208,11 @@ describe('<MessageText />', () => {
       text,
     });
 
-    const { getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ message });
 
     expect(getByText('hello')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
@@ -196,8 +220,10 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { getByTestId } = await renderMessageText({ message });
+    const { container, getByTestId } = await renderMessageText({ message });
     expect(getByTestId('reaction-list')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should not show reaction list if disabled in channelConfig', async () => {
@@ -205,9 +231,11 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { queryByTestId } = await renderMessageText({ message }, { reactions: false });
+    const { container, queryByTestId } = await renderMessageText({ message }, { reactions: false });
 
     expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
@@ -215,26 +243,32 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { getByTestId, queryByTestId } = await renderMessageText({ message });
+    const { container, getByTestId, queryByTestId } = await renderMessageText({ message });
     expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     fireEvent.click(getByTestId('reaction-list'));
     expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message options', async () => {
-    await renderMessageText();
+    const { container } = await renderMessageText();
     expect(MessageOptionsMock).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render message options with custom props when those are set', async () => {
     const displayLeft = false;
-    await renderMessageText({
+    const { container } = await renderMessageText({
       customOptionProps: {
         displayLeft,
       },
     });
     // eslint-disable-next-line jest/prefer-called-with
     expect(MessageOptionsMock).toHaveBeenCalled();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('should render with a custom wrapper class when one is set', async () => {

@@ -5,7 +5,9 @@ exports[`ChannelListMessenger by default, children should be rendered 1`] = `
   className="str-chat__channel-list-messenger"
 >
   <div
+    aria-label="Channel list"
     className="str-chat__channel-list-messenger__main"
+    role="listbox"
   >
     <div>
       children 1

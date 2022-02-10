@@ -2,6 +2,8 @@ import React from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
 
 import {
   generateChannel,
@@ -18,15 +20,17 @@ describe('ChannelPreviewMessenger', () => {
   let chatClient;
   let channel;
   const renderComponent = (props) => (
-    <ChannelPreviewMessenger
-      channel={channel}
-      displayImage='https://randomimage.com/src.jpg'
-      displayTitle='Channel name'
-      latestMessage='Latest message!'
-      setActiveChannel={jest.fn()}
-      unread={10}
-      {...props}
-    />
+    <div aria-label='Select Channel' role='listbox'>
+      <ChannelPreviewMessenger
+        channel={channel}
+        displayImage='https://randomimage.com/src.jpg'
+        displayTitle='Channel name'
+        latestMessage='Latest message!'
+        setActiveChannel={jest.fn()}
+        unread={10}
+        {...props}
+      />
+    </div>
   );
 
   const initializeChannel = async (c) => {
@@ -50,7 +54,7 @@ describe('ChannelPreviewMessenger', () => {
 
   it('should call setActiveChannel on click', async () => {
     const setActiveChannel = jest.fn();
-    const { getByTestId } = render(
+    const { container, getByTestId } = render(
       renderComponent({
         setActiveChannel,
         watchers: {},
@@ -68,5 +72,7 @@ describe('ChannelPreviewMessenger', () => {
       expect(setActiveChannel).toHaveBeenCalledTimes(1);
       expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
     });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

@@ -7,7 +7,7 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { EmojiData } from 'emoji-mart';
+import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
@@ -94,6 +94,8 @@ export type ChatAutoCompleteProps = {
   rows?: number;
   /** The text value of the underlying `textarea` component */
   value?: string;
+  /** Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component */
+  wordReplace?: (word: string, emojiIndex?: NimbleEmojiIndex) => string;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -119,15 +121,17 @@ const UnMemoizedChatAutoComplete = <
 
   const placeholder = props.placeholder || t('Type your message');
 
-  const emojiReplace = (word: string) => {
-    const found = emojiIndex?.search(word) || [];
-    const emoji = found
-      .filter(Boolean)
-      .slice(0, 10)
-      .find(({ emoticons }: EmojiData) => !!emoticons?.includes(word));
-    if (!emoji || !('native' in emoji)) return null;
-    return emoji.native;
-  };
+  const emojiReplace = props.wordReplace
+    ? (word: string) => props.wordReplace?.(word, emojiIndex)
+    : (word: string) => {
+        const found = emojiIndex?.search(word) || [];
+        const emoji = found
+          .filter(Boolean)
+          .slice(0, 10)
+          .find(({ emoticons }: EmojiData) => !!emoticons?.includes(word));
+        if (!emoji || !('native' in emoji)) return null;
+        return emoji.native;
+      };
 
   const updateInnerRef = useCallback(
     (ref) => {
@@ -141,6 +145,7 @@ const UnMemoizedChatAutoComplete = <
   return (
     <AutoCompleteTextarea
       additionalTextareaProps={messageInput.additionalTextareaProps}
+      aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       className='str-chat__textarea__textarea'
       closeCommandsList={messageInput.closeCommandsList}
       closeMentionsList={messageInput.closeMentionsList}

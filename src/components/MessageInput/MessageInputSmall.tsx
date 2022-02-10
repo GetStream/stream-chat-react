@@ -18,6 +18,8 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
+import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
+
 import type {
   CustomTrigger,
   DefaultAttachmentType,
@@ -39,9 +41,15 @@ export const MessageInputSmall = <
   Us extends DefaultUserType<Us> = DefaultUserType,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'MessageInputSmall',
-  );
+  const { acceptedFiles, multipleUploads, quotedMessage } = useChannelStateContext<
+    At,
+    Ch,
+    Co,
+    Ev,
+    Me,
+    Re,
+    Us
+  >('MessageInputSmall');
   const { t } = useTranslationContext('MessageInputSmall');
 
   const {
@@ -49,7 +57,6 @@ export const MessageInputSmall = <
     cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
-    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -63,6 +70,7 @@ export const MessageInputSmall = <
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
+    QuotedMessagePreview = DefaultQuotedMessagePreview,
   } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputSmall');
 
   return (
@@ -77,8 +85,11 @@ export const MessageInputSmall = <
         <div
           className={`str-chat__small-message-input ${
             SendButton ? 'str-chat__small-message-input--send-button-active' : null
-          }`}
+          } ${quotedMessage && quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
         >
+          {quotedMessage && quotedMessage.parent_id && (
+            <QuotedMessagePreview quotedMessage={quotedMessage} />
+          )}
           <div className='str-chat__small-message-input--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete />
@@ -114,15 +125,13 @@ export const MessageInputSmall = <
                   <Tooltip>
                     {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
                   </Tooltip>
-                  <span
+                  <button
+                    aria-label='Emoji picker'
                     className='str-chat__small-message-input-emojiselect'
                     onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                    onKeyDown={handleEmojiKeyDown}
-                    role='button'
-                    tabIndex={0}
                   >
                     <EmojiIcon />
-                  </span>
+                  </button>
                 </div>
               </>
             )}

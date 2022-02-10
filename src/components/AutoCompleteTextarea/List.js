@@ -95,7 +95,6 @@ export const List = (props) => {
         selectedItem !== undefined
       ) {
         handleClick(event);
-        return setSelectedItem(undefined);
       }
 
       return null;

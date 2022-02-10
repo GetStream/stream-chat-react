@@ -582,7 +582,7 @@ const ChannelInner = <
       id,
       mentioned_users: mentions,
       parent_id,
-      quoted_message_id: quotedMessage?.id,
+      quoted_message_id: parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
     } as Message<At, Me, Us>;
@@ -604,7 +604,7 @@ const ChannelInner = <
         });
       }
 
-      if (quotedMessage) setQuotedMessage(undefined);
+      if (quotedMessage && parent_id === quotedMessage?.parent_id) setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -687,6 +687,13 @@ const ChannelInner = <
     event: React.BaseSyntheticEvent,
   ) => {
     event.preventDefault();
+    setQuotedMessage((current) => {
+      if (current?.parent_id !== message?.parent_id) {
+        return undefined;
+      } else {
+        return current;
+      }
+    });
     dispatch({ channel, message, type: 'openThread' });
   };
 

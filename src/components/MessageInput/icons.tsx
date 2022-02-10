@@ -81,7 +81,7 @@ export const SendButton = <
   const { t } = useTranslationContext('SendButton');
 
   return (
-    <button className='str-chat__send-button' onClick={sendMessage}>
+    <button aria-label='Send' className='str-chat__send-button' onClick={sendMessage}>
       <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
         <title>{t('Send')}</title>
         <path

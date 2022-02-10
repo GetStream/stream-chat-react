@@ -20,7 +20,9 @@ export const ImageComponent: React.FC<ImageProps> = (props) => {
 
   const { fallback, image_url, thumb_url } = props;
   const imageSrc = sanitizeUrl(image_url || thumb_url);
-  const formattedArray = [{ source: imageSrc }];
+  const formattedArray = [
+    { original: imageSrc, originalAlt: 'User uploaded content', source: imageSrc },
+  ];
 
   const toggleModal = () => setModalIsOpen(!modalIsOpen);
 
@@ -31,7 +33,9 @@ export const ImageComponent: React.FC<ImageProps> = (props) => {
         className='str-chat__message-attachment--img'
         data-testid='image-test'
         onClick={toggleModal}
+        onKeyPress={toggleModal}
         src={imageSrc}
+        tabIndex={0}
       />
 
       <ModalWrapper

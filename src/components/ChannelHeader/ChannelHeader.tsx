@@ -52,11 +52,11 @@ const UnMemoizedChannelHeader = <
 
   return (
     <div className='str-chat__header-livestream'>
-      <div className='str-chat__header-hamburger' onClick={openMobileNav}>
+      <button aria-label='Menu' className='str-chat__header-hamburger' onClick={openMobileNav}>
         <span className='str-chat__header-hamburger--line'></span>
         <span className='str-chat__header-hamburger--line'></span>
         <span className='str-chat__header-hamburger--line'></span>
-      </div>
+      </button>
       {image && (
         <Avatar image={image} shape='rounded' size={channel?.type === 'commerce' ? 60 : 40} />
       )}

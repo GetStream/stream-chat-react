@@ -98,8 +98,9 @@ describe('Modal', () => {
         className="str-chat__modal str-chat__modal--closed"
         onClick={[Function]}
       >
-        <div
+        <button
           className="str-chat__modal__close-button"
+          title="Close"
         >
           Close
           <svg
@@ -112,7 +113,7 @@ describe('Modal', () => {
               fillRule="evenodd"
             />
           </svg>
-        </div>
+        </button>
         <div
           className="str-chat__modal__inner"
         />

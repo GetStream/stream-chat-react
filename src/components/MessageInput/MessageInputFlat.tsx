@@ -54,7 +54,6 @@ export const MessageInputFlat = <
     cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
-    handleEmojiKeyDown,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -75,7 +74,7 @@ export const MessageInputFlat = <
     <div
       className={`str-chat__input-flat ${
         SendButton ? 'str-chat__input-flat--send-button-active' : null
-      } ${quotedMessage ? 'str-chat__input-flat-quoted' : null}`}
+      } ${quotedMessage && !quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
     >
       <ImageDropzone
         accept={acceptedFiles}
@@ -84,7 +83,9 @@ export const MessageInputFlat = <
         maxNumberOfFiles={maxFilesLeft}
         multiple={multipleUploads}
       >
-        {quotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
+        {quotedMessage && !quotedMessage.parent_id && (
+          <QuotedMessagePreview quotedMessage={quotedMessage} />
+        )}
         <div className='str-chat__input-flat-wrapper'>
           <div className='str-chat__input-flat--textarea-wrapper'>
             {isUploadEnabled && <UploadsPreview />}
@@ -92,12 +93,10 @@ export const MessageInputFlat = <
               <Tooltip>
                 {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
               </Tooltip>
-              <span
+              <button
+                aria-label='Emoji picker'
                 className='str-chat__input-flat-emojiselect'
                 onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                onKeyDown={handleEmojiKeyDown}
-                role='button'
-                tabIndex={0}
               >
                 {cooldownRemaining ? (
                   <div className='str-chat__input-flat-cooldown'>
@@ -109,7 +108,7 @@ export const MessageInputFlat = <
                 ) : (
                   <EmojiIcon />
                 )}
-              </span>
+              </button>
             </div>
             <EmojiPicker />
             <ChatAutoComplete />

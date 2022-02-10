@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -37,7 +37,11 @@ const QuotedMessagePreviewHeader = <
   return (
     <div className='quoted-message-preview-header'>
       <div>{t('Reply to Message')}</div>
-      <button className='str-chat__square-button' onClick={() => setQuotedMessage(undefined)}>
+      <button
+        aria-label='Cancel Reply'
+        className='str-chat__square-button'
+        onClick={() => setQuotedMessage(undefined)}
+      >
         <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
           <path
             d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
@@ -74,8 +78,12 @@ export const QuotedMessagePreview = <
 ) => {
   const { quotedMessage } = props;
 
-  const { Attachment } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessagePreview');
+  const { Attachment, Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+    'QuotedMessagePreview',
+  );
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
+
+  const Avatar = ContextAvatar || DefaultAvatar;
 
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||

@@ -29,18 +29,6 @@ describe('Window', () => {
     expect(getByText('bla')).toBeInTheDocument();
   });
 
-  it('should not render its children if hideOnThread is true and thread is truthy', () => {
-    const { queryByText } = renderComponent({
-      channelStateContextMock: {
-        thread,
-      },
-      children: [<div key='bla'>bla</div>],
-      props: { hideOnThread: true },
-    });
-
-    expect(queryByText('bla')).not.toBeInTheDocument();
-  });
-
   it('should render its children if hideOnThread is true and thread is falsy', () => {
     const { getByText } = renderComponent({
       channelStateContextMock: {
