@@ -348,18 +348,22 @@ const ChannelInner = <
       trailing: true,
     },
   );
+  console.log(channel.state.unreadCount);
 
   const markRead = () => {
     if (channel.disconnected || !channelConfig?.read_events) {
       return;
     }
+    console.log('hi');
 
     lastRead.current = new Date();
 
     if (doMarkReadRequest) {
       doMarkReadRequest(channel);
+      console.log('foo', doMarkReadRequest);
     } else {
       logChatPromiseExecution(channel.markRead(), 'mark read');
+      console.log('bar', doMarkReadRequest);
     }
 
     if (activeUnreadHandler) {
@@ -402,6 +406,7 @@ const ChannelInner = <
           markReadThrottled();
         } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
+          console.log('unread', unread);
 
           if (activeUnreadHandler) {
             activeUnreadHandler(unread, originalTitle.current);
@@ -435,6 +440,7 @@ const ChannelInner = <
           errored = true;
         }
       }
+      console.log('woo', channel.countUnread());
 
       done = true;
       originalTitle.current = document.title;

@@ -12,6 +12,7 @@ import {
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import './App.css';
+import { ChannelInner } from './components/ChannelInner';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
 const userId = process.env.REACT_APP_USER_ID as string;
@@ -32,14 +33,15 @@ chatClient.connectUser({ id: userId }, userToken);
 const App = () => (
   <Chat client={chatClient}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
-    <Channel>
+    <ChannelInner />
+    {/* <Channel>
       <Window>
         <ChannelHeader />
         <MessageList />
         <MessageInput focus />
       </Window>
       <Thread />
-    </Channel>
+    </Channel> */}
   </Chat>
 );
 
