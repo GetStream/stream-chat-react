@@ -22,3 +22,103 @@ Stream supports accessibility through the use of semantic HTML, ARIA (Accessible
 :::note
 The <kbd>Tab</kbd> key is disabled while some elements are open to create a focus trap and not loose access to those element. To navigate, use the <kbd>↑</kbd>, <kbd>↓</kbd>, <kbd>→</kbd>, or <kbd>←</kbd> keys. To exit, press the <kbd>Esc</kbd> key.
 :::
+
+Basics
+
+- Press tab to move focus to next element or shift + tab moves focus to previous element
+- Up and Down arrows are used to move focus in ChannelList, SearchResults, SuggestionList, MessageList, MessageActions, and ReactionSelector
+- Left and right arrows are used to move focus in ReactionSelector or to open and close thread
+- Esc key allows you to close Modal, SearchResults, SuggestionList, MessageActions, and ReactionSelector
+- Enter and spacebar can be used to select
+
+
+Search Results
+
+- Tab is disabled, but shift tab will move focus up to search input
+- Up and down arrows are used to move between results
+- Esc will move focus to search input or exit search if input is already focused
+
+
+Channel List
+
+- To move focus to channel preview:
+    - If channel search, channel list, or load more button has focus, up or down arrow moves focus between channel previews
+- To move focus from channel list to channel input:
+    - If a channel preview has focus, tab or right arrow moves focus to channel input
+    - If channel list has focus and there is no load more button, tab moves focus to channel input
+    - If load more button has focus, tab moves focus to channel input
+        - Default tab behavior from channel list would focus oldest message and trigger a load more messages event, which would be undesirable
+
+
+Message Input
+
+- To move focus from input to message list:
+    - If the input does not have text, up arrow moves focus to the last message
+    - If the input has text, tab from input then arrow up
+        - If input has text, arrows will move the cursor through the text
+
+
+Message List
+
+- If last message has focus down arrow moves focus to input
+- Tab moves focus from message to message options, reply count button, reaction list, and attachments
+- To move focus from message list to channel list:
+    - If a whole message is focused, shift + tab moves focus to channel list
+        - If message options are focused, shift + tab will move focus to previous option or whole message
+
+
+Message Actions
+
+- Open message actions box focuses first action
+- Up and down arrows navigate actions
+- Tab and shift + tab are disabled
+- Esc closes actions box and focus moves to message
+
+
+Reactions
+
+- Open reactions focuses first reaction
+- Left, right, up, and down arrows navigate reactions
+- Tab and shift + tab are disabled
+- Esc closes reactions selector and focus moves to message
+
+
+Thread
+
+- Open thread focuses thread input
+- Open thread by pressing right arrow when message has focus
+- Close thread by pressing left arrow
+- Up arrow moves focus from input to message list if no text
+- If thread input has text, move focus from input with tab, then arrow up
+- Up arrow from first thread message moves focus to close thread button
+- Down arrow from last thread message moves focus to thread input
+- Message actions and reactions behave identical to non thread messages
+
+
+Image modal
+
+- Move focus with tab or shift + tab
+- If full screen button has focus, disable tab
+- If close button has focus, disable shift + tab
+- Esc closes modal and focus moves to message
+
+
+Edit message modal
+
+- Move focus with tab or shift + tab
+- If send button has focus, disable tab
+- If close button has focus, disable shift + tab
+- Esc closes modal and focus moves to message
+
+
+Emoji Picker
+
+- Move focus with tab, shift + tab, right, or left arrow
+- Esc closes emoji picker and focus moves to input
+
+
+Suggestion List
+
+- Navigate suggestion list with up and down arrows - focus does not leave textarea
+- Select item with tab, enter, or space
+- Esc closes suggestion list and focus moves to input
