@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Message } from 'stream-chat';
@@ -78,10 +79,15 @@ export const SendButton = <
 >({
   sendMessage,
 }: SendButtonProps<At, Me, Us>) => {
+  const { numberOfUploads } = useMessageInputContext('SendButton');
   const { t } = useTranslationContext('SendButton');
 
   return (
-    <button aria-label='Send' className='str-chat__send-button' onClick={sendMessage}>
+    <button
+      aria-label='Send'
+      className={`str-chat__send-button ${numberOfUploads ? 'upload-previews-displayed' : ''}`}
+      onClick={sendMessage}
+    >
       <svg height='17' viewBox='0 0 18 17' width='18' xmlns='http://www.w3.org/2000/svg'>
         <title>{t('Send')}</title>
         <path
