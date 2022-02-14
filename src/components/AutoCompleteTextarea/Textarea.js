@@ -35,8 +35,6 @@ export class ReactTextareaAutocomplete extends React.Component {
     // TODO: it would be better to have the parent control state...
     // if (value) this.state.value = value;
 
-    this._createRegExp();
-
     if (!loadingComponent) {
       throw new Error('RTA: loadingComponent is not defined');
     }
@@ -80,10 +78,6 @@ export class ReactTextareaAutocomplete extends React.Component {
     });
 
     Listeners.startListen();
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this._update(nextProps);
   }
 
   componentWillUnmount() {
@@ -425,28 +419,16 @@ export class ReactTextareaAutocomplete extends React.Component {
     return data;
   };
 
-  _createRegExp = () => {
-    const { trigger } = this.props;
-
-    // negative lookahead to match only the trigger + the actual token = "bladhwd:adawd:word test" => ":word"
-    // https://stackoverflow.com/a/8057827/2719917
-    this.tokenRegExp = new RegExp(`([${Object.keys(trigger).join('')}])(?:(?!\\1)[^\\s])*$`);
-  };
-
-  // TODO: This is an anti pattern in react, should come up with a better way
-  _update({ trigger, value }) {
-    const { value: oldValue } = this.state;
-    const { trigger: oldTrigger } = this.props;
-
-    if (value !== oldValue || !oldValue) this.setState({ value });
-    /**
-     * check if trigger chars are changed, if so, change the regexp accordingly
-     */
-    if (Object.keys(trigger).join('') !== Object.keys(oldTrigger).join('')) {
-      this._createRegExp();
+  /**
+   * setup to emulate the UNSAFE_componentWillReceiveProps
+   */
+  static getDerivedStateFromProps(props, state) {
+    if (props.value !== state.propsValue || !state.value) {
+      return { propsValue: props.value, value: props.value };
+    } else {
+      return null;
     }
   }
-
   /**
    * Close autocomplete, also clean up trigger (to avoid slow promises)
    */
