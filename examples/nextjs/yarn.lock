@@ -1224,10 +1224,15 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@2.0.0", "@stream-io/stream-chat-css@^2.0.0":
+"@stream-io/stream-chat-css@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.0.0.tgz#a55207727e58811bc948bdc3eb498cf8c17f1d49"
   integrity sha512-CSK39gGiRkGhkOzVMyvqJ0p+0iakkjoDAfAKM0NycnIEU9ov102xezsaBRQofkbpYn0CoTjX2UHlkwheQMIP3Q==
+
+"@stream-io/stream-chat-css@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.2.1.tgz#23ce6ece96c2118340144191afe834234fb3f5d1"
+  integrity sha512-UJ/UM3wHCd3s1gqPIx2j2Vwpeoa1bbvISEarOlbioLphyHz7LC+E0+Hi81fSKMC9/mCa1ghugvolRKJgj3wwHQ==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -4579,9 +4584,9 @@ flush-write-stream@^1.0.0:
     readable-stream "^2.3.6"
 
 follow-redirects@^1.0.0, follow-redirects@^1.10.0:
-  version "1.13.3"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.3.tgz#e5598ad50174c1bc4e872301e82ac2cd97f90267"
-  integrity sha512-DUgl6+HDzB0iEptNQEXLx/KhTmDb8tZUHSeLqpnjpknR70H0nC2t9N73BK6fN4hOvJ84pKlIQVQ4k5FFlBedKA==
+  version "1.14.8"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
+  integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
 
 for-each@^0.3.3:
   version "0.3.3"
@@ -10021,7 +10026,7 @@ stream-browserify@^2.0.1:
   version "0.0.0-development"
   dependencies:
     "@braintree/sanitize-url" "5.0.0"
-    "@stream-io/stream-chat-css" "2.0.0"
+    "@stream-io/stream-chat-css" "^2.2.1"
     custom-event "^1.0.1"
     dayjs "^1.10.4"
     emoji-mart "3.0.1"
