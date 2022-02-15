@@ -885,3 +885,104 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
   });
 });
+
+[
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
+].forEach(({ InputComponent, name: componentName }) => {
+  const renderComponent = (props = {}, channelProps = {}) => {
+    const renderResult = render(
+      <Chat client={chatClient}>
+        <ActiveChannelSetter activeChannel={channel} />
+        <Channel
+          doSendMessageRequest={submitMock}
+          doUpdateMessageRequest={editMock}
+          {...channelProps}
+        >
+          <MessageInput Input={InputComponent} {...props} />
+        </Channel>
+      </Chat>,
+    );
+
+    return { ...renderResult };
+  };
+
+  describe(`${componentName}`, () => {
+    const inputPlaceholder = 'Type your message';
+
+    function dropFile(file, formElement) {
+      fireEvent.drop(formElement, {
+        dataTransfer: {
+          files: [file],
+          types: ['Files'],
+        },
+      });
+    }
+
+    const filename = 'some.txt';
+    const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+    const sendButtonTestId = 'send-button';
+
+    const getImage = () => new File(['content'], filename, { type: 'image/png' });
+    const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
+
+    const mockUploadApi = () =>
+      jest.fn().mockImplementation(() =>
+        Promise.resolve({
+          file: fileUploadUrl,
+        }),
+      );
+
+    describe('Attachments', () => {
+      it('Pasting images and files should result in uploading the files and showing send button', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const doFileUploadRequest = mockUploadApi();
+        const { findByPlaceholderText, findByTestId } = renderComponent({
+          doFileUploadRequest,
+          doImageUploadRequest,
+        });
+
+        const file = getFile();
+        const image = getImage();
+
+        const clipboardEvent = new Event('paste', {
+          bubbles: true,
+        });
+        // set `clipboardData`. Mock DataTransfer object
+        clipboardEvent.clipboardData = {
+          items: [
+            {
+              getAsFile: () => file,
+              kind: 'file',
+            },
+            {
+              getAsFile: () => image,
+              kind: 'file',
+            },
+          ],
+        };
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        formElement.dispatchEvent(clipboardEvent);
+        const sendButton = await findByTestId(sendButtonTestId);
+        await waitFor(() => {
+          expect(sendButton).toBeInTheDocument();
+        });
+      });
+
+      it('Should upload an image when it is dropped on the dropzone and show send button', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const { findByPlaceholderText, findByTestId } = renderComponent({
+          doImageUploadRequest,
+        });
+        const formElement = await findByPlaceholderText(inputPlaceholder);
+        const file = getImage();
+        dropFile(file, formElement);
+
+        const sendButton = await findByTestId(sendButtonTestId);
+        await waitFor(() => {
+          expect(sendButton).toBeInTheDocument();
+        });
+      });
+    });
+  });
+});
