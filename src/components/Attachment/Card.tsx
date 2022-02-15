@@ -3,8 +3,29 @@ import React from 'react';
 import { SafeAnchor } from '../SafeAnchor';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+
+interface GiphyVersionInfo {
+  height: number;
+  url: string;
+  width: number;
+}
+
+type GiphyVersions =
+  | 'original'
+  | 'fixed_height'
+  | 'fixed_height_still'
+  | 'fixed_height_downsampled'
+  | 'fixed_width'
+  | 'fixed_width_still'
+  | 'fixed_width_downsampled';
+
+type GiphyData = {
+  [key in GiphyVersions]: GiphyVersionInfo;
+};
 
 export type CardProps = {
+  giphy?: GiphyData;
   /** The url of the full sized image */
   image_url?: string;
   /** The scraped url, used as a fallback if the OG-data doesn't include a link */
@@ -22,11 +43,19 @@ export type CardProps = {
 };
 
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
-  const { image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
-
+  const { giphy, image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
   const { t } = useTranslationContext('Card');
+  const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
 
-  const image = thumb_url || image_url;
+  let image = thumb_url || image_url;
+  const dimensions: { height?: number; width?: number } = {};
+
+  if (type === 'giphy') {
+    const giphyVersion = (giphy as GiphyData)[giphyVersionName as GiphyVersions];
+    image = giphyVersion.url;
+    dimensions.height = giphyVersion.height;
+    dimensions.width = giphyVersion.width;
+  }
 
   const trimUrl = (url?: string | null) => {
     if (url !== undefined && url !== null) {
@@ -59,7 +88,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
     <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
       {image && (
         <div className='str-chat__message-attachment-card--header'>
-          <img alt={image} src={image} />
+          <img alt={image} src={image} {...dimensions} />
         </div>
       )}
       <div className='str-chat__message-attachment-card--content'>

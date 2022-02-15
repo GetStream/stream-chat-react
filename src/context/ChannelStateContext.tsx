@@ -16,6 +16,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
+  GiphyVersions,
   UnknownType,
 } from '../types/types';
 
@@ -80,6 +81,7 @@ export type ChannelStateContextValue<
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
   dragAndDropWindow?: boolean;
+  giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
   mutes?: Mute<Us>[];
   watcher_count?: number;
