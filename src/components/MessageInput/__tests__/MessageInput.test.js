@@ -985,18 +985,6 @@ const ActiveChannelSetter = ({ activeChannel }) => {
           expect(sendButton).not.toHaveStyle(`display: none`);
         });
       });
-
-      it('Should not show send button if no text or attachment', async () => {
-        const { findByTestId } = renderComponent();
-
-        const sendButton = await findByTestId(sendButtonTestId);
-        await waitFor(() => {
-          expect(sendButton).toBeInTheDocument();
-          expect(window.innerWidth).toBeGreaterThan(768);
-          expect(getComputedStyle(sendButton).display).toBe('none');
-          expect(sendButton).toHaveStyle(`display: none`);
-        });
-      });
     });
   });
 });
