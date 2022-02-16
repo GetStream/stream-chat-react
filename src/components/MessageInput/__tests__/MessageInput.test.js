@@ -886,105 +886,106 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   });
 });
 
-[
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
-  { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
-].forEach(({ InputComponent, name: componentName }) => {
-  const renderComponent = (props = {}, channelProps = {}) => {
-    const renderResult = render(
-      <Chat client={chatClient}>
-        <ActiveChannelSetter activeChannel={channel} />
-        <Channel
-          doSendMessageRequest={submitMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
-        >
-          <MessageInput Input={InputComponent} {...props} />
-        </Channel>
-      </Chat>,
+const renderComponent = (props = {}, channelProps = {}) => {
+  const renderResult = render(
+    <Chat client={chatClient}>
+      <ActiveChannelSetter activeChannel={channel} />
+      <Channel
+        doSendMessageRequest={submitMock}
+        doUpdateMessageRequest={editMock}
+        {...channelProps}
+      >
+        <MessageInput Input={MessageInputFlat} {...props} />
+      </Channel>
+    </Chat>,
+  );
+
+  return { ...renderResult };
+};
+
+describe('MessageInputFlat', () => {
+  const inputPlaceholder = 'Type your message';
+
+  function dropFile(file, formElement) {
+    fireEvent.drop(formElement, {
+      dataTransfer: {
+        files: [file],
+        types: ['Files'],
+      },
+    });
+  }
+
+  const filename = 'some.txt';
+  const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+
+  const getImage = () => new File(['content'], filename, { type: 'image/png' });
+  const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
+
+  const mockUploadApi = () =>
+    jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        file: fileUploadUrl,
+      }),
     );
 
-    return { ...renderResult };
-  };
-
-  describe(`${componentName}`, () => {
-    const inputPlaceholder = 'Type your message';
-
-    function dropFile(file, formElement) {
-      fireEvent.drop(formElement, {
-        dataTransfer: {
-          files: [file],
-          types: ['Files'],
-        },
+  describe('Attachments', () => {
+    it('Pasting images and files should result in uploading the files and add attachment class', async () => {
+      const doImageUploadRequest = mockUploadApi();
+      const doFileUploadRequest = mockUploadApi();
+      const { container, findByPlaceholderText } = renderComponent({
+        doFileUploadRequest,
+        doImageUploadRequest,
       });
-    }
 
-    const filename = 'some.txt';
-    const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
-    const sendButtonTestId = 'send-button';
+      const file = getFile();
+      const image = getImage();
 
-    const getImage = () => new File(['content'], filename, { type: 'image/png' });
-    const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
+      const clipboardEvent = new Event('paste', {
+        bubbles: true,
+      });
+      // set `clipboardData`. Mock DataTransfer object
+      clipboardEvent.clipboardData = {
+        items: [
+          {
+            getAsFile: () => file,
+            kind: 'file',
+          },
+          {
+            getAsFile: () => image,
+            kind: 'file',
+          },
+        ],
+      };
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      formElement.dispatchEvent(clipboardEvent);
+      const attachmentClass = container.firstChild.firstChild.firstChild;
 
-    const mockUploadApi = () =>
-      jest.fn().mockImplementation(() =>
-        Promise.resolve({
-          file: fileUploadUrl,
-        }),
+      await waitFor(() => {
+        expect(attachmentClass).toHaveClass('str-chat__input-flat-has-attachments');
+      });
+    });
+
+    it('Should upload an image when it is dropped on the dropzone and add attachment class', async () => {
+      const doImageUploadRequest = mockUploadApi();
+      const { container, findByPlaceholderText } = renderComponent({
+        doImageUploadRequest,
+      });
+      const formElement = await findByPlaceholderText(inputPlaceholder);
+      const file = getImage();
+      dropFile(file, formElement);
+
+      const attachmentClass = container.firstChild.firstChild.firstChild;
+      await waitFor(() =>
+        expect(attachmentClass).toHaveClass('str-chat__input-flat-has-attachments'),
       );
+    });
 
-    describe('Attachments', () => {
-      it('Pasting images and files should result in uploading the files and showing send button', async () => {
-        const doImageUploadRequest = mockUploadApi();
-        const doFileUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, findByTestId } = renderComponent({
-          doFileUploadRequest,
-          doImageUploadRequest,
-        });
-
-        const file = getFile();
-        const image = getImage();
-
-        const clipboardEvent = new Event('paste', {
-          bubbles: true,
-        });
-        // set `clipboardData`. Mock DataTransfer object
-        clipboardEvent.clipboardData = {
-          items: [
-            {
-              getAsFile: () => file,
-              kind: 'file',
-            },
-            {
-              getAsFile: () => image,
-              kind: 'file',
-            },
-          ],
-        };
-        const formElement = await findByPlaceholderText(inputPlaceholder);
-        formElement.dispatchEvent(clipboardEvent);
-        const sendButton = await findByTestId(sendButtonTestId);
-        await waitFor(() => {
-          expect(sendButton).toBeInTheDocument();
-          expect(sendButton).not.toHaveStyle(`display: none`);
-        });
-      });
-
-      it('Should upload an image when it is dropped on the dropzone and show send button', async () => {
-        const doImageUploadRequest = mockUploadApi();
-        const { findByPlaceholderText, findByTestId } = renderComponent({
-          doImageUploadRequest,
-        });
-        const formElement = await findByPlaceholderText(inputPlaceholder);
-        const file = getImage();
-        dropFile(file, formElement);
-
-        const sendButton = await findByTestId(sendButtonTestId);
-        await waitFor(() => {
-          expect(sendButton).toBeInTheDocument();
-          expect(sendButton).not.toHaveStyle(`display: none`);
-        });
-      });
+    it('Should not add attachment class if no attachment', async () => {
+      const { container } = renderComponent();
+      const attachmentClass = container.firstChild.firstChild.firstChild;
+      await waitFor(() =>
+        expect(attachmentClass).not.toHaveClass('str-chat__input-flat-has-attachments'),
+      );
     });
   });
 });
