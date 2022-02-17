@@ -57,6 +57,7 @@ export const MessageInputFlat = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
@@ -73,8 +74,10 @@ export const MessageInputFlat = <
   return (
     <div
       className={`str-chat__input-flat ${
-        SendButton ? 'str-chat__input-flat--send-button-active' : null
-      } ${quotedMessage && !quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
+        SendButton ? 'str-chat__input-flat--send-button-active' : ''
+      } ${quotedMessage && !quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : ''}
+      ${numberOfUploads ? 'str-chat__input-flat-has-attachments' : ''}
+      `}
     >
       <ImageDropzone
         accept={acceptedFiles}
