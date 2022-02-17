@@ -60,6 +60,7 @@ export const MessageInputSmall = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
@@ -84,8 +85,10 @@ export const MessageInputSmall = <
       >
         <div
           className={`str-chat__small-message-input ${
-            SendButton ? 'str-chat__small-message-input--send-button-active' : null
-          } ${quotedMessage && quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : null}`}
+            SendButton ? 'str-chat__small-message-input--send-button-active' : ''
+          } ${quotedMessage && quotedMessage.parent_id ? 'str-chat__input-flat-quoted' : ''} ${
+            numberOfUploads ? 'str-chat__small-message-input-has-attachments' : ''
+          } `}
         >
           {quotedMessage && quotedMessage.parent_id && (
             <QuotedMessagePreview quotedMessage={quotedMessage} />
