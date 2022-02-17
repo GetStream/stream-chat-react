@@ -40,7 +40,7 @@ export const useChat = <
   const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
 
-  const clientMutes = client.user?.mutes as Array<Mute<StreamChatGenerics>>;
+  const clientMutes = (client.user?.mutes as Array<Mute<StreamChatGenerics>>) || [];
 
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
