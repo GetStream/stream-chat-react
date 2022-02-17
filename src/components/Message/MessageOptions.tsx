@@ -96,7 +96,7 @@ const UnMemoizedMessageOptions = <
   if (isMyMessage() && displayLeft) {
     return (
       <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {showActionsBox && (
+        {showActionsBox && messageActions.length && (
           <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
         )}
         {shouldShowReplies && (
