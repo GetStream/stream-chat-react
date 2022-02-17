@@ -10,28 +10,12 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const QuotedMessagePreviewHeader = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'QuotedMessagePreview',
-  );
+  const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('QuotedMessagePreview');
   const { t } = useTranslationContext('QuotedMessagePreview');
 
   return (
@@ -54,31 +38,19 @@ const QuotedMessagePreviewHeader = <
 };
 
 export type QuotedMessagePreviewProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  quotedMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  quotedMessage: StreamMessage<StreamChatGenerics>;
 };
 
 export const QuotedMessagePreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: QuotedMessagePreviewProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: QuotedMessagePreviewProps<StreamChatGenerics>,
 ) => {
   const { quotedMessage } = props;
 
-  const { Attachment, Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { Attachment, Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>(
     'QuotedMessagePreview',
   );
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');

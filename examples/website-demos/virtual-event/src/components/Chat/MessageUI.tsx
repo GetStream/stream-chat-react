@@ -20,15 +20,7 @@ import { customReactions, getFormattedTime } from './utils';
 import { MessageActionsEllipse, QAThumb, ReactionSmiley } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-import type {
-  AttachmentType,
-  ChannelType,
-  CommandType,
-  EventType,
-  MessageType,
-  ReactionType,
-  UserType,
-} from '../../hooks/useInitChat';
+import type { StreamChatType } from '../../types';
 
 type OptionsProps = {
   dropdownOpen: boolean;
@@ -100,15 +92,9 @@ const ReactionSelector: React.FC<{ isTopMessage: boolean }> = ({ isTopMessage })
 };
 
 export const MessageUI: React.FC<
-  MessageUIComponentProps<
-    AttachmentType,
-    ChannelType,
-    CommandType,
-    EventType,
-    MessageType,
-    ReactionType,
-    UserType
-  > & { setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>> }
+  MessageUIComponentProps<StreamChatType> & {
+    setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
+  }
 > = (props) => {
   const { setMessageActionUser } = props;
 
@@ -117,15 +103,7 @@ export const MessageUI: React.FC<
   const { client } = useChatContext();
 
   const { chatType, themeModalOpen } = useEventContext();
-  const { handleOpenThread, message } = useMessageContext<
-    AttachmentType,
-    ChannelType,
-    CommandType,
-    EventType,
-    MessageType,
-    ReactionType,
-    UserType
-  >();
+  const { handleOpenThread, message } = useMessageContext<StreamChatType>();
 
   const replyCount = useRef(message.reply_count);
 

@@ -12,15 +12,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageStatusProps = {
   Avatar?: React.ComponentType<AvatarProps>;
@@ -28,31 +20,21 @@ export type MessageStatusProps = {
 };
 
 const UnMemoizedMessageStatus = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: MessageStatusProps,
 ) => {
   const { Avatar: propAvatar, messageType = 'simple' } = props;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageStatus');
-  const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'MessageStatus',
-  );
-  const { isMyMessage, lastReceivedId, message, readBy, threadList } = useMessageContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('MessageStatus');
+  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
+  const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
+  const {
+    isMyMessage,
+    lastReceivedId,
+    message,
+    readBy,
+    threadList,
+  } = useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
 
   const Avatar = propAvatar || contextAvatar || DefaultAvatar;

@@ -2,13 +2,13 @@ import { Avatar, SuggestionUser } from 'stream-chat-react';
 
 import { Mention } from '../../assets';
 
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import { StreamChatType } from '../../types';
 
 import type { BaseEmoji } from 'emoji-mart';
 
 import './SocialSuggestionList.scss';
 
-type Props = Partial<SuggestionUser<SocialUserType>> &
+type Props = Partial<SuggestionUser<StreamChatType>> &
   Partial<BaseEmoji> & {
     itemNameParts?: { match: string; parts: string[] };
   };

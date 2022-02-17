@@ -1,27 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, isChannel, SearchResultItemProps } from 'stream-chat-react';
 
-import type {
-  AttachmentType,
-  ChannelType,
-  CommandType,
-  EventType,
-  MessageType,
-  ReactionType,
-  UserType,
-} from '../../hooks/useInitChat';
+import type { StreamChatType } from '../../types';
 
-export const SearchResult: React.FC<
-  SearchResultItemProps<
-    AttachmentType,
-    ChannelType,
-    CommandType,
-    EventType,
-    MessageType,
-    ReactionType,
-    UserType
-  >
-> = (props) => {
+export const SearchResult: React.FC<SearchResultItemProps<StreamChatType>> = (props) => {
   const { focusedUser, index, result, selectResult } = props;
 
   const [actionsOpen, setActionsOpen] = useState(false);

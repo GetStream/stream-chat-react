@@ -4,28 +4,14 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { Channel } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useIsChannelMuted = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
+  channel: Channel<StreamChatGenerics>,
 ) => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useIsChannelMuted');
+  const { client } = useChatContext<StreamChatGenerics>('useIsChannelMuted');
 
   const [muted, setMuted] = useState(channel.muteStatus());
 

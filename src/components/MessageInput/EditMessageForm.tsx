@@ -17,28 +17,13 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export const EditMessageForm = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'EditMessageForm',
   );
   const { t } = useTranslationContext('EditMessageForm');
@@ -52,12 +37,12 @@ export const EditMessageForm = <
     maxFilesLeft,
     openEmojiPicker,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('EditMessageForm');
+  } = useMessageInputContext<StreamChatGenerics, V>('EditMessageForm');
 
   const {
     EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('EditMessageForm');
+  } = useComponentContext<StreamChatGenerics>('EditMessageForm');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

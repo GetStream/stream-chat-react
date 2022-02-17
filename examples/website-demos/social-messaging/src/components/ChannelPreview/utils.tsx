@@ -1,16 +1,16 @@
 import type { Channel, ChannelMemberResponse } from 'stream-chat';
 import { Avatar } from 'stream-chat-react';
 
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import { StreamChatType } from '../../types';
 
 import { BlankAvatar } from '../../assets';
 
-type Props<SocialUserType> = {
-  members: ChannelMemberResponse<SocialUserType>[] | undefined;
+type Props<StreamChatGenerics extends StreamChatType = StreamChatType> = {
+  members: ChannelMemberResponse<StreamChatGenerics>[] | undefined;
   size?: number;
 };
 
-export const AvatarGroup = (props: Props<SocialUserType>) => {
+export const AvatarGroup = (props: Props<StreamChatType>) => {
   const { members, size } = props;
 
   if (!members) return <BlankAvatar size={size} />;

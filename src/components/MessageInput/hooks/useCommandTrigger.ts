@@ -5,26 +5,12 @@ import type { CommandResponse } from 'stream-chat';
 
 import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCommandTrigger = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(): CommandTriggerSetting<Co> => {
-  const { channelConfig } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useCommandTrigger');
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(): CommandTriggerSetting<StreamChatGenerics> => {
+  const { channelConfig } = useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
 
   const commands = channelConfig?.commands;
 
@@ -63,7 +49,8 @@ export const useCommandTrigger = <
       if (onReady)
         onReady(
           result.filter(
-            (result): result is CommandResponse<Co> & { name: string } => result.name !== undefined,
+            (result): result is CommandResponse<StreamChatGenerics> & { name: string } =>
+              result.name !== undefined,
           ),
           query,
         );

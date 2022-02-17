@@ -12,19 +12,10 @@ import { useMessageContext } from '../../context/MessageContext';
 import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ReactionSelectorProps<
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
   additionalEmojiProps?: Partial<NimbleEmojiProps>;
@@ -35,7 +26,7 @@ export type ReactionSelectorProps<
   /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** An array of the reaction objects to display in the list */
-  latest_reactions?: ReactionResponse<Re, Us>[];
+  latest_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
   /** A list of the currently supported reactions on a message */
@@ -45,16 +36,8 @@ export type ReactionSelectorProps<
 };
 
 const UnMemoizedReactionSelector = React.forwardRef(
-  <
-    At extends DefaultAttachmentType = DefaultAttachmentType,
-    Ch extends DefaultChannelType = DefaultChannelType,
-    Co extends DefaultCommandType = DefaultCommandType,
-    Ev extends DefaultEventType = DefaultEventType,
-    Me extends DefaultMessageType = DefaultMessageType,
-    Re extends DefaultReactionType = DefaultReactionType,
-    Us extends DefaultUserType<Us> = DefaultUserType
-  >(
-    props: ReactionSelectorProps<Re, Us>,
+  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+    props: ReactionSelectorProps<StreamChatGenerics>,
     ref: React.ForwardedRef<HTMLDivElement | null>,
   ) => {
     const {
@@ -68,19 +51,12 @@ const UnMemoizedReactionSelector = React.forwardRef(
       reverse = false,
     } = props;
 
-    const { Avatar: contextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
-      'ReactionSelector',
-    );
+    const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('ReactionSelector');
     const { Emoji, emojiConfig } = useEmojiContext('ReactionSelector');
-    const { handleReaction: contextHandleReaction, message } = useMessageContext<
-      At,
-      Ch,
-      Co,
-      Ev,
-      Me,
-      Re,
-      Us
-    >('ReactionSelector');
+    const {
+      handleReaction: contextHandleReaction,
+      message,
+    } = useMessageContext<StreamChatGenerics>('ReactionSelector');
 
     const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 

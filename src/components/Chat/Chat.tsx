@@ -11,15 +11,7 @@ import type { StreamChat } from 'stream-chat';
 
 import type { Streami18n } from '../../i18n/Streami18n';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type Theme<T extends string = string> =
   | 'commerce dark'
@@ -33,16 +25,10 @@ export type Theme<T extends string = string> =
   | T;
 
 export type ChatProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** The StreamChat client object */
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  client: StreamChat<StreamChatGenerics>;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Object containing custom styles to override the default CSS variables */
@@ -69,15 +55,9 @@ export type ChatProps<
  * as it provides the ChatContext.
  */
 export const Chat = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: PropsWithChildren<ChatProps<At, Ch, Co, Ev, Me, Re, Us>>,
+  props: PropsWithChildren<ChatProps<StreamChatGenerics>>,
 ) => {
   const {
     children,

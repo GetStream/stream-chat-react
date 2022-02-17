@@ -25,25 +25,11 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageLivestreamWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = MessageContextValue<StreamChatGenerics> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -52,15 +38,9 @@ type MessageLivestreamWithContextProps<
 };
 
 const MessageLivestreamWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageLivestreamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageLivestreamWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     clearEditingState,
@@ -94,7 +74,7 @@ const MessageLivestreamWithContext = <
     QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
+  } = useComponentContext<StreamChatGenerics>('MessageLivestream');
   const { t, userLanguage } = useTranslationContext('MessageLivestream');
 
   const messageTextToRender =
@@ -251,19 +231,13 @@ export type MessageLivestreamActionsProps = {
 };
 
 const MessageLivestreamActions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: MessageLivestreamActionsProps,
 ) => {
   const { messageWrapperRef, onReactionListClick } = props;
 
-  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { MessageTimestamp = DefaultTimestamp } = useComponentContext<StreamChatGenerics>(
     'MessageLivestream',
   );
 
@@ -273,7 +247,7 @@ const MessageLivestreamActions = <
     initialMessage,
     message,
     threadList,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
+  } = useMessageContext<StreamChatGenerics>('MessageLivestream');
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -363,17 +337,11 @@ const MemoizedMessageLivestream = React.memo(
  * Implements the look and feel for a livestream use case.
  */
 export const MessageLivestream = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<StreamChatGenerics>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageLivestream');
+  const messageContext = useMessageContext<StreamChatGenerics>('MessageLivestream');
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);

@@ -5,8 +5,6 @@ import { ModalWrapperProps } from 'stream-chat-react';
 
 import { CloseXCircle } from '../../assets';
 
-import type { ViewType } from 'react-images';
-
 import './SocialGallery.scss';
 
 type SocialModalProps = Partial<ModalWrapperProps> & {
@@ -36,13 +34,13 @@ export const SocialModalWrapper: React.FC<SocialModalProps> = (props) => {
 
   return (
     <SocialModal setModalOpen={setModalOpen}>
-      {images?.map((image: ViewType, i: number) => (
-        <div className='gallery-modal-image-wrapper' key={`modal-image-container-${i}`}>
+      {images?.map(({ original }, index) => (
+        <div className='gallery-modal-image-wrapper' key={`modal-image-container-${index}`}>
           <img
             className='gallery-modal-image-wrapper-image'
             alt='social-demo-gallery-element'
-            key={i}
-            src={image.source as string}
+            key={index}
+            src={original}
           />
         </div>
       ))}

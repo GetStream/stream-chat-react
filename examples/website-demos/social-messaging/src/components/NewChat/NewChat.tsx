@@ -4,7 +4,7 @@ import type { UserResponse } from 'stream-chat';
 import _debounce from 'lodash/debounce';
 
 import { NewChatUser } from './NewChatUser';
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import { StreamChatType } from '../../types';
 import { AddChat } from '../../assets';
 
 import { useViewContext } from '../../contexts/ViewContext';
@@ -20,8 +20,8 @@ export const NewChat = () => {
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searchEmpty, setSearchEmpty] = useState(false);
   const [searching, setSearching] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<UserResponse<SocialUserType>[]>([]);
-  const [users, setUsers] = useState<UserResponse<SocialUserType>[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<UserResponse<StreamChatType>[]>([]);
+  const [users, setUsers] = useState<UserResponse<StreamChatType>[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -88,7 +88,7 @@ export const NewChat = () => {
     setNewChat(false);
   };
 
-  const addUser = (addedUser: UserResponse<SocialUserType>) => {
+  const addUser = (addedUser: UserResponse<StreamChatType>) => {
     const isAlreadyAdded = selectedUsers.find((user) => user.id === addedUser.id);
     if (isAlreadyAdded) return;
 
@@ -100,7 +100,7 @@ export const NewChat = () => {
     }
   };
 
-  const removeUser = (user: UserResponse<SocialUserType>) => {
+  const removeUser = (user: UserResponse<StreamChatType>) => {
     const newUsers = selectedUsers.filter((selected) => selected.id !== user.id);
     setSelectedUsers(newUsers);
     if (inputRef.current) {

@@ -11,48 +11,29 @@ import type { FileLike } from 'react-file-utils';
 import type { MessageInputProps } from '../MessageInput';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
 
 export const useAttachments = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-  state: MessageInputState<At, Us>,
-  dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  props: MessageInputProps<StreamChatGenerics, V>,
+  state: MessageInputState<StreamChatGenerics>,
+  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
   const { noFiles } = props;
   const { fileUploads, imageUploads } = state;
 
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'useAttachments',
   );
 
-  const { removeFile, uploadFile } = useFileUploads<At, Ch, Co, Ev, Me, Re, Us, V>(
-    props,
-    state,
-    dispatch,
-  );
+  const { removeFile, uploadFile } = useFileUploads<StreamChatGenerics, V>(props, state, dispatch);
 
-  const { removeImage, uploadImage } = useImageUploads<At, Ch, Co, Ev, Me, Re, Us, V>(
+  const { removeImage, uploadImage } = useImageUploads<StreamChatGenerics, V>(
     props,
     state,
     dispatch,

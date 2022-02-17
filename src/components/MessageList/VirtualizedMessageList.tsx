@@ -38,44 +38,23 @@ import { isDate } from '../../context/TranslationContext';
 
 import type { Channel } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 
 type VirtualizedMessageListWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us> & {
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = VirtualizedMessageListProps<StreamChatGenerics> & {
+  channel: Channel<StreamChatGenerics>;
   hasMore: boolean;
   loadingMore: boolean;
   notifications: ChannelNotifications;
 };
 
 const VirtualizedMessageListWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: VirtualizedMessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: VirtualizedMessageListWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     additionalVirtuosoProps,
@@ -112,25 +91,17 @@ const VirtualizedMessageListWithContext = <
     MessageSystem = EventComponent,
     TypingIndicator = null,
     VirtualMessage: contextMessage = MessageSimple,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('VirtualizedMessageList');
+  } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
 
-  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'VirtualizedMessageList',
-  );
+  const { client, customClasses } = useChatContext<StreamChatGenerics>('VirtualizedMessageList');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
   const MessageUIComponent = propMessage || contextMessage;
 
-  const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >(separateGiphyPreview);
+  const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
+    separateGiphyPreview,
+  );
 
   const processedMessages = useMemo(() => {
     if (typeof messages === 'undefined') {
@@ -212,7 +183,7 @@ const VirtualizedMessageListWithContext = <
   };
 
   const messageRenderer = useCallback(
-    (messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[], virtuosoIndex: number) => {
+    (messageList: StreamMessage<StreamChatGenerics>[], virtuosoIndex: number) => {
       const streamMessageIndex = virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
       // use custom renderer supplied by client if present and skip the rest
       if (customMessageRenderer) {
@@ -339,23 +310,15 @@ const VirtualizedMessageListWithContext = <
 };
 
 export type VirtualizedMessageListProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<
-  Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, 'customMessageActions' | 'messageActions'>
-> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<Pick<MessageProps<StreamChatGenerics>, 'customMessageActions' | 'messageActions'>> & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
   additionalVirtuosoProps?: VirtuosoProps<UnknownType>;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
   customMessageRenderer?: (
-    messageList: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
+    messageList: StreamMessage<StreamChatGenerics>[],
     index: number,
   ) => React.ReactElement;
   /** If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance */
@@ -373,11 +336,11 @@ export type VirtualizedMessageListProps<
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
-  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
-  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages?: StreamMessage<StreamChatGenerics>[];
   /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
   overscan?: number;
   /**
@@ -414,24 +377,16 @@ export type VirtualizedMessageListProps<
  * **Note**: It works well when there are thousands of messages in a channel, it has a shortcoming though - the message UI should have a fixed height.
  */
 export function VirtualizedMessageList<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(props: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>) {
-  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'VirtualizedMessageList',
-  );
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(props: VirtualizedMessageListProps<StreamChatGenerics>) {
+  const { loadMore } = useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
   const {
     channel,
     hasMore,
     loadingMore,
     messages: contextMessages,
     notifications,
-  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('VirtualizedMessageList');
+  } = useChannelStateContext<StreamChatGenerics>('VirtualizedMessageList');
 
   const messages = props.messages || contextMessages;
 
