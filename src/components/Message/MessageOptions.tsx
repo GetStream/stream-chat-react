@@ -75,7 +75,8 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const showActionsBox = showMessageActionsBox(messageActions) || !!customMessageActions;
+  const showActionsBox =
+    showMessageActionsBox(messageActions, threadList) || !!customMessageActions;
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =
@@ -96,7 +97,7 @@ const UnMemoizedMessageOptions = <
   if (isMyMessage() && displayLeft) {
     return (
       <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {showActionsBox && messageActions.length && (
+        {showActionsBox && (
           <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
         )}
         {shouldShowReplies && (

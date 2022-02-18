@@ -200,7 +200,10 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
-export const showMessageActionsBox = (actions: MessageActionsArray) => {
+export const showMessageActionsBox = (
+  actions: MessageActionsArray,
+  thread: boolean | undefined,
+) => {
   if (actions.length === 0) {
     return false;
   }
@@ -209,7 +212,29 @@ export const showMessageActionsBox = (actions: MessageActionsArray) => {
     return false;
   }
 
+  if (actions.length === 1 && thread && actions.includes('pin')) {
+    return false;
+  }
+
   if (actions.length === 2 && actions.includes('react') && actions.includes('reply')) {
+    return false;
+  }
+
+  if (thread && actions.length === 2 && actions.includes('pin') && actions.includes('reply')) {
+    return false;
+  }
+
+  if (thread && actions.length === 2 && actions.includes('pin') && actions.includes('react')) {
+    return false;
+  }
+
+  if (
+    thread &&
+    actions.length === 3 &&
+    actions.includes('react') &&
+    actions.includes('reply') &&
+    actions.includes('pin')
+  ) {
     return false;
   }
 
