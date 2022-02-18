@@ -64,7 +64,7 @@ import type { Data as EmojiMartData } from 'emoji-mart';
 
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -213,6 +213,7 @@ const ChannelInner = <
     ChannelProps<StreamChatGenerics, V> & {
       channel: StreamChannel<StreamChatGenerics>;
       key: string;
+      giphyVersion?: GiphyVersions;
     }
   >,
 ) => {
@@ -690,6 +691,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
+    giphyVersion: props.giphyVersion || 'fixed_width',
     maxNumberOfFiles,
     multipleUploads,
     mutes,

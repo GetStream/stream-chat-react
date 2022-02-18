@@ -8,7 +8,7 @@ import type {
   ChannelState as StreamChannelState,
 } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { DefaultStreamChatGenerics, GiphyVersions, UnknownType } from '../types/types';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -53,6 +53,7 @@ export type ChannelStateContextValue<
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
   dragAndDropWindow?: boolean;
+  giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
   mutes?: Array<Mute<StreamChatGenerics>>;
   watcher_count?: number;
