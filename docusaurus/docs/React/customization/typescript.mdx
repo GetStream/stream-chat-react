@@ -17,7 +17,7 @@ The Stream Chat client takes a type with seven customizable fields that currentl
 const client = StreamChat.getInstance<StreamChatGenerics>('YOUR_API_KEY');
 ```
 
-where `StreamChatGenerics` can be defined as a type with the seven generics that correspond to the seven customizable fields as follows:
+`StreamChatGenerics` can be defined as a type with the seven generics that correspond to the seven customizable fields as follows:
 
 ```tsx
 type StreamChatGenerics = {
@@ -33,8 +33,6 @@ type StreamChatGenerics = {
 
 :::note
 `LocalAttachmentType`, `LocalChannelType` etc. are type definitions for their respective key as per your application types necessities.
-
-Eg:
 
 ```tsx
 type LocalAttachmentType = {

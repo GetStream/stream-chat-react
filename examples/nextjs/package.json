@@ -14,7 +14,7 @@
     "react-app-polyfill": "^1.0.2",
     "react-dom": "link:../../node_modules/react-dom",
     "react-scripts": "2.1.4",
-    "stream-chat": "6.0.0",
+    "stream-chat": "^6.0.0",
     "stream-chat-react": "link:../../"
   }
 }
