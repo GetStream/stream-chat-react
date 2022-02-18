@@ -202,7 +202,7 @@ export const getMessageActions = (
 
 export const showMessageActionsBox = (
   actions: MessageActionsArray,
-  thread: boolean | undefined,
+  thread?: boolean | undefined,
 ) => {
   if (actions.length === 0) {
     return false;
