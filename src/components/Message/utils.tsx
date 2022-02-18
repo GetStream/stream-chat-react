@@ -200,11 +200,20 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
+const ACTIONS_NOT_WORKING_IN_THREAD = ['pin', 'react', 'reply'];
+
 export const showMessageActionsBox = (
   actions: MessageActionsArray,
-  thread?: boolean | undefined,
+  inThread?: boolean | undefined,
 ) => {
   if (actions.length === 0) {
+    return false;
+  }
+
+  if (
+    inThread &&
+    actions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
+  ) {
     return false;
   }
 
@@ -212,29 +221,7 @@ export const showMessageActionsBox = (
     return false;
   }
 
-  if (actions.length === 1 && thread && actions.includes('pin')) {
-    return false;
-  }
-
   if (actions.length === 2 && actions.includes('react') && actions.includes('reply')) {
-    return false;
-  }
-
-  if (thread && actions.length === 2 && actions.includes('pin') && actions.includes('reply')) {
-    return false;
-  }
-
-  if (thread && actions.length === 2 && actions.includes('pin') && actions.includes('react')) {
-    return false;
-  }
-
-  if (
-    thread &&
-    actions.length === 3 &&
-    actions.includes('react') &&
-    actions.includes('reply') &&
-    actions.includes('pin')
-  ) {
     return false;
   }
 
