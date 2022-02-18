@@ -73,6 +73,7 @@ import type {
   DefaultMessageType,
   DefaultReactionType,
   DefaultUserType,
+  GiphyVersions,
 } from '../../types/types';
 
 export type ChannelProps<
@@ -165,6 +166,8 @@ export type ChannelProps<
   FileUploadIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['GiphyPreviewMessage'];
+  /** The giphy version to render - check the keys of the [Image Obect](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'original' by default */
+  giphyVersion?: GiphyVersions;
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
@@ -760,6 +763,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
+    giphyVersion: props.giphyVersion || 'fixed_width',
     maxNumberOfFiles,
     multipleUploads,
     mutes,

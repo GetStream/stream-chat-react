@@ -60,3 +60,12 @@ export type DefaultUserType<
   DefaultUserTypeInternal & {
     mutes?: Array<Mute<UserType>>;
   };
+
+export type GiphyVersions =
+  | 'original'
+  | 'fixed_height'
+  | 'fixed_height_still'
+  | 'fixed_height_downsampled'
+  | 'fixed_width'
+  | 'fixed_width_still'
+  | 'fixed_width_downsampled';
