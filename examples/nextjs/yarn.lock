@@ -1224,10 +1224,15 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@2.0.0", "@stream-io/stream-chat-css@^2.0.0":
+"@stream-io/stream-chat-css@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.0.0.tgz#a55207727e58811bc948bdc3eb498cf8c17f1d49"
   integrity sha512-CSK39gGiRkGhkOzVMyvqJ0p+0iakkjoDAfAKM0NycnIEU9ov102xezsaBRQofkbpYn0CoTjX2UHlkwheQMIP3Q==
+
+"@stream-io/stream-chat-css@^2.2.1":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.3.2.tgz#fa5aad4367ee8b6a7bacebfb22fe5b2127a376eb"
+  integrity sha512-wfHDS9GBXs5vlk7zKjMb+Z8ZsTvDeiCrnl/RU3P6i4tZGcXl0qkIWBf2e0O0kMJ5APYtZdRYvYyTlO7qeK9Jpw==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -10021,7 +10026,7 @@ stream-browserify@^2.0.1:
   version "0.0.0-development"
   dependencies:
     "@braintree/sanitize-url" "5.0.0"
-    "@stream-io/stream-chat-css" "2.0.0"
+    "@stream-io/stream-chat-css" "^2.2.1"
     custom-event "^1.0.1"
     dayjs "^1.10.4"
     emoji-mart "3.0.1"
@@ -10767,9 +10772,9 @@ url-loader@1.1.2:
     schema-utils "^1.0.0"
 
 url-parse@^1.4.3:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.1.tgz#d5fa9890af8a5e1f274a2c98376510f6425f6e3b"
-  integrity sha512-HOfCOUJt7iSYzEx/UqgtwKRMC6EU91NFhsCHMv9oM03VJcVo2Qrp8T8kI9D7amFf1cu+/3CEhgb3rF9zL7k85Q==
+  version "1.5.7"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.7.tgz#00780f60dbdae90181f51ed85fb24109422c932a"
+  integrity sha512-HxWkieX+STA38EDk7CE9MEryFeHCKzgagxlGvsdS7WBImq9Mk+PGwiT56w82WI3aicwJA8REp42Cxo98c8FZMA==
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
