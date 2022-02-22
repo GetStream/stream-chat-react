@@ -50,8 +50,8 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   let image = thumb_url || image_url;
   const dimensions: { height?: number; width?: number } = {};
 
-  if (type === 'giphy') {
-    const giphyVersion = (giphy as GiphyData)[giphyVersionName as GiphyVersions];
+  if (type === 'giphy' && typeof giphy !== 'undefined') {
+    const giphyVersion = giphy[giphyVersionName as GiphyVersions];
     image = giphyVersion.url;
     dimensions.height = giphyVersion.height;
     dimensions.width = giphyVersion.width;
