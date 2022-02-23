@@ -82,6 +82,8 @@ export type SuggestionListProps<
 export type ChatAutoCompleteProps = {
   /** Function to override the default submit handler on the underlying `textarea` component */
   handleSubmit?: (event: React.BaseSyntheticEvent) => void;
+  /** Function to run on blur of the underlying `textarea` component */
+  onBlur?: React.FocusEventHandler<HTMLTextAreaElement>;
   /** Function to override the default onChange behavior on the underlying `textarea` component */
   onChange?: React.ChangeEventHandler<HTMLTextAreaElement>;
   /** Function to run on focus of the underlying `textarea` component */
@@ -162,6 +164,7 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={messageInput.maxRows}
       minChar={0}
+      onBlur={props.onBlur}
       onChange={props.onChange || messageInput.handleChange}
       onFocus={props.onFocus}
       onPaste={props.onPaste || messageInput.onPaste}
