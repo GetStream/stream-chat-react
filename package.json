@@ -33,7 +33,7 @@
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
-    "i18next": "^19.8.4",
+    "i18next": "^21.6.11",
     "isomorphic-ws": "^4.0.1",
     "linkifyjs": "^2.1.9",
     "lodash.debounce": "^4.0.8",
