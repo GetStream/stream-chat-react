@@ -34,9 +34,9 @@ chatClient.connectUser({ id: userId, language: 'es' }, userToken);
 // const i18nInstance = new Streami18n({ language: 'es' });
 
 const App = () => (
+  // <Chat client={chatClient}>
   // <Chat client={chatClient} defaultLanguage={'es'} i18nInstance={i18nInstance}>
-  // <Chat client={chatClient} defaultLanguage={'es'}>
-  <Chat client={chatClient}>
+  <Chat client={chatClient} defaultLanguage={'es'}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
     <Channel>
       <Window>
