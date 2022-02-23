@@ -348,22 +348,22 @@ const ChannelInner = <
       trailing: true,
     },
   );
-  console.log(channel.state.unreadCount);
+  console.log('channel.state.unreadCount: ', channel.state.unreadCount);
 
   const markRead = () => {
     if (channel.disconnected || !channelConfig?.read_events) {
       return;
     }
-    console.log('hi');
+    console.log('markRead');
 
     lastRead.current = new Date();
 
     if (doMarkReadRequest) {
       doMarkReadRequest(channel);
-      console.log('foo', doMarkReadRequest);
+      console.log('if doMarkReadRequest: ', doMarkReadRequest);
     } else {
       logChatPromiseExecution(channel.markRead(), 'mark read');
-      console.log('bar', doMarkReadRequest);
+      console.log('else doMarkReadRequest: ', doMarkReadRequest);
     }
 
     if (activeUnreadHandler) {
@@ -440,7 +440,7 @@ const ChannelInner = <
           errored = true;
         }
       }
-      console.log('woo', channel.countUnread());
+      console.log('useLayoutEffect channel.countUnread: ', channel.countUnread());
 
       done = true;
       originalTitle.current = document.title;

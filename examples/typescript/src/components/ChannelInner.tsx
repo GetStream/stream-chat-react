@@ -20,8 +20,8 @@ export const ChannelInner = () => {
 
   return (
     <>
-      {/* <Channel doMarkReadRequest={customHandler}> */}
-      <Channel>
+      <Channel doMarkReadRequest={customHandler}>
+      {/* <Channel> */}
         <Window>
           <ChannelHeader />
           <MessageList />
