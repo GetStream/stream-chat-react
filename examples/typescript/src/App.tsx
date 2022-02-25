@@ -2,13 +2,13 @@ import React from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 import {
   Chat,
-  Channel,
-  ChannelHeader,
+  // Channel,
+  // ChannelHeader,
   ChannelList,
-  MessageList,
-  MessageInput,
-  Thread,
-  Window,
+  // MessageList,
+  // MessageInput,
+  // Thread,
+  // Window,
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import './App.css';

@@ -15,13 +15,13 @@ export const ChannelInner = () => {
 
   const customHandler = (channel: any) => {
     console.log('closure - shouldMarkRead value in customHandler closure', shouldMarkRead);
-    shouldMarkRead && channel.markRead();
+    // shouldMarkRead && channel.markRead();
   };
 
   return (
     <>
-      <Channel doMarkReadRequest={customHandler}>
       {/* <Channel> */}
+      <Channel doMarkReadRequest={customHandler}>
         <Window>
           <ChannelHeader />
           <MessageList />

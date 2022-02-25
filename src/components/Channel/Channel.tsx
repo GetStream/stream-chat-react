@@ -360,10 +360,10 @@ const ChannelInner = <
 
     if (doMarkReadRequest) {
       doMarkReadRequest(channel);
-      console.log('if doMarkReadRequest: ', doMarkReadRequest);
+      console.log('if doMarkReadRequest: ', doMarkReadRequest); // function from customHandler
     } else {
       logChatPromiseExecution(channel.markRead(), 'mark read');
-      console.log('else doMarkReadRequest: ', doMarkReadRequest);
+      console.log('else doMarkReadRequest: ', doMarkReadRequest); // undefined
     }
 
     if (activeUnreadHandler) {
@@ -406,7 +406,7 @@ const ChannelInner = <
           markReadThrottled();
         } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
-          console.log('unread', unread);
+          console.log('handleEvent unread', unread);
 
           if (activeUnreadHandler) {
             activeUnreadHandler(unread, originalTitle.current);
