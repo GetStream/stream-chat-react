@@ -25,7 +25,7 @@ import {
   SendAlso,
 } from '../../assets';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import { SocialGallery } from '../Gallery/SocialGallery';
 import { ThreadReply } from '../ThreadReply/ThreadReply';
@@ -92,10 +92,15 @@ const MessageOptions: React.FC<OptionsProps> = (props) => {
   );
 };
 
-export const SocialMessage: React.FC<MessageUIComponentProps<StreamChatType>> = () => {
+export const SocialMessage: React.FC<MessageUIComponentProps<StreamChatGenerics>> = () => {
   const { channel, pinnedMessages } = useChannelStateContext();
   const { client } = useChatContext();
-  const { isMyMessage, message, readBy, reactionSelectorRef } = useMessageContext<StreamChatType>();
+  const {
+    isMyMessage,
+    message,
+    readBy,
+    reactionSelectorRef,
+  } = useMessageContext<StreamChatGenerics>();
   const { actionsModalOpenId, userActionType } = useActionsContext();
 
   const [messageActionUser, setMessageActionUser] = useState<string>();

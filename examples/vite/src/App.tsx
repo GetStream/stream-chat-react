@@ -28,7 +28,7 @@ type LocalMessageType = Record<string, unknown>;
 type LocalReactionType = Record<string, unknown>;
 type LocalUserType = Record<string, unknown>;
 
-type StreamChatType = {
+type StreamChatGenerics = {
   attachmentType: LocalAttachmentType;
   channelType: LocalChannelType;
   commandType: LocalCommandType;
@@ -38,7 +38,7 @@ type StreamChatType = {
   userType: LocalUserType;
 };
 
-const chatClient = StreamChat.getInstance<StreamChatType>(apiKey);
+const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
 
 if (import.meta.env.VITE_CHAT_SERVER_ENDPOINT) {
   chatClient.setBaseURL(import.meta.env.VITE_CHAT_SERVER_ENDPOINT as string);

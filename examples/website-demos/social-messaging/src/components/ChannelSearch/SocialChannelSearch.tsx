@@ -4,13 +4,13 @@ import { ChannelSearch, SearchInputProps, useChatContext } from 'stream-chat-rea
 import { ClearSearch, SearchIcon } from '../../assets';
 import { SearchResultItem } from './SearchResultItem';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import './SocialChannelSearch.scss';
 
 import type { ChannelFilters } from 'stream-chat';
 
-const SearchInput = (props: SearchInputProps<StreamChatType>) => {
+const SearchInput = (props: SearchInputProps<StreamChatGenerics>) => {
   const { channelSearchParams, inputRef, onSearch, query } = props;
 
   return (

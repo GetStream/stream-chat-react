@@ -21,7 +21,7 @@ import { useActionsContext } from '../../contexts/ActionsContext';
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatContainer.scss';
 
@@ -68,7 +68,7 @@ export const ChatContainer: React.FC = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      const client = StreamChat.getInstance<StreamChatType>(apiKey!);
+      const client = StreamChat.getInstance<StreamChatGenerics>(apiKey!);
       await client.connectUser(userToConnect, userToken);
       setChatClient(client);
     };

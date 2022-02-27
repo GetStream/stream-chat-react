@@ -6,12 +6,12 @@ import { Chats, Files, Photos } from '../../assets';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatInfoItem.scss';
 
 export const ChatInfoItem = () => {
-  const { channel } = useChannelStateContext<StreamChatType>();
+  const { channel } = useChannelStateContext<StreamChatGenerics>();
 
   const { chatInfoItem } = useViewContext();
 

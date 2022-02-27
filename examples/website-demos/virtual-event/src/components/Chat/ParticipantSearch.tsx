@@ -13,7 +13,7 @@ import { SearchResult } from './SearchResult';
 
 import { ClearSearchButton, CloseX, SearchIcon } from '../../assets';
 
-import type { StreamChatType } from '../../types';
+import type { StreamChatGenerics } from '../../types';
 
 type Props = {
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
@@ -21,7 +21,7 @@ type Props = {
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const SearchInput: React.FC<SearchInputProps<StreamChatType>> = (props) => {
+const SearchInput: React.FC<SearchInputProps<StreamChatGenerics>> = (props) => {
   const { channelSearchParams, inputRef, onSearch, query } = props;
 
   const { setQuery } = channelSearchParams;
@@ -89,7 +89,7 @@ export const ParticipantSearch: React.FC<Props> = (props) => {
         </div>
         <div className='search-header-title'>Participants</div>
       </div>
-      <ChannelSearch<StreamChatType>
+      <ChannelSearch<StreamChatGenerics>
         onSelectResult={handleSelectResult}
         searchQueryParams={extraParams}
         SearchEmpty={SearchEmpty}

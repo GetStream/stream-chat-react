@@ -8,7 +8,7 @@ export type SocialMessageType = {};
 export type SocialReactionType = {};
 export type SocialUserType = { image?: string };
 
-export type StreamChatType = {
+export type StreamChatGenerics = {
   attachmentType: SocialAttachmentType;
   channelType: SocialChannelType;
   commandType: SocialCommandType;

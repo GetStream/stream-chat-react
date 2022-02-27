@@ -4,11 +4,11 @@ import { useChatContext } from 'stream-chat-react';
 
 import { MuteUser, Trashcan, UserInfo } from '../../assets';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import { UserActions, useActionsContext } from '../../contexts/ActionsContext';
 
-type Props<StreamChatGenerics extends StreamChatType = StreamChatType> = {
+type Props<StreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
   channelId?: string;
   members: ChannelMemberResponse<StreamChatGenerics>[];
   setChatInfoOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +16,7 @@ type Props<StreamChatGenerics extends StreamChatType = StreamChatType> = {
   setActionId: React.Dispatch<React.SetStateAction<string | undefined>>;
 };
 
-export const SocialPreviewActions = (props: Props<StreamChatType>) => {
+export const SocialPreviewActions = (props: Props<StreamChatGenerics>) => {
   const { channelId, members, setChatInfoOpen, setDropdownOpen, setActionId } = props;
 
   const { mutes } = useChatContext();

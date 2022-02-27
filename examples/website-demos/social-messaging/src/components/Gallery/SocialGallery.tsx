@@ -4,9 +4,9 @@ import { GalleryProps } from 'stream-chat-react';
 
 import { SocialModalWrapper } from './SocialModal';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
-export const SocialGallery: React.FC<GalleryProps<StreamChatType>> = (props) => {
+export const SocialGallery: React.FC<GalleryProps<StreamChatGenerics>> = (props) => {
   const { images } = props;
 
   const [modalOpen, setModalOpen] = useState(false);

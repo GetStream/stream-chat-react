@@ -20,7 +20,7 @@ import { customReactions, getFormattedTime } from './utils';
 import { MessageActionsEllipse, QAThumb, ReactionSmiley } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-import type { StreamChatType } from '../../types';
+import type { StreamChatGenerics } from '../../types';
 
 type OptionsProps = {
   dropdownOpen: boolean;
@@ -92,7 +92,7 @@ const ReactionSelector: React.FC<{ isTopMessage: boolean }> = ({ isTopMessage })
 };
 
 export const MessageUI: React.FC<
-  MessageUIComponentProps<StreamChatType> & {
+  MessageUIComponentProps<StreamChatGenerics> & {
     setMessageActionUser?: React.Dispatch<React.SetStateAction<string | undefined>>;
   }
 > = (props) => {
@@ -103,7 +103,7 @@ export const MessageUI: React.FC<
   const { client } = useChatContext();
 
   const { chatType, themeModalOpen } = useEventContext();
-  const { handleOpenThread, message } = useMessageContext<StreamChatType>();
+  const { handleOpenThread, message } = useMessageContext<StreamChatGenerics>();
 
   const replyCount = useRef(message.reply_count);
 

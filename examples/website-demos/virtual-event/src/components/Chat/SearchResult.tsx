@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, isChannel, SearchResultItemProps } from 'stream-chat-react';
 
-import type { StreamChatType } from '../../types';
+import type { StreamChatGenerics } from '../../types';
 
-export const SearchResult: React.FC<SearchResultItemProps<StreamChatType>> = (props) => {
+export const SearchResult: React.FC<SearchResultItemProps<StreamChatGenerics>> = (props) => {
   const { focusedUser, index, result, selectResult } = props;
 
   const [actionsOpen, setActionsOpen] = useState(false);

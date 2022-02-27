@@ -4,15 +4,15 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Avatar } from 'stream-chat-react';
 import { UserResponse } from 'stream-chat';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import './NewChatUser.scss';
 
-type Props<StreamChatGenerics extends StreamChatType = StreamChatType> = {
+type Props<StreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
   user: UserResponse<StreamChatGenerics> | undefined;
 };
 
-export const NewChatUser = (props: Props<StreamChatType>) => {
+export const NewChatUser = (props: Props<StreamChatGenerics>) => {
   const { user } = props;
 
   if (!user) return null;

@@ -19,13 +19,13 @@ import {
   UserInfo,
 } from '../../assets';
 
-import { StreamChatType } from '../../types';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatInfo.scss';
 
 export const ChatInfo = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext<StreamChatType>();
+  const { channel } = useChannelStateContext<StreamChatGenerics>();
 
   const members = Object.values(channel.state.members)
     .filter(({ user }) => user?.id !== client.userID)

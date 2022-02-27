@@ -8,15 +8,17 @@ import { useEventContext } from '../../contexts/EventContext';
 
 import type { Channel, UserResponse } from 'stream-chat';
 
-import type { StreamChatType } from '../../types';
+import type { StreamChatGenerics as VirtualAppStreamChatGenerics } from '../../types';
 
-type Props<StreamChatGenerics extends StreamChatType = StreamChatType> = {
+type Props<
+  StreamChatGenerics extends VirtualAppStreamChatGenerics = VirtualAppStreamChatGenerics
+> = {
   participantProfile: UserResponse<StreamChatGenerics>;
   setDmChannel: React.Dispatch<React.SetStateAction<Channel | undefined>>;
   setParticipantProfile: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
 };
 
-export const ParticipantProfile = (props: Props<StreamChatType>) => {
+export const ParticipantProfile = (props: Props<VirtualAppStreamChatGenerics>) => {
   const { participantProfile, setDmChannel, setParticipantProfile } = props;
 
   const { client } = useChatContext();

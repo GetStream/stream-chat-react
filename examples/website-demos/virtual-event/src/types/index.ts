@@ -8,7 +8,7 @@ export type MessageType = { up_votes?: string[] };
 export type ReactionType = {};
 export type UserType = { image?: string; title?: string };
 
-export type StreamChatType = {
+export type StreamChatGenerics = {
   attachmentType: AttachmentType;
   channelType: ChannelType;
   commandType: CommandType;
