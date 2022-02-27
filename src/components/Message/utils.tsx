@@ -186,8 +186,20 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
-export const showMessageActionsBox = (actions: MessageActionsArray) => {
+const ACTIONS_NOT_WORKING_IN_THREAD = ['pin', 'react', 'reply'];
+
+export const showMessageActionsBox = (
+  actions: MessageActionsArray,
+  inThread?: boolean | undefined,
+) => {
   if (actions.length === 0) {
+    return false;
+  }
+
+  if (
+    inThread &&
+    actions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
+  ) {
     return false;
   }
 

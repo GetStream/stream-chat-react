@@ -51,6 +51,28 @@ type VirtualizedMessageListWithContextProps<
   notifications: ChannelNotifications;
 };
 
+function captureResizeObserverExceededError(e: ErrorEvent) {
+  if (
+    e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
+    e.message === 'ResizeObserver loop limit exceeded'
+  ) {
+    e.stopImmediatePropagation();
+  }
+}
+
+function useCaptureResizeObserverExceededError() {
+  useEffect(() => {
+    window.addEventListener('error', captureResizeObserverExceededError);
+    return () => {
+      window.removeEventListener('error', captureResizeObserverExceededError);
+    };
+  }, []);
+}
+
+function fractionalItemSize(element: HTMLElement) {
+  return element.getBoundingClientRect().height;
+}
+
 const VirtualizedMessageListWithContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -80,6 +102,10 @@ const VirtualizedMessageListWithContext = <
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
   } = props;
+
+  // Stops errors generated from react-virtuoso to bubble up
+  // to Sentry or other tracking tools.
+  useCaptureResizeObserverExceededError();
 
   const {
     DateSeparator = DefaultDateSeparator,
@@ -286,8 +312,10 @@ const VirtualizedMessageListWithContext = <
           components={virtuosoComponents}
           firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
           followOutput={followOutput}
+          increaseViewportBy={{ bottom: 200, top: 0 }}
           initialTopMostItemIndex={processedMessages.length ? processedMessages.length - 1 : 0}
           itemContent={(i) => messageRenderer(processedMessages, i)}
+          itemSize={fractionalItemSize}
           overscan={overscan}
           ref={virtuoso}
           startReached={startReached}
