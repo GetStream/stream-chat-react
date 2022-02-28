@@ -9,36 +9,22 @@ import type { Channel } from 'stream-chat';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useEnrichedMessages = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(args: {
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channel: Channel<StreamChatGenerics>;
   disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages: StreamMessage<StreamChatGenerics>[];
   noGroupByUser: boolean;
   threadList: boolean;
   groupStyles?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    message: StreamMessage<StreamChatGenerics>,
+    previousMessage: StreamMessage<StreamChatGenerics>,
+    nextMessage: StreamMessage<StreamChatGenerics>,
     noGroupByUser: boolean,
   ) => GroupStyle;
   headerPosition?: number;
@@ -55,10 +41,8 @@ export const useEnrichedMessages = <
     threadList,
   } = args;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useEnrichedMessages');
-  const { HeaderComponent } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'useEnrichedMessages',
-  );
+  const { client } = useChatContext<StreamChatGenerics>('useEnrichedMessages');
+  const { HeaderComponent } = useComponentContext<StreamChatGenerics>('useEnrichedMessages');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 

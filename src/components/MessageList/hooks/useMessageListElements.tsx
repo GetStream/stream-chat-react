@@ -18,15 +18,7 @@ import type { MessageProps } from '../../Message/types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type MessagePropsToOmit =
   | 'channel'
@@ -38,33 +30,21 @@ type MessagePropsToOmit =
   | 'threadList';
 
 type UseMessageListElementsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  enrichedMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  internalMessageProps: Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit>;
+  enrichedMessages: StreamMessage<StreamChatGenerics>[];
+  internalMessageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   returnAllReadData: boolean;
   threadList: boolean;
-  read?: Record<string, { last_read: Date; user: UserResponse<Us> }>;
+  read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
 };
 
 export const useMessageListElements = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: UseMessageListElementsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: UseMessageListElementsProps<StreamChatGenerics>,
 ) => {
   const {
     enrichedMessages,
@@ -76,14 +56,12 @@ export const useMessageListElements = <
     threadList,
   } = props;
 
-  const { client, customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'useMessageListElements',
-  );
+  const { client, customClasses } = useChatContext<StreamChatGenerics>('useMessageListElements');
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
     MessageSystem = EventComponent,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageListElements');
+  } = useComponentContext<StreamChatGenerics>('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
   const readData = useLastReadData({

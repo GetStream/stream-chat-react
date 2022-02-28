@@ -11,61 +11,41 @@ import { version } from '../../../version';
 
 import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UseChatParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  client: StreamChat<StreamChatGenerics>;
   defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
   initialNavOpen?: boolean;
 };
 
 export const useChat = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   client,
   defaultLanguage = 'en',
   i18nInstance,
   initialNavOpen,
-}: UseChatParams<At, Ch, Co, Ev, Me, Re, Us>) => {
+}: UseChatParams<StreamChatGenerics>) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
     t: (key: string) => key,
     tDateTimeParser: (input) => Dayjs(input),
     userLanguage: 'en',
   });
 
-  const [channel, setChannel] = useState<Channel<At, Ch, Co, Ev, Me, Re, Us>>();
-  const [mutes, setMutes] = useState<Array<Mute<Us>>>([]);
+  const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
+  const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
 
-  const clientMutes = client.user?.mutes;
+  const clientMutes = (client.user?.mutes as Array<Mute<StreamChatGenerics>>) || [];
 
   const closeMobileNav = () => setNavOpen(false);
   const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
-  const appSettings = useRef<Promise<AppSettingsAPIResponse<Co>> | null>(null);
+  const appSettings = useRef<Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null>(null);
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -86,9 +66,9 @@ export const useChat = <
   }, [client]);
 
   useEffect(() => {
-    setMutes(clientMutes || []);
+    setMutes(clientMutes);
 
-    const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+    const handleEvent = (event: Event<StreamChatGenerics>) => {
       setMutes(event.me?.mutes || []);
     };
 
@@ -120,7 +100,7 @@ export const useChat = <
 
   const setActiveChannel = useCallback(
     async (
-      activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
+      activeChannel?: Channel<StreamChatGenerics>,
       watchers: { limit?: number; offset?: number } = {},
       event?: React.BaseSyntheticEvent,
     ) => {

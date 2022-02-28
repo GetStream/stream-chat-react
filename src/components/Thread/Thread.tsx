@@ -18,35 +18,20 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export type ThreadProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
   /** Additional props for `MessageInput` component: [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
-  additionalMessageListProps?: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
+  additionalMessageListProps?: MessageListProps<StreamChatGenerics>;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: MessageProps<At, Ch, Co, Ev, Me, Re, Us>;
+  additionalParentMessageProps?: MessageProps<StreamChatGenerics>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
-  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
+  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
   /** Display the thread on 100% width of its parent container. Useful for mobile style view */
@@ -54,7 +39,7 @@ export type ThreadProps<
   /** Custom thread input UI component used to override the default `Input` value stored in `ComponentContext` or the [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default */
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
-  Message?: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -63,20 +48,12 @@ export type ThreadProps<
  * The Thread component renders a parent Message with a list of replies
  */
 export const Thread = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V>,
+  props: ThreadProps<StreamChatGenerics, V>,
 ) => {
-  const { channel, channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'Thread',
-  );
+  const { channel, channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('Thread');
 
   if (!thread || channelConfig?.replies === false) return null;
 
@@ -85,28 +62,16 @@ export const Thread = <
 };
 
 export type ThreadHeaderProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   closeThread: (event: React.BaseSyntheticEvent) => void;
-  thread: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  thread: StreamMessage<StreamChatGenerics>;
 };
 
 const DefaultThreadHeader = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ThreadHeaderProps<StreamChatGenerics>,
 ) => {
   const { closeThread, thread } = props;
 
@@ -150,16 +115,10 @@ const DefaultThreadStart: React.FC = () => {
 };
 
 const ThreadInner = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: ThreadProps<At, Ch, Co, Ev, Me, Re, Us, V> & { key: string },
+  props: ThreadProps<StreamChatGenerics, V> & { key: string },
 ) => {
   const {
     additionalMessageInputProps,
@@ -173,26 +132,21 @@ const ThreadInner = <
     virtualized,
   } = props;
 
-  const { thread, threadHasMore, threadLoadingMore, threadMessages } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('Thread');
-  const { closeThread, loadMoreThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'Thread',
-  );
-  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
+  const {
+    thread,
+    threadHasMore,
+    threadLoadingMore,
+    threadMessages,
+  } = useChannelStateContext<StreamChatGenerics>('Thread');
+  const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
+  const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
     ThreadStart = DefaultThreadStart,
     VirtualMessage = FixedHeightMessage,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('Thread');
+  } = useComponentContext<StreamChatGenerics>('Thread');
 
   const messageList = useRef<HTMLDivElement | null>(null);
 

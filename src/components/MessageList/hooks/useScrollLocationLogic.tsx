@@ -4,40 +4,20 @@ import { useMessageListScrollManager } from './useMessageListScrollManager';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type UseScrollLocationLogicParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   currentUserId?: string;
-  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
 };
 
 export const useScrollLocationLogic = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  params: UseScrollLocationLogicParams<At, Ch, Co, Ev, Me, Re, Us>,
+  params: UseScrollLocationLogicParams<StreamChatGenerics>,
 ) => {
   const { messages = [], scrolledUpThreshold = 200 } = params;
 

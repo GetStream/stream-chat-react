@@ -12,54 +12,47 @@ import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 type ObjectUnion<T> = T[keyof T];
 
 export type SuggestionCommand<
-  Co extends DefaultCommandType = DefaultCommandType
-> = CommandResponse<Co>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = CommandResponse<StreamChatGenerics>;
 
-export type SuggestionUser<Us extends DefaultUserType<Us> = DefaultUserType> = UserResponse<Us>;
+export type SuggestionUser<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = UserResponse<StreamChatGenerics>;
 
 export type SuggestionItemProps<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   className: string;
   component: JSX.Element;
-  item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>;
+  item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
   key: React.Key;
   onClickHandler: (event: React.BaseSyntheticEvent) => void;
-  onSelectHandler: (item: EmojiData | SuggestionUser<Us> | SuggestionCommand<Co>) => void;
+  onSelectHandler: (
+    item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>,
+  ) => void;
   selected: boolean;
   style: React.CSSProperties;
   value: string;
 };
 
 export type SuggestionListProps<
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = ObjectUnion<
   {
-    [key in keyof TriggerSettings<Co, Us, V>]: {
-      component: TriggerSettings<Co, Us, V>[key]['component'];
+    [key in keyof TriggerSettings<StreamChatGenerics, V>]: {
+      component: TriggerSettings<StreamChatGenerics, V>[key]['component'];
       dropdownScroll: (element: HTMLDivElement) => void;
       getSelectedItem:
-        | ((item: Parameters<TriggerSettings<Co, Us, V>[key]['output']>[0]) => void)
+        | ((item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0]) => void)
         | null;
       getTextToReplace: (
-        item: Parameters<TriggerSettings<Co, Us, V>[key]['output']>[0],
+        item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0],
       ) => {
         caretPosition: 'start' | 'end' | 'next' | number;
         text: string;
@@ -69,7 +62,9 @@ export type SuggestionListProps<
         caretPosition: 'start' | 'end' | 'next' | number;
         text: string;
       }) => void;
-      values: Parameters<Parameters<TriggerSettings<Co, Us, V>[key]['dataProvider']>[2]>[0];
+      values: Parameters<
+        Parameters<TriggerSettings<StreamChatGenerics, V>[key]['dataProvider']>[2]
+      >[0];
       className?: string;
       itemClassName?: string;
       itemStyle?: React.CSSProperties;
@@ -101,13 +96,7 @@ export type ChatAutoCompleteProps = {
 };
 
 const UnMemoizedChatAutoComplete = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
   props: ChatAutoCompleteProps,
@@ -115,10 +104,10 @@ const UnMemoizedChatAutoComplete = <
   const {
     AutocompleteSuggestionItem: SuggestionItem,
     AutocompleteSuggestionList: SuggestionList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
+  } = useComponentContext<StreamChatGenerics, V>('ChatAutoComplete');
   const { t } = useTranslationContext('ChatAutoComplete');
 
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('ChatAutoComplete');
+  const messageInput = useMessageInputContext<StreamChatGenerics, V>('ChatAutoComplete');
   const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
 
   const placeholder = props.placeholder || t('Type your message');

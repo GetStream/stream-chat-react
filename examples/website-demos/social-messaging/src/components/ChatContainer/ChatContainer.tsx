@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Channel as StreamChannel } from 'stream-chat';
-import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
+import { ChannelSort, StreamChat } from 'stream-chat';
 import { Channel, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
@@ -21,6 +21,7 @@ import { useActionsContext } from '../../contexts/ActionsContext';
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatContainer.scss';
 
@@ -54,16 +55,7 @@ const options = { message_limit: 30 };
 const sort: ChannelSort = {
   last_message_at: -1,
   updated_at: -1,
-  cid: 1,
 };
-
-export type SocialAttachmentType = {};
-export type SocialChannelType = {};
-export type SocialCommandType = LiteralStringForUnion;
-export type SocialEventType = {};
-export type SocialMessageType = {};
-export type SocialReactionType = {};
-export type SocialUserType = { image?: string };
 
 export const ChatContainer: React.FC = () => {
   const [chatClient, setChatClient] = useState<StreamChat>();
@@ -76,15 +68,7 @@ export const ChatContainer: React.FC = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      const client = StreamChat.getInstance<
-        SocialAttachmentType,
-        SocialChannelType,
-        SocialCommandType,
-        SocialEventType,
-        SocialMessageType,
-        SocialReactionType,
-        SocialUserType
-      >(apiKey!);
+      const client = StreamChat.getInstance<StreamChatGenerics>(apiKey!);
       await client.connectUser(userToConnect, userToken);
       setChatClient(client);
     };

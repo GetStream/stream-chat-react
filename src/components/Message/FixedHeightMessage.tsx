@@ -20,15 +20,7 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const selectColor = (number: number, dark: boolean) => {
   const hue = number * 137.508; // use golden angle approximation
@@ -47,52 +39,29 @@ const getUserColor = (theme: string, userId: string) =>
   selectColor(hashUserId(userId), theme.includes('dark'));
 
 export type FixedHeightMessageProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   groupedByUser?: boolean;
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<StreamChatGenerics>;
 };
 
 const UnMemoizedFixedHeightMessage = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: FixedHeightMessageProps<StreamChatGenerics>,
 ) => {
   const { groupedByUser: propGroupedByUser, message: propMessage } = props;
 
-  const { theme } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('FixedHeightMessage');
+  const { theme } = useChatContext<StreamChatGenerics>('FixedHeightMessage');
 
-  const { groupedByUser: contextGroupedByUser, message: contextMessage } = useMessageContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('FixedHeightMessage');
+  const {
+    groupedByUser: contextGroupedByUser,
+    message: contextMessage,
+  } = useMessageContext<StreamChatGenerics>('FixedHeightMessage');
 
-  const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('FixedHeightMessage');
+  const { MessageDeleted = DefaultMessageDeleted } = useComponentContext<StreamChatGenerics>(
+    'FixedHeightMessage',
+  );
 
   const { userLanguage } = useTranslationContext('FixedHeightMessage');
 

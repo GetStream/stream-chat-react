@@ -8,39 +8,27 @@ import type { UserResponse } from 'stream-chat';
 
 import type { ReactEventHandler } from '../types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const missingUseMuteHandlerParamsWarning =
   'useMuteHandler was called but it is missing one or more necessary parameter.';
 
-export type MuteUserNotifications<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  getErrorNotification?: (user: UserResponse<Us>) => string;
-  getSuccessNotification?: (user: UserResponse<Us>) => string;
+export type MuteUserNotifications<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  getErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
+  getSuccessNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useMuteHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  notifications: MuteUserNotifications<Us> = {},
+  message?: StreamMessage<StreamChatGenerics>,
+  notifications: MuteUserNotifications<StreamChatGenerics> = {},
 ): ReactEventHandler => {
-  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useMuteHandler');
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useMuteHandler');
+  const { mutes } = useChannelStateContext<StreamChatGenerics>('useMuteHandler');
+  const { client } = useChatContext<StreamChatGenerics>('useMuteHandler');
   const { t } = useTranslationContext('useMuteHandler');
 
   return async (event) => {

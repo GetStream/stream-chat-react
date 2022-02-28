@@ -20,36 +20,17 @@ import { useComponentContext } from '../../context/ComponentContext';
 
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export const MessageInputSmall = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >() => {
-  const { acceptedFiles, multipleUploads, quotedMessage } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('MessageInputSmall');
+  const {
+    acceptedFiles,
+    multipleUploads,
+    quotedMessage,
+  } = useChannelStateContext<StreamChatGenerics>('MessageInputSmall');
   const { t } = useTranslationContext('MessageInputSmall');
 
   const {
@@ -64,7 +45,7 @@ export const MessageInputSmall = <
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('MessageInputSmall');
+  } = useMessageInputContext<StreamChatGenerics, V>('MessageInputSmall');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
@@ -72,7 +53,7 @@ export const MessageInputSmall = <
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputSmall');
+  } = useComponentContext<StreamChatGenerics>('MessageInputSmall');
 
   return (
     <div className='str-chat__small-message-input__wrapper'>

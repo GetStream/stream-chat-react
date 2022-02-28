@@ -19,34 +19,16 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const MessageInputFlat = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { acceptedFiles, multipleUploads, quotedMessage } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('MessageInputFlat');
+  const {
+    acceptedFiles,
+    multipleUploads,
+    quotedMessage,
+  } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
   const { t } = useTranslationContext('MessageInputFlat');
 
   const {
@@ -61,7 +43,7 @@ export const MessageInputFlat = <
     openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputFlat');
+  } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
@@ -69,7 +51,7 @@ export const MessageInputFlat = <
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageInputFlat');
+  } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
 
   return (
     <div

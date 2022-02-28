@@ -9,42 +9,26 @@ import type { ReactEventHandler } from '../types';
 
 import type { Reaction, ReactionResponse } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
 ) => {
-  const { updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'useReactionHandler',
-  );
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionHandler');
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useReactionHandler');
+  const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useReactionHandler');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useReactionHandler');
+  const { client } = useChatContext<StreamChatGenerics>('useReactionHandler');
 
   const createMessagePreview = useCallback(
     (
       add: boolean,
-      reaction: ReactionResponse<Re, Us>,
-      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    ): StreamMessage<At, Ch, Co, Ev, Me, Re, Us> => {
+      reaction: ReactionResponse<StreamChatGenerics>,
+      message: StreamMessage<StreamChatGenerics>,
+    ): StreamMessage<StreamChatGenerics> => {
       const newReactionCounts = message?.reaction_counts || {};
       const reactionType = reaction.type;
       const hasReaction = !!newReactionCounts[reactionType];
@@ -59,7 +43,7 @@ export const useReactionHandler = <
         }
       }
 
-      const newReactions: Reaction<Re, Us>[] | undefined = add
+      const newReactions: Reaction<StreamChatGenerics>[] | undefined = add
         ? [reaction, ...(message?.latest_reactions || [])]
         : message.latest_reactions?.filter(
             (item) => !(item.type === reaction.type && item.user_id === reaction.user_id),
@@ -75,7 +59,7 @@ export const useReactionHandler = <
         own_reactions: newOwnReactions,
         reaction_counts: newReactionCounts,
         reaction_scores: newReactionCounts,
-      } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+      } as StreamMessage<StreamChatGenerics>;
     },
     [client.user, client.userID],
   );
@@ -91,14 +75,14 @@ export const useReactionHandler = <
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
     if (!message || channel.data?.frozen) return;
 
-    const newReaction = creatReactionPreview(type) as ReactionResponse<Re, Us>;
+    const newReaction = creatReactionPreview(type) as ReactionResponse<StreamChatGenerics>;
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
       updateMessage(tempMessage);
 
       const messageResponse = add
-        ? await channel.sendReaction(id, { type } as Reaction<Re, Us>)
+        ? await channel.sendReaction(id, { type } as Reaction<StreamChatGenerics>)
         : await channel.deleteReaction(id, type);
 
       updateMessage(messageResponse.message);
@@ -117,7 +101,7 @@ export const useReactionHandler = <
       return console.warn(reactionHandlerWarning);
     }
 
-    let userExistingReaction = (null as unknown) as ReactionResponse<Re, Us>;
+    let userExistingReaction = (null as unknown) as ReactionResponse<StreamChatGenerics>;
 
     if (message.own_reactions) {
       message.own_reactions.forEach((reaction) => {
@@ -146,28 +130,18 @@ export const useReactionHandler = <
 };
 
 export const useReactionClick = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
   reactionSelectorRef?: RefObject<HTMLDivElement | null>,
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useReactionClick');
+  const {
+    channel,
+    channelCapabilities = {},
+    channelConfig,
+  } = useChannelStateContext<StreamChatGenerics>('useReactionClick');
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 

@@ -4,26 +4,12 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedChannelPreviewMessenger = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ChannelPreviewUIComponentProps<StreamChatGenerics>,
 ) => {
   const {
     active,

@@ -2,44 +2,23 @@ import React, { PropsWithChildren, useContext } from 'react';
 
 import type { ChannelState as StreamChannelState } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../types/types';
+import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type TypingContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  typing?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['typing'];
+  typing?: StreamChannelState<StreamChatGenerics>['typing'];
 };
 
 export const TypingContext = React.createContext<TypingContextValue | undefined>(undefined);
 
 export const TypingProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  value: TypingContextValue<StreamChatGenerics>;
 }>) => (
   <TypingContext.Provider value={(value as unknown) as TypingContextValue}>
     {children}
@@ -47,13 +26,7 @@ export const TypingProvider = <
 );
 
 export const useTypingContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   componentName?: string,
 ) => {
@@ -64,10 +37,10 @@ export const useTypingContext = <
       `The useTypingContext hook was called outside of the TypingContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    return {} as TypingContextValue<StreamChatGenerics>;
   }
 
-  return contextValue as TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  return contextValue as TypingContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -77,20 +50,14 @@ export const useTypingContext = <
  */
 export const withTypingContext = <
   P extends UnknownType,
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
+): React.FC<Omit<P, keyof TypingContextValue<StreamChatGenerics>>> => {
   const WithTypingContextComponent = (
-    props: Omit<P, keyof TypingContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
+    props: Omit<P, keyof TypingContextValue<StreamChatGenerics>>,
   ) => {
-    const typingContext = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const typingContext = useTypingContext<StreamChatGenerics>();
 
     return <Component {...(props as P)} {...typingContext} />;
   };

@@ -2,43 +2,23 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { StreamChat, UpdatedMessage } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type UpdateHandler<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = (
   cid: string,
-  updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
-) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
+  updatedMessage: UpdatedMessage<StreamChatGenerics>,
+) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
 
 export const useEditMessageHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  doUpdateMessageRequest?: UpdateHandler<At, Ch, Co, Ev, Me, Re, Us>,
+  doUpdateMessageRequest?: UpdateHandler<StreamChatGenerics>,
 ) => {
-  const { channel, client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useEditMessageHandler');
+  const { channel, client } = useChatContext<StreamChatGenerics>('useEditMessageHandler');
 
-  return (updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>) => {
+  return (updatedMessage: UpdatedMessage<StreamChatGenerics>) => {
     if (doUpdateMessageRequest && channel) {
       return Promise.resolve(doUpdateMessageRequest(channel.cid, updatedMessage));
     }

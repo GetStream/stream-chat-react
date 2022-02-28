@@ -4,35 +4,21 @@ import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const usePaginatedChannels = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>,
-  filters: ChannelFilters<Ch, Co, Us>,
-  sort: ChannelSort<Ch>,
+  client: StreamChat<StreamChatGenerics>,
+  filters: ChannelFilters<StreamChatGenerics>,
+  sort: ChannelSort<StreamChatGenerics>,
   options: ChannelOptions,
   activeChannelHandler: (
-    channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
+    channels: Array<Channel<StreamChatGenerics>>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   ) => void,
 ) => {
-  const [channels, setChannels] = useState<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>([]);
+  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
   const [loadingChannels, setLoadingChannels] = useState(true);

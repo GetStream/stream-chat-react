@@ -4,32 +4,18 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useOpenThreadHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
   customOpenThread?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    message: StreamMessage<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => void,
 ): ReactEventHandler => {
-  const { openThread: channelOpenThread } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { openThread: channelOpenThread } = useChannelActionContext<StreamChatGenerics>(
     'useOpenThreadHandler',
   );
 

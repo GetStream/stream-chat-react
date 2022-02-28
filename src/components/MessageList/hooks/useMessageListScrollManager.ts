@@ -4,15 +4,7 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type ContainerMeasures = {
   offsetHeight: number;
@@ -20,15 +12,9 @@ export type ContainerMeasures = {
 };
 
 export type UseMessageListScrollManagerParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages: StreamMessage<StreamChatGenerics>[];
   onScrollBy: (scrollBy: number) => void;
   scrollContainerMeasures: () => ContainerMeasures;
   scrolledUpThreshold: number;
@@ -37,14 +23,8 @@ export type UseMessageListScrollManagerParams<
 };
 
 export function useMessageListScrollManager<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(params: UseMessageListScrollManagerParams<At, Ch, Co, Ev, Me, Re, Us>) {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
   const {
     onScrollBy,
     scrollContainerMeasures,
@@ -53,13 +33,13 @@ export function useMessageListScrollManager<
     showNewMessages,
   } = params;
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useMessageListScrollManager');
+  const { client } = useChatContext<StreamChatGenerics>('useMessageListScrollManager');
 
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,
     scrollHeight: 0,
   });
-  const messages = useRef<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[]>();
+  const messages = useRef<StreamMessage<StreamChatGenerics>[]>();
   const scrollTop = useRef(0);
 
   useEffect(() => {
