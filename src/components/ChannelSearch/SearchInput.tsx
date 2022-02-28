@@ -52,7 +52,7 @@ export const SearchInput = <
       onChange={(event: React.BaseSyntheticEvent) =>
         searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
       }
-      placeholder={placeholder || t('Search')}
+      placeholder={placeholder ?? t('Search')}
       ref={inputRef}
       type='text'
       value={query}
