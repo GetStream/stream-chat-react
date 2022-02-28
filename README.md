@@ -99,7 +99,7 @@ import './App.css';
 
 ## Internationalization
 
-Our library supports auto-translation for various user languages. Please read our internationalization [documentation](https://github.com/GetStream/stream-chat-react/wiki/Internationalization-(i18n)) for further details and setup guidance.
+Our library supports auto-translation for various user languages. Please read our internationalization [documentation](https://getstream.io/chat/docs/sdk/react/customization/translations/) for further details and setup guidance.
 
 ## Contributing
 
