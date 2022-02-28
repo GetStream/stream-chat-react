@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { MenuIcon as DefaultMenuIcon } from './icons';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -15,7 +16,6 @@ import type {
   DefaultReactionType,
   DefaultUserType,
 } from '../../types/types';
-import { MenuIcon as DefaultMenuIcon } from './icons';
 
 export type ChannelHeaderProps = {
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
@@ -24,7 +24,7 @@ export type ChannelHeaderProps = {
   image?: string;
   /** Show a little indicator that the Channel is live right now */
   live?: boolean;
-  /** UI component do display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
+  /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
   MenuIcon?: React.ComponentType;
   /** Set title manually */
   title?: string;
