@@ -3402,11 +3402,6 @@ csstype@^3.0.2:
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.0.7.tgz#2a5fb75e1015e84dd15692f71e89a1450290950b"
   integrity sha512-KxnUB0ZMlnUWCsx2Z8MUsr6qV6ja1w9ArPErJaJaF8a5SOWoHLIszeCTKGRGRgtLgYrs1E8CHkNSP1VZTTPc9g==
 
-custom-event@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.1.tgz#5d02a46850adf1b4a317946a3928fccb5bfd0425"
-  integrity sha1-XQKkaFCt8bSjF5RqOSj8y1v9BCU=
-
 cyclist@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/cyclist/-/cyclist-1.0.1.tgz#596e9698fd0c80e12038c2b82d6eb1b35b6224d9"
@@ -6833,7 +6828,7 @@ loglevel@^1.4.1:
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.1.tgz#005fde2f5e6e47068f935ff28573e125ef72f197"
   integrity sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==
 
-loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
+loose-envify@^1.0.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -9002,7 +8997,6 @@ react-dev-utils@^7.0.2:
 
 "react-dom@link:../../node_modules/react-dom":
   version "0.0.0"
-  uid ""
 
 react-dropzone@11.3.4:
   version "11.3.4"
@@ -9154,7 +9148,6 @@ react-virtuoso@^2.3.1:
 
 "react@link:../../node_modules/react":
   version "0.0.0"
-  uid ""
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -9595,14 +9588,6 @@ sax@^1.2.4, sax@~1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
-
-scheduler@^0.20.1:
-  version "0.20.2"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
-  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
 
 schema-utils@^0.4.4:
   version "0.4.7"
@@ -10045,10 +10030,38 @@ stream-browserify@^2.0.1:
     readable-stream "^2.0.2"
 
 "stream-chat-react@link:../..":
-  version "0.0.0"
-  uid ""
+  version "0.0.0-development"
+  dependencies:
+    "@braintree/sanitize-url" "5.0.0"
+    "@stream-io/stream-chat-css" "^2.2.1"
+    dayjs "^1.10.4"
+    emoji-mart "3.0.1"
+    emoji-regex "^9.2.0"
+    i18next "^19.8.4"
+    isomorphic-ws "^4.0.1"
+    linkifyjs "^2.1.9"
+    lodash.debounce "^4.0.8"
+    lodash.isequal "^4.5.0"
+    lodash.throttle "^4.1.1"
+    lodash.uniqby "^4.7.0"
+    mdast-util-find-and-replace "1.1.1"
+    pretty-bytes "^5.4.1"
+    prop-types "^15.7.2"
+    react-fast-compare "^3.2.0"
+    react-file-utils "1.1.9"
+    react-image-gallery "^1.2.7"
+    react-is "^17.0.1"
+    react-markdown "^5.0.3"
+    react-player "^2.7.0"
+    react-textarea-autosize "^8.3.0"
+    react-virtuoso "^2.3.1"
+    textarea-caret "^3.1.0"
+    uuid "^8.3.1"
+  optionalDependencies:
+    "@stream-io/transliterate" "^1.5.5"
+    mml-react "^0.4.2"
 
-stream-chat@6.0.0:
+stream-chat@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.0.0.tgz#39ec7cefc911a1cbb4debccce142222b05167f4d"
   integrity sha512-zpzpiMsR2eTYS7UluimGwVcA4vsaP/GQtEUufwlZWhxS07GaSd9SCIDYbJlmdtV47TfiMDOcDKRrm50adkBlBQ==
@@ -10765,9 +10778,9 @@ url-loader@1.1.2:
     schema-utils "^1.0.0"
 
 url-parse@^1.4.3:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.1.tgz#d5fa9890af8a5e1f274a2c98376510f6425f6e3b"
-  integrity sha512-HOfCOUJt7iSYzEx/UqgtwKRMC6EU91NFhsCHMv9oM03VJcVo2Qrp8T8kI9D7amFf1cu+/3CEhgb3rF9zL7k85Q==
+  version "1.5.10"
+  resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.5.10.tgz#9d3c2f736c1d75dd3bd2be507dcc111f1e2ea9c1"
+  integrity sha512-WypcfiRhfeUP9vvF0j6rw0J3hrWrw6iZv3+22h6iRMJ/8z1Tj6XfLP4DsUix5MhMPnXpiHDoKyoZ/bdCkwBCiQ==
   dependencies:
     querystringify "^2.1.1"
     requires-port "^1.0.0"
