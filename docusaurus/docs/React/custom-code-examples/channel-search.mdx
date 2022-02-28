@@ -9,7 +9,7 @@ import CustomChannelSearch from '../assets/CustomChannelSearch.png';
 ## How-to Guide for Customizing ChannelSearch
 
 In this example, we will customize the [`ChannelSearch`](../core-components/channel-list.mdx#channelsearch) component. Though this component can be used standalone, we will do our customization when it's established in the `ChannelList`. Here is a guide that outlines how to
-override the default `DropdownContainer` and `SearchResultItem` components, as well as use several other useful props.
+override the default `DropdownContainer`, `SearchResultItem`, and `SearchResultsHeader` components, as well as use several other useful props.
 
 :::note
 A complete override of this component is possible by utilizing the [`ChannelSearch`](../core-components/channel-list.mdx#channelsearch) prop on `ChannelList`.
@@ -308,3 +308,34 @@ const additionalProps = {
 ### Result:
 
 <img src={CustomChannelSearch} alt='Custom Channel Search UI Component for Chat' width='700' />
+
+### The searchFunction Prop:
+
+By default the `ChannelSearch` component searches just for users. Use the `searchForChannels` prop to also search for channels.
+
+To override the search method, completely use the `searchFunction` prop. This prop is useful, say, when you want to search for channels that the current
+logged in user is a member of. See the example below for this.
+
+```jsx
+const customSearchFunction = async (props: ChannelSearchFunctionParams, event: { target: { value: SetStateAction<string>; }; }) => {
+  const { setResults, setResultsOpen, setSearching, setQuery } = props;
+  const { client } = useChatContext();
+
+  const filters = {
+      name: { $autocomplete: event.target.value },
+      members: { $in: client.userID }
+  }
+
+  setSearching(true);
+  setQuery(event.target.value);
+  const channels = await chatClient.queryChannels(filters);
+  setResults(channels);
+  setResultsOpen(true);
+  setSearching(false);
+};
+
+<ChannelList
+  showChannelSearch
+  additionalChannelSearchProps={{searchFunction: customSearchFunction}}
+/>
+```
