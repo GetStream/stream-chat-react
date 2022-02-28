@@ -9,30 +9,17 @@ import type {
   MessageInputState,
 } from '../components/MessageInput/hooks/useMessageInputState';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../types/types';
 
 export type MessageInputContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
-> = MessageInputState<At, Us> &
-  MessageInputHookProps<At, Me, Us> &
-  Omit<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>, 'Input'> &
-  CooldownTimerState & { autocompleteTriggers?: TriggerSettings<Co, Us, V> } & CommandsListState &
+> = MessageInputState<StreamChatGenerics> &
+  MessageInputHookProps<StreamChatGenerics> &
+  Omit<MessageInputProps<StreamChatGenerics, V>, 'Input'> &
+  CooldownTimerState & {
+    autocompleteTriggers?: TriggerSettings<StreamChatGenerics, V>;
+  } & CommandsListState &
   MentionsListState;
 
 export const MessageInputContext = createContext<
@@ -40,19 +27,13 @@ export const MessageInputContext = createContext<
 >(undefined);
 
 export const MessageInputContextProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+  value: MessageInputContextValue<StreamChatGenerics, V>;
 }>) => (
   <MessageInputContext.Provider value={value as MessageInputContextValue}>
     {children}
@@ -60,13 +41,7 @@ export const MessageInputContextProvider = <
 );
 
 export const useMessageInputContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
   componentName?: string,
@@ -78,8 +53,8 @@ export const useMessageInputContext = <
       `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+    return {} as MessageInputContextValue<StreamChatGenerics, V>;
   }
 
-  return contextValue as MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+  return contextValue as MessageInputContextValue<StreamChatGenerics, V>;
 };

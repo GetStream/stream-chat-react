@@ -2,16 +2,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const progressUpdateInterval = 500;
 
-export type AudioProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  og: Attachment<At>;
+export type AudioProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  og: Attachment<StreamChatGenerics>;
 };
 
-const UnMemoizedAudio = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: AudioProps<At>,
+const UnMemoizedAudio = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: AudioProps<StreamChatGenerics>,
 ) => {
   const { og } = props;
 

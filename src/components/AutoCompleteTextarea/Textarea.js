@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
-import CustomEvent from 'custom-event';
 import { isValidElementType } from 'react-is';
 
 import Listeners, { KEY_CODES } from './listener';

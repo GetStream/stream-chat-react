@@ -7,15 +7,7 @@ import type { EmojiData } from 'emoji-mart';
 
 import { useMessageInputContext } from '../../context/MessageInputContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const filterEmoji = (emoji: EmojiData) => {
   if (emoji.name === 'White Smiling Face' || emoji.name === 'White Frowning Face') {
@@ -29,13 +21,7 @@ export type MessageInputEmojiPickerProps = {
 };
 
 export const EmojiPicker = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: MessageInputEmojiPickerProps,
 ) => {
@@ -44,7 +30,7 @@ export const EmojiPicker = <
   const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext('EmojiPicker');
   const { t } = useTranslationContext('EmojiPicker');
 
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('EmojiPicker');
+  const messageInput = useMessageInputContext<StreamChatGenerics>('EmojiPicker');
 
   const { emojiData } = emojiConfig || {};
 

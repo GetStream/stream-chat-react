@@ -5,15 +5,7 @@ import { MessageInput, MessageList, useChatContext, Window } from 'stream-chat-r
 import { ChatInfo } from '../ChatInfo/ChatInfo';
 import { NewChat } from '../NewChat/NewChat';
 import { SocialChannelHeader } from '../ChannelHeader/SocialChannelHeader';
-import {
-  SocialAttachmentType,
-  SocialChannelType,
-  SocialCommandType,
-  SocialEventType,
-  SocialMessageType,
-  SocialReactionType,
-  SocialUserType,
-} from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 import { SocialThread } from '../Thread/SocialThread';
 
 import { useUnreadContext } from '../../contexts/UnreadContext';
@@ -25,15 +17,7 @@ import './ChannelContainer.scss';
 import { ChatInfoItem } from '../ChatInfo/ChatInfoItem';
 
 export const ChannelContainer: React.FC = () => {
-  const { channel, client } = useChatContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
+  const { channel, client } = useChatContext<StreamChatGenerics>();
 
   const {
     chatsUnreadCount,
@@ -45,15 +29,7 @@ export const ChannelContainer: React.FC = () => {
   const { isChatInfoOpen, chatInfoItem, isNewChat } = useViewContext();
 
   useEffect(() => {
-    const handlerNewMessageEvent: EventHandler<
-      SocialAttachmentType,
-      SocialChannelType,
-      SocialCommandType,
-      SocialEventType,
-      SocialMessageType,
-      SocialReactionType,
-      SocialUserType
-    > = (event) => {
+    const handlerNewMessageEvent: EventHandler<StreamChatGenerics> = (event) => {
       const { message, user } = event;
 
       if (user?.id !== client?.userID && channel?.cid !== message?.cid) {

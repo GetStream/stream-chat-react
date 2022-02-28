@@ -11,37 +11,22 @@ import type { SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useFileUploads = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-  state: MessageInputState<At, Us>,
-  dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  props: MessageInputProps<StreamChatGenerics, V>,
+  state: MessageInputState<StreamChatGenerics>,
+  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
 ) => {
   const { doFileUploadRequest, errorHandler } = props;
   const { fileUploads } = state;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
-  const { getAppSettings } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFileUploads');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useFileUploads');
+  const { addNotification } = useChannelActionContext<StreamChatGenerics>('useFileUploads');
+  const { getAppSettings } = useChatContext<StreamChatGenerics>('useFileUploads');
   const { t } = useTranslationContext('useFileUploads');
 
   const uploadFile = useCallback((id) => {

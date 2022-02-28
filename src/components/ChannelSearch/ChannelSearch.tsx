@@ -21,50 +21,32 @@ import type {
   UserSort,
 } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type SearchQueryParams<
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channelFilters?: {
-    filters?: ChannelFilters<Ch, Co, Us>;
+    filters?: ChannelFilters<StreamChatGenerics>;
     options?: ChannelOptions;
-    sort?: ChannelSort<Ch>;
+    sort?: ChannelSort<StreamChatGenerics>;
   };
   userFilters?: {
-    filters?: UserFilters<Us>;
+    filters?: UserFilters<StreamChatGenerics>;
     options?: UserOptions;
-    sort?: UserSort<Us>;
+    sort?: UserSort<StreamChatGenerics>;
   };
 };
 
 export type ChannelSearchProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
   channelType?: string;
   /** Custom UI component to display all of the search results, defaults to accepts same props as: [DefaultDropdownContainer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx)  */
-  DropdownContainer?: React.ComponentType<DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<StreamChatGenerics>>;
   /** Custom handler function to run on search result item selection */
-  onSelectResult?: (
-    result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => Promise<void> | void;
+  onSelectResult?: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
@@ -75,31 +57,25 @@ export type ChannelSearchProps<
   searchForChannels?: boolean;
   /** Custom search function to override default */
   searchFunction?: (
-    params: ChannelSearchFunctionParams<At, Ch, Co, Ev, Me, Re, Us>,
+    params: ChannelSearchFunctionParams<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
   /** Custom UI component to display the search text input */
-  SearchInput?: React.ComponentType<SearchInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  SearchInput?: React.ComponentType<SearchInputProps<StreamChatGenerics>>;
   /** Custom UI component to display the search loading state */
   SearchLoading?: React.ComponentType;
   /** Object containing filters/sort/options overrides for user search */
-  searchQueryParams?: SearchQueryParams<Ch, Co, Us>;
+  searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
   /** Custom UI component to display a search result list item, defaults to and accepts same props as: [DefaultSearchResultItem](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/SearchResults.tsx) */
-  SearchResultItem?: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  SearchResultItem?: React.ComponentType<SearchResultItemProps<StreamChatGenerics>>;
   /** Custom UI component to display the search results header */
   SearchResultsHeader?: React.ComponentType;
 };
 
 const UnMemoizedChannelSearch = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ChannelSearchProps<StreamChatGenerics>,
 ) => {
   const {
     channelType = 'messaging',
@@ -117,12 +93,10 @@ const UnMemoizedChannelSearch = <
     SearchResultsHeader,
   } = props;
 
-  const { client, setActiveChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelSearch');
+  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('ChannelSearch');
 
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>(
-    [],
-  );
+  const [results, setResults] = useState<Array<ChannelOrUserResponse<StreamChatGenerics>>>([]);
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
@@ -149,13 +123,12 @@ const UnMemoizedChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [resultsOpen]);
 
-  const selectResult = async (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const selectResult = async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
     if (!client.userID) return;
 
     if (isChannel(result)) {
       setActiveChannel(result);
     } else {
-      // @ts-expect-error
       const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
       await newChannel.watch();
 

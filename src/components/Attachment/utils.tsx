@@ -9,64 +9,77 @@ import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Ga
 
 import type { Attachment } from 'stream-chat';
 import type { AttachmentProps } from './Attachment';
-import type { DefaultAttachmentType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
-export type GalleryAttachment<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  images: Attachment<At>[];
+export type GalleryAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  images: Attachment<StreamChatGenerics>[];
   type: string;
 };
 
-export type AttachmentContainerProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  attachment: Attachment<At> | GalleryAttachment<At>;
+export type AttachmentContainerProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
   componentType: string;
 };
 
-export type RenderAttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = Omit<
-  AttachmentProps<At>,
-  'attachments'
-> & {
-  attachment: Attachment<At>;
+export type RenderAttachmentProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<AttachmentProps<StreamChatGenerics>, 'attachments'> & {
+  attachment: Attachment<StreamChatGenerics>;
 };
 
-export type RenderGalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = Omit<
-  AttachmentProps<At>,
-  'attachments'
-> & {
-  attachment: GalleryAttachment<At>;
+export type RenderGalleryProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<AttachmentProps<StreamChatGenerics>, 'attachments'> & {
+  attachment: GalleryAttachment<StreamChatGenerics>;
 };
 
-export const isGalleryAttachmentType = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  output: Attachment<At> | GalleryAttachment<At>,
-): output is GalleryAttachment<At> => (output as GalleryAttachment<At>).images != null;
+export const isGalleryAttachmentType = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  output: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>,
+): output is GalleryAttachment<StreamChatGenerics> =>
+  (output as GalleryAttachment<StreamChatGenerics>).images != null;
 
-export const isAudioAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  attachment: Attachment<At>,
+export const isAudioAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
 ) => attachment.type === 'audio';
 
-export const isFileAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  attachment: Attachment<At>,
+export const isFileAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
 ) =>
   attachment.type === 'file' ||
   (attachment.mime_type &&
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
     attachment.type !== 'video');
 
-export const isImageAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  attachment: Attachment<At>,
+export const isImageAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
 ) => attachment.type === 'image' && !attachment.title_link && !attachment.og_scrape_url;
 
-export const isMediaAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  attachment: Attachment<At>,
+export const isMediaAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
 ) =>
   (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
 
 export const renderAttachmentWithinContainer = <
-  At extends DefaultAttachmentType = DefaultAttachmentType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: PropsWithChildren<AttachmentContainerProps<At>>,
+  props: PropsWithChildren<AttachmentContainerProps<StreamChatGenerics>>,
 ) => {
   const { attachment, children, componentType } = props;
 
@@ -95,8 +108,10 @@ export const renderAttachmentWithinContainer = <
   );
 };
 
-export const renderAttachmentActions = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderAttachmentActions = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { actionHandler, attachment, AttachmentActions = DefaultAttachmentActions } = props;
 
@@ -114,8 +129,10 @@ export const renderAttachmentActions = <At extends DefaultAttachmentType = Defau
   );
 };
 
-export const renderGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderGalleryProps<At>,
+export const renderGallery = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderGalleryProps<StreamChatGenerics>,
 ) => {
   const { attachment, Gallery = DefaultGallery } = props;
 
@@ -126,8 +143,10 @@ export const renderGallery = <At extends DefaultAttachmentType = DefaultAttachme
   });
 };
 
-export const renderImage = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderImage = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment, Image = DefaultImage } = props;
 
@@ -151,8 +170,10 @@ export const renderImage = <At extends DefaultAttachmentType = DefaultAttachment
   });
 };
 
-export const renderCard = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderCard = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment, Card = DefaultCard } = props;
 
@@ -176,8 +197,10 @@ export const renderCard = <At extends DefaultAttachmentType = DefaultAttachmentT
   });
 };
 
-export const renderFile = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderFile = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment, File = DefaultFile } = props;
 
@@ -190,8 +213,10 @@ export const renderFile = <At extends DefaultAttachmentType = DefaultAttachmentT
   });
 };
 
-export const renderAudio = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderAudio = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment, Audio = DefaultAudio } = props;
 
@@ -206,8 +231,10 @@ export const renderAudio = <At extends DefaultAttachmentType = DefaultAttachment
   });
 };
 
-export const renderMedia = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: RenderAttachmentProps<At>,
+export const renderMedia = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment, Media = ReactPlayer } = props;
 

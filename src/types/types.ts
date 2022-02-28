@@ -1,4 +1,4 @@
-import type { Event, LiteralStringForUnion, Mute } from 'stream-chat';
+import type { Event, ExtendableGenerics, LiteralStringForUnion, Mute } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
 
@@ -17,7 +17,6 @@ export type DefaultAttachmentType = UnknownType & {
     image_url?: string;
     thumb_url?: string;
   }>;
-  mime_type?: string;
 };
 
 export type DefaultChannelType = UnknownType & {
@@ -27,27 +26,25 @@ export type DefaultChannelType = UnknownType & {
   subtitle?: string;
 };
 
-export type DefaultCommandType = LiteralStringForUnion;
+export type DefaultStreamChatGenerics = ExtendableGenerics & {
+  attachmentType: DefaultAttachmentType;
+  channelType: DefaultChannelType;
+  commandType: LiteralStringForUnion;
+  eventType: UnknownType;
+  messageType: DefaultMessageType;
+  reactionType: UnknownType;
+  userType: DefaultUserType;
+};
 
-export type DefaultEventType = UnknownType;
-
-export type DefaultMessageType = UnknownType & {
+export type DefaultMessageType<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = UnknownType & {
   customType?: 'channel.intro' | 'message.date';
   date?: string | Date;
   errorStatusCode?: number;
-  event?: Event<
-    DefaultAttachmentType,
-    DefaultChannelType,
-    DefaultCommandType,
-    DefaultEventType,
-    DefaultMessageType,
-    DefaultReactionType,
-    DefaultUserType
-  >;
+  event?: Event<StreamChatGenerics>;
   unread?: boolean;
 };
-
-export type DefaultReactionType = UnknownType;
 
 export type DefaultUserTypeInternal = {
   image?: string;
@@ -55,10 +52,10 @@ export type DefaultUserTypeInternal = {
 };
 
 export type DefaultUserType<
-  UserType extends DefaultUserTypeInternal = DefaultUserTypeInternal
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UnknownType &
   DefaultUserTypeInternal & {
-    mutes?: Array<Mute<UserType>>;
+    mutes?: Array<Mute<StreamChatGenerics>>;
   };
 
 export type GiphyVersions =
