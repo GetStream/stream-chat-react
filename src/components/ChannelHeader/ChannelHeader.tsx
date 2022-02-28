@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { MenuIcon as DefaultMenuIcon } from './icons';
+
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
