@@ -4,34 +4,18 @@ import type { Event } from 'stream-chat';
 
 import { CustomNotification } from './CustomNotification';
 import { useChatContext, useTranslationContext } from '../../context';
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedConnectionStatus: React.FC = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ConnectionStatus');
+  const { client } = useChatContext<StreamChatGenerics>('ConnectionStatus');
   const { t } = useTranslationContext('ConnectionStatus');
 
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
-    const connectionChanged = ({
-      online: onlineStatus = false,
-    }: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+    const connectionChanged = ({ online: onlineStatus = false }: Event<StreamChatGenerics>) => {
       if (online !== onlineStatus) {
         setOnline(onlineStatus);
       }

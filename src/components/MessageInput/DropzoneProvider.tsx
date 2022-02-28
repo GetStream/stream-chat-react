@@ -13,31 +13,15 @@ import {
 
 import type { MessageInputProps } from './MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 
 const DropzoneInner = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >({
   children,
 }: PropsWithChildren<UnknownType>) => {
-  const { acceptedFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { acceptedFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'DropzoneProvider',
   );
 
@@ -46,7 +30,7 @@ const DropzoneInner = <
     isUploadEnabled,
     maxFilesLeft,
     uploadNewFiles,
-  } = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>('DropzoneProvider');
+  } = useMessageInputContext<StreamChatGenerics, V>('DropzoneProvider');
 
   return (
     <ImageDropzone
@@ -62,21 +46,15 @@ const DropzoneInner = <
 };
 
 export const DropzoneProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: PropsWithChildren<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>,
+  props: PropsWithChildren<MessageInputProps<StreamChatGenerics, V>>,
 ) => {
-  const cooldownTimerState = useCooldownTimer<At, Ch, Co, Ev, Me, Re, Us>();
-  const messageInputState = useMessageInputState<At, Ch, Co, Ev, Me, Re, Us, V>(props);
+  const cooldownTimerState = useCooldownTimer<StreamChatGenerics>();
+  const messageInputState = useMessageInputState<StreamChatGenerics, V>(props);
 
-  const messageInputContextValue = useCreateMessageInputContext<At, Ch, Co, Ev, Me, Re, Us, V>({
+  const messageInputContextValue = useCreateMessageInputContext<StreamChatGenerics, V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,

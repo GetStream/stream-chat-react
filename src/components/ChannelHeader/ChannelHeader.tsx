@@ -7,15 +7,7 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelHeaderProps = {
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
@@ -31,13 +23,7 @@ export type ChannelHeaderProps = {
 };
 
 const UnMemoizedChannelHeader = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: ChannelHeaderProps,
 ) => {
@@ -49,10 +35,8 @@ const UnMemoizedChannelHeader = <
     title,
   } = props;
 
-  const { channel, watcher_count } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'ChannelHeader',
-  );
-  const { openMobileNav } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelHeader');
+  const { channel, watcher_count } = useChannelStateContext<StreamChatGenerics>('ChannelHeader');
+  const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
 
   const { image: channelImage, member_count, name, subtitle } = channel?.data || {};

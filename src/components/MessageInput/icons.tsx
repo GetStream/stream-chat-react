@@ -4,7 +4,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Message } from 'stream-chat';
 
-import type { DefaultAttachmentType, DefaultMessageType, DefaultUserType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const EmojiIconLarge: React.FC = () => {
   const { t } = useTranslationContext('EmojiIconLarge');
@@ -61,23 +61,19 @@ export const FileUploadIconFlat: React.FC = () => {
 };
 
 export type SendButtonProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   sendMessage: (
     event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<At, Me, Us>>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => void;
 };
 
 export const SendButton = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   sendMessage,
-}: SendButtonProps<At, Me, Us>) => {
+}: SendButtonProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext('SendButton');
 
   return (

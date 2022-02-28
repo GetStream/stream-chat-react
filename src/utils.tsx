@@ -9,7 +9,7 @@ import uniqBy from 'lodash.uniqby';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType } from './types/types';
+import type { DefaultStreamChatGenerics } from './types/types';
 
 export const isOnlyEmojis = (text?: string) => {
   if (!text) return false;
@@ -125,8 +125,10 @@ export const emojiMarkdownPlugin = () => {
   return transform;
 };
 
-export const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  mentioned_users: UserResponse<Us>[],
+export const mentionsMarkdownPlugin = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  mentioned_users: UserResponse<StreamChatGenerics>[],
 ) => () => {
   const mentioned_usernames = mentioned_users
     .map((user) => user.name || user.id)
@@ -160,12 +162,14 @@ export const mentionsMarkdownPlugin = <Us extends DefaultUserType<Us> = DefaultU
   return transform;
 };
 
-export type MentionProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
-  mentioned_user: UserResponse<Us>;
+export type MentionProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  mentioned_user: UserResponse<StreamChatGenerics>;
 };
 
-const Mention = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: PropsWithChildren<Us>,
+const Mention = <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+  props: PropsWithChildren<StreamChatGenerics>,
 ) => <span className='str-chat__message-mention'>{props.children}</span>;
 
 export type RenderTextOptions = {
@@ -174,9 +178,11 @@ export type RenderTextOptions = {
   };
 };
 
-export const renderText = <Us extends DefaultUserType<Us> = DefaultUserType>(
+export const renderText = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
   text?: string,
-  mentioned_users?: UserResponse<Us>[],
+  mentioned_users?: UserResponse<StreamChatGenerics>[],
   options: RenderTextOptions = {},
 ) => {
   // take the @ mentions and turn them into markdown?

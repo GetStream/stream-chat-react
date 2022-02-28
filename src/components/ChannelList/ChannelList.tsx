@@ -36,31 +36,17 @@ import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from
 
 import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 export type ChannelListProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>;
+  additionalChannelSearchProps?: ChannelSearchProps<StreamChatGenerics>;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -72,18 +58,18 @@ export type ChannelListProps<
   Avatar?: React.ComponentType<AvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (
-    channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-  ) => Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
+    channels: Array<Channel<StreamChatGenerics>>,
+  ) => Array<Channel<StreamChatGenerics>>;
   /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
-  ChannelSearch?: React.ComponentType<ChannelSearchProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
   /** Custom UI component for rendering an empty list, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** An object containing channel query filters */
-  filters?: ChannelFilters<Ch, Co, Us>;
+  filters?: ChannelFilters<StreamChatGenerics>;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
-  List?: React.ComponentType<ChannelListMessengerProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
   LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
@@ -92,50 +78,50 @@ export type ChannelListProps<
   lockChannelOrder?: boolean;
   /** Function to override the default behavior when a user is added to a channel, corresponds to [notification.added\_to\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onAddedToChannel?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a channel is deleted, corresponds to [channel.deleted](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelDeleted?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a channel is hidden, corresponds to [channel.hidden](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelHidden?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a channel is truncated, corresponds to [channel.truncated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelTruncated?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a channel is updated, corresponds to [channel.updated](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelUpdated?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default channel visible behavior, corresponds to [channel.visible](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onChannelVisible?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a message is received on a channel not being watched, corresponds to [notification.message\_new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onMessageNew?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** Function to override the default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
-    event: Event<At, Ch, Co, Ev, Me, Re, Us>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
   ) => void;
   /** An object containing channel query options */
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
   Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
   sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
@@ -143,21 +129,15 @@ export type ChannelListProps<
   /** Whether or not to load the list with a search component, defaults to false */
   showChannelSearch?: boolean;
   /** An object containing channel query sort parameters */
-  sort?: ChannelSort<Ch>;
+  sort?: ChannelSort<StreamChatGenerics>;
   /** An object containing query parameters for fetching channel watchers */
   watchers?: { limit?: number; offset?: number };
 };
 
 const UnMemoizedChannelList = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: ChannelListProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ChannelListProps<StreamChatGenerics>,
 ) => {
   const {
     additionalChannelSearchProps,
@@ -199,7 +179,7 @@ const UnMemoizedChannelList = <
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
-  } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('ChannelList');
+  } = useChatContext<StreamChatGenerics>('ChannelList');
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
@@ -209,8 +189,8 @@ const UnMemoizedChannelList = <
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
    */
   const activeChannelHandler = async (
-    channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>,
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>>>,
+    channels: Array<Channel<StreamChatGenerics>>,
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   ) => {
     if (!channels.length || channels.length > (options?.limit || MAX_QUERY_CHANNELS_LIMIT)) {
       return;
@@ -283,7 +263,7 @@ const UnMemoizedChannelList = <
   useUserPresenceChangedListener(setChannels);
 
   useEffect(() => {
-    const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+    const handleEvent = (event: Event<StreamChatGenerics>) => {
       if (event.cid === channel?.cid) {
         setActiveChannel();
       }
@@ -298,7 +278,7 @@ const UnMemoizedChannelList = <
     };
   }, [channel?.cid]);
 
-  const renderChannel = (item: Channel<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const renderChannel = (item: Channel<StreamChatGenerics>) => {
     const previewProps = {
       activeChannel: channel,
       Avatar,

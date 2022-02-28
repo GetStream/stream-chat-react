@@ -4,16 +4,16 @@ import { GalleryProps } from 'stream-chat-react';
 
 import { SocialModalWrapper } from './SocialModal';
 
-import { SocialAttachmentType } from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 
-export const SocialGallery: React.FC<GalleryProps<SocialAttachmentType>> = (props) => {
+export const SocialGallery: React.FC<GalleryProps<StreamChatGenerics>> = (props) => {
   const { images } = props;
 
   const [modalOpen, setModalOpen] = useState(false);
 
   const formattedArray = () => {
     return images.map((image) => ({
-      source: image.image_url || image.thumb_url || '',
+      original: image.image_url || image.thumb_url || '',
     }));
   };
 

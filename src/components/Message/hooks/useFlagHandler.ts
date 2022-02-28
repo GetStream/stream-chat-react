@@ -7,46 +7,26 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
 export type FlagMessageNotifications<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  getErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
-  getSuccessNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  getErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  getSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   notify?: (notificationText: string, type: 'success' | 'error') => void;
 };
 
 export const useFlagHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  notifications: FlagMessageNotifications<At, Ch, Co, Ev, Me, Re, Us> = {},
+  message?: StreamMessage<StreamChatGenerics>,
+  notifications: FlagMessageNotifications<StreamChatGenerics> = {},
 ): ReactEventHandler => {
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useFlagHandler');
+  const { client } = useChatContext<StreamChatGenerics>('useFlagHandler');
   const { t } = useTranslationContext('useFlagHandler');
 
   return async (event) => {

@@ -19,25 +19,11 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 
 import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageCommerceWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = MessageContextValue<StreamChatGenerics> & {
   isReactionEnabled: boolean;
   onReactionListClick: ReactEventHandler;
   reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -45,15 +31,9 @@ type MessageCommerceWithContextProps<
 };
 
 const MessageCommerceWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageCommerceWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageCommerceWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     groupStyles,
@@ -78,7 +58,7 @@ const MessageCommerceWithContext = <
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionsList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageCommerce');
+  } = useComponentContext<StreamChatGenerics>('MessageCommerce');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -176,17 +156,11 @@ const MemoizedMessageCommerce = React.memo(
  * UI component that renders a message and receives functionality from the Message/MessageList components
  */
 export const MessageCommerce = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<StreamChatGenerics>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageCommerce');
+  const messageContext = useMessageContext<StreamChatGenerics>('MessageCommerce');
 
   return <MemoizedMessageCommerce {...messageContext} {...props} />;
 };

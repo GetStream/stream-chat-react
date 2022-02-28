@@ -16,16 +16,7 @@ import type { Attachment, Message, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 export type FileUpload = {
   file: {
@@ -59,16 +50,15 @@ export type ImageUpload = {
 };
 
 export type MessageInputState<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  attachments: Attachment<At>[];
+  attachments: Attachment<StreamChatGenerics>[];
   emojiPickerIsOpen: boolean;
   fileOrder: string[];
   fileUploads: { [id: string]: FileUpload };
   imageOrder: string[];
   imageUploads: { [id: string]: ImageUpload };
-  mentioned_users: UserResponse<Us>[];
+  mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
 };
@@ -114,12 +104,16 @@ type RemoveFileUploadAction = {
   type: 'removeFileUpload';
 };
 
-type AddMentionedUserAction<Us extends DefaultUserType<Us> = DefaultUserType> = {
+type AddMentionedUserAction<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   type: 'addMentionedUser';
-  user: UserResponse<Us>;
+  user: UserResponse<StreamChatGenerics>;
 };
 
-export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUserType> =
+export type MessageInputReducerAction<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> =
   | SetEmojiPickerIsOpenAction
   | SetTextAction
   | ClearAction
@@ -127,12 +121,10 @@ export type MessageInputReducerAction<Us extends DefaultUserType<Us> = DefaultUs
   | SetFileUploadAction
   | RemoveImageUploadAction
   | RemoveFileUploadAction
-  | AddMentionedUserAction<Us>;
+  | AddMentionedUserAction<StreamChatGenerics>;
 
 export type MessageInputHookProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
@@ -140,7 +132,7 @@ export type MessageInputHookProps<
   handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: (
     event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<At, Me, Us>>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => void;
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
@@ -148,7 +140,7 @@ export type MessageInputHookProps<
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectEmoji: (emoji: EmojiData) => void;
-  onSelectUser: (item: UserResponse<Us>) => void;
+  onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
@@ -165,16 +157,10 @@ const emptyImageUploads: Record<string, ImageUpload> = {};
  * Initializes the state. Empty if the message prop is falsy.
  */
 const initState = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-): MessageInputState<At, Us> => {
+  message?: StreamMessage<StreamChatGenerics>,
+): MessageInputState<StreamChatGenerics> => {
   if (!message) {
     return {
       attachments: [],
@@ -250,11 +236,10 @@ const initState = <
  * MessageInput state reducer
  */
 const messageInputReducer = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  state: MessageInputState<At, Us>,
-  action: MessageInputReducerAction<Us>,
+  state: MessageInputState<StreamChatGenerics>,
+  action: MessageInputReducerAction<StreamChatGenerics>,
 ) => {
   switch (action.type) {
     case 'setEmojiPickerIsOpen':
@@ -356,48 +341,34 @@ export type MentionsListState = {
  * hook for MessageInput state
  */
 export const useMessageInputState = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-): MessageInputState<At, Us> &
-  MessageInputHookProps<At, Me, Us> &
+  props: MessageInputProps<StreamChatGenerics, V>,
+): MessageInputState<StreamChatGenerics> &
+  MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
   const { closeEmojiPickerOnClick, message } = props;
 
-  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useMessageInputState');
+  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
+    'useMessageInputState',
+  );
 
   const [state, dispatch] = useReducer(
-    messageInputReducer as Reducer<MessageInputState<At, Us>, MessageInputReducerAction<Us>>,
+    messageInputReducer as Reducer<
+      MessageInputState<StreamChatGenerics>,
+      MessageInputReducerAction<StreamChatGenerics>
+    >,
     message,
     initState,
   );
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us,
-    V
-  >(props, state, dispatch);
+  const { handleChange, insertText, textareaRef } = useMessageInputText<StreamChatGenerics, V>(
+    props,
+    state,
+    dispatch,
+  );
 
   const [showCommandsList, setShowCommandsList] = useState(false);
   const [showMentionsList, setShowMentionsList] = useState(false);
@@ -428,7 +399,13 @@ export const useMessageInputState = <
     handleEmojiKeyDown,
     onSelectEmoji,
     openEmojiPicker,
-  } = useEmojiPicker<At, Us>(state, dispatch, insertText, textareaRef, closeEmojiPickerOnClick);
+  } = useEmojiPicker<StreamChatGenerics>(
+    state,
+    dispatch,
+    insertText,
+    textareaRef,
+    closeEmojiPickerOnClick,
+  );
 
   const {
     maxFilesLeft,
@@ -438,9 +415,9 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-  } = useAttachments<At, Ch, Co, Ev, Me, Re, Us, V>(props, state, dispatch, textareaRef);
+  } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
 
-  const { handleSubmit } = useSubmitHandler<At, Ch, Co, Ev, Me, Re, Us, V>(
+  const { handleSubmit } = useSubmitHandler<StreamChatGenerics, V>(
     props,
     state,
     dispatch,
@@ -452,7 +429,7 @@ export const useMessageInputState = <
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
 
-  const onSelectUser = useCallback((item: UserResponse<Us>) => {
+  const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
     dispatch({ type: 'addMentionedUser', user: item });
   }, []);
 

@@ -22,36 +22,16 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 
 import type { MessageUIComponentProps } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageSimpleWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = MessageContextValue<StreamChatGenerics>;
 
 const MessageSimpleWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageSimpleWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageSimpleWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     additionalMessageInputProps,
@@ -84,7 +64,7 @@ const MessageSimpleWithContext = <
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
+  } = useComponentContext<StreamChatGenerics>('MessageSimple');
 
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -210,17 +190,11 @@ const MemoizedMessageSimple = React.memo(
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
 export const MessageSimple = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<StreamChatGenerics>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageSimple');
+  const messageContext = useMessageContext<StreamChatGenerics>('MessageSimple');
 
   return <MemoizedMessageSimple {...messageContext} {...props} />;
 };

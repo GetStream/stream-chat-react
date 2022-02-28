@@ -7,16 +7,7 @@ import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('video/')) return 'video';
@@ -25,18 +16,12 @@ const getAttachmentTypeFromMime = (mime: string) => {
 };
 
 export const useSubmitHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>,
-  state: MessageInputState<At, Us>,
-  dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  props: MessageInputProps<StreamChatGenerics, V>,
+  state: MessageInputState<StreamChatGenerics>,
+  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   numberOfUploads: number,
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
@@ -51,16 +36,10 @@ export const useSubmitHandler = <
     text,
   } = state;
 
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useSubmitHandler');
-  const { addNotification, editMessage, sendMessage } = useChannelActionContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useSubmitHandler');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
+  const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
+    'useSubmitHandler',
+  );
   const { t } = useTranslationContext('useSubmitHandler');
 
   const getAttachmentsFromUploads = () => {
@@ -78,7 +57,7 @@ export const useSubmitHandler = <
             fallback: upload.file.name,
             image_url: upload.url,
             type: 'image',
-          } as Attachment<At>),
+          } as Attachment<StreamChatGenerics>),
       );
 
     const fileAttachments = fileOrder
@@ -92,7 +71,7 @@ export const useSubmitHandler = <
             mime_type: upload.file.type,
             title: upload.file.name,
             type: getAttachmentTypeFromMime(upload.file.type || ''),
-          } as Attachment<At>),
+          } as Attachment<StreamChatGenerics>),
       );
 
     return [
@@ -104,7 +83,7 @@ export const useSubmitHandler = <
 
   const handleSubmit = async (
     event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<At, Me, Us>>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => {
     event.preventDefault();
 
@@ -156,7 +135,7 @@ export const useSubmitHandler = <
         await editMessage(({
           ...message,
           ...updatedMessage,
-        } as unknown) as UpdatedMessage<At, Ch, Co, Me, Re, Us>);
+        } as unknown) as UpdatedMessage<StreamChatGenerics>);
 
         if (clearEditingState) clearEditingState();
         dispatch({ type: 'clear' });

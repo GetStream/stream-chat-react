@@ -24,15 +24,7 @@ import { MessageContextValue, MessageProvider } from '../../context/MessageConte
 
 import type { MessageProps } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
 
@@ -54,29 +46,17 @@ type MessageContextPropsToPick =
   | 'showDetailedReactions';
 
 type MessageWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, MessagePropsToOmit> &
-  Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit> &
+  Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick> & {
     canPin: boolean;
     userRoles: ReturnType<typeof useUserRole>;
   };
 
 const MessageWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     canPin,
@@ -89,7 +69,7 @@ const MessageWithContext = <
     userRoles,
   } = props;
 
-  const { Message: contextMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
+  const { Message: contextMessage } = useComponentContext<StreamChatGenerics>('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
   const MessageUIComponent = propMessage || contextMessage;
@@ -137,7 +117,7 @@ const MessageWithContext = <
     ...rest
   } = props;
 
-  const messageContextValue: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> = {
+  const messageContextValue: MessageContextValue<StreamChatGenerics> = {
     ...rest,
     actionsEnabled,
     clearEditingState: clearEdit,
@@ -168,15 +148,9 @@ const MemoizedMessage = React.memo(
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
 export const Message = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageProps<StreamChatGenerics>,
 ) => {
   const {
     closeReactionSelectorOnClick,
@@ -196,8 +170,8 @@ export const Message = <
     retrySendMessage: propRetrySendMessage,
   } = props;
 
-  const { addNotification } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
-  const { mutes } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('Message');
+  const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
+  const { mutes } = useChannelStateContext<StreamChatGenerics>('Message');
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 

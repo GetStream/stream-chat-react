@@ -7,37 +7,21 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type CustomMentionHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: React.BaseSyntheticEvent,
-  mentioned_users: UserResponse<Us>[],
-) => void;
+export type CustomMentionHandler<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = (event: React.BaseSyntheticEvent, mentioned_users: UserResponse<StreamChatGenerics>[]) => void;
 
-export type MentionedUserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: React.BaseSyntheticEvent,
-  mentionedUsers: UserResponse<Us>[],
-) => void;
+export type MentionedUserEventHandler<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = (event: React.BaseSyntheticEvent, mentionedUsers: UserResponse<StreamChatGenerics>[]) => void;
 
 function createEventHandler<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  fn?: CustomMentionHandler<Us>,
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  fn?: CustomMentionHandler<StreamChatGenerics>,
+  message?: StreamMessage<StreamChatGenerics>,
 ): ReactEventHandler {
   return (event) => {
     if (typeof fn !== 'function' || !message?.mentioned_users?.length) {
@@ -48,24 +32,18 @@ function createEventHandler<
 }
 
 export const useMentionsHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
   customMentionHandler?: {
-    onMentionsClick?: CustomMentionHandler<Us>;
-    onMentionsHover?: CustomMentionHandler<Us>;
+    onMentionsClick?: CustomMentionHandler<StreamChatGenerics>;
+    onMentionsHover?: CustomMentionHandler<StreamChatGenerics>;
   },
 ) => {
   const {
     onMentionsClick: contextOnMentionsClick,
     onMentionsHover: contextOnMentionsHover,
-  } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('useMentionsHandler');
+  } = useChannelActionContext<StreamChatGenerics>('useMentionsHandler');
 
   const onMentionsClick =
     customMentionHandler?.onMentionsClick || contextOnMentionsClick || (() => null);

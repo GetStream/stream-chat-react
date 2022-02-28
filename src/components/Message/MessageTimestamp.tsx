@@ -12,15 +12,7 @@ import {
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const defaultTimestampFormat = 'h:mmA';
 
@@ -73,30 +65,18 @@ function getDateString(
 }
 
 export type MessageTimestampProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   calendar?: boolean;
   customClass?: string;
   format?: string;
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<StreamChatGenerics>;
 };
 
 const UnMemoizedMessageTimestamp = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageTimestampProps<StreamChatGenerics>,
 ) => {
   const {
     calendar = false,
@@ -105,7 +85,7 @@ const UnMemoizedMessageTimestamp = <
     message: propMessage,
   } = props;
 
-  const { formatDate, message: contextMessage } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { formatDate, message: contextMessage } = useMessageContext<StreamChatGenerics>(
     'MessageTimestamp',
   );
   const { tDateTimeParser } = useTranslationContext('MessageTimestamp');

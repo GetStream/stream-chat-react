@@ -4,29 +4,15 @@ import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const UploadsPreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'UploadsPreview',
   );
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('UploadsPreview');
+  const messageInput = useMessageInputContext<StreamChatGenerics>('UploadsPreview');
   const {
     fileOrder,
     fileUploads,

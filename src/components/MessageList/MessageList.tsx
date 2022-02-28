@@ -31,15 +31,7 @@ import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const useInternalInfiniteScrollProps = (
   props: Pick<
@@ -65,26 +57,14 @@ const useInternalInfiniteScrollProps = (
 };
 
 type MessageListWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'members' | 'mutes' | 'watchers'> &
-  MessageListProps<At, Ch, Co, Ev, Me, Re, Us>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<ChannelStateContextValue<StreamChatGenerics>, 'members' | 'mutes' | 'watchers'> &
+  MessageListProps<StreamChatGenerics>;
 
 const MessageListWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageListWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageListWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     channel,
@@ -104,14 +84,14 @@ const MessageListWithContext = <
     read,
   } = props;
 
-  const { customClasses } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
+  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
+  } = useComponentContext<StreamChatGenerics>('MessageList');
 
   const {
     hasNewMessages,
@@ -232,21 +212,15 @@ type PropsDrilledToMessage =
   | 'unsafeHTML';
 
 export type MessageListProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<Pick<MessageProps<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessage>> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    message: StreamMessage<StreamChatGenerics>,
+    previousMessage: StreamMessage<StreamChatGenerics>,
+    nextMessage: StreamMessage<StreamChatGenerics>,
     noGroupByUser: boolean,
   ) => GroupStyle;
   /** Whether or not the list has more items to load */
@@ -266,7 +240,7 @@ export type MessageListProps<
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
-  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages?: StreamMessage<StreamChatGenerics>[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
@@ -286,27 +260,21 @@ export type MessageListProps<
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageListProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageListProps<StreamChatGenerics>,
 ) => {
-  const { loadMore } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
+  const { loadMore } = useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     mutes: mutesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     watchers: watchersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     ...restChannelStateContext
-  } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('MessageList');
+  } = useChannelStateContext<StreamChatGenerics>('MessageList');
 
   return (
-    <MessageListWithContext<At, Ch, Co, Ev, Me, Re, Us>
+    <MessageListWithContext<StreamChatGenerics>
       loadMore={loadMore}
       {...restChannelStateContext}
       {...props}
