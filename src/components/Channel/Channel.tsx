@@ -240,6 +240,7 @@ const ChannelInner = <
   const {
     client,
     customClasses,
+    latestMessageDatesByChannels,
     mutes,
     theme,
     useImageFlagEmojisOnWindows,
@@ -340,6 +341,22 @@ const ChannelInner = <
           } else {
             document.title = `(${unread}) ${originalTitle.current}`;
           }
+        }
+      }
+
+      if (
+        event.message?.user?.id === client.userID &&
+        event?.message?.created_at &&
+        event?.message?.cid
+      ) {
+        const messageDate = new Date(event.message.created_at);
+        const cid = event.message.cid;
+
+        if (
+          !latestMessageDatesByChannels[cid] ||
+          latestMessageDatesByChannels[cid].getTime() < messageDate.getTime()
+        ) {
+          latestMessageDatesByChannels[cid] = messageDate;
         }
       }
     }

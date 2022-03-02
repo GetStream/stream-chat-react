@@ -58,6 +58,14 @@ The callback function used to get available client-side app settings, includes i
 | -------- |
 | function |
 
+### latestMessageDatesByChannel
+
+Object containing the date of the latest message sent by the current user by channels (this is used to detect if slow mode countdown should be started)
+
+| Type                    |
+| ----------------------- |
+| { [key: string]: Date } |
+
 ### mutes
 
 An array of users that have been muted by the connected user.
