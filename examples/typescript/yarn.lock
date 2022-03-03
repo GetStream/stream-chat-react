@@ -1431,12 +1431,7 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.2.0.tgz#d9f8dc2882e8042a810b227da1f4aa885b74f36b"
-  integrity sha512-y//FRdRvbfEpDcY+Onl8U6RFmMsr183Z/Sdx92kvf71UeF3ND/1Uiky1OBKT+vdNU0Lat4oXcNw0lY08d+x7Gg==
-
-"@stream-io/stream-chat-css@^2.2.1":
+"@stream-io/stream-chat-css@2.3.2", "@stream-io/stream-chat-css@^2.2.1":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.3.2.tgz#fa5aad4367ee8b6a7bacebfb22fe5b2127a376eb"
   integrity sha512-wfHDS9GBXs5vlk7zKjMb+Z8ZsTvDeiCrnl/RU3P6i4tZGcXl0qkIWBf2e0O0kMJ5APYtZdRYvYyTlO7qeK9Jpw==
