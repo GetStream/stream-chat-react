@@ -105,7 +105,7 @@ If true, renders the wrapper component as a `span`, not a `div`.
 
 ### messageWrapperRef
 
-React mutable ref placed on the `div` wrapping the `MessageSimple` children.
+React mutable ref to the message root `div` wrapping parent `MessageOptions` and forwarded down to `MessageActions` ([see the example](../customization/message-ui.mdx). `MessageActions` component uses this ref to register event listener `mouseleave` to hide `MessageActionsBox`. If not provided, then the listener is not registered and already opened `MessageActionsBox` is closed on user click only.
 
 | Type                             |
 | -------------------------------- |
@@ -157,7 +157,7 @@ Function that opens a [`Thread`](../core-components/thread.mdx) on a message (ov
 
 ### messageWrapperRef
 
-React mutable ref placed on the `div` wrapping the `MessageSimple` children.
+React mutable ref that can be placed on the message root `div` wrapping `MessageOptions`. `MessageOptions` component forwards this prop to [`MessageActions`](#messageactions-props) component ([see the example](../customization/message-ui.mdx).
 
 | Type                             |
 | -------------------------------- |
