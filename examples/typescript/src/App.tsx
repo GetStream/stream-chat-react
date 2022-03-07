@@ -9,7 +9,6 @@ import {
   MessageInput,
   Thread,
   Window,
-  Streami18n,
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import './App.css';
@@ -47,14 +46,9 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 }
 
 chatClient.connectUser({ id: userId }, userToken);
-// chatClient.connectUser({ id: userId, language: 'es' }, userToken);
-
-const i18nInstance = new Streami18n({ language: 'es' });
 
 const App = () => (
-  // <Chat client={chatClient} defaultLanguage={'es'}>
-  // <Chat client={chatClient} defaultLanguage={'es'} i18nInstance={i18nInstance}>
-    <Chat client={chatClient}>
+  <Chat client={chatClient}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
     <Channel>
       <Window>
