@@ -29,6 +29,8 @@ export type SearchInputProps<
   inputRef: React.RefObject<HTMLInputElement>;
   onSearch: (event: React.BaseSyntheticEvent) => void;
   query: string;
+  /** Custom placeholder text to be displayed in the search input */
+  placeholder?: string;
   searchFunction?: (
     params: ChannelSearchFunctionParams<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
@@ -40,7 +42,7 @@ export const SearchInput = <
 >(
   props: SearchInputProps<StreamChatGenerics>,
 ) => {
-  const { channelSearchParams, inputRef, onSearch, query, searchFunction } = props;
+  const { channelSearchParams, inputRef, onSearch, placeholder, query, searchFunction } = props;
 
   const { t } = useTranslationContext('SearchInput');
 
@@ -50,7 +52,7 @@ export const SearchInput = <
       onChange={(event: React.BaseSyntheticEvent) =>
         searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
       }
-      placeholder={t('Search')}
+      placeholder={placeholder ?? t('Search')}
       ref={inputRef}
       type='text'
       value={query}
