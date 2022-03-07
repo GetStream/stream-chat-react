@@ -4,9 +4,11 @@ import { getWholeChar } from '../../utils';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { DefaultUserType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type AvatarProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type AvatarProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string | null;
   /** Name of the image, used for title tag fallback */
@@ -24,14 +26,16 @@ export type AvatarProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
    */
   size?: number;
   /** The entire user object for the chat user displayed in the component */
-  user?: UserResponse<Us>;
+  user?: UserResponse<StreamChatGenerics>;
 };
 
 /**
  * A round avatar image with fallback to username's first letter
  */
-export const Avatar = <Us extends DefaultUserType<Us> = DefaultUserType>(
-  props: AvatarProps<Us>,
+export const Avatar = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: AvatarProps<StreamChatGenerics>,
 ) => {
   const {
     image,

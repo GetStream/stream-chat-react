@@ -30,82 +30,60 @@ import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/Thread';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type ComponentContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
-  Attachment: React.ComponentType<AttachmentProps<At>>;
-  Message: React.ComponentType<MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
+  Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
-  AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<Co, Us>>;
-  AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<Co, Us, V>>;
-  Avatar?: React.ComponentType<AvatarProps<Us>>;
+  AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
+  AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
+  Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
-  EditMessageInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
   EmojiIcon?: React.ComponentType;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
-  GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
   HeaderComponent?: React.ComponentType;
-  Input?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
+  Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  MessageDeleted?: React.ComponentType<MessageDeletedProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
-  MessageOptions?: React.ComponentType<MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageStatus?: React.ComponentType<MessageStatusProps>;
-  MessageSystem?: React.ComponentType<EventComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  MessageTimestamp?: React.ComponentType<MessageTimestampProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  PinIndicator?: React.ComponentType<PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  MessageSystem?: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
+  MessageTimestamp?: React.ComponentType<MessageTimestampProps<StreamChatGenerics>>;
+  PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
   QuotedMessage?: React.ComponentType;
-  QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<Re, Us>>;
-  ReactionsList?: React.ComponentType<ReactionsListProps<Re, Us>>;
-  SendButton?: React.ComponentType<SendButtonProps<At, Me, Us>>;
-  ThreadHeader?: React.ComponentType<ThreadHeaderProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  ThreadInput?: React.ComponentType<MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>>;
+  QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<StreamChatGenerics>>;
+  ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<StreamChatGenerics>>;
+  ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
+  SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
+  ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
+  ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
-  VirtualMessage?: React.ComponentType<FixedHeightMessageProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };
 
 export const ComponentContext = React.createContext<ComponentContextValue | undefined>(undefined);
 
 export const ComponentProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: Partial<ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>;
+  value: Partial<ComponentContextValue<StreamChatGenerics, V>>;
 }>) => (
   <ComponentContext.Provider value={(value as unknown) as ComponentContextValue}>
     {children}
@@ -113,13 +91,7 @@ export const ComponentProvider = <
 );
 
 export const useComponentContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
   componentName?: string,
@@ -131,10 +103,10 @@ export const useComponentContext = <
       `The useComponentContext hook was called outside of the ComponentContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+    return {} as ComponentContextValue<StreamChatGenerics, V>;
   }
 
-  return contextValue as ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>;
+  return contextValue as ComponentContextValue<StreamChatGenerics, V>;
 };
 
 /**
@@ -144,21 +116,15 @@ export const useComponentContext = <
  */
 export const withComponentContext = <
   P extends UnknownType,
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>> => {
+): React.FC<Omit<P, keyof ComponentContextValue<StreamChatGenerics>>> => {
   const WithComponentContextComponent = (
-    props: Omit<P, keyof ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us, V>>,
+    props: Omit<P, keyof ComponentContextValue<StreamChatGenerics, V>>,
   ) => {
-    const componentContext = useComponentContext<At, Ch, Co, Ev, Me, Re, Us, V>();
+    const componentContext = useComponentContext<StreamChatGenerics, V>();
 
     return <Component {...(props as P)} {...componentContext} />;
   };

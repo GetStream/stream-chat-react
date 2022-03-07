@@ -13,40 +13,19 @@ import type { MessageInputProps } from '../components/MessageInput/MessageInput'
 import type { GroupStyle } from '../components/MessageList/utils';
 import type { RenderTextOptions } from '../utils';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../types/types';
+import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type CustomMessageActions<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   [key: string]: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    message: StreamMessage<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
 };
 
 export type MessageContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
   actionsEnabled: boolean;
@@ -76,13 +55,13 @@ export type MessageContextValue<
   /** Function to post a reaction on a Message */
   handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Function to retry sending a Message */
-  handleRetry: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
+  handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** Whether or not reactions are enabled for the active channel */
   isReactionEnabled: boolean;
   /** The message object */
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message: StreamMessage<StreamChatGenerics>;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
@@ -100,9 +79,9 @@ export type MessageContextValue<
   /** Whether or not to show reaction list details */
   showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us>;
+  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics>;
   /** Object containing custom message actions and function handlers */
-  customMessageActions?: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
+  customMessageActions?: CustomMessageActions<StreamChatGenerics>;
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
   endOfGroup?: boolean;
   /** If true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
@@ -120,15 +99,15 @@ export type MessageContextValue<
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
-  mutes?: Mute<Us>[];
+  mutes?: Mute<StreamChatGenerics>[];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
-  readBy?: UserResponse<Us>[];
+  readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
   renderText?: (
     text?: string,
-    mentioned_users?: UserResponse<Us>[],
+    mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
   /** Whether or not the Message is in a Thread */
@@ -140,18 +119,12 @@ export type MessageContextValue<
 export const MessageContext = React.createContext<MessageContextValue | undefined>(undefined);
 
 export const MessageProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  value: MessageContextValue<StreamChatGenerics>;
 }>) => (
   <MessageContext.Provider value={(value as unknown) as MessageContextValue}>
     {children}
@@ -159,13 +132,7 @@ export const MessageProvider = <
 );
 
 export const useMessageContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   componentName?: string,
 ) => {
@@ -176,10 +143,10 @@ export const useMessageContext = <
       `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    return {} as MessageContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  return (contextValue as unknown) as MessageContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -189,20 +156,14 @@ export const useMessageContext = <
  */
 export const withMessageContext = <
   P extends UnknownType,
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
+): React.FC<Omit<P, keyof MessageContextValue<StreamChatGenerics>>> => {
   const WithMessageContextComponent = (
-    props: Omit<P, keyof MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
+    props: Omit<P, keyof MessageContextValue<StreamChatGenerics>>,
   ) => {
-    const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const messageContext = useMessageContext<StreamChatGenerics>();
 
     return <Component {...(props as P)} {...messageContext} />;
   };

@@ -1,26 +1,12 @@
 import type { Channel, StreamChat } from 'stream-chat';
 import uniqBy from 'lodash.uniqby';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const getChannel = async <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>,
+  client: StreamChat<StreamChatGenerics>,
   type: string,
   id: string,
 ) => {
@@ -32,32 +18,20 @@ export const getChannel = async <
 export const MAX_QUERY_CHANNELS_LIMIT = 30;
 
 type MoveChannelUpParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  channels: Array<Channel<At, Ch, Co, Ev, Me, Re, Us>>;
+  channels: Array<Channel<StreamChatGenerics>>;
   cid: string;
-  activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  activeChannel?: Channel<StreamChatGenerics>;
 };
 
 export const moveChannelUp = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   activeChannel,
   channels,
   cid,
-}: MoveChannelUpParams<At, Ch, Co, Ev, Me, Re, Us>) => {
+}: MoveChannelUpParams<StreamChatGenerics>) => {
   // get index of channel to move up
   const channelIndex = channels.findIndex((channel) => channel.cid === cid);
 

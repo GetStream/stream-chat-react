@@ -7,19 +7,13 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type TypingIndicatorProps<Us extends DefaultUserType<Us> = DefaultUserType> = {
+export type TypingIndicatorProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps<Us>>;
+  Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Avatar size in pixels, @default 32px */
   avatarSize?: number;
   /** Whether or not the typing indicator is in a thread */
@@ -30,26 +24,16 @@ export type TypingIndicatorProps<Us extends DefaultUserType<Us> = DefaultUserTyp
  * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
 const UnMemoizedTypingIndicator = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: TypingIndicatorProps<Us>,
+  props: TypingIndicatorProps<StreamChatGenerics>,
 ) => {
   const { Avatar: PropAvatar, avatarSize = 32, threadList } = props;
 
-  const { channelConfig, thread } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'TypingIndicator',
-  );
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
-  const { Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
-    'TypingIndicator',
-  );
-  const { typing = {} } = useTypingContext<At, Ch, Co, Ev, Me, Re, Us>('TypingIndicator');
+  const { channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('TypingIndicator');
+  const { client } = useChatContext<StreamChatGenerics>('TypingIndicator');
+  const { Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>('TypingIndicator');
+  const { typing = {} } = useTypingContext<StreamChatGenerics>('TypingIndicator');
 
   const Avatar = PropAvatar || ContextAvatar || DefaultAvatar;
 

@@ -8,15 +8,7 @@ import { isUserMuted } from '../Message/utils';
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -27,14 +19,8 @@ type MessageContextPropsToPick =
   | 'message';
 
 export type MessageActionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
   ActionsIcon?: React.FunctionComponent;
   customWrapperClass?: string;
   inline?: boolean;
@@ -43,15 +29,9 @@ export type MessageActionsProps<
 };
 
 export const MessageActions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageActionsProps<StreamChatGenerics>,
 ) => {
   const {
     ActionsIcon = DefaultActionsIcon,
@@ -67,7 +47,7 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -78,7 +58,7 @@ export const MessageActions = <
     isMyMessage,
     message: contextMessage,
     setEditingState,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  } = useMessageContext<StreamChatGenerics>('MessageActions');
 
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;

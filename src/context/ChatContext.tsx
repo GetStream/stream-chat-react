@@ -4,16 +4,7 @@ import type { AppSettingsAPIResponse, Channel, Mute, StreamChat } from 'stream-c
 
 import { getDisplayName } from './utils/getDisplayName';
 import type { Theme } from '../components/Chat/Chat';
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../types/types';
+import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 type CSSClasses =
   | 'chat'
@@ -30,28 +21,22 @@ type CSSClasses =
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 export type ChatContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>;
+  client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
-  getAppSettings: () => Promise<AppSettingsAPIResponse<Co>> | null;
-  mutes: Mute<Us>[];
+  getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
+  mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
   setActiveChannel: (
-    newChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>,
+    newChannel?: Channel<StreamChatGenerics>,
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
   /** @deprecated */
   theme: Theme;
   useImageFlagEmojisOnWindows: boolean;
-  channel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channel?: Channel<StreamChatGenerics>;
   customClasses?: CustomClasses;
   navOpen?: boolean;
 };
@@ -59,18 +44,12 @@ export type ChatContextValue<
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
 export const ChatProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  value: ChatContextValue<StreamChatGenerics>;
 }>) => (
   <ChatContext.Provider value={(value as unknown) as ChatContextValue}>
     {children}
@@ -78,13 +57,7 @@ export const ChatProvider = <
 );
 
 export const useChatContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   componentName?: string,
 ) => {
@@ -95,10 +68,10 @@ export const useChatContext = <
       `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    return {} as ChatContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  return (contextValue as unknown) as ChatContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -108,20 +81,12 @@ export const useChatContext = <
  */
 export const withChatContext = <
   P extends UnknownType,
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
-  const WithChatContextComponent = (
-    props: Omit<P, keyof ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
-  ) => {
-    const chatContext = useChatContext<At, Ch, Co, Ev, Me, Re, Us>();
+): React.FC<Omit<P, keyof ChatContextValue<StreamChatGenerics>>> => {
+  const WithChatContextComponent = (props: Omit<P, keyof ChatContextValue<StreamChatGenerics>>) => {
+    const chatContext = useChatContext<StreamChatGenerics>();
 
     return <Component {...(props as P)} {...chatContext} />;
   };

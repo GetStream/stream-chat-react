@@ -4,71 +4,45 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { ChannelOrUserResponse } from './utils';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelSearchFunctionParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   setResults: React.Dispatch<
-    React.SetStateAction<Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>>>
+    React.SetStateAction<Array<ChannelOrUserResponse<StreamChatGenerics>>>
   >;
   setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export type SearchInputProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channelSearchParams: {
     setQuery: React.Dispatch<React.SetStateAction<string>>;
-    setResults: React.Dispatch<
-      React.SetStateAction<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>[]>
-    >;
+    setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
     setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setSearching: React.Dispatch<React.SetStateAction<boolean>>;
   };
   inputRef: React.RefObject<HTMLInputElement>;
   onSearch: (event: React.BaseSyntheticEvent) => void;
   query: string;
+  /** Custom placeholder text to be displayed in the search input */
+  placeholder?: string;
   searchFunction?: (
-    params: ChannelSearchFunctionParams<At, Ch, Co, Ev, Me, Re, Us>,
+    params: ChannelSearchFunctionParams<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
 };
 
 export const SearchInput = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: SearchInputProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: SearchInputProps<StreamChatGenerics>,
 ) => {
-  const { channelSearchParams, inputRef, onSearch, query, searchFunction } = props;
+  const { channelSearchParams, inputRef, onSearch, placeholder, query, searchFunction } = props;
 
   const { t } = useTranslationContext('SearchInput');
 
@@ -78,7 +52,7 @@ export const SearchInput = <
       onChange={(event: React.BaseSyntheticEvent) =>
         searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
       }
-      placeholder={t('Search')}
+      placeholder={placeholder ?? t('Search')}
       ref={inputRef}
       type='text'
       value={query}

@@ -12,41 +12,21 @@ import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageTextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   customInnerClass?: string;
   customWrapperClass?: string;
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<StreamChatGenerics>;
   theme?: string;
 };
 
 const UnMemoizedMessageTextComponent = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageTextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageTextProps<StreamChatGenerics>,
 ) => {
   const {
     customInnerClass,
@@ -55,7 +35,7 @@ const UnMemoizedMessageTextComponent = <
     theme = 'simple',
   } = props;
 
-  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { QuotedMessage = DefaultQuotedMessage } = useComponentContext<StreamChatGenerics>(
     'MessageText',
   );
 
@@ -65,7 +45,7 @@ const UnMemoizedMessageTextComponent = <
     onMentionsHoverMessage,
     renderText = defaultRenderText,
     unsafeHTML,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageText');
+  } = useMessageContext<StreamChatGenerics>('MessageText');
 
   const { t, userLanguage } = useTranslationContext('MessageText');
 

@@ -6,28 +6,12 @@ import { Chats, Files, Photos } from '../../assets';
 
 import { useViewContext } from '../../contexts/ViewContext';
 
-import {
-  SocialAttachmentType,
-  SocialChannelType,
-  SocialCommandType,
-  SocialEventType,
-  SocialMessageType,
-  SocialReactionType,
-  SocialUserType,
-} from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatInfoItem.scss';
 
 export const ChatInfoItem = () => {
-  const { channel } = useChannelStateContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
+  const { channel } = useChannelStateContext<StreamChatGenerics>();
 
   const { chatInfoItem } = useViewContext();
 

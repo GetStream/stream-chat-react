@@ -13,25 +13,11 @@ import type { AvatarProps } from '../Avatar/Avatar';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelPreviewUIComponentProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = ChannelPreviewProps<At, Ch, Co, Ev, Me, Re, Us> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = ChannelPreviewProps<StreamChatGenerics> & {
   /** If the component's channel is the active (selected) Channel */
   active?: boolean;
   /** Image of Channel to display */
@@ -39,7 +25,7 @@ export type ChannelPreviewUIComponentProps<
   /** Title of Channel to display */
   displayTitle?: string;
   /** The last message received in a channel */
-  lastMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
   /** Number of unread Messages */
@@ -47,56 +33,38 @@ export type ChannelPreviewUIComponentProps<
 };
 
 export type ChannelPreviewProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from [ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) */
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  channel: Channel<StreamChatGenerics>;
   /** Current selected channel object */
-  activeChannel?: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  activeChannel?: Channel<StreamChatGenerics>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
   key?: string;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
-  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
   /** Setter for selected Channel */
-  setActiveChannel?: ChatContextValue<At, Ch, Co, Ev, Me, Re, Us>['setActiveChannel'];
+  setActiveChannel?: ChatContextValue<StreamChatGenerics>['setActiveChannel'];
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
 
 export const ChannelPreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: ChannelPreviewProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
   const { channel, Preview = ChannelPreviewMessenger } = props;
 
-  const { channel: activeChannel, client, setActiveChannel } = useChatContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('ChannelPreview');
+  const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
+    'ChannelPreview',
+  );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
 
-  const [lastMessage, setLastMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>(
+  const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
   );
   const [unread, setUnread] = useState(0);
@@ -123,7 +91,7 @@ export const ChannelPreview = <
   }, [channel, isActive, muted]);
 
   useEffect(() => {
-    const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+    const handleEvent = (event: Event<StreamChatGenerics>) => {
       if (event.message) setLastMessage(event.message);
 
       if (!isActive && !muted) {
