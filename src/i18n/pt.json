@@ -61,7 +61,7 @@
   "You've reached the maximum number of files": "Você atingiu o número máximo de arquivos",
   "live": "viver",
   "replyCount_one": "1 resposta",
-  "replyCount_other": "{{ reply_count }} respostas",
+  "replyCount_other": "{{ replyCount }} respostas",
   "this content could not be displayed": "este conteúdo não pôde ser exibido",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} e mais {{ moreCount }}",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} e {{ lastUser }}",

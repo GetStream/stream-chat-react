@@ -61,7 +61,7 @@
   "You've reached the maximum number of files": "Вы достигли максимального количества файлов",
   "live": "В прямом эфире",
   "replyCount_one": "1 ответ",
-  "replyCount_other": "{{ reply_count }} ответов",
+  "replyCount_other": "{{ replyCount }} ответов",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} и {{ moreCount }} еще",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} и {{ lastUser }}",

@@ -33,7 +33,7 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
     if (labelPlural) {
       pluralReplyText = `${reply_count} ${labelPlural}`;
     } else {
-      pluralReplyText = t('replyCount_other', { reply_count });
+      pluralReplyText = t('replyCount_other', { replyCount: reply_count });
     }
   }
 
