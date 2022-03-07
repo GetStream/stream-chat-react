@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { MenuIcon as DefaultMenuIcon } from './icons';
+
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -15,6 +17,8 @@ export type ChannelHeaderProps = {
   image?: string;
   /** Show a little indicator that the Channel is live right now */
   live?: boolean;
+  /** UI component to display menu icon, defaults to [MenuIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelHeader/ChannelHeader.tsx)*/
+  MenuIcon?: React.ComponentType;
   /** Set title manually */
   title?: string;
 };
@@ -24,7 +28,13 @@ const UnMemoizedChannelHeader = <
 >(
   props: ChannelHeaderProps,
 ) => {
-  const { Avatar = DefaultAvatar, image: propImage, live, title } = props;
+  const {
+    Avatar = DefaultAvatar,
+    MenuIcon = DefaultMenuIcon,
+    image: propImage,
+    live,
+    title,
+  } = props;
 
   const { channel, watcher_count } = useChannelStateContext<StreamChatGenerics>('ChannelHeader');
   const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
@@ -37,9 +47,7 @@ const UnMemoizedChannelHeader = <
   return (
     <div className='str-chat__header-livestream'>
       <button aria-label='Menu' className='str-chat__header-hamburger' onClick={openMobileNav}>
-        <span className='str-chat__header-hamburger--line'></span>
-        <span className='str-chat__header-hamburger--line'></span>
-        <span className='str-chat__header-hamburger--line'></span>
+        <MenuIcon />
       </button>
       {image && (
         <Avatar image={image} shape='rounded' size={channel?.type === 'commerce' ? 60 : 40} />
