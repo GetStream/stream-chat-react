@@ -179,21 +179,39 @@ const VirtualizedMessageListWithContext = <
     setNewMessagesNotification(false);
   }, [virtuoso, processedMessages, setNewMessagesNotification, processedMessages.length]);
 
+  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = React.useState(
+    false,
+  );
+
+  const resetNewMessagesReceivedInBackground = useCallback(() => {
+    setNewMessagesReceivedInBackground(false);
+  }, [setNewMessagesReceivedInBackground]);
+
+  useEffect(() => {
+    setNewMessagesReceivedInBackground(true);
+  }, [messages]);
+
   const scrollToBottomIfConfigured = useCallback(
     (event: Event) => {
       if (scrollToLatestMessageOnFocus && event.target === window) {
-        setTimeout(scrollToBottom, 100);
+        if (newMessagesReceivedInBackground) {
+          setTimeout(scrollToBottom, 100);
+        }
       }
     },
-    [scrollToLatestMessageOnFocus, scrollToBottom],
+    [scrollToLatestMessageOnFocus, scrollToBottom, newMessagesReceivedInBackground],
   );
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.addEventListener('focus', scrollToBottomIfConfigured);
+      window.addEventListener('blur', resetNewMessagesReceivedInBackground);
     }
 
-    return () => window.removeEventListener('focus', scrollToBottomIfConfigured);
+    return () => {
+      window.removeEventListener('focus', scrollToBottomIfConfigured);
+      window.removeEventListener('blur', resetNewMessagesReceivedInBackground);
+    };
   }, [scrollToBottomIfConfigured]);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
