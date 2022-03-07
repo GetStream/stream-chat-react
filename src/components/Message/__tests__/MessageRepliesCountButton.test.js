@@ -6,7 +6,7 @@ import { TranslationContext } from '../../../context';
 
 const onClickMock = jest.fn();
 
-const i18nMock = (key) => key;
+const i18nMock = (key) => (key === 'replyCount_one' ? '1 reply' : '2 replies');
 
 const renderComponent = (props) =>
   render(
@@ -37,7 +37,7 @@ describe('MessageRepliesCountButton', () => {
   it('should render the right text when there is more than one reply, and labelPlural is not defined', () => {
     const { getByText } = renderComponent({ reply_count: 2 });
 
-    expect(getByText('{{ replyCount }} replies')).toBeInTheDocument();
+    expect(getByText('2 replies')).toBeInTheDocument();
   });
 
   it('should render the right text when there is more than one reply, and labelPlural is defined', () => {

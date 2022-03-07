@@ -14,34 +14,30 @@ export type MessageRepliesCountButtonProps = {
 };
 
 const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonProps> = (props) => {
-  const { labelPlural, labelSingle, onClick, reply_count: count = 0 } = props;
+  const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
   let singleReplyText;
   let pluralReplyText;
 
-  if (count === 1) {
+  if (reply_count === 1) {
     if (labelSingle) {
       singleReplyText = `1 ${labelSingle}`;
     } else {
-      // singleReplyText = t('1 reply');
-      singleReplyText = t('replyCount', { count });
+      singleReplyText = t('replyCount_one', { reply_count });
     }
   }
 
-  if (count && count > 1) {
+  if (reply_count && reply_count > 1) {
     if (labelPlural) {
-      pluralReplyText = `${count} ${labelPlural}`;
+      pluralReplyText = `${reply_count} ${labelPlural}`;
     } else {
-      // pluralReplyText = t('{{ count }} replies', {
-      //   replyCount: count,
-      // });
-      pluralReplyText = t('replyCount', { count });
+      pluralReplyText = t('replyCount_other', { reply_count });
     }
   }
 
-  if (count && count !== 0) {
+  if (reply_count && reply_count !== 0) {
     return (
       <button
         className='str-chat__message-replies-count-button'
@@ -49,7 +45,7 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
         onClick={onClick}
       >
         <ReplyIcon />
-        {count === 1 ? singleReplyText : pluralReplyText}
+        {reply_count === 1 ? singleReplyText : pluralReplyText}
       </button>
     );
   }
