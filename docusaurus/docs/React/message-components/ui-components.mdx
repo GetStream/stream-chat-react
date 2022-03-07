@@ -5,7 +5,7 @@ title: UI Components
 ---
 
 As described in the [Message UI](./message-ui.mdx) section, our default [`MessageSimple`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx)
-component is a combination of various UI sub-components. We export all of the building blocks of `MessageSimple`, so a custom Message UI
+component is a combination of various UI sub-components. We export all the building blocks of `MessageSimple`, so a custom Message UI
 component can be built in a similar way. Check out the [Message UI Customization](../customization/message-ui.mdx) section for an example.
 
 The following UI components are available for use:
@@ -105,7 +105,7 @@ If true, renders the wrapper component as a `span`, not a `div`.
 
 ### messageWrapperRef
 
-React mutable ref to the message root `div` wrapping parent `MessageOptions` and forwarded down to `MessageActions` ([see the example](../customization/message-ui.mdx). `MessageActions` component uses this ref to register event listener `mouseleave` to hide `MessageActionsBox`. If not provided, then the listener is not registered and already opened `MessageActionsBox` is closed on user click only.
+React mutable ref to the message root `div` wrapping parent `MessageOptions` and forwarded down to `MessageActions` ([see the example](../customization/message-ui.mdx)). `MessageActions` component uses this ref to register event listener `mouseleave` to hide `MessageActionsBox`. If not provided, then the listener is not registered and already opened `MessageActionsBox` is closed on user click only.
 
 | Type                             |
 | -------------------------------- |
@@ -157,7 +157,7 @@ Function that opens a [`Thread`](../core-components/thread.mdx) on a message (ov
 
 ### messageWrapperRef
 
-React mutable ref that can be placed on the message root `div` wrapping `MessageOptions`. `MessageOptions` component forwards this prop to [`MessageActions`](#messageactions-props) component ([see the example](../customization/message-ui.mdx).
+React mutable ref that can be placed on the message root `div` wrapping `MessageOptions`. `MessageOptions` component forwards this prop to [`MessageActions`](#messageactions-props) component ([see the example](../customization/message-ui.mdx)).
 
 | Type                             |
 | -------------------------------- |
