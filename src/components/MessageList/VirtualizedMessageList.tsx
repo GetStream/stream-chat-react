@@ -185,7 +185,7 @@ const VirtualizedMessageListWithContext = <
 
   const resetNewMessagesReceivedInBackground = useCallback(() => {
     setNewMessagesReceivedInBackground(false);
-  }, [setNewMessagesReceivedInBackground]);
+  }, []);
 
   useEffect(() => {
     setNewMessagesReceivedInBackground(true);
