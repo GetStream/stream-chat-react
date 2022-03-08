@@ -124,6 +124,8 @@ export type ChannelProps<
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: ComponentContextValue<StreamChatGenerics>['GiphyPreviewMessage'];
   /** Custom UI component to render at the top of the `MessageList` */
@@ -213,7 +215,6 @@ const ChannelInner = <
     ChannelProps<StreamChatGenerics, V> & {
       channel: StreamChannel<StreamChatGenerics>;
       key: string;
-      giphyVersion?: GiphyVersions;
     }
   >,
 ) => {
