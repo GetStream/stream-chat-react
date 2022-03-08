@@ -61,7 +61,7 @@
   "You've reached the maximum number of files": "आप अधिकतम फ़ाइलों तक पहुँच गए हैं",
   "live": "लाइव",
   "replyCount_one": "1 रिप्लाई",
-  "replyCount_other": "{{ replyCount }} रिप्लाई",
+  "replyCount_other": "{{ count }} रिप्लाई",
   "this content could not be displayed": "यह कॉन्टेंट लोड नहीं हो पाया",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} और {{ moreCount }} और",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} और {{ lastUser }}",

@@ -25,7 +25,7 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
     if (labelSingle) {
       singleReplyText = `1 ${labelSingle}`;
     } else {
-      singleReplyText = t('replyCount_one', { replyCount: reply_count });
+      singleReplyText = t('replyCount', { count: reply_count });
     }
   }
 
@@ -33,7 +33,7 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
     if (labelPlural) {
       pluralReplyText = `${reply_count} ${labelPlural}`;
     } else {
-      pluralReplyText = t('replyCount_other', { replyCount: reply_count });
+      pluralReplyText = t('replyCount', { count: reply_count });
     }
   }
 

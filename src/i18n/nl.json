@@ -61,7 +61,7 @@
   "You've reached the maximum number of files": "Je hebt het maximale aantal bestanden bereikt",
   "live": "live",
   "replyCount_one": "1 antwoord",
-  "replyCount_other": "{{ replyCount }} antwoorden",
+  "replyCount_other": "{{ count }} antwoorden",
   "this content could not be displayed": "Deze inhoud kan niet weergegeven worden",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} en {{ moreCount }} meer",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} en {{ lastUser }}",

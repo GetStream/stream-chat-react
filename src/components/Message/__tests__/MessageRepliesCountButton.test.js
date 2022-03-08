@@ -6,9 +6,9 @@ import { TranslationContext } from '../../../context';
 
 const onClickMock = jest.fn();
 
-const i18nMock = (key) => {
-  if (key === 'replyCount_one') return '1 reply';
-  else if (key === 'replyCount_other') return '2 replies';
+const i18nMock = (key, { count }) => {
+  if (key === 'replyCount' && count === 1) return '1 reply';
+  else if (key === 'replyCount' && count === 2) return '2 replies';
   return key;
 };
 

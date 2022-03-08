@@ -61,7 +61,7 @@
   "You've reached the maximum number of files": "Maksimum dosya sayısına ulaştınız",
   "live": "canlı",
   "replyCount_one": "1 cevap",
-  "replyCount_other": "{{ replyCount }} cevaplar",
+  "replyCount_other": "{{ count }} cevaplar",
   "this content could not be displayed": "bu içerik gösterilemiyor",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} ve {{ moreCount }} daha",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, ve {{ lastUser }}",
