@@ -691,7 +691,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
-    giphyVersion: props.giphyVersion || 'fixed_width',
+    giphyVersion: props.giphyVersion || 'fixed_height',
     maxNumberOfFiles,
     multipleUploads,
     mutes,
