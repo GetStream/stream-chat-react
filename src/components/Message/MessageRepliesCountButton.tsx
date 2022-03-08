@@ -25,7 +25,7 @@ const UnMemoizedMessageRepliesCountButton: React.FC<MessageRepliesCountButtonPro
     if (labelSingle) {
       singleReplyText = `1 ${labelSingle}`;
     } else {
-      singleReplyText = t('replyCount_one', { reply_count });
+      singleReplyText = t('replyCount_one', { replyCount: reply_count });
     }
   }
 

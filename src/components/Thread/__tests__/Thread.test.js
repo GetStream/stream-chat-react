@@ -55,7 +55,11 @@ const channelActionContextMock = {
   loadMoreThread: jest.fn(() => Promise.resolve()),
 };
 
-const i18nMock = jest.fn((key) => key);
+const i18nMock = jest.fn((key) => {
+  if (key === 'replyCount_one') return '1 reply';
+  else if (key === 'replyCount_other') return '2 replies';
+  return key;
+});
 
 const renderComponent = (
   client,
@@ -95,10 +99,10 @@ describe('Thread', () => {
   it('should render the reply count', () => {
     const { getByText } = renderComponent(chatClient);
 
-    expect(i18nMock).toHaveBeenCalledWith('{{ replyCount }} replies', {
+    expect(i18nMock).toHaveBeenCalledWith('replyCount_other', {
       replyCount: threadStart.reply_count,
     });
-    expect(getByText('{{ replyCount }} replies')).toBeInTheDocument();
+    expect(getByText('2 replies')).toBeInTheDocument();
   });
 
   it('should render the message that starts the thread', () => {
