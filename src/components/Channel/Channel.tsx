@@ -280,13 +280,11 @@ const ChannelInner = <
       trailing: true,
     },
   );
-  console.log('channel.state.unreadCount: ', channel.state.unreadCount);
 
   const markRead = () => {
     if (channel.disconnected || !channelConfig?.read_events) {
       return;
     }
-    console.log('markRead');
 
     lastRead.current = new Date();
 
@@ -338,8 +336,6 @@ const ChannelInner = <
           markReadThrottled();
         } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
-          console.log('handleEvent unread', unread);
-
           if (activeUnreadHandler) {
             activeUnreadHandler(unread, originalTitle.current);
           } else {
@@ -372,7 +368,6 @@ const ChannelInner = <
           errored = true;
         }
       }
-      console.log('useLayoutEffect channel.countUnread: ', channel.countUnread());
 
       done = true;
       originalTitle.current = document.title;
@@ -400,7 +395,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid]);
+  }, [channel.cid, doMarkReadRequest]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
