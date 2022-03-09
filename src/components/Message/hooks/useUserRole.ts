@@ -1,39 +1,21 @@
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useUserRole = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message: StreamMessage<StreamChatGenerics>,
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const { channel, channelCapabilities = {}, channelConfig } = useChannelStateContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('useUserRole');
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useUserRole');
+  const {
+    channel,
+    channelCapabilities = {},
+    channelConfig,
+  } = useChannelStateContext<StreamChatGenerics>('useUserRole');
+  const { client } = useChatContext<StreamChatGenerics>('useUserRole');
 
   const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
   const isMyMessage = client.userID === message.user?.id;

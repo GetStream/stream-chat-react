@@ -1,34 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
-
-import { useBreakpoint } from '../Message/hooks';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const UploadsPreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'UploadsPreview',
   );
-  const messageInput = useMessageInputContext<At, Ch, Co, Ev, Me, Re, Us>('UploadsPreview');
+  const messageInput = useMessageInputContext<StreamChatGenerics>('UploadsPreview');
   const {
     fileOrder,
     fileUploads,
@@ -37,7 +21,6 @@ export const UploadsPreview = <
     numberOfUploads,
     removeFile,
     removeImage,
-    text,
     uploadFile,
     uploadImage,
     uploadNewFiles,
@@ -45,21 +28,6 @@ export const UploadsPreview = <
 
   const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
-
-  const { device } = useBreakpoint();
-
-  useEffect(() => {
-    const elements = document.getElementsByClassName('str-chat__send-button');
-    const sendButton = elements.item(0);
-
-    if (sendButton instanceof HTMLButtonElement) {
-      if ((numberOfUploads && !text) || device !== 'full') {
-        sendButton.style.display = 'block';
-      } else {
-        sendButton.style.display = 'none';
-      }
-    }
-  }, [device, numberOfUploads, text]);
 
   return (
     <>

@@ -8,29 +8,15 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { TranslationLanguages } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const QuotedMessage = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { Attachment, Avatar: ContextAvatar } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { Attachment, Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>(
     'QuotedMessage',
   );
-  const { isMyMessage, message } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('QuotedMessage');
+  const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { userLanguage } = useTranslationContext('QuotedMessage');
 
   const Avatar = ContextAvatar || DefaultAvatar;

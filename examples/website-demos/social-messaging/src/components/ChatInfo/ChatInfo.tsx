@@ -19,29 +19,13 @@ import {
   UserInfo,
 } from '../../assets';
 
-import {
-  SocialAttachmentType,
-  SocialChannelType,
-  SocialCommandType,
-  SocialEventType,
-  SocialMessageType,
-  SocialReactionType,
-  SocialUserType,
-} from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatInfo.scss';
 
 export const ChatInfo = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext<
-    SocialAttachmentType,
-    SocialChannelType,
-    SocialCommandType,
-    SocialEventType,
-    SocialMessageType,
-    SocialReactionType,
-    SocialUserType
-  >();
+  const { channel } = useChannelStateContext<StreamChatGenerics>();
 
   const members = Object.values(channel.state.members)
     .filter(({ user }) => user?.id !== client.userID)

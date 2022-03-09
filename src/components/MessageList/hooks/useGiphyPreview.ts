@@ -6,35 +6,21 @@ import type { EventHandler } from 'stream-chat';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useGiphyPreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   separateGiphyPreview: boolean,
 ) => {
   const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<
-    StreamMessage<At, Ch, Co, Ev, Me, Re, Us>
+    StreamMessage<StreamChatGenerics>
   >();
 
-  const { client } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('useGiphyPreview');
+  const { client } = useChatContext<StreamChatGenerics>('useGiphyPreview');
 
   useEffect(() => {
-    const handleEvent: EventHandler<At, Ch, Co, Ev, Me, Re, Us> = (event) => {
+    const handleEvent: EventHandler<StreamChatGenerics> = (event) => {
       const { message, user } = event;
 
       if (message?.command === 'giphy' && user?.id === client.userID) {

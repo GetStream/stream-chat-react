@@ -11,11 +11,11 @@ import {
 } from 'stream-chat-react';
 
 import { AvatarGroup, getTimeStamp } from '../ChannelPreview/utils';
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 
 import './SocialChannelSearch.scss';
 
-export const SearchResultItem = (props: SearchResultItemProps<SocialUserType>) => {
+export const SearchResultItem = (props: SearchResultItemProps<StreamChatGenerics>) => {
   const { index, result, selectResult } = props;
 
   const { client } = useChatContext();

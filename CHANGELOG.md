@@ -1,5 +1,38 @@
 # Changelog
 
+## [7.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-02-10
+
+### ⚠️ BREAKING CHANGES ⚠️  
+
+- Replace stale `react-images` dependency with `react-image-gallery`, removed `ModalImage` [#1318](https://github.com/GetStream/stream-chat-react/pull/1318)
+- Add support for accessibility through the use of semantic HTML, ARIA attributes. Updates include changing HTML elements to different types as necessary [#1314](https://github.com/GetStream/stream-chat-react/pull/1314) and [#1294](https://github.com/GetStream/stream-chat-react/pull/1294)
+
+### Feature
+
+* Add support for `QuotedMessages` in a `Thread` [#1356](https://github.com/GetStream/stream-chat-react/pull/1356)
+* Add `wordReplace` prop to `ChatAutoComplete` to override default behavior [#1347](https://github.com/GetStream/stream-chat-react/pull/1347)
+
+### Chore
+
+* Fix small documentation typo [#1312](https://github.com/GetStream/stream-chat-react/pull/1312)
+* Improve compatibility with NextJS [#1315](https://github.com/GetStream/stream-chat-react/pull/1315)
+* Use the `Avatar` from the `ComponentContext` in `QuotedMessagePreview` [#1311](https://github.com/GetStream/stream-chat-react/pull/1311)
+* Set `ImagePreviewer` to disabled if multiple uploads is not allowed [#1330](https://github.com/GetStream/stream-chat-react/pull/1330)
+* Export `QuotedMessagePreview` component [#1339](https://github.com/GetStream/stream-chat-react/pull/1339)
+* Add guide on how to build a custom list with channel members and have real time updates of their online status [#1350](https://github.com/GetStream/stream-chat-react/pull/1350)
+* Support URLs with encoded components [#1353](https://github.com/GetStream/stream-chat-react/pull/1353)
+* Remove UNSAFE warning from `AutoCompleteTextarea` [#1354](https://github.com/GetStream/stream-chat-react/pull/1354)
+* Add current text to `openMentionsList` method [#1360](https://github.com/GetStream/stream-chat-react/pull/1360)
+* Update to `Window`'s `hideOnThread` prop to handle via CSS [#1363](https://github.com/GetStream/stream-chat-react/pull/1363)
+* Upgrade stream-chat-css dependency to v2.2.1 [#1365](https://github.com/GetStream/stream-chat-react/pull/1365)
+
+### Bug
+
+* Fix the logic for the `VirtualizedMessageList`'s `firstOfGroup` prop [#1338](https://github.com/GetStream/stream-chat-react/pull/1338)
+* Fix bug where on `channel.updated` event `own_capabilities` and `hidden` values are lost [#1346](https://github.com/GetStream/stream-chat-react/pull/1346)
+* Add a fix so quotes (aka replies) are not still available in message options when quotes are disabled in configuration [#1364](https://github.com/GetStream/stream-chat-react/pull/1364)
+
+
 ## [6.12.2](https://github.com/GetStream/stream-chat-react/releases/tag/v6.12.2) 2021-12-09
 
 ### Feature

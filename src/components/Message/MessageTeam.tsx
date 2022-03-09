@@ -27,25 +27,11 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { MessageUIComponentProps, ReactEventHandler } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageTeamWithContextProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = MessageContextValue<StreamChatGenerics> & {
   isReactionEnabled: boolean;
   messageWrapperRef: React.MutableRefObject<HTMLDivElement | null>;
   onReactionListClick: ReactEventHandler;
@@ -54,15 +40,9 @@ type MessageTeamWithContextProps<
 };
 
 const MessageTeamWithContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageTeamWithContextProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageTeamWithContextProps<StreamChatGenerics>,
 ) => {
   const {
     clearEditingState,
@@ -99,7 +79,7 @@ const MessageTeamWithContext = <
     QuotedMessage = DefaultQuotedMessage,
     ReactionsList = DefaultReactionsList,
     ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext<At, Ch, Co, Ev, Me, Re, Us>('MessageTeam');
+  } = useComponentContext<StreamChatGenerics>('MessageTeam');
 
   const { t, userLanguage } = useTranslationContext('MessageTeam');
 
@@ -304,17 +284,11 @@ const MemoizedMessageTeam = React.memo(
  * Implements the look and feel for a team style collaboration environment.
  */
 export const MessageTeam = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageUIComponentProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageUIComponentProps<StreamChatGenerics>,
 ) => {
-  const messageContext = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageTeam');
+  const messageContext = useMessageContext<StreamChatGenerics>('MessageTeam');
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
   const messageWrapperRef = useRef<HTMLDivElement | null>(null);

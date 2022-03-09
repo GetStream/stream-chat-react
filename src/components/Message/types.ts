@@ -13,37 +13,22 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import type { RenderTextOptions } from '../../utils';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
 export type MessageProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
   /** The message object */
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message: StreamMessage<StreamChatGenerics>;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
-  additionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  additionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
-  customMessageActions?: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>['customMessageActions'];
+  customMessageActions?: MessageContextValue<StreamChatGenerics>['customMessageActions'];
   /** If true, disables the ability for users to quote messages, defaults to false */
   disableQuotedMessages?: boolean;
   /** When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */
@@ -53,21 +38,17 @@ export type MessageProps<
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
-  getDeleteMessageErrorNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getDeleteMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
-  getFlagMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  getFlagMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
-  getFlagMessageSuccessNotification?: (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => string;
+  getFlagMessageSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request fails */
-  getMuteUserErrorNotification?: (user: UserResponse<Us>) => string;
+  getMuteUserErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request succeeds */
-  getMuteUserSuccessNotification?: (user: UserResponse<Us>) => string;
+  getMuteUserSuccessNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a pin message request fails */
-  getPinMessageErrorNotification?: (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => string;
+  getPinMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
   groupedByUser?: boolean;
   /** A list of styles to apply to this message, ie. top, bottom, single */
@@ -77,7 +58,7 @@ export type MessageProps<
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
   /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message) */
-  Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
+  Message?: ComponentContextValue<StreamChatGenerics>['Message'];
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
@@ -85,27 +66,27 @@ export type MessageProps<
   /** If true, only the sender of the message has editing privileges */
   onlySenderCanEdit?: boolean;
   /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsClick?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsClick'];
+  onMentionsClick?: ChannelActionContextValue<StreamChatGenerics>['onMentionsClick'];
   /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  onMentionsHover?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['onMentionsHover'];
+  onMentionsHover?: ChannelActionContextValue<StreamChatGenerics>['onMentionsHover'];
   /** Custom function to run on user avatar click */
-  onUserClick?: UserEventHandler<Us>;
+  onUserClick?: UserEventHandler<StreamChatGenerics>;
   /** Custom function to run on user avatar hover */
-  onUserHover?: UserEventHandler<Us>;
+  onUserHover?: UserEventHandler<StreamChatGenerics>;
   /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  openThread?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['openThread'];
+  openThread?: ChannelActionContextValue<StreamChatGenerics>['openThread'];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
   /** A list of users that have read this Message */
-  readBy?: UserResponse<Us>[];
+  readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (
     text?: string,
-    mentioned_users?: UserResponse<Us>[],
+    mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  retrySendMessage?: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us>['retrySendMessage'];
+  retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
@@ -113,24 +94,12 @@ export type MessageProps<
 };
 
 export type MessageUIComponentProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<MessageContextValue<StreamChatGenerics>>;
 
 export type PinIndicatorProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  message?: StreamMessage<StreamChatGenerics>;
   t?: TFunction;
 };

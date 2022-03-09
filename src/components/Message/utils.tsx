@@ -9,15 +9,7 @@ import type { MessageProps } from './types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -47,16 +39,10 @@ export const validateAndGetMessage = <T extends unknown[]>(
  * Tell if the owner of the current message is muted
  */
 export const isUserMuted = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  mutes?: Mute<Us>[],
+  message: StreamMessage<StreamChatGenerics>,
+  mutes?: Mute<StreamChatGenerics>[],
 ) => {
   if (!mutes || !message) return false;
 
@@ -200,8 +186,20 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
-export const showMessageActionsBox = (actions: MessageActionsArray) => {
+const ACTIONS_NOT_WORKING_IN_THREAD = ['pin', 'react', 'reply'];
+
+export const showMessageActionsBox = (
+  actions: MessageActionsArray,
+  inThread?: boolean | undefined,
+) => {
   if (actions.length === 0) {
+    return false;
+  }
+
+  if (
+    inThread &&
+    actions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
+  ) {
     return false;
   }
 
@@ -217,20 +215,14 @@ export const showMessageActionsBox = (actions: MessageActionsArray) => {
 };
 
 export const areMessagePropsEqual = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  prevProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    mutes?: Mute<Us>[];
+  prevProps: MessageProps<StreamChatGenerics> & {
+    mutes?: Mute<StreamChatGenerics>[];
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageProps<At, Ch, Co, Ev, Me, Re, Us> & {
-    mutes?: Mute<Us>[];
+  nextProps: MessageProps<StreamChatGenerics> & {
+    mutes?: Mute<StreamChatGenerics>[];
     showDetailedReactions?: boolean;
   },
 ) => {
@@ -273,18 +265,12 @@ export const areMessagePropsEqual = <
 };
 
 export const areMessageUIPropsEqual = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  prevProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  prevProps: MessageContextValue<StreamChatGenerics> & {
     showDetailedReactions?: boolean;
   },
-  nextProps: MessageContextValue<At, Ch, Co, Ev, Me, Re, Us> & {
+  nextProps: MessageContextValue<StreamChatGenerics> & {
     showDetailedReactions?: boolean;
   },
 ) => {
@@ -326,38 +312,21 @@ export const areMessageUIPropsEqual = <
 };
 
 export const messageHasReactions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
 ) => !!message?.latest_reactions && !!message.latest_reactions.length;
 
 export const messageHasAttachments = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
 ) => !!message?.attachments && !!message.attachments.length;
 
 export const getImages = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: MessageResponse<StreamChatGenerics>,
 ) => {
   if (!message?.attachments) {
     return [];
@@ -366,14 +335,9 @@ export const getImages = <
 };
 
 export const getNonImageAttachments = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: MessageResponse<At, Ch, Co, Me, Re, Us>,
+  message?: MessageResponse<StreamChatGenerics>,
 ) => {
   if (!message?.attachments) {
     return [];
@@ -382,17 +346,11 @@ export const getNonImageAttachments = <
 };
 
 export const getReadByTooltipText = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  users: UserResponse<Us>[],
+  users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
-  client: StreamChat<At, Ch, Co, Ev, Me, Re, Us>,
+  client: StreamChat<StreamChatGenerics>,
 ) => {
   let outStr = '';
 

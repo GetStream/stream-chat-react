@@ -8,16 +8,7 @@ import type {
   ChannelState as StreamChannelState,
 } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-  UnknownType,
-} from '../types/types';
+import type { DefaultStreamChatGenerics, GiphyVersions, UnknownType } from '../types/types';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -26,62 +17,45 @@ export type ChannelNotifications = Array<{
 }>;
 
 export type StreamMessage<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > =
-  | ReturnType<StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
-  | MessageResponse<At, Ch, Co, Me, Re, Us>;
+  | ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
+  | MessageResponse<StreamChatGenerics>;
 
 export type ChannelState<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   error?: Error | null;
   hasMore?: boolean;
   loading?: boolean;
   loadingMore?: boolean;
-  members?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['members'];
-  messages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  pinnedMessages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  quotedMessage?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
-  read?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['read'];
-  thread?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | null;
+  members?: StreamChannelState<StreamChatGenerics>['members'];
+  messages?: StreamMessage<StreamChatGenerics>[];
+  pinnedMessages?: StreamMessage<StreamChatGenerics>[];
+  quotedMessage?: StreamMessage<StreamChatGenerics>;
+  read?: StreamChannelState<StreamChatGenerics>['read'];
+  thread?: StreamMessage<StreamChatGenerics> | null;
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
-  threadMessages?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
-  typing?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['typing'];
+  threadMessages?: StreamMessage<StreamChatGenerics>[];
+  typing?: StreamChannelState<StreamChatGenerics>['typing'];
   watcherCount?: number;
-  watchers?: StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['watchers'];
+  watchers?: StreamChannelState<StreamChatGenerics>['watchers'];
 };
 
 export type ChannelStateContextValue<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Omit<ChannelState<At, Ch, Co, Ev, Me, Re, Us>, 'typing'> & {
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<ChannelState<StreamChatGenerics>, 'typing'> & {
+  channel: Channel<StreamChatGenerics>;
   channelCapabilities: Record<string, boolean>;
-  channelConfig: ChannelConfigWithInfo<Co> | undefined;
+  channelConfig: ChannelConfigWithInfo<StreamChatGenerics> | undefined;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   acceptedFiles?: string[];
   dragAndDropWindow?: boolean;
+  giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
-  mutes?: Mute<Us>[];
+  mutes?: Array<Mute<StreamChatGenerics>>;
   watcher_count?: number;
 };
 
@@ -90,18 +64,12 @@ export const ChannelStateContext = React.createContext<ChannelStateContextValue 
 );
 
 export const ChannelStateProvider = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
   value,
 }: PropsWithChildren<{
-  value: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  value: ChannelStateContextValue<StreamChatGenerics>;
 }>) => (
   <ChannelStateContext.Provider value={(value as unknown) as ChannelStateContextValue}>
     {children}
@@ -109,13 +77,7 @@ export const ChannelStateProvider = <
 );
 
 export const useChannelStateContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   componentName?: string,
 ) => {
@@ -126,10 +88,10 @@ export const useChannelStateContext = <
       `The useChannelStateContext hook was called outside of the ChannelStateContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
     );
 
-    return {} as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+    return {} as ChannelStateContextValue<StreamChatGenerics>;
   }
 
-  return (contextValue as unknown) as ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>;
+  return (contextValue as unknown) as ChannelStateContextValue<StreamChatGenerics>;
 };
 
 /**
@@ -139,20 +101,14 @@ export const useChannelStateContext = <
  */
 export const withChannelStateContext = <
   P extends UnknownType,
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>> => {
+): React.FC<Omit<P, keyof ChannelStateContextValue<StreamChatGenerics>>> => {
   const WithChannelStateContextComponent = (
-    props: Omit<P, keyof ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>>,
+    props: Omit<P, keyof ChannelStateContextValue<StreamChatGenerics>>,
   ) => {
-    const channelStateContext = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>();
+    const channelStateContext = useChannelStateContext<StreamChatGenerics>();
 
     return <Component {...(props as P)} {...channelStateContext} />;
   };

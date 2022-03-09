@@ -3,14 +3,13 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { BaseEmoji, EmojiData } from 'emoji-mart';
 
-import type { DefaultAttachmentType, DefaultUserType } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useEmojiPicker = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  state: MessageInputState<At, Us>,
-  dispatch: React.Dispatch<MessageInputReducerAction<Us>>,
+  state: MessageInputState<StreamChatGenerics>,
+  dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   insertText: (textToInsert: string) => void,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
   closeEmojiPickerOnClick?: boolean,

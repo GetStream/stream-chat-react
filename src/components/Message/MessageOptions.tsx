@@ -11,25 +11,11 @@ import { MessageActions } from '../MessageActions';
 
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageOptionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'handleOpenThread'>> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<Pick<MessageContextValue<StreamChatGenerics>, 'handleOpenThread'>> & {
   ActionsIcon?: React.FunctionComponent;
   displayLeft?: boolean;
   displayReplies?: boolean;
@@ -40,15 +26,9 @@ export type MessageOptionsProps<
 };
 
 const UnMemoizedMessageOptions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageOptionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageOptionsProps<StreamChatGenerics>,
 ) => {
   const {
     ActionsIcon = DefaultActionsIcon,
@@ -70,12 +50,13 @@ const UnMemoizedMessageOptions = <
     message,
     onReactionListClick,
     threadList,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageOptions');
+  } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const showActionsBox = showMessageActionsBox(messageActions) || !!customMessageActions;
+  const showActionsBox =
+    showMessageActionsBox(messageActions, threadList) || !!customMessageActions;
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =

@@ -3,15 +3,7 @@ import { StreamMessage, useChannelStateContext } from '../../../context/ChannelS
 
 import type React from 'react';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type FormData = Record<string, string>;
 
@@ -25,18 +17,12 @@ export const handleActionWarning = `Action handler was called, but it is missing
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export function useActionHandler<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
->(message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>): ActionHandlerReturnType {
-  const { removeMessage, updateMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(message?: StreamMessage<StreamChatGenerics>): ActionHandlerReturnType {
+  const { removeMessage, updateMessage } = useChannelActionContext<StreamChatGenerics>(
     'useActionHandler',
   );
-  const { channel } = useChannelStateContext<At, Ch, Co, Ev, Me, Re, Us>('useActionHandler');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useActionHandler');
 
   return async (dataOrName, value, event) => {
     if (event) event.preventDefault();
