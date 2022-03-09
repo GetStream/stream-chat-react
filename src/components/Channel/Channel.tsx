@@ -290,10 +290,8 @@ const ChannelInner = <
 
     if (doMarkReadRequest) {
       doMarkReadRequest(channel);
-      console.log('if doMarkReadRequest: ', doMarkReadRequest); // function from customHandler
     } else {
       logChatPromiseExecution(channel.markRead(), 'mark read');
-      console.log('else doMarkReadRequest: ', doMarkReadRequest); // undefined
     }
 
     if (activeUnreadHandler) {
@@ -336,6 +334,7 @@ const ChannelInner = <
           markReadThrottled();
         } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
+
           if (activeUnreadHandler) {
             activeUnreadHandler(unread, originalTitle.current);
           } else {
