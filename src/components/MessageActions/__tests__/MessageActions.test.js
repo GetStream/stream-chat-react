@@ -1,6 +1,7 @@
 import React from 'react';
+import '@testing-library/jest-dom';
 import testRenderer from 'react-test-renderer';
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 
 import { MessageActions } from '../MessageActions';
 import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
@@ -105,25 +106,68 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should close message actions box when user clicks outside the action after it is opened', () => {
-    let hideOptions;
-    const addEventListenerSpy = jest
-      .spyOn(document, 'addEventListener')
-      .mockImplementationOnce((_, fn) => {
-        hideOptions = fn;
-      });
+  it('should close message actions box on icon click if already opened', () => {
     const { getByTestId } = renderMessageActions();
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: false }),
+      {},
+    );
     fireEvent.click(getByTestId(messageActionsTestId));
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    act(() => hideOptions());
+    fireEvent.click(getByTestId(messageActionsTestId));
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
-    addEventListenerSpy.mockClear();
+  });
+
+  it('should close message actions box when user clicks anywhere in the document if it is already opened', () => {
+    const { getByRole } = renderMessageActions();
+    fireEvent.click(getByRole('button'));
+
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: true }),
+      {},
+    );
+    fireEvent.click(document);
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: false }),
+      {},
+    );
+  });
+
+  it('should close message actions box when user presses Escape key', () => {
+    const { getByRole } = renderMessageActions();
+    fireEvent.click(getByRole('button'));
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: true }),
+      {},
+    );
+    fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: false }),
+      {},
+    );
+  });
+
+  it('should close actions box open on mouseleave if container ref provided', () => {
+    const customProps = {
+      messageWrapperRef: { current: wrapperMock },
+    };
+    const { getByRole } = renderMessageActions(customProps);
+    fireEvent.click(getByRole('button'));
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: true }),
+      {},
+    );
+    fireEvent.mouseLeave(customProps.messageWrapperRef.current);
+    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ open: false }),
+      {},
+    );
   });
 
   it('should render the message actions box correctly', () => {
@@ -144,12 +188,34 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should remove event listener when unmounted', () => {
+  it('should not register click and keyup event listeners to close actions box until opened', () => {
+    const { getByRole } = renderMessageActions();
+    const addEventListener = jest.spyOn(document, 'addEventListener');
+    expect(document.addEventListener).not.toHaveBeenCalled();
+    fireEvent.click(getByRole('button'));
+    expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+    addEventListener.mockClear();
+  });
+
+  it('should not remove click and keyup event listeners when unmounted if actions box not opened', () => {
     const { unmount } = renderMessageActions();
     const removeEventListener = jest.spyOn(document, 'removeEventListener');
     expect(document.removeEventListener).not.toHaveBeenCalled();
     unmount();
+    expect(document.removeEventListener).not.toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.removeEventListener).not.toHaveBeenCalledWith('keyup', expect.any(Function));
+    removeEventListener.mockClear();
+  });
+
+  it('should remove event listener when unmounted', () => {
+    const { getByRole, unmount } = renderMessageActions();
+    const removeEventListener = jest.spyOn(document, 'removeEventListener');
+    fireEvent.click(getByRole('button'));
+    expect(document.removeEventListener).not.toHaveBeenCalled();
+    unmount();
     expect(document.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     removeEventListener.mockClear();
   });
 

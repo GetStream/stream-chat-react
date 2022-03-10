@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
@@ -66,8 +66,6 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
 
-  const messageWrapperRef = useRef<HTMLDivElement | null>(null);
-
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
 
@@ -110,7 +108,6 @@ const MessageSimpleWithContext = <
             ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
 					`.trim()}
           key={message.id}
-          ref={messageWrapperRef}
         >
           <MessageStatus />
           {message.user && (
@@ -137,7 +134,7 @@ const MessageSimpleWithContext = <
             }
           >
             <>
-              <MessageOptions messageWrapperRef={messageWrapperRef} />
+              <MessageOptions />
               {hasReactions && !showDetailedReactions && isReactionEnabled && (
                 <ReactionsList reverse />
               )}
