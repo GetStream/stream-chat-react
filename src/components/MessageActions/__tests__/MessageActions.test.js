@@ -188,12 +188,34 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should remove event listener when unmounted', () => {
+  it('should not register click and keyup event listeners to close actions box until opened', () => {
+    const { getByRole } = renderMessageActions();
+    const addEventListener = jest.spyOn(document, 'addEventListener');
+    expect(document.addEventListener).not.toHaveBeenCalled();
+    fireEvent.click(getByRole('button'));
+    expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
+    addEventListener.mockClear();
+  });
+
+  it('should not remove click and keyup event listeners when unmounted if actions box not opened', () => {
     const { unmount } = renderMessageActions();
     const removeEventListener = jest.spyOn(document, 'removeEventListener');
     expect(document.removeEventListener).not.toHaveBeenCalled();
     unmount();
+    expect(document.removeEventListener).not.toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.removeEventListener).not.toHaveBeenCalledWith('keyup', expect.any(Function));
+    removeEventListener.mockClear();
+  });
+
+  it('should remove event listener when unmounted', () => {
+    const { getByRole, unmount } = renderMessageActions();
+    const removeEventListener = jest.spyOn(document, 'removeEventListener');
+    fireEvent.click(getByRole('button'));
+    expect(document.removeEventListener).not.toHaveBeenCalled();
+    unmount();
     expect(document.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     removeEventListener.mockClear();
   });
 

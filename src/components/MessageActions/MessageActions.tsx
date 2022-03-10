@@ -100,7 +100,7 @@ export const MessageActions = <
 
     return () => {
       document.removeEventListener('click', hideOptions);
-      document.addEventListener('keyup', hideOptions);
+      document.removeEventListener('keyup', hideOptions);
     };
   }, [actionsBoxOpen, hideOptions]);
 
