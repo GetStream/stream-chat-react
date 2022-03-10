@@ -93,15 +93,15 @@ export const MessageActions = <
   }, [hideOptions, messageDeletedAt]);
 
   useEffect(() => {
-    if (actionsBoxOpen) {
-      document.addEventListener('click', hideOptions);
-      document.addEventListener('keyup', hideOptions);
-    } else {
+    if (!actionsBoxOpen) return;
+
+    document.addEventListener('click', hideOptions);
+    document.addEventListener('keyup', hideOptions);
+
+    return () => {
       document.removeEventListener('click', hideOptions);
       document.addEventListener('keyup', hideOptions);
-    }
-
-    return () => document.removeEventListener('click', hideOptions);
+    };
   }, [actionsBoxOpen, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
