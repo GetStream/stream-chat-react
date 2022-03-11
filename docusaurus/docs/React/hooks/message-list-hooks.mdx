@@ -7,11 +7,6 @@ title: MessageList Hooks
 The `MessageList` and `VirtualizedMessageList` components use a variety of custom hooks to assemble a scrollable list of `Message` components, with all of the necessary data and handlers provided to each.
 These hooks can be useful when building a custom list component.
 
-### useCallLoadMore
-
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/hooks/useCallLoadMore.ts) that returns a memoized callback of the loadMore function that only changes if the limit paramter changes.
-This returned value is then added to the props object given to the `InfiniteScroll` component.
-
 ### useEnrichedMessages
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/hooks/useEnrichedMessages.ts) that determines which messages need date separators and group css styles, returns the processed array of messages.

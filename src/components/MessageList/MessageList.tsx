@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { useCallLoadMore } from './hooks/useCallLoadMore';
 import { useEnrichedMessages } from './hooks/useEnrichedMessages';
 import { useMessageListElements } from './hooks/useMessageListElements';
 import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
@@ -33,29 +32,6 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-const useInternalInfiniteScrollProps = (
-  props: Pick<
-    MessageListWithContextProps,
-    'hasMore' | 'internalInfiniteScrollProps' | 'loadMore' | 'loadingMore' | 'messageLimit'
-  >,
-) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
-    'useInternalInfiniteScrollProps',
-  );
-
-  return {
-    hasMore: props.hasMore,
-    isLoading: props.loadingMore,
-    loader: (
-      <Center key='loadingindicator'>
-        <LoadingIndicator size={20} />
-      </Center>
-    ),
-    loadMore: useCallLoadMore(props.loadMore, props.messageLimit || 100),
-    ...props.internalInfiniteScrollProps,
-  };
-};
-
 type MessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Omit<ChannelStateContextValue<StreamChatGenerics>, 'members' | 'mutes' | 'watchers'> &
@@ -82,6 +58,8 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
+    messageLimit = 100,
+    loadMore: loadMoreCallback,
   } = props;
 
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
@@ -151,10 +129,18 @@ const MessageListWithContext = <
     threadList,
   });
 
-  const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
+    'useInternalInfiniteScrollProps',
+  );
 
   const messageListClass = customClasses?.messageList || 'str-chat__list';
   const threadListClass = threadList ? customClasses?.threadList || 'str-chat__list--thread' : '';
+
+  const loadMore = React.useCallback(() => {
+    if (loadMoreCallback) {
+      loadMoreCallback(messageLimit);
+    }
+  }, [loadMoreCallback, messageLimit]);
 
   return (
     <>
@@ -165,7 +151,15 @@ const MessageListWithContext = <
           <InfiniteScroll
             className='str-chat__reverse-infinite-scroll'
             data-testid='reverse-infinite-scroll'
-            {...finalInternalInfiniteScrollProps}
+            hasMore={props.hasMore}
+            isLoading={props.loadingMore}
+            loader={
+              <Center key='loadingindicator'>
+                <LoadingIndicator size={20} />
+              </Center>
+            }
+            loadMore={loadMore}
+            {...props.internalInfiniteScrollProps}
           >
             <ul className='str-chat__ul'>{elements}</ul>
             <TypingIndicator threadList={threadList} />

@@ -14,12 +14,14 @@ export type InfiniteScrollProps = {
   className?: string;
   element?: React.ElementType;
   hasMore?: boolean;
+  hasMoreNewer?: boolean;
   initialLoad?: boolean;
   isLoading?: boolean;
   listenToScroll?: (offset: number, reverseOffset: number, threshold: number) => void;
   loader?: React.ReactNode;
   loading?: React.ReactNode;
   loadMore?: () => void;
+  loadMoreNewer?: () => void;
   pageStart?: number;
   threshold?: number;
   useCapture?: boolean;
@@ -30,11 +32,13 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
     children,
     element = 'div',
     hasMore = false,
+    hasMoreNewer = false,
     initialLoad = true,
     isLoading = false,
     listenToScroll,
     loader,
     loadMore,
+    loadMoreNewer,
     threshold = 250,
     useCapture = false,
     ...elementProps
@@ -59,11 +63,14 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
       listenToScroll(offset, reverseOffset, threshold);
     }
 
-    // Here we make sure the element is visible as well as checking the offset
     if (reverseOffset < Number(threshold) && typeof loadMore === 'function' && hasMore) {
       loadMore();
     }
-  }, [hasMore, threshold, listenToScroll, loadMore]);
+
+    if (offset < Number(threshold) && typeof loadMoreNewer === 'function' && hasMoreNewer) {
+      loadMoreNewer();
+    }
+  }, [hasMore, hasMoreNewer, threshold, listenToScroll, loadMore, loadMoreNewer]);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
