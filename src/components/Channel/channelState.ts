@@ -12,6 +12,9 @@ export type ChannelStateReducerAction<
       type: 'closeThread';
     }
   | {
+      type: 'clearHighlightedMessage';
+    }
+  | {
       channel: Channel<StreamChatGenerics>;
       type: 'copyMessagesFromChannel';
       parentId?: string | null;
@@ -21,6 +24,11 @@ export type ChannelStateReducerAction<
       type: 'copyStateFromChannelOnEvent';
     }
   | {
+      hasMoreNewer: boolean;
+      highlightedMessageId: string;
+      type: 'jumpToMessageFinished';
+    }
+  | {
       channel: Channel<StreamChatGenerics>;
       type: 'initStateFromChannel';
     }
@@ -28,6 +36,11 @@ export type ChannelStateReducerAction<
       hasMore: boolean;
       messages: StreamMessage<StreamChatGenerics>[];
       type: 'loadMoreFinished';
+    }
+  | {
+      hasMoreNewer: boolean;
+      messages: StreamMessage<StreamChatGenerics>[];
+      type: 'loadMoreNewerFinished';
     }
   | {
       threadHasMore: boolean;
@@ -46,6 +59,10 @@ export type ChannelStateReducerAction<
   | {
       loadingMore: boolean;
       type: 'setLoadingMore';
+    }
+  | {
+      loadingMoreNewer: boolean;
+      type: 'setLoadingMoreNewer';
     }
   | {
       message: StreamMessage<StreamChatGenerics>;
@@ -90,6 +107,8 @@ export const channelReducer = <
         ...state,
         messages: [...channel.state.messages],
         pinnedMessages: [...channel.state.pinnedMessages],
+        // copying messages from channel happens with new message - this resets the suppressAutoscroll
+        suppressAutoscroll: false,
         threadMessages: parentId
           ? { ...channel.state.threads }[parentId] || []
           : state.threadMessages,
@@ -123,12 +142,37 @@ export const channelReducer = <
       };
     }
 
+    case 'jumpToMessageFinished': {
+      return {
+        ...state,
+        hasMoreNewer: action.hasMoreNewer,
+        highlightedMessageId: action.highlightedMessageId,
+      };
+    }
+
+    case 'clearHighlightedMessage': {
+      return {
+        ...state,
+        highlightedMessageId: undefined,
+      };
+    }
+
     case 'loadMoreFinished': {
       const { hasMore, messages } = action;
       return {
         ...state,
         hasMore,
         loadingMore: false,
+        messages,
+      };
+    }
+
+    case 'loadMoreNewerFinished': {
+      const { hasMoreNewer, messages } = action;
+      return {
+        ...state,
+        hasMoreNewer,
+        loadingMoreNewer: false,
         messages,
       };
     }
@@ -159,7 +203,13 @@ export const channelReducer = <
 
     case 'setLoadingMore': {
       const { loadingMore } = action;
-      return { ...state, loadingMore };
+      // supporess the autoscroll behavior
+      return { ...state, loadingMore, suppressAutoscroll: true };
+    }
+
+    case 'setLoadingMoreNewer': {
+      const { loadingMoreNewer } = action;
+      return { ...state, loadingMoreNewer };
     }
 
     case 'setThread': {
@@ -201,12 +251,14 @@ export const channelReducer = <
 export const initialState = {
   error: null,
   hasMore: true,
+  hasMoreNewer: false,
   loading: true,
   loadingMore: false,
   members: {},
   messages: [],
   pinnedMessages: [],
   read: {},
+  suppressAutoscroll: false,
   thread: null,
   threadHasMore: true,
   threadLoadingMore: false,
