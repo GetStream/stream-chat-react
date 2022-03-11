@@ -165,8 +165,6 @@ const MessageListWithContext = <
           <InfiniteScroll
             className='str-chat__reverse-infinite-scroll'
             data-testid='reverse-infinite-scroll'
-            isReverse
-            useWindow={false}
             {...finalInternalInfiniteScrollProps}
           >
             <ul className='str-chat__ul'>{elements}</ul>
