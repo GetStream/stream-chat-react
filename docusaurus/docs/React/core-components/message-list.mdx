@@ -90,7 +90,7 @@ const customAction = {
 
 ### disableDateSeparator
 
-If true, disables the injection of date separator UI components.
+If true, disables the injection of date separator UI components in the `Channel` `MessageList` component.
 
 | Type    | Default |
 | ------- | ------- |
@@ -99,6 +99,14 @@ If true, disables the injection of date separator UI components.
 ### disableQuotedMessages
 
 If true, disables the ability for users to quote messages.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### enableThreadDateSeparator
+
+Prop passed to MessageList from Thread through `additionalMessageListProps`. If true, injects date separator UI components into `Thread` component.
 
 | Type    | Default |
 | ------- | ------- |

@@ -11,6 +11,7 @@ type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   disableDateSeparator: boolean;
+  enableThreadDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
   messages: StreamMessage<StreamChatGenerics>[];
@@ -30,6 +31,7 @@ export const processMessages = <
 ) => {
   const {
     disableDateSeparator,
+    enableThreadDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
@@ -39,6 +41,9 @@ export const processMessages = <
     threadList,
     userId,
   } = params;
+
+  // console.log('ets', enableThreadDateSeparator);
+  // enableThreadDateSeparator = true;
 
   let unread = false;
   let ephemeralMessagePresent = false;
@@ -71,18 +76,23 @@ export const processMessages = <
     if (
       i > 0 &&
       !disableDateSeparator &&
-      !threadList &&
       previousMessage.created_at &&
-      isDate(previousMessage.created_at)
+      isDate(previousMessage.created_at) &&
+      (!threadList || (threadList && enableThreadDateSeparator))
     ) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
 
-    if (!unread && !hideNewMessageSeparator && !threadList) {
+    if (!unread && !hideNewMessageSeparator) {
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      if (!disableDateSeparator && unread && message.user?.id !== userId) {
+      if (
+        !disableDateSeparator &&
+        enableThreadDateSeparator &&
+        unread &&
+        message.user?.id !== userId
+      ) {
         newMessages.push({
           customType: 'message.date',
           date: message.created_at,
@@ -94,13 +104,13 @@ export const processMessages = <
 
     if (
       !disableDateSeparator &&
-      !threadList &&
       (i === 0 ||
         messageDate !== prevMessageDate ||
         (hideDeletedMessages &&
           messages[i - 1]?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row
+      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' && // do not show two date separators in a row)
+      (!threadList || (threadList && enableThreadDateSeparator))
     ) {
       lastDateSeparator = messageDate;
 

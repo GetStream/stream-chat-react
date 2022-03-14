@@ -16,6 +16,7 @@ export const useEnrichedMessages = <
 >(args: {
   channel: Channel<StreamChatGenerics>;
   disableDateSeparator: boolean;
+  enableThreadDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
   messages: StreamMessage<StreamChatGenerics>[];
@@ -32,6 +33,7 @@ export const useEnrichedMessages = <
   const {
     channel,
     disableDateSeparator,
+    enableThreadDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -45,12 +47,13 @@ export const useEnrichedMessages = <
   const { HeaderComponent } = useComponentContext<StreamChatGenerics>('useEnrichedMessages');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
-
+// todo add enable
   let messagesWithDates =
     disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : processMessages({
           disableDateSeparator,
+          enableThreadDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,
           lastRead,

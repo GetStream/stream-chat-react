@@ -85,6 +85,7 @@ const VirtualizedMessageListWithContext = <
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
+    enableThreadDateSeparator = false,
     hasMore,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
@@ -133,9 +134,10 @@ const VirtualizedMessageListWithContext = <
     if (typeof messages === 'undefined') {
       return [];
     }
-
+// todo: add double check below logic
     if (
       disableDateSeparator &&
+      !enableThreadDateSeparator &&
       !hideDeletedMessages &&
       hideNewMessageSeparator &&
       !separateGiphyPreview
@@ -145,6 +147,7 @@ const VirtualizedMessageListWithContext = <
 
     return processMessages({
       disableDateSeparator,
+      enableThreadDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
@@ -155,6 +158,7 @@ const VirtualizedMessageListWithContext = <
     });
   }, [
     disableDateSeparator,
+    enableThreadDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
@@ -369,8 +373,10 @@ export type VirtualizedMessageListProps<
   ) => React.ReactElement;
   /** If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance */
   defaultItemHeight?: number;
-  /** Disables the injection of date separator components, defaults to `true` */
+  /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
+  /** Injects date separator components in Thread, defaults to `false` */
+  enableThreadDateSeparator?: boolean;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
