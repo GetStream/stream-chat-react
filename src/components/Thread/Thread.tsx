@@ -34,7 +34,7 @@ export type ThreadProps<
   additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
-  /** Injects date separator components in Thread, defaults to `false`. To be passed to the underlying MessageList component */
+  /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
   enableThreadDateSeparator?: boolean;
   /** Display the thread on 100% width of its parent container. Useful for mobile style view */
   fullWidth?: boolean;

@@ -134,7 +134,7 @@ const VirtualizedMessageListWithContext = <
     if (typeof messages === 'undefined') {
       return [];
     }
-// todo: add double check below logic
+
     if (
       disableDateSeparator &&
       !enableThreadDateSeparator &&
@@ -375,7 +375,7 @@ export type VirtualizedMessageListProps<
   defaultItemHeight?: number;
   /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
-  /** Injects date separator components in Thread, defaults to `false` */
+  /** Prop passed to `VirtualizedMessageList` from `Thread`. Injects date separator components in `Thread` component, defaults to `false` */
   enableThreadDateSeparator?: boolean;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;

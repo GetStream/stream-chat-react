@@ -57,8 +57,6 @@ const App = () => (
         <MessageInput focus />
       </Window>
       <Thread />
-      <Thread enableThreadDateSeparator />
-      <Thread additionalMessageListProps={{ enableThreadDateSeparator: true }} />
     </Channel>
   </Chat>
 );

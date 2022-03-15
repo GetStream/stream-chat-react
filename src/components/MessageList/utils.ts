@@ -42,9 +42,6 @@ export const processMessages = <
     userId,
   } = params;
 
-  // console.log('ets', enableThreadDateSeparator);
-  // enableThreadDateSeparator = true;
-
   let unread = false;
   let ephemeralMessagePresent = false;
   let lastDateSeparator;
