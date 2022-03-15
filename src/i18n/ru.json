@@ -63,7 +63,7 @@
   "replyCount_few": "{{ count }} ответов",
   "replyCount_many": "{{ count }} ответов",
   "replyCount_one": "1 ответ",
-  "replyCount_other": "replyCount",
+  "replyCount_other": "{{ count }} ответов",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} и {{ moreCount }} еще",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} и {{ lastUser }}",
