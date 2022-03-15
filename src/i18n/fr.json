@@ -60,6 +60,7 @@
   "You have no channels currently": "Vous n'avez actuellement aucun canal",
   "You've reached the maximum number of files": "Vous avez atteint le nombre maximum de fichiers",
   "live": "en direct",
+  "replyCount_many": "{{ count }} réponses",
   "replyCount_one": "1 réponse",
   "replyCount_other": "{{ count }} réponses",
   "this content could not be displayed": "ce contenu n'a pu être affiché",

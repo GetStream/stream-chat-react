@@ -60,6 +60,7 @@
   "You have no channels currently": "Você não tem canais atualmente",
   "You've reached the maximum number of files": "Você atingiu o número máximo de arquivos",
   "live": "viver",
+  "replyCount_many": "{{ count }} respostas",
   "replyCount_one": "1 resposta",
   "replyCount_other": "{{ count }} respostas",
   "this content could not be displayed": "este conteúdo não pôde ser exibido",
