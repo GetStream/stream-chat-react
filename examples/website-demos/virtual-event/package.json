@@ -9,7 +9,7 @@
     "react-dom": "link:../../../node_modules/react-dom",
     "react-scripts": "^5.0.0",
     "sass": "^1.41.0",
-    "stream-chat": "^6.0.0",
+    "stream-chat": "^6.1.0",
     "stream-chat-react": "link:../../../",
     "typescript": "4.3.5"
   },
