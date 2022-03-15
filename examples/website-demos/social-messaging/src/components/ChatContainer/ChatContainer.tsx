@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import type { Channel as StreamChannel } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 import { ChannelSort, StreamChat } from 'stream-chat';
-import { Channel, ChannelList, Chat } from 'stream-chat-react';
+import { Channel as ChannelComponent, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
 import { Snackbar } from '../MessageActions/SnackBar';
@@ -58,7 +58,7 @@ const sort: ChannelSort = {
 };
 
 export const ChatContainer: React.FC = () => {
-  const [chatClient, setChatClient] = useState<StreamChat>();
+  const [chatClient, setChatClient] = useState<StreamChat<StreamChatGenerics>>();
 
   const { snackbar } = useActionsContext();
   const { setChatsUnreadCount, setMentionsUnreadCount } = useUnreadContext();
@@ -80,7 +80,7 @@ export const ChatContainer: React.FC = () => {
     };
   }, []); // eslint-disable-line
 
-  const customRenderFilter = (channels: StreamChannel[]) => {
+  const customRenderFilter = (channels: Channel<StreamChatGenerics>[]) => {
     const getTotalChatUnreadCount = channels
       .map((channel) => channel.countUnread())
       .reduce((total, count) => total + count, 0);
@@ -118,7 +118,7 @@ export const ChatContainer: React.FC = () => {
         </div>
         {isSideDrawerOpen && <SideDrawer />}
         {snackbar && <Snackbar />}
-        <Channel
+        <ChannelComponent
           AutocompleteSuggestionHeader={SocialSuggestionListHeader}
           AutocompleteSuggestionItem={SocialSuggestionList}
           Message={SocialMessage}
@@ -127,7 +127,7 @@ export const ChatContainer: React.FC = () => {
           ThreadHeader={SocialThreadHeader}
         >
           <ChannelContainer />
-        </Channel>
+        </ChannelComponent>
       </GiphyContextProvider>
     </Chat>
   );

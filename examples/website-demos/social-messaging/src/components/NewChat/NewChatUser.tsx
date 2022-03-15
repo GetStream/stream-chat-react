@@ -8,8 +8,8 @@ import { StreamChatGenerics } from '../../types';
 
 import './NewChatUser.scss';
 
-type Props<StreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
-  user: UserResponse<StreamChatGenerics> | undefined;
+type Props<SocialStreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
+  user: UserResponse<SocialStreamChatGenerics> | undefined;
 };
 
 export const NewChatUser = (props: Props<StreamChatGenerics>) => {
