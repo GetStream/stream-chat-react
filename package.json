@@ -60,7 +60,7 @@
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "^6.2.0"
+    "stream-chat": "^6.3.0"
   },
   "files": [
     "dist",
@@ -160,7 +160,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^18.0.0",
     "semantic-release-cli": "^5.4.4",
-    "stream-chat": "^6.2.0",
+    "stream-chat": "^6.3.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
