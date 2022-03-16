@@ -14,10 +14,8 @@ const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 describe('InfiniteScroll', () => {
   // not sure if there is a more 'narrow' way of capturing event listeners being added
   const divAddEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
-  const windowAddEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   const divRemoveEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
-  const windowRemoveEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   afterEach(() => {
     jest.clearAllMocks();
