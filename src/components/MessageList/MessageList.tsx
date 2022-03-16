@@ -19,7 +19,7 @@ import {
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
+import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
