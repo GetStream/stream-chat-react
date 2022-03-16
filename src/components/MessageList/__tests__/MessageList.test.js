@@ -125,4 +125,120 @@ describe('MessageList', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('should render DateSeparator by default', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+      messages: [generateMessage({ user: user1 })],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const { container } = render(
+      <Chat client={chatClient}>
+        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
+          <MessageList />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.str-chat__date-separator')).not.toBeFalsy();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should not render DateSeparator if disableDateSeparator is true', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+      messages: [generateMessage({ user: user1 })],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const { container } = render(
+      <Chat client={chatClient}>
+        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
+          <MessageList disableDateSeparator />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.str-chat__date-separator')).toBeFalsy();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should not render DateSeparator in Thread MessageList by default', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+      messages: [generateMessage({ user: user1 })],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const { container } = render(
+      <Chat client={chatClient}>
+        <Channel channel={channel}>
+          <MessageList threadList />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.str-chat__date-separator')).toBeFalsy();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render DateSeparator in Thread MessageList if enableThreadDateSeparator is true', async () => {
+    const user1 = generateUser();
+    const user2 = generateUser();
+    const mockedChannel = generateChannel({
+      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+      messages: [generateMessage({ user: user1 })],
+    });
+
+    chatClient = await getTestClientWithUser({ id: 'vishal' });
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
+
+    const { container } = render(
+      <Chat client={chatClient}>
+        <Channel channel={channel}>
+          <MessageList enableThreadDateSeparator threadList />
+        </Channel>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(document.querySelector('.str-chat__date-separator')).not.toBeFalsy();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
 });
