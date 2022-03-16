@@ -281,7 +281,8 @@ const UnMemoizedChannelList = <
       activeChannel: channel,
       Avatar,
       channel: item,
-      channelUpdateCount, // forces the update of preview component on channel update
+      // forces the update of preview component on channel update
+      channelUpdateCount,
       key: item.id,
       Preview,
       setActiveChannel,

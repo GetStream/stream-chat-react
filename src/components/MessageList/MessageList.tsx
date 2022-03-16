@@ -158,7 +158,7 @@ const MessageListWithContext = <
 
   React.useLayoutEffect(() => {
     if (highlightedMessageId) {
-      const element = ulRef.current?.querySelector(`[data-message-id=${highlightedMessageId}]`);
+      const element = ulRef.current?.querySelector(`[data-message-id='${highlightedMessageId}']`);
       element?.scrollIntoView({ block: 'center' });
     }
   }, [highlightedMessageId]);

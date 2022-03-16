@@ -12,6 +12,9 @@ export type ChannelStateReducerAction<
       type: 'closeThread';
     }
   | {
+      type: 'clearHighlightedMessage';
+    }
+  | {
       channel: Channel<StreamChatGenerics>;
       type: 'copyMessagesFromChannel';
       parentId?: string | null;
@@ -147,12 +150,18 @@ export const channelReducer = <
       };
     }
 
+    case 'clearHighlightedMessage': {
+      return {
+        ...state,
+        highlightedMessageId: undefined,
+      };
+    }
+
     case 'loadMoreFinished': {
       const { hasMore, messages } = action;
       return {
         ...state,
         hasMore,
-        highlightedMessageId: undefined,
         loadingMore: false,
         messages,
       };
@@ -163,7 +172,6 @@ export const channelReducer = <
       return {
         ...state,
         hasMoreNewer,
-        highlightedMessageId: undefined,
         loadingMoreNewer: false,
         messages,
       };
@@ -195,13 +203,13 @@ export const channelReducer = <
 
     case 'setLoadingMore': {
       const { loadingMore } = action;
-      return { ...state, highlightedMessageId: undefined, loadingMore };
+      // supporess the autoscroll behavior
+      return { ...state, loadingMore, suppressAutoscroll: true };
     }
 
     case 'setLoadingMoreNewer': {
       const { loadingMoreNewer } = action;
-      // supporess the autoscroll behavior
-      return { ...state, loadingMoreNewer, suppressAutoscroll: true };
+      return { ...state, loadingMoreNewer };
     }
 
     case 'setThread': {

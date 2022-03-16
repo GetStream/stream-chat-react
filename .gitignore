@@ -23,9 +23,13 @@ coverage
 
 # nyc test coverage
 .nyc_output
+<<<<<<< HEAD
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files) 
 .grunt
+=======
+# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files) .grunt
+>>>>>>> 5a4da1ea (feat: setup works in both message lists)
 
 # Bower dependency directory (https://bower.io/)
 bower_components
@@ -60,6 +64,7 @@ typings/
 
 # dotenv environment variables file
 .env
+/.env.local
 /.env.development
 /.env.production
 
@@ -70,4 +75,3 @@ client/dist
 /.virtualgo
 .vscode/
 coverage.out
-.env.local

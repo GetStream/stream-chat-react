@@ -34,6 +34,7 @@ export const useScrollLocationLogic = <
     if (!listRef.current?.scrollTo || hasMoreNewer || suppressAutoscroll) {
       return;
     }
+
     listRef.current?.scrollTo({
       top: listRef.current.scrollHeight,
     });
@@ -56,7 +57,10 @@ export const useScrollLocationLogic = <
 
   const updateScrollTop = useMessageListScrollManager({
     messages,
-    onScrollBy: (scrollBy) => listRef.current?.scrollBy({ top: scrollBy }),
+    onScrollBy: (scrollBy) => {
+      listRef.current?.scrollBy({ top: scrollBy });
+    },
+
     scrollContainerMeasures: () => ({
       offsetHeight: listRef.current?.offsetHeight || 0,
       scrollHeight: listRef.current?.scrollHeight || 0,
