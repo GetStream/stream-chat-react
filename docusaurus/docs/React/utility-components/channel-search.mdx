@@ -52,6 +52,14 @@ Custom handler function to run on search result item selection.
 | ----------------------------------------------- |
 | (user: UserResponse) => Promise\<void\> \| void |
 
+### placeholder
+
+Custom placeholder text to be displayed in the search input. Can be passed down from `ChannelList` via its `additionalChannelSearchProps`. If using custom i18n translations, it is preferable to change the placeholder value in your translations files under the key `'Search'`.
+
+| Type   | Default  |
+| ------ | -------- |
+| string | 'Search' |
+
 ### popupResults
 
 Display search results as an absolutely positioned popup, defaults to false and shows inline.

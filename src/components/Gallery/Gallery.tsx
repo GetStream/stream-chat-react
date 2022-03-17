@@ -6,19 +6,23 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type GalleryProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
+export type GalleryProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   images:
     | {
         image_url?: string | undefined;
         thumb_url?: string | undefined;
       }[]
-    | Attachment<At>[];
+    | Attachment<StreamChatGenerics>[];
 };
 
-const UnMemoizedGallery = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: GalleryProps<At>,
+const UnMemoizedGallery = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: GalleryProps<StreamChatGenerics>,
 ) => {
   const { images } = props;
 

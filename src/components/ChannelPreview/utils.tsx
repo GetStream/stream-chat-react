@@ -6,28 +6,14 @@ import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
 import type { TranslationContextValue } from '../../context/TranslationContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const renderPreviewText = (text: string) => <ReactMarkdown source={text} />;
 
 export const getLatestMessagePreview = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
+  channel: Channel<StreamChatGenerics>,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
 ): string | JSX.Element => {
@@ -62,16 +48,10 @@ export const getLatestMessagePreview = <
 };
 
 export const getDisplayTitle = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
-  currentUser?: UserResponse<Us>,
+  channel: Channel<StreamChatGenerics>,
+  currentUser?: UserResponse<StreamChatGenerics>,
 ) => {
   let title = channel.data?.name;
   const members = Object.values(channel.state.members);
@@ -87,16 +67,10 @@ export const getDisplayTitle = <
 };
 
 export const getDisplayImage = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  channel: Channel<At, Ch, Co, Ev, Me, Re, Us>,
-  currentUser?: UserResponse<Us>,
+  channel: Channel<StreamChatGenerics>,
+  currentUser?: UserResponse<StreamChatGenerics>,
 ) => {
   let image = channel.data?.image;
   const members = Object.values(channel.state.members);

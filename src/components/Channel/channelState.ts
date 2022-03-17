@@ -3,56 +3,40 @@ import type { Channel, MessageResponse, ChannelState as StreamChannelState } fro
 
 import type { ChannelState, StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelStateReducerAction<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > =
   | {
       type: 'closeThread';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
       type: 'copyMessagesFromChannel';
       parentId?: string | null;
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
       type: 'copyStateFromChannelOnEvent';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
       type: 'initStateFromChannel';
     }
   | {
       hasMore: boolean;
-      messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+      messages: StreamMessage<StreamChatGenerics>[];
       type: 'loadMoreFinished';
     }
   | {
       threadHasMore: boolean;
-      threadMessages: Array<
-        ReturnType<StreamChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>
-      >;
+      threadMessages: Array<ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>>;
       type: 'loadMoreThreadFinished';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
+      message: StreamMessage<StreamChatGenerics>;
       type: 'openThread';
     }
   | {
@@ -64,46 +48,31 @@ export type ChannelStateReducerAction<
       type: 'setLoadingMore';
     }
   | {
-      message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+      message: StreamMessage<StreamChatGenerics>;
       type: 'setThread';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
       type: 'setTyping';
     }
   | {
       type: 'startLoadingThread';
     }
   | {
-      channel: Channel<At, Ch, Co, Ev, Me, Re, Us>;
-      message: MessageResponse<At, Ch, Co, Me, Re, Us>;
+      channel: Channel<StreamChatGenerics>;
+      message: MessageResponse<StreamChatGenerics>;
       type: 'updateThreadOnEvent';
     };
 
 export type ChannelStateReducer<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Reducer<
-  ChannelState<At, Ch, Co, Ev, Me, Re, Us>,
-  ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>
->;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Reducer<ChannelState<StreamChatGenerics>, ChannelStateReducerAction<StreamChatGenerics>>;
 
 export const channelReducer = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  state: ChannelState<At, Ch, Co, Ev, Me, Re, Us>,
-  action: ChannelStateReducerAction<At, Ch, Co, Ev, Me, Re, Us>,
+  state: ChannelState<StreamChatGenerics>,
+  action: ChannelStateReducerAction<StreamChatGenerics>,
 ) => {
   switch (action.type) {
     case 'closeThread': {

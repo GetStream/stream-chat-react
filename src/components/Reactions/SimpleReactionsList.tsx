@@ -8,19 +8,10 @@ import { useMessageContext } from '../../context/MessageContext';
 import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type SimpleReactionsListProps<
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
   additionalEmojiProps?: Partial<NimbleEmojiProps>;
@@ -31,19 +22,13 @@ export type SimpleReactionsListProps<
   /** A list of the currently supported reactions on a message */
   reactionOptions?: ReactionEmoji[];
   /** An array of the reaction objects to display in the list */
-  reactions?: ReactionResponse<Re, Us>[];
+  reactions?: ReactionResponse<StreamChatGenerics>[];
 };
 
 const UnMemoizedSimpleReactionsList = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: SimpleReactionsListProps<Re, Us>,
+  props: SimpleReactionsListProps<StreamChatGenerics>,
 ) => {
   const {
     additionalEmojiProps = {},
@@ -54,15 +39,9 @@ const UnMemoizedSimpleReactionsList = <
   } = props;
 
   const { Emoji, emojiConfig } = useEmojiContext('SimpleReactionsList');
-  const { handleReaction: contextHandleReaction, message } = useMessageContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('SimpleReactionsList');
+  const { handleReaction: contextHandleReaction, message } = useMessageContext<StreamChatGenerics>(
+    'SimpleReactionsList',
+  );
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 

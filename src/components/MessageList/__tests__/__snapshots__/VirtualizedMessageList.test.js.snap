@@ -11,6 +11,8 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
       className="str-chat__virtual-list"
     >
       <div
+        data-test-id="virtuoso-scroller"
+        data-virtuoso-scroller={true}
         style={
           Object {
             "WebkitOverflowScrolling": "touch",
@@ -24,6 +26,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
         tabIndex={0}
       >
         <div
+          data-viewport-type="element"
           style={
             Object {
               "height": "100%",

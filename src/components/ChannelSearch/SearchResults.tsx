@@ -7,41 +7,21 @@ import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type DropdownContainerProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  results: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>[];
-  SearchResultItem: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
-  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
+  results: ChannelOrUserResponse<StreamChatGenerics>[];
+  SearchResultItem: React.ComponentType<SearchResultItemProps<StreamChatGenerics>>;
+  selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
   focusedUser?: number;
 };
 
 const DefaultDropdownContainer = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: DropdownContainerProps<StreamChatGenerics>,
 ) => {
   const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
 
@@ -61,30 +41,18 @@ const DefaultDropdownContainer = <
 };
 
 export type SearchResultItemProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   index: number;
-  result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>;
-  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
+  result: ChannelOrUserResponse<StreamChatGenerics>;
+  selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
   focusedUser?: number;
 };
 
 const DefaultSearchResultItem = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: SearchResultItemProps<StreamChatGenerics>,
 ) => {
   const { focusedUser, index, result, selectResult } = props;
 
@@ -118,35 +86,23 @@ const DefaultSearchResultItem = <
 };
 
 export type SearchResultsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  results: Array<ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>> | [];
+  results: Array<ChannelOrUserResponse<StreamChatGenerics>> | [];
   searching: boolean;
-  selectResult: (result: ChannelOrUserResponse<At, Ch, Co, Ev, Me, Re, Us>) => Promise<void> | void;
-  DropdownContainer?: React.ComponentType<DropdownContainerProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
+  DropdownContainer?: React.ComponentType<DropdownContainerProps<StreamChatGenerics>>;
   popupResults?: boolean;
   SearchEmpty?: React.ComponentType;
   SearchLoading?: React.ComponentType;
-  SearchResultItem?: React.ComponentType<SearchResultItemProps<At, Ch, Co, Ev, Me, Re, Us>>;
+  SearchResultItem?: React.ComponentType<SearchResultItemProps<StreamChatGenerics>>;
   SearchResultsHeader?: React.ComponentType;
 };
 
 export const SearchResults = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: SearchResultsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: SearchResultsProps<StreamChatGenerics>,
 ) => {
   const {
     DropdownContainer = DefaultDropdownContainer,

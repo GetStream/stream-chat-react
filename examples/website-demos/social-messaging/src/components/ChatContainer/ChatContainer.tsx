@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import type { Channel as StreamChannel } from 'stream-chat';
-import { ChannelSort, LiteralStringForUnion, StreamChat } from 'stream-chat';
-import { Channel, ChannelList, Chat } from 'stream-chat-react';
+import type { Channel } from 'stream-chat';
+import { ChannelSort, StreamChat } from 'stream-chat';
+import { Channel as ChannelComponent, ChannelList, Chat } from 'stream-chat-react';
 
 import { ChannelContainer } from '../ChannelContainer/ChannelContainer';
 import { Snackbar } from '../MessageActions/SnackBar';
@@ -21,6 +21,7 @@ import { useActionsContext } from '../../contexts/ActionsContext';
 import { GiphyContextProvider } from '../../contexts/GiphyContext';
 import { useUnreadContext } from '../../contexts/UnreadContext';
 import { useViewContext } from '../../contexts/ViewContext';
+import { StreamChatGenerics } from '../../types';
 
 import './ChatContainer.scss';
 
@@ -54,19 +55,10 @@ const options = { message_limit: 30 };
 const sort: ChannelSort = {
   last_message_at: -1,
   updated_at: -1,
-  cid: 1,
 };
 
-export type SocialAttachmentType = {};
-export type SocialChannelType = {};
-export type SocialCommandType = LiteralStringForUnion;
-export type SocialEventType = {};
-export type SocialMessageType = {};
-export type SocialReactionType = {};
-export type SocialUserType = { image?: string };
-
 export const ChatContainer: React.FC = () => {
-  const [chatClient, setChatClient] = useState<StreamChat>();
+  const [chatClient, setChatClient] = useState<StreamChat<StreamChatGenerics>>();
 
   const { snackbar } = useActionsContext();
   const { setChatsUnreadCount, setMentionsUnreadCount } = useUnreadContext();
@@ -76,15 +68,7 @@ export const ChatContainer: React.FC = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      const client = StreamChat.getInstance<
-        SocialAttachmentType,
-        SocialChannelType,
-        SocialCommandType,
-        SocialEventType,
-        SocialMessageType,
-        SocialReactionType,
-        SocialUserType
-      >(apiKey!);
+      const client = StreamChat.getInstance<StreamChatGenerics>(apiKey!);
       await client.connectUser(userToConnect, userToken);
       setChatClient(client);
     };
@@ -96,7 +80,7 @@ export const ChatContainer: React.FC = () => {
     };
   }, []); // eslint-disable-line
 
-  const customRenderFilter = (channels: StreamChannel[]) => {
+  const customRenderFilter = (channels: Channel<StreamChatGenerics>[]) => {
     const getTotalChatUnreadCount = channels
       .map((channel) => channel.countUnread())
       .reduce((total, count) => total + count, 0);
@@ -134,7 +118,7 @@ export const ChatContainer: React.FC = () => {
         </div>
         {isSideDrawerOpen && <SideDrawer />}
         {snackbar && <Snackbar />}
-        <Channel
+        <ChannelComponent
           AutocompleteSuggestionHeader={SocialSuggestionListHeader}
           AutocompleteSuggestionItem={SocialSuggestionList}
           Message={SocialMessage}
@@ -143,7 +127,7 @@ export const ChatContainer: React.FC = () => {
           ThreadHeader={SocialThreadHeader}
         >
           <ChannelContainer />
-        </Channel>
+        </ChannelComponent>
       </GiphyContextProvider>
     </Chat>
   );

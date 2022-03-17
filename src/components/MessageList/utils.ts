@@ -3,50 +3,30 @@ import { isDate } from '../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 type ProcessMessagesParams<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[];
+  messages: StreamMessage<StreamChatGenerics>[];
   userId: string;
   lastRead?: Date | null;
   separateGiphyPreview?: boolean;
   setGiphyPreviewMessage?: React.Dispatch<
-    React.SetStateAction<StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined>
+    React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;
   threadList?: boolean;
 };
 
 export const processMessages = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  params: ProcessMessagesParams<At, Ch, Co, Ev, Me, Re, Us>,
+  params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
   const {
     disableDateSeparator,
@@ -63,7 +43,7 @@ export const processMessages = <
   let unread = false;
   let ephemeralMessagePresent = false;
   let lastDateSeparator;
-  const newMessages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[] = [];
+  const newMessages: StreamMessage<StreamChatGenerics>[] = [];
 
   for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
@@ -108,7 +88,7 @@ export const processMessages = <
           date: message.created_at,
           id: message.id,
           unread,
-        } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>);
+        } as StreamMessage<StreamChatGenerics>);
       }
     }
 
@@ -129,7 +109,7 @@ export const processMessages = <
           customType: 'message.date',
           date: message.created_at,
           id: message.id,
-        } as StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+        } as StreamMessage<StreamChatGenerics>,
         message,
       );
     } else {
@@ -147,15 +127,9 @@ export const processMessages = <
 
 // fast since it usually iterates just the last few messages
 export const getLastReceived = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
+  messages: StreamMessage<StreamChatGenerics>[],
 ) => {
   for (let i = messages.length - 1; i > 0; i -= 1) {
     if (messages[i].status === 'received') {
@@ -167,20 +141,14 @@ export const getLastReceived = <
 };
 
 export const getReadStates = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
-  read: Record<string, { last_read: Date; user: UserResponse<Us> }> = {},
+  messages: StreamMessage<StreamChatGenerics>[],
+  read: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }> = {},
   returnAllReadData: boolean,
 ) => {
   // create object with empty array for each message id
-  const readData: Record<string, Array<UserResponse<Us>>> = {};
+  const readData: Record<string, Array<UserResponse<StreamChatGenerics>>> = {};
 
   Object.values(read).forEach((readState) => {
     if (!readState.last_read) return;
@@ -217,27 +185,13 @@ export const getReadStates = <
 };
 
 export const insertIntro = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  messages: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>[],
+  messages: StreamMessage<StreamChatGenerics>[],
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({ customType: 'channel.intro' } as unknown) as StreamMessage<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >;
+  const intro = ({ customType: 'channel.intro' } as unknown) as StreamMessage<StreamChatGenerics>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -286,17 +240,11 @@ export const insertIntro = <
 export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
 export const getGroupStyles = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  previousMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-  nextMessage: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message: StreamMessage<StreamChatGenerics>,
+  previousMessage: StreamMessage<StreamChatGenerics>,
+  nextMessage: StreamMessage<StreamChatGenerics>,
   noGroupByUser: boolean,
 ): GroupStyle => {
   if (message.customType === 'message.date') return '';

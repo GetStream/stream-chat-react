@@ -1,16 +1,16 @@
 import type { Channel, ChannelMemberResponse } from 'stream-chat';
 import { Avatar } from 'stream-chat-react';
 
-import { SocialUserType } from '../ChatContainer/ChatContainer';
+import { StreamChatGenerics } from '../../types';
 
 import { BlankAvatar } from '../../assets';
 
-type Props<SocialUserType> = {
-  members: ChannelMemberResponse<SocialUserType>[] | undefined;
+type Props<SocialStreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
+  members: ChannelMemberResponse<SocialStreamChatGenerics>[] | undefined;
   size?: number;
 };
 
-export const AvatarGroup = (props: Props<SocialUserType>) => {
+export const AvatarGroup = (props: Props<StreamChatGenerics>) => {
   const { members, size } = props;
 
   if (!members) return <BlankAvatar size={size} />;
@@ -118,7 +118,7 @@ export const AvatarGroup = (props: Props<SocialUserType>) => {
   return null;
 };
 
-export const getTimeStamp = (channel: Channel) => {
+export const getTimeStamp = (channel: Channel<StreamChatGenerics>) => {
   let lastHours = channel.state.last_message_at?.getHours();
   let lastMinutes: string | number | undefined = channel.state.last_message_at?.getMinutes();
   let half = 'AM';

@@ -12,39 +12,19 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type CustomMessageActionsType<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  customMessageActions: CustomMessageActions<At, Ch, Co, Ev, Me, Re, Us>;
-  message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>;
+  customMessageActions: CustomMessageActions<StreamChatGenerics>;
+  message: StreamMessage<StreamChatGenerics>;
 };
 
 const CustomMessageActionsList = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: CustomMessageActionsType<At, Ch, Co, Ev, Me, Re, Us>,
+  props: CustomMessageActionsType<StreamChatGenerics>,
 ) => {
   const { customMessageActions, message } = props;
   const customActionsArray = Object.keys(customMessageActions);
@@ -79,29 +59,17 @@ type PropsDrilledToMessageActionsBox =
   | 'handlePin';
 
 export type MessageActionsBoxProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, PropsDrilledToMessageActionsBox> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Pick<MessageContextValue<StreamChatGenerics>, PropsDrilledToMessageActionsBox> & {
   isUserMuted: () => boolean;
   mine: boolean;
   open: boolean;
 };
 
 const UnMemoizedMessageActionsBox = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageActionsBoxProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageActionsBoxProps<StreamChatGenerics>,
 ) => {
   const {
     getMessageActions,
@@ -115,18 +83,10 @@ const UnMemoizedMessageActionsBox = <
     open = false,
   } = props;
 
-  const { setQuotedMessage } = useChannelActionContext<At, Ch, Co, Ev, Me, Re, Us>(
+  const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
+  const { customMessageActions, message, messageListRect } = useMessageContext<StreamChatGenerics>(
     'MessageActionsBox',
   );
-  const { customMessageActions, message, messageListRect } = useMessageContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('MessageActionsBox');
 
   const { t } = useTranslationContext('MessageActionsBox');
 

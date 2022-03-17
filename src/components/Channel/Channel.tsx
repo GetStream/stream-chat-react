@@ -64,25 +64,10 @@ import type { Data as EmojiMartData } from 'emoji-mart';
 
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
 
 export type ChannelProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
   /** List of accepted file types */
@@ -90,69 +75,45 @@ export type ChannelProps<
   /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
-  Attachment?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Attachment'];
+  Attachment?: ComponentContextValue<StreamChatGenerics>['Attachment'];
   /** Optional UI component to override the default suggestion Header component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
-  AutocompleteSuggestionHeader?: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['AutocompleteSuggestionHeader'];
+  AutocompleteSuggestionHeader?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionHeader'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
-  AutocompleteSuggestionItem?: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['AutocompleteSuggestionItem'];
+  AutocompleteSuggestionItem?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionItem'];
   /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
-  AutocompleteSuggestionList?: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['AutocompleteSuggestionList'];
+  AutocompleteSuggestionList?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionList'];
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Avatar'];
+  Avatar?: ComponentContextValue<StreamChatGenerics>['Avatar'];
   /** The connected and active channel */
-  channel?: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
+  channel?: StreamChannel<StreamChatGenerics>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) */
-  CooldownTimer?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['CooldownTimer'];
+  CooldownTimer?: ComponentContextValue<StreamChatGenerics>['CooldownTimer'];
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
-  DateSeparator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['DateSeparator'];
+  DateSeparator?: ComponentContextValue<StreamChatGenerics>['DateSeparator'];
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
-    channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>,
-  ) => Promise<MessageResponse<At, Ch, Co, Me, Re, Us>> | void;
+    channel: StreamChannel<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channelId: string,
-    message: Message<At, Me, Us>,
-  ) => ReturnType<StreamChannel<At, Ch, Co, Ev, Me, Re, Us>['sendMessage']> | void;
+    message: Message<StreamChatGenerics>,
+  ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
   doUpdateMessageRequest?: (
     cid: string,
-    updatedMessage: UpdatedMessage<At, Ch, Co, Me, Re, Us>,
-  ) => ReturnType<StreamChat<At, Ch, Co, Ev, Me, Re, Us>['updateMessage']>;
+    updatedMessage: UpdatedMessage<StreamChatGenerics>,
+  ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
   /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
   dragAndDropWindow?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
-  EditMessageInput?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EditMessageInput'];
+  EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
   /** Custom UI component to override default `NimbleEmoji` from `emoji-mart` */
   Emoji?: EmojiContextValue['Emoji'];
   /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
   emojiData?: EmojiMartData;
   /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  EmojiIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmojiIcon'];
+  EmojiIcon?: ComponentContextValue<StreamChatGenerics>['EmojiIcon'];
   /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
   EmojiIndex?: EmojiContextValue['EmojiIndex'];
   /** Custom UI component to override default `NimblePicker` from `emoji-mart` */
@@ -160,104 +121,84 @@ export type ChannelProps<
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, , defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
-  EmptyStateIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['EmptyStateIndicator'];
+  EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  FileUploadIcon?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['FileUploadIcon'];
+  FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
-  GiphyPreviewMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['GiphyPreviewMessage'];
+  GiphyPreviewMessage?: ComponentContextValue<StreamChatGenerics>['GiphyPreviewMessage'];
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
   /** Custom UI component to render at the top of the `MessageList` */
-  HeaderComponent?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['HeaderComponent'];
+  HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
-  Input?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Input'];
+  Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
-  LoadingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['LoadingIndicator'];
+  LoadingIndicator?: ComponentContextValue<StreamChatGenerics>['LoadingIndicator'];
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
-  Message?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['Message'];
+  Message?: ComponentContextValue<StreamChatGenerics>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
-  MessageDeleted?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageDeleted'];
+  MessageDeleted?: ComponentContextValue<StreamChatGenerics>['MessageDeleted'];
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageList.tsx) */
-  MessageListNotifications?: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['MessageListNotifications'];
+  MessageListNotifications?: ComponentContextValue<StreamChatGenerics>['MessageListNotifications'];
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
-  MessageNotification?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageNotification'];
+  MessageNotification?: ComponentContextValue<StreamChatGenerics>['MessageNotification'];
   /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
-  MessageOptions?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageOptions'];
+  MessageOptions?: ComponentContextValue<StreamChatGenerics>['MessageOptions'];
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
-  MessageRepliesCountButton?: ComponentContextValue<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >['MessageRepliesCountButton'];
+  MessageRepliesCountButton?: ComponentContextValue<StreamChatGenerics>['MessageRepliesCountButton'];
   /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */
-  MessageStatus?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageStatus'];
+  MessageStatus?: ComponentContextValue<StreamChatGenerics>['MessageStatus'];
   /** Custom UI component to display system messages, defaults to and accepts same props as: [EventComponent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EventComponent/EventComponent.tsx) */
-  MessageSystem?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageSystem'];
+  MessageSystem?: ComponentContextValue<StreamChatGenerics>['MessageSystem'];
   /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
-  MessageTimestamp?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['MessageTimestamp'];
+  MessageTimestamp?: ComponentContextValue<StreamChatGenerics>['MessageTimestamp'];
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
-  onMentionsClick?: OnMentionAction<Us>;
+  onMentionsClick?: OnMentionAction<StreamChatGenerics>;
   /** Custom action handler function to run on hover of an @mention in a message */
-  onMentionsHover?: OnMentionAction<Us>;
+  onMentionsHover?: OnMentionAction<StreamChatGenerics>;
   /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
-  optionalMessageInputProps?: MessageInputProps<At, Ch, Co, Ev, Me, Re, Us, V>;
+  optionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
-  PinIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['PinIndicator'];
+  PinIndicator?: ComponentContextValue<StreamChatGenerics>['PinIndicator'];
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
-  QuotedMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['QuotedMessage'];
+  QuotedMessage?: ComponentContextValue<StreamChatGenerics>['QuotedMessage'];
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
-  QuotedMessagePreview?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['QuotedMessagePreview'];
+  QuotedMessagePreview?: ComponentContextValue<StreamChatGenerics>['QuotedMessagePreview'];
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
-  ReactionSelector?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionSelector'];
+  ReactionSelector?: ComponentContextValue<StreamChatGenerics>['ReactionSelector'];
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
-  ReactionsList?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ReactionsList'];
+  ReactionsList?: ComponentContextValue<StreamChatGenerics>['ReactionsList'];
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  SendButton?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['SendButton'];
+  SendButton?: ComponentContextValue<StreamChatGenerics>['SendButton'];
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
   skipMessageDataMemoization?: boolean;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
-  ThreadHeader?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadHeader'];
+  ThreadHeader?: ComponentContextValue<StreamChatGenerics>['ThreadHeader'];
   /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
-  ThreadStart?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['ThreadStart'];
+  ThreadStart?: ComponentContextValue<StreamChatGenerics>['ThreadStart'];
   /** Optional context provider that lets you override the default autocomplete triggers, defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) */
-  TriggerProvider?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TriggerProvider'];
+  TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
-  TypingIndicator?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['TypingIndicator'];
+  TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
   /** Custom UI component to display a message in the `VirtualizedMessageList`, defaults to and accepts same props as: [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
-  VirtualMessage?: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us>['VirtualMessage'];
+  VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 
 const UnMemoizedChannel = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  props: PropsWithChildren<ChannelProps<At, Ch, Co, Ev, Me, Re, Us, V>>,
+  props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
 ) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
 
-  const { channel: contextChannel } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('Channel');
+  const { channel: contextChannel } = useChatContext<StreamChatGenerics>('Channel');
 
   const channel = propsChannel || contextChannel;
 
@@ -267,18 +208,12 @@ const UnMemoizedChannel = <
 };
 
 const ChannelInner = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
   props: PropsWithChildren<
-    ChannelProps<At, Ch, Co, Ev, Me, Re, Us, V> & {
-      channel: StreamChannel<At, Ch, Co, Ev, Me, Re, Us>;
+    ChannelProps<StreamChatGenerics, V> & {
+      channel: StreamChannel<StreamChatGenerics>;
       key: string;
     }
   >,
@@ -303,24 +238,22 @@ const ChannelInner = <
     skipMessageDataMemoization,
   } = props;
 
-  const { client, customClasses, mutes, theme, useImageFlagEmojisOnWindows } = useChatContext<
-    At,
-    Ch,
-    Co,
-    Ev,
-    Me,
-    Re,
-    Us
-  >('Channel');
+  const {
+    client,
+    customClasses,
+    mutes,
+    theme,
+    useImageFlagEmojisOnWindows,
+  } = useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
-  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<At, Ch, Co, Ev, Me, Re, Us>>();
+  const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
 
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
-  const [state, dispatch] = useReducer<ChannelStateReducer<At, Ch, Co, Ev, Me, Re, Us>>(
+  const [state, dispatch] = useReducer<ChannelStateReducer<StreamChatGenerics>>(
     channelReducer,
     initialState,
   );
@@ -371,7 +304,7 @@ const ChannelInner = <
 
   const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
 
-  const handleEvent = (event: Event<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const handleEvent = (event: Event<StreamChatGenerics>) => {
     if (event.message) {
       dispatch({
         channel,
@@ -462,7 +395,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid]);
+  }, [channel.cid, doMarkReadRequest]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
@@ -499,7 +432,7 @@ const ChannelInner = <
   };
 
   const loadMoreFinished = debounce(
-    (hasMore: boolean, messages: ChannelState<At, Ch, Co, Ev, Me, Re, Us>['messages']) => {
+    (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
       if (!isMounted.current) return;
       dispatch({ hasMore, messages, type: 'loadMoreFinished' });
     },
@@ -528,7 +461,7 @@ const ChannelInner = <
 
     const oldestID = oldestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse<At, Ch, Co, Me, Re, Us>;
+    let queryResponse: ChannelAPIResponse<StreamChatGenerics>;
 
     try {
       queryResponse = await channel.query({
@@ -548,12 +481,10 @@ const ChannelInner = <
   };
 
   const updateMessage = (
-    updatedMessage:
-      | MessageToSend<At, Ch, Co, Ev, Me, Re, Us>
-      | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage as MessageResponse<At, Ch, Co, Me, Re, Us>, true);
+    channel.state.addMessageSorted(updatedMessage as MessageResponse<StreamChatGenerics>, true);
 
     dispatch({
       channel,
@@ -563,12 +494,13 @@ const ChannelInner = <
   };
 
   const isUserResponseArray = (
-    output: string[] | UserResponse<Us>[],
-  ): output is UserResponse<Us>[] => (output as UserResponse<Us>[])[0]?.id != null;
+    output: string[] | UserResponse<StreamChatGenerics>[],
+  ): output is UserResponse<StreamChatGenerics>[] =>
+    (output as UserResponse<StreamChatGenerics>[])[0]?.id != null;
 
   const doSendMessage = async (
-    message: MessageToSend<At, Ch, Co, Ev, Me, Re, Us> | StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
-    customMessageData?: Partial<Message<At, Me, Us>>,
+    message: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => {
     const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
@@ -585,10 +517,10 @@ const ChannelInner = <
       quoted_message_id: parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
-    } as Message<At, Me, Us>;
+    } as Message<StreamChatGenerics>;
 
     try {
-      let messageResponse: void | SendMessageAPIResponse<At, Ch, Co, Me, Re, Us>;
+      let messageResponse: void | SendMessageAPIResponse<StreamChatGenerics>;
 
       if (doSendMessageRequest) {
         messageResponse = await doSendMessageRequest(channel.cid, messageData);
@@ -620,9 +552,9 @@ const ChannelInner = <
 
   const createMessagePreview = (
     text: string,
-    attachments: MessageAttachments<At>,
-    parent: StreamMessage<At, Ch, Co, Ev, Me, Re, Us> | undefined,
-    mentioned_users: UserResponse<Us>[],
+    attachments: MessageAttachments<StreamChatGenerics>,
+    parent: StreamMessage<StreamChatGenerics> | undefined,
+    mentioned_users: UserResponse<StreamChatGenerics>[],
   ) => {
     const clientSideID = `${client.userID}-${uuidv4()}`;
 
@@ -639,7 +571,7 @@ const ChannelInner = <
       type: 'regular',
       user: client.user,
       ...(parent?.id ? { parent_id: parent.id } : null),
-    } as unknown) as MessageResponse<At, Ch, Co, Me, Re, Us>;
+    } as unknown) as MessageResponse<StreamChatGenerics>;
   };
 
   const sendMessage = async (
@@ -648,8 +580,8 @@ const ChannelInner = <
       mentioned_users = [],
       parent = undefined,
       text = '',
-    }: MessageToSend<At, Ch, Co, Ev, Me, Re, Us>,
-    customMessageData?: Partial<Message<At, Me, Us>>,
+    }: MessageToSend<StreamChatGenerics>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => {
     channel.state.filterErrorMessages();
 
@@ -660,7 +592,7 @@ const ChannelInner = <
     await doSendMessage(messagePreview, customMessageData);
   };
 
-  const retrySendMessage = async (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const retrySendMessage = async (message: StreamMessage<StreamChatGenerics>) => {
     updateMessage({
       ...message,
       errorStatusCode: undefined,
@@ -670,7 +602,7 @@ const ChannelInner = <
     await doSendMessage(message);
   };
 
-  const removeMessage = (message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>) => {
+  const removeMessage = (message: StreamMessage<StreamChatGenerics>) => {
     channel.state.removeMessage(message);
 
     dispatch({
@@ -683,7 +615,7 @@ const ChannelInner = <
   /** THREAD */
 
   const openThread = (
-    message: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+    message: StreamMessage<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => {
     event.preventDefault();
@@ -705,7 +637,7 @@ const ChannelInner = <
   const loadMoreThreadFinished = debounce(
     (
       threadHasMore: boolean,
-      threadMessages: Array<ReturnType<ChannelState<At, Ch, Co, Ev, Me, Re, Us>['formatMessage']>>,
+      threadMessages: Array<ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>>,
     ) => {
       dispatch({
         threadHasMore,
@@ -760,6 +692,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
+    giphyVersion: props.giphyVersion || 'fixed_height',
     maxNumberOfFiles,
     multipleUploads,
     mutes,
@@ -768,7 +701,7 @@ const ChannelInner = <
     watcher_count: state.watcherCount,
   });
 
-  const channelActionContextValue: ChannelActionContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+  const channelActionContextValue: ChannelActionContextValue<StreamChatGenerics> = useMemo(
     () => ({
       addNotification,
       closeThread,
@@ -789,7 +722,7 @@ const ChannelInner = <
     [channel.cid, loadMore, quotedMessage],
   );
 
-  const componentContextValue: ComponentContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+  const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(
     () => ({
       Attachment: props.Attachment || DefaultAttachment,
       AutocompleteSuggestionHeader: props.AutocompleteSuggestionHeader,

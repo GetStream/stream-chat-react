@@ -8,15 +8,7 @@ import { isUserMuted } from '../Message/utils';
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -27,14 +19,8 @@ type MessageContextPropsToPick =
   | 'message';
 
 export type MessageActionsProps<
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
-> = Partial<Pick<MessageContextValue<At, Ch, Co, Ev, Me, Re, Us>, MessageContextPropsToPick>> & {
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
   ActionsIcon?: React.FunctionComponent;
   customWrapperClass?: string;
   inline?: boolean;
@@ -43,15 +29,9 @@ export type MessageActionsProps<
 };
 
 export const MessageActions = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: MessageActionsProps<At, Ch, Co, Ev, Me, Re, Us>,
+  props: MessageActionsProps<StreamChatGenerics>,
 ) => {
   const {
     ActionsIcon = DefaultActionsIcon,
@@ -67,7 +47,7 @@ export const MessageActions = <
     mine,
   } = props;
 
-  const { mutes } = useChatContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -78,7 +58,7 @@ export const MessageActions = <
     isMyMessage,
     message: contextMessage,
     setEditingState,
-  } = useMessageContext<At, Ch, Co, Ev, Me, Re, Us>('MessageActions');
+  } = useMessageContext<StreamChatGenerics>('MessageActions');
 
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
@@ -91,7 +71,12 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
+  const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
+    if (event instanceof KeyboardEvent && event.key !== 'Escape') {
+      return;
+    }
+    setActionsBoxOpen(false);
+  }, []);
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
@@ -108,13 +93,15 @@ export const MessageActions = <
   }, [hideOptions, messageDeletedAt]);
 
   useEffect(() => {
-    if (actionsBoxOpen) {
-      document.addEventListener('click', hideOptions);
-    } else {
-      document.removeEventListener('click', hideOptions);
-    }
+    if (!actionsBoxOpen) return;
 
-    return () => document.removeEventListener('click', hideOptions);
+    document.addEventListener('click', hideOptions);
+    document.addEventListener('keyup', hideOptions);
+
+    return () => {
+      document.removeEventListener('click', hideOptions);
+      document.removeEventListener('keyup', hideOptions);
+    };
   }, [actionsBoxOpen, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
@@ -163,7 +150,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
 
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
-    setActionsBoxOpen(true);
+    setActionsBoxOpen((prev) => !prev);
   };
 
   const wrapperProps = {

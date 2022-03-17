@@ -4,34 +4,19 @@ import type { ReactEventHandler } from '../types';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-export type UserEventHandler<Us extends DefaultUserType<Us> = DefaultUserType> = (
-  event: React.BaseSyntheticEvent,
-  user: User<Us>,
-) => void;
+export type UserEventHandler<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = (event: React.BaseSyntheticEvent, user: User<StreamChatGenerics>) => void;
 
 export const useUserHandler = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<At, Ch, Co, Ev, Me, Re, Us>,
+  message?: StreamMessage<StreamChatGenerics>,
   eventHandlers?: {
-    onUserClickHandler?: UserEventHandler<Us>;
-    onUserHoverHandler?: UserEventHandler<Us>;
+    onUserClickHandler?: UserEventHandler<StreamChatGenerics>;
+    onUserHoverHandler?: UserEventHandler<StreamChatGenerics>;
   },
 ): {
   onUserClick: ReactEventHandler;

@@ -6,14 +6,18 @@ import { SafeAnchor } from '../SafeAnchor';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultAttachmentType } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type FileAttachmentProps<At extends DefaultAttachmentType = DefaultAttachmentType> = {
-  attachment: Attachment<At>;
+export type FileAttachmentProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachment: Attachment<StreamChatGenerics>;
 };
 
-const UnMemoizedFileAttachment = <At extends DefaultAttachmentType = DefaultAttachmentType>(
-  props: FileAttachmentProps<At>,
+const UnMemoizedFileAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: FileAttachmentProps<StreamChatGenerics>,
 ) => {
   const { attachment } = props;
 
@@ -25,7 +29,7 @@ const UnMemoizedFileAttachment = <At extends DefaultAttachmentType = DefaultAtta
           {attachment.title}
         </SafeAnchor>
         {attachment.file_size && Number.isFinite(Number(attachment.file_size)) && (
-          <span>{prettybytes(attachment.file_size)}</span>
+          <span>{prettybytes(attachment.file_size as number)}</span>
         )}
       </div>
     </div>

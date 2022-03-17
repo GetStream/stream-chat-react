@@ -7,9 +7,9 @@
     "lottie-web": "^5.7.13",
     "react": "link:../../../node_modules/react",
     "react-dom": "link:../../../node_modules/react-dom",
-    "react-scripts": "4.0.3",
+    "react-scripts": "^5.0.0",
     "sass": "^1.41.0",
-    "stream-chat": "4.2.0",
+    "stream-chat": "^6.1.0",
     "stream-chat-react": "link:../../../",
     "typescript": "4.3.5"
   },

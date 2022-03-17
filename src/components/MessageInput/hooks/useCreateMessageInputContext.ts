@@ -1,28 +1,13 @@
 import { useMemo } from 'react';
 
 import type { MessageInputContextValue } from '../../../context/MessageInputContext';
-import type {
-  CustomTrigger,
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateMessageInputContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType,
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 >(
-  value: MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V>,
+  value: MessageInputContextValue<StreamChatGenerics, V>,
 ) => {
   const {
     additionalTextareaProps,
@@ -97,7 +82,7 @@ export const useCreateMessageInputContext = <
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
 
-  const messageInputContext: MessageInputContextValue<At, Ch, Co, Ev, Me, Re, Us, V> = useMemo(
+  const messageInputContext: MessageInputContextValue<StreamChatGenerics, V> = useMemo(
     () => ({
       additionalTextareaProps,
       attachments,

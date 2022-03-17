@@ -2,15 +2,7 @@ import React from 'react';
 
 import type { PinIndicatorProps } from './types';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const ActionsIcon = () => (
   <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
@@ -78,17 +70,11 @@ export const PinIcon = () => (
 );
 
 export const PinIndicator = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   message,
   t,
-}: PinIndicatorProps<At, Ch, Co, Ev, Me, Re, Us>) => {
+}: PinIndicatorProps<StreamChatGenerics>) => {
   if (!message || !t) return null;
 
   return (

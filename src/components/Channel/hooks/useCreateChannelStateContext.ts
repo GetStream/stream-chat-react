@@ -4,26 +4,12 @@ import { isDate, isDayOrMoment } from '../../../context/TranslationContext';
 
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 
-import type {
-  DefaultAttachmentType,
-  DefaultChannelType,
-  DefaultCommandType,
-  DefaultEventType,
-  DefaultMessageType,
-  DefaultReactionType,
-  DefaultUserType,
-} from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const useCreateChannelStateContext = <
-  At extends DefaultAttachmentType = DefaultAttachmentType,
-  Ch extends DefaultChannelType = DefaultChannelType,
-  Co extends DefaultCommandType = DefaultCommandType,
-  Ev extends DefaultEventType = DefaultEventType,
-  Me extends DefaultMessageType = DefaultMessageType,
-  Re extends DefaultReactionType = DefaultReactionType,
-  Us extends DefaultUserType<Us> = DefaultUserType
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  value: Omit<ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us>, 'channelCapabilities'> & {
+  value: Omit<ChannelStateContextValue<StreamChatGenerics>, 'channelCapabilities'> & {
     channelCapabilitiesArray: string[];
     skipMessageDataMemoization?: boolean;
   },
@@ -34,6 +20,7 @@ export const useCreateChannelStateContext = <
     channelCapabilitiesArray = [],
     channelConfig,
     dragAndDropWindow,
+    giphyVersion,
     error,
     hasMore,
     loading,
@@ -100,7 +87,7 @@ export const useCreateChannelStateContext = <
     )
     .join();
 
-  const channelStateContext: ChannelStateContextValue<At, Ch, Co, Ev, Me, Re, Us> = useMemo(
+  const channelStateContext: ChannelStateContextValue<StreamChatGenerics> = useMemo(
     () => ({
       acceptedFiles,
       channel,
@@ -108,6 +95,7 @@ export const useCreateChannelStateContext = <
       channelConfig,
       dragAndDropWindow,
       error,
+      giphyVersion,
       hasMore,
       loading,
       loadingMore,

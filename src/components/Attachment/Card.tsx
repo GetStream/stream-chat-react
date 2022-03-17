@@ -3,8 +3,11 @@ import React from 'react';
 import { SafeAnchor } from '../SafeAnchor';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import type { Attachment } from 'stream-chat';
 
 export type CardProps = {
+  giphy?: Attachment['giphy'];
   /** The url of the full sized image */
   image_url?: string;
   /** The scraped url, used as a fallback if the OG-data doesn't include a link */
@@ -22,11 +25,19 @@ export type CardProps = {
 };
 
 const UnMemoizedCard: React.FC<CardProps> = (props) => {
-  const { image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
-
+  const { giphy, image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
   const { t } = useTranslationContext('Card');
+  const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
 
-  const image = thumb_url || image_url;
+  let image = thumb_url || image_url;
+  const dimensions: { height?: string; width?: string } = {};
+
+  if (type === 'giphy' && typeof giphy !== 'undefined') {
+    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
+    image = giphyVersion.url;
+    dimensions.height = giphyVersion.height;
+    dimensions.width = giphyVersion.width;
+  }
 
   const trimUrl = (url?: string | null) => {
     if (url !== undefined && url !== null) {
@@ -59,7 +70,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
     <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
       {image && (
         <div className='str-chat__message-attachment-card--header'>
-          <img alt={image} src={image} />
+          <img alt={image} src={image} {...dimensions} />
         </div>
       )}
       <div className='str-chat__message-attachment-card--content'>
