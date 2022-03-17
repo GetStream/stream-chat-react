@@ -6,15 +6,6 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { Attachment } from 'stream-chat';
 
-type GiphyVersions =
-  | 'original'
-  | 'fixed_height'
-  | 'fixed_height_still'
-  | 'fixed_height_downsampled'
-  | 'fixed_width'
-  | 'fixed_width_still'
-  | 'fixed_width_downsampled';
-
 export type CardProps = {
   giphy?: Attachment['giphy'];
   /** The url of the full sized image */
@@ -42,7 +33,7 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const dimensions: { height?: string; width?: string } = {};
 
   if (type === 'giphy' && typeof giphy !== 'undefined') {
-    const giphyVersion = giphy[giphyVersionName as GiphyVersions];
+    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
     image = giphyVersion.url;
     dimensions.height = giphyVersion.height;
     dimensions.width = giphyVersion.width;
