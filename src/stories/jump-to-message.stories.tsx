@@ -45,6 +45,7 @@ const JumpToMessage = () => {
 
   return (
     <button
+      data-testid='jump-to-message'
       onClick={async () => {
         const results = await chatClient.search(
           {
