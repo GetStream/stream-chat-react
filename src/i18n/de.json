@@ -25,6 +25,7 @@
   "Error · Unsent": "Fehler nicht gesendet",
   "Error: {{ errorMessage }}": "Fehler: {{ errorMessage }}",
   "Flag": "Flagge",
+  "Menu": "Speisekarte",
   "Message Failed · Click to try again": "Nachricht fehlgeschlagen · Klicken Sie hier, um es erneut zu versuchen",
   "Message Failed · Unauthorized": "Nachricht fehlgeschlagen · Nicht autorisiert",
   "Message deleted": "Nachricht gelöscht",
