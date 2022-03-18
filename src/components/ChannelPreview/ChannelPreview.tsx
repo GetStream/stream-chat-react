@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -57,7 +57,7 @@ export const ChannelPreview = <
 >(
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
-  const { channel, Preview = ChannelPreviewMessenger } = props;
+  const { channel, Preview = ChannelPreviewMessenger, channelUpdateCount } = props;
 
   const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
     'ChannelPreview',
@@ -82,23 +82,20 @@ export const ChannelPreview = <
     return () => client.off('notification.mark_read', handleEvent);
   }, []);
 
-  useEffect(() => {
+  const refreshUnreadCount = useCallback(() => {
     if (isActive || muted) {
       setUnread(0);
     } else {
       setUnread(channel.countUnread());
     }
-  }, [channel, isActive, muted]);
+  }, [channel, isActive, muted, channelUpdateCount]);
 
   useEffect(() => {
+    refreshUnreadCount();
+
     const handleEvent = (event: Event<StreamChatGenerics>) => {
       if (event.message) setLastMessage(event.message);
-
-      if (!isActive && !muted) {
-        setUnread(channel.countUnread());
-      } else {
-        setUnread(0);
-      }
+      refreshUnreadCount();
     };
 
     channel.on('message.new', handleEvent);
@@ -110,7 +107,7 @@ export const ChannelPreview = <
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
-  }, [channel, isActive, muted]);
+  }, [refreshUnreadCount]);
 
   if (!Preview) return null;
 
