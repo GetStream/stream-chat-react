@@ -16,7 +16,7 @@ const apiKey = import.meta.env.VITE_STREAM_KEY as string;
 const userId = import.meta.env.VITE_USER_ID as string;
 const userToken = import.meta.env.VITE_USER_TOKEN as string;
 
-const filters: ChannelFilters = { type: 'messaging' };
+const filters: ChannelFilters = { type: 'messaging', members: {$in: [userId]}  };
 const options: ChannelOptions = { limit: 10, presence: true, state: true };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
