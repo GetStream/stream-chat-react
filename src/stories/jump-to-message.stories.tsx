@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import '@stream-io/stream-chat-css/dist/css/index.css';
 import React, { useEffect, useState } from 'react';
 import { StreamChat } from 'stream-chat';
 import {
@@ -8,7 +9,6 @@ import {
   useChannelActionContext,
   VirtualizedMessageList,
 } from '../index';
-import '@stream-io/stream-chat-css/dist/css/index.css';
 
 void MessageList;
 void VirtualizedMessageList;
@@ -17,6 +17,18 @@ const apiKey = import.meta.env.VITE_APP_KEY;
 const userId = import.meta.env.VITE_TEST_USER_1;
 const userToken = import.meta.env.VITE_TEST_USER_1_TOKEN;
 const channelId = import.meta.env.VITE_JUMP_TO_MESSAGE_CHANNEL;
+if (!apiKey || typeof apiKey !== 'string') {
+  throw new Error('Expected VITE_APP_KEY');
+}
+if (!userId || typeof userId !== 'string') {
+  throw new Error('Expected VITE_TEST_USER_1');
+}
+if (!userToken || typeof userToken !== 'string') {
+  throw new Error('Expected VITE_TEST_USER_1_TOKEN');
+}
+if (!channelId || typeof channelId !== 'string') {
+  throw new Error('Expected VITE_JUMP_TO_MESSAGE_CHANNEL');
+}
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
