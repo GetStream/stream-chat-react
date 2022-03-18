@@ -1260,10 +1260,10 @@ react-virtuoso@^2.2.1:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
 
-react-virtuoso@^2.3.1:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.7.1.tgz#62408c9eeb9e7747be1c070fd635846891b7622a"
-  integrity sha512-isl04/UARFv75IQelKRLCLDIsS5a5V4tiU3kYXpTxXwGXZLwK7tFDimR3OYzkBamJ2dK3rT+DvfBb8C2Jteggg==
+react-virtuoso@^2.8.2:
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.8.2.tgz#6b98c62d5e3807b41b3e52e3576784f8b6142f33"
+  integrity sha512-iH48/OOsh12BPqZX3LNgT9zshcqO7ALwG/AxXDTqPYwHSolzwj+V8fpHRBLEbvfBl4EEnMZI+yxvs1DblZT/jQ==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
@@ -1341,10 +1341,10 @@ source-map@^0.5.0:
   version "0.0.0"
   uid ""
 
-stream-chat@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.1.0.tgz#32f145398ebbddb556034852506aa99a1637b173"
-  integrity sha512-608FqjF3KmSlNtDLzmohpmBQuyUqwj50dBbla3q0DW8QrY5rsUPTcG16UCGC1iVukm5QkRcNjjJ3r067QQqCog==
+stream-chat@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.2.0.tgz#9d01c2926cc7a0270b187c90e24bf52739d14e16"
+  integrity sha512-s6BkkU0IJJyaPDNGc3V8d3WF/ZnM6bgFNdEpHGkwS9oX8+caxvhmKSpEY6l5srq4+O61trUHF3yyij8CLno7ew==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "^8.5.6"

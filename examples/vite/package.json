@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
-    "stream-chat": "^6.1.0",
+    "stream-chat": "^6.2.0",
     "stream-chat-react": "link:../../"
   },
   "devDependencies": {
