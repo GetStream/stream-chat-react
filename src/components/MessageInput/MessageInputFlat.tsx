@@ -58,14 +58,20 @@ export const MessageInputFlat = <
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
 
   useEffect(() => {
-    const handleDelete = (e: Event<StreamChatGenerics>) => {
-      if (e.message?.id === quotedMessage?.id) {
+    const handleQuotedMessageUpdate = (e: Event<StreamChatGenerics>) => {
+      if (e.message?.id !== quotedMessage?.id) return;
+      if (e.message?.deleted_at) {
         setQuotedMessage(undefined);
       }
+      setQuotedMessage(e.message);
     };
-    channel?.on('message.deleted', handleDelete);
+    channel?.on('message.deleted', handleQuotedMessageUpdate);
+    channel?.on('message.updated', handleQuotedMessageUpdate);
 
-    return () => channel?.off('message.deleted', handleDelete);
+    return () => {
+      channel?.off('message.deleted', handleQuotedMessageUpdate);
+      channel?.off('message.updated', handleQuotedMessageUpdate);
+    };
   }, [channel, quotedMessage]);
 
   return (
