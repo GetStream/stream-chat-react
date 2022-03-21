@@ -1231,15 +1231,14 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.0.0.tgz#a55207727e58811bc948bdc3eb498cf8c17f1d49"
-  integrity sha512-CSK39gGiRkGhkOzVMyvqJ0p+0iakkjoDAfAKM0NycnIEU9ov102xezsaBRQofkbpYn0CoTjX2UHlkwheQMIP3Q==
-
 "@stream-io/stream-chat-css@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.2.1.tgz#23ce6ece96c2118340144191afe834234fb3f5d1"
   integrity sha512-UJ/UM3wHCd3s1gqPIx2j2Vwpeoa1bbvISEarOlbioLphyHz7LC+E0+Hi81fSKMC9/mCa1ghugvolRKJgj3wwHQ==
+
+"@stream-io/stream-chat-css@link:../../node_modules/stream-io/stream-chat-css":
+  version "0.0.0"
+  uid ""
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
