@@ -43,7 +43,6 @@ const MessageSimpleWithContext = <
     handleAction,
     handleOpenThread,
     handleRetry,
-    highlighted,
     isMyMessage,
     isReactionEnabled,
     message,

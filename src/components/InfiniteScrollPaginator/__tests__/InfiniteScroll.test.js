@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
-import { InfiniteScroll } from '../';
+import { InfiniteScroll } from '../InfiniteScroll';
 
 const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 
@@ -14,8 +14,10 @@ const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
 describe('InfiniteScroll', () => {
   // not sure if there is a more 'narrow' way of capturing event listeners being added
   const divAddEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
+  const windowAddEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   const divRemoveEventListenerSpy = jest.spyOn(HTMLDivElement.prototype, 'addEventListener');
+  const windowRemoveEventListenerSpy = jest.spyOn(window, 'addEventListener');
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -31,15 +33,21 @@ describe('InfiniteScroll', () => {
     return { scrollParent, ...renderResult };
   };
 
-  it.each([true, false])(
-    'should bind scroll, mousewheel and resize events to the right target with useCapture as %s',
-    (useCapture) => {
+  it.each([
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ])(
+    'should bind scroll, mousewheel and resize events to the right target with useWindow as %s and useCapture as %s',
+    (useWindow, useCapture) => {
       renderComponent({
         hasMore: true,
         useCapture,
+        useWindow,
       });
 
-      const addEventListenerSpy = divAddEventListenerSpy;
+      const addEventListenerSpy = useWindow ? windowAddEventListenerSpy : divAddEventListenerSpy;
 
       expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function), useCapture);
       expect(addEventListenerSpy).toHaveBeenCalledWith('wheel', expect.any(Function), {
@@ -49,17 +57,25 @@ describe('InfiniteScroll', () => {
     },
   );
 
-  it.each([true, false])(
-    'should unbind scroll, mousewheel and resize events from the right target with useCapture as %s',
-    (useCapture) => {
+  it.each([
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ])(
+    'should unbind scroll, mousewheel and resize events from the right target with useWindow as %s and useCapture as %s',
+    (useCapture, useWindow) => {
       const { unmount } = renderComponent({
         hasMore: true,
         useCapture,
+        useWindow,
       });
 
       unmount();
 
-      const removeEventListenerSpy = divRemoveEventListenerSpy;
+      const removeEventListenerSpy = useWindow
+        ? windowRemoveEventListenerSpy
+        : divRemoveEventListenerSpy;
 
       expect(removeEventListenerSpy).toHaveBeenCalledWith(
         'scroll',
@@ -94,22 +110,18 @@ describe('InfiniteScroll', () => {
 
     it('should render the loader in the right place if isLoading is true and isReverse is false', () => {
       expect(getRenderResult(false)).toMatchInlineSnapshot(`
-        <div
-          isReverse={false}
-        >
+        <div>
+          Content
           <div>
             loader
           </div>
-          Content
         </div>
       `);
     });
 
     it('should render the loader in the right place if isLoading is true and isReverse is true', () => {
       expect(getRenderResult(true)).toMatchInlineSnapshot(`
-        <div
-          isReverse={true}
-        >
+        <div>
           <div>
             loader
           </div>

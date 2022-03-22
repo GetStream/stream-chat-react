@@ -281,7 +281,6 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
-        style={Object {}}
       >
         <div
           className="str-chat__message-inner"
@@ -324,7 +323,6 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
-        style={Object {}}
       >
         <div
           className="str-chat__message-inner"
@@ -366,7 +364,6 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
-        style={Object {}}
       >
         <div
           className="str-chat__message-inner"

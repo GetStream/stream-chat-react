@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { useCallLoadMore } from './hooks/useCallLoadMore';
 import { useEnrichedMessages } from './hooks/useEnrichedMessages';
 import { useMessageListElements } from './hooks/useMessageListElements';
 import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
@@ -19,7 +20,7 @@ import {
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
+import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
@@ -31,6 +32,29 @@ import type { MessageProps } from '../Message/types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+
+const useInternalInfiniteScrollProps = (
+  props: Pick<
+    MessageListWithContextProps,
+    'hasMore' | 'internalInfiniteScrollProps' | 'loadMore' | 'loadingMore' | 'messageLimit'
+  >,
+) => {
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
+    'useInternalInfiniteScrollProps',
+  );
+
+  return {
+    hasMore: props.hasMore,
+    isLoading: props.loadingMore,
+    loader: (
+      <Center key='loadingindicator'>
+        <LoadingIndicator size={20} />
+      </Center>
+    ),
+    loadMore: useCallLoadMore(props.loadMore, props.messageLimit || 100),
+    ...props.internalInfiniteScrollProps,
+  };
+};
 
 type MessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -58,12 +82,6 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
-    messageLimit = 100,
-    loadMore: loadMoreCallback,
-    loadMoreNewer: loadMoreNewerCallback,
-    hasMoreNewer = false,
-    suppressAutoscroll,
-    highlightedMessageId,
   } = props;
 
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
@@ -83,10 +101,8 @@ const MessageListWithContext = <
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
-    hasMoreNewer,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
-    suppressAutoscroll,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -136,33 +152,10 @@ const MessageListWithContext = <
     threadList,
   });
 
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
-    'useInternalInfiniteScrollProps',
-  );
+  const finalInternalInfiniteScrollProps = useInternalInfiniteScrollProps(props);
 
   const messageListClass = customClasses?.messageList || 'str-chat__list';
   const threadListClass = threadList ? customClasses?.threadList || 'str-chat__list--thread' : '';
-
-  const loadMore = React.useCallback(() => {
-    if (loadMoreCallback) {
-      loadMoreCallback(messageLimit);
-    }
-  }, [loadMoreCallback, messageLimit]);
-
-  const loadMoreNewer = React.useCallback(() => {
-    if (loadMoreNewerCallback) {
-      loadMoreNewerCallback(messageLimit);
-    }
-  }, [loadMoreNewerCallback, messageLimit]);
-
-  const ulRef = React.useRef<HTMLUListElement>(null);
-
-  React.useLayoutEffect(() => {
-    if (highlightedMessageId) {
-      const element = ulRef.current?.querySelector(`[data-message-id='${highlightedMessageId}']`);
-      element?.scrollIntoView({ block: 'center' });
-    }
-  }, [highlightedMessageId]);
 
   return (
     <>
@@ -173,21 +166,11 @@ const MessageListWithContext = <
           <InfiniteScroll
             className='str-chat__reverse-infinite-scroll'
             data-testid='reverse-infinite-scroll'
-            hasMore={props.hasMore}
-            hasMoreNewer={props.hasMoreNewer}
-            isLoading={props.loadingMore}
-            loader={
-              <Center key='loadingindicator'>
-                <LoadingIndicator size={20} />
-              </Center>
-            }
-            loadMore={loadMore}
-            loadMoreNewer={loadMoreNewer}
-            {...props.internalInfiniteScrollProps}
+            isReverse
+            useWindow={false}
+            {...finalInternalInfiniteScrollProps}
           >
-            <ul className='str-chat__ul' ref={ulRef}>
-              {elements}
-            </ul>
+            <ul className='str-chat__ul'>{elements}</ul>
             <TypingIndicator threadList={threadList} />
             <div key='bottom' />
           </InfiniteScroll>
@@ -252,12 +235,8 @@ export type MessageListProps<
   internalInfiniteScrollProps?: InfiniteScrollProps;
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
-  /** Whether or not the list is currently loading newer items */
-  loadingMoreNewer?: boolean;
   /** Function called when more messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
-  loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
@@ -285,7 +264,7 @@ export const MessageList = <
 >(
   props: MessageListProps<StreamChatGenerics>,
 ) => {
-  const { loadMore, loadMoreNewer } = useChannelActionContext<StreamChatGenerics>('MessageList');
+  const { loadMore } = useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -297,7 +276,6 @@ export const MessageList = <
   return (
     <MessageListWithContext<StreamChatGenerics>
       loadMore={loadMore}
-      loadMoreNewer={loadMoreNewer}
       {...restChannelStateContext}
       {...props}
     />

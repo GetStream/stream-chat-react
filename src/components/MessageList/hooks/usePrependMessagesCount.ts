@@ -33,10 +33,6 @@ export function usePrependedMessagesCount<
         return i;
       }
     }
-
-    // if no match has found, we have jumped
-    firstMessageId.current = currentFirstMessageId;
-
     return 0;
     // TODO: there's a bug here, the messages prop is the same array instance (something mutates it)
     // that's why the second dependency is necessary
