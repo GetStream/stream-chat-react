@@ -65,7 +65,7 @@ export const useCooldownTimer = <
   }, [channel.id, cooldownInterval, latestMessageDatesByChannels[channel.cid]]);
 
   return {
-    cooldownInterval: cooldownRemaining || cooldownInterval || 0,
+    cooldownInterval: cooldownInterval || 0,
     cooldownRemaining,
     setCooldownRemaining,
   };
