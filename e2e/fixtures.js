@@ -19,7 +19,7 @@ const { StreamChat } = require('stream-chat');
   // 'Jump to message' channel
   {
     console.log(`Creating channel '${JUMP_TO_MESSAGE_CHANNEL}'...`);
-    const channel = await chat.channel('messaging', JUMP_TO_MESSAGE_CHANNEL, {
+    const channel = chat.channel('messaging', JUMP_TO_MESSAGE_CHANNEL, {
       created_by_id: TEST_USER_1,
       members: [TEST_USER_1, TEST_USER_2],
     });
@@ -38,9 +38,10 @@ const { StreamChat } = require('stream-chat');
   // 'Add message' channel
   {
     console.log(`Creating channel '${ADD_MESSAGE_CHANNEL}'...`);
-    const channel = await chat.channel('messaging', ADD_MESSAGE_CHANNEL, {
+    const channel = chat.channel('messaging', ADD_MESSAGE_CHANNEL, {
       created_by_id: TEST_USER_1,
       members: [TEST_USER_1, TEST_USER_2],
+      name: ADD_MESSAGE_CHANNEL,
     });
     await channel.create();
     await channel.truncate();
