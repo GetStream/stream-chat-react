@@ -27,7 +27,7 @@
     "getstream.io"
   ],
   "dependencies": {
-    "@braintree/sanitize-url": "5.0.0",
+    "@braintree/sanitize-url": "6.0.0",
     "@stream-io/stream-chat-css": "^2.2.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
