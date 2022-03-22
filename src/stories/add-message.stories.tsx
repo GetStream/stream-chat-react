@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import React, { useEffect, useState } from 'react';
-import { ChannelFilters, ChannelSort, StreamChat } from 'stream-chat';
+import { ChannelSort, StreamChat } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -11,7 +11,7 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { apiKey, StreamChatGenerics, StyleFix, testUser1Id } from './utils';
+import { apiKey, StreamChatGenerics, StyleFix } from './utils';
 
 const channelId = import.meta.env.VITE_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
@@ -40,9 +40,6 @@ const Controls = () => {
   );
 };
 
-const filters: ChannelFilters = {
-  members: { $in: [testUser1Id] },
-};
 // Sort in reverse order to avoid auto-selecting unread channel
 const sort: ChannelSort = { last_updated: 1 };
 
@@ -72,7 +69,7 @@ const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => 
     <div>
       <h3>User: {userId}</h3>
       <Chat client={chatClient}>
-        <ChannelList filters={filters} sort={sort} />
+        <ChannelList filters={{ members: { $in: [userId] } }} sort={sort} />
         <Channel>
           <Window>
             <ChannelHeader />
