@@ -5999,7 +5999,7 @@ lodash@^4.17.14, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-loose-envify@^1.1.0, loose-envify@^1.4.0:
+loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   integrity sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==
@@ -6272,9 +6272,9 @@ no-case@^3.0.4:
     tslib "^2.0.3"
 
 node-forge@^1.2.0:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.2.1.tgz#82794919071ef2eb5c509293325cec8afd0fd53c"
-  integrity sha512-Fcvtbb+zBcZXbTTVwqGA5W+MKBj56UjVRevvchv5XrcyXbmNdesfZL37nlcWOfpgHhgmxApw3tQbTr4CqNmX4w==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.3.0.tgz#37a874ea723855f37db091e6c186e5b67a01d4b2"
+  integrity sha512-08ARB91bUi6zNKzVmaj3QO7cr397uiDT2nJ63cHjyNtCTWIgvS47j3eT0WfzUwS9+6Z5YshRaoasFkXCKrIYbA==
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -7402,7 +7402,6 @@ react-dev-utils@^12.0.0:
 
 "react-dom@link:../../../node_modules/react-dom":
   version "0.0.0"
-  uid ""
 
 react-dropzone@11.3.4:
   version "11.3.4"
@@ -7541,7 +7540,7 @@ react-textarea-autosize@^8.3.0:
     use-composed-ref "^1.0.0"
     use-latest "^1.0.0"
 
-react-virtuoso@^2.2.1, react-virtuoso@^2.3.1:
+react-virtuoso@^2.2.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.7.1.tgz#62408c9eeb9e7747be1c070fd635846891b7622a"
   integrity sha512-isl04/UARFv75IQelKRLCLDIsS5a5V4tiU3kYXpTxXwGXZLwK7tFDimR3OYzkBamJ2dK3rT+DvfBb8C2Jteggg==
@@ -7549,9 +7548,16 @@ react-virtuoso@^2.2.1, react-virtuoso@^2.3.1:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
 
+react-virtuoso@^2.8.2:
+  version "2.8.3"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.8.3.tgz#8f70c0af3a8c4910ca78b53d3cb54cbcda703d35"
+  integrity sha512-x0ZcjfiDF3vNUvzbzrOxuWV/s0iYTym1fVmB1GgyIX+FILdUWKL4Wz3nHc93nSfNRPR1oZKjvnmB/siqFdtQHg==
+  dependencies:
+    "@virtuoso.dev/react-urx" "^0.2.12"
+    "@virtuoso.dev/urx" "^0.2.12"
+
 "react@link:../../../node_modules/react":
   version "0.0.0"
-  uid ""
 
 readable-stream@^2.0.1:
   version "2.3.7"
@@ -7832,14 +7838,6 @@ saxes@^5.0.1:
   integrity sha512-5LBh1Tls8c9xgGjw3QrMwETmTMVk0oFgvrFSvWx62llR2hcEInrKNZ2GZCCuuy2lvWrdl5jhbpeqc5hRYKFOcw==
   dependencies:
     xmlchars "^2.2.0"
-
-scheduler@^0.20.1:
-  version "0.20.2"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.20.2.tgz#4baee39436e34aa93b4874bddcbf0fe8b8b50e91"
-  integrity sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
 
 schema-utils@2.7.0:
   version "2.7.0"
@@ -8143,8 +8141,36 @@ stackframe@^1.1.1:
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
 "stream-chat-react@link:../../..":
-  version "0.0.0"
-  uid ""
+  version "0.0.0-development"
+  dependencies:
+    "@braintree/sanitize-url" "5.0.0"
+    "@stream-io/stream-chat-css" "^2.2.1"
+    dayjs "^1.10.4"
+    emoji-mart "3.0.1"
+    emoji-regex "^9.2.0"
+    i18next "^19.8.4"
+    isomorphic-ws "^4.0.1"
+    linkifyjs "^2.1.9"
+    lodash.debounce "^4.0.8"
+    lodash.isequal "^4.5.0"
+    lodash.throttle "^4.1.1"
+    lodash.uniqby "^4.7.0"
+    mdast-util-find-and-replace "1.1.1"
+    pretty-bytes "^5.4.1"
+    prop-types "^15.7.2"
+    react-fast-compare "^3.2.0"
+    react-file-utils "1.1.9"
+    react-image-gallery "^1.2.7"
+    react-is "^17.0.1"
+    react-markdown "^5.0.3"
+    react-player "^2.7.0"
+    react-textarea-autosize "^8.3.0"
+    react-virtuoso "^2.8.2"
+    textarea-caret "^3.1.0"
+    uuid "^8.3.1"
+  optionalDependencies:
+    "@stream-io/transliterate" "^1.5.5"
+    mml-react "^0.4.2"
 
 stream-chat@^6.1.0:
   version "6.1.0"
