@@ -1,5 +1,27 @@
 # Changelog
 
+## [8.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-03-17
+
+### Bug Fixes
+
+* improve performance of VirtualizedMessageList ([d2f28af](https://github.com/GetStream/stream-chat-react/commit/d2f28af0efc26a029062c36790975d00cdcfde1d))
+* maintain correct reference to values inside doMarkReadRequest ([#1442](https://github.com/GetStream/stream-chat-react/issues/1442)) ([30b79d6](https://github.com/GetStream/stream-chat-react/commit/30b79d6ff8270df1054dec644391eb313ada9dd7)), closes [#1324](https://github.com/GetStream/stream-chat-react/issues/1324)
+* make scrollToLatestMessageOnFocus smarter ([f37b193](https://github.com/GetStream/stream-chat-react/commit/f37b1937ab2f20b95496a79f2b243168a5b13061)), closes [#1415](https://github.com/GetStream/stream-chat-react/issues/1415)
+* move UploadsPreview outside textarea wrapper ([#1454](https://github.com/GetStream/stream-chat-react/issues/1454)) ([8ebbf29](https://github.com/GetStream/stream-chat-react/commit/8ebbf29fa6d3041d6357c2b373b8a71bac21186c))
+* name from StreamChatType to StreamChatGenerics ([653aef3](https://github.com/GetStream/stream-chat-react/commit/653aef3d27078fa9659bb39afea4a06398b882f8))
+* remove obsolete polyfill ([2b13594](https://github.com/GetStream/stream-chat-react/commit/2b13594c42d72e6b7de8ad1a0834579f73e8f949)), closes [#1375](https://github.com/GetStream/stream-chat-react/issues/1375)
+* remove translation warning ([3d951f2](https://github.com/GetStream/stream-chat-react/commit/3d951f27ad550c0efb861f4bcb4f611efaf795e1))
+
+### Features
+
+* onBlur prop for ChatAutoComplete ([c9897f4](https://github.com/GetStream/stream-chat-react/commit/c9897f422d0d04d606f149965b510bee749e0151)), closes [#1345](https://github.com/GetStream/stream-chat-react/issues/1345)
+* support choosing a giphy version ([0d97fc6](https://github.com/GetStream/stream-chat-react/commit/0d97fc62d4e5f166162e1d375689196305fad420))
+
+### ⚠️ BREAKING CHANGES ⚠️  
+
+* All types now accept a single generic ([help article](https://getstream.io/chat/docs/sdk/react/customization/typescript_and_generics/))
+
+
 ## [7.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-02-10
 
 ### ⚠️ BREAKING CHANGES ⚠️  
