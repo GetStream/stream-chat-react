@@ -9,7 +9,7 @@ test.describe('jump to message', () => {
 
   test('jumps to message 29', async ({ page }) => {
     await page.waitForSelector('[data-item-index="10000024"]');
-    await page.click('data-testid=jump-to-message');
+    await page.click('data-testid=add-message');
     const message29 = page.locator('[data-index="29"]');
     // console.log(await message29.innerText());
     await expect(message29).toBeVisible();
