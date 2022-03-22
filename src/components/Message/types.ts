@@ -53,8 +53,6 @@ export type MessageProps<
   groupedByUser?: boolean;
   /** A list of styles to apply to this message, ie. top, bottom, single */
   groupStyles?: GroupStyle[];
-  /** Whether to highlight and focus the message on load */
-  highlighted?: boolean;
   /** Whether the threaded message is the first in the thread list */
   initialMessage?: boolean;
   /** Latest message id on current channel */

@@ -34,7 +34,9 @@ import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
+import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
+
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -117,7 +119,7 @@ export type ChannelListProps<
   /** An object containing channel query options */
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
-  Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
+  Paginator?: React.ComponentType<InfiniteScrollPaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
@@ -281,8 +283,7 @@ const UnMemoizedChannelList = <
       activeChannel: channel,
       Avatar,
       channel: item,
-      // forces the update of preview component on channel update
-      channelUpdateCount,
+      channelUpdateCount, // forces the update of preview component on channel update
       key: item.id,
       Preview,
       setActiveChannel,

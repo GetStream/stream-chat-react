@@ -1,4 +1,3 @@
-import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
 import type { Event, ExtendableGenerics, LiteralStringForUnion, Mute } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
@@ -67,18 +66,3 @@ export type GiphyVersions =
   | 'fixed_width'
   | 'fixed_width_still'
   | 'fixed_width_downsampled';
-
-export type PaginatorProps = {
-  /** callback to load the next page */
-  loadNextPage: () => void;
-  /** indicates if there is a next page to load */
-  hasNextPage?: boolean;
-  /** The loading indicator to use */
-  LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
-  /** indicates if there there's currently any refreshing taking place */
-  refreshing?: boolean;
-  /** display the items in opposite order */
-  reverse?: boolean;
-  /** Offset from when to start the loadNextPage call */
-  threshold?: number;
-};

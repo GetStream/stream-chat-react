@@ -1,12 +1,13 @@
 import React from 'react';
 import { StreamChat } from 'stream-chat';
 
-const apiKey = import.meta.env.VITE_APP_KEY;
-const userId = import.meta.env.VITE_TEST_USER_1;
-const userToken = import.meta.env.VITE_TEST_USER_1_TOKEN;
-if (!apiKey || typeof apiKey !== 'string') {
+const appKey = import.meta.env.VITE_APP_KEY;
+if (!appKey || typeof appKey !== 'string') {
   throw new Error('expected APP_KEY');
 }
+export const apiKey = appKey;
+const userId = import.meta.env.VITE_TEST_USER_1;
+const userToken = import.meta.env.VITE_TEST_USER_1_TOKEN;
 if (!userId || typeof userId !== 'string') {
   throw new Error('expected TEST_USER_1');
 }
@@ -23,7 +24,7 @@ type LocalMessageType = Record<string, unknown>;
 type LocalReactionType = Record<string, unknown>;
 type LocalUserType = Record<string, unknown>;
 
-type StreamChatGenerics = {
+export type StreamChatGenerics = {
   attachmentType: LocalAttachmentType;
   channelType: LocalChannelType;
   commandType: LocalCommandType;
@@ -33,7 +34,7 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-export const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
+export const chatClient = StreamChat.getInstance<StreamChatGenerics>(appKey);
 chatClient.connectUser({ id: userId }, userToken);
 
 export const StyleFix = () => (

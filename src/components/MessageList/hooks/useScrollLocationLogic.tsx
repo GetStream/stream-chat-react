@@ -9,8 +9,6 @@ import type { DefaultStreamChatGenerics } from '../../../types/types';
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  hasMoreNewer: boolean;
-  suppressAutoscroll: boolean;
   currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
@@ -21,7 +19,7 @@ export const useScrollLocationLogic = <
 >(
   params: UseScrollLocationLogicParams<StreamChatGenerics>,
 ) => {
-  const { messages = [], scrolledUpThreshold = 200, hasMoreNewer, suppressAutoscroll } = params;
+  const { messages = [], scrolledUpThreshold = 200 } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
@@ -31,9 +29,7 @@ export const useScrollLocationLogic = <
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
-    if (!listRef.current?.scrollTo || hasMoreNewer || suppressAutoscroll) {
-      return;
-    }
+    if (!listRef.current?.scrollTo) return;
 
     listRef.current?.scrollTo({
       top: listRef.current.scrollHeight,
@@ -46,7 +42,7 @@ export const useScrollLocationLogic = <
         top: listRef.current.scrollHeight,
       });
     }, 200);
-  }, [listRef, hasMoreNewer, suppressAutoscroll]);
+  }, [listRef]);
 
   useLayoutEffect(() => {
     if (listRef?.current) {
@@ -57,10 +53,7 @@ export const useScrollLocationLogic = <
 
   const updateScrollTop = useMessageListScrollManager({
     messages,
-    onScrollBy: (scrollBy) => {
-      listRef.current?.scrollBy({ top: scrollBy });
-    },
-
+    onScrollBy: (scrollBy) => listRef.current?.scrollBy({ top: scrollBy }),
     scrollContainerMeasures: () => ({
       offsetHeight: listRef.current?.offsetHeight || 0,
       scrollHeight: listRef.current?.scrollHeight || 0,

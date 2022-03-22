@@ -449,9 +449,7 @@ const ChannelInner = <
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
 
-    if (state.loadingMore || state.loadingMoreNewer || oldestMessage?.status !== 'received') {
-      return 0;
-    }
+    if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
 
     // initial state loads with up to 25 messages, so if less than 25 no need for additional query
     if (channel.state.messages.length < 25) {
@@ -480,53 +478,6 @@ const ChannelInner = <
     loadMoreFinished(hasMoreMessages, channel.state.messages);
 
     return queryResponse.messages.length;
-  };
-
-  const loadMoreNewer = async (limit = 100) => {
-    if (!online.current || !window.navigator.onLine) return 0;
-
-    const newestMessage = state?.messages?.[state?.messages?.length - 1];
-    if (state.loadingMore || state.loadingMoreNewer) return 0;
-
-    dispatch({ loadingMoreNewer: true, type: 'setLoadingMoreNewer' });
-
-    const newestId = newestMessage?.id;
-    const perPage = limit;
-    let queryResponse: ChannelAPIResponse<StreamChatGenerics>;
-
-    try {
-      queryResponse = await channel.query({
-        messages: { id_gt: newestId, limit: perPage },
-        watchers: { limit: perPage },
-      });
-    } catch (e) {
-      console.warn('message pagination request failed with error', e);
-      dispatch({ loadingMoreNewer: false, type: 'setLoadingMoreNewer' });
-      return 0;
-    }
-
-    const hasMoreNewer = channel.state.messages !== channel.state.latestMessages;
-
-    dispatch({ hasMoreNewer, messages: channel.state.messages, type: 'loadMoreNewerFinished' });
-    return queryResponse.messages.length;
-  };
-
-  const jumpToMessage = async (messageId: string) => {
-    dispatch({ loadingMore: true, type: 'setLoadingMore' });
-    await channel.state.loadMessageIntoState(messageId);
-
-    // TODO: figure out how to determine if we have more messages.
-    const hasMoreMessages = true;
-    loadMoreFinished(hasMoreMessages, channel.state.messages);
-    dispatch({
-      hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
-      highlightedMessageId: messageId,
-      type: 'jumpToMessageFinished',
-    });
-    // TODO: better ideas on how or when to clear highlight?
-    setTimeout(() => {
-      dispatch({ type: 'clearHighlightedMessage' });
-    }, 500);
   };
 
   const updateMessage = (
@@ -756,9 +707,7 @@ const ChannelInner = <
       closeThread,
       dispatch,
       editMessage,
-      jumpToMessage,
       loadMore,
-      loadMoreNewer,
       loadMoreThread,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
@@ -770,7 +719,7 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
-    [channel.cid, loadMore, loadMoreNewer, quotedMessage],
+    [channel.cid, loadMore, quotedMessage],
   );
 
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(

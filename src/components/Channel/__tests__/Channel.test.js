@@ -110,11 +110,7 @@ describe('Channel', () => {
   });
 
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', () => {
-    const { getByText } = render(
-      <Chat client={chatClient}>
-        <Channel EmptyPlaceholder={<div>empty</div>}></Channel>
-      </Chat>,
-    );
+    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>}></Channel>);
 
     expect(getByText('empty')).toBeInTheDocument();
   });
@@ -271,8 +267,7 @@ describe('Channel', () => {
       await waitFor(() => expect(hasThread).toHaveBeenCalledWith(threadMessage.id));
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('should be able to load more messages in a thread', async () => {
+    it('should be able to load more messages in a thread', async () => {
       const getRepliesSpy = jest.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
 
@@ -291,7 +286,7 @@ describe('Channel', () => {
           loadMoreThread();
         } else {
           // then, call our mock fn so we can verify what was passed as threadMessages
-          // hasThreadMessages(threadMessages);
+          hasThreadMessages(threadMessages);
         }
       });
 
@@ -722,8 +717,7 @@ describe('Channel', () => {
         await waitFor(() => expect(threadStarterHasUpdatedText).toBe(true));
       });
 
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip('should update the threadMessages if a new message comes in that is part of the thread', async () => {
+      it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
         const threadMessage = messages[0];
         const newThreadMessage = generateMessage({
           parent_id: threadMessage.id,
