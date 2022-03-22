@@ -1,11 +1,18 @@
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
-import { expect, test } from '@playwright/test';
+import { expect, Page, test } from '@playwright/test';
+
+function getPreview(page: Page) {
+  return page.locator('*data-testid=channel-preview-button >> text=add-message');
+}
 
 test.describe('add message', () => {
   test.beforeEach(async ({ baseURL, page }) => {
     await page.goto(`${baseURL}/?story=add-message--send-message-in-message-list`);
     await page.waitForSelector('[data-storyloaded]');
+    // Select correct channel
+    const preview = getPreview(page);
+    await preview.click();
   });
 
   test('message list should clear', async ({ page }) => {
@@ -15,9 +22,8 @@ test.describe('add message', () => {
   });
 
   test('channel list preview should be cleared', async ({ page }) => {
-    // Empty channels always appear last when sorting by last_message_at
-    const lastPreview = page.locator('data-testid=channel-preview-button').last();
-    await expect(lastPreview).toContainText('Nothing yet...');
+    const preview = getPreview(page);
+    await expect(preview).toContainText('Nothing yet...');
   });
 
   test('message list should update for current user', async ({ page }) => {
@@ -29,7 +35,7 @@ test.describe('add message', () => {
   });
 
   test('channel list should update for current user', async ({ page }) => {
-    const firstPreview = page.locator('data-testid=channel-preview-button').first();
-    await expect(firstPreview).toContainText('Hello world!');
+    const preview = getPreview(page);
+    await expect(preview).toContainText('Hello world!');
   });
 });

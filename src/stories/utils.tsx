@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Channel as StreamChannel, StreamChat } from 'stream-chat';
+import React from 'react';
+import { StreamChat } from 'stream-chat';
 
 const apiKey = import.meta.env.VITE_APP_KEY;
 const userId = import.meta.env.VITE_TEST_USER_1;
@@ -13,7 +13,7 @@ if (!userId || typeof userId !== 'string') {
 if (!userToken || typeof userToken !== 'string') {
   throw new Error('expected TEST_USER_1_TOKEN');
 }
-export const testUserId = userId;
+export const testUser1Id = userId;
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
@@ -34,20 +34,7 @@ type StreamChatGenerics = {
 };
 
 export const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
-
 chatClient.connectUser({ id: userId }, userToken);
-
-export const useQueryChannels = (id: string) => {
-  const [channel, setChannel] = useState<StreamChannel | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const channels = await chatClient.queryChannels({ id: { $eq: id } });
-      setChannel(channels[0]);
-    })();
-  }, []);
-  return channel;
-};
 
 export const StyleFix = () => (
   <style>{`

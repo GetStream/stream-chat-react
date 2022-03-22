@@ -3,7 +3,7 @@ import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
 import type { ChannelFilters } from 'stream-chat';
 import { Channel, ChannelList, Chat, MessageList, useChannelStateContext } from '../index';
-import { chatClient, StyleFix, testUserId, useQueryChannels } from './utils';
+import { chatClient, StyleFix, testUser1Id } from './utils';
 
 const channelId = import.meta.env.VITE_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
@@ -33,24 +33,18 @@ const Controls = () => {
 };
 
 const filters: ChannelFilters = {
-  members: { $in: [testUserId] },
+  members: { $in: [testUser1Id] },
 };
 
-export const SendMessageInMessageList = () => {
-  const channel = useQueryChannels(channelId);
-  if (!channel) {
-    return null;
-  }
-  return (
-    <>
-      <StyleFix />
-      <Chat client={chatClient}>
-        <ChannelList filters={filters} />
-        <Channel channel={channel}>
-          <Controls />
-          <MessageList />
-        </Channel>
-      </Chat>
-    </>
-  );
-};
+export const SendMessageInMessageList = () => (
+  <>
+    <StyleFix />
+    <Chat client={chatClient}>
+      <ChannelList filters={filters} />
+      <Channel>
+        <Controls />
+        <MessageList />
+      </Channel>
+    </Chat>
+  </>
+);

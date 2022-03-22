@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@stream-io/stream-chat-css/dist/css/index.css';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import type { Channel as StreamChannel } from 'stream-chat';
 import {
   Channel,
   Chat,
@@ -8,7 +9,7 @@ import {
   useChannelActionContext,
   VirtualizedMessageList,
 } from '../index';
-import { chatClient, StyleFix, useQueryChannels } from './utils';
+import { chatClient, StyleFix } from './utils';
 
 void MessageList;
 void VirtualizedMessageList;
@@ -39,6 +40,18 @@ const JumpToMessage = () => {
       Jump to message 29
     </button>
   );
+};
+
+const useQueryChannels = (id: string) => {
+  const [channel, setChannel] = useState<StreamChannel | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const channels = await chatClient.queryChannels({ id: { $eq: id } });
+      setChannel(channels[0]);
+    })();
+  }, []);
+  return channel;
 };
 
 export const JumpInRegularMessageList = () => {
