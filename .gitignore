@@ -23,7 +23,9 @@ coverage
 
 # nyc test coverage
 .nyc_output
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files) .grunt
+
+# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files) 
+.grunt
 
 # Bower dependency directory (https://bower.io/)
 bower_components
@@ -68,4 +70,4 @@ client/dist
 /.virtualgo
 .vscode/
 coverage.out
-.parcel-cache
+.env.local
