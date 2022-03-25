@@ -1,4 +1,4 @@
-name: test
+name: Test
 
 on: [push]
 
@@ -17,16 +17,16 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Cache Dependencies
+      - name: 💾 Cache Dependencies
         uses: actions/cache@v2
         with:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install Dependencies & Build
+      - name: 🔨 Install Dependencies & Build
         run: yarn install --frozen-lockfile --ignore-engines
 
-      - name: Lint and Test with ${{ matrix.node }}
+      - name: 🧪 Lint and Test with ${{ matrix.node }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           TYPESCRIPT: ${{ matrix.typescript }}
@@ -35,3 +35,9 @@ jobs:
           if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
           if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
           if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi
+        
+      - name: ⚗️ End-to-end tests
+        if: ${{ matrix.typescript == 'no' }}
+        run: |
+          yarn e2e-fixtures
+          yarn e2e
