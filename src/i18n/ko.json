@@ -24,6 +24,7 @@
   "Error · Unsent": "오류 · 전송되지 않음",
   "Error: {{ errorMessage }}": "오류: {{ errorMessage }}",
   "Flag": "플래그",
+  "Latest Messages": "최신 메시지",
   "Menu": "메뉴",
   "Message Failed · Click to try again": "메시지 실패 · 다시 시도하려면 클릭하세요.",
   "Message Failed · Unauthorized": "메시지 실패 · 승인되지 않음",

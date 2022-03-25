@@ -529,6 +529,16 @@ const ChannelInner = <
     }, 500);
   };
 
+  const jumpToLatestMessage = async () => {
+    await channel.state.loadMessageIntoState('latest');
+    // TODO: this is a very hacky logic
+    const hasMore = channel.state.messages.length === 25;
+    loadMoreFinished(hasMore, channel.state.messages);
+    dispatch({
+      type: 'jumpToLatestMessage',
+    });
+  };
+
   const updateMessage = (
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
@@ -756,6 +766,7 @@ const ChannelInner = <
       closeThread,
       dispatch,
       editMessage,
+      jumpToLatestMessage,
       jumpToMessage,
       loadMore,
       loadMoreNewer,
@@ -770,7 +781,7 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
-    [channel.cid, loadMore, loadMoreNewer, quotedMessage],
+    [channel.cid, loadMore, loadMoreNewer, quotedMessage, jumpToMessage, jumpToLatestMessage],
   );
 
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(

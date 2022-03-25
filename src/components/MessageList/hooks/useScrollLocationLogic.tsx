@@ -53,7 +53,7 @@ export const useScrollLocationLogic = <
       setWrapperRect(listRef.current.getBoundingClientRect());
       scrollToBottom();
     }
-  }, [listRef]);
+  }, [listRef, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({
     messages,

@@ -7,6 +7,7 @@ import {
   MessageList,
   useChannelActionContext,
   VirtualizedMessageList,
+  Window,
 } from '../index';
 import '@stream-io/stream-chat-css/dist/css/index.css';
 
@@ -50,14 +51,14 @@ const JumpToMessage = () => {
           {
             id: { $eq: channelId },
           },
-          'Message',
-          { limit: 1, offset: 120 },
+          'Message 29',
+          { limit: 1, offset: 0 },
         );
 
         jumpToMessage(results.results[0].message.id);
       }}
     >
-      Jump to message 29
+      Jump to message &apos;29&apos;
     </button>
   );
 };
@@ -93,7 +94,9 @@ export const JumpInRegularMessageList = () => {
       <Chat client={chatClient}>
         <Channel channel={channel}>
           <JumpToMessage />
-          <MessageList />
+          <Window>
+            <MessageList />
+          </Window>
         </Channel>
       </Chat>
     </div>
@@ -113,7 +116,9 @@ export const JumpInVirtualizedMessageList = () => {
       <Chat client={chatClient}>
         <Channel channel={channel}>
           <JumpToMessage />
-          <VirtualizedMessageList />
+          <Window>
+            <VirtualizedMessageList />
+          </Window>
         </Channel>
       </Chat>
     </div>

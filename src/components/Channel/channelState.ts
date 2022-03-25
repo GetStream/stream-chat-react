@@ -79,6 +79,9 @@ export type ChannelStateReducerAction<
       channel: Channel<StreamChatGenerics>;
       message: MessageResponse<StreamChatGenerics>;
       type: 'updateThreadOnEvent';
+    }
+  | {
+      type: 'jumpToLatestMessage';
     };
 
 export type ChannelStateReducer<
@@ -139,6 +142,16 @@ export const channelReducer = <
         read: { ...channel.state.read },
         watcherCount: channel.state.watcher_count,
         watchers: { ...channel.state.watchers },
+      };
+    }
+
+    case 'jumpToLatestMessage': {
+      return {
+        ...state,
+        hasMoreNewer: false,
+        highlightedMessageId: undefined,
+        loading: false,
+        suppressAutoscroll: false,
       };
     }
 

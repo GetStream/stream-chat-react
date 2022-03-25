@@ -24,6 +24,7 @@
   "Error · Unsent": "Fehler nicht gesendet",
   "Error: {{ errorMessage }}": "Fehler: {{ errorMessage }}",
   "Flag": "Meldung",
+  "Latest Messages": "Neueste Nachrichten",
   "Menu": "Menü",
   "Message Failed · Click to try again": "Nachricht fehlgeschlagen · Klicken, um es erneut zu versuchen",
   "Message Failed · Unauthorized": "Nachricht fehlgeschlagen · Nicht autorisiert",

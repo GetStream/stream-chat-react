@@ -64,6 +64,7 @@ const MessageListWithContext = <
     hasMoreNewer = false,
     suppressAutoscroll,
     highlightedMessageId,
+    jumpToLatestMessage = () => Promise.resolve(),
   } = props;
 
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
@@ -154,6 +155,14 @@ const MessageListWithContext = <
     }
   }, [loadMoreNewerCallback, messageLimit]);
 
+  const scrollToBottomFromNotification = React.useCallback(async () => {
+    if (hasMoreNewer) {
+      await jumpToLatestMessage();
+    } else {
+      scrollToBottom();
+    }
+  }, [scrollToBottom, hasMoreNewer]);
+
   const ulRef = React.useRef<HTMLUListElement>(null);
 
   React.useLayoutEffect(() => {
@@ -194,9 +203,10 @@ const MessageListWithContext = <
       </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
+        isNotAtLatestMessageSet={hasMoreNewer}
         MessageNotification={MessageNotification}
         notifications={notifications}
-        scrollToBottom={scrollToBottom}
+        scrollToBottom={scrollToBottomFromNotification}
       />
     </>
   );
@@ -249,6 +259,8 @@ export type MessageListProps<
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
   internalInfiniteScrollProps?: InfiniteScrollProps;
+  /** Function called when latest messages should be loaded, after the list has jumped at an earlier message set */
+  jumpToLatestMessage?: () => Promise<void>;
   /** Whether or not the list is currently loading more items */
   loadingMore?: boolean;
   /** Whether or not the list is currently loading newer items */
@@ -284,7 +296,11 @@ export const MessageList = <
 >(
   props: MessageListProps<StreamChatGenerics>,
 ) => {
-  const { loadMore, loadMoreNewer } = useChannelActionContext<StreamChatGenerics>('MessageList');
+  const {
+    jumpToLatestMessage,
+    loadMore,
+    loadMoreNewer,
+  } = useChannelActionContext<StreamChatGenerics>('MessageList');
 
   const {
     members: membersPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -295,6 +311,7 @@ export const MessageList = <
 
   return (
     <MessageListWithContext<StreamChatGenerics>
+      jumpToLatestMessage={jumpToLatestMessage}
       loadMore={loadMore}
       loadMoreNewer={loadMoreNewer}
       {...restChannelStateContext}

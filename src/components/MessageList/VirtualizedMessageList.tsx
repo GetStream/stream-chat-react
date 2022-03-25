@@ -48,6 +48,7 @@ type VirtualizedMessageListWithContextProps<
   channel: Channel<StreamChatGenerics>;
   hasMore: boolean;
   hasMoreNewer: boolean;
+  jumpToLatestMessage: () => Promise<void>;
   loadingMore: boolean;
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
@@ -92,6 +93,7 @@ const VirtualizedMessageListWithContext = <
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     highlightedMessageId,
+    jumpToLatestMessage,
     loadingMore,
     loadMore,
     loadMoreNewer,
@@ -174,15 +176,27 @@ const VirtualizedMessageListWithContext = <
     atBottom,
     newMessagesNotification,
     setNewMessagesNotification,
-  } = useNewMessageNotification(processedMessages, client.userID);
+  } = useNewMessageNotification(processedMessages, client.userID, hasMoreNewer);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback(async () => {
+    if (hasMoreNewer) {
+      await jumpToLatestMessage();
+      return;
+    }
+
     if (virtuoso.current) {
       virtuoso.current.scrollToIndex(processedMessages.length - 1);
     }
 
     setNewMessagesNotification(false);
-  }, [virtuoso, processedMessages, setNewMessagesNotification, processedMessages.length]);
+  }, [
+    virtuoso,
+    processedMessages,
+    setNewMessagesNotification,
+    processedMessages.length,
+    hasMoreNewer,
+    jumpToLatestMessage,
+  ]);
 
   const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = React.useState(
     false,
@@ -408,6 +422,7 @@ const VirtualizedMessageListWithContext = <
       </div>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
+        isNotAtLatestMessageSet={hasMoreNewer}
         MessageNotification={MessageNotification}
         notifications={notifications}
         scrollToBottom={scrollToBottom}
@@ -497,9 +512,11 @@ export type VirtualizedMessageListProps<
 export function VirtualizedMessageList<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(props: VirtualizedMessageListProps<StreamChatGenerics>) {
-  const { loadMore, loadMoreNewer } = useChannelActionContext<StreamChatGenerics>(
-    'VirtualizedMessageList',
-  );
+  const {
+    jumpToLatestMessage,
+    loadMore,
+    loadMoreNewer,
+  } = useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
   const {
     channel,
     hasMore,
@@ -520,6 +537,7 @@ export function VirtualizedMessageList<
       hasMore={!!hasMore}
       hasMoreNewer={!!hasMoreNewer}
       highlightedMessageId={highlightedMessageId}
+      jumpToLatestMessage={jumpToLatestMessage}
       loadingMore={!!loadingMore}
       loadingMoreNewer={!!loadingMoreNewer}
       loadMore={loadMore}

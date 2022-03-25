@@ -59,7 +59,6 @@ export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
     const offset = element.scrollHeight - parentElement.scrollTop - parentElement.clientHeight;
     const reverseOffset = parentElement.scrollTop;
 
-    console.log(parentElement.scrollTop);
     if (listenToScroll) {
       listenToScroll(offset, reverseOffset, threshold);
     }

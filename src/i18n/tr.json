@@ -24,6 +24,7 @@
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
   "Flag": "Bayrak",
+  "Latest Messages": "Son Mesajlar",
   "Menu": "Menü",
   "Message Failed · Click to try again": "Mesaj Başarısız · Tekrar denemek için tıklayın",
   "Message Failed · Unauthorized": "Mesaj Başarısız · Yetkisiz",
