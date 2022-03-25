@@ -11,6 +11,7 @@ jobs:
         typescript: ['no']
         include:
           - typescript: 'yes'
+    name: ${{ (matrix.typescript == 'yes' && 'Typescript') || format('Node {0}', matrix.node) }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
@@ -37,7 +38,17 @@ jobs:
           if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi
         
       - name: ⚗️ End-to-end tests
-        if: ${{ matrix.typescript == 'no' }}
+        if: ${{ matrix.typescript == 'yes' }}
         run: |
+          npx playwright install
           yarn e2e-fixtures
           yarn e2e
+        env:
+          VITE_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
+          VITE_ADD_MESSAGE_CHANNEL: add-message
+          VITE_TEST_USER_1: test-user-1
+          VITE_TEST_USER_2: test-user-2
+          VITE_APP_KEY: ${{ secrets.VITE_APP_KEY }}
+          VITE_APP_SECRET: ${{ secrets.VITE_APP_SECRET }}
+          VITE_TEST_USER_1_TOKEN: ${{ secrets.VITE_TEST_USER_1_TOKEN }}
+          VITE_TEST_USER_2_TOKEN: ${{ secrets.VITE_TEST_USER_2_TOKEN }}
