@@ -3,15 +3,60 @@ name: Test
 on: [push]
 
 jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    name: Typescript
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 💾 Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: 🔨 Install Dependencies & Build
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: 🧪 tsc
+        run: yarn types
+
+  e2e:
+    runs-on: ubuntu-latest
+    name: End-to-end tests
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 💾 Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: 🔨 Install Dependencies & Build
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: ⚗️ End-to-end tests
+        run: |
+          npx playwright install
+          yarn e2e-fixtures
+          yarn e2e
+        env:
+          VITE_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
+          VITE_ADD_MESSAGE_CHANNEL: add-message
+          VITE_TEST_USER_1: test-user-1
+          VITE_TEST_USER_2: test-user-2
+          VITE_APP_KEY: ${{ secrets.VITE_APP_KEY }}
+          VITE_APP_SECRET: ${{ secrets.VITE_APP_SECRET }}
+          VITE_TEST_USER_1_TOKEN: ${{ secrets.VITE_TEST_USER_1_TOKEN }}
+          VITE_TEST_USER_2_TOKEN: ${{ secrets.VITE_TEST_USER_2_TOKEN }}
+  
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: [10, 12, 14]
-        typescript: ['no']
-        include:
-          - typescript: 'yes'
-    name: ${{ (matrix.typescript == 'yes' && 'Typescript') || format('Node {0}', matrix.node) }}
+    name: Test with Node ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
@@ -30,25 +75,7 @@ jobs:
       - name: 🧪 Lint and Test with ${{ matrix.node }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          TYPESCRIPT: ${{ matrix.typescript }}
         run: |
-          if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
-          if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
-          if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
-          if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi
-        
-      - name: ⚗️ End-to-end tests
-        if: ${{ matrix.typescript == 'yes' }}
-        run: |
-          npx playwright install
-          yarn e2e-fixtures
-          yarn e2e
-        env:
-          VITE_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
-          VITE_ADD_MESSAGE_CHANNEL: add-message
-          VITE_TEST_USER_1: test-user-1
-          VITE_TEST_USER_2: test-user-2
-          VITE_APP_KEY: ${{ secrets.VITE_APP_KEY }}
-          VITE_APP_SECRET: ${{ secrets.VITE_APP_SECRET }}
-          VITE_TEST_USER_1_TOKEN: ${{ secrets.VITE_TEST_USER_1_TOKEN }}
-          VITE_TEST_USER_2_TOKEN: ${{ secrets.VITE_TEST_USER_2_TOKEN }}
+          yarn lint
+          yarn coverage
+          yarn validate-translations
