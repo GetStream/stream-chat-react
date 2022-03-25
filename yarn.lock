@@ -2217,10 +2217,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@ladle/react@^0.8.3":
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/@ladle/react/-/react-0.8.3.tgz#9ba4a89238aa6b6ee55e27e34c1d848b57b72e81"
-  integrity sha512-9kmvz61LWEKrojJlXlvZEVUF99sQ6bAOTgVM52yS7EeSWPhxvq0Oaxje6EBWkg/bG0enJt64gratljlSIncoUg==
+"@ladle/react@^0.8.5":
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/@ladle/react/-/react-0.8.5.tgz#7ee8dde326abd0a9f8eb539ae00684df1dec4a19"
+  integrity sha512-fJRhB0PE8EHEQ8npdAeKBcHcVUQ92KGau1BhAMf2iZgvrmFMZTIw0D81SPiYNIUhSqTwTfZWs30nkOAd/Kag9A==
   dependencies:
     "@babel/code-frame" "^7.16.7"
     "@babel/core" "^7.17.5"
@@ -2251,7 +2251,7 @@
     open "^8.4.0"
     query-string "^7.1.1"
     rollup-pluginutils "^2.8.2"
-    vite "^2.9.0-beta.0"
+    vite "^2.9.0-beta.3"
 
 "@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents":
   version "2.1.8-no-fsevents"
@@ -2915,6 +2915,13 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/deep-equal/-/deep-equal-1.0.1.tgz#71cfabb247c22bcc16d536111f50c0ed12476b03"
   integrity sha512-mMUu4nWHLBlHtxXY17Fg6+ucS/MnndyOWyOe7MmwkoMYxvfQU2ajtRaEvqSUv+aVkMqH/C0NCI8UoVfRNQ10yg==
+
+"@types/dotenv@^8.2.0":
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/@types/dotenv/-/dotenv-8.2.0.tgz#5cd64710c3c98e82d9d15844375a33bf1b45d053"
+  integrity sha512-ylSC9GhfRH7m1EUXBXofhgx4lUWmFeQDINW5oLuS+gxWdfUeW4zJdeVTYVkexEW+e2VUvlZR2kGnGGipAWR7kw==
+  dependencies:
+    dotenv "*"
 
 "@types/emoji-mart@^3.0.8":
   version "3.0.8"
@@ -6638,6 +6645,11 @@ dot-prop@^5.1.0:
   dependencies:
     is-obj "^2.0.0"
 
+dotenv@*:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.0.tgz#c619001253be89ebb638d027b609c75c26e47411"
+  integrity sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==
+
 dotenv@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-5.0.1.tgz#a5317459bd3d79ab88cff6e44057a6a3fbb1fcef"
@@ -6972,7 +6984,7 @@ esbuild-windows-arm64@0.14.27:
   resolved "https://registry.yarnpkg.com/esbuild-windows-arm64/-/esbuild-windows-arm64-0.14.27.tgz#ad7e187193dcd18768b16065a950f4441d7173f4"
   integrity sha512-I/reTxr6TFMcR5qbIkwRGvldMIaiBu2+MP0LlD7sOlNXrfqIl9uNjsuxFPGEG4IRomjfQ5q8WT+xlF/ySVkqKg==
 
-esbuild@^0.14.14:
+esbuild@^0.14.27:
   version "0.14.27"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.14.27.tgz#41fe0f1b6b68b9f77cac025009bc54bb96e616f1"
   integrity sha512-MZQt5SywZS3hA9fXnMhR22dv0oPGh6QtjJRIYbgL1AeqAoQZE+Qn5ppGYQAoHv/vq827flj4tIJ79Mrdiwk46Q==
@@ -13237,10 +13249,10 @@ postcss@^8.1.10, postcss@^8.2.8:
     nanoid "^3.1.20"
     source-map "^0.6.1"
 
-postcss@^8.4.6:
-  version "8.4.11"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.11.tgz#a06229f23820b4ddd46500a3e38dbca1598a8e8d"
-  integrity sha512-D+jFLnT0ilGfy4CVBGbC+XE68HkVpT8+CUkDrcSpgxmo4RKco2uaZ4kIoyVGEm+m8KN/+Vwgs8MtpNbQ3/ma9w==
+postcss@^8.4.12:
+  version "8.4.12"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.12.tgz#1e7de78733b28970fa4743f7da6f3763648b1905"
+  integrity sha512-lg6eITwYe9v6Hr5CncVbK70SoioNQIq81nsaG86ev5hAidQvmOeETBqs7jm43K2F5/Ley3ytDtriImV6TpNiSg==
   dependencies:
     nanoid "^3.3.1"
     picocolors "^1.0.0"
@@ -16719,13 +16731,13 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite@^2.9.0-beta.0:
-  version "2.9.0-beta.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.0-beta.2.tgz#c4a8a1cd9d9e1d38e2c5dd7a4bad2f03726525a1"
-  integrity sha512-SSEO6lituUZkg4vblNxzESZS7TCVsTPdeApWYSJJwaZjacKdzGhvnj3oI6H2WbUmUePrenLtovehvcfCOeEcOg==
+vite@^2.9.0-beta.3:
+  version "2.9.0-beta.8"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.9.0-beta.8.tgz#7f4df9b4a5c1a2d336ace6395991d5f92854fbac"
+  integrity sha512-8pTPiHpL7oVtNJKf7zi63XoFD7U6XfQ/e3SJWizPPzuxr8LLd09Dz28mt0ZKUltXH/jQ+1eiNY5Bgnbxff991g==
   dependencies:
-    esbuild "^0.14.14"
-    postcss "^8.4.6"
+    esbuild "^0.14.27"
+    postcss "^8.4.12"
     resolve "^1.22.0"
     rollup "^2.59.0"
   optionalDependencies:

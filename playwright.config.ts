@@ -3,7 +3,7 @@ import { PlaywrightTestConfig } from '@playwright/test';
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
   webServer: {
-    command: 'yarn browse-examples',
+    command: 'ladle serve --open none',
     port: 61000,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
