@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from '@playwright/test';
+import type { PlaywrightTestConfig } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
@@ -8,6 +8,9 @@ const config: PlaywrightTestConfig = {
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
+  use: {
+    viewport: { width: 1280, height: 920 },
+  }
 };
 
 export default config;

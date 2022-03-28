@@ -11,7 +11,7 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { apiKey, StreamChatGenerics, StyleFix } from './utils';
+import { apiKey, StreamChatGenerics } from './utils';
 
 const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
@@ -66,7 +66,7 @@ const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => 
     return <p>Connecting {userId}...</p>;
   }
   return (
-    <div>
+    <>
       <h3>User: {userId}</h3>
       <Chat client={chatClient}>
         <ChannelList filters={{ members: { $in: [userId] } }} sort={sort} />
@@ -78,7 +78,7 @@ const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => 
           </Window>
         </Channel>
       </Chat>
-    </div>
+    </>
   );
 };
 
@@ -91,12 +91,7 @@ export const User1 = () => {
   if (!token || typeof token !== 'string') {
     throw new Error('expected TEST_USER_1_TOKEN');
   }
-  return (
-    <div>
-      <StyleFix />
-      <ConnectedUser token={token} userId={userId} />
-    </div>
-  );
+  return <ConnectedUser token={token} userId={userId} />;
 };
 
 export const User2 = () => {
@@ -108,10 +103,5 @@ export const User2 = () => {
   if (!token || typeof token !== 'string') {
     throw new Error('expected TEST_USER_2_TOKEN');
   }
-  return (
-    <div>
-      <StyleFix />
-      <ConnectedUser token={token} userId={userId} />
-    </div>
-  );
+  return <ConnectedUser token={token} userId={userId} />;
 };
