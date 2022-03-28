@@ -13,7 +13,7 @@ import {
 } from '../index';
 import { apiKey, StreamChatGenerics, StyleFix } from './utils';
 
-const channelId = import.meta.env.VITE_ADD_MESSAGE_CHANNEL;
+const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
   throw new Error('expected ADD_MESSAGE_CHANNEL');
 }
@@ -83,8 +83,8 @@ const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => 
 };
 
 export const User1 = () => {
-  const userId = import.meta.env.VITE_TEST_USER_1;
-  const token = import.meta.env.VITE_TEST_USER_1_TOKEN;
+  const userId = import.meta.env.E2E_TEST_USER_1;
+  const token = import.meta.env.E2E_TEST_USER_1_TOKEN;
   if (!userId || typeof userId !== 'string') {
     throw new Error('expected TEST_USER_1');
   }
@@ -100,8 +100,8 @@ export const User1 = () => {
 };
 
 export const User2 = () => {
-  const userId = import.meta.env.VITE_TEST_USER_2;
-  const token = import.meta.env.VITE_TEST_USER_2_TOKEN;
+  const userId = import.meta.env.E2E_TEST_USER_2;
+  const token = import.meta.env.E2E_TEST_USER_2_TOKEN;
   if (!userId || typeof userId !== 'string') {
     throw new Error('expected TEST_USER_2');
   }

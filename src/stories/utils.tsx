@@ -1,6 +1,6 @@
 import React from 'react';
 
-const appKey = import.meta.env.VITE_APP_KEY;
+const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
   throw new Error('expected APP_KEY');
 }
