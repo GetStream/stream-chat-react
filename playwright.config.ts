@@ -1,5 +1,6 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 
+// https://playwright.dev/docs/test-configuration
 const config: PlaywrightTestConfig = {
   testDir: './e2e',
   webServer: {
