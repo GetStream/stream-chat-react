@@ -13,7 +13,7 @@ dotenv.config({ path: `.env.local` });
     TEST_USER_1,
     TEST_USER_2,
   } = Object.entries(process.env).reduce((acc, [key, value]) => {
-    acc[key.replace('VITE_', '')] = value;
+    acc[key.replace('E2E_', '')] = value;
     return acc;
   }, {});
 
