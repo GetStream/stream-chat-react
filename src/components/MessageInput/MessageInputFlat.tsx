@@ -59,9 +59,10 @@ export const MessageInputFlat = <
 
   useEffect(() => {
     const handleQuotedMessageUpdate = (e: Event<StreamChatGenerics>) => {
-      if (e.message?.id !== quotedMessage?.id) return;
-      if (e.message?.deleted_at) {
+      if (!(quotedMessage && e.message?.id === quotedMessage.id)) return;
+      if (e.type === 'message.deleted') {
         setQuotedMessage(undefined);
+        return;
       }
       setQuotedMessage(e.message);
     };
