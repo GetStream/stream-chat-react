@@ -1,0 +1,10 @@
+.ladle-main {
+  padding: 0 1rem 3rem;
+}
+.str-chat {
+  height: 700px!important;
+}
+
+.str-chat-channel-list {
+  overflow: auto;
+}

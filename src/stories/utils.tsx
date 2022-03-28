@@ -1,5 +1,3 @@
-import React from 'react';
-
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
   throw new Error('expected APP_KEY');
@@ -23,11 +21,3 @@ export type StreamChatGenerics = {
   reactionType: LocalReactionType;
   userType: LocalUserType;
 };
-
-export const StyleFix = () => (
-  <style>{`
-    .str-chat {
-      height: 700px
-    }
-  `}</style>
-);
