@@ -88,7 +88,7 @@ export const ChannelPreview = <
     } else {
       setUnread(channel.countUnread());
     }
-  }, [channel, isActive, muted, channelUpdateCount]);
+  }, [channel, isActive, muted]);
 
   useEffect(() => {
     refreshUnreadCount();
@@ -107,7 +107,7 @@ export const ChannelPreview = <
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
-  }, [refreshUnreadCount]);
+  }, [refreshUnreadCount, channelUpdateCount]);
 
   if (!Preview) return null;
 
