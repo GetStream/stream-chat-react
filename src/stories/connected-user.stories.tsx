@@ -44,6 +44,7 @@ const Controls = () => {
 const sort: ChannelSort = { last_updated: 1 };
 
 const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
+
 const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => {
   const [connected, setConnected] = useState(false);
   useEffect(() => {
