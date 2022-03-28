@@ -8,7 +8,7 @@ function getPreview(page: Page) {
 
 test.describe('add a message', () => {
   test.beforeEach(async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=add-message--user1`);
+    await page.goto(`${baseURL}/?story=connected-user--user1`);
     await page.waitForSelector('[data-storyloaded]');
     // Select correct channel
     const preview = getPreview(page);
@@ -42,7 +42,7 @@ test.describe('add a message', () => {
 
 test.describe('receive a message', () => {
   test.beforeEach(async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=add-message--user2`);
+    await page.goto(`${baseURL}/?story=connected-user--user2`);
     await page.waitForSelector('[data-storyloaded]');
   });
 
