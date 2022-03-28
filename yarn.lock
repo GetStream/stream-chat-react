@@ -1004,7 +1004,12 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@braintree/sanitize-url@5.0.0", "@braintree/sanitize-url@^5.0.0":
+"@braintree/sanitize-url@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.0.tgz#fe364f025ba74f6de6c837a84ef44bdb1d61e68f"
+  integrity sha512-mgmE7XBYY/21erpzhexk4Cj1cyTQ9LzvnTxtzM17BJ7ERMNE6W72mQRo0I1Ud8eFJ+RVVIcBNhLFZ3GX4XFz5w==
+
+"@braintree/sanitize-url@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.0.tgz#3ba791f37b90e7f6170d252b63aacfcae943c039"
   integrity sha512-WmKrB/575EJCzbeSJR3YQ5sET5FaizeljLRw1382qVUeGqzuWBgIS+AF5a0FO51uQTrDpoRgvuHC2IWVsgwkkA==
@@ -10056,9 +10061,9 @@ nan@^2.12.1:
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
 nanoid@^3.1.20, nanoid@^3.1.22:
-  version "3.1.22"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.22.tgz#b35f8fb7d151990a8aebd5aa5015c03cf726f844"
-  integrity sha512-/2ZUaJX2ANuLtTvqTlgqBQNJoQO398KyJgZloL0PZkC0dpysjncRUPsFe3DUPzz/y3h+u7C46np8RMuvF3jsSQ==
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.1.tgz#6347a18cac88af88f58af0b3594b723d5e99bb35"
+  integrity sha512-n6Vs/3KGyxPQd6uO0eH4Bv0ojGSUvuLlIHtC3Y0kEO23YRge8H9x1GCzLn28YX0H66pMkxuaeESFq4tKISKwdw==
 
 nanomatch@^1.2.9:
   version "1.2.13"

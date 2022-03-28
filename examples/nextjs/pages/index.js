@@ -15,7 +15,7 @@ const apiKey = process.env.NEXT_PUBLIC_REACT_APP_STREAM_KEY;
 const userId = process.env.NEXT_PUBLIC_REACT_APP_USER_ID;
 const userToken = process.env.NEXT_PUBLIC_REACT_APP_USER_TOKEN;
 
-const filters = { type: 'messaging' };
+const filters = { type: 'messaging', members: {$in: [userId]}  };
 const options = { state: true, presence: true, limit: 10 };
 const sort = { last_message_at: -1, updated_at: -1 };
 
