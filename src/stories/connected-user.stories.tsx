@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import React, { useEffect, useState } from 'react';
-import { ChannelSort, StreamChat } from 'stream-chat';
+import { ChannelSort, Event, StreamChat } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -45,27 +45,32 @@ const sort: ChannelSort = { last_updated: 1 };
 
 const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
 
+// wait for disconnect to happen since there's only one shared
+// client and two separate Chat components using it to prevent crashes
+let sharedPromise = Promise.resolve();
+
 const ConnectedUser = ({ token, userId }: { token: string; userId: string }) => {
   const [connected, setConnected] = useState(false);
+
   useEffect(() => {
-    const connect = async () => {
-      if (chatClient.userID) {
-        await chatClient.disconnectUser();
-      }
-      await chatClient.connectUser({ id: userId }, token);
-      // Why do I need to do this?
-      await chatClient.tokenManager.setTokenOrProvider(token, { id: userId });
-      setConnected(true);
+    sharedPromise.then(() => chatClient.connectUser({ id: userId }, token));
+
+    const handleConnectionChange = ({ online = false }: Event) => {
+      setConnected(online);
     };
-    if (chatClient.wsConnection?.isHealthy && chatClient.userID === userId) {
-      setConnected(true);
-    } else {
-      connect();
-    }
+
+    chatClient.on('connection.changed', handleConnectionChange);
+
+    return () => {
+      chatClient.off('connection.changed', handleConnectionChange);
+      sharedPromise = chatClient.disconnectUser();
+    };
   }, []);
+
   if (!connected) {
     return <p>Connecting {userId}...</p>;
   }
+
   return (
     <>
       <h3>User: {userId}</h3>
