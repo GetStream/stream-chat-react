@@ -6,29 +6,26 @@ dotenv.config({ path: `.env.local` });
 
 (async () => {
   const {
-    ADD_MESSAGE_CHANNEL,
-    APP_KEY,
-    APP_SECRET,
-    JUMP_TO_MESSAGE_CHANNEL,
-    TEST_USER_1,
-    TEST_USER_2,
-  } = Object.entries(process.env).reduce((acc, [key, value]) => {
-    acc[key.replace('E2E_', '')] = value;
-    return acc;
-  }, {});
+    E2E_ADD_MESSAGE_CHANNEL,
+    E2E_APP_KEY,
+    E2E_APP_SECRET,
+    E2E_JUMP_TO_MESSAGE_CHANNEL,
+    E2E_TEST_USER_1,
+    E2E_TEST_USER_2,
+  } = process.env;
 
-  const chat = StreamChat.getInstance(APP_KEY, APP_SECRET);
+  const chat = StreamChat.getInstance(E2E_APP_KEY, E2E_APP_SECRET);
 
   // Users
   console.log('Creating users...');
-  await chat.upsertUsers([{ id: TEST_USER_1 }, { id: TEST_USER_2 }]);
+  await chat.upsertUsers([{ id: E2E_TEST_USER_1 }, { id: E2E_TEST_USER_2 }]);
 
   // 'Jump to message' channel
   {
-    console.log(`Creating and populating channel '${JUMP_TO_MESSAGE_CHANNEL}'...`);
-    const channel = chat.channel('messaging', JUMP_TO_MESSAGE_CHANNEL, {
-      created_by_id: TEST_USER_1,
-      members: [TEST_USER_1, TEST_USER_2],
+    console.log(`Creating and populating channel '${E2E_JUMP_TO_MESSAGE_CHANNEL}'...`);
+    const channel = chat.channel('messaging', E2E_JUMP_TO_MESSAGE_CHANNEL, {
+      created_by_id: E2E_TEST_USER_1,
+      members: [E2E_TEST_USER_1, E2E_TEST_USER_2],
     });
     await channel.create();
     await channel.truncate();
@@ -36,18 +33,18 @@ dotenv.config({ path: `.env.local` });
       process.stdout.write(`.`);
       await channel.sendMessage({
         text: `Message ${i}`,
-        user: { id: i % 2 ? TEST_USER_1 : TEST_USER_2 },
+        user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
       });
     }
   }
 
   // 'Add message' channel
   {
-    console.log(`Creating channel '${ADD_MESSAGE_CHANNEL}'...`);
-    const channel = chat.channel('messaging', ADD_MESSAGE_CHANNEL, {
-      created_by_id: TEST_USER_1,
-      members: [TEST_USER_1, TEST_USER_2],
-      name: ADD_MESSAGE_CHANNEL,
+    console.log(`Creating channel '${E2E_ADD_MESSAGE_CHANNEL}'...`);
+    const channel = chat.channel('messaging', E2E_ADD_MESSAGE_CHANNEL, {
+      created_by_id: E2E_TEST_USER_1,
+      members: [E2E_TEST_USER_1, E2E_TEST_USER_2],
+      name: E2E_ADD_MESSAGE_CHANNEL,
     });
     await channel.create();
     await channel.truncate();
