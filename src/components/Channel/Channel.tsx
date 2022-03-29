@@ -395,7 +395,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid]);
+  }, [channel.cid, doMarkReadRequest]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
