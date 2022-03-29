@@ -1,3 +1,4 @@
+/* eslint-disable require-await */
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -29,6 +30,8 @@ let channel;
 const submitMock = jest.fn();
 const editMock = jest.fn();
 
+jest.mock('../../Channel/buildAddNotification');
+
 const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useChatContext();
   useEffect(() => {
@@ -42,23 +45,28 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
 ].forEach(({ InputComponent, name: componentName }) => {
-  const renderComponent = (props = {}, channelProps = {}) => {
-    const renderResult = render(
-      <Chat client={chatClient}>
-        <ActiveChannelSetter activeChannel={channel} />
-        <Channel
-          doSendMessageRequest={submitMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
-        >
-          <MessageInput Input={InputComponent} {...props} />
-        </Channel>
-      </Chat>,
-    );
+  const renderComponent = async (props = {}, channelProps = {}) => {
+    let renderResult;
+    await act(async () => {
+      renderResult = render(
+        <Chat client={chatClient}>
+          <ActiveChannelSetter activeChannel={channel} />
+          <Channel
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
+          >
+            <MessageInput Input={InputComponent} {...props} />
+          </Channel>
+        </Chat>,
+      );
+    });
 
     const submit = async () => {
-      const submitButton = renderResult.findByText('Send') || renderResult.findByTitle('Send');
-      fireEvent.click(await submitButton);
+      await act(async () => {
+        const submitButton = renderResult.findByText('Send') || renderResult.findByTitle('Send');
+        fireEvent.click(await submitButton);
+      });
     };
 
     return { submit, ...renderResult };
@@ -119,7 +127,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       jest.fn().mockImplementation(() => Promise.reject(cause));
 
     it('Should shift focus to the textarea if the `focus` prop is true', async () => {
-      const { container, getByPlaceholderText } = renderComponent({
+      const { container, getByPlaceholderText } = await renderComponent({
         focus: true,
       });
       await waitFor(() => {
@@ -130,7 +138,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('Should render default emoji svg', async () => {
-      const { container, findByTitle } = renderComponent();
+      const { container, findByTitle } = await renderComponent();
       const emojiIcon = await findByTitle('Open emoji picker');
 
       await waitFor(() => {
@@ -147,7 +155,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { container, findByTitle } = renderComponent({}, { EmojiIcon });
+      const { container, findByTitle } = await renderComponent({}, { EmojiIcon });
 
       const emojiIcon = await findByTitle('NotEmoji');
 
@@ -159,7 +167,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('Should render default file upload icon', async () => {
-      const { container, findByTitle } = renderComponent();
+      const { container, findByTitle } = await renderComponent();
       const fileUploadIcon = await findByTitle('Attach files');
 
       await waitFor(() => {
@@ -176,7 +184,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         </svg>
       );
 
-      const { container, findByTitle } = renderComponent({}, { FileUploadIcon });
+      const { container, findByTitle } = await renderComponent({}, { FileUploadIcon });
 
       const fileUploadIcon = await findByTitle('NotFileUploadIcon');
 
@@ -188,7 +196,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
-      const { container, findByTitle, getByDisplayValue, queryAllByText } = renderComponent();
+      const { container, findByTitle, getByDisplayValue, queryAllByText } = await renderComponent();
 
       const emojiIcon = await findByTitle('Open emoji picker');
       fireEvent.click(emojiIcon);
@@ -217,7 +225,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       it('Pasting images and files should result in uploading the files and showing previewers', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = await renderComponent({
           doFileUploadRequest,
           doImageUploadRequest,
         });
@@ -256,7 +264,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('Should upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = await renderComponent({
           doImageUploadRequest,
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -272,7 +280,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
-        const { container, findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = await renderComponent({
           doFileUploadRequest: mockUploadApi(),
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -288,7 +296,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should allow uploading files with the file upload button', async () => {
-        const { container, findByTestId, findByText } = renderComponent({
+        const { container, findByTestId, findByText } = await renderComponent({
           doFileUploadRequest: mockUploadApi(),
         });
         const file = getFile();
@@ -312,7 +320,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const cause = new Error('failed to upload');
         const doImageUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
-        const { container, findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = await renderComponent({
           doImageUploadRequest,
           errorHandler,
         });
@@ -334,7 +342,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         const doFileUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
 
-        const { container, findByPlaceholderText, findByText } = renderComponent({
+        const { container, findByPlaceholderText, findByText } = await renderComponent({
           doFileUploadRequest,
           errorHandler,
         });
@@ -360,7 +368,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
-        const { container, findByTestId } = renderComponent(
+        const { container, findByTestId } = await renderComponent(
           {},
           {
             multipleUploads: false,
@@ -373,7 +381,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should set multiple attribute on the file input if multipleUploads is true', async () => {
-        const { container, findByTestId } = renderComponent(
+        const { container, findByTestId } = await renderComponent(
           {},
           {
             multipleUploads: true,
@@ -388,7 +396,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       const filename1 = '1.txt';
       const filename2 = '2.txt';
       it('should only allow dropping maxNumberOfFiles files into the dropzone', async () => {
-        const { container, findByPlaceholderText, queryByText } = renderComponent(
+        const { container, findByPlaceholderText, queryByText } = await renderComponent(
           {
             doFileUploadRequest: mockUploadApi(),
           },
@@ -411,7 +419,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should only allow uploading 1 file if multipleUploads is false', async () => {
-        const { container, findByPlaceholderText, queryByText } = renderComponent(
+        const { container, findByPlaceholderText, queryByText } = await renderComponent(
           {
             doFileUploadRequest: mockUploadApi(),
           },
@@ -448,7 +456,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should not render file upload button', async () => {
-        const { container, queryByTestId } = renderComponent();
+        const { container, queryByTestId } = await renderComponent();
         expect(queryByTestId('fileinput')).not.toBeInTheDocument();
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -457,7 +465,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       it('Pasting images and files should do nothing', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText, queryByText } = renderComponent({
+        const { container, findByPlaceholderText, queryByText } = await renderComponent({
           doFileUploadRequest,
           doImageUploadRequest,
         });
@@ -486,7 +494,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('Should not upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = await renderComponent({
           doImageUploadRequest,
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
@@ -504,7 +512,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
     describe('Submitting', () => {
       it('Should submit the input value when clicking the submit button', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent();
+        const { container, findByPlaceholderText, submit } = await renderComponent();
 
         const messageText = 'Some text';
 
@@ -528,7 +536,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
         const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           overrideSubmitHandler: overrideMock,
         });
         const messageText = 'Some text';
@@ -538,6 +546,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
             value: messageText,
           },
         });
+
         await submit();
 
         expect(overrideMock).toHaveBeenCalledWith(
@@ -551,7 +560,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('Should not do anything if the message is empty and has no files', async () => {
-        const { container, submit } = renderComponent();
+        const { container, submit } = await renderComponent();
 
         await submit();
 
@@ -562,7 +571,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add image as attachment if a message is submitted with an image', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           doImageUploadRequest,
         });
 
@@ -591,7 +600,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add file as attachment if a message is submitted with an file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           doFileUploadRequest,
         });
 
@@ -620,7 +629,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           doFileUploadRequest,
         });
 
@@ -650,7 +659,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
-        const { container, findByPlaceholderText } = renderComponent({
+        const { container, findByPlaceholderText } = await renderComponent({
           keycodeSubmitKeys: [[17]],
         });
         const input = await findByPlaceholderText(inputPlaceholder);
@@ -665,7 +674,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           keycodeSubmitKeys: [[17, 13]],
         });
         const messageText = 'Submission text.';
@@ -698,7 +707,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           keycodeSubmitKeys: [[16, 13], [57], [48]],
         });
         const messageText = 'Submission text.';
@@ -727,7 +736,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
       });
 
       it('should submit if just a tuple is provided and keycode events do match', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
+        const { container, findByPlaceholderText, submit } = await renderComponent({
           keycodeSubmitKeys: [[76, 77]],
         });
         const messageText = 'Submission text.';
@@ -778,10 +787,11 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         mentioned_users,
         text: `@${username} what's up!`,
       });
-      const { container, submit } = renderComponent({
+      const { container, submit } = await renderComponent({
         clearEditingState: () => {},
         message,
       });
+
       await submit();
 
       expect(editMock).toHaveBeenCalledWith(
@@ -800,7 +810,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('Should add a mentioned user if @ is typed and a user is selected', async () => {
-      const { container, findByPlaceholderText, getByTestId, submit } = renderComponent();
+      const { container, findByPlaceholderText, getByTestId, submit } = await renderComponent();
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
       fireEvent.change(formElement, {
@@ -826,7 +836,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
     });
 
     it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
-      const { container, findByPlaceholderText, submit } = renderComponent({
+      const { container, findByPlaceholderText, submit } = await renderComponent({
         message: {
           mentioned_users: [{ id: userId, name: username }],
           text: `@${username}`,
@@ -860,7 +870,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
         <div data-testid='suggestion-list'>Suggestion List</div>
       );
 
-      const { container, findByPlaceholderText, getByTestId, queryByText } = renderComponent(
+      const { container, findByPlaceholderText, getByTestId, queryByText } = await renderComponent(
         {},
         { AutocompleteSuggestionList },
       );
@@ -886,19 +896,22 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   });
 });
 
-const renderComponent = (props = {}, channelProps = {}) => {
-  const renderResult = render(
-    <Chat client={chatClient}>
-      <ActiveChannelSetter activeChannel={channel} />
-      <Channel
-        doSendMessageRequest={submitMock}
-        doUpdateMessageRequest={editMock}
-        {...channelProps}
-      >
-        <MessageInput Input={MessageInputFlat} {...props} />
-      </Channel>
-    </Chat>,
-  );
+const renderComponent = async (props = {}, channelProps = {}) => {
+  let renderResult;
+  await act(async () => {
+    renderResult = render(
+      <Chat client={chatClient}>
+        <ActiveChannelSetter activeChannel={channel} />
+        <Channel
+          doSendMessageRequest={submitMock}
+          doUpdateMessageRequest={editMock}
+          {...channelProps}
+        >
+          <MessageInput Input={MessageInputFlat} {...props} />
+        </Channel>
+      </Chat>,
+    );
+  });
 
   return { ...renderResult };
 };
@@ -932,7 +945,7 @@ describe('MessageInputFlat', () => {
     it('Pasting images and files should result in uploading the files and add attachment class', async () => {
       const doImageUploadRequest = mockUploadApi();
       const doFileUploadRequest = mockUploadApi();
-      const { container, findByPlaceholderText } = renderComponent({
+      const { container, findByPlaceholderText } = await renderComponent({
         doFileUploadRequest,
         doImageUploadRequest,
       });
@@ -967,7 +980,7 @@ describe('MessageInputFlat', () => {
 
     it('Should upload an image when it is dropped on the dropzone and add attachment class', async () => {
       const doImageUploadRequest = mockUploadApi();
-      const { container, findByPlaceholderText } = renderComponent({
+      const { container, findByPlaceholderText } = await renderComponent({
         doImageUploadRequest,
       });
       const formElement = await findByPlaceholderText(inputPlaceholder);
@@ -981,7 +994,7 @@ describe('MessageInputFlat', () => {
     });
 
     it('Should not add attachment class if no attachment', async () => {
-      const { container } = renderComponent();
+      const { container } = await renderComponent();
       const attachmentClass = container.firstChild.firstChild.firstChild;
       await waitFor(() =>
         expect(attachmentClass).not.toHaveClass('str-chat__input-flat-has-attachments'),

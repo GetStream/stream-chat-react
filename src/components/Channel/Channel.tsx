@@ -65,6 +65,7 @@ import type { Data as EmojiMartData } from 'emoji-mart';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
+import { buildAddNotification } from './buildAddNotification';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -411,25 +412,7 @@ const ChannelInner = <
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
-  const addNotification = (text: string, type: 'success' | 'error') => {
-    if (typeof text !== 'string' || (type !== 'success' && type !== 'error')) {
-      return;
-    }
-
-    const id = uuidv4();
-
-    setNotifications((prevNotifications) => [...prevNotifications, { id, text, type }]);
-
-    const timeout = setTimeout(
-      () =>
-        setNotifications((prevNotifications) =>
-          prevNotifications.filter((notification) => notification.id !== id),
-        ),
-      5000,
-    );
-
-    notificationTimeouts.push(timeout);
-  };
+  const addNotification = buildAddNotification(notificationTimeouts, setNotifications);
 
   const loadMoreFinished = debounce(
     (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
