@@ -42,14 +42,14 @@ jobs:
           yarn e2e-fixtures
           yarn e2e
         env:
-          VITE_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
-          VITE_ADD_MESSAGE_CHANNEL: add-message
-          VITE_TEST_USER_1: test-user-1
-          VITE_TEST_USER_2: test-user-2
-          VITE_APP_KEY: ${{ secrets.VITE_APP_KEY }}
-          VITE_APP_SECRET: ${{ secrets.VITE_APP_SECRET }}
-          VITE_TEST_USER_1_TOKEN: ${{ secrets.VITE_TEST_USER_1_TOKEN }}
-          VITE_TEST_USER_2_TOKEN: ${{ secrets.VITE_TEST_USER_2_TOKEN }}
+          E2E_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
+          E2E_ADD_MESSAGE_CHANNEL: add-message
+          E2E_TEST_USER_1: test-user-1
+          E2E_TEST_USER_2: test-user-2
+          E2E_APP_KEY: ${{ secrets.E2E_APP_KEY }}
+          E2E_APP_SECRET: ${{ secrets.E2E_APP_SECRET }}
+          E2E_TEST_USER_1_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
+          E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
   
   test:
     runs-on: ubuntu-latest
