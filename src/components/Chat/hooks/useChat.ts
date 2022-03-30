@@ -39,6 +39,7 @@ export const useChat = <
   const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
   const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
+  const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
   const clientMutes = (client.user?.mutes as Array<Mute<StreamChatGenerics>>) || [];
 
@@ -116,10 +117,15 @@ export const useChat = <
     [],
   );
 
+  useEffect(() => {
+    setLatestMessageDatesByChannels({});
+  }, [client.user?.id]);
+
   return {
     channel,
     closeMobileNav,
     getAppSettings,
+    latestMessageDatesByChannels,
     mutes,
     navOpen,
     openMobileNav,
