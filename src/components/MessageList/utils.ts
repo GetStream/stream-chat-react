@@ -110,8 +110,9 @@ export const processMessages = <
 
     if (
       dateSeparatorsEnabled &&
-      (i === 0 ||
-        messageDate !== prevMessageDate ||
+      (i === 0 || // always put date separator before the first message
+        messageDate !== prevMessageDate || // add date separator btw. 2 messages created on different date
+        // if hiding deleted messages replace the previous deleted message(s) with A separator if the last rendered message was created on different date
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
