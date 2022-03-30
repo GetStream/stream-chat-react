@@ -152,7 +152,6 @@ const VirtualizedMessageListWithContext = <
       hideNewMessageSeparator,
       lastRead,
       messages,
-      separateGiphyPreview,
       setGiphyPreviewMessage,
       userId: client.userID || '',
     });
