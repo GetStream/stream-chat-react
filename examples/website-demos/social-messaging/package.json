@@ -9,7 +9,7 @@
     "react-images": "^1.2.0-beta.7",
     "react-scripts": "4.0.3",
     "sass": "^1.41.0",
-    "stream-chat": "^6.0.0",
+    "stream-chat": "link:../../node_modules/stream-chat",
     "stream-chat-react": "link:../../../",
     "typescript": "4.3.5"
   },

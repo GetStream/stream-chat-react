@@ -4,28 +4,10 @@ import { SafeAnchor } from '../SafeAnchor';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
-
-interface GiphyVersionInfo {
-  height: number;
-  url: string;
-  width: number;
-}
-
-type GiphyVersions =
-  | 'original'
-  | 'fixed_height'
-  | 'fixed_height_still'
-  | 'fixed_height_downsampled'
-  | 'fixed_width'
-  | 'fixed_width_still'
-  | 'fixed_width_downsampled';
-
-type GiphyData = {
-  [key in GiphyVersions]: GiphyVersionInfo;
-};
+import type { Attachment } from 'stream-chat';
 
 export type CardProps = {
-  giphy?: GiphyData;
+  giphy?: Attachment['giphy'];
   /** The url of the full sized image */
   image_url?: string;
   /** The scraped url, used as a fallback if the OG-data doesn't include a link */
@@ -48,10 +30,10 @@ const UnMemoizedCard: React.FC<CardProps> = (props) => {
   const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
 
   let image = thumb_url || image_url;
-  const dimensions: { height?: number; width?: number } = {};
+  const dimensions: { height?: string; width?: string } = {};
 
   if (type === 'giphy' && typeof giphy !== 'undefined') {
-    const giphyVersion = giphy[giphyVersionName as GiphyVersions];
+    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
     image = giphyVersion.url;
     dimensions.height = giphyVersion.height;
     dimensions.width = giphyVersion.width;

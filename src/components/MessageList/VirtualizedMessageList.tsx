@@ -179,21 +179,39 @@ const VirtualizedMessageListWithContext = <
     setNewMessagesNotification(false);
   }, [virtuoso, processedMessages, setNewMessagesNotification, processedMessages.length]);
 
+  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = React.useState(
+    false,
+  );
+
+  const resetNewMessagesReceivedInBackground = useCallback(() => {
+    setNewMessagesReceivedInBackground(false);
+  }, []);
+
+  useEffect(() => {
+    setNewMessagesReceivedInBackground(true);
+  }, [messages]);
+
   const scrollToBottomIfConfigured = useCallback(
     (event: Event) => {
       if (scrollToLatestMessageOnFocus && event.target === window) {
-        setTimeout(scrollToBottom, 100);
+        if (newMessagesReceivedInBackground) {
+          setTimeout(scrollToBottom, 100);
+        }
       }
     },
-    [scrollToLatestMessageOnFocus, scrollToBottom],
+    [scrollToLatestMessageOnFocus, scrollToBottom, newMessagesReceivedInBackground],
   );
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.addEventListener('focus', scrollToBottomIfConfigured);
+      window.addEventListener('blur', resetNewMessagesReceivedInBackground);
     }
 
-    return () => window.removeEventListener('focus', scrollToBottomIfConfigured);
+    return () => {
+      window.removeEventListener('focus', scrollToBottomIfConfigured);
+      window.removeEventListener('blur', resetNewMessagesReceivedInBackground);
+    };
   }, [scrollToBottomIfConfigured]);
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages);
@@ -341,7 +359,7 @@ export type VirtualizedMessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageProps<StreamChatGenerics>, 'customMessageActions' | 'messageActions'>> & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
-  additionalVirtuosoProps?: VirtuosoProps<UnknownType>;
+  additionalVirtuosoProps?: VirtuosoProps<UnknownType, unknown>;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */

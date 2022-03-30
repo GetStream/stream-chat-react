@@ -71,7 +71,12 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const hideOptions = useCallback(() => setActionsBoxOpen(false), []);
+  const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
+    if (event instanceof KeyboardEvent && event.key !== 'Escape') {
+      return;
+    }
+    setActionsBoxOpen(false);
+  }, []);
   const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
@@ -88,13 +93,15 @@ export const MessageActions = <
   }, [hideOptions, messageDeletedAt]);
 
   useEffect(() => {
-    if (actionsBoxOpen) {
-      document.addEventListener('click', hideOptions);
-    } else {
-      document.removeEventListener('click', hideOptions);
-    }
+    if (!actionsBoxOpen) return;
 
-    return () => document.removeEventListener('click', hideOptions);
+    document.addEventListener('click', hideOptions);
+    document.addEventListener('keyup', hideOptions);
+
+    return () => {
+      document.removeEventListener('click', hideOptions);
+      document.removeEventListener('keyup', hideOptions);
+    };
   }, [actionsBoxOpen, hideOptions]);
 
   if (!messageActions.length && !customMessageActions) return null;
@@ -143,7 +150,7 @@ const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
 
   const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
     event.stopPropagation();
-    setActionsBoxOpen(true);
+    setActionsBoxOpen((prev) => !prev);
   };
 
   const wrapperProps = {

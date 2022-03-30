@@ -22,7 +22,6 @@ export const MessageInputUI = (props: Props) => {
 
   const {
     closeCommandsList,
-    cooldownInterval,
     cooldownRemaining,
     emojiPickerRef,
     handleChange,
@@ -117,7 +116,7 @@ export const MessageInputUI = (props: Props) => {
           ) : cooldownRemaining ? (
             <div className='input-ui-send-cooldown'>
               <CooldownTimer
-                cooldownInterval={cooldownInterval}
+                cooldownInterval={cooldownRemaining}
                 setCooldownRemaining={setCooldownRemaining}
               />
             </div>
