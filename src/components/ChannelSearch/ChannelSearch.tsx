@@ -47,6 +47,8 @@ export type ChannelSearchProps<
   DropdownContainer?: React.ComponentType<DropdownContainerProps<StreamChatGenerics>>;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
+  /** Custom placeholder text to be displayed in the search input */
+  placeholder?: string;
   /** Display search results as an absolutely positioned popup, defaults to false and shows inline */
   popupResults?: boolean;
   /** Custom UI component to display empty search results */
@@ -79,6 +81,7 @@ const UnMemoizedChannelSearch = <
     channelType = 'messaging',
     DropdownContainer,
     onSelectResult,
+    placeholder,
     popupResults = false,
     SearchEmpty,
     searchForChannels = false,
@@ -197,11 +200,12 @@ const UnMemoizedChannelSearch = <
   };
 
   return (
-    <div className='str-chat__channel-search'>
+    <div className='str-chat__channel-search' data-testid='channel-search'>
       <SearchInput
         channelSearchParams={channelSearchParams}
         inputRef={inputRef}
         onSearch={onSearch}
+        placeholder={placeholder}
         query={query}
         searchFunction={searchFunction}
       />

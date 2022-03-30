@@ -71,8 +71,8 @@ export const MessageInputFlat = <
           <QuotedMessagePreview quotedMessage={quotedMessage} />
         )}
         <div className='str-chat__input-flat-wrapper'>
+          {isUploadEnabled && <UploadsPreview />}
           <div className='str-chat__input-flat--textarea-wrapper'>
-            {isUploadEnabled && <UploadsPreview />}
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
                 {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}

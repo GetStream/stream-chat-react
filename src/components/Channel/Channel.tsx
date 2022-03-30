@@ -126,6 +126,8 @@ export type ChannelProps<
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: ComponentContextValue<StreamChatGenerics>['GiphyPreviewMessage'];
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
@@ -213,7 +215,6 @@ const ChannelInner = <
     ChannelProps<StreamChatGenerics, V> & {
       channel: StreamChannel<StreamChatGenerics>;
       key: string;
-      giphyVersion?: GiphyVersions;
     }
   >,
 ) => {
@@ -411,7 +412,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid]);
+  }, [channel.cid, doMarkReadRequest]);
 
   useEffect(() => {
     if (state.thread && state.messages?.length) {
@@ -708,7 +709,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
-    giphyVersion: props.giphyVersion || 'fixed_width',
+    giphyVersion: props.giphyVersion || 'fixed_height',
     maxNumberOfFiles,
     multipleUploads,
     mutes,

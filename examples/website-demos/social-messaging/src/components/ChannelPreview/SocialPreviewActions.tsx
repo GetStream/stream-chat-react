@@ -8,9 +8,9 @@ import { StreamChatGenerics } from '../../types';
 
 import { UserActions, useActionsContext } from '../../contexts/ActionsContext';
 
-type Props<StreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
+type Props<SocialStreamChatGenerics extends StreamChatGenerics = StreamChatGenerics> = {
   channelId?: string;
-  members: ChannelMemberResponse<StreamChatGenerics>[];
+  members: ChannelMemberResponse<SocialStreamChatGenerics>[];
   setChatInfoOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setDropdownOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setActionId: React.Dispatch<React.SetStateAction<string | undefined>>;

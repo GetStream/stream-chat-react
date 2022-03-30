@@ -1431,15 +1431,14 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.2.0.tgz#d9f8dc2882e8042a810b227da1f4aa885b74f36b"
-  integrity sha512-y//FRdRvbfEpDcY+Onl8U6RFmMsr183Z/Sdx92kvf71UeF3ND/1Uiky1OBKT+vdNU0Lat4oXcNw0lY08d+x7Gg==
-
 "@stream-io/stream-chat-css@^2.2.1":
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.3.2.tgz#fa5aad4367ee8b6a7bacebfb22fe5b2127a376eb"
   integrity sha512-wfHDS9GBXs5vlk7zKjMb+Z8ZsTvDeiCrnl/RU3P6i4tZGcXl0qkIWBf2e0O0kMJ5APYtZdRYvYyTlO7qeK9Jpw==
+
+"@stream-io/stream-chat-css@link:../../node_modules/stream-io/stream-chat-css":
+  version "0.0.0"
+  uid ""
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -9515,10 +9514,10 @@ react-virtuoso@^2.2.1:
     "@virtuoso.dev/react-urx" "^0.2.5"
     "@virtuoso.dev/urx" "^0.2.5"
 
-react-virtuoso@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.3.1.tgz#d0305c6bdca3856dde43ed9091549db76fa21397"
-  integrity sha512-Y5qsh5xaGvMAN7S2LOm0n5Hg5gl76GEFSNzD/LNSR6Bm8UFncmEwIKEqp7lJMyM9aLrFV67Ap4rA0JL63Eb/uw==
+react-virtuoso@^2.8.2:
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.8.2.tgz#6b98c62d5e3807b41b3e52e3576784f8b6142f33"
+  integrity sha512-iH48/OOsh12BPqZX3LNgT9zshcqO7ALwG/AxXDTqPYwHSolzwj+V8fpHRBLEbvfBl4EEnMZI+yxvs1DblZT/jQ==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
@@ -10502,20 +10501,9 @@ stream-browserify@^2.0.1:
   version "0.0.0"
   uid ""
 
-stream-chat@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.0.0.tgz#39ec7cefc911a1cbb4debccce142222b05167f4d"
-  integrity sha512-zpzpiMsR2eTYS7UluimGwVcA4vsaP/GQtEUufwlZWhxS07GaSd9SCIDYbJlmdtV47TfiMDOcDKRrm50adkBlBQ==
-  dependencies:
-    "@babel/runtime" "^7.16.3"
-    "@types/jsonwebtoken" "^8.5.6"
-    "@types/ws" "^7.4.0"
-    axios "^0.22.0"
-    base64-js "^1.5.1"
-    form-data "^4.0.0"
-    isomorphic-ws "^4.0.1"
-    jsonwebtoken "^8.5.1"
-    ws "^7.4.4"
+"stream-chat@link:../../node_modules/stream-chat":
+  version "0.0.0"
+  uid ""
 
 stream-each@^1.1.0:
   version "1.2.3"
