@@ -16,6 +16,12 @@ const runMessageProcessing = (msgData, processMsgParams = {}) => {
   };
 };
 
+const makeDateSeparator = (message) => ({
+  customType: 'message.date',
+  date: message.created_at,
+  id: message.id,
+});
+
 const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread) => {
   if (!expectedWhere) {
     throw new Error('Missing "where"');
@@ -23,16 +29,9 @@ const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread
 
   expect(newMessageList).toHaveLength(expectedWhere.length + messages.length);
 
-  const startDateMsg = {
-    customType: 'message.date',
-    date: messages[0].created_at,
-    id: messages[0].id,
-  };
-  const midDateMsg = {
-    customType: 'message.date',
-    date: messages[1].created_at,
-    id: messages[1].id,
-  };
+  const startDateMsg = makeDateSeparator(messages[0]);
+  const midDateMsg = makeDateSeparator(messages[1]);
+
   if (unread) {
     startDateMsg.unread = unread;
     midDateMsg.unread = unread;
@@ -186,6 +185,135 @@ describe('processMessages', () => {
       });
     });
 
+    describe('replaces deleted messages', () => {
+      const date1 = new Date('1970-01-01');
+      const date2 = new Date('1970-01-02');
+      const date3 = new Date('1970-01-03');
+
+      const deletedMessagesReplacedCorrectly = (messages, newMessageList) => {
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(newMessageList[2]).toMatchObject(makeDateSeparator(messages[3]));
+        expect(newMessageList[3]).toMatchObject(messages[3]);
+      };
+      it('if deleted messages hidden are created on later date than the preceding messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date1, updated_at: date1 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date3, type: 'deleted', updated_at: date3 },
+          { created_at: date3, updated_at: date3 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData, {
+          hideDeletedMessages: true,
+        });
+        deletedMessagesReplacedCorrectly(messages, newMessageList);
+      });
+      it('if deleted messages hidden are created on later date than the following messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date3, updated_at: date3 },
+          { created_at: date3, type: 'deleted', updated_at: date3 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date1, updated_at: date1 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData, {
+          hideDeletedMessages: true,
+        });
+        deletedMessagesReplacedCorrectly(messages, newMessageList);
+      });
+      it('if deleted messages hidden are created on earlier date than the following messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date1, updated_at: date1 },
+          { created_at: date1, type: 'deleted', updated_at: date1 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date3, updated_at: date3 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData, {
+          hideDeletedMessages: true,
+        });
+        deletedMessagesReplacedCorrectly(messages, newMessageList);
+      });
+      it('if deleted messages hidden are created on earlier date than the preceding messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date3, updated_at: date3 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date1, type: 'deleted', updated_at: date1 },
+          { created_at: date1, updated_at: date1 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData, {
+          hideDeletedMessages: true,
+        });
+        deletedMessagesReplacedCorrectly(messages, newMessageList);
+      });
+
+      it('not if deleted messages are not hidden and are created on later date than the preceding messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date1, updated_at: date1 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date3, type: 'deleted', updated_at: date3 },
+          { created_at: date3, updated_at: date3 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData);
+
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(newMessageList[2]).toMatchObject(makeDateSeparator(messages[1]));
+        expect(newMessageList[3]).toMatchObject(messages[1]);
+        expect(newMessageList[4]).toMatchObject(makeDateSeparator(messages[2]));
+        expect(newMessageList[5]).toMatchObject(messages[2]);
+        expect(newMessageList[6]).toMatchObject(messages[3]);
+      });
+      it('not if deleted messages are not hidden and are created on later date than the following messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date3, updated_at: date3 },
+          { created_at: date3, type: 'deleted', updated_at: date3 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date1, updated_at: date1 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData);
+
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(newMessageList[2]).toMatchObject(messages[1]);
+        expect(newMessageList[3]).toMatchObject(makeDateSeparator(messages[2]));
+        expect(newMessageList[4]).toMatchObject(messages[2]);
+        expect(newMessageList[5]).toMatchObject(makeDateSeparator(messages[3]));
+        expect(newMessageList[6]).toMatchObject(messages[3]);
+      });
+      it('not if deleted messages are not hidden and are created on earlier date than the following messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date1, updated_at: date1 },
+          { created_at: date1, type: 'deleted', updated_at: date1 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date3, updated_at: date3 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData);
+
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(newMessageList[2]).toMatchObject(messages[1]);
+        expect(newMessageList[3]).toMatchObject(makeDateSeparator(messages[2]));
+        expect(newMessageList[4]).toMatchObject(messages[2]);
+        expect(newMessageList[5]).toMatchObject(makeDateSeparator(messages[3]));
+        expect(newMessageList[6]).toMatchObject(messages[3]);
+      });
+      it('not if deleted messages are not hidden and are created on earlier date than the preceding messages in main msg list', () => {
+        const messagesData = [
+          { created_at: date3, updated_at: date3 },
+          { created_at: date2, type: 'deleted', updated_at: date2 },
+          { created_at: date1, type: 'deleted', updated_at: date1 },
+          { created_at: date1, updated_at: date1 },
+        ];
+        const { messages, newMessageList } = runMessageProcessing(messagesData);
+
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(newMessageList[2]).toMatchObject(makeDateSeparator(messages[1]));
+        expect(newMessageList[3]).toMatchObject(messages[1]);
+        expect(newMessageList[4]).toMatchObject(makeDateSeparator(messages[2]));
+        expect(newMessageList[5]).toMatchObject(messages[2]);
+        expect(newMessageList[6]).toMatchObject(messages[3]);
+      });
+    });
     describe('for unread messages', () => {
       const expectedWhere = ['start'];
       const shouldExpectUnreadSeparator = true;
