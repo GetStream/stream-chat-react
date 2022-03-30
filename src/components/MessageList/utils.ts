@@ -10,20 +10,40 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  disableDateSeparator: boolean;
-  enableThreadDateSeparator: boolean;
-  hideDeletedMessages: boolean;
-  hideNewMessageSeparator: boolean;
   messages: StreamMessage<StreamChatGenerics>[];
   userId: string;
+  /** Disable date separator in main message list */
+  disableDateSeparator?: boolean;
+  /** Enable date separator in main message list. Has to be accompanied by @param threadList. */
+  enableThreadDateSeparator?: boolean;
+  /** Enable deleted messages to be filtered out of resulting message list */
+  hideDeletedMessages?: boolean;
+  /** Disable date separator display for unread incoming messages */
+  hideNewMessageSeparator?: boolean;
+  /** Sets the treshold after everything is considered unread */
   lastRead?: Date | null;
-  separateGiphyPreview?: boolean;
+  /** Signals whether to separate giphy preview as well as used to set the giphy preview state */
   setGiphyPreviewMessage?: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;
+  /** Signals that the transformed message list represents a thread */
   threadList?: boolean;
 };
 
+/**
+ * processMessages - Transform the input message list according to config parameters
+ *
+ * Inserts date separators btw. message groups created on different dates or for group of incoming messages.
+ * By default:
+ * - enabled in main message list
+ * - disabled in thread
+ * Allows for deleted messages removal. By default disabled. Enabled by hideDeletedMessages.
+ * Sets Giphy preview message for VirtualizedMessageList
+ *
+ * The only required params are messages and userId, the rest are config params:
+ *
+ * @return {StreamMessage<StreamChatGenerics>[]} Transformed list of messages
+ */
 export const processMessages = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -36,7 +56,6 @@ export const processMessages = <
     hideNewMessageSeparator,
     lastRead,
     messages,
-    separateGiphyPreview,
     setGiphyPreviewMessage,
     threadList,
     userId,
@@ -46,6 +65,8 @@ export const processMessages = <
   let ephemeralMessagePresent = false;
   let lastDateSeparator;
   const newMessages: StreamMessage<StreamChatGenerics>[] = [];
+  const dateSeparatorsEnabled =
+    !(disableDateSeparator || threadList) || (threadList && enableThreadDateSeparator);
 
   for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
@@ -54,12 +75,7 @@ export const processMessages = <
       continue;
     }
 
-    if (
-      separateGiphyPreview &&
-      setGiphyPreviewMessage &&
-      message.type === 'ephemeral' &&
-      message.command === 'giphy'
-    ) {
+    if (setGiphyPreviewMessage && message.type === 'ephemeral' && message.command === 'giphy') {
       ephemeralMessagePresent = true;
       setGiphyPreviewMessage(message);
       continue;
@@ -67,15 +83,13 @@ export const processMessages = <
 
     const messageDate =
       (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
-    let prevMessageDate = messageDate;
     const previousMessage = messages[i - 1];
+    let prevMessageDate = messageDate;
 
     if (
-      i > 0 &&
-      !disableDateSeparator &&
-      previousMessage.created_at &&
-      isDate(previousMessage.created_at) &&
-      (!threadList || (threadList && enableThreadDateSeparator))
+      dateSeparatorsEnabled &&
+      previousMessage?.created_at &&
+      isDate(previousMessage.created_at)
     ) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
@@ -84,12 +98,7 @@ export const processMessages = <
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      if (
-        !disableDateSeparator &&
-        enableThreadDateSeparator &&
-        unread &&
-        message.user?.id !== userId
-      ) {
+      if (dateSeparatorsEnabled && unread && message.user?.id !== userId) {
         newMessages.push({
           customType: 'message.date',
           date: message.created_at,
@@ -100,14 +109,13 @@ export const processMessages = <
     }
 
     if (
-      !disableDateSeparator &&
+      dateSeparatorsEnabled &&
       (i === 0 ||
         messageDate !== prevMessageDate ||
         (hideDeletedMessages &&
-          messages[i - 1]?.type === 'deleted' &&
+          previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' && // do not show two date separators in a row)
-      (!threadList || (threadList && enableThreadDateSeparator))
+      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
@@ -125,8 +133,8 @@ export const processMessages = <
   }
 
   // clean up the giphy preview component state after a Cancel action
-  if (separateGiphyPreview && !ephemeralMessagePresent) {
-    setGiphyPreviewMessage?.(undefined);
+  if (setGiphyPreviewMessage && !ephemeralMessagePresent) {
+    setGiphyPreviewMessage(undefined);
   }
 
   return newMessages;
@@ -233,7 +241,6 @@ export const insertIntro = <
           newMessages.push(intro);
           return newMessages;
         }
-        continue;
       } else {
         newMessages.splice(i + 1, 0, intro);
         return newMessages;
