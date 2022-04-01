@@ -191,6 +191,8 @@ export type ChannelProps<
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 
+const JUMP_MESSAGE_PAGE_SIZE = 25;
+
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -515,15 +517,20 @@ const ChannelInner = <
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
     await channel.state.loadMessageIntoState(messageId);
 
-    // TODO: figure out how to determine if we have more messages.
-    const hasMoreMessages = true;
+    /**
+     * if the message we are jumping to has less than half of the page size older messages,
+     * we have jumped to the beginning of the channel.
+     */
+    const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
+    const hasMoreMessages = indexOfMessage >= Math.floor(JUMP_MESSAGE_PAGE_SIZE / 2);
+
     loadMoreFinished(hasMoreMessages, channel.state.messages);
     dispatch({
       hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
       highlightedMessageId: messageId,
       type: 'jumpToMessageFinished',
     });
-    // TODO: better ideas on how or when to clear highlight?
+
     setTimeout(() => {
       dispatch({ type: 'clearHighlightedMessage' });
     }, 500);
@@ -531,9 +538,8 @@ const ChannelInner = <
 
   const jumpToLatestMessage = async () => {
     await channel.state.loadMessageIntoState('latest');
-    // TODO: this is a very hacky logic
-    const hasMore = channel.state.messages.length === 25;
-    loadMoreFinished(hasMore, channel.state.messages);
+    const hasMoreOlder = channel.state.messages.length >= 25;
+    loadMoreFinished(hasMoreOlder, channel.state.messages);
     dispatch({
       type: 'jumpToLatestMessage',
     });

@@ -14,10 +14,10 @@ import '@stream-io/stream-chat-css/dist/css/index.css';
 void MessageList;
 void VirtualizedMessageList;
 
-const apiKey = import.meta.env.VITE_APP_KEY;
-const userId = import.meta.env.VITE_TEST_USER_1;
-const userToken = import.meta.env.VITE_TEST_USER_1_TOKEN;
-const channelId = import.meta.env.VITE_JUMP_TO_MESSAGE_CHANNEL;
+const apiKey = import.meta.env.E2E_APP_KEY;
+const userId = import.meta.env.E2E_TEST_USER_1;
+const userToken = import.meta.env.E2E_TEST_USER_1_TOKEN;
+const channelId = import.meta.env.E2E_JUMP_TO_MESSAGE_CHANNEL;
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
@@ -46,6 +46,7 @@ const JumpToMessage = () => {
 
   return (
     <button
+      data-testid='jump-to-message'
       onClick={async () => {
         const results = await chatClient.search(
           {

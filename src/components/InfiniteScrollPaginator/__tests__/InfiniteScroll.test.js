@@ -24,7 +24,7 @@ describe('InfiniteScroll', () => {
   const renderComponent = (props) => {
     const renderResult = render(
       <div data-testid='scroll-parent'>
-        <InfiniteScroll loadMore={loadMore} useWindow={false} {...props} />
+        <InfiniteScroll loadMore={loadMore} {...props} />
       </div>,
     );
     const scrollParent = renderResult.getByTestId('scroll-parent');
@@ -78,38 +78,17 @@ describe('InfiniteScroll', () => {
   );
 
   describe('Rendering loader', () => {
-    const getRenderResult = (isReverse) =>
+    const getRenderResult = () =>
       renderer
         .create(
-          <InfiniteScroll
-            isLoading
-            isReverse={isReverse}
-            loader={<div key='loader'>loader</div>}
-            loadMore={loadMore}
-          >
+          <InfiniteScroll isLoading loader={<div key='loader'>loader</div>} loadMore={loadMore}>
             Content
           </InfiniteScroll>,
         )
         .toJSON();
-
-    it('should render the loader in the right place if isLoading is true and isReverse is false', () => {
-      expect(getRenderResult(false)).toMatchInlineSnapshot(`
-        <div
-          isReverse={false}
-        >
-          <div>
-            loader
-          </div>
-          Content
-        </div>
-      `);
-    });
-
-    it('should render the loader in the right place if isLoading is true and isReverse is true', () => {
-      expect(getRenderResult(true)).toMatchInlineSnapshot(`
-        <div
-          isReverse={true}
-        >
+    it('should render the loader in the right place if isLoading is true', () => {
+      expect(getRenderResult()).toMatchInlineSnapshot(`
+        <div>
           <div>
             loader
           </div>
