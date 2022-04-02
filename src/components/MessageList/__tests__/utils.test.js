@@ -6,7 +6,7 @@ import { processMessages } from '../utils';
 
 const myUserId = uuidV4();
 const otherUserId = uuidV4();
-const enableSeparatorInThreadParams = { enableThreadDateSeparator: true, threadList: true };
+const enableDateSeparatorParams = { enableDateSeparator: true };
 
 const runMessageProcessing = (msgData, processMsgParams = {}) => {
   const messages = msgData.map((msg) => generateMessage(msg));
@@ -59,41 +59,20 @@ describe('processMessages', () => {
     expect(processMessages({ messages: [], userId: myUserId })).toHaveLength(0);
   });
 
-  describe('hides deleted messages', () => {
+  describe('hiding deleted messages', () => {
     const messagesData = [{}, { type: 'deleted' }, {}];
 
-    it('disabled by default in main msg list', () => {
-      const { messages, newMessageList } = runMessageProcessing(messagesData, {
-        disableDateSeparator: true,
-      });
+    it('is disabled by default', () => {
+      const { messages, newMessageList } = runMessageProcessing(messagesData);
       expect(newMessageList).toHaveLength(3);
       newMessageList.forEach((newMsg, i) => {
         expect(newMsg).toMatchObject(messages[i]);
       });
     });
 
-    it('disabled by default in thread', () => {
-      const { messages, newMessageList } = runMessageProcessing(messagesData, { threadList: true });
-      expect(newMessageList).toHaveLength(3);
-      newMessageList.forEach((newMsg, i) => {
-        expect(newMsg).toMatchObject(messages[i]);
-      });
-    });
-
-    it('if enabled in main msg list', () => {
-      const { messages, newMessageList } = runMessageProcessing(messagesData, {
-        disableDateSeparator: true,
-        hideDeletedMessages: true,
-      });
-      expect(newMessageList).toHaveLength(2);
-      expect(newMessageList[0]).toMatchObject(messages[0]);
-      expect(newMessageList[1]).toMatchObject(messages[2]);
-    });
-
-    it('if enabled in thread', () => {
+    it('can be enabled', () => {
       const { messages, newMessageList } = runMessageProcessing(messagesData, {
         hideDeletedMessages: true,
-        threadList: true,
       });
       expect(newMessageList).toHaveLength(2);
       expect(newMessageList[0]).toMatchObject(messages[0]);
@@ -102,84 +81,60 @@ describe('processMessages', () => {
   });
 
   describe('date separator', () => {
-    describe('no insertion at all', () => {
-      const msgCreationDates = [
-        { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-        { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-      ];
-      it('has to be enabled in the main message list', () => {
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDates, {
-          disableDateSeparator: true,
-        });
-        dateSeparatorInsertedAt([], messages, newMessageList);
-      });
-      it('is disabled in thread by default', () => {
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDates, {
-          threadList: true,
-        });
-        dateSeparatorInsertedAt([], messages, newMessageList);
-      });
+    const msgCreationDatesSameDay = [
+      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+    ];
+    const msgCreationDatesDifferentDay = [
+      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+      { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
+    ];
+    const msgCreationDatesFirstInvalid = [
+      { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
+      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+    ];
+    const msgCreationDatesSecondInvalid = [
+      { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
+      { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
+    ];
+
+    it('is disabled by default', () => {
+      const { messages, newMessageList } = runMessageProcessing(msgCreationDatesSameDay);
+      dateSeparatorInsertedAt([], messages, newMessageList);
     });
 
-    describe('inserted only at the beginning', () => {
-      const expectedWhere = ['start'];
-      const msgData = { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') };
-      it('messages were created on the same day', () => {
-        const msgCreationDates = [msgData, msgData];
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDates);
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+    describe('inserted at the beginning only', () => {
+      it('all messages were created on the same day', () => {
+        const { messages, newMessageList } = runMessageProcessing(
+          msgCreationDatesSameDay,
+          enableDateSeparatorParams,
+        );
+        dateSeparatorInsertedAt(['start'], messages, newMessageList);
       });
     });
 
     describe('inserted at the beginning & between the messages', () => {
       const expectedWhere = ['start', 'mid'];
-      const msgCreationDates = [
-        { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-        { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
-      ];
-      it('messages were created on a different day in the main msg list', () => {
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDates);
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
-
-      it('messages were created on a different day in thread', () => {
+      it('messages were created on a different day', () => {
         const { messages, newMessageList } = runMessageProcessing(
-          msgCreationDates,
-          enableSeparatorInThreadParams,
+          msgCreationDatesDifferentDay,
+          enableDateSeparatorParams,
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
 
-      const msgCreationDatesFirstInvalid = [
-        { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
-        { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-      ];
-
-      it('first message contains invalid date in the main msg list', () => {
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDatesFirstInvalid);
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
-
-      it('first message contains invalid date in thread', () => {
+      it('first message contains invalid date', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesFirstInvalid,
-          enableSeparatorInThreadParams,
+          enableDateSeparatorParams,
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
-      const msgCreationDatesSecondInvalid = [
-        { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
-        { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
-      ];
-      it('second message contains invalid date in the main msg list', () => {
-        const { messages, newMessageList } = runMessageProcessing(msgCreationDatesSecondInvalid);
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
 
-      it('second message contains invalid date in thread', () => {
+      it('second message contains invalid date', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesSecondInvalid,
-          enableSeparatorInThreadParams,
+          enableDateSeparatorParams,
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
@@ -196,7 +151,7 @@ describe('processMessages', () => {
         expect(newMessageList[2]).toMatchObject(makeDateSeparator(messages[3]));
         expect(newMessageList[3]).toMatchObject(messages[3]);
       };
-      it('if deleted messages hidden are created on later date than the preceding messages in main msg list', () => {
+      it('if deleted messages hidden are created on later date than the preceding messages', () => {
         const messagesData = [
           { created_at: date1, updated_at: date1 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
@@ -205,10 +160,11 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
+          ...enableDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
-      it('if deleted messages hidden are created on later date than the following messages in main msg list', () => {
+      it('if deleted messages hidden are created on later date than the following messages', () => {
         const messagesData = [
           { created_at: date3, updated_at: date3 },
           { created_at: date3, type: 'deleted', updated_at: date3 },
@@ -217,10 +173,11 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
+          ...enableDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
-      it('if deleted messages hidden are created on earlier date than the following messages in main msg list', () => {
+      it('if deleted messages hidden are created on earlier date than the following messages', () => {
         const messagesData = [
           { created_at: date1, updated_at: date1 },
           { created_at: date1, type: 'deleted', updated_at: date1 },
@@ -229,10 +186,11 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
+          ...enableDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
-      it('if deleted messages hidden are created on earlier date than the preceding messages in main msg list', () => {
+      it('if deleted messages hidden are created on earlier date than the preceding messages', () => {
         const messagesData = [
           { created_at: date3, updated_at: date3 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
@@ -241,18 +199,22 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
+          ...enableDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
 
-      it('not if deleted messages are not hidden and are created on later date than the preceding messages in main msg list', () => {
+      it('not if deleted messages are not hidden and are created on later date than the preceding messages', () => {
         const messagesData = [
           { created_at: date1, updated_at: date1 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
           { created_at: date3, type: 'deleted', updated_at: date3 },
           { created_at: date3, updated_at: date3 },
         ];
-        const { messages, newMessageList } = runMessageProcessing(messagesData);
+        const { messages, newMessageList } = runMessageProcessing(
+          messagesData,
+          enableDateSeparatorParams,
+        );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
         expect(newMessageList[1]).toMatchObject(messages[0]);
@@ -262,14 +224,17 @@ describe('processMessages', () => {
         expect(newMessageList[5]).toMatchObject(messages[2]);
         expect(newMessageList[6]).toMatchObject(messages[3]);
       });
-      it('not if deleted messages are not hidden and are created on later date than the following messages in main msg list', () => {
+      it('not if deleted messages are not hidden and are created on later date than the following messages', () => {
         const messagesData = [
           { created_at: date3, updated_at: date3 },
           { created_at: date3, type: 'deleted', updated_at: date3 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
           { created_at: date1, updated_at: date1 },
         ];
-        const { messages, newMessageList } = runMessageProcessing(messagesData);
+        const { messages, newMessageList } = runMessageProcessing(
+          messagesData,
+          enableDateSeparatorParams,
+        );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
         expect(newMessageList[1]).toMatchObject(messages[0]);
@@ -279,14 +244,17 @@ describe('processMessages', () => {
         expect(newMessageList[5]).toMatchObject(makeDateSeparator(messages[3]));
         expect(newMessageList[6]).toMatchObject(messages[3]);
       });
-      it('not if deleted messages are not hidden and are created on earlier date than the following messages in main msg list', () => {
+      it('not if deleted messages are not hidden and are created on earlier date than the following messages', () => {
         const messagesData = [
           { created_at: date1, updated_at: date1 },
           { created_at: date1, type: 'deleted', updated_at: date1 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
           { created_at: date3, updated_at: date3 },
         ];
-        const { messages, newMessageList } = runMessageProcessing(messagesData);
+        const { messages, newMessageList } = runMessageProcessing(
+          messagesData,
+          enableDateSeparatorParams,
+        );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
         expect(newMessageList[1]).toMatchObject(messages[0]);
@@ -296,14 +264,17 @@ describe('processMessages', () => {
         expect(newMessageList[5]).toMatchObject(makeDateSeparator(messages[3]));
         expect(newMessageList[6]).toMatchObject(messages[3]);
       });
-      it('not if deleted messages are not hidden and are created on earlier date than the preceding messages in main msg list', () => {
+      it('not if deleted messages are not hidden and are created on earlier date than the preceding messages', () => {
         const messagesData = [
           { created_at: date3, updated_at: date3 },
           { created_at: date2, type: 'deleted', updated_at: date2 },
           { created_at: date1, type: 'deleted', updated_at: date1 },
           { created_at: date1, updated_at: date1 },
         ];
-        const { messages, newMessageList } = runMessageProcessing(messagesData);
+        const { messages, newMessageList } = runMessageProcessing(
+          messagesData,
+          enableDateSeparatorParams,
+        );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
         expect(newMessageList[1]).toMatchObject(messages[0]);
@@ -333,9 +304,10 @@ describe('processMessages', () => {
         { user: { id: otherUserId }, ...oldMsg },
       ];
 
-      it('showed from others in main msg list', () => {
+      it('showed from others', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
           lastRead,
+          ...enableDateSeparatorParams,
         });
         dateSeparatorInsertedAt(
           expectedWhere,
@@ -345,59 +317,27 @@ describe('processMessages', () => {
         );
       });
 
-      it('not showed from others in main msg list if read', () => {
+      it('not showed from others if read', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingOldMessages, {
           lastRead,
+          ...enableDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
 
-      it('not showed from others in main msg list if hideNewMessageSeparator enabled', () => {
+      it('not showed from others if hideNewMessageSeparator enabled', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
           hideNewMessageSeparator: true,
           lastRead,
+          ...enableDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
 
-      it('not from me in main msg list', () => {
-        const { messages, newMessageList } = runMessageProcessing(myNewMessages, { lastRead });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
-
-      it('showed from others in thread', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
-          lastRead,
-          ...enableSeparatorInThreadParams,
-        });
-        dateSeparatorInsertedAt(
-          expectedWhere,
-          messages,
-          newMessageList,
-          shouldExpectUnreadSeparator,
-        );
-      });
-      it('not showed from others in thread if read', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingOldMessages, {
-          lastRead,
-          ...enableSeparatorInThreadParams,
-        });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
-
-      it('not showed from others in thread if hideNewMessageSeparator enabled', () => {
-        const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
-          ...enableSeparatorInThreadParams,
-          hideNewMessageSeparator: true,
-          lastRead,
-        });
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
-      });
-
-      it('not from me in thread', () => {
+      it('not from me', () => {
         const { messages, newMessageList } = runMessageProcessing(myNewMessages, {
           lastRead,
-          ...enableSeparatorInThreadParams,
+          ...enableDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });

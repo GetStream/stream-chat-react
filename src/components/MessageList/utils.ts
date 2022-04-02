@@ -12,10 +12,8 @@ type ProcessMessagesParams<
 > = {
   messages: StreamMessage<StreamChatGenerics>[];
   userId: string;
-  /** Disable date separator in main message list */
-  disableDateSeparator?: boolean;
-  /** Enable date separator in main message list. Has to be accompanied by @param threadList. */
-  enableThreadDateSeparator?: boolean;
+  /** Enable date separator */
+  enableDateSeparator?: boolean;
   /** Enable deleted messages to be filtered out of resulting message list */
   hideDeletedMessages?: boolean;
   /** Disable date separator display for unread incoming messages */
@@ -26,18 +24,18 @@ type ProcessMessagesParams<
   setGiphyPreviewMessage?: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;
-  /** Signals that the transformed message list represents a thread */
-  threadList?: boolean;
 };
 
 /**
  * processMessages - Transform the input message list according to config parameters
  *
- * Inserts date separators btw. message groups created on different dates or for group of incoming messages.
- * By default:
+ * Inserts date separators btw. messages created on different dates or before unread incoming messages. By default:
  * - enabled in main message list
+ * - disabled in virtualized message list
  * - disabled in thread
- * Allows for deleted messages removal. By default disabled. Enabled by hideDeletedMessages.
+ *
+ * Allows to filter out deleted messages, contolled by hideDeletedMessages param. This is disabled by default.
+ *
  * Sets Giphy preview message for VirtualizedMessageList
  *
  * The only required params are messages and userId, the rest are config params:
@@ -50,14 +48,12 @@ export const processMessages = <
   params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
   const {
-    disableDateSeparator,
-    enableThreadDateSeparator,
+    enableDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
     messages,
     setGiphyPreviewMessage,
-    threadList,
     userId,
   } = params;
 
@@ -65,8 +61,6 @@ export const processMessages = <
   let ephemeralMessagePresent = false;
   let lastDateSeparator;
   const newMessages: StreamMessage<StreamChatGenerics>[] = [];
-  const dateSeparatorsEnabled =
-    !(disableDateSeparator || threadList) || (threadList && enableThreadDateSeparator);
 
   for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
@@ -86,11 +80,7 @@ export const processMessages = <
     const previousMessage = messages[i - 1];
     let prevMessageDate = messageDate;
 
-    if (
-      dateSeparatorsEnabled &&
-      previousMessage?.created_at &&
-      isDate(previousMessage.created_at)
-    ) {
+    if (enableDateSeparator && previousMessage?.created_at && isDate(previousMessage.created_at)) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
 
@@ -98,7 +88,7 @@ export const processMessages = <
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      if (dateSeparatorsEnabled && unread && message.user?.id !== userId) {
+      if (enableDateSeparator && unread && message.user?.id !== userId) {
         newMessages.push({
           customType: 'message.date',
           date: message.created_at,
@@ -109,7 +99,7 @@ export const processMessages = <
     }
 
     if (
-      dateSeparatorsEnabled &&
+      enableDateSeparator &&
       (i === 0 || // always put date separator before the first message
         messageDate !== prevMessageDate || // add date separator btw. 2 messages created on different date
         // if hiding deleted messages replace the previous deleted message(s) with A separator if the last rendered message was created on different date
