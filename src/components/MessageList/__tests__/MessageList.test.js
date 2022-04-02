@@ -19,31 +19,41 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 
+let chatClient;
+let channel;
+const user1 = generateUser();
+const user2 = generateUser();
+const mockedChannel = generateChannel({
+  members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+  messages: [generateMessage({ user: user1 })],
+});
+
+const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
+
+const renderComponent = ({ channelProps, chatClient, msgListProps }) =>
+  render(
+    <Chat client={chatClient}>
+      <Channel {...channelProps}>
+        <MessageList {...msgListProps} />
+      </Channel>
+    </Chat>,
+  );
+
 describe('MessageList', () => {
-  afterEach(cleanup);
-
-  let chatClient;
-
-  it('should add new message at bottom of the list', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user1 })],
-      messages: [generateMessage({ user: user1 }), generateMessage({ user: user1 })],
-    });
-
+  beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    channel = chatClient.channel('messaging', mockedChannel.id);
     await channel.query();
+  });
 
-    const { container, getByTestId, getByText } = render(
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <MessageList />
-        </Channel>
-      </Chat>,
-    );
+  afterEach(cleanup);
+
+  it('should add new message at bottom of the list', async () => {
+    const { container, getByTestId, getByText } = renderComponent({
+      channelProps: { channel },
+      chatClient,
+    });
     await waitFor(() => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
     });
@@ -59,25 +69,13 @@ describe('MessageList', () => {
   });
 
   it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const { container, getByTestId } = renderComponent({
+      channelProps: {
+        Avatar,
+        channel,
+      },
+      chatClient,
     });
-
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const { container, getByTestId } = render(
-      <Chat client={chatClient}>
-        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
-          <MessageList />
-        </Channel>
-      </Chat>,
-    );
 
     await waitFor(() => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
@@ -88,67 +86,40 @@ describe('MessageList', () => {
   });
 
   it('should accept a custom group style function', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const classNameSuffix = 'msg-list-test';
+    const { container, getAllByTestId, getByTestId } = renderComponent({
+      channelProps: {
+        Avatar,
+        channel,
+      },
+      chatClient,
+      msgListProps: { groupStyles: () => classNameSuffix },
     });
-
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const groupStyles = () => 'msg-list-test';
-
-    const { container, getAllByTestId, getByTestId } = render(
-      <Chat client={chatClient}>
-        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
-          <MessageList groupStyles={groupStyles} />
-        </Channel>
-      </Chat>,
-    );
 
     await waitFor(() => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
     });
 
     for (let i = 0; i < 3; i++) {
-      const newMessage = generateMessage({ user: user2 });
+      const newMessage = generateMessage({ text: `text-${i}`, user: user2 });
       act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel));
     }
 
     await waitFor(() => {
-      expect(getAllByTestId('str-chat__li str-chat__li--msg-list-test')).toHaveLength(4); // 1 for channel initial message + 3 just sent
+      expect(getAllByTestId(`str-chat__li str-chat__li--${classNameSuffix}`)).toHaveLength(4); // 1 for channel initial message + 3 just sent
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('should render DateSeparator by default', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
     });
 
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const { container } = render(
-      <Chat client={chatClient}>
-        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
-          <MessageList />
-        </Channel>
-      </Chat>,
-    );
-
     await waitFor(() => {
-      expect(document.querySelector('.str-chat__date-separator')).not.toBeFalsy();
+      expect(document.querySelector('.str-chat__date-separator')).toBeTruthy();
     });
 
     const results = await axe(container);
@@ -156,25 +127,11 @@ describe('MessageList', () => {
   });
 
   it('should not render DateSeparator if disableDateSeparator is true', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { disableDateSeparator: true },
     });
-
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const { container } = render(
-      <Chat client={chatClient}>
-        <Channel Avatar={() => <div data-testid='custom-avatar'>Avatar</div>} channel={channel}>
-          <MessageList disableDateSeparator />
-        </Channel>
-      </Chat>,
-    );
 
     await waitFor(() => {
       expect(document.querySelector('.str-chat__date-separator')).toBeFalsy();
@@ -185,25 +142,11 @@ describe('MessageList', () => {
   });
 
   it('should not render DateSeparator in Thread MessageList by default', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: { threadList: true },
     });
-
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const { container } = render(
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <MessageList threadList />
-        </Channel>
-      </Chat>,
-    );
 
     await waitFor(() => {
       expect(document.querySelector('.str-chat__date-separator')).toBeFalsy();
@@ -214,28 +157,17 @@ describe('MessageList', () => {
   });
 
   it('should render DateSeparator in Thread MessageList if enableThreadDateSeparator is true', async () => {
-    const user1 = generateUser();
-    const user2 = generateUser();
-    const mockedChannel = generateChannel({
-      members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-      messages: [generateMessage({ user: user1 })],
+    const { container } = renderComponent({
+      channelProps: { channel },
+      chatClient,
+      msgListProps: {
+        enableThreadDateSeparator: true,
+        threadList: true,
+      },
     });
 
-    chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
-
-    const { container } = render(
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <MessageList enableThreadDateSeparator threadList />
-        </Channel>
-      </Chat>,
-    );
-
     await waitFor(() => {
-      expect(document.querySelector('.str-chat__date-separator')).not.toBeFalsy();
+      expect(document.querySelector('.str-chat__date-separator')).toBeTruthy();
     });
 
     const results = await axe(container);

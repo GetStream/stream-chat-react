@@ -69,7 +69,6 @@ const MessageListWithContext = <
   const {
     channel,
     disableDateSeparator = false,
-    enableThreadDateSeparator = false,
     groupStyles,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
@@ -109,7 +108,6 @@ const MessageListWithContext = <
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
     disableDateSeparator,
-    enableThreadDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -218,8 +216,6 @@ export type MessageListProps<
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
-  /** Prop passed to `MessageList` from `Thread`. Injects date separator components in `Thread` component, defaults to `false` */
-  enableThreadDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
     message: StreamMessage<StreamChatGenerics>,
