@@ -35,7 +35,6 @@ export const MessageInputSmall = <
 
   const {
     closeEmojiPicker,
-    cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
     handleSubmit,
@@ -80,7 +79,7 @@ export const MessageInputSmall = <
             {cooldownRemaining ? (
               <div className='str-chat__input-small-cooldown'>
                 <CooldownTimer
-                  cooldownInterval={cooldownInterval}
+                  cooldownInterval={cooldownRemaining}
                   setCooldownRemaining={setCooldownRemaining}
                 />
               </div>

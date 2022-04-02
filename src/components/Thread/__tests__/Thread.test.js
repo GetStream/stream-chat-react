@@ -81,7 +81,7 @@ const renderComponent = ({
   componentOverrides = {},
 }) =>
   render(
-    <ChatProvider value={{ client: chatClient }}>
+    <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
       <ChannelStateProvider value={{ ...channelStateContextMock, ...channelStateOverrides }}>
         <ChannelActionProvider value={{ ...channelActionContextMock, ...channelActionOverrides }}>
           <EmojiProvider value={emojiContextMock}>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { ChannelResponse, Event } from 'stream-chat';
+import type { ChannelResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -32,18 +32,6 @@ export const CooldownTimer: React.FC<CooldownTimerProps> = (props) => {
   return <div>{seconds === 0 ? null : seconds}</div>;
 };
 
-const rolesToSkip: Record<string, boolean> = {
-  admin: true,
-  channel_moderator: true,
-  moderator: true,
-};
-
-const checkUserRoles = (globalRole: string, channelRole: string) => {
-  const skipGlobal = !!rolesToSkip[globalRole];
-  const skipChannel = !!rolesToSkip[channelRole];
-  return skipGlobal || skipChannel;
-};
-
 export type CooldownTimerState = {
   cooldownInterval: number;
   setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
@@ -53,29 +41,32 @@ export type CooldownTimerState = {
 export const useCooldownTimer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(): CooldownTimerState => {
-  const { client } = useChatContext<StreamChatGenerics>('useCooldownTimer');
+  const { latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>('useCooldownTimer');
   const { channel } = useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
 
-  const { cooldown: cooldownInterval } = (channel.data ||
+  const { cooldown: cooldownInterval, own_capabilities } = (channel.data ||
     {}) as ChannelResponse<StreamChatGenerics>;
 
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
-  const globalRole = client.user?.role || '';
-  const channelRole = channel.state.members[client.userID || '']?.role || '';
-
-  const skipCooldown = checkUserRoles(globalRole, channelRole);
+  const skipCooldown = !own_capabilities?.includes('slow-mode');
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
-      if (!skipCooldown && event.user?.id === client.userID) {
-        setCooldownRemaining(cooldownInterval);
-      }
-    };
+    const latestMessageDate = latestMessageDatesByChannels[channel.cid];
+    if (!cooldownInterval || !latestMessageDate) {
+      return;
+    }
+    const remainingCooldown = Math.round(
+      cooldownInterval - (new Date().getTime() - latestMessageDate.getTime()) / 1000,
+    );
+    if (remainingCooldown > 0 && !skipCooldown) {
+      setCooldownRemaining(remainingCooldown);
+    }
+  }, [channel.id, cooldownInterval, latestMessageDatesByChannels[channel.cid]]);
 
-    if (cooldownInterval) channel.on('message.new', handleEvent);
-    return () => channel.off('message.new', handleEvent);
-  }, [channel.id, cooldownInterval]);
-
-  return { cooldownInterval: cooldownInterval || 0, cooldownRemaining, setCooldownRemaining };
+  return {
+    cooldownInterval: cooldownInterval || 0,
+    cooldownRemaining,
+    setCooldownRemaining,
+  };
 };
