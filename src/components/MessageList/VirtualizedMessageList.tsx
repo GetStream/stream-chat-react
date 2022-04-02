@@ -85,7 +85,6 @@ const VirtualizedMessageListWithContext = <
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
-    enableThreadDateSeparator = false,
     hasMore,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
@@ -137,7 +136,6 @@ const VirtualizedMessageListWithContext = <
 
     if (
       disableDateSeparator &&
-      !enableThreadDateSeparator &&
       !hideDeletedMessages &&
       hideNewMessageSeparator &&
       !separateGiphyPreview
@@ -146,8 +144,7 @@ const VirtualizedMessageListWithContext = <
     }
 
     return processMessages({
-      disableDateSeparator,
-      enableThreadDateSeparator,
+      enableDateSeparator: !disableDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
@@ -157,7 +154,6 @@ const VirtualizedMessageListWithContext = <
     });
   }, [
     disableDateSeparator,
-    enableThreadDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
@@ -374,8 +370,6 @@ export type VirtualizedMessageListProps<
   defaultItemHeight?: number;
   /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
-  /** Prop passed to `VirtualizedMessageList` from `Thread`. Injects date separator components in `Thread` component, defaults to `false` */
-  enableThreadDateSeparator?: boolean;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
