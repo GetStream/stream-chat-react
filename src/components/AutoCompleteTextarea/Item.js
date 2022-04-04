@@ -22,7 +22,9 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
         onMouseEnter={selectItem}
         ref={innerRef}
       >
-        <Component entity={item} selected={selected} />
+        <div tabIndex={-1}>
+          <Component entity={item} selected={selected} />
+        </div>
       </button>
     </li>
   );

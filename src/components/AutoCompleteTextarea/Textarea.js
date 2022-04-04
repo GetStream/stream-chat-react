@@ -728,6 +728,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       >
         {this.renderSuggestionListContainer()}
         <Textarea
+          data-testid='message-input'
           {...this._cleanUpProps()}
           className={`rta__textarea ${className || ''}`}
           maxRows={maxRows}
