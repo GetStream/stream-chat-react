@@ -267,9 +267,7 @@ describe('Channel', () => {
       await waitFor(() => expect(hasThread).toHaveBeenCalledWith(threadMessage.id));
     });
 
-    // This is probably a regression from the upgrade of the chat client
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('should be able to load more messages in a thread', async () => {
+    it('should be able to load more messages in a thread', async () => {
       const getRepliesSpy = jest.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
 
@@ -719,9 +717,7 @@ describe('Channel', () => {
         await waitFor(() => expect(threadStarterHasUpdatedText).toBe(true));
       });
 
-      // This is probably a regression from the upgrade of the chat client
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip('should update the threadMessages if a new message comes in that is part of the thread', async () => {
+      it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
         const threadMessage = messages[0];
         const newThreadMessage = generateMessage({
           parent_id: threadMessage.id,
