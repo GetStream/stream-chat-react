@@ -39,6 +39,7 @@ jobs:
       - name: ⚗️ End-to-end tests
         run: |
           npx playwright install
+          npx playwright install-deps
           yarn e2e-fixtures
           # running with --browser=all causes failures
           yarn e2e --browser=chromium
