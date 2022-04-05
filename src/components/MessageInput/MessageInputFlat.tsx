@@ -37,7 +37,6 @@ export const MessageInputFlat = <
   const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
   const {
     closeEmojiPicker,
-    cooldownInterval,
     cooldownRemaining,
     emojiPickerIsOpen,
     handleSubmit,
@@ -108,7 +107,7 @@ export const MessageInputFlat = <
                 {cooldownRemaining ? (
                   <div className='str-chat__input-flat-cooldown'>
                     <CooldownTimer
-                      cooldownInterval={cooldownInterval}
+                      cooldownInterval={cooldownRemaining}
                       setCooldownRemaining={setCooldownRemaining}
                     />
                   </div>

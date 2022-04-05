@@ -86,6 +86,38 @@ describe('ChannelPreview', () => {
     await expectUnreadCountToBe(getByTestId, 0);
   });
 
+  it('should refresh unread counts on forced update', async () => {
+    const originalUnreadCount = 100;
+    const newUnreadCount = 200;
+    jest
+      .spyOn(c0, 'countUnread')
+      .mockImplementation()
+      .mockImplementationOnce(() => originalUnreadCount)
+      .mockImplementationOnce(() => newUnreadCount);
+    c0.muteStatus = () => false;
+
+    const { getByTestId, rerender } = renderComponent(
+      {
+        activeChannel: c1,
+        channel: c0,
+        channelUpdateCount: 0,
+      },
+      render,
+    );
+
+    await expectUnreadCountToBe(getByTestId, originalUnreadCount);
+
+    renderComponent(
+      {
+        activeChannel: c1,
+        channel: c0,
+        channelUpdateCount: 1,
+      },
+      rerender,
+    );
+    await expectUnreadCountToBe(getByTestId, newUnreadCount);
+  });
+
   const eventCases = [
     ['message.new', dispatchMessageNewEvent],
     ['message.updated', dispatchMessageUpdatedEvent],
