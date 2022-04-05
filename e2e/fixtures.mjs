@@ -16,6 +16,16 @@ dotenv.config({ path: `.env.local` });
 
   const chat = StreamChat.getInstance(E2E_APP_KEY, E2E_APP_SECRET);
 
+  // Delete channels if exist
+  {
+    console.log('Deleting existing channels');
+    await Promise.allSettled(
+      [E2E_ADD_MESSAGE_CHANNEL, E2E_JUMP_TO_MESSAGE_CHANNEL].map((channel) =>
+        chat.channel('messaging', channel).delete(),
+      ),
+    );
+  }
+
   // Users
   console.log('Creating users...');
   await chat.upsertUsers([{ id: E2E_TEST_USER_1 }, { id: E2E_TEST_USER_2 }]);
