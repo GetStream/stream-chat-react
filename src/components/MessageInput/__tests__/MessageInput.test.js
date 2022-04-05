@@ -964,11 +964,12 @@ const tearDown = () => {
   const renderComponent = makeRenderFn(InputComponent);
 
   describe(`${componentName}`, () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
       useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
       channel = chatClient.channel('messaging', mockedChannel.id);
     });
+
     afterEach(tearDown);
 
     const render = () => {
