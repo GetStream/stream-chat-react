@@ -73,8 +73,8 @@ export const MessageInputSmall = <
           {quotedMessage && quotedMessage.parent_id && (
             <QuotedMessagePreview quotedMessage={quotedMessage} />
           )}
+          {isUploadEnabled && <UploadsPreview />}
           <div className='str-chat__small-message-input--textarea-wrapper'>
-            {isUploadEnabled && <UploadsPreview />}
             <ChatAutoComplete />
             {cooldownRemaining ? (
               <div className='str-chat__input-small-cooldown'>
