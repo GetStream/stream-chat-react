@@ -259,10 +259,10 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@braintree/sanitize-url@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.0.tgz#3ba791f37b90e7f6170d252b63aacfcae943c039"
-  integrity sha512-WmKrB/575EJCzbeSJR3YQ5sET5FaizeljLRw1382qVUeGqzuWBgIS+AF5a0FO51uQTrDpoRgvuHC2IWVsgwkkA==
+"@braintree/sanitize-url@6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.0.tgz#fe364f025ba74f6de6c837a84ef44bdb1d61e68f"
+  integrity sha512-mgmE7XBYY/21erpzhexk4Cj1cyTQ9LzvnTxtzM17BJ7ERMNE6W72mQRo0I1Ud8eFJ+RVVIcBNhLFZ3GX4XFz5w==
 
 "@braintree/sanitize-url@^5.0.0":
   version "5.0.2"
@@ -287,10 +287,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^2.2.1":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.3.2.tgz#fa5aad4367ee8b6a7bacebfb22fe5b2127a376eb"
-  integrity sha512-wfHDS9GBXs5vlk7zKjMb+Z8ZsTvDeiCrnl/RU3P6i4tZGcXl0qkIWBf2e0O0kMJ5APYtZdRYvYyTlO7qeK9Jpw==
+"@stream-io/stream-chat-css@^2.8.0":
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.8.0.tgz#bff7a6ce53d10f3a6d6a1cab233be82d14e53601"
+  integrity sha512-0Jgo4ujw7vvUp8GI4UxqrWo/XpAhicHbcOmsEuTItcB+5N9/edJ+Tv/Z8Bm3xyKTN5ztnP2dEa9hDWF7U1A7Hw==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -914,9 +914,9 @@ micromark@~2.11.0:
     parse-entities "^2.0.0"
 
 minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 mml-react@^0.4.2:
   version "0.4.2"
@@ -1156,8 +1156,8 @@ source-map@^0.5.0:
 "stream-chat-react@link:../..":
   version "0.0.0-development"
   dependencies:
-    "@braintree/sanitize-url" "5.0.0"
-    "@stream-io/stream-chat-css" "^2.2.1"
+    "@braintree/sanitize-url" "6.0.0"
+    "@stream-io/stream-chat-css" "^2.8.0"
     dayjs "^1.10.4"
     emoji-mart "3.0.1"
     emoji-regex "^9.2.0"
