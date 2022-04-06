@@ -31,7 +31,9 @@ dotenv.config({ path: `.env.local` });
     await channel.create();
     await channel.truncate();
     for (let i = 0; i < MESSAGES_COUNT; i++) {
-      printProgress(i / MESSAGES_COUNT);
+      if (process.stdout.clearLine && process.stdout.cursorTo) {
+        printProgress(i / MESSAGES_COUNT);
+      }
 
       await channel.sendMessage({
         text: `Message ${i}`,
