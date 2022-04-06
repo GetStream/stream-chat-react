@@ -22,6 +22,7 @@ dotenv.config({ path: `.env.local` });
 
   // 'Jump to message' channel
   {
+    const MESSAGES_COUNT = 150;
     console.log(`Creating and populating channel '${E2E_JUMP_TO_MESSAGE_CHANNEL}'...`);
     const channel = chat.channel('messaging', E2E_JUMP_TO_MESSAGE_CHANNEL, {
       created_by_id: E2E_TEST_USER_1,
@@ -29,13 +30,17 @@ dotenv.config({ path: `.env.local` });
     });
     await channel.create();
     await channel.truncate();
-    for (let i = 0, len = 150; i < len; i++) {
-      process.stdout.write(`.`);
+    for (let i = 0; i < MESSAGES_COUNT; i++) {
+      if (process.stdout.clearLine && process.stdout.cursorTo) {
+        printProgress(i / MESSAGES_COUNT);
+      }
+
       await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
       });
     }
+    process.stdout.write('\n');
   }
 
   // 'Add message' channel
@@ -50,3 +55,13 @@ dotenv.config({ path: `.env.local` });
     await channel.truncate();
   }
 })();
+
+const printProgress = (progress) => {
+  process.stdout.clearLine();
+  process.stdout.cursorTo(0);
+
+  const BAR_LENGTH = 50;
+  const filled = Math.ceil(BAR_LENGTH * progress);
+  const empty = BAR_LENGTH - filled;
+  process.stdout.write(`[${'#'.repeat(filled)}${' '.repeat(empty)}] ${Math.ceil(progress * 100)}%`);
+};
