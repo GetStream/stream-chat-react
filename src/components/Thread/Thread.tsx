@@ -34,6 +34,8 @@ export type ThreadProps<
   additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
   /** If true, focuses the `MessageInput` component on opening a thread */
   autoFocus?: boolean;
+  /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
+  enableDateSeparator?: boolean;
   /** Display the thread on 100% width of its parent container. Useful for mobile style view */
   fullWidth?: boolean;
   /** Custom thread input UI component used to override the default `Input` value stored in `ComponentContext` or the [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default */
@@ -126,6 +128,7 @@ const ThreadInner = <
     additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
     autoFocus = true,
+    enableDateSeparator = false,
     fullWidth = false,
     Input: PropInput,
     Message: PropMessage,
@@ -192,6 +195,7 @@ const ThreadInner = <
         />
         <ThreadStart />
         <ThreadMessageList
+          disableDateSeparator={!enableDateSeparator}
           hasMore={threadHasMore}
           loadingMore={threadLoadingMore}
           loadMore={loadMoreThread}

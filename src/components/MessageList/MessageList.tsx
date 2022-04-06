@@ -114,7 +114,6 @@ const MessageListWithContext = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
-    threadList,
   });
 
   const elements = useMessageListElements({
@@ -214,7 +213,7 @@ type PropsDrilledToMessage =
 export type MessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
-  /** Disables the injection of date separator components, defaults to `false` */
+  /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (

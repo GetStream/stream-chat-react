@@ -144,12 +144,11 @@ const VirtualizedMessageListWithContext = <
     }
 
     return processMessages({
-      disableDateSeparator,
+      enableDateSeparator: !disableDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
       messages,
-      separateGiphyPreview,
       setGiphyPreviewMessage,
       userId: client.userID || '',
     });
@@ -369,7 +368,7 @@ export type VirtualizedMessageListProps<
   ) => React.ReactElement;
   /** If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance */
   defaultItemHeight?: number;
-  /** Disables the injection of date separator components, defaults to `true` */
+  /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
