@@ -114,7 +114,6 @@ const MessageListWithContext = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
-    threadList,
   });
 
   const elements = useMessageListElements({

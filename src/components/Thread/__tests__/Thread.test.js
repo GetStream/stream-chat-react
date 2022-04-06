@@ -143,6 +143,36 @@ describe('Thread', () => {
       chatClient,
       threadProps: {
         additionalMessageListProps,
+        Message: MessageMock,
+      },
+    });
+
+    expect(MessageListMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        disableDateSeparator: true,
+        hasMore: channelStateContextMock.threadHasMore,
+        loadingMore: channelActionContextMock.threadLoadingMore,
+        loadMore: channelStateContextMock.loadMoreThread,
+        Message: MessageMock,
+        messages: channelStateContextMock.threadMessages,
+        threadList: true,
+        ...additionalMessageListProps,
+      }),
+      {},
+    );
+  });
+
+  it('should render the MessageList component with date separators if enabled', () => {
+    const additionalMessageListProps = {
+      loadingMore: false,
+      loadMore: channelActionContextMock.threadLoadingMore,
+      propName: 'value',
+      read: {},
+    };
+    renderComponent({
+      chatClient,
+      threadProps: {
+        additionalMessageListProps,
         enableDateSeparator: true,
         Message: MessageMock,
       },

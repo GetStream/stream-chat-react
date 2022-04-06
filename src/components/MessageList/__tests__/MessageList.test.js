@@ -140,37 +140,4 @@ describe('MessageList', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
-
-  it('should not render DateSeparator in Thread MessageList by default', async () => {
-    const { container } = renderComponent({
-      channelProps: { channel },
-      chatClient,
-      msgListProps: { threadList: true },
-    });
-
-    await waitFor(() => {
-      expect(document.querySelector('.str-chat__date-separator')).toBeFalsy();
-    });
-
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render DateSeparator in Thread MessageList if enableThreadDateSeparator is true', async () => {
-    const { container } = renderComponent({
-      channelProps: { channel },
-      chatClient,
-      msgListProps: {
-        enableThreadDateSeparator: true,
-        threadList: true,
-      },
-    });
-
-    await waitFor(() => {
-      expect(document.querySelector('.str-chat__date-separator')).toBeTruthy();
-    });
-
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
 });
