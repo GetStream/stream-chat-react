@@ -2,25 +2,22 @@ name: Release
 on:
   push:
     branches:
-      - master
+      - poc/**
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    container: node:16-alpine
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: 'lts/*'
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npx yarn install --frozen-lockfile
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx semantic-release
+        run: npx yarn semantic-release --branches master --dry-run
