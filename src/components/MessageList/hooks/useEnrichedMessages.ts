@@ -20,7 +20,6 @@ export const useEnrichedMessages = <
   hideNewMessageSeparator: boolean;
   messages: StreamMessage<StreamChatGenerics>[];
   noGroupByUser: boolean;
-  threadList: boolean;
   groupStyles?: (
     message: StreamMessage<StreamChatGenerics>,
     previousMessage: StreamMessage<StreamChatGenerics>,
@@ -38,7 +37,6 @@ export const useEnrichedMessages = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
-    threadList,
   } = args;
 
   const { client } = useChatContext<StreamChatGenerics>('useEnrichedMessages');
@@ -46,16 +44,17 @@ export const useEnrichedMessages = <
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
+  const enableDateSeparator = !disableDateSeparator;
+
   let messagesWithDates =
-    disableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
+    !enableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : processMessages({
-          disableDateSeparator,
+          enableDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,
           lastRead,
           messages,
-          threadList,
           userId: client.userID || '',
         });
 
