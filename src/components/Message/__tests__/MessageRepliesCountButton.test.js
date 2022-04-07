@@ -2,21 +2,19 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { TranslationContext } from '../../../context';
+import { TranslationProvider } from '../../../context';
 
 const onClickMock = jest.fn();
+const defaultSingularText = '1 reply';
+const defaultPluralText = '2 replies';
 
-const i18nMock = (key, { count }) => {
-  if (key === 'replyCount' && count === 1) return '1 reply';
-  else if (key === 'replyCount' && count === 2) return '2 replies';
-  return key;
-};
+const i18nMock = (key, { count }) => (count > 1 ? defaultPluralText : defaultSingularText);
 
 const renderComponent = (props) =>
   render(
-    <TranslationContext.Provider value={{ t: i18nMock }}>
+    <TranslationProvider value={{ t: i18nMock }}>
       <MessageRepliesCountButton {...props} onClick={onClickMock} />
-    </TranslationContext.Provider>,
+    </TranslationProvider>,
   );
 
 describe('MessageRepliesCountButton', () => {
@@ -28,27 +26,27 @@ describe('MessageRepliesCountButton', () => {
   it('should render the right text when there is one reply, and labelSingle is not defined', () => {
     const { getByText } = renderComponent({ reply_count: 1 });
 
-    expect(getByText('1 reply')).toBeInTheDocument();
+    expect(getByText(defaultSingularText)).toBeInTheDocument();
   });
 
   it('should render the right text when there is one reply, and labelSingle is defined', () => {
-    const labelSingle = 'text';
-    const { getByText } = renderComponent({ labelSingle, reply_count: 1 });
+    const customSingularLabel = 'text';
+    const { getByText } = renderComponent({ labelSingle: customSingularLabel, reply_count: 1 });
 
-    expect(getByText(`1 ${labelSingle}`)).toBeInTheDocument();
+    expect(getByText(`1 ${customSingularLabel}`)).toBeInTheDocument();
   });
 
   it('should render the right text when there is more than one reply, and labelPlural is not defined', () => {
     const { getByText } = renderComponent({ reply_count: 2 });
 
-    expect(getByText('2 replies')).toBeInTheDocument();
+    expect(getByText(defaultPluralText)).toBeInTheDocument();
   });
 
   it('should render the right text when there is more than one reply, and labelPlural is defined', () => {
-    const labelPlural = 'text';
-    const { getByText } = renderComponent({ labelPlural, reply_count: 2 });
+    const customPluralLabel = 'text';
+    const { getByText } = renderComponent({ labelPlural: customPluralLabel, reply_count: 2 });
 
-    expect(getByText(`2 ${labelPlural}`)).toBeInTheDocument();
+    expect(getByText(`2 ${customPluralLabel}`)).toBeInTheDocument();
   });
 
   it('should call the onClick prop if the button is clicked', () => {
