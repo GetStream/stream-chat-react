@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FileUploadButton, ImageDropzone } from 'react-file-utils';
+import type { Event } from 'stream-chat';
 
 import { EmojiPicker } from './EmojiPicker';
 import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
@@ -14,6 +15,8 @@ import { UploadsPreview } from './UploadsPreview';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
+import { useChatContext } from '../../context/ChatContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
@@ -29,8 +32,9 @@ export const MessageInputFlat = <
     multipleUploads,
     quotedMessage,
   } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
+  const { setQuotedMessage } = useChannelActionContext('MessageInputFlat');
   const { t } = useTranslationContext('MessageInputFlat');
-
+  const { channel } = useChatContext<StreamChatGenerics>('MessageInputFlat');
   const {
     closeEmojiPicker,
     cooldownRemaining,
@@ -51,6 +55,24 @@ export const MessageInputFlat = <
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
+
+  useEffect(() => {
+    const handleQuotedMessageUpdate = (e: Event<StreamChatGenerics>) => {
+      if (e.message?.id !== quotedMessage?.id) return;
+      if (e.type === 'message.deleted') {
+        setQuotedMessage(undefined);
+        return;
+      }
+      setQuotedMessage(e.message);
+    };
+    channel?.on('message.deleted', handleQuotedMessageUpdate);
+    channel?.on('message.updated', handleQuotedMessageUpdate);
+
+    return () => {
+      channel?.off('message.deleted', handleQuotedMessageUpdate);
+      channel?.off('message.updated', handleQuotedMessageUpdate);
+    };
+  }, [channel, quotedMessage]);
 
   return (
     <div
