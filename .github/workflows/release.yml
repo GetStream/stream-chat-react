@@ -8,7 +8,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    container: node:16-alpine
+    container:
+      image: node:16-alpine
+      options: --user root
     steps:
       - name: Checkout
         uses: actions/checkout@v2
