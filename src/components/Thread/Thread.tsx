@@ -81,10 +81,7 @@ const DefaultThreadHeader = <
 
   const getReplyCount = () => {
     if (!thread.reply_count) return '';
-    if (thread.reply_count === 1) return t('1 reply');
-    return t('{{ replyCount }} replies', {
-      replyCount: thread.reply_count,
-    });
+    return t('replyCount', { count: thread.reply_count });
   };
 
   return (

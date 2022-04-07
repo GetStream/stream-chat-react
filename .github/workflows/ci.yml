@@ -54,12 +54,12 @@ jobs:
           E2E_APP_SECRET: ${{ secrets.E2E_APP_SECRET }}
           E2E_TEST_USER_1_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
           E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
-  
+
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [10, 12, 14]
+        node: [14, 16]
     name: Test with Node ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v2
