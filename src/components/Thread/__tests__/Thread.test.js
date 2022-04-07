@@ -57,7 +57,7 @@ const channelActionContextMock = {
 
 const i18nMock = jest.fn((key, props) => {
   if (key === 'replyCount' && props.count === 1) return '1 reply';
-  else if (key === 'replyCount' && props.count === 2) return '2 replies';
+  else if (key === 'replyCount' && props.count > 1) return '2 replies';
   return key;
 });
 
