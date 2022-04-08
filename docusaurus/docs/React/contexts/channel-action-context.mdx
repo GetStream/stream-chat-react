@@ -50,6 +50,59 @@ A function that takes a message to be edited, returns a Promise.
 | -------- |
 | function |
 
+### jumpToLatestMessage
+
+Used in conjunction with `jumpToMessage`. Restores the position of the message list back to the most recent messages.
+
+| Type                  |
+| --------------------- |
+| `() => Promise<void>` |
+
+### jumpToMessage
+
+When called, `jumpToMessage` causes the current message list to jump to the message with the id specified in the `messageId` parameter. 
+Here's an example of a button, which, when clicked, searches for a given message and  navigates to it:
+
+```tsx
+const JumpToMessage = () => {
+  const { jumpToMessage } = useChannelActionContext();
+
+  return (
+    <button
+      data-testid='jump-to-message'
+      onClick={async () => {
+        // the filtering based on channelId is just for example purposes. 
+        const results = await chatClient.search(
+          {
+            id: { $eq: channelId },
+          },
+          'Message 29',
+          { limit: 1, offset: 0 },
+        );
+
+        jumpToMessage(results.results[0].message.id);
+      }}
+    >
+      Jump to message 29
+    </button>
+  );
+};
+
+// further down the line, add the JumpToMessage to the component tree as a child of `Channel`
+// ...
+  return (<Channel channel={channel}>
+    <JumpToMessage />
+    <Window>
+      <MessageList />
+    </Window>
+  </Channel>)
+```
+
+
+| Type                                   |
+| ------------------------------------   |
+| `(messageId: string) => Promise<void>` |
+
 ### loadMore
 
 The function to load next page/batch of `messages` (used for pagination).

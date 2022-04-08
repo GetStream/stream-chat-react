@@ -30,15 +30,21 @@ dotenv.config({ path: `.env.local` });
     });
     await channel.create();
     await channel.truncate();
+    let messageToQuote;
     for (let i = 0; i < MESSAGES_COUNT; i++) {
       if (process.stdout.clearLine && process.stdout.cursorTo) {
         printProgress(i / MESSAGES_COUNT);
       }
 
-      await channel.sendMessage({
+      const res = await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
+        ...(i === 140 ? { quoted_message_id: messageToQuote.message.id } : {}),
       });
+
+      if (i === 20) {
+        messageToQuote = res;
+      }
     }
     process.stdout.write('\n');
   }

@@ -191,6 +191,8 @@ export type ChannelProps<
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 
+const JUMP_MESSAGE_PAGE_SIZE = 25;
+
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -449,7 +451,9 @@ const ChannelInner = <
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
 
-    if (state.loadingMore || oldestMessage?.status !== 'received') return 0;
+    if (state.loadingMore || state.loadingMoreNewer || oldestMessage?.status !== 'received') {
+      return 0;
+    }
 
     // initial state loads with up to 25 messages, so if less than 25 no need for additional query
     if (channel.state.messages.length < 25) {
@@ -478,6 +482,67 @@ const ChannelInner = <
     loadMoreFinished(hasMoreMessages, channel.state.messages);
 
     return queryResponse.messages.length;
+  };
+
+  const loadMoreNewer = async (limit = 100) => {
+    if (!online.current || !window.navigator.onLine) return 0;
+
+    const newestMessage = state?.messages?.[state?.messages?.length - 1];
+    if (state.loadingMore || state.loadingMoreNewer) return 0;
+
+    dispatch({ loadingMoreNewer: true, type: 'setLoadingMoreNewer' });
+
+    const newestId = newestMessage?.id;
+    const perPage = limit;
+    let queryResponse: ChannelAPIResponse<StreamChatGenerics>;
+
+    try {
+      queryResponse = await channel.query({
+        messages: { id_gt: newestId, limit: perPage },
+        watchers: { limit: perPage },
+      });
+    } catch (e) {
+      console.warn('message pagination request failed with error', e);
+      dispatch({ loadingMoreNewer: false, type: 'setLoadingMoreNewer' });
+      return 0;
+    }
+
+    const hasMoreNewer = channel.state.messages !== channel.state.latestMessages;
+
+    dispatch({ hasMoreNewer, messages: channel.state.messages, type: 'loadMoreNewerFinished' });
+    return queryResponse.messages.length;
+  };
+
+  const jumpToMessage = async (messageId: string) => {
+    dispatch({ loadingMore: true, type: 'setLoadingMore' });
+    await channel.state.loadMessageIntoState(messageId);
+
+    /**
+     * if the message we are jumping to has less than half of the page size older messages,
+     * we have jumped to the beginning of the channel.
+     */
+    const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
+    const hasMoreMessages = indexOfMessage >= Math.floor(JUMP_MESSAGE_PAGE_SIZE / 2);
+
+    loadMoreFinished(hasMoreMessages, channel.state.messages);
+    dispatch({
+      hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+      highlightedMessageId: messageId,
+      type: 'jumpToMessageFinished',
+    });
+
+    setTimeout(() => {
+      dispatch({ type: 'clearHighlightedMessage' });
+    }, 500);
+  };
+
+  const jumpToLatestMessage = async () => {
+    await channel.state.loadMessageIntoState('latest');
+    const hasMoreOlder = channel.state.messages.length >= 25;
+    loadMoreFinished(hasMoreOlder, channel.state.messages);
+    dispatch({
+      type: 'jumpToLatestMessage',
+    });
   };
 
   const updateMessage = (
@@ -707,7 +772,10 @@ const ChannelInner = <
       closeThread,
       dispatch,
       editMessage,
+      jumpToLatestMessage,
+      jumpToMessage,
       loadMore,
+      loadMoreNewer,
       loadMoreThread,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
@@ -719,7 +787,7 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
-    [channel.cid, loadMore, quotedMessage],
+    [channel.cid, loadMore, loadMoreNewer, quotedMessage, jumpToMessage, jumpToLatestMessage],
   );
 
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(

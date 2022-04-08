@@ -24,6 +24,7 @@
   "Error · Unsent": "Ошибка · Не отправлено",
   "Error: {{ errorMessage }}": "Ошибка: {{ errorMessage }}",
   "Flag": "Пожаловаться",
+  "Latest Messages": "Последние сообщения",
   "Menu": "Меню",
   "Message Failed · Click to try again": "Ошибка отправки сообщения · Нажмите чтобы повторить",
   "Message Failed · Unauthorized": "Ошибка отправки сообщения · Неавторизованный",

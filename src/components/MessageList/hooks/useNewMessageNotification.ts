@@ -6,7 +6,11 @@ import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export function useNewMessageNotification<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(messages: StreamMessage<StreamChatGenerics>[], currentUserId?: string) {
+>(
+  messages: StreamMessage<StreamChatGenerics>[],
+  currentUserId: string | undefined,
+  hasMoreNewer?: boolean,
+) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
   /**
    * use the flag to avoid the initial "new messages" quick blink
@@ -17,6 +21,10 @@ export function useNewMessageNotification<
   const atBottom = useRef(false);
 
   useEffect(() => {
+    if (hasMoreNewer) {
+      setNewMessagesNotification(true);
+      return;
+    }
     /* handle scrolling behavior for new messages */
     if (!messages?.length) return;
 
@@ -36,7 +44,7 @@ export function useNewMessageNotification<
       setNewMessagesNotification(true);
     }
     didMount.current = true;
-  }, [currentUserId, messages]);
+  }, [currentUserId, messages, hasMoreNewer]);
 
   return { atBottom, newMessagesNotification, setNewMessagesNotification };
 }

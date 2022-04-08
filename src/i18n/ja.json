@@ -24,6 +24,7 @@
   "Error · Unsent": "エラー・未送信",
   "Error: {{ errorMessage }}": "エラー: {{ errorMessage }}",
   "Flag": "フラグ",
+  "Latest Messages": "最新のメッセージ",
   "Menu": "メニュー",
   "Message Failed · Click to try again": "メッセージが失敗しました · クリックして再試行してください",
   "Message Failed · Unauthorized": "メッセージが失敗しました · 許可されていません",

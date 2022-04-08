@@ -25,10 +25,14 @@ export type StreamMessage<
 export type ChannelState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  suppressAutoscroll: boolean;
   error?: Error | null;
   hasMore?: boolean;
+  hasMoreNewer?: boolean;
+  highlightedMessageId?: string;
   loading?: boolean;
   loadingMore?: boolean;
+  loadingMoreNewer?: boolean;
   members?: StreamChannelState<StreamChatGenerics>['members'];
   messages?: StreamMessage<StreamChatGenerics>[];
   pinnedMessages?: StreamMessage<StreamChatGenerics>[];

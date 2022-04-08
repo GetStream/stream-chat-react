@@ -24,6 +24,7 @@
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Flag": "Signaler",
+  "Latest Messages": "Derniers messages",
   "Menu": "Menu",
   "Message Failed · Click to try again": "Échec de l'envoi du message - Cliquez pour réessayer",
   "Message Failed · Unauthorized": "Échec de l'envoi du message - Non autorisé",

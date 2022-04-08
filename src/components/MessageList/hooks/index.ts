@@ -1,4 +1,3 @@
-export * from './useCallLoadMore';
 export * from './useEnrichedMessages';
 export * from './useLastReadData';
 export * from './useMessageListElements';

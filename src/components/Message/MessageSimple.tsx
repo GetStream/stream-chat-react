@@ -43,6 +43,7 @@ const MessageSimpleWithContext = <
     handleAction,
     handleOpenThread,
     handleRetry,
+    highlighted,
     isMyMessage,
     isReactionEnabled,
     message,
@@ -102,6 +103,7 @@ const MessageSimpleWithContext = <
 						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
 						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
             ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
+            ${highlighted ? 'str-chat__message--highlighted' : ''}
             ${message.pinned ? 'pinned-message' : ''}
             ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}
             ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}

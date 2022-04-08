@@ -45,7 +45,10 @@ export type ChannelActionContextValue<
   editMessage: (
     message: UpdatedMessage<StreamChatGenerics>,
   ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
+  jumpToLatestMessage: () => Promise<void>;
+  jumpToMessage: (messageId: string) => Promise<void>;
   loadMore: (limit?: number) => Promise<number>;
+  loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
   onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
   onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
