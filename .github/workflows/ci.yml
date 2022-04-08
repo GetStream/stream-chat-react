@@ -1,37 +1,85 @@
-name: test
+name: Test
 
 on: [push]
 
 jobs:
+  tsc:
+    runs-on: ubuntu-latest
+    name: Typescript
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 💾 Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: 🔨 Install Dependencies & Build
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: 🧪 tsc
+        run: yarn types
+
+  e2e:
+    runs-on: ubuntu-latest
+    name: End-to-end tests
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 💾 Cache Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: 🔨 Install Dependencies & Build
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: ⚗️ End-to-end tests
+        run: |
+          npx playwright install
+          npx playwright install-deps
+          yarn e2e-fixtures
+          # running with --browser=all causes failures
+          yarn e2e --browser=chromium
+          yarn e2e --browser=webkit
+          yarn e2e --browser=firefox
+        env:
+          E2E_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
+          E2E_ADD_MESSAGE_CHANNEL: add-message
+          E2E_TEST_USER_1: test-user-1
+          E2E_TEST_USER_2: test-user-2
+          E2E_APP_KEY: ${{ secrets.E2E_APP_KEY }}
+          E2E_APP_SECRET: ${{ secrets.E2E_APP_SECRET }}
+          E2E_TEST_USER_1_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
+          E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
+
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [10, 12, 14]
-        typescript: ['no']
-        include:
-          - typescript: 'yes'
+        node: [14, 16]
+    name: Test with Node ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Cache Dependencies
+      - name: 💾 Cache Dependencies
         uses: actions/cache@v2
         with:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Install Dependencies & Build
+      - name: 🔨 Install Dependencies & Build
         run: yarn install --frozen-lockfile --ignore-engines
 
-      - name: Lint and Test with ${{ matrix.node }}
+      - name: 🧪 Lint and Test with ${{ matrix.node }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          TYPESCRIPT: ${{ matrix.typescript }}
         run: |
-          if [ "$TYPESCRIPT" == "no" ]; then yarn lint; fi
-          if [ "$TYPESCRIPT" == "no" ]; then yarn coverage; fi
-          if [ "$TYPESCRIPT" == "no" ]; then yarn validate-translations; fi
-          if [ "$TYPESCRIPT" == "yes" ]; then yarn types; fi
+          yarn lint
+          yarn coverage
+          yarn validate-translations

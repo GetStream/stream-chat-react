@@ -26,6 +26,7 @@ export type ChatContextValue<
   client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
+  latestMessageDatesByChannels: { [key: string]: Date };
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
   setActiveChannel: (

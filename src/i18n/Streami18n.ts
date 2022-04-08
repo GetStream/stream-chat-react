@@ -52,9 +52,9 @@ Dayjs.extend(updateLocale);
 Dayjs.updateLocale('de', {
   calendar: {
     lastDay: '[gestern um] LT',
-    lastWeek: '[letzten] dddd [bei] LT',
-    nextDay: '[morgen zu] LT',
-    nextWeek: 'dddd [bei] LT',
+    lastWeek: '[letzten] dddd [um] LT',
+    nextDay: '[morgen um] LT',
+    nextWeek: 'dddd [um] LT',
     sameDay: '[heute um] LT',
     sameElse: 'L',
   },
@@ -171,9 +171,9 @@ Dayjs.updateLocale('nl', {
 Dayjs.updateLocale('pt', {
   calendar: {
     lastDay: '[ontem às] LT',
-    lastWeek: '[passado] dddd [para] LT',
+    lastWeek: 'dddd [passada às] LT',
     nextDay: '[amanhã às] LT',
-    nextWeek: 'dddd [para] LT',
+    nextWeek: 'dddd [às] LT',
     sameDay: '[hoje às] LT',
     sameElse: 'L',
   },

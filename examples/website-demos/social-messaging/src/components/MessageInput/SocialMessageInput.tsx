@@ -38,7 +38,6 @@ export const SocialMessageInput = (props: Props) => {
 
   const {
     closeCommandsList,
-    cooldownInterval,
     cooldownRemaining,
     emojiPickerRef,
     handleChange,
@@ -111,14 +110,14 @@ export const SocialMessageInput = (props: Props) => {
       cooldownRemaining ? (
         <div className='input-ui-send-cooldown'>
           <CooldownTimer
-            cooldownInterval={cooldownInterval}
+            cooldownInterval={cooldownRemaining}
             setCooldownRemaining={setCooldownRemaining}
           />
         </div>
       ) : (
         <SendArrow />
       ),
-    [cooldownInterval, cooldownRemaining, setCooldownRemaining],
+    [cooldownRemaining, setCooldownRemaining],
   );
 
   return (

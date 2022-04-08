@@ -32,7 +32,8 @@
     "outDir": "./dist",
     "declaration": true,
     "declarationDir": "./dist",
-    "declarationMap": true
+    "declarationMap": true,
+    "types": ["vite/client"]
   },
   "include": ["./src/**/*"],
   "exclude": [

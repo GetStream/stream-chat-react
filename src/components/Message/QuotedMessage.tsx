@@ -5,6 +5,7 @@ import { Avatar as DefaultAvatar } from '../Avatar';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -18,6 +19,7 @@ export const QuotedMessage = <
   );
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { userLanguage } = useTranslationContext('QuotedMessage');
+  const { jumpToMessage } = useChannelActionContext('QuotedMessage');
 
   const Avatar = ContextAvatar || DefaultAvatar;
 
@@ -38,7 +40,10 @@ export const QuotedMessage = <
 
   return (
     <>
-      <div className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}>
+      <div
+        className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}
+        onClick={() => jumpToMessage(quoted_message.id)}
+      >
         {quoted_message.user && (
           <Avatar
             image={quoted_message.user.image}

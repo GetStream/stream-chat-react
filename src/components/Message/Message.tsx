@@ -171,7 +171,7 @@ export const Message = <
   } = props;
 
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
-  const { mutes } = useChannelStateContext<StreamChatGenerics>('Message');
+  const { highlightedMessageId, mutes } = useChannelStateContext<StreamChatGenerics>('Message');
 
   const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
 
@@ -215,6 +215,8 @@ export const Message = <
     closeReactionSelectorOnClick,
   );
 
+  const highlighted = highlightedMessageId === message.id;
+
   return (
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
@@ -234,6 +236,7 @@ export const Message = <
       handlePin={handlePin}
       handleReaction={handleReaction}
       handleRetry={handleRetry}
+      highlighted={highlighted}
       initialMessage={props.initialMessage}
       isReactionEnabled={isReactionEnabled}
       lastReceivedId={props.lastReceivedId}

@@ -10,33 +10,50 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  disableDateSeparator: boolean;
-  hideDeletedMessages: boolean;
-  hideNewMessageSeparator: boolean;
   messages: StreamMessage<StreamChatGenerics>[];
   userId: string;
+  /** Enable date separator */
+  enableDateSeparator?: boolean;
+  /** Enable deleted messages to be filtered out of resulting message list */
+  hideDeletedMessages?: boolean;
+  /** Disable date separator display for unread incoming messages */
+  hideNewMessageSeparator?: boolean;
+  /** Sets the treshold after everything is considered unread */
   lastRead?: Date | null;
-  separateGiphyPreview?: boolean;
+  /** Signals whether to separate giphy preview as well as used to set the giphy preview state */
   setGiphyPreviewMessage?: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;
-  threadList?: boolean;
 };
 
+/**
+ * processMessages - Transform the input message list according to config parameters
+ *
+ * Inserts date separators btw. messages created on different dates or before unread incoming messages. By default:
+ * - enabled in main message list
+ * - disabled in virtualized message list
+ * - disabled in thread
+ *
+ * Allows to filter out deleted messages, contolled by hideDeletedMessages param. This is disabled by default.
+ *
+ * Sets Giphy preview message for VirtualizedMessageList
+ *
+ * The only required params are messages and userId, the rest are config params:
+ *
+ * @return {StreamMessage<StreamChatGenerics>[]} Transformed list of messages
+ */
 export const processMessages = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
   const {
-    disableDateSeparator,
+    enableDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
     messages,
-    separateGiphyPreview,
     setGiphyPreviewMessage,
-    threadList,
     userId,
   } = params;
 
@@ -52,12 +69,7 @@ export const processMessages = <
       continue;
     }
 
-    if (
-      separateGiphyPreview &&
-      setGiphyPreviewMessage &&
-      message.type === 'ephemeral' &&
-      message.command === 'giphy'
-    ) {
+    if (setGiphyPreviewMessage && message.type === 'ephemeral' && message.command === 'giphy') {
       ephemeralMessagePresent = true;
       setGiphyPreviewMessage(message);
       continue;
@@ -65,24 +77,18 @@ export const processMessages = <
 
     const messageDate =
       (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
-    let prevMessageDate = messageDate;
     const previousMessage = messages[i - 1];
+    let prevMessageDate = messageDate;
 
-    if (
-      i > 0 &&
-      !disableDateSeparator &&
-      !threadList &&
-      previousMessage.created_at &&
-      isDate(previousMessage.created_at)
-    ) {
+    if (enableDateSeparator && previousMessage?.created_at && isDate(previousMessage.created_at)) {
       prevMessageDate = previousMessage.created_at.toDateString();
     }
 
-    if (!unread && !hideNewMessageSeparator && !threadList) {
+    if (!unread && !hideNewMessageSeparator) {
       unread = (lastRead && message.created_at && new Date(lastRead) < message.created_at) || false;
 
       // do not show date separator for current user's messages
-      if (!disableDateSeparator && unread && message.user?.id !== userId) {
+      if (enableDateSeparator && unread && message.user?.id !== userId) {
         newMessages.push({
           customType: 'message.date',
           date: message.created_at,
@@ -93,14 +99,14 @@ export const processMessages = <
     }
 
     if (
-      !disableDateSeparator &&
-      !threadList &&
-      (i === 0 ||
-        messageDate !== prevMessageDate ||
+      enableDateSeparator &&
+      (i === 0 || // always put date separator before the first message
+        messageDate !== prevMessageDate || // add date separator btw. 2 messages created on different date
+        // if hiding deleted messages replace the previous deleted message(s) with A separator if the last rendered message was created on different date
         (hideDeletedMessages &&
-          messages[i - 1]?.type === 'deleted' &&
+          previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row
+      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
@@ -118,8 +124,8 @@ export const processMessages = <
   }
 
   // clean up the giphy preview component state after a Cancel action
-  if (separateGiphyPreview && !ephemeralMessagePresent) {
-    setGiphyPreviewMessage?.(undefined);
+  if (setGiphyPreviewMessage && !ephemeralMessagePresent) {
+    setGiphyPreviewMessage(undefined);
   }
 
   return newMessages;
@@ -226,7 +232,6 @@ export const insertIntro = <
           newMessages.push(intro);
           return newMessages;
         }
-        continue;
       } else {
         newMessages.splice(i + 1, 0, intro);
         return newMessages;

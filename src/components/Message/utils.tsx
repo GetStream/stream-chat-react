@@ -253,6 +253,7 @@ export const areMessagePropsEqual = <
 
   const deepEqualProps =
     deepequal(nextProps.readBy, prevProps.readBy) &&
+    deepequal(nextProps.highlighted, prevProps.highlighted) &&
     deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
     deepequal(nextProps.mutes, prevProps.mutes) &&
     deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
@@ -278,6 +279,7 @@ export const areMessageUIPropsEqual = <
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.editing !== nextProps.editing) return false;
+  if (prevProps.highlighted !== nextProps.highlighted) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
