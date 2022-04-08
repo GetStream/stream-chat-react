@@ -2,7 +2,8 @@ name: Release
 on:
   push:
     branches:
-      - poc/**
+      - master
+      - main
 
 jobs:
   release:
@@ -23,4 +24,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn semantic-release --branches poc/sr-changelog-plugin --dry-run
+        run: yarn semantic-release --branches master main --dry-run
