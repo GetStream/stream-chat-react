@@ -1,5 +1,4 @@
 {
-  "branches": ["poc/sr-changelog-plugin"],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",

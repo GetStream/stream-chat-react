@@ -26,4 +26,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn semantic-release --branches master --dry-run
+        run: yarn semantic-release --branches poc/sr-changelog-plugin --dry-run
