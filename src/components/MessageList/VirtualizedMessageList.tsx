@@ -76,6 +76,23 @@ function fractionalItemSize(element: HTMLElement) {
   return element.getBoundingClientRect().height;
 }
 
+function findMessageIndex(messages: Array<{ id: string }>, id: string) {
+  return messages.findIndex((message) => message.id === id);
+}
+
+function calculateInitialTopMostItemIndex(
+  messages: Array<{ id: string }>,
+  highlightedMessageId: string | undefined,
+) {
+  if (highlightedMessageId) {
+    const index = findMessageIndex(messages, highlightedMessageId);
+    if (index !== -1) {
+      return { align: 'center', index } as const;
+    }
+  }
+  return messages.length - 1;
+}
+
 const VirtualizedMessageListWithContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -361,44 +378,20 @@ const VirtualizedMessageListWithContext = <
     }
   };
 
-  const virtualizedMessageListClass =
-    customClasses?.virtualizedMessageList || 'str-chat__virtual-list';
-
-  function getHighlightedMessageIndex() {
-    const message = processedMessages.find((message) => message.id === highlightedMessageId);
-    if (message) {
-      return processedMessages.indexOf(message);
-    }
-    return null;
-  }
-
   useEffect(() => {
     if (highlightedMessageId) {
-      const index = getHighlightedMessageIndex();
-      if (index !== null) {
+      const index = findMessageIndex(processedMessages, highlightedMessageId);
+      if (index !== -1) {
         virtuoso.current?.scrollToIndex({ align: 'center', index });
       }
     }
   }, [highlightedMessageId]);
 
-  let initialTopMostItemIndex:
-    | number
-    | { align: 'center'; index: number } = processedMessages.length
-    ? processedMessages.length - 1
-    : 0;
-
-  if (highlightedMessageId) {
-    const index = getHighlightedMessageIndex();
-    if (index) {
-      initialTopMostItemIndex = { align: 'center', index };
-    }
-  }
-
   if (!processedMessages) return null;
 
   return (
     <>
-      <div className={virtualizedMessageListClass}>
+      <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
           components={virtuosoComponents}
@@ -406,7 +399,10 @@ const VirtualizedMessageListWithContext = <
           firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
           followOutput={followOutput}
           increaseViewportBy={{ bottom: 200, top: 0 }}
-          initialTopMostItemIndex={initialTopMostItemIndex}
+          initialTopMostItemIndex={calculateInitialTopMostItemIndex(
+            processedMessages,
+            highlightedMessageId,
+          )}
           itemContent={(i) => messageRenderer(processedMessages, i)}
           itemSize={fractionalItemSize}
           key={messageSetKey}
