@@ -1,5 +1,29 @@
 # Changelog
 
+## [8.1.0](https://github.com/GetStream/stream-chat-react/compare/v8.0.0...v8.1.0) (2022-04-08)
+
+
+### Bug Fixes
+
+* adjust links to stories used by add-message e2e tests ([c6dc53a](https://github.com/GetStream/stream-chat-react/commit/c6dc53ae18c0b03905a1f05452bcec6a610a6ca5))
+* autocomplete items clicking works on webkit ([#1494](https://github.com/GetStream/stream-chat-react/issues/1494)) ([4f73f14](https://github.com/GetStream/stream-chat-react/commit/4f73f145b877419a4d745c96f8b0096ac5a52ac3))
+* correct german calendar translation strings ([#1468](https://github.com/GetStream/stream-chat-react/issues/1468)) ([2471d4b](https://github.com/GetStream/stream-chat-react/commit/2471d4bcd227c7c7991d5791bd304409605349ac)), closes [#1467](https://github.com/GetStream/stream-chat-react/issues/1467)
+* fixed connection handling, updated configuration ([0face10](https://github.com/GetStream/stream-chat-react/commit/0face104ba81c3ca6495e63132af003a90228cc9))
+* improve portuguese translations ([5e67a86](https://github.com/GetStream/stream-chat-react/commit/5e67a865a8211956c3a86980cc2896f4e3f059ff))
+* improved German translations ([c4d71b6](https://github.com/GetStream/stream-chat-react/commit/c4d71b6f5b2e07ace0ee7644664ebabff2526138))
+* improved German translations ([a6fe4fb](https://github.com/GetStream/stream-chat-react/commit/a6fe4fbed906c102728bb18f97fee21f978f322a))
+* Slow mode role check and limitations ([a447ed5](https://github.com/GetStream/stream-chat-react/commit/a447ed5b2945e7f669d414ed820c2585bbdd04e9))
+* Update channel preview on connection recovery ([92f81d9](https://github.com/GetStream/stream-chat-react/commit/92f81d9831e6c84501550ee259939d872a2c66a5))
+* Update quoted message preview on message update ([#1503](https://github.com/GetStream/stream-chat-react/issues/1503)) ([f9a0081](https://github.com/GetStream/stream-chat-react/commit/f9a0081af3576f187883f649cf0a1f807b47ee44))
+* update unread counts for each ChannelPreview on WS connection recovery ([b267a65](https://github.com/GetStream/stream-chat-react/commit/b267a65c31ac97ee60d3a2681b26cfc610501a38))
+* Upload preview overflow in thread ([#1495](https://github.com/GetStream/stream-chat-react/issues/1495)) ([518d622](https://github.com/GetStream/stream-chat-react/commit/518d622f8b716a6c622a65816eae16f50e9545e5))
+
+
+### Features
+
+* support jump to message ([#1478](https://github.com/GetStream/stream-chat-react/issues/1478)) ([e297ffe](https://github.com/GetStream/stream-chat-react/commit/e297ffed906bd24ba68698cf704f9d08610d1314))
+
+
 ## [8.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-03-17
 
 ### Bug Fixes
