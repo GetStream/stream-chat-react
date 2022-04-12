@@ -8,7 +8,12 @@
         "changelogFile": "./CHANGELOG.md"
       }
     ],
-    "@semantic-release/github",
+    [
+      "@semantic-release/github",
+      {
+        "assets": ["./CHANGELOG.md"]
+      }
+    ],
     "@semantic-release/npm"
   ]
 }
