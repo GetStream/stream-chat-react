@@ -10,21 +10,22 @@ As a contributor, here are the guidelines we would like you to follow:
 
 
 ## <a name="asking-questions"></a>Are you looking for answers?
-There are many ways you can get your questions answered. It can be hard to decide, where to begin if you are just starting out. We suggest you take a look at the resources in the following order
+There are many ways you can get your questions answered. It can be hard to decide, where to begin if you are just starting out. We suggest you take a look at the resources in the following order:
 
-### Stream chat API documentation
+### 1. Stream chat API documentation
 Package `stream-chat-react`  has a peer dependency [stream-chat-js](https://github.com/GetStream/stream-chat-js) - a client library for interacting with the Stream Chat API (see the [API docs](https://getstream.io/chat/docs/javascript/?language=javascript)).
 
-### Documentation for stream-chat-react
+### 2. Documentation for stream-chat-react
 The [stream-chat-react](https://getstream.io/chat/docs/sdk/react/) documentation is held separately from the Stream Chat API docs. Besides documenting the component API, it provides examples of their use in various scenarios.
 
-### Read the source code
+### 3. Read the source code
 When you plan on contributing to the repository try to get acquainted with the existing code base. The best way to learn :)
 
-### Take a look at our tutorials
+### 4. Take a look at our tutorials
+
 
 ### Get help from our Customer Success team
-If what you are looking for is technical support embedding the Stream's chat in your application, we would suggest emailing our Customer Success and Engineer support team at support@getstream.io with your application key or ID. The Issue section of this GitHub repo is now reserved only for bug reports, feature improvements, and suggestions.
+If what you are looking for is technical support embedding Stream in your application, we suggest emailing our Customer Success team at support@getstream.io with your application key and the SDK versions you're using. The Issue section of this GitHub repo is now reserved only for bug reports, feature improvements and suggestions.
 
 
 ## <a name="filing-an-issue"></a>Filing an issue
