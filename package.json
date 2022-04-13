@@ -77,6 +77,8 @@
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-react": "^7.12.7",
     "@babel/preset-typescript": "^7.12.7",
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
     "@ladle/react": "^0.8.5",
     "@playwright/test": "^1.20.0",
     "@rollup/plugin-babel": "^5.2.1",
@@ -173,7 +175,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "dotgit/hooks/pre-commit-format.sh && dotgit/hooks/pre-commit-reject-binaries.py"
+      "pre-commit": "dotgit/hooks/pre-commit-format.sh && dotgit/hooks/pre-commit-reject-binaries.py",
+      "commit-msg": "npx commitlint --edit $1"
     }
   },
   "scripts": {
