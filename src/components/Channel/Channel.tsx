@@ -394,7 +394,7 @@ const ChannelInner = <
 
       if (!errored) {
         dispatch({ channel, type: 'initStateFromChannel' });
-        if (channel.countUnread() > 0) markRead();
+        if (channel.countUnread(channel.lastRead()) > 0) markRead();
         // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
@@ -418,14 +418,11 @@ const ChannelInner = <
   }, [channel.cid, doMarkReadRequest]);
 
   useEffect(() => {
-    if (state.thread && state.messages?.length) {
-      for (let i = state.messages.length - 1; i >= 0; i -= 1) {
-        if (state.messages[i].id === state.thread.id) {
-          dispatch({ message: state.messages[i], type: 'setThread' });
-          break;
-        }
-      }
-    }
+    if (!state.thread) return;
+
+    const message = state.messages?.find((m) => m.id === state.thread?.id);
+
+    if (message) dispatch({ message, type: 'setThread' });
   }, [state.messages, state.thread]);
 
   /** MESSAGE */
