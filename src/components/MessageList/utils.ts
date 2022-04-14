@@ -1,7 +1,7 @@
 /* eslint-disable no-continue */
 import { v4 as uuidV4 } from 'uuid';
 
-import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
+import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import { isDate } from '../../context/TranslationContext';
 
@@ -94,7 +94,7 @@ export const processMessages = <
       // do not show date separator for current user's messages
       if (enableDateSeparator && unread && message.user?.id !== userId) {
         newMessages.push({
-          customType: CUSTOM_MESSAGE.date,
+          customType: CUSTOM_MESSAGE_TYPE.date,
           date: message.created_at,
           id: makeDateMessageId(message.created_at),
           unread,
@@ -110,13 +110,13 @@ export const processMessages = <
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== CUSTOM_MESSAGE.date // do not show two date separators in a row)
+      newMessages?.[newMessages.length - 1]?.customType !== CUSTOM_MESSAGE_TYPE.date // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
       newMessages.push(
         {
-          customType: CUSTOM_MESSAGE.date,
+          customType: CUSTOM_MESSAGE_TYPE.date,
           date: message.created_at,
           id: makeDateMessageId(message.created_at),
         } as StreamMessage<StreamChatGenerics>,
@@ -142,7 +142,7 @@ export const makeDateMessageId = (date?: string | Date) => {
   } catch (e) {
     idSuffix = uuidV4();
   }
-  return `${CUSTOM_MESSAGE.date}-${idSuffix}`;
+  return `${CUSTOM_MESSAGE_TYPE.date}-${idSuffix}`;
 };
 
 // fast since it usually iterates just the last few messages
@@ -212,7 +212,7 @@ export const insertIntro = <
 ) => {
   const newMessages = messages;
   const intro = ({
-    customType: CUSTOM_MESSAGE.intro,
+    customType: CUSTOM_MESSAGE_TYPE.intro,
   } as unknown) as StreamMessage<StreamChatGenerics>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
@@ -243,7 +243,7 @@ export const insertIntro = <
     if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
-        if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE.date) continue;
+        if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE_TYPE.date) continue;
         if (!nextMessageTime) {
           newMessages.push(intro);
           return newMessages;
@@ -268,15 +268,15 @@ export const getGroupStyles = <
   nextMessage: StreamMessage<StreamChatGenerics>,
   noGroupByUser: boolean,
 ): GroupStyle => {
-  if (message.customType === CUSTOM_MESSAGE.date) return '';
-  if (message.customType === CUSTOM_MESSAGE.intro) return '';
+  if (message.customType === CUSTOM_MESSAGE_TYPE.date) return '';
+  if (message.customType === CUSTOM_MESSAGE_TYPE.intro) return '';
 
   if (noGroupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
-    previousMessage.customType === CUSTOM_MESSAGE.intro ||
-    previousMessage.customType === CUSTOM_MESSAGE.date ||
+    previousMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
+    previousMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     previousMessage.type === 'system' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
@@ -285,9 +285,9 @@ export const getGroupStyles = <
 
   const isBottomMessage =
     !nextMessage ||
-    nextMessage.customType === CUSTOM_MESSAGE.date ||
+    nextMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     nextMessage.type === 'system' ||
-    nextMessage.customType === CUSTOM_MESSAGE.intro ||
+    nextMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||

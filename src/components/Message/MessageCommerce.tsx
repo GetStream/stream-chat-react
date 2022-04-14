@@ -8,7 +8,7 @@ import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp'
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
+import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { MML } from '../MML';
 import {
   ReactionSelector as DefaultReactionSelector,
@@ -74,7 +74,7 @@ const MessageCommerceWithContext = <
     return <MessageDeleted message={message} />;
   }
 
-  if (message.customType === CUSTOM_MESSAGE.date) {
+  if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
   }
 

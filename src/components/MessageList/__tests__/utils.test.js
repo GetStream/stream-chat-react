@@ -1,7 +1,7 @@
 import { generateMessage } from '../../../mock-builders';
 
 import { makeDateMessageId, processMessages } from '../utils';
-import { CUSTOM_MESSAGE } from '../../../constants/messageTypes';
+import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
 const mockedUuid = 'e50bc6f4-bbdb-11ec-9180-a4bb6d26ac2f';
 jest.mock('uuid', () => ({
@@ -399,7 +399,7 @@ describe('processMessages', () => {
       enableDateSeparatorParams,
     );
     const customMessages = newMessageList.filter((m) =>
-      Object.values(CUSTOM_MESSAGE).includes(m.customType),
+      Object.values(CUSTOM_MESSAGE_TYPE).includes(m.customType),
     );
     const customMsgIDs = customMessages.map((m) => m.id);
     expect(customMessages).toHaveLength(new Set(customMsgIDs).size);
