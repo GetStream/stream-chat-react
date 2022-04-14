@@ -9,6 +9,7 @@ import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { areMessageUIPropsEqual, MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
 import { MessageActions } from '../MessageActions';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import {
@@ -87,7 +88,7 @@ const MessageLivestreamWithContext = <
 
   const firstGroupStyle = groupStyles ? groupStyles[0] : 'single';
 
-  if (message.customType === 'message.date') {
+  if (message.customType === CUSTOM_MESSAGE.date) {
     return null;
   }
 

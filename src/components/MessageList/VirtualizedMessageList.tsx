@@ -17,6 +17,7 @@ import { MessageNotification as DefaultMessageNotification } from './MessageNoti
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { processMessages } from './utils';
 
+import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
 import { EventComponent } from '../EventComponent/EventComponent';
@@ -291,7 +292,7 @@ const VirtualizedMessageListWithContext = <
 
       const message = messageList[streamMessageIndex];
 
-      if (message.customType === 'message.date' && message.date && isDate(message.date)) {
+      if (message.customType === CUSTOM_MESSAGE.date && message.date && isDate(message.date)) {
         return <DateSeparator date={message.date} unread={message.unread} />;
       }
 

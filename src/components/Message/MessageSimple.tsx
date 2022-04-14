@@ -9,6 +9,7 @@ import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp'
 import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
@@ -74,7 +75,7 @@ const MessageSimpleWithContext = <
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
     : 'str-chat__message str-chat__message-simple';
 
-  if (message.customType === 'message.date') {
+  if (message.customType === CUSTOM_MESSAGE.date) {
     return null;
   }
 
