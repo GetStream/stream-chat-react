@@ -1,4 +1,8 @@
 /* eslint-disable no-continue */
+import { v4 as uuidV4 } from 'uuid';
+
+import { CUSTOM_MESSAGE } from '../../constants/messageTypes';
+
 import { isDate } from '../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
@@ -90,9 +94,9 @@ export const processMessages = <
       // do not show date separator for current user's messages
       if (enableDateSeparator && unread && message.user?.id !== userId) {
         newMessages.push({
-          customType: 'message.date',
+          customType: CUSTOM_MESSAGE.date,
           date: message.created_at,
-          id: message.id,
+          id: makeDateMessageId(message.created_at),
           unread,
         } as StreamMessage<StreamChatGenerics>);
       }
@@ -106,15 +110,15 @@ export const processMessages = <
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== 'message.date' // do not show two date separators in a row)
+      newMessages?.[newMessages.length - 1]?.customType !== CUSTOM_MESSAGE.date // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
       newMessages.push(
         {
-          customType: 'message.date',
+          customType: CUSTOM_MESSAGE.date,
           date: message.created_at,
-          id: message.id,
+          id: makeDateMessageId(message.created_at),
         } as StreamMessage<StreamChatGenerics>,
         message,
       );
@@ -129,6 +133,16 @@ export const processMessages = <
   }
 
   return newMessages;
+};
+
+export const makeDateMessageId = (date?: string | Date) => {
+  let idSuffix;
+  try {
+    idSuffix = !date ? uuidV4() : date instanceof Date ? date.toISOString() : date;
+  } catch (e) {
+    idSuffix = uuidV4();
+  }
+  return `${CUSTOM_MESSAGE.date}-${idSuffix}`;
 };
 
 // fast since it usually iterates just the last few messages
@@ -197,7 +211,9 @@ export const insertIntro = <
   headerPosition?: number,
 ) => {
   const newMessages = messages;
-  const intro = ({ customType: 'channel.intro' } as unknown) as StreamMessage<StreamChatGenerics>;
+  const intro = ({
+    customType: CUSTOM_MESSAGE.intro,
+  } as unknown) as StreamMessage<StreamChatGenerics>;
 
   // if no headerPosition is set, HeaderComponent will go at the top
   if (!headerPosition) {
@@ -227,7 +243,7 @@ export const insertIntro = <
     if (messageTime && messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
-        if (messages[i + 1] && messages[i + 1].customType === 'message.date') continue;
+        if (messages[i + 1] && messages[i + 1].customType === CUSTOM_MESSAGE.date) continue;
         if (!nextMessageTime) {
           newMessages.push(intro);
           return newMessages;
@@ -252,15 +268,15 @@ export const getGroupStyles = <
   nextMessage: StreamMessage<StreamChatGenerics>,
   noGroupByUser: boolean,
 ): GroupStyle => {
-  if (message.customType === 'message.date') return '';
-  if (message.customType === 'channel.intro') return '';
+  if (message.customType === CUSTOM_MESSAGE.date) return '';
+  if (message.customType === CUSTOM_MESSAGE.intro) return '';
 
   if (noGroupByUser || message.attachments?.length !== 0) return 'single';
 
   const isTopMessage =
     !previousMessage ||
-    previousMessage.customType === 'channel.intro' ||
-    previousMessage.customType === 'message.date' ||
+    previousMessage.customType === CUSTOM_MESSAGE.intro ||
+    previousMessage.customType === CUSTOM_MESSAGE.date ||
     previousMessage.type === 'system' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
@@ -269,9 +285,9 @@ export const getGroupStyles = <
 
   const isBottomMessage =
     !nextMessage ||
-    nextMessage.customType === 'message.date' ||
+    nextMessage.customType === CUSTOM_MESSAGE.date ||
     nextMessage.type === 'system' ||
-    nextMessage.customType === 'channel.intro' ||
+    nextMessage.customType === CUSTOM_MESSAGE.intro ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||

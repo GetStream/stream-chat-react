@@ -10,6 +10,8 @@ export type CustomTrigger = {
   };
 };
 
+export type CustomMessageType = 'channel.intro' | 'message.date';
+
 export type DefaultAttachmentType = UnknownType & {
   asset_url?: string;
   file_size?: number;
@@ -40,7 +42,7 @@ export type DefaultStreamChatGenerics = ExtendableGenerics & {
 export type DefaultMessageType<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UnknownType & {
-  customType?: 'channel.intro' | 'message.date';
+  customType?: CustomMessageType;
   date?: string | Date;
   errorStatusCode?: number;
   event?: Event<StreamChatGenerics>;
