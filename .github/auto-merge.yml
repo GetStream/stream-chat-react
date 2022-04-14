@@ -1,0 +1,8 @@
+minApprovals:
+  NONE: 0
+requiredLabels:
+  - stream-dependencies
+updateBranch: true
+mergeMethod: rebase
+deleteBranchAfterMerge: true
+requiredTitleRegex: stream-chat-css
