@@ -2,8 +2,6 @@
 /* eslint-disable jest/require-top-level-describe */
 import { expect, test } from '@playwright/test';
 
-const customDelay = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
-
 test.describe('mark read', () => {
   test.beforeEach(async ({ baseURL, page }) => {
     await page.goto(`${baseURL}/?story=mark-read--user1`, { waitUntil: 'networkidle' });
@@ -74,8 +72,6 @@ test.describe('mark read', () => {
   test('unread count stays 0 after switching channels and reloading page', async ({ page }) => {
     await page.click('data-testid=channel-mr-channel-1');
     await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1');
-
-    await customDelay(500);
 
     const promise = page.waitForRequest(/\/mr-channel-2\/read/);
     await page.click('data-testid=channel-mr-channel-2');
