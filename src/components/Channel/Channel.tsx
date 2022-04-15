@@ -394,7 +394,7 @@ const ChannelInner = <
 
       if (!errored) {
         dispatch({ channel, type: 'initStateFromChannel' });
-        if (channel.countUnread(channel.lastRead()) > 0) markRead();
+        if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
