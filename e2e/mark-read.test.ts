@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 test.describe('mark read', () => {
   test.beforeEach(async ({ baseURL, page }) => {
     await page.goto(`${baseURL}/?story=mark-read--user1`, { waitUntil: 'networkidle' });
+
     // wait for page load
     await page.waitForSelector('data-testid=unread-count');
 
@@ -12,16 +13,24 @@ test.describe('mark read', () => {
 
     const listCount = await channelListItems.count();
 
-    for (let i = 0; i < listCount; ++i) {
+    for (let i = 1; i <= listCount; ++i) {
       // select channel
-      // await channelListItems.nth(i).click();
-      await page.click(`data-testid=channel-mr-channel-${i + 1}`);
+      await Promise.all([
+        page.waitForSelector(`.str-chat__main-panel >> text=mr-channel-${i}`),
+        page.click(`data-testid=channel-mr-channel-${i}`),
+      ]);
 
-      // wait for button to appear (channel window loaded)
-      await page.waitForSelector('data-testid=truncate');
-      await page.click('data-testid=truncate');
-      // add message to channel add-message
-      await page.click('data-testid=add-message');
+      // truncate messages
+      await Promise.all([
+        page.waitForResponse((r) => r.url().includes('/truncate') && r.ok()),
+        page.click('data-testid=truncate'),
+      ]);
+
+      // add message to channel
+      await Promise.all([
+        page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
+        page.click('data-testid=add-message'),
+      ]);
     }
 
     await page.goto(`${baseURL}/?story=mark-read--user2`, { waitUntil: 'networkidle' });
@@ -40,8 +49,10 @@ test.describe('mark read', () => {
   test('unread count changes to 0 after setting "mr-channel-1" channel as active', async ({
     page,
   }) => {
-    await page.click('data-testid=channel-mr-channel-1');
-    await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1');
+    await Promise.all([
+      page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1'),
+      page.click('data-testid=channel-mr-channel-1'),
+    ]);
 
     const unreadCountSpan = page.locator(
       'data-testid=channel-mr-channel-1 >> data-testid=unread-count',
@@ -51,11 +62,15 @@ test.describe('mark read', () => {
   });
 
   test('unread count stays 0 after switching channels', async ({ page }) => {
-    await page.click('data-testid=channel-mr-channel-1');
-    await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1');
+    await Promise.all([
+      page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1'),
+      page.click('data-testid=channel-mr-channel-1'),
+    ]);
 
-    await page.click('data-testid=channel-mr-channel-2');
-    await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-2');
+    await Promise.all([
+      page.waitForSelector('.str-chat__main-panel >> text=mr-channel-2'),
+      page.click('data-testid=channel-mr-channel-2'),
+    ]);
 
     const unreadCountSpan1 = page.locator(
       'data-testid=channel-mr-channel-1 >> data-testid=unread-count',
@@ -70,22 +85,27 @@ test.describe('mark read', () => {
   });
 
   test('unread count stays 0 after switching channels and reloading page', async ({ page }) => {
-    await page.click('data-testid=channel-mr-channel-1');
-    await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1');
+    await Promise.all([
+      page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1'),
+      page.click('data-testid=channel-mr-channel-1'),
+    ]);
 
-    const promise = page.waitForRequest(/\/read/);
-    await page.click('data-testid=channel-mr-channel-2');
-    await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-2');
+    // click on channel-2 and await response
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/mr-channel-2/read') && r.ok()),
+      page.click('data-testid=channel-mr-channel-2'),
+    ]);
 
-    await expect((await (await promise).response()).json()).resolves.toHaveProperty('event.type');
-
-    await page.reload({ waitUntil: 'networkidle' });
-
-    await page.waitForSelector('data-testid=unread-count');
+    // reload the page
+    await Promise.all([
+      page.waitForSelector('data-testid=unread-count'),
+      page.reload({ waitUntil: 'networkidle' }),
+    ]);
 
     const unreadCountSpan = page.locator(
       'data-testid=channel-mr-channel-2 >> data-testid=unread-count',
     );
+
     await expect(unreadCountSpan).toHaveText('0');
   });
 });
