@@ -73,7 +73,7 @@ test.describe('mark read', () => {
     await page.click('data-testid=channel-mr-channel-1');
     await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-1');
 
-    const promise = page.waitForRequest(/\/mr-channel-2\/read/);
+    const promise = page.waitForRequest(/\/read/);
     await page.click('data-testid=channel-mr-channel-2');
     await page.waitForSelector('.str-chat__main-panel >> text=mr-channel-2');
 
