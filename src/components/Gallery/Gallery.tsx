@@ -31,6 +31,9 @@ const UnMemoizedGallery = <
 
   const { t } = useTranslationContext('Gallery');
 
+  const countImagesDisplayedInPreview = 4;
+  const lastImageIndexInPreview = countImagesDisplayedInPreview - 1;
+
   const toggleModal = (selectedIndex: number) => {
     if (modalOpen) {
       setModalOpen(false);
@@ -50,35 +53,41 @@ const UnMemoizedGallery = <
     [images],
   );
 
-  const renderImages = images.slice(0, 3).map((image, i) => (
-    <button
-      className='str-chat__gallery-image'
-      data-testid='gallery-image'
-      key={`gallery-image-${i}`}
-      onClick={() => toggleModal(i)}
-    >
-      <img alt='User uploaded content' src={image.image_url || image.thumb_url} />
-    </button>
-  ));
+  const renderImages = images.slice(0, countImagesDisplayedInPreview).map((image, i) =>
+    i === lastImageIndexInPreview && images.length > countImagesDisplayedInPreview ? (
+      <button
+        className='str-chat__gallery-placeholder'
+        key={`gallery-image-${i}`}
+        onClick={() => toggleModal(i)}
+        style={{
+          backgroundImage: `url(${images[lastImageIndexInPreview].image_url})`,
+        }}
+      >
+        <p>
+          {t('{{ imageCount }} more', {
+            imageCount: images.length - countImagesDisplayedInPreview,
+          })}
+        </p>
+      </button>
+    ) : (
+      <button
+        className='str-chat__gallery-image'
+        data-testid='gallery-image'
+        key={`gallery-image-${i}`}
+        onClick={() => toggleModal(i)}
+      >
+        <img alt='User uploaded content' src={image.image_url || image.thumb_url} />
+      </button>
+    ),
+  );
 
   return (
-    <div className={`str-chat__gallery ${images.length > 3 ? 'str-chat__gallery--square' : ''}`}>
+    <div
+      className={`str-chat__gallery ${
+        images.length > lastImageIndexInPreview ? 'str-chat__gallery--square' : ''
+      }`}
+    >
       {renderImages}
-      {images.length > 3 && (
-        <button
-          className='str-chat__gallery-placeholder'
-          onClick={() => toggleModal(3)}
-          style={{
-            backgroundImage: `url(${images[3].image_url})`,
-          }}
-        >
-          <p>
-            {t('{{ imageCount }} more', {
-              imageCount: images.length - 3,
-            })}
-          </p>
-        </button>
-      )}
       <ModalWrapper
         images={formattedArray}
         index={index}
