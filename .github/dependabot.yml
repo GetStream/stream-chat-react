@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    allow:
+      - dependency-name: '@stream-io/stream-chat-css'
+      - dependency-name: 'stream-chat'
+    labels:
+      - stream-dependencies

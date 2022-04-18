@@ -6,7 +6,7 @@ import sys
 # from https://gist.github.com/LukasKnuth/1839424
 """
 This is a git commit-hook which can be used to check if huge files
- where accidentally added to the staging area and are about to be
+ were accidentally added to the staging area and are about to be
  committed.
 If there is a file which is bigger then the given "max_file_size"-
  variable, the script will exit non-zero and abort the commit.

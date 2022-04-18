@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { useLastReadData } from './useLastReadData';
 import { getLastReceived, GroupStyle } from '../utils';
 
+import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
 import { EventComponent } from '../../EventComponent/EventComponent';
 import { Message } from '../../Message';
@@ -76,7 +77,11 @@ export const useMessageListElements = <
   return useMemo(
     () =>
       enrichedMessages.map((message) => {
-        if (message.customType === 'message.date' && message.date && isDate(message.date)) {
+        if (
+          message.customType === CUSTOM_MESSAGE_TYPE.date &&
+          message.date &&
+          isDate(message.date)
+        ) {
           return (
             <li key={`${message.date.toISOString()}-i`}>
               <DateSeparator
@@ -88,7 +93,7 @@ export const useMessageListElements = <
           );
         }
 
-        if (message.customType === 'channel.intro' && HeaderComponent) {
+        if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
           return (
             <li key='intro'>
               <HeaderComponent />

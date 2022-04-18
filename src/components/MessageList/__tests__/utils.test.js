@@ -1,12 +1,33 @@
-import { v4 as uuidV4 } from 'uuid';
-
 import { generateMessage } from '../../../mock-builders';
 
-import { processMessages } from '../utils';
+import { makeDateMessageId, processMessages } from '../utils';
+import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
-const myUserId = uuidV4();
-const otherUserId = uuidV4();
+const mockedUuid = 'e50bc6f4-bbdb-11ec-9180-a4bb6d26ac2f';
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => mockedUuid),
+}));
+
+const myUserId = 'myUserId';
+const otherUserId = 'otherUserId';
 const enableDateSeparatorParams = { enableDateSeparator: true };
+
+const msgCreationDatesSameDay = [
+  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+];
+const msgCreationDatesDifferentDay = [
+  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
+];
+const msgCreationDatesFirstInvalid = [
+  { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
+  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+];
+const msgCreationDatesSecondInvalid = [
+  { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
+  { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
+];
 
 const runMessageProcessing = (msgData, processMsgParams = {}) => {
   const messages = msgData.map((msg) => generateMessage(msg));
@@ -19,7 +40,7 @@ const runMessageProcessing = (msgData, processMsgParams = {}) => {
 const makeDateSeparator = (message) => ({
   customType: 'message.date',
   date: message.created_at,
-  id: message.id,
+  id: makeDateMessageId(message.created_at),
 });
 
 const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread) => {
@@ -54,6 +75,20 @@ const dateSeparatorInsertedAt = (expectedWhere, messages, newMessageList, unread
   }
 };
 
+describe('makeDateMessageId', () => {
+  it('takes a date string and generates string in format "message.date-<message.created_at>"', () => {
+    expect(makeDateMessageId('1970-01-01')).toBe('message.date-1970-01-01');
+  });
+  it('takes a Date object and generates string in format "message.date-<message.created_at-ISOstring>"', () => {
+    expect(makeDateMessageId(new Date('1970-01-01').toISOString())).toBe(
+      'message.date-1970-01-01T00:00:00.000Z',
+    );
+  });
+  it('generates string in format "message.date-<uuidV4>" if no date provided', () => {
+    expect(makeDateMessageId()).toBe(`message.date-${mockedUuid}`);
+  });
+});
+
 describe('processMessages', () => {
   it('returns empty list of messages', () => {
     expect(processMessages({ messages: [], userId: myUserId })).toHaveLength(0);
@@ -81,23 +116,6 @@ describe('processMessages', () => {
   });
 
   describe('date separator', () => {
-    const msgCreationDatesSameDay = [
-      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-    ];
-    const msgCreationDatesDifferentDay = [
-      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-      { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
-    ];
-    const msgCreationDatesFirstInvalid = [
-      { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
-      { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-    ];
-    const msgCreationDatesSecondInvalid = [
-      { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
-      { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
-    ];
-
     it('is disabled by default', () => {
       const { messages, newMessageList } = runMessageProcessing(msgCreationDatesSameDay);
       dateSeparatorInsertedAt([], messages, newMessageList);
@@ -373,5 +391,17 @@ describe('processMessages', () => {
       runMessageProcessing(messagesData, { setGiphyPreviewMessage: setGiphyPreviewMessageMock });
       expect(setGiphyPreviewMessageMock).toHaveBeenLastCalledWith(undefined);
     });
+  });
+
+  it('generates custom messages with unique id', () => {
+    const { newMessageList } = runMessageProcessing(
+      msgCreationDatesDifferentDay,
+      enableDateSeparatorParams,
+    );
+    const customMessages = newMessageList.filter((m) =>
+      Object.values(CUSTOM_MESSAGE_TYPE).includes(m.customType),
+    );
+    const customMsgIDs = customMessages.map((m) => m.id);
+    expect(customMessages).toHaveLength(new Set(customMsgIDs).size);
   });
 });
