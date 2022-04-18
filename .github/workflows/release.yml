@@ -1,5 +1,8 @@
 name: Release
 on:
+  label:
+    branches: [workflow/changelog]
+    types: [edited]
   push:
     branches:
       - master
@@ -11,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
       - name: Install dependencies
@@ -24,4 +27,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn semantic-release --branches master main
+        run: yarn semantic-release --branches workflow/changelog --dry-run
