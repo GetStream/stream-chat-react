@@ -16,6 +16,7 @@
   "sideEffects": [
     "*.css"
   ],
+  "source": "src/index.tsx",
   "jsdelivr": "./dist/browser.full-bundle.min.js",
   "keywords": [
     "chat",
@@ -60,7 +61,7 @@
   "peerDependencies": {
     "react": "^17.0.0 || ^16.8.0",
     "react-dom": "^17.0.0 || ^16.8.0",
-    "stream-chat": "^6.4.0"
+    "stream-chat": "^6.5.0"
   },
   "files": [
     "dist",
@@ -79,7 +80,7 @@
     "@babel/preset-typescript": "^7.12.7",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
-    "@ladle/react": "^0.8.5",
+    "@ladle/react": "^0.11.0",
     "@playwright/test": "^1.20.0",
     "@rollup/plugin-babel": "^5.2.1",
     "@rollup/plugin-image": "^2.1.1",
@@ -163,7 +164,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^19.0.2",
     "semantic-release-cli": "^5.4.4",
-    "stream-chat": "6.4.0",
+    "stream-chat": "^6.5.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
