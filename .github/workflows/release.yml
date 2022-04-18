@@ -1,8 +1,5 @@
 name: Release
 on:
-  label:
-    branches: [workflow/changelog]
-    types: [edited]
   push:
     branches:
       - master
@@ -27,4 +24,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn semantic-release --branches workflow/changelog --dry-run
+        run: yarn semantic-release --branches master main
