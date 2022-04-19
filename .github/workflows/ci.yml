@@ -7,19 +7,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Typescript
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: 💾 Cache Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - name: 🔨 Install Dependencies & Build
-        run: yarn install --frozen-lockfile --ignore-engines
+      - name: 🔨 Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
       - name: 🧪 tsc
-        run: yarn types
+        run: yarn types --noEmit
 
   e2e:
     runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - name: 🔨 Install Dependencies & Build
+      - name: 🔨 Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
       - name: ⚗️ End-to-end tests
@@ -63,13 +63,13 @@ jobs:
         node: [14, 16]
     name: Test with Node ${{ matrix.node }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
       - name: 💾 Cache Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
