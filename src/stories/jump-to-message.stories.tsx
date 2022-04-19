@@ -1,48 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from 'react';
-import { StreamChat } from 'stream-chat';
+import React from 'react';
 import {
   Channel,
-  Chat,
+  ChannelList,
   MessageList,
   useChannelActionContext,
+  useChatContext,
   VirtualizedMessageList,
   Window,
 } from '../index';
 import '@stream-io/stream-chat-css/dist/css/index.css';
+import { ConnectedUser } from './utils';
 
 void MessageList;
 void VirtualizedMessageList;
 
-const apiKey = import.meta.env.E2E_APP_KEY;
 const userId = import.meta.env.E2E_TEST_USER_1;
 const userToken = import.meta.env.E2E_TEST_USER_1_TOKEN;
 const channelId = import.meta.env.E2E_JUMP_TO_MESSAGE_CHANNEL;
 
-type LocalAttachmentType = Record<string, unknown>;
-type LocalChannelType = Record<string, unknown>;
-type LocalCommandType = string;
-type LocalEventType = Record<string, unknown>;
-type LocalMessageType = Record<string, unknown>;
-type LocalReactionType = Record<string, unknown>;
-type LocalUserType = Record<string, unknown>;
-
-type StreamChatGenerics = {
-  attachmentType: LocalAttachmentType;
-  channelType: LocalChannelType;
-  commandType: LocalCommandType;
-  eventType: LocalEventType;
-  messageType: LocalMessageType;
-  reactionType: LocalReactionType;
-  userType: LocalUserType;
-};
-
-const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
-
-chatClient.connectUser({ id: userId }, userToken);
-
 const JumpToMessage = () => {
   const { jumpToMessage } = useChannelActionContext();
+  const { client: chatClient } = useChatContext();
 
   return (
     <button
@@ -72,56 +51,32 @@ const StyleFix = () => (
   `}</style>
 );
 
-const useTheJumpChannel = () => {
-  const [channel, setChannel] = useState<any>(null);
+export const JumpInRegularMessageList = () => (
+  <div>
+    <StyleFix />
+    <ConnectedUser token={userToken} userId={userId}>
+      <ChannelList filters={{ id: { $eq: channelId } }} />
+      <Channel>
+        <JumpToMessage />
+        <Window>
+          <MessageList />
+        </Window>
+      </Channel>
+    </ConnectedUser>
+  </div>
+);
 
-  useEffect(() => {
-    (async () => {
-      const channels = await chatClient.queryChannels({ id: { $eq: channelId } });
-      setChannel(channels[0]);
-    })();
-  }, []);
-  return channel;
-};
-
-export const JumpInRegularMessageList = () => {
-  const channel = useTheJumpChannel();
-  if (!channel) {
-    return null;
-  }
-  return (
-    <div>
-      <StyleFix />
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <JumpToMessage />
-          <Window>
-            <MessageList />
-          </Window>
-        </Channel>
-      </Chat>
-    </div>
-  );
-};
-
-export const JumpInVirtualizedMessageList = () => {
-  const channel = useTheJumpChannel();
-
-  if (!channel) {
-    return null;
-  }
-
-  return (
-    <div>
-      <StyleFix />
-      <Chat client={chatClient}>
-        <Channel channel={channel}>
-          <JumpToMessage />
-          <Window>
-            <VirtualizedMessageList />
-          </Window>
-        </Channel>
-      </Chat>
-    </div>
-  );
-};
+export const JumpInVirtualizedMessageList = () => (
+  <div>
+    <StyleFix />
+    <ConnectedUser token={userToken} userId={userId}>
+      <ChannelList filters={{ id: { $eq: channelId } }} />
+      <Channel>
+        <JumpToMessage />
+        <Window>
+          <VirtualizedMessageList />
+        </Window>
+      </Channel>
+    </ConnectedUser>
+  </div>
+);
