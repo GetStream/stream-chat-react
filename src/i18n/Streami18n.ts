@@ -381,7 +381,7 @@ type Options = {
  *  DateTimeParser: Dayjs
  * })
  * ```
- * If you would like to stick with english language for datetimes in Stream compoments, you can set `disableDateTimeTranslations` to true.
+ * If you would like to stick with english language for datetimes in Stream components, you can set `disableDateTimeTranslations` to true.
  *
  */
 const defaultStreami18nOptions = {
