@@ -125,7 +125,7 @@ const UnMemoizedChatAutoComplete = <
       };
 
   const updateInnerRef = useCallback(
-    (ref) => {
+    (ref: HTMLTextAreaElement | null) => {
       if (innerRef) {
         innerRef.current = ref;
       }
