@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Chat } from '../';
-import { Event, StreamChat } from 'stream-chat';
+import { DefaultGenerics, Event, StreamChat } from 'stream-chat';
 
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
@@ -31,11 +31,15 @@ export type ConnectedUserProps = PropsWithChildren<{
   userId: string;
 }>;
 
-export const ConnectedUser = ({ children, token, userId }: ConnectedUserProps) => {
-  const [client, setClient] = useState<StreamChat | null>(null);
+export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>({
+  children,
+  token,
+  userId,
+}: ConnectedUserProps) => {
+  const [client, setClient] = useState<StreamChat<SCG> | null>(null);
 
   useEffect(() => {
-    const c = new StreamChat(apiKey);
+    const c = new StreamChat<SCG>(apiKey);
 
     c.connectUser({ id: userId }, token).then(() => setClient(c));
 
