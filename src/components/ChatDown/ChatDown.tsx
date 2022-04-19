@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 
@@ -14,7 +14,7 @@ export type ChatDownProps = {
   text?: string;
 };
 
-const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
+const UnMemoizedChatDown = (props: PropsWithChildren<ChatDownProps>) => {
   const { image, text, type = 'Error' } = props;
 
   const { t } = useTranslationContext('ChatDown');

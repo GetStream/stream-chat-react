@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 export type MessageNotificationProps = {
   /** button click event handler */
@@ -7,7 +7,7 @@ export type MessageNotificationProps = {
   showNotification: boolean;
 };
 
-const UnMemoizedMessageNotification: React.FC<MessageNotificationProps> = (props) => {
+const UnMemoizedMessageNotification = (props: PropsWithChildren<MessageNotificationProps>) => {
   const { children, onClick, showNotification = true } = props;
 
   if (!showNotification) return null;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -140,7 +140,7 @@ export type MessageActionsWrapperProps = {
   inline?: boolean;
 };
 
-const MessageActionsWrapper: React.FC<MessageActionsWrapperProps> = (props) => {
+const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
   const defaultWrapperClass =

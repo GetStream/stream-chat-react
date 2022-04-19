@@ -124,7 +124,7 @@ export const SearchResults = <
 
   const containerStyle = popupResults && device === 'full' ? 'popup' : 'inline';
 
-  const ResultsContainer: React.FC = ({ children }) => (
+  const ResultsContainer: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
     <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
   );
 

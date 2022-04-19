@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 /**
@@ -17,7 +17,7 @@ export type SafeAnchorProps = {
   target?: string;
 };
 
-const UnMemoizedSafeAnchor: React.FC<SafeAnchorProps> = (props) => {
+const UnMemoizedSafeAnchor = (props: PropsWithChildren<SafeAnchorProps>) => {
   const { children, className, download, href, rel, target } = props;
   if (!href) return null;
   const sanitized = sanitizeUrl(href);

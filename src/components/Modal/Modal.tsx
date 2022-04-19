@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { PropsWithChildren, useEffect, useRef } from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -9,7 +9,7 @@ export type ModalProps = {
   onClose?: () => void | ((event?: React.BaseSyntheticEvent) => void);
 };
 
-export const Modal: React.FC<ModalProps> = (props) => {
+export const Modal = (props: PropsWithChildren<ModalProps>) => {
   const { children, onClose, open } = props;
 
   const { t } = useTranslationContext('Modal');

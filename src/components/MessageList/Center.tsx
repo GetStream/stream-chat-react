@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
-const UnMemoizedCenter: React.FC<{ key: string }> = ({ children }) => (
-  <div className='str-chat__list__center'>{children}</div>
+interface UnMemoizedCenterProps {
+  key: string;
+}
+
+const UnMemoizedCenter = ({ children, key }: PropsWithChildren<UnMemoizedCenterProps>) => (
+  <div className='str-chat__list__center' key={key}>
+    {children}
+  </div>
 );
 
 export const Center = React.memo(UnMemoizedCenter) as typeof UnMemoizedCenter;

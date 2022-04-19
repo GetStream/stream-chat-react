@@ -118,7 +118,7 @@ const UnMemoizedMessageInput = <
   >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
-  const NullProvider: React.FC = ({ children }) => <>{children}</>;
+  const NullProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => <>{children}</>;
 
   const OptionalMessageInputProvider = useMemo(
     () => (dragAndDropWindow ? NullProvider : MessageInputProvider),

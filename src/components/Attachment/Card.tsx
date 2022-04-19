@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { SafeAnchor } from '../SafeAnchor';
 
@@ -24,7 +24,7 @@ export type CardProps = {
   type?: string;
 };
 
-const UnMemoizedCard: React.FC<CardProps> = (props) => {
+const UnMemoizedCard = (props: PropsWithChildren<CardProps>) => {
   const { giphy, image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
   const { t } = useTranslationContext('Card');
   const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
