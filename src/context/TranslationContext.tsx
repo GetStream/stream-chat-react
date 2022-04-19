@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -54,15 +54,18 @@ export type TranslationContextValue = {
   userLanguage: TranslationLanguages;
 };
 
+export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
+
 export const TranslationContext = React.createContext<TranslationContextValue>({
   t: (key: string) => key,
-  tDateTimeParser: (input) => Dayjs(input),
+  tDateTimeParser: defaultDateTimeParser,
   userLanguage: 'en',
 });
 
-export const TranslationProvider: React.FC<{
-  value: TranslationContextValue;
-}> = ({ children, value }) => (
+export const TranslationProvider = ({
+  children,
+  value,
+}: PropsWithChildren<{ value: TranslationContextValue }>) => (
   <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 );
 
