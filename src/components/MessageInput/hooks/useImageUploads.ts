@@ -29,13 +29,13 @@ export const useImageUploads = <
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('useImageUploads');
   const { t } = useTranslationContext('useImageUploads');
 
-  const removeImage = useCallback((id) => {
+  const removeImage = useCallback((id: string) => {
     dispatch({ id, type: 'removeImageUpload' });
     // TODO: cancel upload if still uploading
   }, []);
 
   const uploadImage = useCallback(
-    async (id) => {
+    async (id: string) => {
       const img = imageUploads[id];
       if (!img) return;
 

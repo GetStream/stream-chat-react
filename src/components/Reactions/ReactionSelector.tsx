@@ -81,10 +81,13 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const targetRef = useRef<HTMLDivElement | null>(null);
     const tooltipRef = useRef<HTMLDivElement | null>(null);
 
-    const showTooltip = useCallback((event, reactionType: string) => {
-      targetRef.current = event.target;
-      setTooltipReactionType(reactionType);
-    }, []);
+    const showTooltip = useCallback(
+      (event: React.MouseEvent<HTMLDivElement>, reactionType: string) => {
+        targetRef.current = event.currentTarget;
+        setTooltipReactionType(reactionType);
+      },
+      [],
+    );
 
     const hideTooltip = useCallback(() => {
       setTooltipReactionType(null);
