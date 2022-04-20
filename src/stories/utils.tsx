@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Chat } from '../';
-import type { Event, StreamChat } from 'stream-chat';
+import { DefaultGenerics, Event, StreamChat } from 'stream-chat';
 
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
@@ -26,36 +26,38 @@ export type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-// wait for disconnect to happen since there's only one shared
-// client and two separate Chat components using it to prevent crashes
-let sharedPromise = Promise.resolve();
-
 export type ConnectedUserProps = PropsWithChildren<{
   token: string;
   userId: string;
-  client?: StreamChat;
 }>;
 
-export const ConnectedUser = ({ children, client, token, userId }: ConnectedUserProps) => {
-  const [connected, setConnected] = useState(false);
+export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>({
+  children,
+  token,
+  userId,
+}: ConnectedUserProps) => {
+  const [client, setClient] = useState<StreamChat<SCG> | null>(null);
 
   useEffect(() => {
-    sharedPromise.then(() => client?.connectUser({ id: userId }, token));
+    const c = new StreamChat<SCG>(apiKey);
+
+    c.connectUser({ id: userId }, token).then(() => setClient(c));
 
     const handleConnectionChange = ({ online = false }: Event) => {
-      setConnected(online);
+      if (!online) console.log('connection lost');
+      setClient(c);
     };
 
-    client?.on('connection.changed', handleConnectionChange);
+    c.on('connection.changed', handleConnectionChange);
 
     return () => {
-      client?.off('connection.changed', handleConnectionChange);
-      sharedPromise = client?.disconnectUser() ?? Promise.resolve();
+      c.off('connection.changed', handleConnectionChange);
+      c.disconnectUser().then(() => console.log('connection closed'));
     };
-  }, []);
+  }, [userId, token]);
 
-  if (!connected || !client) {
-    return <p>Connecting {userId}...</p>;
+  if (!client) {
+    return <p>Waiting for connection to be established with user: {userId}...</p>;
   }
 
   return (

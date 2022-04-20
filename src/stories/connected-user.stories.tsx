@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
-import { ChannelSort, StreamChat } from 'stream-chat';
+import type { ChannelSort } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -10,7 +10,7 @@ import {
   useChannelStateContext,
   Window,
 } from '../index';
-import { apiKey, ConnectedUser, ConnectedUserProps, StreamChatGenerics } from './utils';
+import { ConnectedUser, ConnectedUserProps } from './utils';
 
 const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
 if (!channelId || typeof channelId !== 'string') {
@@ -42,10 +42,8 @@ const Controls = () => {
 // Sort in reverse order to avoid auto-selecting unread channel
 const sort: ChannelSort = { last_updated: 1 };
 
-const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
-
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
-  <ConnectedUser client={chatClient} token={token} userId={userId}>
+  <ConnectedUser token={token} userId={userId}>
     <ChannelList filters={{ members: { $in: [userId] } }} sort={sort} />
     <Channel>
       <Window>
