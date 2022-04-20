@@ -34,10 +34,10 @@ export const isLanguageSupported = (language: string): language is SupportedTran
 };
 
 export const isDayOrMoment = (output: TDateTimeParserOutput): output is Dayjs.Dayjs | Moment =>
-  (output as Dayjs.Dayjs | Moment).isSame != null;
+  !!(output as Dayjs.Dayjs | Moment)?.isSame;
 
 export const isDate = (output: TDateTimeParserOutput): output is Date =>
-  (output as Date).getMonth != null;
+  !!(output as Date)?.getMonth;
 
 export const isNumberOrString = (output: TDateTimeParserOutput): output is number | string =>
   typeof output === 'string' || typeof output === 'number';
