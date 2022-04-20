@@ -25,16 +25,16 @@ jobs:
     runs-on: ubuntu-latest
     name: End-to-end tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: 💾 Cache Dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ./node_modules
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: 🔨 Install Dependencies & Build
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
       - name: ⚗️ End-to-end tests
         run: |
@@ -54,6 +54,7 @@ jobs:
           E2E_APP_SECRET: ${{ secrets.E2E_APP_SECRET }}
           E2E_TEST_USER_1_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
           E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
+          E2E_ADDITIONAL_CHANNELS: mr-channel-1, mr-channel-2
 
   test:
     runs-on: ubuntu-latest

@@ -7,6 +7,7 @@ dotenv.config({ path: `.env.local` });
 (async () => {
   const {
     E2E_ADD_MESSAGE_CHANNEL,
+    E2E_ADDITIONAL_CHANNELS = '',
     E2E_APP_KEY,
     E2E_APP_SECRET,
     E2E_JUMP_TO_MESSAGE_CHANNEL,
@@ -27,6 +28,7 @@ dotenv.config({ path: `.env.local` });
     const channel = chat.channel('messaging', E2E_JUMP_TO_MESSAGE_CHANNEL, {
       created_by_id: E2E_TEST_USER_1,
       members: [E2E_TEST_USER_1, E2E_TEST_USER_2],
+      name: E2E_JUMP_TO_MESSAGE_CHANNEL,
     });
     await channel.create();
     await channel.truncate();
@@ -59,6 +61,23 @@ dotenv.config({ path: `.env.local` });
     });
     await channel.create();
     await channel.truncate();
+  }
+
+  // Create additional channels from .env
+  {
+    const additionalChannels = E2E_ADDITIONAL_CHANNELS.replace(/\s+/g, '').split(',');
+
+    for (const additionalChannel of additionalChannels) {
+      if (!additionalChannel || !additionalChannel.length) continue;
+      console.log(`Creating additional channel '${additionalChannel}'...`);
+      const channel = chat.channel('messaging', additionalChannel, {
+        created_by_id: E2E_TEST_USER_1,
+        members: [E2E_TEST_USER_1, E2E_TEST_USER_2],
+        name: additionalChannel,
+      });
+      await channel.create();
+      await channel.truncate();
+    }
   }
 })();
 

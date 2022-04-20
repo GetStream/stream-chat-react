@@ -9,11 +9,12 @@
       }
     ],
     [
-      "@semantic-release/github",
+      "@semantic-release/git",
       {
         "assets": ["./CHANGELOG.md"]
       }
     ],
+    "@semantic-release/github",
     "@semantic-release/npm"
   ]
 }
