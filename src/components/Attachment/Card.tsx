@@ -55,7 +55,7 @@ const UnMemoizedCard = (props: PropsWithChildren<CardProps>) => {
       >
         <div className='str-chat__message-attachment-card--content'>
           <div className='str-chat__message-attachment-card--text'>
-            {t('this content could not be displayed')}
+            {t<string>('this content could not be displayed')}
           </div>
         </div>
       </div>

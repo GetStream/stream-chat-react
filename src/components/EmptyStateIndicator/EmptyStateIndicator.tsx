@@ -12,7 +12,8 @@ const UnMemoizedEmptyStateIndicator: React.FC<EmptyStateIndicatorProps> = (props
 
   const { t } = useTranslationContext('EmptyStateIndicator');
 
-  if (listType === 'channel') return <p role='listitem'>{t('You have no channels currently')}</p>;
+  if (listType === 'channel')
+    return <p role='listitem'>{t<string>('You have no channels currently')}</p>;
 
   if (listType === 'message') return null;
 

@@ -879,7 +879,7 @@ const ChannelInner = <
   if (!channel.watch) {
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
-        <div>{t('Channel Missing')}</div>
+        <div>{t<string>('Channel Missing')}</div>
       </div>
     );
   }

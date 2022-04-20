@@ -27,7 +27,7 @@ const UnMemoizedConnectionStatus: React.FC = <
 
   return (
     <CustomNotification active={!online} type='error'>
-      {t('Connection failure, reconnecting now...')}
+      {t<string>('Connection failure, reconnecting now...')}
     </CustomNotification>
   );
 };

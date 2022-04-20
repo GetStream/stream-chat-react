@@ -55,7 +55,9 @@ const UnMemoizedChannelHeader = <
       <div className='str-chat__header-livestream-left'>
         <p className='str-chat__header-livestream-left--title'>
           {title || name}{' '}
-          {live && <span className='str-chat__header-livestream-left--livelabel'>{t('live')}</span>}
+          {live && (
+            <span className='str-chat__header-livestream-left--livelabel'>{t<string>('live')}</span>
+          )}
         </p>
         {subtitle && <p className='str-chat__header-livestream-left--subtitle'>{subtitle}</p>}
         <p className='str-chat__header-livestream-left--members'>
@@ -67,7 +69,7 @@ const UnMemoizedChannelHeader = <
               ,{' '}
             </>
           )}
-          {t('{{ watcherCount }} online', { watcherCount: watcher_count })}
+          {t<string>('{{ watcherCount }} online', { watcherCount: watcher_count })}
         </p>
       </div>
     </div>

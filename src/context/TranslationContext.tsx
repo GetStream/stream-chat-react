@@ -10,6 +10,7 @@ import type { Moment } from 'moment';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../types/types';
+import { defaultTranslatorFunction } from '../i18n';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
@@ -49,7 +50,7 @@ export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs | Momen
 export type TDateTimeParser = (input?: TDateTimeParserInput) => TDateTimeParserOutput;
 
 export type TranslationContextValue = {
-  t: TFunction | ((key: string) => string);
+  t: TFunction;
   tDateTimeParser: TDateTimeParser;
   userLanguage: TranslationLanguages;
 };
@@ -57,7 +58,7 @@ export type TranslationContextValue = {
 export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
 
 export const TranslationContext = React.createContext<TranslationContextValue>({
-  t: (key: string) => key,
+  t: defaultTranslatorFunction,
   tDateTimeParser: defaultDateTimeParser,
   userLanguage: 'en',
 });

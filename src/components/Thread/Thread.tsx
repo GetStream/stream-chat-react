@@ -87,7 +87,7 @@ const DefaultThreadHeader = <
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header-details'>
-        <strong>{t('Thread')}</strong>
+        <strong>{t<string>('Thread')}</strong>
         <small>{getReplyCount()}</small>
       </div>
       <button
@@ -110,7 +110,7 @@ const DefaultThreadHeader = <
 const DefaultThreadStart: React.FC = () => {
   const { t } = useTranslationContext('Thread');
 
-  return <div className='str-chat__thread-start'>{t('Start of a new thread')}</div>;
+  return <div className='str-chat__thread-start'>{t<string>('Start of a new thread')}</div>;
 };
 
 const ThreadInner = <

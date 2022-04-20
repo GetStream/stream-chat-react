@@ -79,8 +79,8 @@ export const EditMessageForm = <
                 <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>
                     {maxFilesLeft
-                      ? t('Attach files')
-                      : t("You've reached the maximum number of files")}
+                      ? t<string>('Attach files')
+                      : t<string>("You've reached the maximum number of files")}
                   </Tooltip>
                   <FileUploadButton
                     accepts={acceptedFiles}
@@ -103,9 +103,9 @@ export const EditMessageForm = <
                   }
                 }}
               >
-                {t('Cancel')}
+                {t<string>('Cancel')}
               </button>
-              <button type='submit'>{t('Send')}</button>
+              <button type='submit'>{t<string>('Send')}</button>
             </div>
           </div>
         </form>

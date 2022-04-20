@@ -26,7 +26,7 @@ const UnMemoizedChatDown = (props: PropsWithChildren<ChatDownProps>) => {
         <img alt='Connection error' data-testid='chatdown-img' src={image || placeholder} />
         <h1>{type}</h1>
         <h3 aria-live='assertive'>
-          {text || t('Error connecting to chat, refresh the page to try again.')}
+          {text || t<string>('Error connecting to chat, refresh the page to try again.')}
         </h3>
       </div>
     </div>

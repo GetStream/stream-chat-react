@@ -393,13 +393,15 @@ const defaultStreami18nOptions = {
   logger: (message?: string) => console.warn(message),
 };
 
+export const defaultTranslatorFunction: TFunction = <tResult = string>(key: tResult) => key;
+
 export class Streami18n {
   i18nInstance = i18n.createInstance();
   Dayjs = null;
   setLanguageCallback: (t: TFunction) => void = () => null;
   initialized = false;
 
-  t: TFunction = (key: string) => key;
+  t: TFunction = defaultTranslatorFunction;
   tDateTimeParser: TDateTimeParser;
 
   translations: {

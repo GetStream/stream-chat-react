@@ -20,7 +20,7 @@ const QuotedMessagePreviewHeader = <
 
   return (
     <div className='quoted-message-preview-header'>
-      <div>{t('Reply to Message')}</div>
+      <div>{t<string>('Reply to Message')}</div>
       <button
         aria-label='Cancel Reply'
         className='str-chat__square-button'

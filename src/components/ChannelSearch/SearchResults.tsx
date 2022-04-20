@@ -166,7 +166,9 @@ export const SearchResults = <
         {SearchLoading ? (
           <SearchLoading />
         ) : (
-          <div className='str-chat__channel-search-container-searching'>{t('Searching...')}</div>
+          <div className='str-chat__channel-search-container-searching'>
+            {t<string>('Searching...')}
+          </div>
         )}
       </ResultsContainer>
     );
@@ -179,7 +181,7 @@ export const SearchResults = <
           <SearchEmpty />
         ) : (
           <div aria-live='polite' className='str-chat__channel-search-container-empty'>
-            {t('No results found')}
+            {t<string>('No results found')}
           </div>
         )}
       </ResultsContainer>

@@ -64,7 +64,7 @@ const UnMemoizedGallery = <
         }}
       >
         <p>
-          {t('{{ imageCount }} more', {
+          {t<string>('{{ imageCount }} more', {
             imageCount: images.length - countImagesDisplayedInPreview,
           })}
         </p>
