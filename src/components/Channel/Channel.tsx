@@ -850,10 +850,8 @@ const ChannelInner = <
       ? 'str-chat--windows-flags'
       : '';
 
-  const NullProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => <>{children}</>;
-
   const OptionalMessageInputProvider = useMemo(
-    () => (dragAndDropWindow ? DropzoneProvider : NullProvider),
+    () => (dragAndDropWindow ? DropzoneProvider : React.Fragment),
     [dragAndDropWindow],
   );
 
