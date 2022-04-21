@@ -7,7 +7,7 @@ import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../../types/types';
 
 export type DropdownContainerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -124,7 +124,7 @@ export const SearchResults = <
 
   const containerStyle = popupResults && device === 'full' ? 'popup' : 'inline';
 
-  const ResultsContainer: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
+  const ResultsContainer = ({ children }: PropsWithChildrenOnly) => (
     <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
   );
 

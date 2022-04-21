@@ -15,7 +15,7 @@ export type ImageProps = {
 /**
  * A simple component that displays an image.
  */
-export const ImageComponent: React.FC<ImageProps> = (props) => {
+export const ImageComponent = (props: ImageProps) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const { fallback, image_url, thumb_url } = props;

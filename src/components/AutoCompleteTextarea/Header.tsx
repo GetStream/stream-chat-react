@@ -9,7 +9,7 @@ export type SuggestionListHeaderProps = {
   value: string;
 };
 
-export const DefaultSuggestionListHeader: React.FC<SuggestionListHeaderProps> = (props) => {
+export const DefaultSuggestionListHeader = (props: SuggestionListHeaderProps) => {
   const { currentTrigger, value } = props;
 
   const { t } = useTranslationContext('DefaultSuggestionListHeader');

@@ -6,7 +6,7 @@ import type { Message } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export const EmojiIconLarge: React.FC = () => {
+export const EmojiIconLarge = () => {
   const { t } = useTranslationContext('EmojiIconLarge');
 
   return (
@@ -19,7 +19,7 @@ export const EmojiIconLarge: React.FC = () => {
   );
 };
 
-export const EmojiIconSmall: React.FC = () => {
+export const EmojiIconSmall = () => {
   const { t } = useTranslationContext('EmojiIconSmall');
 
   return (
@@ -32,7 +32,7 @@ export const EmojiIconSmall: React.FC = () => {
   );
 };
 
-export const FileUploadIcon: React.FC = () => {
+export const FileUploadIcon = () => {
   const { t } = useTranslationContext('FileUploadIcon');
 
   return (
@@ -46,7 +46,7 @@ export const FileUploadIcon: React.FC = () => {
   );
 };
 
-export const FileUploadIconFlat: React.FC = () => {
+export const FileUploadIconFlat = () => {
   const { t } = useTranslationContext('FileUploadIconFlat');
 
   return (

@@ -7,7 +7,7 @@ export type EmptyStateIndicatorProps = {
   listType: 'channel' | 'message';
 };
 
-const UnMemoizedEmptyStateIndicator: React.FC<EmptyStateIndicatorProps> = (props) => {
+const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType } = props;
 
   const { t } = useTranslationContext('EmptyStateIndicator');

@@ -107,7 +107,7 @@ const DefaultThreadHeader = <
   );
 };
 
-const DefaultThreadStart: React.FC = () => {
+const DefaultThreadStart = () => {
   const { t } = useTranslationContext('Thread');
 
   return <div className='str-chat__thread-start'>{t<string>('Start of a new thread')}</div>;
