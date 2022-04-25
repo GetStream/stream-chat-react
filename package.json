@@ -183,11 +183,10 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "rm -rf dist && mkdir -p dist/assets assets && yarn --silent copy-version && yarn build-translations && yarn types && yarn bundle",
+    "build": "rm -rf dist && mkdir -p dist/assets assets && yarn build-translations && yarn types && yarn bundle",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
     "build-translations": "i18next",
-    "copy-version": "echo '\u001b[34mℹ\u001b[0m Copying Version to \u001b[34msrc/version.ts\u001b[0m' && PACKAGE_VERSION=$(node -pe 'require(`./package.json`).version') && PACKAGE_STRING=\"'$PACKAGE_VERSION'\" && echo 'export const version = '$PACKAGE_STRING';' > ./src/version.ts && echo '\u001b[32m✓\u001b[0m Done Copying Version'",
     "coverage": "jest --collectCoverage && codecov",
     "eslint": "eslint '**/*.{js,md,ts,jsx,tsx}' --max-warnings 0",
     "lint": "prettier --list-different 'src/**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js && eslint 'src/**/*.{js,ts,tsx,md}' --max-warnings 0 && yarn validate-translations",
