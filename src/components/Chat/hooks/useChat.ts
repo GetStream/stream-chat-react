@@ -7,7 +7,6 @@ import {
   TranslationContextValue,
 } from '../../../context/TranslationContext';
 import { Streami18n } from '../../../i18n';
-import { version } from '../../../version';
 
 import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
 
@@ -55,16 +54,6 @@ export const useChat = <
     appSettings.current = client.getAppSettings();
     return appSettings.current;
   };
-
-  useEffect(() => {
-    if (client) {
-      const userAgent = client.getUserAgent();
-      if (!userAgent.includes('stream-chat-react')) {
-        // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-        client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
-      }
-    }
-  }, [client]);
 
   useEffect(() => {
     setMutes(clientMutes);
