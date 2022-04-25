@@ -14,7 +14,7 @@ value's type. It is therefore important that the proper generics be applied to t
 The Stream Chat client takes a type with seven customizable fields that currently exist in `stream-chat`.
 
 ```tsx
-const client = StreamChat.getInstance<StreamChatGenerics>('YOUR_API_KEY');
+const client = new StreamChat<StreamChatGenerics>('YOUR_API_KEY');
 ```
 
 `StreamChatGenerics` can be defined as a type with the seven generics that correspond to the seven customizable fields as follows:
@@ -97,7 +97,7 @@ type StreamChatGenerics = {
 ```
 
 ```tsx
-const client = StreamChat.getInstance<StreamChatGenerics>('YOUR_API_KEY');
+const client = new StreamChat<StreamChatGenerics>('YOUR_API_KEY');
 ```
 
 Through this client instantiation, we have added type support for the following values:
