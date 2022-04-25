@@ -12,8 +12,6 @@ import {
   getTestClientWithUser,
 } from '../../../mock-builders';
 
-import { version } from '../../../../package.json';
-
 const ChatContextConsumer = ({ fn }) => {
   fn(useContext(ChatContext));
   return <div data-testid='children' />;
@@ -27,7 +25,6 @@ const TranslationContextConsumer = ({ fn }) => {
 describe('Chat', () => {
   afterEach(cleanup);
   const chatClient = getTestClient();
-  const originalUserAgent = chatClient.getUserAgent();
 
   it('should render children without crashing', async () => {
     const { getByTestId } = render(
@@ -61,9 +58,6 @@ describe('Chat', () => {
       expect(context.setActiveChannel).toBeInstanceOf(Function);
       expect(context.openMobileNav).toBeInstanceOf(Function);
       expect(context.closeMobileNav).toBeInstanceOf(Function);
-      expect(context.client.getUserAgent()).toBe(
-        `stream-chat-react-${version}-${originalUserAgent}`,
-      );
     });
   });
 
