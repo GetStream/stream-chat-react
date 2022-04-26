@@ -61,10 +61,8 @@ export const QuotedMessagePreview = <
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     quotedMessage.text;
 
-  // @ts-expect-error
-  const quotedMessageAttachment = quotedMessage.attachments.length
-    ? // @ts-expect-error
-      quotedMessage.attachments[0]
+  const quotedMessageAttachment = quotedMessage.attachments?.length
+    ? quotedMessage.attachments[0]
     : null;
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
