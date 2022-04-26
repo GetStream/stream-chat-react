@@ -183,7 +183,7 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "rm -rf dist && mkdir -p dist/assets assets && yarn --silent copy-version && yarn build-translations && yarn types && yarn bundle",
+    "build": "rm -rf dist && mkdir -p dist/assets && yarn --silent copy-version && yarn build-translations && yarn types && yarn bundle",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
     "build-translations": "i18next",
