@@ -14,9 +14,11 @@ export type ChatDownProps = {
   type?: string;
 };
 
-const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
-  const { image, text, type = 'Error' } = props;
-
+const UnMemoizedChatDown = ({
+  image = <ConnectionErrorIcon />,
+  text,
+  type = 'Error',
+}: ChatDownProps) => {
   const { t } = useTranslationContext('ChatDown');
 
   return (
@@ -26,7 +28,7 @@ const UnMemoizedChatDown: React.FC<ChatDownProps> = (props) => {
         {typeof image === 'string' ? (
           <img alt='Connection error' data-testid='chatdown-img' src={image} />
         ) : (
-          image || <ConnectionErrorIcon />
+          image
         )}
         <h1>{type}</h1>
         <h3 aria-live='assertive'>
