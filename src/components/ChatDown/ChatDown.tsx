@@ -1,29 +1,35 @@
-import React, { PropsWithChildren } from 'react';
+import React from 'react';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 
-import placeholder from '../../assets/str-chat__connection-error.svg';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { ConnectionErrorIcon } from './icons';
 
 export type ChatDownProps = {
-  /** The type of error */
-  type: string;
-  /** The image url for this error */
-  image?: string;
+  /** The image url for this error or ReactElement representing the image */
+  image?: string | React.ReactElement;
   /** The error message to show */
   text?: string;
+  /** The type of error */
+  type?: string;
 };
 
-const UnMemoizedChatDown = (props: PropsWithChildren<ChatDownProps>) => {
-  const { image, text, type = 'Error' } = props;
-
+const UnMemoizedChatDown = ({
+  image = <ConnectionErrorIcon />,
+  text,
+  type = 'Error',
+}: ChatDownProps) => {
   const { t } = useTranslationContext('ChatDown');
 
   return (
     <div className='str-chat__down'>
       <LoadingChannels />
       <div className='str-chat__down-main'>
-        <img alt='Connection error' data-testid='chatdown-img' src={image || placeholder} />
+        {typeof image === 'string' ? (
+          <img alt='Connection error' data-testid='chatdown-img' src={image} />
+        ) : (
+          image
+        )}
         <h1>{type}</h1>
         <h3 aria-live='assertive'>
           {text || t<string>('Error connecting to chat, refresh the page to try again.')}

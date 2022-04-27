@@ -56,7 +56,7 @@
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5",
-    "mml-react": "^0.4.2"
+    "mml-react": "^0.4.5"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
@@ -183,7 +183,7 @@
   },
   "scripts": {
     "analyze": "yarn build -- --stats && webpack-bundle-analyzer build/bundle-stats.json",
-    "build": "rm -rf dist && mkdir -p dist/assets assets && yarn --silent copy-version && yarn build-translations && yarn types && yarn bundle",
+    "build": "rm -rf dist && mkdir -p dist/assets && yarn --silent copy-version && yarn build-translations && yarn types && yarn bundle",
     "bundle": "rollup -c",
     "bundle-size": "BUNDLE_SIZE=true yarn bundle",
     "build-translations": "i18next",
