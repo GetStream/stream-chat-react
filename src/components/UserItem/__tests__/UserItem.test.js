@@ -2,7 +2,8 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { UserItem } from '../UserItem';

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 import { v4 as uuidv4 } from 'uuid';
 
 import { MessageInput } from '../MessageInput';

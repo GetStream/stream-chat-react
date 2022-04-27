@@ -2,7 +2,8 @@ import React from 'react';
 import { getNodeText } from '@testing-library/dom';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import {

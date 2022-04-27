@@ -2,7 +2,8 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { SimpleReactionsList } from '../SimpleReactionsList';
