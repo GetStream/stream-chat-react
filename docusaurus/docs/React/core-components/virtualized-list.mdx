@@ -28,16 +28,6 @@ the [Message UI](../message-components/message-ui.mdx) component.
 
 ## Basic Usage
 
-:::note
-With the new release of the version 18 of React we highly suggest adding `react18ConcurrentRendering` as a temporary measure to your `additionalVirtuosoProps` to reduce the amount of unwanted "blinking".
-
-```jsx
-<VirtualizedMessageList additionalVirtuosoProps={{ react18ConcurrentRendering: true }} />
-```
-
-You can find more information about this issue here: [react-virtuoso #647](https://github.com/petyosi/react-virtuoso/issues/647).
-:::
-
 As a context consumer, the `VirtualizedMessageList` component must be rendered as a child of the `Channel` component. It can be
 rendered with or without a provided `messages` prop. Providing your own `messages` value will override the default
 value drawn from the `ChannelStateContext`.
