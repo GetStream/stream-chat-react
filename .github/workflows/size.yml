@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: preactjs/compressed-size-action@v2.5
+      - uses: preactjs/compressed-size-action@latest
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           pattern: './dist/**/*.{js,css,json}'
