@@ -1157,7 +1157,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.0", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.10.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
   version "7.14.8"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.14.8.tgz#7119a56f421018852694290b9f9148097391b446"
   integrity sha512-twj3L8Og5SaCRCErB4x4ajbvBIVV77CGeFglHpeg5WC5FF8TZzBWXtTJ4MqaD9QszLYTtr+IsaAL2rEUevb+eg==
@@ -1168,6 +1168,13 @@
   version "7.17.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.2.tgz#66f68591605e59da47523c631416b18508779941"
   integrity sha512-hzeyJyMA1YGdJTuWU0e/j4wKXrU4OMFvY2MSlaI9B7VQb0r5cxTE3EAIS2Q7Tn2RIcDkRvTA/v2JsAEhxe99uw==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
+"@babel/runtime@^7.17.2":
+  version "7.17.9"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.17.9.tgz#d19fbf802d01a8cb6cf053a64e472d42c434ba72"
+  integrity sha512-lSiBBvodq29uShpWGNbgFdKYNiFDo5/HIYsaCEY9ff4sb10x9jizo2+pRrSyF4jKZCXqgzuqBOQKbUm90gQwJg==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -1208,15 +1215,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@braintree/sanitize-url@5.0.0":
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.0.tgz#3ba791f37b90e7f6170d252b63aacfcae943c039"
-  integrity sha512-WmKrB/575EJCzbeSJR3YQ5sET5FaizeljLRw1382qVUeGqzuWBgIS+AF5a0FO51uQTrDpoRgvuHC2IWVsgwkkA==
-
-"@braintree/sanitize-url@^5.0.0":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-5.0.2.tgz#b23080fa35520e993a8a37a0f5bca26aa4650a48"
-  integrity sha512-NBEJlHWrhQucLhZGHtSxM2loSaNUMajC7KOYJLyfcdW/6goVoff2HoYI3bz8YCDN0wKGbxtUL0gx2dvHpvnWlw==
+"@braintree/sanitize-url@6.0.0", "@braintree/sanitize-url@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.0.tgz#fe364f025ba74f6de6c837a84ef44bdb1d61e68f"
+  integrity sha512-mgmE7XBYY/21erpzhexk4Cj1cyTQ9LzvnTxtzM17BJ7ERMNE6W72mQRo0I1Ud8eFJ+RVVIcBNhLFZ3GX4XFz5w==
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
@@ -1577,10 +1579,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^2.2.1":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.3.0.tgz#6105e36304f840378200a1eee5a919af968a5ded"
-  integrity sha512-dx3E++8Li4grVm/i4YL4hAMQQz70r41kBFCEwTfK97PZ1vyYKi0v69CBs+QNM1CzrYrgHcxzlZc6DdxrEkDUwQ==
+"@stream-io/stream-chat-css@^2.8.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.9.0.tgz#abc3d04d44207d8a372c43e390e633417152a6a0"
+  integrity sha512-o5fK5bPD2h+WYEkLZoWjUw+7dvHWcPyUPoOp65Aer0ElTPRryaWD00kG7TDKTsPFjQwJptolNnfrw9Yj7r9Z/Q==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -2565,9 +2567,9 @@ async-limiter@~1.0.0:
   integrity sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==
 
 async@^2.6.2:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/async/-/async-2.6.3.tgz#d72625e2344a3656e3a3ad4fa749fa83299d82ff"
-  integrity sha512-zflvls11DCy+dQWzTW2dzuilv8Z5X/pjfmZOWba6TNIVDm+2UDaJmXSOXlasHKfNBs8oo3M0aT50fDEWfKZjXg==
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/async/-/async-2.6.4.tgz#706b7ff6084664cd7eae713f6f965433b5504221"
+  integrity sha512-mzo5dfJYwAn29PeiJ0zvwTo04zj8HDJj0Mn8TD7sno7q12prdbnasKJHhkm2c1LgrhlJ0teaea8860oxi51mGA==
   dependencies:
     lodash "^4.17.14"
 
@@ -5867,12 +5869,12 @@ hyphenate-style-name@^1.0.2:
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.4.tgz#691879af8e220aea5750e8827db4ef62a54e361d"
   integrity sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==
 
-i18next@^19.8.4:
-  version "19.9.2"
-  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.9.2.tgz#ea5a124416e3c5ab85fddca2c8e3c3669a8da397"
-  integrity sha512-0i6cuo6ER6usEOtKajUUDj92zlG+KArFia0857xxiEHAQcUwh/RtOQocui1LPJwunSYT574Pk64aNva1kwtxZg==
+i18next@^21.6.14:
+  version "21.6.16"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.6.16.tgz#8cff8c3ba2ffaf8438a8c83fe284083f15cf3941"
+  integrity sha512-xJlzrVxG9CyAGsbMP1aKuiNr1Ed2m36KiTB7hjGMG2Zo4idfw3p9THUEu+GjBwIgEZ7F11ZbCzJcfv4uyfKNuw==
   dependencies:
-    "@babel/runtime" "^7.12.0"
+    "@babel/runtime" "^7.17.2"
 
 ical-expander@^3.1.0:
   version "3.1.0"
@@ -7689,12 +7691,12 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
-mml-react@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.2.tgz#a58d685c61417ed7c99f3caea6616652ebcfb551"
-  integrity sha512-LqqTSyXjjNqBOE32RB8aPruPLh1UhUCPAiAm1KVBpdfAM4yNXMRhKeWpJkjQJOiXzNMKeKv7youh9nCWNS8qWg==
+mml-react@^0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.5.tgz#5e3db81cd1db9942f5acc41669ac3b3de4ac0464"
+  integrity sha512-3ttTTXTztnUZo8N+MtolxT9D0g4ZJVFob31FtMUOLGdPRz0sDo+Q9gbQ4o6zrG01J3GEsgnJzzgpRKtEKjnBoA==
   dependencies:
-    "@braintree/sanitize-url" "^5.0.0"
+    "@braintree/sanitize-url" "^6.0.0"
     "@rgrove/parse-xml" "^3.0.0"
     "@types/linkifyjs" "^2.1.3"
     dayjs "^1.10.4"
@@ -10698,12 +10700,12 @@ stream-browserify@^2.0.1:
 "stream-chat-react@link:../../..":
   version "0.0.0-development"
   dependencies:
-    "@braintree/sanitize-url" "5.0.0"
-    "@stream-io/stream-chat-css" "^2.2.1"
+    "@braintree/sanitize-url" "6.0.0"
+    "@stream-io/stream-chat-css" "^2.8.0"
     dayjs "^1.10.4"
     emoji-mart "3.0.1"
     emoji-regex "^9.2.0"
-    i18next "^19.8.4"
+    i18next "^21.6.14"
     isomorphic-ws "^4.0.1"
     linkifyjs "^2.1.9"
     lodash.debounce "^4.0.8"
@@ -10725,11 +10727,10 @@ stream-browserify@^2.0.1:
     uuid "^8.3.1"
   optionalDependencies:
     "@stream-io/transliterate" "^1.5.5"
-    mml-react "^0.4.2"
+    mml-react "^0.4.5"
 
 "stream-chat@link:../../node_modules/stream-chat":
   version "0.0.0"
-  uid ""
 
 stream-each@^1.1.0:
   version "1.2.3"

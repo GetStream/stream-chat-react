@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.1.1](https://github.com/GetStream/stream-chat-react/compare/v8.1.0...v8.1.1) (2022-04-18)
+
+
+### Bug Fixes
+
+* prevent duplicate message id generation in message list ([#1516](https://github.com/GetStream/stream-chat-react/issues/1516)) ([b381402](https://github.com/GetStream/stream-chat-react/commit/b38140211582e6c80a3e0a8e9b5a6a34cb973f2e))
+* update `stream-chat-js` to version 6.5.0 containing the `markRead` fix, add E2E tests ([#1514](https://github.com/GetStream/stream-chat-react/issues/1514)) ([b8e1084](https://github.com/GetStream/stream-chat-react/commit/b8e10844ba2db8dca898eeadac96c4f641e78432))
+
+
 ## [8.1.0](https://github.com/GetStream/stream-chat-react/compare/v8.0.0...v8.1.0) (2022-04-08)
 
 

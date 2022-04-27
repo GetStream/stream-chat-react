@@ -2,15 +2,17 @@
 /* eslint-disable jest/require-top-level-describe */
 import { expect, test } from '@playwright/test';
 
-test.describe('jump to message', () => {
-  [
-    ['virtualized', 'jump-to-message--jump-in-virtualized-message-list'],
-    ['regular', 'jump-to-message--jump-in-regular-message-list'],
-  ].forEach(([mode, story]) => {
+const suiteArray = [
+  ['virtualized', 'jump-to-message--jump-in-virtualized-message-list'],
+  ['regular', 'jump-to-message--jump-in-regular-message-list'],
+];
+
+suiteArray.forEach(([mode, story]) => {
+  test.describe(`jump to message - ${mode}`, () => {
     test.beforeEach(async ({ baseURL, page }) => {
       await page.goto(`${baseURL}/?story=${story}`);
       await page.waitForSelector('[data-storyloaded]');
-      await page.waitForSelector('text=Message 149');
+      await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
     });
 
     test(`${mode} jumps to message 29 and then back to bottom`, async ({ page }) => {
@@ -19,7 +21,9 @@ test.describe('jump to message', () => {
       await page.click('data-testid=jump-to-message');
       await expect(message29).toBeVisible();
       await page.click('text=Latest Messages');
-      await expect(page.locator('text=Message 149')).toBeVisible();
+      await expect(
+        page.locator('data-testid=message-text-inner-wrapper >> text=Message 149'),
+      ).toBeVisible();
     });
 
     test(`${mode} jumps to quoted message`, async ({ page }) => {
@@ -27,11 +31,13 @@ test.describe('jump to message', () => {
       await expect(page.locator('text=Message 20')).toBeVisible();
     });
   });
+});
 
+test.describe('jump to messsage - dataset', () => {
   test('only the current message set is loaded', async ({ baseURL, page }) => {
     await page.goto(`${baseURL}/?story=jump-to-message--jump-in-regular-message-list`);
     await page.waitForSelector('[data-storyloaded]');
-    await page.waitForSelector('text=Message 149');
+    await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
     await page.click('data-testid=jump-to-message');
     await page.waitForSelector('text=Message 29');
     const listItems = page.locator('.str-chat__ul > li');

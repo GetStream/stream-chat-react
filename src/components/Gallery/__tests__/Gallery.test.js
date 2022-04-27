@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { getTestClientWithUser } from '../../../mock-builders';
@@ -11,11 +11,6 @@ import { Gallery } from '../Gallery';
 let chatClient;
 
 const mockGalleryAssets = [
-  {
-    original: 'https://placeimg.com/640/480/any',
-    originalAlt: 'User uploaded content',
-    src: 'https://placeimg.com/640/480/any',
-  },
   {
     original: 'https://placeimg.com/640/480/any',
     originalAlt: 'User uploaded content',
@@ -61,7 +56,7 @@ describe('Gallery', () => {
     expect(tree).toMatchSnapshot();
   });
 
-  it('should render component with 6 images', () => {
+  it('should render component with 5 images', () => {
     const tree = renderer.create(<Gallery images={mockGalleryAssets} />).toJSON();
     expect(tree).toMatchSnapshot();
   });
@@ -85,7 +80,25 @@ describe('Gallery', () => {
       </Chat>,
     );
     await waitFor(() => {
-      expect(getByText('3 more')).toBeInTheDocument();
+      expect(getByText('1 more')).toBeInTheDocument();
+    });
+  });
+
+  it('should open the modal with image displayed under the "X more" overlay if clicked on the overlay', async () => {
+    chatClient = await getTestClientWithUser({ id: 'test' });
+    const { container, getByText } = render(
+      <Chat client={chatClient}>
+        <Gallery images={mockGalleryAssets} />,
+      </Chat>,
+    );
+
+    const overlay = await waitFor(() => getByText('1 more'));
+    act(() => {
+      fireEvent.click(overlay);
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('.image-gallery-index')).toHaveTextContent('4 / 5');
     });
   });
 });
