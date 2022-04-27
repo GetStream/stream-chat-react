@@ -14737,10 +14737,10 @@ react-textarea-autosize@^8.3.0:
     use-composed-ref "^1.0.0"
     use-latest "^1.0.0"
 
-react-virtuoso@^2.10.1:
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.10.1.tgz#3c88070dad59422cfbf9ff7b7c771e123173cff0"
-  integrity sha512-r5t65uEdkbO2Jijlafus8IQpM8ngFUTAg5gDVtBqoyY+mF5ZJ5X8SdWlfUXUdGsqqSp8/5PKNi+UuW3aeWfEgA==
+react-virtuoso@^2.10.2:
+  version "2.10.2"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.10.2.tgz#a4002f05019a07c69fca342c5b745451e2baa2ce"
+  integrity sha512-nQ8Wt/q64q6walcXo4y9SXkvZqjwuLiNUv7aKW3poKoZno8agTgeqcX1GMq3GPlaJ8wR5XMGwBxX4HONBMAGfg==
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
