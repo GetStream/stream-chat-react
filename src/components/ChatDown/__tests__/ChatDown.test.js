@@ -34,6 +34,19 @@ describe('ChatDown', () => {
     expect(tree).toMatchSnapshot();
   });
 
+  it('should render custom image component', async () => {
+    const ImageComponent = () => <div data-testid={'chatdown-img-custom'}>custom</div>;
+    const Component = <ChatDown image={<ImageComponent />} />;
+    const { getByTestId } = render(Component);
+
+    await waitFor(() => {
+      expect(getByTestId('chatdown-img-custom')).toBeInTheDocument();
+    });
+
+    const tree = renderer.create(Component).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
   it('should render component with custom type', async () => {
     const type = 'Warning';
     const { getByText } = render(<ChatDown type={type} />);
