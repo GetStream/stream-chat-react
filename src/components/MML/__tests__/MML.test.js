@@ -32,8 +32,6 @@ describe('MML', () => {
           >
             Some Text
           </div>
-          
-          
         </form>
       </div>
     `);

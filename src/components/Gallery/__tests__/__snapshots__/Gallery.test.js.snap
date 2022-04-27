@@ -150,7 +150,6 @@ exports[`Gallery should render component with 3 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 2"
@@ -188,7 +187,6 @@ exports[`Gallery should render component with 3 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 3"
@@ -226,7 +224,6 @@ exports[`Gallery should render component with 3 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
               </div>
             </div>
@@ -437,7 +434,6 @@ exports[`Gallery should render component with 4 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 2"
@@ -475,7 +471,6 @@ exports[`Gallery should render component with 4 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 3"
@@ -513,7 +508,6 @@ exports[`Gallery should render component with 4 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 4"
@@ -551,7 +545,6 @@ exports[`Gallery should render component with 4 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
               </div>
             </div>
@@ -766,7 +759,6 @@ exports[`Gallery should render component with 5 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 2"
@@ -804,7 +796,6 @@ exports[`Gallery should render component with 5 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 3"
@@ -842,7 +833,6 @@ exports[`Gallery should render component with 5 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 4"
@@ -880,7 +870,6 @@ exports[`Gallery should render component with 5 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 5"
@@ -918,7 +907,6 @@ exports[`Gallery should render component with 5 images 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
               </div>
             </div>
@@ -1111,7 +1099,6 @@ exports[`Gallery should render component with default props 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
                 <div
                   aria-label="Go to Slide 2"
@@ -1149,7 +1136,6 @@ exports[`Gallery should render component with default props 1`] = `
                     title=""
                     width=""
                   />
-                  
                 </div>
               </div>
             </div>

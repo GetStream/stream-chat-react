@@ -34,9 +34,7 @@ describe('UserItem', () => {
           <div
             className="str-chat__avatar-fallback"
             data-testid="avatar-fallback"
-          >
-            
-          </div>
+          />
         </div>
         <span
           className="str-chat__user-item--name"
