@@ -42,7 +42,7 @@ Initialize the Stream Chat client:
 ```jsx
 import { StreamChat } from 'stream-chat';
 
-const client = StreamChat.getInstance('your_api_key');
+const client = new StreamChat('your_api_key');
 
 <Chat client={client}>{/** children of Chat component*/}</Chat>;
 ```
@@ -195,32 +195,34 @@ const filters = { type: 'messaging' };
 const options = { state: true, presence: true, limit: 10 };
 const sort = { last_message_at: -1 };
 
-const client = StreamChat.getInstance('your_api_key');
-
 const App = () => {
-  const [clientReady, setClientReady] = useState(false);
+  const [client, setClient] = useState(null);
 
   useEffect(() => {
-    const setupClient = async () => {
-      try {
-        await client.connectUser(
-          {
-            id: 'dave-matthews',
-            name: 'Dave Matthews',
-          },
-          'your_user_token',
-        );
+    const newClient = new StreamChat('your_api_key');
 
-        setClientReady(true);
-      } catch (err) {
-        console.log(err);
-      }
+    const handleConnectionChange = ({ online = false }) => {
+      if (!online) return console.log('connection lost');
+      setClient(newClient);
     };
 
-    setupClient();
+    newClient.on('connection.changed', handleConnectionChange);
+
+    newClient.connectUser(
+      {
+        id: 'dave-matthews',
+        name: 'Dave Matthews',
+      },
+      'your_user_token',
+    );
+
+    return () => {
+      newClient.off('connection.changed', handleConnectionChange);
+      newClient.disconnectUser().then(() => console.log('connection closed'));
+    };
   }, []);
 
-  if (!clientReady) return null;
+  if (!client) return null;
 
   return (
     <Chat client={client}>
