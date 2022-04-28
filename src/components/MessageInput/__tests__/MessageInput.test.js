@@ -284,7 +284,9 @@ const tearDown = () => {
           ],
         };
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        formElement.dispatchEvent(clipboardEvent);
+        act(() => {
+          formElement.dispatchEvent(clipboardEvent);
+        });
         const filenameText = await findByText(filename);
         await waitFor(() => {
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
@@ -306,8 +308,9 @@ const tearDown = () => {
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
-
+        act(() => {
+          dropFile(file, formElement);
+        });
         await waitFor(() => {
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
@@ -323,12 +326,18 @@ const tearDown = () => {
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        dropFile(getFile(), formElement);
+
+        act(() => {
+          dropFile(getFile(), formElement);
+        });
 
         const filenameText = await findByText(filename);
 
         expect(filenameText).toBeInTheDocument();
-        expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        await waitFor(() => {
+          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        });
+
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -342,16 +351,20 @@ const tearDown = () => {
         const file = getFile();
         const input = (await findByTestId('fileinput')).querySelector('input');
 
-        fireEvent.change(input, {
-          target: {
-            files: [file],
-          },
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              files: [file],
+            },
+          });
         });
 
         const filenameText = await findByText(filename);
 
         expect(filenameText).toBeInTheDocument();
-        expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        await waitFor(() => {
+          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -369,7 +382,10 @@ const tearDown = () => {
         jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => {
+          dropFile(file, formElement);
+        });
 
         await waitFor(() => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
@@ -393,7 +409,8 @@ const tearDown = () => {
         jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getFile();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         await waitFor(() => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-file', expect.any(Object));
@@ -402,7 +419,9 @@ const tearDown = () => {
 
         doFileUploadRequest.mockImplementationOnce(() => Promise.resolve({ file }));
 
-        fireEvent.click(await findByText('retry'));
+        await act(async () => {
+          fireEvent.click(await findByText('retry'));
+        });
 
         await waitFor(() =>
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
@@ -450,12 +469,16 @@ const tearDown = () => {
         const formElement = await findByPlaceholderText(inputPlaceholder);
 
         const file = getFile(filename1);
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
+
         await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
 
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
+
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
+
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -473,7 +496,8 @@ const tearDown = () => {
         const formElement = await findByPlaceholderText(inputPlaceholder);
 
         const file = getFile(filename1);
-        dropFile(file, formElement);
+        act(() => dropFile(file, formElement));
+
         await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
 
         const file2 = getFile(filename2);
@@ -526,7 +550,9 @@ const tearDown = () => {
           ],
         };
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        formElement.dispatchEvent(clipboardEvent);
+
+        act(() => formElement.dispatchEvent(clipboardEvent));
+
         await waitFor(() => {
           expect(queryByText(filename)).not.toBeInTheDocument();
           expect(doFileUploadRequest).not.toHaveBeenCalled();
@@ -546,7 +572,8 @@ const tearDown = () => {
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         await waitFor(() => {
           expect(doImageUploadRequest).not.toHaveBeenCalled();
@@ -594,6 +621,7 @@ const tearDown = () => {
             value: messageText,
           },
         });
+
         await submit();
 
         expect(overrideMock).toHaveBeenCalledWith(
@@ -626,12 +654,15 @@ const tearDown = () => {
 
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for image uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -657,12 +688,15 @@ const tearDown = () => {
 
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getFile();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -690,12 +724,15 @@ const tearDown = () => {
         const file = new File(['Message in a bottle'], 'the-police.mp3', {
           type: 'audio/mp3',
         });
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -719,9 +756,11 @@ const tearDown = () => {
         });
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.keyDown(input, {
-          keyCode: 19,
-        });
+        act(() =>
+          fireEvent.keyDown(input, {
+            keyCode: 19,
+          }),
+        );
 
         expect(submitMock).not.toHaveBeenCalled();
         const results = await axe(container);
@@ -737,18 +776,20 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 17,
-        });
+          fireEvent.keyDown(input, {
+            keyCode: 17,
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 13,
+          fireEvent.keyDown(input, {
+            keyCode: 13,
+          });
         });
 
         await submit();
@@ -759,6 +800,7 @@ const tearDown = () => {
             text: messageText,
           }),
         );
+
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -772,18 +814,19 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 57,
+          fireEvent.keyDown(input, {
+            keyCode: 57,
+          });
         });
 
         await submit();
-
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -803,18 +846,20 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 76,
-        });
+          fireEvent.keyDown(input, {
+            keyCode: 76,
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 77,
+          fireEvent.keyDown(input, {
+            keyCode: 77,
+          });
         });
 
         await submit();
@@ -823,6 +868,7 @@ const tearDown = () => {
           channel.cid,
           expect.objectContaining({ text: messageText }),
         );
+
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -876,16 +922,23 @@ const tearDown = () => {
       const { container, findByPlaceholderText, getByTestId, submit } = renderComponent();
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      fireEvent.change(formElement, {
-        target: {
-          selectionEnd: 1,
-          value: '@',
-        },
+
+      act(() => {
+        fireEvent.change(formElement, {
+          target: {
+            selectionEnd: 1,
+            value: '@',
+          },
+        });
       });
+
       const usernameListItem = await getByTestId('user-item-name');
       expect(usernameListItem).toBeInTheDocument();
 
-      fireEvent.click(usernameListItem);
+      act(() => {
+        fireEvent.click(usernameListItem);
+      });
+
       await submit();
 
       expect(submitMock).toHaveBeenCalledWith(
@@ -909,11 +962,14 @@ const tearDown = () => {
       });
       // remove all text from input
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      fireEvent.change(formElement, {
-        target: {
-          selectionEnd: 1,
-          value: 'no mentioned users',
-        },
+
+      act(() => {
+        fireEvent.change(formElement, {
+          target: {
+            selectionEnd: 1,
+            value: 'no mentioned users',
+          },
+        });
       });
 
       await waitFor(() => submit());
@@ -941,8 +997,10 @@ const tearDown = () => {
 
       await waitFor(() => expect(queryByText('Suggestion List')).not.toBeInTheDocument());
 
-      fireEvent.change(formElement, {
-        target: { value: '/' },
+      act(() => {
+        fireEvent.change(formElement, {
+          target: { value: '/' },
+        });
       });
 
       if (componentName !== 'EditMessageForm') {
@@ -1091,8 +1149,12 @@ describe('MessageInputFlat', () => {
         ],
       };
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      formElement.dispatchEvent(clipboardEvent);
-      const attachmentClass = container.firstChild.firstChild.firstChild;
+
+      let attachmentClass;
+      act(() => {
+        formElement.dispatchEvent(clipboardEvent);
+        attachmentClass = container.firstChild.firstChild.firstChild;
+      });
 
       await waitFor(() => {
         expect(attachmentClass).toHaveClass('str-chat__input-flat-has-attachments');
@@ -1106,7 +1168,10 @@ describe('MessageInputFlat', () => {
       });
       const formElement = await findByPlaceholderText(inputPlaceholder);
       const file = getImage();
-      dropFile(file, formElement);
+
+      act(() => {
+        dropFile(file, formElement);
+      });
 
       const attachmentClass = container.firstChild.firstChild.firstChild;
       await waitFor(() =>
