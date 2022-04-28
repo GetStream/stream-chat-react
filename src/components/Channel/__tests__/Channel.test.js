@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Channel } from '../Channel';
@@ -103,22 +103,27 @@ describe('Channel', () => {
     chatClient = await getTestClientWithUser(user);
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
     channel = chatClient.channel('messaging', mockedChannel.id);
+    await channel.query();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', () => {
+  it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
+    // get rid of console warnings as they are expected - Channel reaches to ChatContext
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>}></Channel>);
 
-    expect(getByText('empty')).toBeInTheDocument();
+    await waitFor(() => expect(getByText('empty')).toBeInTheDocument());
   });
 
   it('should watch the current channel on mount', async () => {
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    renderComponent();
+    await act(() => {
+      renderComponent();
+    });
 
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
@@ -143,9 +148,11 @@ describe('Channel', () => {
     const watchPromise = new Promise(() => {});
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
 
-    const { getByText } = renderComponent();
+    await act(() => {
+      renderComponent();
+    });
 
-    await waitFor(() => expect(getByText('loading')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('loading')).toBeInTheDocument());
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
@@ -198,7 +205,9 @@ describe('Channel', () => {
     const markReadSpy = jest.spyOn(channel, 'markRead');
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    renderComponent();
+    await act(() => {
+      renderComponent();
+    });
     // first, wait for the effect in which the channel is watched,
     // so we know the event listener is added to the document.
     await waitFor(() => expect(watchSpy).toHaveBeenCalledWith());
@@ -417,15 +426,17 @@ describe('Channel', () => {
       it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
         let channelHasMore = false;
         const newMessages = [generateMessage()];
-        renderComponent({}, ({ hasMore, loadMore, messages: contextMessages }) => {
-          if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
-            // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-            useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages)]);
-            loadMore(limit);
-          } else {
-            // If message has been added, set our checker variable so we can verify if hasMore is false.
-            channelHasMore = hasMore;
-          }
+        await act(() => {
+          renderComponent({}, ({ hasMore, loadMore, messages: contextMessages }) => {
+            if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
+              // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
+              useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages)]);
+              loadMore(limit);
+            } else {
+              // If message has been added, set our checker variable so we can verify if hasMore is false.
+              channelHasMore = hasMore;
+            }
+          });
         });
 
         await waitFor(() => expect(channelHasMore).toBe(false));
@@ -436,15 +447,17 @@ describe('Channel', () => {
         const newMessages = Array(limit)
           .fill(null)
           .map(() => generateMessage());
-        renderComponent({}, ({ hasMore, loadMore, messages: contextMessages }) => {
-          if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
-            // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
-            useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages)]);
-            loadMore(limit);
-          } else {
-            // If message has been added, set our checker variable so we can verify if hasMore is true.
-            channelHasMore = hasMore;
-          }
+        await act(() => {
+          renderComponent({}, ({ hasMore, loadMore, messages: contextMessages }) => {
+            if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
+              // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
+              useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages)]);
+              loadMore(limit);
+            } else {
+              // If message has been added, set our checker variable so we can verify if hasMore is true.
+              channelHasMore = hasMore;
+            }
+          });
         });
 
         await waitFor(() => expect(channelHasMore).toBe(true));
