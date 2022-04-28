@@ -41,14 +41,14 @@ export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>(
   useEffect(() => {
     const c = new StreamChat<SCG>(apiKey);
 
-    c.connectUser({ id: userId }, token).then(() => setClient(c));
-
     const handleConnectionChange = ({ online = false }: Event) => {
       if (!online) console.log('connection lost');
       setClient(c);
     };
 
     c.on('connection.changed', handleConnectionChange);
+
+    c.connectUser({ id: userId }, token);
 
     return () => {
       c.off('connection.changed', handleConnectionChange);
