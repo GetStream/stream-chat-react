@@ -1,6 +1,5 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from 'rollup-plugin-commonjs';
-import image from '@rollup/plugin-image';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
@@ -28,37 +27,15 @@ const baseConfig = {
   },
 };
 
+const dependencies = Object.keys(pkg.dependencies);
+const optionalDependencies = Object.keys(pkg.optionalDependencies);
+
 const externalDependencies = [
   /@babel/,
-  '@braintree/sanitize-url',
-  '@fortawesome/free-regular-svg-icons',
-  '@fortawesome/react-fontawesome',
-  '@stream-io/transliterate',
-  'custom-event',
-  /dayjs/,
-  /emoji-mart/,
-  'emoji-regex',
-  'i18next',
-  'isomorphic-ws',
-  'linkifyjs',
-  'lodash.debounce',
-  'lodash.isequal',
-  'lodash.throttle',
-  'lodash.uniqby',
-  'mdast-util-find-and-replace',
-  'mml-react',
-  'pretty-bytes',
-  'prop-types',
-  'react-fast-compare',
-  /react-file-utils/,
-  'react-images',
-  'react-is',
   /react-markdown/,
-  'react-player',
-  'react-textarea-autosize',
-  'react-virtuoso',
-  'textarea-caret',
-  /uuid/,
+  /dayjs/,
+  ...dependencies,
+  ...optionalDependencies,
 ];
 
 const basePlugins = [
@@ -68,7 +45,6 @@ const basePlugins = [
   }),
   // Remove peer-dependencies from final bundle
   external(),
-  image(),
   typescript(),
   babel({
     babelHelpers: 'runtime',
