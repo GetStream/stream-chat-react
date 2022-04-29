@@ -13,6 +13,8 @@ import { defaultMinimalEmojis } from '../../Channel/emojiData';
 
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { EmojiProvider } from '../../../context/EmojiContext';
+import { MessageProvider } from '../../../context/MessageContext';
+
 import {
   emojiComponentMock,
   emojiDataMock,
@@ -44,16 +46,18 @@ const handleReactionMock = jest.fn();
 const renderComponent = (props) =>
   render(
     <ComponentProvider value={{ Avatar: AvatarMock }}>
-      <EmojiProvider
-        value={{
-          Emoji: emojiComponentMock.Emoji,
-          emojiConfig: emojiDataMock,
-          EmojiIndex: emojiComponentMock.EmojiIndex,
-          EmojiPicker: emojiComponentMock.EmojiPicker,
-        }}
-      >
-        <ReactionSelector handleReaction={handleReactionMock} {...props} />
-      </EmojiProvider>
+      <MessageProvider value={{}}>
+        <EmojiProvider
+          value={{
+            Emoji: emojiComponentMock.Emoji,
+            emojiConfig: emojiDataMock,
+            EmojiIndex: emojiComponentMock.EmojiIndex,
+            EmojiPicker: emojiComponentMock.EmojiPicker,
+          }}
+        >
+          <ReactionSelector handleReaction={handleReactionMock} {...props} />
+        </EmojiProvider>
+      </MessageProvider>
     </ComponentProvider>,
   );
 

@@ -11,7 +11,9 @@ import { TypingIndicator } from '../TypingIndicator';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 import { TypingProvider } from '../../../context/TypingContext';
+
 import {
   generateChannel,
   generateUser,
@@ -30,9 +32,11 @@ async function renderComponent(typing = {}, threadList, value = {}) {
   return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ ...value }}>
-        <TypingProvider value={{ typing }}>
-          <TypingIndicator threadList={threadList} />
-        </TypingProvider>
+        <ComponentProvider value={{}}>
+          <TypingProvider value={{ typing }}>
+            <TypingIndicator threadList={threadList} />
+          </TypingProvider>
+        </ComponentProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );
@@ -40,11 +44,14 @@ async function renderComponent(typing = {}, threadList, value = {}) {
 
 describe('TypingIndicator', () => {
   it('should render null without proper context values', () => {
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const tree = renderer
       .create(
         <ChatProvider value={{}}>
           <ChannelStateProvider value={{}}>
-            <TypingIndicator />
+            <ComponentProvider value={{}}>
+              <TypingIndicator />
+            </ComponentProvider>
           </ChannelStateProvider>
         </ChatProvider>,
       )
@@ -79,9 +86,11 @@ describe('TypingIndicator', () => {
       .create(
         <ChatProvider value={{ client }}>
           <ChannelStateProvider value={{}}>
-            <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
-            </TypingProvider>
+            <ComponentProvider value={{}}>
+              <TypingProvider value={{ typing: {} }}>
+                <TypingIndicator />
+              </TypingProvider>
+            </ComponentProvider>
           </ChannelStateProvider>
         </ChatProvider>,
       )
@@ -171,9 +180,11 @@ describe('TypingIndicator', () => {
       .create(
         <ChatProvider value={{ client }}>
           <ChannelStateProvider value={{ channel, channelConfig }}>
-            <TypingProvider value={{ typing: {} }}>
-              <TypingIndicator />
-            </TypingProvider>
+            <ComponentProvider value={{}}>
+              <TypingProvider value={{ typing: {} }}>
+                <TypingIndicator />
+              </TypingProvider>
+            </ComponentProvider>
           </ChannelStateProvider>
         </ChatProvider>,
       )

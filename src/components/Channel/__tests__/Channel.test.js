@@ -113,7 +113,7 @@ describe('Channel', () => {
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>}></Channel>);
+    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>} />);
 
     await waitFor(() => expect(getByText('empty')).toBeInTheDocument());
   });

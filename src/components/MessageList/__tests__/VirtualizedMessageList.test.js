@@ -81,13 +81,14 @@ describe('VirtualizedMessageList', () => {
       if (element.type === 'div') {
         return {
           addEventListener() {},
+          removeEventListener() {},
         };
       }
       return null;
     }
 
-    await renderer.act(async () => {
-      tree = await renderer.create(
+    await renderer.act(() => {
+      tree = renderer.create(
         <Chat client={client}>
           <Channel channel={channel}>
             <VirtualizedMessageList />

@@ -128,10 +128,14 @@ describe('MessageList', () => {
   });
 
   it('should not render DateSeparator if disableDateSeparator is true', async () => {
-    const { container } = renderComponent({
-      channelProps: { channel },
-      chatClient,
-      msgListProps: { disableDateSeparator: true },
+    let container;
+    await act(() => {
+      const result = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { disableDateSeparator: true },
+      });
+      container = result.container;
     });
 
     await waitFor(() => {

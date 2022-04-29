@@ -3,13 +3,15 @@ import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import { MessageActionsBox } from '../MessageActionsBox';
 
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { MessageProvider } from '../../../context/MessageContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 
 import { generateMessage } from '../../../mock-builders';
+
+expect.extend(toHaveNoViolations);
 
 const getMessageActionsMock = jest.fn(() => []);
 
@@ -20,9 +22,19 @@ const messageContextValue = {
 
 function renderComponent(boxProps) {
   return render(
-    <MessageProvider value={{ ...messageContextValue, message: boxProps.message }}>
-      <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
-    </MessageProvider>,
+    <TranslationProvider value={{ t: (key) => key }}>
+      <ChannelActionProvider
+        value={{
+          openThread: jest.fn(),
+          removeMessage: jest.fn(),
+          updateMessage: jest.fn(),
+        }}
+      >
+        <MessageProvider value={{ ...messageContextValue, message: boxProps.message }}>
+          <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
+        </MessageProvider>
+      </ChannelActionProvider>
+    </TranslationProvider>,
   );
 }
 
