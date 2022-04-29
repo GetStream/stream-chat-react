@@ -8,8 +8,11 @@ function getPreview(page: Page) {
 
 test.describe('add a message', () => {
   test.beforeEach(async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=connected-user--user1`);
-    await page.waitForSelector('[data-storyloaded]');
+    await Promise.all([
+      page.waitForSelector('data-testid=add-message'),
+      page.goto(`${baseURL}/?story=connected-user--user1`),
+    ]);
+
     // Select correct channel
     const preview = getPreview(page);
     await preview.click();
@@ -42,8 +45,10 @@ test.describe('add a message', () => {
 
 test.describe('receive a message', () => {
   test.beforeEach(async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=connected-user--user2`);
-    await page.waitForSelector('[data-storyloaded]');
+    await Promise.all([
+      page.waitForSelector('data-testid=add-message'),
+      page.goto(`${baseURL}/?story=connected-user--user2`),
+    ]);
   });
 
   test('channel list should update for channel members and show unread', async ({ page }) => {

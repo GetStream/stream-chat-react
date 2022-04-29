@@ -4,8 +4,11 @@ import { expect, test } from '@playwright/test';
 
 test.describe('autocomplete a mention', () => {
   test('should fill in textarea with username', async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=hello--basic-setup`);
-    await page.waitForSelector('[data-storyloaded]');
+    await Promise.all([
+      page.waitForSelector('data-testid=message-input'),
+      page.goto(`${baseURL}/?story=hello--basic-setup`),
+    ]);
+
     await page.fill('data-testid=message-input', '@');
     const button = await page.locator(
       'button.rta__entity >> :nth-match(span.str-chat__user-item--name, 1)',
