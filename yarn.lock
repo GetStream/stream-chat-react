@@ -12451,10 +12451,10 @@ mktemp@~0.4.0:
   resolved "https://registry.yarnpkg.com/mktemp/-/mktemp-0.4.0.tgz#6d0515611c8a8c84e484aa2000129b98e981ff0b"
   integrity sha1-bQUVYRyKjITkhKogABKbmOmB/ws=
 
-mml-react@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.6.tgz#2d82c38d8c46232e7481944311f4e4d57ce27f72"
-  integrity sha512-+0lS4SC+lGNDQHEm+igd36DItuilmUzB36gLpwQlbG4IGCetJ2L4Du9+0wm8IhKHC2qP9fEM0JnKvI2wr8uRhQ==
+mml-react@^0.4.7:
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.7.tgz#c0646c4647ecdcf89a0818f6e02b2adc50712c21"
+  integrity sha512-YoEIg5kOWGR3U9QFc8YFHEgyGV/CnLQIjm+naW3K04LXRw6xtcU0+KMjCMu2EJEF/Wjz8H3Yu4ZU2mUDR+143g==
   dependencies:
     "@braintree/sanitize-url" "^6.0.0"
     "@rgrove/parse-xml" "^3.0.0"
