@@ -98,7 +98,9 @@ describe('<MessageOptions />', () => {
       message: {},
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
-    expect(consoleWarnSpy).toHaveBeenCalledWith();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it.each([

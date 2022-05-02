@@ -108,7 +108,9 @@ describe('<MessageText />', () => {
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(consoleWarnSpy).toHaveBeenCalledWith();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it('should not render anything if message text is not set', async () => {
@@ -117,7 +119,9 @@ describe('<MessageText />', () => {
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(consoleWarnSpy).toHaveBeenCalledWith();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
