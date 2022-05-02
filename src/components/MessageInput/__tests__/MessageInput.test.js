@@ -141,6 +141,13 @@ const tearDown = () => {
   jest.clearAllMocks();
 };
 
+function axeNoViolations(container) {
+  return async () => {
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  };
+}
+
 [
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
@@ -149,7 +156,7 @@ const tearDown = () => {
   const renderComponent = makeRenderFn(InputComponent);
 
   describe(`${componentName}`, () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
       useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
       channel = chatClient.channel('messaging', mockedChannel.id);
@@ -294,8 +301,8 @@ const tearDown = () => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
           expect(doImageUploadRequest).toHaveBeenCalledWith(image, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should upload an image when it is dropped on the dropzone', async () => {
@@ -314,8 +321,7 @@ const tearDown = () => {
         await waitFor(() => {
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
@@ -338,8 +344,7 @@ const tearDown = () => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
         });
 
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should allow uploading files with the file upload button', async () => {
@@ -365,8 +370,7 @@ const tearDown = () => {
         await waitFor(() => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should call error handler if an image failed to upload', async () => {
@@ -391,8 +395,7 @@ const tearDown = () => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should call error handler if a file failed to upload and allow retrying', async () => {
@@ -426,8 +429,7 @@ const tearDown = () => {
         await waitFor(() =>
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
@@ -438,8 +440,7 @@ const tearDown = () => {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).not.toHaveAttribute('multiple');
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should set multiple attribute on the file input if multipleUploads is true', async () => {
@@ -450,8 +451,7 @@ const tearDown = () => {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).toHaveAttribute('multiple');
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       const filename1 = '1.txt';
@@ -479,8 +479,7 @@ const tearDown = () => {
 
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
 
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should only allow uploading 1 file if multipleUploads is false', async () => {
@@ -503,8 +502,7 @@ const tearDown = () => {
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
@@ -524,8 +522,7 @@ const tearDown = () => {
       it('should not render file upload button', async () => {
         const { container, queryByTestId } = renderComponent();
         await waitFor(() => expect(queryByTestId('fileinput')).not.toBeInTheDocument());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Pasting images and files should do nothing', async () => {
@@ -558,8 +555,7 @@ const tearDown = () => {
           expect(doFileUploadRequest).not.toHaveBeenCalled();
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should not upload an image when it is dropped on the dropzone', async () => {
@@ -578,8 +574,7 @@ const tearDown = () => {
         await waitFor(() => {
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
     });
 
@@ -603,8 +598,7 @@ const tearDown = () => {
             text: messageText,
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
@@ -630,8 +624,7 @@ const tearDown = () => {
           }),
           channel.cid,
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should not do anything if the message is empty and has no files', async () => {
@@ -640,8 +633,7 @@ const tearDown = () => {
         await submit();
 
         expect(submitMock).not.toHaveBeenCalled();
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add image as attachment if a message is submitted with an image', async () => {
@@ -674,8 +666,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add file as attachment if a message is submitted with a file', async () => {
@@ -708,8 +699,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
@@ -744,8 +734,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
@@ -763,8 +752,7 @@ const tearDown = () => {
         );
 
         expect(submitMock).not.toHaveBeenCalled();
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
@@ -801,8 +789,7 @@ const tearDown = () => {
           }),
         );
 
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
@@ -833,8 +820,7 @@ const tearDown = () => {
             text: messageText,
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if just a tuple is provided and keycode events do match', async () => {
@@ -869,8 +855,7 @@ const tearDown = () => {
           expect.objectContaining({ text: messageText }),
         );
 
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
     });
 
