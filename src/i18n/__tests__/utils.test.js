@@ -16,6 +16,7 @@ describe('getDateString', () => {
     ).toBeNull();
   });
   it('returns null if creation date string is incorrectly formatted', () => {
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     expect(
       getDateString({
         calendar: true,
@@ -27,6 +28,7 @@ describe('getDateString', () => {
     ).toBeNull();
   });
   it('returns null if neither datetime formatter nor custom formatting function are provided', () => {
+    jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     expect(
       getDateString({
         calendar: true,
