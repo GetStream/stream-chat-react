@@ -29,9 +29,7 @@ describe('Avatar', () => {
         <div
           className="str-chat__avatar-fallback"
           data-testid="avatar-fallback"
-        >
-          
-        </div>
+        />
       </div>
     `);
   });

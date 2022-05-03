@@ -1,6 +1,7 @@
 import React from 'react';
 
-import { isDayOrMoment, useTranslationContext } from '../../context/TranslationContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { getDateString } from '../../i18n/utils';
 
 export type DateSeparatorProps = {
   /** The date to format */
@@ -14,19 +15,16 @@ export type DateSeparatorProps = {
 };
 
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
-  const { date, formatDate, position = 'right', unread } = props;
+  const { date: messageCreatedAt, formatDate, position = 'right', unread } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('DateSeparator');
 
-  if (typeof date === 'string') return null;
-
-  const parsedDate = tDateTimeParser(date.toISOString());
-
-  const formattedDate = formatDate
-    ? formatDate(date)
-    : isDayOrMoment(parsedDate)
-    ? parsedDate.calendar()
-    : parsedDate;
+  const formattedDate = getDateString({
+    calendar: true,
+    formatDate,
+    messageCreatedAt,
+    tDateTimeParser,
+  });
 
   return (
     <div className='str-chat__date-separator'>

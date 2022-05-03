@@ -7,9 +7,11 @@ import { MessageActions } from '../MessageActions';
 import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { ChatProvider } from '../../../context/ChatContext';
 import { MessageProvider } from '../../../context/MessageContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
-import { generateMessage } from '../../../mock-builders';
+
+import { generateMessage, getTestClient } from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -38,15 +40,19 @@ const messageContextValue = {
   setEditingState: () => {},
 };
 
+const chatClient = getTestClient();
+
 function renderMessageActions(customProps, renderer = render) {
   return renderer(
-    <ChannelStateProvider value={{}}>
-      <TranslationProvider value={{ t: (key) => key }}>
-        <MessageProvider value={{ ...messageContextValue }}>
-          <MessageActions {...defaultProps} {...customProps} />
-        </MessageProvider>
-      </TranslationProvider>
-    </ChannelStateProvider>,
+    <ChatProvider value={{ client: chatClient }}>
+      <ChannelStateProvider value={{}}>
+        <TranslationProvider value={{ t: (key) => key }}>
+          <MessageProvider value={{ ...messageContextValue }}>
+            <MessageActions {...defaultProps} {...customProps} />
+          </MessageProvider>
+        </TranslationProvider>
+      </ChannelStateProvider>
+    </ChatProvider>,
   );
 }
 

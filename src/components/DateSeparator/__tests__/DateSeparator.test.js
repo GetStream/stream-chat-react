@@ -64,7 +64,7 @@ describe('DateSeparator', () => {
     const { Component, tDateTimeParser } = withContext({ date: now });
     const { queryByText } = render(Component);
 
-    expect(tDateTimeParser).toHaveBeenCalledWith(now.toISOString());
+    expect(tDateTimeParser).toHaveBeenCalledWith(now);
     expect(queryByText(Dayjs(now.toISOString()).calendar())).toBeInTheDocument();
   });
 

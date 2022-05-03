@@ -144,7 +144,7 @@ export type MessageInputHookProps<
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;

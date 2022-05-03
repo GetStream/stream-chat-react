@@ -4,7 +4,6 @@ import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
 import { isValidElementType } from 'react-is';
 
-import Listeners, { KEY_CODES } from './listener';
 import { List as DefaultSuggestionList } from './List';
 import {
   DEFAULT_CARET_POSITION,
@@ -57,33 +56,6 @@ export class ReactTextareaAutocomplete extends React.Component {
     };
   }
 
-  componentDidMount() {
-    Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
-    Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
-
-    const listenerIndex = {};
-    const newSubmitKeys = this.props.keycodeSubmitKeys;
-
-    if (newSubmitKeys) {
-      const keycodeIndex = this.addKeycodeSubmitListeners(newSubmitKeys);
-      listenerIndex[keycodeIndex] = keycodeIndex;
-    } else {
-      const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
-      listenerIndex[enterIndex] = enterIndex;
-    }
-
-    this.setState({
-      listenerIndex,
-    });
-
-    Listeners.startListen();
-  }
-
-  componentWillUnmount() {
-    Listeners.stopListen();
-    Listeners.remove(this.state.listenerIndex);
-  }
-
   getSelectionPosition = () => {
     if (!this.textareaRef) return null;
 
@@ -115,19 +87,12 @@ export class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
-  addKeycodeSubmitListeners = (keyCodes) => {
-    keyCodes.forEach((arrayOfCodes) => {
-      let submitValue = arrayOfCodes;
-      if (submitValue.length === 1) {
-        submitValue = submitValue[0];
-      }
+  _handleKeyDown = (event) => {
+    const { keycodeSubmitKeys: submitKeys = [] } = this.props;
 
-      // does submitted keycodes include shift+Enter?
-      const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
-      if (shiftE) this.keycodeSubmitShiftE = true;
-
-      return Listeners.add(submitValue, (e) => this._onEnter(e));
-    });
+    if (event.key === 'Enter' || submitKeys.includes(event.key)) return this._onEnter(event);
+    if (event.key === ' ') return this._onSpace(event);
+    if (event.key === 'Escape') return this._closeAutocomplete();
   };
 
   _onEnter = (event) => {
@@ -736,6 +701,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           onChange={this._changeHandler}
           onClick={this._onClickAndBlurHandler}
           onFocus={this.props.onFocus}
+          onKeyDown={this._handleKeyDown}
           onScroll={this._onScrollHandler}
           onSelect={this._selectHandler}
           ref={(ref) => {

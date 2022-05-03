@@ -38,11 +38,19 @@ describe('useMessageListScrollManager', () => {
         scrollToBottom,
       });
 
-      return <div></div>;
+      return <div />;
     };
 
-    const { rerender } = render(<Comp />);
-    rerender(<Comp />);
+    const { rerender } = render(
+      <ChatProvider value={{ client }}>
+        <Comp />
+      </ChatProvider>,
+    );
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp />
+      </ChatProvider>,
+    );
 
     expect(scrollToBottom).toHaveBeenCalledTimes(1);
   });
@@ -60,13 +68,21 @@ describe('useMessageListScrollManager', () => {
         scrollToBottom: () => {},
       });
 
-      return <div></div>;
+      return <div />;
     };
 
     const messages = generateMessages(20);
-    const { rerender } = render(<Comp messages={messages} scrollHeight={400} />);
+    const { rerender } = render(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} scrollHeight={400} />
+      </ChatProvider>,
+    );
 
-    rerender(<Comp messages={generateMessages(10).concat(messages)} scrollHeight={600} />);
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp messages={generateMessages(10).concat(messages)} scrollHeight={600} />
+      </ChatProvider>,
+    );
 
     expect(onScrollBy).toHaveBeenCalledWith(200);
   });
@@ -86,7 +102,7 @@ describe('useMessageListScrollManager', () => {
 
       updateScrollTop(300);
 
-      return <div></div>;
+      return <div />;
     };
 
     const messages = generateMessages(20);
@@ -96,7 +112,11 @@ describe('useMessageListScrollManager', () => {
       </ChatProvider>,
     );
 
-    rerender(<Comp messages={messages.concat(generateMessages(10))} scrollHeight={600} />);
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages.concat(generateMessages(10))} scrollHeight={600} />
+      </ChatProvider>,
+    );
 
     expect(scrollToBottom).toHaveBeenCalledTimes(2);
   });
@@ -115,7 +135,7 @@ describe('useMessageListScrollManager', () => {
 
       updateScrollTop(props.scrollTop);
 
-      return <div></div>;
+      return <div />;
     };
 
     const messages = generateMessages(20);
@@ -161,7 +181,7 @@ describe('useMessageListScrollManager', () => {
 
       updateScrollTop(props.scrollTop);
 
-      return <div></div>;
+      return <div />;
     };
 
     const messages = generateMessages(20);

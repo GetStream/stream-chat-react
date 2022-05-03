@@ -7,7 +7,7 @@ import { useBreakpoint } from '../Message/hooks/useBreakpoint';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../../types/types';
 
 export type DropdownContainerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -124,7 +124,7 @@ export const SearchResults = <
 
   const containerStyle = popupResults && device === 'full' ? 'popup' : 'inline';
 
-  const ResultsContainer: React.FC = ({ children }) => (
+  const ResultsContainer = ({ children }: PropsWithChildrenOnly) => (
     <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
   );
 
@@ -166,7 +166,9 @@ export const SearchResults = <
         {SearchLoading ? (
           <SearchLoading />
         ) : (
-          <div className='str-chat__channel-search-container-searching'>{t('Searching...')}</div>
+          <div className='str-chat__channel-search-container-searching'>
+            {t<string>('Searching...')}
+          </div>
         )}
       </ResultsContainer>
     );
@@ -179,7 +181,7 @@ export const SearchResults = <
           <SearchEmpty />
         ) : (
           <div aria-live='polite' className='str-chat__channel-search-container-empty'>
-            {t('No results found')}
+            {t<string>('No results found')}
           </div>
         )}
       </ResultsContainer>

@@ -11,9 +11,11 @@ import { MESSAGE_ACTIONS } from '../utils';
 import { Attachment } from '../../Attachment';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
 
+import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
+
 import {
   generateChannel,
   generateMessage,
@@ -56,22 +58,30 @@ async function renderMessageOptions(
   return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
-        <ComponentProvider
+        <ChannelActionProvider
           value={{
-            Attachment,
-            // eslint-disable-next-line react/display-name
-            Message: () => (
-              <MessageSimple
-                channelConfig={channelConfig}
-                onReactionListClick={customMessageProps?.onReactionListClick}
-              />
-            ),
+            openThread: jest.fn(),
+            removeMessage: jest.fn(),
+            updateMessage: jest.fn(),
           }}
         >
-          <Message {...defaultMessageProps} {...customMessageProps}>
-            <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
-          </Message>
-        </ComponentProvider>
+          <ComponentProvider
+            value={{
+              Attachment,
+              // eslint-disable-next-line react/display-name
+              Message: () => (
+                <MessageSimple
+                  channelConfig={channelConfig}
+                  onReactionListClick={customMessageProps?.onReactionListClick}
+                />
+              ),
+            }}
+          >
+            <Message {...defaultMessageProps} {...customMessageProps}>
+              <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
+            </Message>
+          </ComponentProvider>
+        </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );
@@ -83,10 +93,14 @@ const reactionActionTestId = 'message-reaction-action';
 describe('<MessageOptions />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render message options when there is no message set', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { queryByTestId } = await renderMessageOptions({
       message: {},
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it.each([

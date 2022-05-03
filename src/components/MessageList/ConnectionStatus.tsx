@@ -6,7 +6,7 @@ import { CustomNotification } from './CustomNotification';
 import { useChatContext, useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-const UnMemoizedConnectionStatus: React.FC = <
+const UnMemoizedConnectionStatus = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { client } = useChatContext<StreamChatGenerics>('ConnectionStatus');
@@ -27,11 +27,9 @@ const UnMemoizedConnectionStatus: React.FC = <
 
   return (
     <CustomNotification active={!online} type='error'>
-      {t('Connection failure, reconnecting now...')}
+      {t<string>('Connection failure, reconnecting now...')}
     </CustomNotification>
   );
 };
 
-export const ConnectionStatus = React.memo(
-  UnMemoizedConnectionStatus,
-) as typeof UnMemoizedConnectionStatus;
+export const ConnectionStatus = React.memo(UnMemoizedConnectionStatus);

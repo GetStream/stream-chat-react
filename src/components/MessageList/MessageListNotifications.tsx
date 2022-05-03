@@ -40,7 +40,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
         onClick={scrollToBottom}
         showNotification={hasNewMessages || isNotAtLatestMessageSet}
       >
-        {isNotAtLatestMessageSet ? t('Latest Messages') : t('New Messages!')}
+        {isNotAtLatestMessageSet ? t<string>('Latest Messages') : t<string>('New Messages!')}
       </MessageNotification>
     </div>
   );

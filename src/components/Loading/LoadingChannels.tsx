@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LoadingItems: React.FC = () => (
+const LoadingItems = () => (
   <div className='str-chat__loading-channels-item'>
     <div className='str-chat__loading-channels-avatar' />
     <div className='str-chat__loading-channels-meta'>
@@ -10,7 +10,7 @@ const LoadingItems: React.FC = () => (
   </div>
 );
 
-const UnMemoizedLoadingChannels: React.FC = () => (
+const UnMemoizedLoadingChannels = () => (
   <div className='str-chat__loading-channels'>
     <LoadingItems />
     <LoadingItems />
@@ -21,6 +21,4 @@ const UnMemoizedLoadingChannels: React.FC = () => (
 /**
  * Loading indicator for the ChannelList
  */
-export const LoadingChannels = React.memo(
-  UnMemoizedLoadingChannels,
-) as typeof UnMemoizedLoadingChannels;
+export const LoadingChannels = React.memo(UnMemoizedLoadingChannels);

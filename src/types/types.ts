@@ -1,7 +1,9 @@
+import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
 import type { Event, ExtendableGenerics, LiteralStringForUnion, Mute } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
+export type PropsWithChildrenOnly = PropsWithChildren<Record<never, never>>;
 
 export type CustomTrigger = {
   [key: string]: {

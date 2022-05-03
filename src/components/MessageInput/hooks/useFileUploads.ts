@@ -29,11 +29,11 @@ export const useFileUploads = <
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useFileUploads');
   const { t } = useTranslationContext('useFileUploads');
 
-  const uploadFile = useCallback((id) => {
+  const uploadFile = useCallback((id: string) => {
     dispatch({ id, state: 'uploading', type: 'setFileUpload' });
   }, []);
 
-  const removeFile = useCallback((id) => {
+  const removeFile = useCallback((id: string) => {
     // TODO: cancel upload if still uploading
     dispatch({ id, type: 'removeFileUpload' });
   }, []);

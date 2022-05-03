@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 import { v4 as uuidv4 } from 'uuid';
 
 import { MessageInput } from '../MessageInput';
@@ -140,6 +141,13 @@ const tearDown = () => {
   jest.clearAllMocks();
 };
 
+function axeNoViolations(container) {
+  return async () => {
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  };
+}
+
 [
   { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
@@ -148,7 +156,7 @@ const tearDown = () => {
   const renderComponent = makeRenderFn(InputComponent);
 
   describe(`${componentName}`, () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
       useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
       channel = chatClient.channel('messaging', mockedChannel.id);
@@ -283,7 +291,9 @@ const tearDown = () => {
           ],
         };
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        formElement.dispatchEvent(clipboardEvent);
+        act(() => {
+          formElement.dispatchEvent(clipboardEvent);
+        });
         const filenameText = await findByText(filename);
         await waitFor(() => {
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
@@ -291,8 +301,8 @@ const tearDown = () => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
           expect(doImageUploadRequest).toHaveBeenCalledWith(image, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should upload an image when it is dropped on the dropzone', async () => {
@@ -305,13 +315,13 @@ const tearDown = () => {
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
-
+        act(() => {
+          dropFile(file, formElement);
+        });
         await waitFor(() => {
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
@@ -322,14 +332,19 @@ const tearDown = () => {
         });
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        dropFile(getFile(), formElement);
+
+        act(() => {
+          dropFile(getFile(), formElement);
+        });
 
         const filenameText = await findByText(filename);
 
         expect(filenameText).toBeInTheDocument();
-        expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(() => {
+          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        });
+
+        await waitFor(axeNoViolations(container));
       });
 
       it('should allow uploading files with the file upload button', async () => {
@@ -341,18 +356,21 @@ const tearDown = () => {
         const file = getFile();
         const input = (await findByTestId('fileinput')).querySelector('input');
 
-        fireEvent.change(input, {
-          target: {
-            files: [file],
-          },
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              files: [file],
+            },
+          });
         });
 
         const filenameText = await findByText(filename);
 
         expect(filenameText).toBeInTheDocument();
-        expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(() => {
+          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+        });
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should call error handler if an image failed to upload', async () => {
@@ -368,14 +386,16 @@ const tearDown = () => {
         jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => {
+          dropFile(file, formElement);
+        });
 
         await waitFor(() => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should call error handler if a file failed to upload and allow retrying', async () => {
@@ -392,7 +412,8 @@ const tearDown = () => {
         jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getFile();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         await waitFor(() => {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-file', expect.any(Object));
@@ -401,13 +422,14 @@ const tearDown = () => {
 
         doFileUploadRequest.mockImplementationOnce(() => Promise.resolve({ file }));
 
-        fireEvent.click(await findByText('retry'));
+        await act(async () => {
+          fireEvent.click(await findByText('retry'));
+        });
 
         await waitFor(() =>
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
@@ -418,8 +440,7 @@ const tearDown = () => {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).not.toHaveAttribute('multiple');
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should set multiple attribute on the file input if multipleUploads is true', async () => {
@@ -430,8 +451,7 @@ const tearDown = () => {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).toHaveAttribute('multiple');
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       const filename1 = '1.txt';
@@ -449,14 +469,17 @@ const tearDown = () => {
         const formElement = await findByPlaceholderText(inputPlaceholder);
 
         const file = getFile(filename1);
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
+
         await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
 
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
+
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+
+        await waitFor(axeNoViolations(container));
       });
 
       it('should only allow uploading 1 file if multipleUploads is false', async () => {
@@ -472,14 +495,14 @@ const tearDown = () => {
         const formElement = await findByPlaceholderText(inputPlaceholder);
 
         const file = getFile(filename1);
-        dropFile(file, formElement);
+        act(() => dropFile(file, formElement));
+
         await waitFor(() => expect(queryByText(filename1)).toBeInTheDocument());
 
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
@@ -499,8 +522,7 @@ const tearDown = () => {
       it('should not render file upload button', async () => {
         const { container, queryByTestId } = renderComponent();
         await waitFor(() => expect(queryByTestId('fileinput')).not.toBeInTheDocument());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Pasting images and files should do nothing', async () => {
@@ -525,14 +547,15 @@ const tearDown = () => {
           ],
         };
         const formElement = await findByPlaceholderText(inputPlaceholder);
-        formElement.dispatchEvent(clipboardEvent);
+
+        act(() => formElement.dispatchEvent(clipboardEvent));
+
         await waitFor(() => {
           expect(queryByText(filename)).not.toBeInTheDocument();
           expect(doFileUploadRequest).not.toHaveBeenCalled();
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should not upload an image when it is dropped on the dropzone', async () => {
@@ -545,13 +568,13 @@ const tearDown = () => {
         // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         await waitFor(() => {
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
     });
 
@@ -575,8 +598,7 @@ const tearDown = () => {
             text: messageText,
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
@@ -593,6 +615,7 @@ const tearDown = () => {
             value: messageText,
           },
         });
+
         await submit();
 
         expect(overrideMock).toHaveBeenCalledWith(
@@ -601,8 +624,7 @@ const tearDown = () => {
           }),
           channel.cid,
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('Should not do anything if the message is empty and has no files', async () => {
@@ -611,8 +633,7 @@ const tearDown = () => {
         await submit();
 
         expect(submitMock).not.toHaveBeenCalled();
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add image as attachment if a message is submitted with an image', async () => {
@@ -625,12 +646,15 @@ const tearDown = () => {
 
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getImage();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for image uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -642,8 +666,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add file as attachment if a message is submitted with a file', async () => {
@@ -656,12 +679,15 @@ const tearDown = () => {
 
         const formElement = await findByPlaceholderText(inputPlaceholder);
         const file = getFile();
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -673,8 +699,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
@@ -689,12 +714,15 @@ const tearDown = () => {
         const file = new File(['Message in a bottle'], 'the-police.mp3', {
           type: 'audio/mp3',
         });
-        dropFile(file, formElement);
+
+        act(() => dropFile(file, formElement));
 
         // wait for file uploading to complete before trying to send the message
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
+
         await submit();
+
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
@@ -706,8 +734,7 @@ const tearDown = () => {
             ]),
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
@@ -718,13 +745,14 @@ const tearDown = () => {
         });
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.keyDown(input, {
-          keyCode: 19,
-        });
+        act(() =>
+          fireEvent.keyDown(input, {
+            keyCode: 19,
+          }),
+        );
 
         expect(submitMock).not.toHaveBeenCalled();
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
@@ -736,18 +764,20 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 17,
-        });
+          fireEvent.keyDown(input, {
+            keyCode: 17,
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 13,
+          fireEvent.keyDown(input, {
+            keyCode: 13,
+          });
         });
 
         await submit();
@@ -758,8 +788,8 @@ const tearDown = () => {
             text: messageText,
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
@@ -771,26 +801,26 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 57,
+          fireEvent.keyDown(input, {
+            keyCode: 57,
+          });
         });
 
         await submit();
-
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
           expect.objectContaining({
             text: messageText,
           }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+        await waitFor(axeNoViolations(container));
       });
 
       it('should submit if just a tuple is provided and keycode events do match', async () => {
@@ -802,18 +832,20 @@ const tearDown = () => {
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        fireEvent.change(input, {
-          target: {
-            value: messageText,
-          },
-        });
+        act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 76,
-        });
+          fireEvent.keyDown(input, {
+            keyCode: 76,
+          });
 
-        fireEvent.keyDown(input, {
-          keyCode: 77,
+          fireEvent.keyDown(input, {
+            keyCode: 77,
+          });
         });
 
         await submit();
@@ -822,8 +854,8 @@ const tearDown = () => {
           channel.cid,
           expect.objectContaining({ text: messageText }),
         );
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
+
+        await waitFor(axeNoViolations(container));
       });
     });
 
@@ -875,16 +907,23 @@ const tearDown = () => {
       const { container, findByPlaceholderText, getByTestId, submit } = renderComponent();
 
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      fireEvent.change(formElement, {
-        target: {
-          selectionEnd: 1,
-          value: '@',
-        },
+
+      act(() => {
+        fireEvent.change(formElement, {
+          target: {
+            selectionEnd: 1,
+            value: '@',
+          },
+        });
       });
+
       const usernameListItem = await getByTestId('user-item-name');
       expect(usernameListItem).toBeInTheDocument();
 
-      fireEvent.click(usernameListItem);
+      act(() => {
+        fireEvent.click(usernameListItem);
+      });
+
       await submit();
 
       expect(submitMock).toHaveBeenCalledWith(
@@ -908,11 +947,14 @@ const tearDown = () => {
       });
       // remove all text from input
       const formElement = await findByPlaceholderText(inputPlaceholder);
-      fireEvent.change(formElement, {
-        target: {
-          selectionEnd: 1,
-          value: 'no mentioned users',
-        },
+
+      act(() => {
+        fireEvent.change(formElement, {
+          target: {
+            selectionEnd: 1,
+            value: 'no mentioned users',
+          },
+        });
       });
 
       await waitFor(() => submit());
@@ -940,8 +982,10 @@ const tearDown = () => {
 
       await waitFor(() => expect(queryByText('Suggestion List')).not.toBeInTheDocument());
 
-      fireEvent.change(formElement, {
-        target: { value: '/' },
+      act(() => {
+        fireEvent.change(formElement, {
+          target: { value: '/' },
+        });
       });
 
       if (componentName !== 'EditMessageForm') {
@@ -1039,86 +1083,6 @@ const tearDown = () => {
         });
         quotedMessagePreviewIsNotDisplayed(message);
       });
-    });
-  });
-});
-
-describe('MessageInputFlat', () => {
-  const renderComponent = (props = {}, channelProps = {}) => {
-    const renderResult = render(
-      <Chat client={chatClient}>
-        <ActiveChannelSetter activeChannel={channel} />
-        <Channel
-          doSendMessageRequest={submitMock}
-          doUpdateMessageRequest={editMock}
-          {...channelProps}
-        >
-          <MessageInput Input={MessageInputFlat} {...props} />
-        </Channel>
-      </Chat>,
-    );
-
-    return { ...renderResult };
-  };
-
-  describe('Attachments', () => {
-    it('Pasting images and files should result in uploading the files and add attachment class', async () => {
-      const doImageUploadRequest = mockUploadApi();
-      const doFileUploadRequest = mockUploadApi();
-      const { container, findByPlaceholderText } = renderComponent({
-        doFileUploadRequest,
-        doImageUploadRequest,
-      });
-
-      const file = getFile();
-      const image = getImage();
-
-      const clipboardEvent = new Event('paste', {
-        bubbles: true,
-      });
-      // set `clipboardData`. Mock DataTransfer object
-      clipboardEvent.clipboardData = {
-        items: [
-          {
-            getAsFile: () => file,
-            kind: 'file',
-          },
-          {
-            getAsFile: () => image,
-            kind: 'file',
-          },
-        ],
-      };
-      const formElement = await findByPlaceholderText(inputPlaceholder);
-      formElement.dispatchEvent(clipboardEvent);
-      const attachmentClass = container.firstChild.firstChild.firstChild;
-
-      await waitFor(() => {
-        expect(attachmentClass).toHaveClass('str-chat__input-flat-has-attachments');
-      });
-    });
-
-    it('Should upload an image when it is dropped on the dropzone and add attachment class', async () => {
-      const doImageUploadRequest = mockUploadApi();
-      const { container, findByPlaceholderText } = renderComponent({
-        doImageUploadRequest,
-      });
-      const formElement = await findByPlaceholderText(inputPlaceholder);
-      const file = getImage();
-      dropFile(file, formElement);
-
-      const attachmentClass = container.firstChild.firstChild.firstChild;
-      await waitFor(() =>
-        expect(attachmentClass).toHaveClass('str-chat__input-flat-has-attachments'),
-      );
-    });
-
-    it('Should not add attachment class if no attachment', async () => {
-      const { container } = renderComponent();
-      const attachmentClass = container.firstChild.firstChild.firstChild;
-      await waitFor(() =>
-        expect(attachmentClass).not.toHaveClass('str-chat__input-flat-has-attachments'),
-      );
     });
   });
 });
