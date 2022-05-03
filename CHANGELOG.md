@@ -1,3 +1,5 @@
+## [8.1.3-beta.1](https://github.com/GetStream/stream-chat-react/compare/v8.1.2...v8.1.3-beta.1) (2022-05-03)
+
 ## [8.1.2](https://github.com/GetStream/stream-chat-react/compare/v8.1.1...v8.1.2) (2022-04-27)
 
 
