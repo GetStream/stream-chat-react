@@ -737,34 +737,44 @@ function axeNoViolations(container) {
         await waitFor(axeNoViolations(container));
       });
 
-      it('should not submit if keycodeSubmitKeys are provided and keydown events do not match', async () => {
+      it('should not submit if shouldSubmit function is provided but keydown events do not match', async () => {
+        const submitHandler = jest.fn();
         const { container, findByPlaceholderText } = renderComponent({
           messageInputProps: {
-            keycodeSubmitKeys: [[17]],
+            overrideSubmitHandler: submitHandler,
+            shouldSubmit: (e) => e.key === '9',
           },
         });
         const input = await findByPlaceholderText(inputPlaceholder);
 
+        const messageText = 'Submission text.';
         act(() =>
-          fireEvent.keyDown(input, {
-            keyCode: 19,
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
           }),
         );
 
-        expect(submitMock).not.toHaveBeenCalled();
+        act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+
+        expect(submitHandler).not.toHaveBeenCalled();
         await waitFor(axeNoViolations(container));
       });
 
-      it('should submit if keycodeSubmitKeys are provided and keydown events do match', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
+      it('should submit if shouldSubmit function is provided and keydown events do match', async () => {
+        const submitHandler = jest.fn();
+
+        const { container, findByPlaceholderText } = renderComponent({
           messageInputProps: {
-            keycodeSubmitKeys: [[17, 13]],
+            overrideSubmitHandler: submitHandler,
+            shouldSubmit: (e) => e.key === 'Enter',
           },
         });
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        act(() => {
+        await act(() => {
           fireEvent.change(input, {
             target: {
               value: messageText,
@@ -772,36 +782,32 @@ function axeNoViolations(container) {
           });
 
           fireEvent.keyDown(input, {
-            keyCode: 17,
-          });
-
-          fireEvent.keyDown(input, {
-            keyCode: 13,
+            key: 'Enter',
           });
         });
 
-        await submit();
-
-        expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+        expect(submitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
             text: messageText,
           }),
+          channel.cid,
         );
 
         await waitFor(axeNoViolations(container));
       });
 
-      it('should submit if [[16,13], [57], [48]] are provided as keycodeSubmitKeys and keydown events match 57', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
+      it('should not submit if Shift key is pressed', async () => {
+        const submitHandler = jest.fn();
+
+        const { container, findByPlaceholderText } = renderComponent({
           messageInputProps: {
-            keycodeSubmitKeys: [[16, 13], [57], [48]],
+            overrideSubmitHandler: submitHandler,
           },
         });
         const messageText = 'Submission text.';
         const input = await findByPlaceholderText(inputPlaceholder);
 
-        act(() => {
+        await act(() => {
           fireEvent.change(input, {
             target: {
               value: messageText,
@@ -809,51 +815,12 @@ function axeNoViolations(container) {
           });
 
           fireEvent.keyDown(input, {
-            keyCode: 57,
+            key: 'Enter',
+            shiftKey: true,
           });
         });
 
-        await submit();
-        expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
-          expect.objectContaining({
-            text: messageText,
-          }),
-        );
-        await waitFor(axeNoViolations(container));
-      });
-
-      it('should submit if just a tuple is provided and keycode events do match', async () => {
-        const { container, findByPlaceholderText, submit } = renderComponent({
-          messageInputProps: {
-            keycodeSubmitKeys: [[76, 77]],
-          },
-        });
-        const messageText = 'Submission text.';
-        const input = await findByPlaceholderText(inputPlaceholder);
-
-        act(() => {
-          fireEvent.change(input, {
-            target: {
-              value: messageText,
-            },
-          });
-
-          fireEvent.keyDown(input, {
-            keyCode: 76,
-          });
-
-          fireEvent.keyDown(input, {
-            keyCode: 77,
-          });
-        });
-
-        await submit();
-
-        expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
-          expect.objectContaining({ text: messageText }),
-        );
+        expect(submitHandler).not.toHaveBeenCalled();
 
         await waitFor(axeNoViolations(container));
       });

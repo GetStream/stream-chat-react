@@ -46,9 +46,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
-      keycodeSubmitShiftE: false,
       left: null,
-      listenerIndex: {},
       selectionEnd: 0,
       selectionStart: 0,
       top: null,
@@ -87,10 +85,12 @@ export class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
-  _handleKeyDown = (event) => {
-    const { keycodeSubmitKeys: submitKeys = [] } = this.props;
+  _defaultShouldSubmit = (event) => event.key === 'Enter' && !event.shiftKey;
 
-    if (event.key === 'Enter' || submitKeys.includes(event.key)) return this._onEnter(event);
+  _handleKeyDown = (event) => {
+    const { shouldSubmit = this._defaultShouldSubmit } = this.props;
+
+    if (shouldSubmit?.(event)) return this._onEnter(event);
     if (event.key === ' ') return this._onSpace(event);
     if (event.key === 'Escape') return this._closeAutocomplete();
   };
@@ -99,16 +99,6 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (!this.textareaRef) return;
 
     const trigger = this.state.currentTrigger;
-    const hasFocus = this.textareaRef.matches(':focus');
-
-    // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
-    if (
-      !hasFocus ||
-      (event.shiftKey === true && !this.keycodeSubmitShiftE) ||
-      (event.shiftKey === true && !this.props.keycodeSubmitKeys)
-    ) {
-      return;
-    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit
@@ -424,7 +414,6 @@ export class ReactTextareaAutocomplete extends React.Component {
       'innerRef',
       'itemClassName',
       'itemStyle',
-      'keycodeSubmitKeys',
       'listClassName',
       'listStyle',
       'loaderClassName',
@@ -437,6 +426,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'shouldSubmit',
       'showCommandsList',
       'showMentionsList',
       'SuggestionItem',
@@ -727,7 +717,6 @@ ReactTextareaAutocomplete.propTypes = {
   dropdownStyle: PropTypes.object,
   itemClassName: PropTypes.string,
   itemStyle: PropTypes.object,
-  keycodeSubmitKeys: PropTypes.array,
   listClassName: PropTypes.string,
   listStyle: PropTypes.object,
   loaderClassName: PropTypes.string,
@@ -738,6 +727,7 @@ ReactTextareaAutocomplete.propTypes = {
   onCaretPositionChange: PropTypes.func,
   onChange: PropTypes.func,
   onSelect: PropTypes.func,
+  shouldSubmit: PropTypes.func,
   style: PropTypes.object,
   SuggestionList: PropTypes.elementType,
   trigger: triggerPropsCheck,
