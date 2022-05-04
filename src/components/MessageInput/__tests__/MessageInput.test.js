@@ -737,6 +737,35 @@ function axeNoViolations(container) {
         await waitFor(axeNoViolations(container));
       });
 
+      it('should submit if shouldSubmit function is not provided but keydown events do match', async () => {
+        const submitHandler = jest.fn();
+        const { container, findByPlaceholderText } = renderComponent({
+          messageInputProps: {
+            overrideSubmitHandler: submitHandler,
+          },
+        });
+        const input = await findByPlaceholderText(inputPlaceholder);
+
+        const messageText = 'Submission text.';
+        act(() =>
+          fireEvent.change(input, {
+            target: {
+              value: messageText,
+            },
+          }),
+        );
+
+        act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+
+        expect(submitHandler).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: messageText,
+          }),
+          channel.cid,
+        );
+        await waitFor(axeNoViolations(container));
+      });
+
       it('should not submit if shouldSubmit function is provided but keydown events do not match', async () => {
         const submitHandler = jest.fn();
         const { container, findByPlaceholderText } = renderComponent({
@@ -768,7 +797,7 @@ function axeNoViolations(container) {
         const { container, findByPlaceholderText } = renderComponent({
           messageInputProps: {
             overrideSubmitHandler: submitHandler,
-            shouldSubmit: (e) => e.key === 'Enter',
+            shouldSubmit: (e) => e.key === '9',
           },
         });
         const messageText = 'Submission text.';
@@ -782,7 +811,7 @@ function axeNoViolations(container) {
           });
 
           fireEvent.keyDown(input, {
-            key: 'Enter',
+            key: '9',
           });
         });
 
