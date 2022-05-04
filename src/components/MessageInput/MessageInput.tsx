@@ -73,7 +73,7 @@ export type MessageInputProps<
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
   /**
    * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
-   * If specified, this function overrides default behavior specified previously.
+   * If specified, this function overrides the default behavior specified previously.
    *
    * Example of default behaviour:
    * ```tsx
