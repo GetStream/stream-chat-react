@@ -302,7 +302,7 @@ function axeNoViolations(container) {
           expect(doImageUploadRequest).toHaveBeenCalledWith(image, expect.any(Object));
         });
 
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should upload an image when it is dropped on the dropzone', async () => {
@@ -321,7 +321,7 @@ function axeNoViolations(container) {
         await waitFor(() => {
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should upload, display and link to a file when it is dropped on the dropzone', async () => {
@@ -344,7 +344,7 @@ function axeNoViolations(container) {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
         });
 
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should allow uploading files with the file upload button', async () => {
@@ -370,7 +370,7 @@ function axeNoViolations(container) {
         await waitFor(() => {
           expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
         });
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should call error handler if an image failed to upload', async () => {
@@ -395,7 +395,7 @@ function axeNoViolations(container) {
           expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should call error handler if a file failed to upload and allow retrying', async () => {
@@ -429,7 +429,7 @@ function axeNoViolations(container) {
         await waitFor(() =>
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should not set multiple attribute on the file input if multipleUploads is false', async () => {
@@ -440,7 +440,7 @@ function axeNoViolations(container) {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).not.toHaveAttribute('multiple');
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should set multiple attribute on the file input if multipleUploads is true', async () => {
@@ -451,7 +451,7 @@ function axeNoViolations(container) {
         });
         const input = (await findByTestId('fileinput')).querySelector('input');
         expect(input).toHaveAttribute('multiple');
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       const filename1 = '1.txt';
@@ -479,7 +479,7 @@ function axeNoViolations(container) {
 
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
 
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should only allow uploading 1 file if multipleUploads is false', async () => {
@@ -502,7 +502,7 @@ function axeNoViolations(container) {
         const file2 = getFile(filename2);
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(queryByText(filename2)).not.toBeInTheDocument());
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
@@ -522,7 +522,7 @@ function axeNoViolations(container) {
       it('should not render file upload button', async () => {
         const { container, queryByTestId } = renderComponent();
         await waitFor(() => expect(queryByTestId('fileinput')).not.toBeInTheDocument());
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Pasting images and files should do nothing', async () => {
@@ -555,7 +555,7 @@ function axeNoViolations(container) {
           expect(doFileUploadRequest).not.toHaveBeenCalled();
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should not upload an image when it is dropped on the dropzone', async () => {
@@ -574,7 +574,7 @@ function axeNoViolations(container) {
         await waitFor(() => {
           expect(doImageUploadRequest).not.toHaveBeenCalled();
         });
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
     });
 
@@ -598,7 +598,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
@@ -624,7 +624,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('Should not do anything if the message is empty and has no files', async () => {
@@ -633,7 +633,7 @@ function axeNoViolations(container) {
         await submit();
 
         expect(submitMock).not.toHaveBeenCalled();
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should add image as attachment if a message is submitted with an image', async () => {
@@ -666,7 +666,7 @@ function axeNoViolations(container) {
             ]),
           }),
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should add file as attachment if a message is submitted with a file', async () => {
@@ -699,7 +699,7 @@ function axeNoViolations(container) {
             ]),
           }),
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
@@ -734,7 +734,7 @@ function axeNoViolations(container) {
             ]),
           }),
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should submit if shouldSubmit function is not provided but keydown events do match', async () => {
@@ -763,7 +763,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
         );
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should not submit if shouldSubmit function is provided but keydown events do not match', async () => {
@@ -788,7 +788,7 @@ function axeNoViolations(container) {
         act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
         expect(submitHandler).not.toHaveBeenCalled();
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should submit if shouldSubmit function is provided and keydown events do match', async () => {
@@ -822,7 +822,7 @@ function axeNoViolations(container) {
           channel.cid,
         );
 
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
 
       it('should not submit if Shift key is pressed', async () => {
@@ -851,7 +851,7 @@ function axeNoViolations(container) {
 
         expect(submitHandler).not.toHaveBeenCalled();
 
-        await waitFor(axeNoViolations(container));
+        await axeNoViolations(container);
       });
     });
 
