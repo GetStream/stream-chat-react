@@ -58,11 +58,12 @@ export const ChannelPreview = <
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
   const { channel, Preview = ChannelPreviewMessenger, channelUpdateCount } = props;
-
   const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
     'ChannelPreview',
   );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
+  const [displayTitle, setDisplayTitle] = useState(getDisplayTitle(channel, client.user));
+  const [displayImage, setDisplayImage] = useState(getDisplayImage(channel, client.user));
 
   const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
@@ -109,10 +110,25 @@ export const ChannelPreview = <
     };
   }, [refreshUnreadCount, channelUpdateCount]);
 
+  useEffect(() => {
+    const handleEvent = () => {
+      const newDisplayTitle = getDisplayTitle(channel, client.user);
+      const newDisplayImage = getDisplayImage(channel, client.user);
+      if (newDisplayTitle !== displayTitle) {
+        setDisplayTitle(newDisplayTitle);
+      }
+      if (newDisplayImage !== displayImage) {
+        setDisplayImage(newDisplayImage);
+      }
+    };
+    client.on('user.updated', handleEvent);
+    return () => {
+      client.off('user.updated', handleEvent);
+    };
+  }, []);
+
   if (!Preview) return null;
 
-  const displayImage = getDisplayImage(channel, client.user);
-  const displayTitle = getDisplayTitle(channel, client.user);
   const latestMessage = getLatestMessagePreview(channel, t, userLanguage);
 
   return (
