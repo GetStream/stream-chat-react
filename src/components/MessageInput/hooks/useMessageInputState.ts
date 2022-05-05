@@ -1,7 +1,7 @@
 import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
-import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
 import { useAttachments } from './useAttachments';
@@ -180,7 +180,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'image')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.fallback || '',
@@ -198,7 +198,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'file')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.title || '',
