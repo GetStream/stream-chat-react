@@ -26,7 +26,7 @@ import {
   queryChannelsApi,
   useMockedApis,
 } from 'mock-builders';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
@@ -678,7 +678,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newChannelName = uuidv4();
+        const newChannelName = nanoid();
         act(() =>
           dispatchChannelUpdatedEvent(chatClientUthred, {
             ...testChannel2.channel,
@@ -706,7 +706,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newChannelName = uuidv4();
+        const newChannelName = nanoid();
 
         act(() =>
           dispatchChannelUpdatedEvent(chatClientUthred, {

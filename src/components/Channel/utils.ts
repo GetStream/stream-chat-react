@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { ChannelNotifications } from '../../context/ChannelStateContext';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 export const makeAddNotifications = (
   setNotifications: Dispatch<SetStateAction<ChannelNotifications>>,
@@ -10,7 +10,7 @@ export const makeAddNotifications = (
     return;
   }
 
-  const id = uuidv4();
+  const id = nanoid();
 
   setNotifications((prevNotifications) => [...prevNotifications, { id, text, type }]);
 

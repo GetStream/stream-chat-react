@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import { v4 as uuidV4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
@@ -138,9 +138,9 @@ export const processMessages = <
 export const makeDateMessageId = (date?: string | Date) => {
   let idSuffix;
   try {
-    idSuffix = !date ? uuidV4() : date instanceof Date ? date.toISOString() : date;
+    idSuffix = !date ? nanoid() : date instanceof Date ? date.toISOString() : date;
   } catch (e) {
-    idSuffix = uuidV4();
+    idSuffix = nanoid();
   }
   return `${CUSTOM_MESSAGE_TYPE.date}-${idSuffix}`;
 };

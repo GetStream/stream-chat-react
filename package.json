@@ -41,6 +41,7 @@
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
     "mdast-util-find-and-replace": "1.1.1",
+    "nanoid": "^3.3.4",
     "pretty-bytes": "^5.4.1",
     "prop-types": "^15.7.2",
     "react-fast-compare": "^3.2.0",
@@ -51,8 +52,7 @@
     "react-player": "^2.7.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "^2.10.2",
-    "textarea-caret": "^3.1.0",
-    "uuid": "^8.3.1"
+    "textarea-caret": "^3.1.0"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5",

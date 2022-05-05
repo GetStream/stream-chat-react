@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import { MessageInput } from '../MessageInput';
 import { MessageInputFlat } from '../MessageInputFlat';
@@ -1054,7 +1054,7 @@ function axeNoViolations(container) {
       it('is updated on original message update', async () => {
         const message = render();
         await initQuotedMessagePreview(message);
-        message.text = uuidv4();
+        message.text = nanoid();
         act(() => {
           dispatchMessageUpdatedEvent(chatClient, message, channel);
         });

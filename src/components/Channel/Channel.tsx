@@ -23,7 +23,7 @@ import {
   UpdatedMessage,
   UserResponse,
 } from 'stream-chat';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
@@ -618,7 +618,7 @@ const ChannelInner = <
     parent: StreamMessage<StreamChatGenerics> | undefined,
     mentioned_users: UserResponse<StreamChatGenerics>[],
   ) => {
-    const clientSideID = `${client.userID}-${uuidv4()}`;
+    const clientSideID = `${client.userID}-${nanoid()}`;
 
     return ({
       __html: text,

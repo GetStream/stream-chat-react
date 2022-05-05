@@ -2,7 +2,7 @@
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
 import type { ChannelSort } from 'stream-chat';
-import { v4 as uuid } from 'uuid';
+import { nanoid } from 'nanoid';
 import {
   Channel,
   ChannelHeader,
@@ -33,7 +33,7 @@ const Controls = () => {
         data-testid='add-message'
         onClick={() =>
           channel.sendMessage({
-            text: uuid(),
+            text: nanoid(),
           })
         }
       >
