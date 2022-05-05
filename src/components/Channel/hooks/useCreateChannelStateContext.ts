@@ -73,7 +73,7 @@ export const useCreateChannelStateContext = <
               updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
                 ? updated_at.toISOString()
                 : updated_at || ''
-            }${user?.image}${user?.name}`,
+            }${user?.updated_at}`,
         )
         .join();
 
@@ -86,7 +86,7 @@ export const useCreateChannelStateContext = <
           updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
             ? updated_at.toISOString()
             : updated_at || ''
-        }${user?.image}${user?.name}`,
+        }${user?.updated_at}`,
     )
     .join();
 
