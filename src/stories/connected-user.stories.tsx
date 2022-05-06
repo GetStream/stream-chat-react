@@ -44,7 +44,11 @@ const sort: ChannelSort = { last_updated: 1 };
 
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
   <ConnectedUser token={token} userId={userId}>
-    <ChannelList filters={{ members: { $in: [userId] } }} sort={sort} />
+    <ChannelList
+      filters={{ id: { $eq: 'add-message' }, members: { $in: [userId] } }}
+      setActiveChannelOnMount={false}
+      sort={sort}
+    />
     <Channel>
       <Window>
         <ChannelHeader />

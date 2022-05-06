@@ -10,9 +10,10 @@ const suiteArray = [
 suiteArray.forEach(([mode, story]) => {
   test.describe(`jump to message - ${mode}`, () => {
     test.beforeEach(async ({ baseURL, page }) => {
-      await page.goto(`${baseURL}/?story=${story}`);
-      await page.waitForSelector('[data-storyloaded]');
-      await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
+      await Promise.all([
+        page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149'),
+        page.goto(`${baseURL}/?story=${story}`),
+      ]);
     });
 
     test(`${mode} jumps to message 29 and then back to bottom`, async ({ page }) => {
@@ -35,11 +36,16 @@ suiteArray.forEach(([mode, story]) => {
 
 test.describe('jump to messsage - dataset', () => {
   test('only the current message set is loaded', async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=jump-to-message--jump-in-regular-message-list`);
-    await page.waitForSelector('[data-storyloaded]');
-    await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
-    await page.click('data-testid=jump-to-message');
-    await page.waitForSelector('text=Message 29');
+    await Promise.all([
+      page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149'),
+      page.goto(`${baseURL}/?story=jump-to-message--jump-in-regular-message-list`),
+    ]);
+
+    await Promise.all([
+      page.waitForSelector('text=Message 29'),
+      page.click('data-testid=jump-to-message'),
+    ]);
+
     const listItems = page.locator('.str-chat__ul > li');
     await expect(listItems).toHaveCount(26);
   });
