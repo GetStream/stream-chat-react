@@ -147,12 +147,13 @@ export const useSubmitHandler = <
         dispatch({ type: 'clear' });
 
         if (overrideSubmitHandler) {
-          overrideSubmitHandler(
+          await overrideSubmitHandler(
             {
               ...updatedMessage,
               parent,
             },
             channel.cid,
+            customMessageData,
           );
         } else {
           await sendMessage(
