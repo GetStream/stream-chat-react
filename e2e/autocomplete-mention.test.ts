@@ -1,21 +1,22 @@
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+
+import {test} from './user/test';
+import { selectors } from './user/Controller';
+import { getMessageInput } from './user/components/MessageInput';
+
+const MENTION_TRIGGER = '@';
 
 test.describe('autocomplete a mention', () => {
-  test('should fill in textarea with username', async ({ baseURL, page }) => {
-    await Promise.all([
-      page.waitForSelector('data-testid=message-input'),
-      page.goto(`${baseURL}/?story=hello--basic-setup`),
-    ]);
+  test('should fill in textarea with username', async ({ controller, user, page }) => {
+    await controller.openStory('hello--basic-setup', selectors.messageInput );
 
-    await page.fill('data-testid=message-input', '@');
-    const button = await page.locator(
-      'button.rta__entity >> :nth-match(span.str-chat__user-item--name, 1)',
-    );
-    button.click();
-    const textContent = await button.textContent();
+    await user.typesTo.MessageInput.text(MENTION_TRIGGER);
 
-    await expect(page.locator('data-testid=message-input')).toContainText(`@${textContent}`);
+    const autocompleteSuggestionItem = await user.clicks.AutocompleteSuggestionItem(1)
+    const textContent = await autocompleteSuggestionItem.textContent();
+
+    await expect(getMessageInput(page)).toContainText(`${MENTION_TRIGGER}${textContent}`);
   });
-});
+})
