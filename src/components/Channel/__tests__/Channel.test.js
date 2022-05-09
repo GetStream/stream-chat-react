@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Channel } from '../Channel';
@@ -22,11 +22,15 @@ import {
   threadRepliesApi,
   useMockedApis,
 } from '../../../mock-builders';
+import { MessageList } from '../../MessageList';
+import { Thread } from '../../Thread';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
+
+const MockAvatar = ({ user }) => <div className='avatar'>{user.custom}</div>;
 
 let chatClient;
 let channel;
@@ -63,12 +67,12 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
-const user = generateUser({ id: 'id', name: 'name' });
+const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
 
 // create a full message state so we can properly test `loadMore`
 const messages = [];
 for (let i = 0; i < 25; i++) {
-  messages.push(generateMessage());
+  messages.push(generateMessage({ user }));
 }
 
 const pinnedMessages = [generateMessage({ pinned: true, user })];
@@ -110,7 +114,7 @@ describe('Channel', () => {
   });
 
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', () => {
-    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>}></Channel>);
+    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>} />);
 
     expect(getByText('empty')).toBeInTheDocument();
   });
@@ -740,6 +744,100 @@ describe('Channel', () => {
         });
 
         await waitFor(() => expect(newThreadMessageWasAdded).toBe(true));
+      });
+
+      it('should update user data in MessageList based on updated_at', async () => {
+        const updatedAttribute = { custom: 'newCustomValue' };
+        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+          {
+            user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
+          },
+          'user.updated',
+        );
+        renderComponent({ Avatar: MockAvatar, children: <MessageList /> });
+
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
+        act(() => {
+          dispatchUserUpdatedEvent();
+        });
+        await waitFor(() =>
+          expect(screen.queryAllByText(updatedAttribute.custom).length).toBeGreaterThan(0),
+        );
+      });
+
+      it('should not update user data in MessageList if updated_at has not changed', async () => {
+        const updatedAttribute = { custom: 'newCustomValue' };
+        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+          {
+            user: { ...user, ...updatedAttribute },
+          },
+          'user.updated',
+        );
+        renderComponent({ Avatar: MockAvatar, children: <MessageList /> });
+
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
+        act(() => {
+          dispatchUserUpdatedEvent();
+        });
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
+      });
+
+      it('should update user data in Thread if updated_at has changed', async () => {
+        const threadMessage = messages[0];
+        const updatedAttribute = { custom: 'newCustomValue' };
+        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+          {
+            user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
+          },
+          'user.updated',
+        );
+        renderComponent({ Avatar: MockAvatar, children: <Thread /> }, ({ openThread, thread }) => {
+          if (!thread) {
+            openThread(threadMessage, { preventDefault: () => null });
+          }
+        });
+
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
+        act(() => {
+          dispatchUserUpdatedEvent();
+        });
+        await waitFor(() =>
+          expect(screen.queryAllByText(updatedAttribute.custom).length).toBeGreaterThan(0),
+        );
+      });
+
+      it('should not update user data in Thread if updated_at has not changed', async () => {
+        const threadMessage = messages[0];
+        const updatedAttribute = { custom: 'newCustomValue' };
+        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+          {
+            user: { ...user, ...updatedAttribute },
+          },
+          'user.updated',
+        );
+        renderComponent({ Avatar: MockAvatar, children: <Thread /> }, ({ openThread, thread }) => {
+          if (!thread) {
+            openThread(threadMessage, { preventDefault: () => null });
+          }
+        });
+
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
+        act(() => {
+          dispatchUserUpdatedEvent();
+        });
+        await waitFor(() =>
+          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+        );
       });
     });
   });

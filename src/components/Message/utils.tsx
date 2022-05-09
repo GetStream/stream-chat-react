@@ -246,8 +246,7 @@ export const areMessagePropsEqual = <
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.image === nextMessage.user?.image &&
-    prevMessage.user?.name === nextMessage.user?.name;
+    prevMessage.user?.updated_at === nextMessage.user?.updated_at;
 
   if (!messagesAreEqual) return false;
 
@@ -295,7 +294,7 @@ export const areMessageUIPropsEqual = <
     return false;
   }
 
-  const messagesAreEqual =
+  return (
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
@@ -305,12 +304,8 @@ export const areMessageUIPropsEqual = <
     prevMessage.text === nextMessage.text &&
     prevMessage.type === nextMessage.type &&
     prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.image === nextMessage.user?.image &&
-    prevMessage.user?.name === nextMessage.user?.name;
-
-  if (!messagesAreEqual) return false;
-
-  return true;
+    prevMessage.user?.updated_at === nextMessage.user?.updated_at
+  );
 };
 
 export const messageHasReactions = <
