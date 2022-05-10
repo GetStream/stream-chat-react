@@ -158,20 +158,22 @@ const tearDown = () => {
     it('should contain placeholder text if no default message text provided', async () => {
       const { getByPlaceholderText } = renderComponent();
       await waitFor(() => {
-        expect(getByPlaceholderText(inputPlaceholder)).toBeInTheDocument();
+        const textarea = getByPlaceholderText(inputPlaceholder);
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.value).toBe('');
       });
     });
 
     it('should contain default message text if provided', async () => {
       const defaultValue = uuidv4();
-      const { getByPlaceholderText, getByRole } = renderComponent({
+      const { queryByDisplayValue } = renderComponent({
         messageInputProps: {
           additionalTextareaProps: { defaultValue },
         },
       });
       await waitFor(() => {
-        expect(getByRole('textarea', { name: defaultValue })).toHaveTextContent(defaultValue);
-        expect(getByPlaceholderText(inputPlaceholder)).not.toBeInTheDocument();
+        const textarea = queryByDisplayValue(defaultValue);
+        expect(textarea).toBeInTheDocument();
       });
     });
 

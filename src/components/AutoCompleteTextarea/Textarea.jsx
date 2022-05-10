@@ -719,10 +719,9 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     if (!this.props.grow) maxRows = 1;
 
-    // By extracting defaultValue, avoid error:
+    // By setting defaultValue to undefined, avoid error:
     // ForwardRef(TextareaAutosize) contains a textarea with both value and defaultValue props.
     // Textarea elements must be either controlled or uncontrolled
-    const {defaultValue, additionalTextareaProps} = this.props.additionalTextareaProps;
 
     return (
       <div
@@ -747,7 +746,8 @@ export class ReactTextareaAutocomplete extends React.Component {
           }}
           style={style}
           value={value}
-          {...additionalTextareaProps}
+          {...this.props.additionalTextareaProps}
+          defaultValue={undefined}
         />
       </div>
     );
