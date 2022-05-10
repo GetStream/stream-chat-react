@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { DeliveredCheckIcon } from './icons';
 import { getReadByTooltipText } from './utils';
@@ -32,10 +32,12 @@ const UnMemoizedMessageStatus = <
     isMyMessage,
     lastReceivedId,
     message,
-    readBy,
+    readBy = [],
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
+
+  const filteredReadBy = useMemo(() => readBy.filter(Boolean), [readBy]);
 
   const Avatar = propAvatar || contextAvatar || DefaultAvatar;
 
@@ -43,7 +45,7 @@ const UnMemoizedMessageStatus = <
     return null;
   }
 
-  const justReadByMe = readBy?.length === 1 && readBy[0].id === client.user?.id;
+  const justReadByMe = filteredReadBy.length === 1 && filteredReadBy[0].id === client.user?.id;
 
   if (message.status === 'sending') {
     return (
@@ -57,15 +59,15 @@ const UnMemoizedMessageStatus = <
     );
   }
 
-  if (readBy?.length && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter((item) => item.id !== client.user?.id)[0];
+  if (filteredReadBy.length && !threadList && !justReadByMe) {
+    const [lastReadUser] = filteredReadBy.filter((item) => item.id !== client.user?.id);
 
     return (
       <span
         className={`str-chat__message-${messageType}-status`}
         data-testid='message-status-read-by'
       >
-        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
+        <Tooltip>{getReadByTooltipText(filteredReadBy, t, client)}</Tooltip>
         <Avatar
           image={lastReadUser.image}
           name={lastReadUser.name || lastReadUser.id}
