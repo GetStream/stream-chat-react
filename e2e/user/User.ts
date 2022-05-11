@@ -23,6 +23,7 @@ export function makeUser(page: Page) {
   return {
     clicks: {
       AutocompleteSuggestionItem: AutocompleteSuggestionItem.click,
+      ChannelPreview: ChannelPreview.click,
       MessageNotification: MessageNotification.click,
       QuotedMessage: QuotedMessage.click,
     },

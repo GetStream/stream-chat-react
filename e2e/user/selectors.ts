@@ -1,6 +1,8 @@
 export default {
   addMessageButton: 'data-testid=add-message',
-  channelPreviewButton: 'data-testid=channel-preview-button',
+  channelHeader: '.str-chat__header-livestream',
+  channelList: '.str-chat__channel-list-messenger__main',
+  channelPreviewButton: '[data-testid=channel-preview-button]',
   message: '.str-chat__message',
   messageInput: 'data-testid=message-input',
   messageList: '.str-chat__list',

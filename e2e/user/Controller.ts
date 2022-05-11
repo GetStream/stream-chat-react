@@ -13,6 +13,13 @@ export class Controller {
     ]);
   }
 
+  async reloadPage(waitForSelector: string) {
+    await Promise.all([
+      this.page.waitForSelector(waitForSelector),
+      this.page.reload({ waitUntil: 'networkidle' }),
+    ]);
+  }
+
   activateChannel() {
     return this.page.locator(selectors.channelPreviewButton).click();
   }
