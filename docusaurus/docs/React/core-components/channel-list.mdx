@@ -329,6 +329,14 @@ Custom UI component to display the channel preview in the list.
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | component | [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) |
 
+### renderChannels
+
+Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly.
+
+| Type     |
+| -------- |
+| function |
+
 ### sendChannelsToList
 
 If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop.

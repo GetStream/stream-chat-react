@@ -386,6 +386,33 @@ describe('ChannelList', () => {
     });
   });
 
+  it('should call `renderChannels` function prop, if provided', async () => {
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+    const renderChannels = jest.fn();
+    const channelListProps = {
+      filters: {},
+      List: ChannelListComponent,
+      Preview: ChannelPreviewComponent,
+      renderChannels: renderChannels,
+    };
+    const { container, getByRole } = render(
+      <Chat client={chatClientUthred}>
+        <ChannelList {...channelListProps} />
+      </Chat>,
+    );
+
+    // Wait for list of channels to load in DOM.
+    await waitFor(() => {
+      expect(getByRole('list')).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      expect(renderChannels).toHaveBeenCalled();
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   describe('Event handling', () => {
     describe('message.new', () => {
       const props = {
