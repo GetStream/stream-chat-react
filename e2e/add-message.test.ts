@@ -7,9 +7,9 @@ const CHANNEL_NAME = 'add-message' as const;
 
 test.describe('add text message', () => {
 
-  test.beforeEach(async ({controller}) => {
+  test.beforeEach(async ({controller, user}) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
-    await controller.activateChannel();
+    await user.clicks.ChannelPreview.text(CHANNEL_NAME);
   });
 
   test('message list and preview button should be clear', async ({controller, user}) => {
@@ -29,9 +29,10 @@ test.describe('add text message', () => {
 
 test.describe('receive a message', () => {
 
-  test.beforeEach(async ({controller}) => {
+  test.beforeEach(async ({controller, user}) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
-    await controller.activateChannel();
+
+    await user.clicks.ChannelPreview.text(CHANNEL_NAME);
 
     await controller.sendMessage();
 
@@ -43,9 +44,11 @@ test.describe('receive a message', () => {
     await user.sees.ChannelPreview(CHANNEL_NAME).contains.message('Hello world!');
   });
 
-  test('message list should update for different users on the channel', async ({controller, user}) => {
-    await controller.markChannelReadByClickingChannelPreview();
-
+  test('message list should update for different users on the channel', async ({user, page}) => {
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
+      user.clicks.ChannelPreview.text(CHANNEL_NAME)
+    ]);
     await user.sees.MessageList.not.empty();
     await user.sees.ChannelPreview(CHANNEL_NAME).read();
     await user.sees.MessageList.contains.nthMessage('Hello world!', 0);

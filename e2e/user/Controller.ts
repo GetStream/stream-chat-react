@@ -20,10 +20,6 @@ export class Controller {
     ]);
   }
 
-  activateChannel() {
-    return this.page.locator(selectors.channelPreviewButton).click();
-  }
-
   async clearChannel() {
     await Promise.all([
       this.page.waitForResponse((r) => r.url().includes('/truncate') && r.ok()),
@@ -36,13 +32,5 @@ export class Controller {
       this.page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       this.page.click(selectors.addMessageButton),
     ]);
-  }
-
-  async markChannelReadByClickingChannelPreview() {
-    await Promise.all([
-      this.page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
-      this.activateChannel(),
-    ]);
-
   }
 }
