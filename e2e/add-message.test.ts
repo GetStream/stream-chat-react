@@ -22,7 +22,7 @@ test.describe('add text message', () => {
     await controller.sendMessage();
 
     await user.sees.MessageList.not.empty();
-    await user.sees.MessageList.contains.message('Hello world!', 0);
+    await user.sees.MessageList.contains.nthMessage('Hello world!', 0);
     await user.sees.ChannelPreview(CHANNEL_NAME).contains.message('Hello world!');
   });
 });
@@ -48,6 +48,6 @@ test.describe('receive a message', () => {
 
     await user.sees.MessageList.not.empty();
     await user.sees.ChannelPreview(CHANNEL_NAME).read();
-    await user.sees.MessageList.contains.message('Hello world!', 0);
+    await user.sees.MessageList.contains.nthMessage('Hello world!', 0);
   });
 });

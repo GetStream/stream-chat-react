@@ -21,7 +21,7 @@ export default (page: Page) => {
         return await expect(listItems).toHaveCount(count);
       },
       contains: {
-        async message(text: string, index?: number) {
+        async nthMessage(text: string, index?: number) {
           let component = page.locator(`${selectors.message} :text("${text}")`);
           if (index !== undefined) {
             component = component.nth(index)
