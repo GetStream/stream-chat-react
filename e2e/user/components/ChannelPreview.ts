@@ -2,29 +2,41 @@ import { expect } from '@playwright/test';
 
 import type { Page } from '@playwright/test';
 
+import selectors from '../selectors';
 
 export default (page: Page) => {
-  function get() {
-    return page.locator('data-testid=channel-preview-button');
+  function getChannelPreview(text: string) {
+    return page.locator(`${selectors.channelPreviewButton}`, {hasText: text});
   }
 
   return {
-    async empty() {
-      return await expect(get()).toContainText('Nothing yet...');
-    },
-    async read() {
-      return await expect(get()).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
-    },
-    contains: {
-      async message(text: string | RegExp) {
-        return await expect(get()).toContainText(text);
+    get: (text: string) => getChannelPreview(text),
+    click: {
+      async text(text: string) {
+        await page.click(`${selectors.channelPreviewButton} :has-text("${text}")`, {strict: false})
       }
     },
-    not: {
-      async read() {
-        return await expect(get()).toHaveClass(/str-chat__channel-preview-messenger--unread/);
+    see(text: string) {
+      const target = getChannelPreview(text);
+      return {
+        async empty() {
+          return await expect(target).toContainText('Nothing yet...');
+        },
+        async read() {
+          return await expect(target).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
+        },
+        contains: {
+          async message(text: string | RegExp) {
+            return await expect(target).toContainText(text);
+          }
+        },
+        not: {
+          async read() {
+            return await expect(target).toHaveClass(/str-chat__channel-preview-messenger--unread/);
+          }
+        }
       }
-    }
+    },
   }
 }
 

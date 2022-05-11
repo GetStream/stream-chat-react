@@ -1,27 +1,43 @@
 import type { Page } from '@playwright/test';
 
+import makeAutocompleteSuggestionItem from './components/AutocompleteSuggestionList';
 import makeChannelPreview from './components/ChannelPreview';
-import messageList from './components/MessageList';
-import {actions as makeAutocompleteSuggestionItemActions} from './components/AutocompleteSuggestionList';
-import {actions as makeMsgInputActions} from './components/MessageInput';
+import makeMsgInput from './components/MessageInput';
+import makeMessageList from './components/MessageList/MessageList';
+import makeMessageNotification from './components/MessageList/MessageNotification';
+import messageSimple from './components/Message/MessageSimple';
+import makeQuotedMessage from './components/Message/QuotedMessage';
 
+export type TestingUser = ReturnType<typeof makeUser>;
 
 export function makeUser(page: Page) {
-  const AutocompleteSuggestionItems = makeAutocompleteSuggestionItemActions(page);
-  const msgInputActions = makeMsgInputActions(page);
+  const AutocompleteSuggestionItem = makeAutocompleteSuggestionItem(page);
+  const ChannelPreview = makeChannelPreview(page);
+  const MessageList = makeMessageList(page);
+  const MessageInput = makeMsgInput(page);
+  const MessageNotification = makeMessageNotification(page);
+  const MessageSimple = messageSimple(page);
+  const QuotedMessage = makeQuotedMessage(page);
+
 
   return {
     clicks: {
-      AutocompleteSuggestionItem: AutocompleteSuggestionItems.click
+      AutocompleteSuggestionItem: AutocompleteSuggestionItem.click,
+      MessageNotification: MessageNotification.click,
+      QuotedMessage: QuotedMessage.click,
+    },
+    get: {
+      Message: MessageSimple.get,
+      MessageNotification: MessageNotification.get,
+      QuotedMessage: QuotedMessage.get,
     },
     sees: {
-      MessageList: messageList(page),
-      ChannelPreview: makeChannelPreview(page)
+      Message: MessageSimple.see,
+      MessageList: MessageList.see,
+      ChannelPreview: ChannelPreview.see,
     },
     typesTo: {
-      MessageInput: { text: msgInputActions.typeIn}
+      MessageInput: MessageInput.typeTo,
     }
   }
 }
-
-export type TestingUser = ReturnType<typeof makeUser>;

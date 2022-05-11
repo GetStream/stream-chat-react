@@ -1,20 +1,14 @@
 import type { Page } from '@playwright/test';
 
-export const selectors = {
-  addMessageButton: 'data-testid=add-message',
-  channelPreviewButton: 'data-testid=channel-preview-button',
-  messageInput: 'data-testid=message-input',
-  messageList: '.str-chat__list',
-  truncateChannelButton: 'data-testid=truncate',
-};
+import  selectors  from './selectors';
 
 export class Controller {
   constructor(private baseURL: string | undefined, private page: Page) {
   }
 
-  async openStory(story: string, isLoadedIfAppears: string) {
+  async openStory(story: string, waitForPresence: string) {
     await Promise.all([
-      this.page.waitForSelector(isLoadedIfAppears),
+      this.page.waitForSelector(waitForPresence),
       this.page.goto(`${this.baseURL}/?story=${story}`),
     ]);
   }

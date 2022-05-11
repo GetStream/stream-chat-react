@@ -7,12 +7,17 @@ export async function  getAutocompleteSuggestionItem(page: Page, num: number) {
     `button.rta__entity >> :nth-match(span.str-chat__user-item--name, ${num})`,
   );
 }
-export function actions(page: Page) {
+export default (page: Page) => {
   return {
-    async click(num: number) {
-      const item = await getAutocompleteSuggestionItem(page, num);
-      item.click();
-      return item;
+    see: {
+
+    },
+    click: {
+      async nth(num: number) {
+        const item = await getAutocompleteSuggestionItem(page, num);
+        item.click();
+        return item;
+      }
     }
   }
 }

@@ -1,8 +1,13 @@
-import { test as base } from '@playwright/test';
+import { test as _test } from '@playwright/test';
 import { Controller } from './Controller';
 import { makeUser, TestingUser } from './User';
 
-export const test = base.extend<{ controller: Controller; user: TestingUser }>({
+interface CustomTestContext {
+  controller: Controller;
+  user: TestingUser
+}
+
+export const test = _test.extend<CustomTestContext>({
   controller: async ({ baseURL, page }, use) => {
     await use(new Controller(baseURL, page));
   },
