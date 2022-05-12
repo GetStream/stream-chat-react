@@ -1,89 +1,56 @@
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
-import { expect, Page, test } from '@playwright/test';
+import selectors from './user/selectors';
+import { test } from './user/test';
 
-function getPreview(page: Page) {
-  // with id:$eq filter there should be only one (add-message)
-  return page.locator('data-testid=channel-preview-button');
-}
+const CHANNEL_NAME = 'add-message' as const;
 
-test.describe('add a message', () => {
-  test.beforeEach(async ({ baseURL, page }) => {
-    await Promise.all([
-      page.waitForSelector('data-testid=add-message'),
-      page.goto(`${baseURL}/?story=connected-user--user1`),
-      getPreview(page).click(),
-    ]);
+test.describe('add text message', () => {
+
+  test.beforeEach(async ({controller, user}) => {
+    await controller.openStory('add-message--user1', selectors.channelPreviewButton);
+    await user.clicks.ChannelPreview.text(CHANNEL_NAME);
   });
 
-  test('message list and preview button should be clear', async ({ page }) => {
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/truncate') && r.ok()),
-      page.click('data-testid=truncate'),
-    ]);
-
-    const list = page.locator('.str-chat__list');
-    await expect(list).toBeEmpty();
-
-    await expect(getPreview(page)).toContainText('Nothing yet...');
+  test('message list and preview button should be clear', async ({controller, user}) => {
+    await controller.clearChannel()
+    await user.sees.MessageList.empty();
+    await user.sees.ChannelPreview(CHANNEL_NAME).empty();
   });
 
-  test('message list should update for current user', async ({ page }) => {
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      page.click('data-testid=add-message'),
-    ]);
+  test('message list should update for current user', async ({controller, user}) => {
+    await controller.sendMessage();
 
-    const list = page.locator('.str-chat__list');
-    await expect(list).not.toBeEmpty();
-    const newMessage = page.locator('.str-chat__message').first();
-    await expect(newMessage).toContainText('Hello world!');
-  });
-
-  test('channel list should update for current user', async ({ page }) => {
-    await expect(getPreview(page)).toContainText('Hello world!');
+    await user.sees.MessageList.not.empty();
+    await user.sees.MessageList.contains.nthMessage('Hello world!', 0);
+    await user.sees.ChannelPreview(CHANNEL_NAME).contains.message('Hello world!');
   });
 });
 
 test.describe('receive a message', () => {
-  test.beforeEach(async ({ baseURL, page }) => {
-    await Promise.all([
-      page.waitForSelector('data-testid=add-message'),
-      page.goto(`${baseURL}/?story=connected-user--user1`),
-      getPreview(page).click(),
-    ]);
 
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      page.click('data-testid=add-message'),
-    ]);
+  test.beforeEach(async ({controller, user}) => {
+    await controller.openStory('add-message--user1', selectors.channelPreviewButton);
 
-    await Promise.all([
-      page.waitForSelector('data-testid=channel-preview-button'),
-      page.goto(`${baseURL}/?story=connected-user--user2`),
-    ]);
+    await user.clicks.ChannelPreview.text(CHANNEL_NAME);
+
+    await controller.sendMessage();
+
+    await controller.openStory('add-message--user2', selectors.channelPreviewButton);
   });
 
-  test('channel list should update for channel members and show unread', async ({ page }) => {
-    const preview = getPreview(page);
-
-    await expect(preview).toHaveClass(/str-chat__channel-preview-messenger--unread/);
-    await expect(preview).toContainText('Hello world!');
+  test('channel list should update for channel members and show unread', async ({user}) => {
+    await user.sees.ChannelPreview(CHANNEL_NAME).not.read();
+    await user.sees.ChannelPreview(CHANNEL_NAME).contains.message('Hello world!');
   });
 
-  test('message list should update for different users on the channel', async ({ page }) => {
-    const preview = getPreview(page);
-
+  test('message list should update for different users on the channel', async ({user, page}) => {
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
-      preview.click(),
+      user.clicks.ChannelPreview.text(CHANNEL_NAME)
     ]);
-
-    await expect(preview).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
-
-    const list = page.locator('.str-chat__list');
-    await expect(list).not.toBeEmpty();
-    const newMessage = page.locator('.str-chat__message').first();
-    await expect(newMessage).toContainText('Hello world!');
+    await user.sees.MessageList.not.empty();
+    await user.sees.ChannelPreview(CHANNEL_NAME).read();
+    await user.sees.MessageList.contains.nthMessage('Hello world!', 0);
   });
 });

@@ -43,17 +43,8 @@ const JumpToMessage = () => {
   );
 };
 
-const StyleFix = () => (
-  <style>{`
-    .str-chat {
-      height: 700px
-    }
-  `}</style>
-);
-
 export const JumpInRegularMessageList = () => (
   <div>
-    <StyleFix />
     <ConnectedUser token={userToken} userId={userId}>
       <ChannelList filters={{ id: { $eq: channelId } }} />
       <Channel>
@@ -68,7 +59,6 @@ export const JumpInRegularMessageList = () => (
 
 export const JumpInVirtualizedMessageList = () => (
   <div>
-    <StyleFix />
     <ConnectedUser token={userToken} userId={userId}>
       <ChannelList filters={{ id: { $eq: channelId } }} />
       <Channel>
