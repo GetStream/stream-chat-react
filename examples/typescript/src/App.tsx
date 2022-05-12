@@ -1,3 +1,4 @@
+import './wdyr';
 import React from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 import {
