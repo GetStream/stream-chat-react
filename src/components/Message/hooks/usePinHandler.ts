@@ -8,6 +8,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 import type { ReactEventHandler } from '../types';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { useCallback } from 'react';
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinEnabledUserRoles<T extends string = string> = Partial<Record<T, boolean>> & {
@@ -57,56 +58,59 @@ export const usePinHandler = <
 
   const canPin = !!channelCapabilities['pin-message'];
 
-  const handlePin: ReactEventHandler = async (event) => {
-    event.preventDefault();
+  const handlePin: ReactEventHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
 
-    if (!message) return;
+      if (!message) return;
 
-    if (!message.pinned) {
-      try {
-        const optimisticMessage = {
-          ...message,
-          pinned: true,
-          pinned_at: new Date(),
-          pinned_by: client.user,
-        };
+      if (!message.pinned) {
+        try {
+          const optimisticMessage = {
+            ...message,
+            pinned: true,
+            pinned_at: new Date(),
+            pinned_by: client.user,
+          };
 
-        updateMessage(optimisticMessage);
+          updateMessage(optimisticMessage);
 
-        const messageResponse = await client.pinMessage(message);
+          const messageResponse = await client.pinMessage(message);
 
-        updateMessage(messageResponse.message);
-      } catch (e) {
-        const errorMessage =
-          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
+          updateMessage(messageResponse.message);
+        } catch (e) {
+          const errorMessage =
+            getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-        if (notify) notify(errorMessage || t('Error pinning message'), 'error');
-        updateMessage(message);
+          if (notify) notify(errorMessage || t('Error pinning message'), 'error');
+          updateMessage(message);
+        }
+      } else {
+        try {
+          const optimisticMessage = {
+            ...message,
+            pin_expires: null,
+            pinned: false,
+            pinned_at: null,
+            pinned_by: null,
+          };
+
+          updateMessage(optimisticMessage);
+
+          const messageResponse = await client.unpinMessage(message);
+
+          updateMessage(messageResponse.message);
+        } catch (e) {
+          const errorMessage =
+            getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
+
+          if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
+          updateMessage(message);
+        }
       }
-    } else {
-      try {
-        const optimisticMessage = {
-          ...message,
-          pin_expires: null,
-          pinned: false,
-          pinned_at: null,
-          pinned_by: null,
-        };
-
-        updateMessage(optimisticMessage);
-
-        const messageResponse = await client.unpinMessage(message);
-
-        updateMessage(messageResponse.message);
-      } catch (e) {
-        const errorMessage =
-          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
-
-        if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
-        updateMessage(message);
-      }
-    }
-  };
+    },
+    [client],
+  );
 
   return { canPin, handlePin };
 };

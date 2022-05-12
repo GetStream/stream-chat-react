@@ -1,3 +1,5 @@
+import { BaseSyntheticEvent, useCallback } from 'react';
+
 import { validateAndGetMessage } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -29,32 +31,37 @@ export const useFlagHandler = <
   const { client } = useChatContext<StreamChatGenerics>('useFlagHandler');
   const { t } = useTranslationContext('useFlagHandler');
 
-  return async (event) => {
-    event.preventDefault();
+  const handleFlag = useCallback(
+    async (event: BaseSyntheticEvent) => {
+      event.preventDefault();
 
-    const { getErrorNotification, getSuccessNotification, notify } = notifications;
+      const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-    if (!client || !t || !notify || !message?.id) {
-      console.warn(missingUseFlagHandlerParameterWarning);
-      return;
-    }
+      if (!client || !t || !notify || !message?.id) {
+        console.warn(missingUseFlagHandlerParameterWarning);
+        return;
+      }
 
-    if (client.user?.banned) {
-      return notify(t('Error adding flag'), 'error');
-    }
+      if (client.user?.banned) {
+        return notify(t('Error adding flag'), 'error');
+      }
 
-    try {
-      await client.flagMessage(message.id);
+      try {
+        await client.flagMessage(message.id);
 
-      const successMessage =
-        getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
+        const successMessage =
+          getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
 
-      notify(successMessage || t('Message has been successfully flagged'), 'success');
-    } catch (e) {
-      const errorMessage =
-        getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
+        notify(successMessage || t('Message has been successfully flagged'), 'success');
+      } catch (e) {
+        const errorMessage =
+          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      notify(errorMessage || t('Error adding flag'), 'error');
-    }
-  };
+        notify(errorMessage || t('Error adding flag'), 'error');
+      }
+    },
+    [client],
+  );
+
+  return handleFlag;
 };

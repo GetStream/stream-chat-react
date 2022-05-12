@@ -1,3 +1,5 @@
+import { BaseSyntheticEvent, useCallback } from 'react';
+
 import { validateAndGetMessage } from '../utils';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
@@ -29,20 +31,25 @@ export const useDeleteHandler = <
   const { client } = useChatContext<StreamChatGenerics>('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
-  return async (event) => {
-    event.preventDefault();
-    if (!message?.id || !client || !updateMessage) {
-      return;
-    }
+  const handleDelete = useCallback(
+    async (event: BaseSyntheticEvent) => {
+      event.preventDefault();
+      if (!message?.id || !client || !updateMessage) {
+        return;
+      }
 
-    try {
-      const data = await client.deleteMessage(message.id);
-      updateMessage(data.message);
-    } catch (e) {
-      const errorMessage =
-        getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
+      try {
+        const data = await client.deleteMessage(message.id);
+        updateMessage(data.message);
+      } catch (e) {
+        const errorMessage =
+          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      if (notify) notify(errorMessage || t('Error deleting message'), 'error');
-    }
-  };
+        if (notify) notify(errorMessage || t('Error deleting message'), 'error');
+      }
+    },
+    [client],
+  );
+
+  return handleDelete;
 };
