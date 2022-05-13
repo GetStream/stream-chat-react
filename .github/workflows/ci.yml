@@ -57,6 +57,13 @@ jobs:
           E2E_ADDITIONAL_CHANNELS: mr-channel-1, mr-channel-2
           E2E_LONG_MESSAGE_LISTS_CHANNEL: navigate-long-message-lists
 
+      - name: 🎥 Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: E2E_Artifacts
+          path: ./test-results
+          retention-days: 1
+
   test:
     runs-on: ubuntu-latest
     strategy:
