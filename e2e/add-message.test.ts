@@ -86,13 +86,16 @@ test.describe('reply to a message', () => {
 })
 
 test.describe('receive the reply', () => {
-  test.beforeEach(async ({controller, user: user1}) => {
+  test.beforeEach(async ({controller, user: user1, page}) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
     await user1.clicks.ChannelPreview.text(CHANNEL_NAME);
     await controller.clearChannel();
     await controller.sendMessage();
     await user1.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST);
-    await user1.submits.MessageInput.reply(ADDED_MESSAGE_THREAD);
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
+      user1.submits.MessageInput.reply(ADDED_MESSAGE_THREAD)
+    ])
     await controller.openStory('add-message--user2', selectors.channelPreviewButton);
   });
 
@@ -109,7 +112,7 @@ test.describe('receive the reply', () => {
     ]);
 
     await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
+      page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
       user2.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST),
     ]);
 
