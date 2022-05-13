@@ -79,7 +79,7 @@ test.describe('reply to a message', () => {
     await user.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST);
     await user.submits.MessageInput.reply(ADDED_MESSAGE_THREAD);
     await user.sees.Thread.not.empty();
-    await user.sees.Thread.contains.nthMessage(ADDED_MESSAGE_THREAD, -1);
+    await user.sees.Thread.inViewport.nthMessage(ADDED_MESSAGE_THREAD, -1);
     // todo: channel preview does not reflect new messages from thread
     // await user.sees.ChannelPreview(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_THREAD);
   });
@@ -118,6 +118,6 @@ test.describe('receive the reply', () => {
 
     await user2.sees.Thread.not.empty();
     await user2.sees.ChannelPreview(CHANNEL_NAME).read();
-    await user2.sees.Thread.contains.nthMessage(ADDED_MESSAGE_THREAD, -1);
+    await user2.sees.Thread.inViewport.nthMessage(ADDED_MESSAGE_THREAD, -1);
   });
 });

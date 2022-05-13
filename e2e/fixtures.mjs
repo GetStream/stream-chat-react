@@ -16,22 +16,23 @@ dotenv.config({ path: `.env.local` });
     E2E_TEST_USER_2,
   } = process.env;
 
-  async function generateMessages(msgCount, channel, parent_id) {
+  async function generateMessages(start, stop, channel, parent_id) {
+    const count = stop - start;
     let messageToQuote;
     const messageResponses = [];
-    for (let i = 0; i < msgCount; i++) {
+    for (let i = start; i < stop; i++) {
       if (process.stdout.clearLine && process.stdout.cursorTo) {
-        printProgress(i / msgCount);
+        printProgress((i-start) / count);
       }
 
       const res = await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
-        ...(i === 140 ? { quoted_message_id: messageToQuote.message.id } : {}),
+        ...(i === (start + 140) ? { quoted_message_id: messageToQuote.message.id } : {}),
         ...(parent_id ? { parent_id } : {}),
       });
 
-      if (i === 20) {
+      if (i === (start + 20)) {
         messageToQuote = res;
       }
       messageResponses.push(res);
@@ -57,7 +58,7 @@ dotenv.config({ path: `.env.local` });
     await channel.create();
     await channel.truncate();
 
-    await generateMessages(MESSAGES_COUNT, channel);
+    await generateMessages(0, MESSAGES_COUNT, channel);
 
     process.stdout.write('\n');
   }
@@ -73,8 +74,8 @@ dotenv.config({ path: `.env.local` });
     await channel.create();
     await channel.truncate();
 
-    const messages = await generateMessages(150, channel);
-    await generateMessages(150, channel, messages.slice(-1)[0].message.id)
+    const messages = await generateMessages(0, 150, channel);
+    await generateMessages(150, 300, channel, messages.slice(-1)[0].message.id)
 
 
     process.stdout.write('\n');

@@ -34,7 +34,18 @@ export class Controller {
     ]);
   }
 
+  async sendOtherUserReply() {
+    await Promise.all([
+      this.page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
+      this.page.click(selectors.buttonSendOtherUserReply),
+    ]);
+  }
+
   async deleteLastReply() {
     await this.page.click(selectors.controlsBtnDeleteLastReply);
+  }
+
+  async deleteOtherUserLastReply() {
+    await this.page.click(selectors.controlsBtnDeleteOtherUserLastReply);
   }
 }
