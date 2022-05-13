@@ -35,9 +35,6 @@ export class Controller {
   }
 
   async deleteLastReply() {
-    await Promise.all([
-      this.page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
-      this.page.click(selectors.controlsBtnDeleteLastReply)
-    ])
+    await this.page.click(selectors.controlsBtnDeleteLastReply);
   }
 }
