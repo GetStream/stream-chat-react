@@ -29,7 +29,7 @@ export default (page: Page) => {
       },
       not: {
         async empty() {
-          const replies = page.locator(`${selectors.threadReplyList} ul`);
+          const replies = page.locator(selectors.threadReplyListWithReplies);
           await expect(replies).not.toBeEmpty();
         },
         contains: {

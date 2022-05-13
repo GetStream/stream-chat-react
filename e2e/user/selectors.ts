@@ -22,6 +22,7 @@ export default {
   textMessage: '.str-chat__message-text',
   threadMessageList: '.str-chat__thread-list',
   threadReplyList: '.str-chat__list--thread',
+  threadReplyListWithReplies: '.str-chat__list--thread ul',
   threadStart: '.str-chat__thread-start',
   truncateChannelButton: 'data-testid=truncate',
 };
