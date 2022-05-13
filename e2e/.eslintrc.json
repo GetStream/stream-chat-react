@@ -1,0 +1,7 @@
+{
+  "extends": "../.eslintrc.json",
+  "rules": {
+    "jest/require-top-level-describe": "off",
+    "jest/no-done-callback": "off"
+  }
+}
