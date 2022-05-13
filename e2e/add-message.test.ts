@@ -108,7 +108,11 @@ test.describe('receive the reply', () => {
       user2.clicks.ChannelPreview.text(CHANNEL_NAME)
     ]);
 
-    await user2.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST)
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
+      user2.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST),
+    ]);
+
     await user2.sees.Thread.not.empty();
     await user2.sees.ChannelPreview(CHANNEL_NAME).read();
     await user2.sees.Thread.contains.nthMessage(ADDED_MESSAGE_THREAD, -1);
