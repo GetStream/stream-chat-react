@@ -104,10 +104,11 @@ test.describe('receive the reply', () => {
 
   test('the other user sees that reply to a message appeared at the bottom of the thread and in channel preview', async ({user: user2, page}) => {
     await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      user2.clicks.ChannelPreview.text(CHANNEL_NAME),
-      user2.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST)
+      page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
+      user2.clicks.ChannelPreview.text(CHANNEL_NAME)
     ]);
+
+    await user2.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST)
     await user2.sees.Thread.not.empty();
     await user2.sees.ChannelPreview(CHANNEL_NAME).read();
     await user2.sees.Thread.contains.nthMessage(ADDED_MESSAGE_THREAD, -1);

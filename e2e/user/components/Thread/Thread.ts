@@ -9,8 +9,8 @@ export default (page: Page) => {
       async close() {
         await page.click(selectors.buttonCloseThread);
       },
-      async open() {
-        await page.click(selectors.buttonCloseThread);
+      async open(text: string) {
+        await page.locator(selectors.messageRepliesButton, {hasText: text}).click();
       },
     },
     see: {
@@ -24,10 +24,19 @@ export default (page: Page) => {
         const replies = page.locator(`${selectors.threadReplyList}`);
         await expect(replies).toBeEmpty();
       },
+      async start() {
+        await expect(page.locator(selectors.threadStart)).toBeVisible();
+      },
       not: {
         async empty() {
           const replies = page.locator(`${selectors.threadReplyList} ul`);
           await expect(replies).not.toBeEmpty();
+        },
+        contains: {
+          async nthMessage(text: string, nth?: number) {
+            const isThread = true;
+            await expect(getMessage(page, text, nth, isThread)).not.toBeVisible();
+          },
         },
       },
     },
