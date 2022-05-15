@@ -7,6 +7,7 @@ const config: PlaywrightTestConfig = {
   use: {
     headless: true,
     viewport: { height: 920, width: 1280 },
+    screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'ladle serve --open none',
