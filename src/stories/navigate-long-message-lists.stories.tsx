@@ -96,22 +96,22 @@ const SetThreadOpen = () => {
 };
 
 const OtherUserControls = () => {
-  const theOtherUserCredentials = document.location.search.match(user1Id)
+  const theOtherUserCredentials = document.location.search.match('user1')
     ? { token: user2Token, userId: user2Id }
     : { token: user1Token, userId: user1Id };
 
   return (
     <div className={theOtherUserCredentials.userId}>
       <style>{`
-      .${user2Id} .str-chat-channel {
+      .${theOtherUserCredentials.userId} .str-chat-channel {
         max-height: 30px;
         display: inline-block;
       }
-      .${user2Id} .str-chat__container {
+      .${theOtherUserCredentials.userId} .str-chat__container {
         height: 30px;
       }
 
-      .${user2Id} .messaging.str-chat .str-chat__thread {
+      .${theOtherUserCredentials.userId} .messaging.str-chat .str-chat__thread {
         display: none;
       }
       `}</style>

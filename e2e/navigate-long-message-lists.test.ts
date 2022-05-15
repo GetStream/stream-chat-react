@@ -39,10 +39,9 @@ test.describe('thread autoscroll', () => {
       expect(await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME)).toHaveScreenshot()
     ]);
 
-    await user.submits.MessageInput.reply(MY_ADDED_REPLY_TEXT);
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      user.sees.Thread.inViewport.nthMessage(MY_ADDED_REPLY_TEXT)
+      user.submits.MessageInput.reply(MY_ADDED_REPLY_TEXT)
     ]);
 
     const lastMessageTimeStamp = await page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.threadReplyListWithReplies} li:last-of-type ${selectors.messageTimestamp}`);
