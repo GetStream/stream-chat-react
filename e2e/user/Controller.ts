@@ -30,7 +30,22 @@ export class Controller {
   async sendMessage() {
     await Promise.all([
       this.page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      this.page.click(selectors.addMessageButton),
+      this.page.click(selectors.buttonAddMessage),
     ]);
+  }
+
+  async sendOtherUserReply() {
+    await Promise.all([
+      this.page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
+      this.page.click(selectors.buttonSendOtherUserReply),
+    ]);
+  }
+
+  async deleteMyLastReply() {
+    await this.page.click(selectors.controlsBtnDeleteLastReply);
+  }
+
+  async deleteOtherUserLastReply() {
+    await this.page.click(selectors.controlsBtnDeleteOtherUserLastReply);
   }
 }

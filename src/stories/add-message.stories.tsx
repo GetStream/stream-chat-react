@@ -7,6 +7,7 @@ import {
   ChannelHeader,
   ChannelList,
   MessageList,
+  Thread,
   useChannelStateContext,
   Window,
 } from '../index';
@@ -55,6 +56,7 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
         <MessageList />
         <Controls />
       </Window>
+      <Thread />
     </Channel>
   </ConnectedUser>
 );
