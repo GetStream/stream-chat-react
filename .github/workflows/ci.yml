@@ -59,6 +59,7 @@ jobs:
 
       - name: 🎥 Upload Artifacts
         uses: actions/upload-artifact@v3
+        if: ${{ always() }}
         with:
           name: E2E_Artifacts
           path: ./test-results
