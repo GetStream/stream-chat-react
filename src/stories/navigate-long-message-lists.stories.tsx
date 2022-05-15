@@ -19,9 +19,9 @@ if (!channelId || typeof channelId !== 'string') {
   throw new Error('expected ADD_MESSAGE_CHANNEL');
 }
 
-const ReceiveReplyButton = () => {
+const OtherUserControlButtons = () => {
   const { client } = useChatContext();
-  const { channel, threadMessages } = useChannelStateContext();
+  const { channel } = useChannelStateContext();
   const lastMessage = channel.state.messages.slice(-1)[0];
   return (
     <>
@@ -39,7 +39,7 @@ const ReceiveReplyButton = () => {
       <button
         data-testid='delete-other-last-reply'
         onClick={async () => {
-          const lastReply = threadMessages?.slice(-1)[0];
+          const lastReply = channel.state.threads[lastMessage.id].slice(-1)[0];
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -86,20 +86,33 @@ const OtherUserControls = () => {
       };
 
   return (
-    <ConnectedUser {...theOtherUserCredentials}>
-      <div style={{ display: 'none' }}>
-        <ChannelList
-          filters={{ id: { $eq: channelId }, members: { $in: [theOtherUserCredentials.userId] } }}
-          setActiveChannelOnMount={true}
-          sort={sort}
-        />
-      </div>
-      <div style={{ height: '30px' }}>
-        <Channel>
-          <ReceiveReplyButton />
-        </Channel>
-      </div>
-    </ConnectedUser>
+    <div className='other-channel'>
+      <style>{`
+      .other-channel .str-chat-channel {
+        max-height: 30px;
+        display: inline-block;
+      }
+      .other-channel .str-chat__container {
+        height: 30px;
+      }
+      `}</style>
+      <ConnectedUser {...theOtherUserCredentials}>
+        <div style={{ display: 'none' }}>
+          <ChannelList
+            customActiveChannel={channelId}
+            filters={{ id: { $eq: channelId }, members: { $in: [theOtherUserCredentials.userId] } }}
+            setActiveChannelOnMount={true}
+            sort={sort}
+          />
+        </div>
+        <div style={{ height: '30px' }}>
+          <Channel>
+            <OtherUserControlButtons />
+            <Thread />
+          </Channel>
+        </div>
+      </ConnectedUser>
+    </div>
   );
 };
 
@@ -122,18 +135,7 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
         </Channel>
       </ConnectedUser>
     </div>
-    <div className='other-channel'>
-      <style>{`
-      .other-channel .str-chat-channel {
-        max-height: 30px;
-        display: inline-block;
-      }
-      .other-channel .str-chat__container {
-        height: 30px;
-      }
-      `}</style>
-      <OtherUserControls />
-    </div>
+    <OtherUserControls />
   </div>
 );
 
