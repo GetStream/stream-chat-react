@@ -41,6 +41,7 @@ export function makeUser(page: Page) {
       MessageList: MessageList.get,
       MessageNotification: MessageNotification.get,
       QuotedMessage: QuotedMessage.get,
+      Thread: Thread.get,
     },
     sees: {
       Message: MessageSimple.see,

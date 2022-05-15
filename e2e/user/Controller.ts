@@ -41,7 +41,7 @@ export class Controller {
     ]);
   }
 
-  async deleteLastReply() {
+  async deleteMyLastReply() {
     await this.page.click(selectors.controlsBtnDeleteLastReply);
   }
 

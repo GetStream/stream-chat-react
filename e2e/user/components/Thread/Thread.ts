@@ -8,6 +8,7 @@ import { getMessage } from '../Message/MessageSimple';
 
 export default (page: Page) => {
   return {
+    get: (prependSelectors?: string) => page.locator(`${prependSelectors || ''} ${selectors.threadMessageList}`),
     click: {
       async close() {
         await page.click(selectors.buttonCloseThread);

@@ -19,6 +19,8 @@ export default {
   messageNotification: '.str-chat__message-notification',
   messageRepliesButton: '.str-chat__message-simple-reply-button',
   messageSimple: '.str-chat__message-simple',
+  messageText: '[data-testid=message-text-inner-wrapper]',
+  messageTimestamp: '.str-chat__message-simple-timestamp',
   messageWithText: '.str-chat__message--has-text',
   quotedMessage: '.quoted-message',
   textMessage: '.str-chat__message-text',

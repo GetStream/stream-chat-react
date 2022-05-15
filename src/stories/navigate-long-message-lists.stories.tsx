@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import '@stream-io/stream-chat-css/dist/css/index.css';
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { ChannelSort } from 'stream-chat';
 import {
   Channel,
@@ -8,20 +8,26 @@ import {
   ChannelList,
   MessageList,
   Thread,
+  useChannelActionContext,
   useChannelStateContext,
   useChatContext,
   Window,
 } from '../index';
 import { ConnectedUser, ConnectedUserProps } from './utils';
 
+const user1Id = import.meta.env.E2E_TEST_USER_1;
+const user1Token = import.meta.env.E2E_TEST_USER_1_TOKEN;
+const user2Id = import.meta.env.E2E_TEST_USER_2;
+const user2Token = import.meta.env.E2E_TEST_USER_2_TOKEN;
 const channelId = import.meta.env.E2E_LONG_MESSAGE_LISTS_CHANNEL;
+
 if (!channelId || typeof channelId !== 'string') {
   throw new Error('expected ADD_MESSAGE_CHANNEL');
 }
 
 const OtherUserControlButtons = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
+  const { channel, threadMessages } = useChannelStateContext();
   const lastMessage = channel.state.messages.slice(-1)[0];
   return (
     <>
@@ -39,7 +45,7 @@ const OtherUserControlButtons = () => {
       <button
         data-testid='delete-other-last-reply'
         onClick={async () => {
-          const lastReply = channel.state.threads[lastMessage.id].slice(-1)[0];
+          const lastReply = threadMessages?.slice(-1)[0];
           if (lastReply) {
             await client.deleteMessage(lastReply.id, true);
           }
@@ -50,6 +56,7 @@ const OtherUserControlButtons = () => {
     </>
   );
 };
+
 // Sort in reverse order to avoid auto-selecting unread channel
 const sort: ChannelSort = { last_updated: 1 };
 
@@ -74,26 +81,38 @@ const Controls = () => {
   );
 };
 
+const SetThreadOpen = () => {
+  const { openThread } = useChannelActionContext();
+  const { messages } = useChannelStateContext();
+
+  useEffect(() => {
+    if (messages) {
+      const lastMsg = messages.slice(-1)[0];
+      openThread(lastMsg, { preventDefault: () => null } as any);
+    }
+  }, [messages]);
+
+  return null;
+};
+
 const OtherUserControls = () => {
-  const theOtherUserCredentials = document.location.search.match(import.meta.env.E2E_TEST_USER_1)
-    ? {
-        token: import.meta.env.E2E_TEST_USER_2_TOKEN,
-        userId: import.meta.env.E2E_TEST_USER_2,
-      }
-    : {
-        token: import.meta.env.E2E_TEST_USER_1_TOKEN,
-        userId: import.meta.env.E2E_TEST_USER_1,
-      };
+  const theOtherUserCredentials = document.location.search.match(user1Id)
+    ? { token: user2Token, userId: user2Id }
+    : { token: user1Token, userId: user1Id };
 
   return (
-    <div className='other-channel'>
+    <div className={theOtherUserCredentials.userId}>
       <style>{`
-      .other-channel .str-chat-channel {
+      .${user2Id} .str-chat-channel {
         max-height: 30px;
         display: inline-block;
       }
-      .other-channel .str-chat__container {
+      .${user2Id} .str-chat__container {
         height: 30px;
+      }
+
+      .${user2Id} .messaging.str-chat .str-chat__thread {
+        display: none;
       }
       `}</style>
       <ConnectedUser {...theOtherUserCredentials}>
@@ -107,6 +126,7 @@ const OtherUserControls = () => {
         </div>
         <div style={{ height: '30px' }}>
           <Channel>
+            <SetThreadOpen />
             <OtherUserControlButtons />
             <Thread />
           </Channel>
@@ -118,7 +138,7 @@ const OtherUserControls = () => {
 
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
   <div style={{ display: 'flex', flexDirection: 'column' }}>
-    <div>
+    <div className={userId}>
       <ConnectedUser token={token} userId={userId}>
         <ChannelList
           filters={{ id: { $eq: channelId }, members: { $in: [userId] } }}
@@ -140,25 +160,21 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
 );
 
 export const User1 = () => {
-  const userId = import.meta.env.E2E_TEST_USER_1;
-  const token = import.meta.env.E2E_TEST_USER_1_TOKEN;
-  if (!userId || typeof userId !== 'string') {
+  if (!user1Id || typeof user1Id !== 'string') {
     throw new Error('expected TEST_USER_1');
   }
-  if (!token || typeof token !== 'string') {
+  if (!user1Token || typeof user1Token !== 'string') {
     throw new Error('expected TEST_USER_1_TOKEN');
   }
-  return <WrappedConnectedUser token={token} userId={userId} />;
+  return <WrappedConnectedUser token={user1Token} userId={user1Id} />;
 };
 
 export const User2 = () => {
-  const userId = import.meta.env.E2E_TEST_USER_2;
-  const token = import.meta.env.E2E_TEST_USER_2_TOKEN;
-  if (!userId || typeof userId !== 'string') {
+  if (!user2Id || typeof user2Id !== 'string') {
     throw new Error('expected TEST_USER_2');
   }
-  if (!token || typeof token !== 'string') {
+  if (!user2Token || typeof user2Token !== 'string') {
     throw new Error('expected TEST_USER_2_TOKEN');
   }
-  return <WrappedConnectedUser token={token} userId={userId} />;
+  return <WrappedConnectedUser token={user2Token} userId={user2Id} />;
 };
