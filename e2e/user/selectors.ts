@@ -1,4 +1,5 @@
 export default {
+  avatar: '.str-chat__avatar',
   buttonAddMessage: 'data-testid=add-message',
   buttonCloseThread: 'button[aria-label="Close thread"]',
   buttonOpenThread: 'button[aria-label="Open Thread"]',
@@ -12,6 +13,7 @@ export default {
   controlsBtnDeleteOtherUserLastReply: 'data-testid=delete-other-last-reply',
   message: '.str-chat__message',
   messageActionsBox: '.str-chat__message-actions-box',
+  messageData: `.str-chat__message-data`,
   messageInput: 'data-testid=message-input',
   messageInputTextareaThread: '.str-chat__small-message-input [data-testid="message-input"]',
   messageList: '.str-chat__list',

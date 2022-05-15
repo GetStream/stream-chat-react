@@ -34,9 +34,18 @@ test.describe('thread autoscroll', () => {
   })
 
   test('only if I send a message', async ({ user, page}) => {
+    let thread = await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME);
+    const messageData = await thread.locator(selectors.messageData);
+    const avatars = await thread.locator(selectors.avatar);
+
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      expect(await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME)).toHaveScreenshot()
+      expect(thread).toHaveScreenshot({
+        mask:[
+          messageData,
+          avatars,
+        ]
+      })
     ]);
 
     await Promise.all([
@@ -44,20 +53,38 @@ test.describe('thread autoscroll', () => {
       user.submits.MessageInput.reply(MY_ADDED_REPLY_TEXT)
     ]);
 
-    const lastMessageTimeStamp = await page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.threadReplyListWithReplies} li:last-of-type ${selectors.messageTimestamp}`);
-    await expect(await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME)).toHaveScreenshot({mask:[lastMessageTimeStamp]});
+    await expect(thread).toHaveScreenshot({
+      mask:[
+        messageData,
+        avatars,
+      ]
+    });
   });
 
   test('not if I receive a message', async ({user, controller, page}) => {
+    let thread = await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME);
+    const messageData = await thread.locator(selectors.messageData);
+    const avatars = await thread.locator(selectors.avatar);
+
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      expect(await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME)).toHaveScreenshot()
+      expect(thread).toHaveScreenshot({
+        mask:[
+          messageData,
+          avatars,
+        ]
+      })
     ]);
 
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply()
     ]);
-    await expect(await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME)).toHaveScreenshot();
+    await expect(thread).toHaveScreenshot({
+      mask:[
+        messageData,
+        avatars,
+      ]
+    });
   });
 })
