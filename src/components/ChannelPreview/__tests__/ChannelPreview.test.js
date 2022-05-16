@@ -1,21 +1,26 @@
 import React from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { ChannelPreview } from '../ChannelPreview';
+import { Chat } from '../../Chat';
+
+import { ChatContext } from '../../../context/ChatContext';
 
 import {
   dispatchMessageDeletedEvent,
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
+  dispatchUserUpdatedEvent,
   generateChannel,
+  generateMember,
   generateMessage,
+  generateUser,
   getRandomInt,
   getTestClientWithUser,
   queryChannelsApi,
   useMockedApis,
 } from 'mock-builders';
-
-import { ChatContext } from '../../../context';
-import { ChannelPreview } from '../ChannelPreview';
 
 const PreviewUIComponent = (props) => (
   <>
@@ -131,7 +136,7 @@ describe('ChannelPreview', () => {
 
       const { getByTestId } = renderComponent(
         {
-          activeChannel: c1,
+          activteChannel: c1,
           channel: c0,
         },
         render,
@@ -216,6 +221,105 @@ describe('ChannelPreview', () => {
         dispatcher(chatClientUthred, message, c0);
       });
       await expectUnreadCountToBe(getByTestId, 0);
+    });
+  });
+
+  describe('user.updated', () => {
+    let chatClient;
+    let channels;
+    let channelState;
+    let otherUser;
+    const MockAvatar = ({ image, name }) => (
+      <>
+        <div className='avatar-name'>{name}</div>
+        <div className='avatar-image'>{image}</div>
+      </>
+    );
+
+    const channelPreviewProps = {
+      Avatar: MockAvatar,
+    };
+
+    beforeEach(async () => {
+      const activeUser = generateUser({
+        custom: 'custom1',
+        id: 'id1',
+        image: 'image1',
+        name: 'name1',
+      });
+      otherUser = generateUser({
+        custom: 'custom2',
+        id: 'id2',
+        image: 'image2',
+        name: 'name2',
+      });
+      channelState = generateChannel({
+        members: [generateMember({ user: activeUser }), generateMember({ user: otherUser })],
+        messages: [generateMessage({ user: activeUser }), generateMessage({ user: otherUser })],
+      });
+      chatClient = await getTestClientWithUser(activeUser);
+      useMockedApis(chatClient, [queryChannelsApi([channelState])]);
+      channels = await chatClient.queryChannels();
+    });
+
+    it("should update the direct messaging channel's preview if other user's name has changed", async () => {
+      const updatedAttribute = { name: 'new-name' };
+      const channel = channels[0];
+      render(
+        <Chat client={chatClient}>
+          <ChannelPreview {...channelPreviewProps} channel={channel} />
+        </Chat>,
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument(),
+      );
+      act(() => {
+        dispatchUserUpdatedEvent(chatClient, { ...otherUser, ...updatedAttribute });
+      });
+      await waitFor(() =>
+        expect(screen.queryAllByText(updatedAttribute.name).length).toBeGreaterThan(0),
+      );
+    });
+
+    it("should update the direct messaging channel's preview if other user's image has changed", async () => {
+      const updatedAttribute = { image: 'new-image' };
+      const channel = channels[0];
+      render(
+        <Chat client={chatClient}>
+          <ChannelPreview {...channelPreviewProps} channel={channel} />
+        </Chat>,
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(updatedAttribute.image)).not.toBeInTheDocument(),
+      );
+      act(() => {
+        dispatchUserUpdatedEvent(chatClient, { ...otherUser, ...updatedAttribute });
+      });
+      await waitFor(() =>
+        expect(screen.queryAllByText(updatedAttribute.image).length).toBeGreaterThan(0),
+      );
+    });
+
+    it("should not update the direct messaging channel's preview if other user attribute than name or image has changed", async () => {
+      const updatedAttribute = { custom: 'new-custom' };
+      const channel = channels[0];
+      render(
+        <Chat client={chatClient}>
+          <ChannelPreview {...channelPreviewProps} channel={channel} />
+        </Chat>,
+      );
+
+      await waitFor(() =>
+        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+      );
+      act(() => {
+        dispatchUserUpdatedEvent(chatClient, { ...otherUser, ...updatedAttribute });
+      });
+      await waitFor(() =>
+        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
+      );
     });
   });
 });

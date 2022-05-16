@@ -1,46 +1,55 @@
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './user/test';
 
 const suiteArray = [
   ['virtualized', 'jump-to-message--jump-in-virtualized-message-list'],
   ['regular', 'jump-to-message--jump-in-regular-message-list'],
 ];
 
+const controlsButtonSelector = 'data-testid=jump-to-message';
+const onPageLoadWaitForMessage149 = 'data-testid=message-text-inner-wrapper >> text=Message 149';
+
 suiteArray.forEach(([mode, story]) => {
   test.describe(`jump to message - ${mode}`, () => {
-    test.beforeEach(async ({ baseURL, page }) => {
-      await page.goto(`${baseURL}/?story=${story}`);
-      await page.waitForSelector('[data-storyloaded]');
-      await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
+    test.beforeEach(async ({ controller }) => {
+      await controller.openStory(
+        story,
+        onPageLoadWaitForMessage149
+      );
     });
 
-    test(`${mode} jumps to message 29 and then back to bottom`, async ({ page }) => {
-      const message29 = page.locator('text=Message 29');
-      await expect(message29).not.toBeVisible();
-      await page.click('data-testid=jump-to-message');
+    test(`${mode} jumps to message 29 and then back to bottom`, async ({ user, page }) => {
+      const message29 = await user.sees.Message.not.displayed('Message 29');
+      await page.click(controlsButtonSelector);
       await expect(message29).toBeVisible();
-      await page.click('text=Latest Messages');
-      await expect(
-        page.locator('data-testid=message-text-inner-wrapper >> text=Message 149'),
-      ).toBeVisible();
+      const message149 = await user.sees.Message.not.displayed('Message 149');
+      await user.clicks.MessageNotification.text('Latest Messages');
+      await expect(message149).toBeVisible();
     });
 
-    test(`${mode} jumps to quoted message`, async ({ page }) => {
-      await page.click('.quoted-message :text("Message 20")');
-      await expect(page.locator('text=Message 20')).toBeVisible();
+    test(`${mode} jumps to quoted message`, async ({ user }) => {
+      const text = 'Message 20';
+      await user.clicks.QuotedMessage.nth(text)
+      await user.sees.Message.displayed(text);
     });
   });
 });
 
+
 test.describe('jump to messsage - dataset', () => {
-  test('only the current message set is loaded', async ({ baseURL, page }) => {
-    await page.goto(`${baseURL}/?story=jump-to-message--jump-in-regular-message-list`);
-    await page.waitForSelector('[data-storyloaded]');
-    await page.waitForSelector('data-testid=message-text-inner-wrapper >> text=Message 149');
-    await page.click('data-testid=jump-to-message');
-    await page.waitForSelector('text=Message 29');
-    const listItems = page.locator('.str-chat__ul > li');
-    await expect(listItems).toHaveCount(26);
+  test('only the current message set is loaded', async ({ controller, page, user }) => {
+    await controller.openStory(
+      'jump-to-message--jump-in-regular-message-list',
+      onPageLoadWaitForMessage149
+    );
+
+    await Promise.all([
+      page.waitForSelector('text=Message 29'),
+      page.click(controlsButtonSelector),
+    ]);
+
+    await user.sees.MessageList.hasLength(26);
   });
 });
