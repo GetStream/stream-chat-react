@@ -28,6 +28,9 @@ export default (page: Page) => {
         contains: {
           async message(text: string | RegExp) {
             return await expect(target).toContainText(text);
+          },
+          async lastMessage(text: string | RegExp) {
+            await expect(target.locator(selectors.channelPreviewLastMessage)).toContainText(text)
           }
         },
         not: {

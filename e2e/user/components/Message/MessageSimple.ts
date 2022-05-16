@@ -4,12 +4,26 @@ import type { Page } from '@playwright/test';
 
 import selectors from '../../selectors';
 
-function getMessage(page: Page, text?: string, nth: number = 1) {
+export function getMessageSelector(text?: string, index?: number, inThread: boolean = false) {
   let selector = `${selectors.message}`;
   if (text) {
-    selector += `${selectors.messageWithText} >> :nth-match(:text("${text}"), ${nth})`;
+    selector += `${selectors.messageWithText} :has-text("${text}")`;
   }
-  return page.locator(selector);
+  if (inThread) {
+    selector = `${selectors.threadMessageList} ${selector}`
+  }
+  if (index !== undefined) {
+    selector += ` >> nth=${index}`
+  }
+  return selector;
+}
+
+export function getMessage(page: Page, text?: string, index: number = 0, inThread: boolean = false) {
+  let componentLocator = page.locator(getMessageSelector(text, undefined, inThread));
+  if (index !== undefined) {
+    componentLocator = componentLocator.nth(index);
+  }
+  return componentLocator;
 }
 
 export default (page: Page) => {

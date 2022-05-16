@@ -17,5 +17,15 @@ export default (page: Page) => {
         await page.fill(selectors.messageInput, text);
       }
     },
+    submit: {
+      async message(text: string) {
+        await page.fill(selectors.messageInput, text);
+        await page.keyboard.press('Enter');
+      },
+      async reply(text: string) {
+        await page.fill(selectors.messageInputTextareaThread, text);
+        await page.keyboard.press('Enter');
+      }
+    }
   };
 }
