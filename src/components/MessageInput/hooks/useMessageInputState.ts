@@ -423,11 +423,10 @@ export const useMessageInputState = <
     dispatch,
     numberOfUploads,
   );
-
-  const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
-
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
+
+  const { onPaste } = usePasteHandler(uploadNewFiles, insertText, isUploadEnabled);
 
   const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
     dispatch({ type: 'addMentionedUser', user: item });
