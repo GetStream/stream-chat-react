@@ -1881,22 +1881,10 @@
   dependencies:
     "@virtuoso.dev/urx" "^0.2.12"
 
-"@virtuoso.dev/react-urx@^0.2.5":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@virtuoso.dev/react-urx/-/react-urx-0.2.6.tgz#e1d8bc717723b2fc23d80ea4e07703dbc276448b"
-  integrity sha512-+PLQ2iWmSH/rW7WGPEf+Kkql+xygHFL43Jij5aREde/O9mE0OFFGqeetA2a6lry3LDVWzupPntvvWhdaYw0TyA==
-  dependencies:
-    "@virtuoso.dev/urx" "^0.2.6"
-
 "@virtuoso.dev/urx@^0.2.12":
   version "0.2.12"
   resolved "https://registry.yarnpkg.com/@virtuoso.dev/urx/-/urx-0.2.12.tgz#fa9bd1a2777cf70b19d4c9836b8d92b04f079c64"
   integrity sha512-Q9nlRqYb5Uq4Ynu8cWPSJ7LxpuZsI+MZ09IJlDAAgwuNgfWRArpVRP0VN0coYgUo2fKMjhmV69MTqaUbIBhu/g==
-
-"@virtuoso.dev/urx@^0.2.5", "@virtuoso.dev/urx@^0.2.6":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@virtuoso.dev/urx/-/urx-0.2.6.tgz#0028c49e52037e673993900d32abea83262fbd53"
-  integrity sha512-EKJ0WvJgWaXIz6zKbh9Q63Bcq//p8OHXHbdz4Fy+ruhjJCyI8ADE8E5gwSqBoUchaiYlgwKrT+sX4L2h/H+hMg==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -7560,10 +7548,10 @@ mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@^0.5.5, mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.5"
 
-mml-react@^0.4.5:
-  version "0.4.5"
-  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.5.tgz#5e3db81cd1db9942f5acc41669ac3b3de4ac0464"
-  integrity sha512-3ttTTXTztnUZo8N+MtolxT9D0g4ZJVFob31FtMUOLGdPRz0sDo+Q9gbQ4o6zrG01J3GEsgnJzzgpRKtEKjnBoA==
+mml-react@^0.4.7:
+  version "0.4.7"
+  resolved "https://registry.yarnpkg.com/mml-react/-/mml-react-0.4.7.tgz#c0646c4647ecdcf89a0818f6e02b2adc50712c21"
+  integrity sha512-YoEIg5kOWGR3U9QFc8YFHEgyGV/CnLQIjm+naW3K04LXRw6xtcU0+KMjCMu2EJEF/Wjz8H3Yu4ZU2mUDR+143g==
   dependencies:
     "@braintree/sanitize-url" "^6.0.0"
     "@rgrove/parse-xml" "^3.0.0"
@@ -7572,7 +7560,7 @@ mml-react@^0.4.5:
     ical-expander "^3.1.0"
     linkifyjs "^2.1.9"
     react-markdown "^5.0.3"
-    react-virtuoso "^2.2.1"
+    react-virtuoso "^2.10.2"
 
 move-concurrently@^1.0.1:
   version "1.0.1"
@@ -9406,10 +9394,10 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-is@^18.0.0:
-  version "18.0.0"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.0.0.tgz#026f6c4a27dbe33bf4a35655b9e1327c4e55e3f5"
-  integrity sha512-yUcBYdBBbo3QiPsgYDcfQcIkGZHfxOaoE6HLSnr1sPzMhdyxusbfKOSUbSd/ocGi32dxcj366PsTj+5oggeKKw==
+react-is@^18.1.0:
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.1.0.tgz#61aaed3096d30eacf2a2127118b5b41387d32a67"
+  integrity sha512-Fl7FuabXsJnV5Q1qIOQwx/sagGF18kogb4gpfcG4gjLBWO0WDiiz1ko/ExayuxE7InyQkBLkxRFG5oxY6Uu3Kg==
 
 react-markdown@^5.0.3:
   version "5.0.3"
@@ -9514,14 +9502,6 @@ react-virtuoso@^2.10.2:
   dependencies:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
-
-react-virtuoso@^2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.2.1.tgz#a15dbd864745011a011ac5ee75be3c523fcb8ded"
-  integrity sha512-kS+9mns4slmpsUSQA/sIUjDwf9cA17Il8dvslHTuS5SpxCo7iRJIKJpjZd1ilLpvX3wYAYObbHVR3BxnUWRPfg==
-  dependencies:
-    "@virtuoso.dev/react-urx" "^0.2.5"
-    "@virtuoso.dev/urx" "^0.2.5"
 
 "react@link:../../node_modules/react":
   version "0.0.0"
@@ -10020,10 +10000,10 @@ saxes@^3.1.9:
   dependencies:
     xmlchars "^2.1.1"
 
-scheduler@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.21.0.tgz#6fd2532ff5a6d877b6edb12f00d8ab7e8f308820"
-  integrity sha512-1r87x5fz9MXqswA2ERLo0EbOAU74DpIUO090gIasYTqlVoJeMcl+Z1Rg7WHz+qtPujhS/hGIt9kxZOYBV3faRQ==
+scheduler@^0.22.0:
+  version "0.22.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.22.0.tgz#83a5d63594edf074add9a7198b1bae76c3db01b8"
+  integrity sha512-6QAm1BgQI88NPYymgGQLCZgvep4FyePDWFpXVK+zNSUgHwlqpJy8VEh8Et0KxTACS4VWwMousBElAZOH9nkkoQ==
   dependencies:
     loose-envify "^1.1.0"
 

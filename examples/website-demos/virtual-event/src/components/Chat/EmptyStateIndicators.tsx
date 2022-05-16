@@ -4,7 +4,7 @@ import { EmptyStateIndicatorProps, useChannelStateContext } from 'stream-chat-re
 import { EmptyChatIcon, EmptyDMIcon, EmptyQAIcon } from '../../assets';
 import { useEventContext } from '../../contexts/EventContext';
 
-const EmptyStateWrapper: React.FC = ({ children }) => (
+const EmptyStateWrapper = ({ children }: {children?: React.ReactNode}) => (
   <div className='chat-components-empty'>{children}</div>
 );
 
