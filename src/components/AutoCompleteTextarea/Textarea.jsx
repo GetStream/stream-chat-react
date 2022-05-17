@@ -493,9 +493,7 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     const tokens = text.split(' ');
 
-    if (tokens.length > 1) return false;
-
-    return true;
+    return tokens.length <= 1;
   };
 
   _changeHandler = (e) => {
@@ -721,6 +719,10 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     if (!this.props.grow) maxRows = 1;
 
+    // By setting defaultValue to undefined, avoid error:
+    // ForwardRef(TextareaAutosize) contains a textarea with both value and defaultValue props.
+    // Textarea elements must be either controlled or uncontrolled
+
     return (
       <div
         className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${containerClassName || ''}`}
@@ -745,6 +747,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           style={style}
           value={value}
           {...this.props.additionalTextareaProps}
+          defaultValue={undefined}
         />
       </div>
     );

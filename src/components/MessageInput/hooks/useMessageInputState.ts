@@ -153,26 +153,30 @@ export type MessageInputHookProps<
 const emptyFileUploads: Record<string, FileUpload> = {};
 const emptyImageUploads: Record<string, ImageUpload> = {};
 
+const makeEmptyMessageInputState = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(): MessageInputState<StreamChatGenerics> => ({
+  attachments: [],
+  emojiPickerIsOpen: false,
+  fileOrder: [],
+  fileUploads: { ...emptyFileUploads },
+  imageOrder: [],
+  imageUploads: { ...emptyImageUploads },
+  mentioned_users: [],
+  setText: () => null,
+  text: '',
+});
+
 /**
  * Initializes the state. Empty if the message prop is falsy.
  */
 const initState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<StreamChatGenerics>,
+  message?: Pick<StreamMessage<StreamChatGenerics>, 'attachments' | 'mentioned_users' | 'text'>,
 ): MessageInputState<StreamChatGenerics> => {
   if (!message) {
-    return {
-      attachments: [],
-      emojiPickerIsOpen: false,
-      fileOrder: [],
-      fileUploads: { ...emptyFileUploads },
-      imageOrder: [],
-      imageUploads: { ...emptyImageUploads },
-      mentioned_users: [],
-      setText: () => null,
-      text: '',
-    };
+    return makeEmptyMessageInputState();
   }
 
   // if message prop is defined, get image uploads, file uploads, text, etc.
@@ -217,7 +221,7 @@ const initState = <
   const attachments =
     message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
 
-  const mentioned_users = message.mentioned_users || [];
+  const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
 
   return {
     attachments,
@@ -249,16 +253,7 @@ const messageInputReducer = <
       return { ...state, text: action.getNewText(state.text) };
 
     case 'clear':
-      return {
-        attachments: [],
-        emojiPickerIsOpen: false,
-        fileOrder: [],
-        fileUploads: { ...emptyFileUploads },
-        imageOrder: [],
-        imageUploads: { ...emptyImageUploads },
-        mentioned_users: [],
-        text: '',
-      };
+      return makeEmptyMessageInputState();
 
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
@@ -349,18 +344,25 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { closeEmojiPickerOnClick, message } = props;
+  const { additionalTextareaProps, closeEmojiPickerOnClick, message } = props;
 
   const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
     'useMessageInputState',
   );
+
+  const defaultValue = additionalTextareaProps?.defaultValue;
+  const initialStateValue =
+    message ||
+    ((Array.isArray(defaultValue)
+      ? { text: defaultValue.join('') }
+      : { text: defaultValue?.toString() }) as Partial<StreamMessage<StreamChatGenerics>>);
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<
       MessageInputState<StreamChatGenerics>,
       MessageInputReducerAction<StreamChatGenerics>
     >,
-    message,
+    initialStateValue,
     initState,
   );
 
