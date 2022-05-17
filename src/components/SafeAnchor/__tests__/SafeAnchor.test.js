@@ -2,7 +2,8 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as sanitizeUrl from '@braintree/sanitize-url';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { SafeAnchor } from '../SafeAnchor';

@@ -2,7 +2,8 @@ import React from 'react';
 import { getNodeText } from '@testing-library/dom';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import {
@@ -25,7 +26,7 @@ import {
   queryChannelsApi,
   useMockedApis,
 } from 'mock-builders';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
@@ -677,7 +678,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newChannelName = uuidv4();
+        const newChannelName = nanoid();
         act(() =>
           dispatchChannelUpdatedEvent(chatClientUthred, {
             ...testChannel2.channel,
@@ -705,7 +706,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newChannelName = uuidv4();
+        const newChannelName = nanoid();
 
         act(() =>
           dispatchChannelUpdatedEvent(chatClientUthred, {

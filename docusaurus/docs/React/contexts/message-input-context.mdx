@@ -246,16 +246,14 @@ If true, file uploads are enabled in the currently active channel.
 | ------- | ------- |
 | boolean | true    |
 
-### keycodeSubmitKeys
+### shouldSubmit
 
-Currently, Enter is the default submission key and Shift+Enter is the default for new line. If provided, this array of keycode
-numbers will override the default Enter for submission, and Enter will then only create a new line. Shift + Enter will still
-always create a new line, unless Shift+Enter [16, 13] is included in the override.
-(ex: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0).
+Currently, `Enter` is the default submission key and `Shift`+`Enter` is the default combination for the new line.
+If specified, this function overrides the default behavior specified previously.
 
-| Type            |
-| --------------- |
-| Array<number[]> |
+| Type                              |
+| --------------------------------- |
+| (event: KeyboardEvent) => boolean |
 
 ### maxFilesLeft
 

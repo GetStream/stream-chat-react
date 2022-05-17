@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChatAutoComplete } from '../ChatAutoComplete';
@@ -205,7 +205,7 @@ describe('ChatAutoComplete', () => {
   it('should use the queryMembers API for mentions if a channel has many members', async () => {
     const users = Array(100).fill().map(generateUser);
     const members = users.map((u) => generateMember({ user: u }));
-    const messages = [generateMessage({ user: users[0] })];
+    const messages = [generateMessage({ user: users[1] })];
     const mockedChannel = generateChannel({
       members,
       messages,
@@ -217,12 +217,16 @@ describe('ChatAutoComplete', () => {
     const { findByText, textarea, typeText } = await renderComponent();
     const mentionedUser = searchMember.user;
 
-    typeText(`@${mentionedUser.id}`);
+    await act(() => {
+      typeText(`@${mentionedUser.id}`);
+    });
 
     const userText = await findByText(mentionedUser.name);
     expect(userText).toBeInTheDocument();
 
-    fireEvent.click(userText);
+    await act(() => {
+      fireEvent.click(userText);
+    });
     await waitFor(() => {
       expect(textarea.value).toContain(mentionedUser.name);
     });

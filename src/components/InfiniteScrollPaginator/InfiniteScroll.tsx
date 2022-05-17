@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
 
 /**
  * Prevents Chrome hangups
@@ -27,7 +27,7 @@ export type InfiniteScrollProps = {
   useCapture?: boolean;
 };
 
-export const InfiniteScroll: React.FC<InfiniteScrollProps> = (props) => {
+export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) => {
   const {
     children,
     element = 'div',

@@ -5,7 +5,6 @@ import { escapeRegExp } from '../../utils';
 
 import { Item } from './Item';
 import { DefaultSuggestionListHeader } from './Header';
-import { KEY_CODES } from './listener';
 
 export const List = (props) => {
   const {
@@ -72,7 +71,7 @@ export const List = (props) => {
 
   const handleKeyDown = useCallback(
     (event) => {
-      if (event.which === KEY_CODES.UP) {
+      if (event.key === 'ArrowUp') {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
           const newID = prevSelected === 0 ? values.length - 1 : prevSelected - 1;
@@ -81,7 +80,7 @@ export const List = (props) => {
         });
       }
 
-      if (event.which === KEY_CODES.DOWN) {
+      if (event.key === 'ArrowDown') {
         setSelectedItem((prevSelected) => {
           if (prevSelected === undefined) return 0;
           const newID = prevSelected === values.length - 1 ? 0 : prevSelected + 1;
@@ -90,10 +89,7 @@ export const List = (props) => {
         });
       }
 
-      if (
-        (event.which === KEY_CODES.ENTER || event.which === KEY_CODES.TAB) &&
-        selectedItem !== undefined
-      ) {
+      if ((event.key === 'Enter' || event.key === 'Tab') && selectedItem !== undefined) {
         handleClick(event);
       }
 

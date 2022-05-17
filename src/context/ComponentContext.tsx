@@ -120,7 +120,7 @@ export const withComponentContext = <
   V extends CustomTrigger = CustomTrigger
 >(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof ComponentContextValue<StreamChatGenerics>>> => {
+) => {
   const WithComponentContextComponent = (
     props: Omit<P, keyof ComponentContextValue<StreamChatGenerics, V>>,
   ) => {

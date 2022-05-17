@@ -1,10 +1,11 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
 import testRenderer from 'react-test-renderer';
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { Message } from '../Message';
@@ -102,17 +103,25 @@ const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it('should not render anything if message text is not set', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'MessageTimestamp was called without a message, or message has invalid created_at date.',
+    );
   });
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
@@ -220,8 +229,14 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { container, getByTestId } = await renderMessageText({ message });
-    expect(getByTestId('reaction-list')).toBeInTheDocument();
+
+    let container;
+    await act(async () => {
+      const result = await renderMessageText({ message });
+      container = result.container;
+    });
+
+    await waitFor(() => expect(screen.getByTestId('reaction-list')).toBeInTheDocument());
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -245,7 +260,10 @@ describe('<MessageText />', () => {
     });
     const { container, getByTestId, queryByTestId } = await renderMessageText({ message });
     expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
-    fireEvent.click(getByTestId('reaction-list'));
+    await act(() => {
+      fireEvent.click(getByTestId('reaction-list'));
+    });
+
     expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();

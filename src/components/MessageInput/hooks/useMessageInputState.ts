@@ -1,7 +1,7 @@
 import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
-import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
 import { useAttachments } from './useAttachments';
@@ -144,7 +144,7 @@ export type MessageInputHookProps<
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
@@ -184,7 +184,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'image')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.fallback || '',
@@ -202,7 +202,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'file')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.title || '',
@@ -425,11 +425,10 @@ export const useMessageInputState = <
     dispatch,
     numberOfUploads,
   );
-
-  const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
-
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
+
+  const { onPaste } = usePasteHandler(uploadNewFiles, insertText, isUploadEnabled);
 
   const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
     dispatch({ type: 'addMentionedUser', user: item });

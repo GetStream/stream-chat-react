@@ -4,9 +4,11 @@ import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from '
 export const usePasteHandler = (
   uploadNewFiles: (files: FileList | FileLike[] | File[]) => void,
   insertText: (textToInsert: string) => void,
+  isUploadEnabled: boolean,
 ) => {
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      if (!isUploadEnabled) return;
       (async (event) => {
         // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;

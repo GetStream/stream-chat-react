@@ -1,25 +1,25 @@
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 export const generateAttachmentAction = (a) => ({
-  name: uuidv4(),
-  text: uuidv4(),
-  value: uuidv4(),
+  name: nanoid(),
+  text: nanoid(),
+  value: nanoid(),
   ...a,
 });
 
 export const generateVideoAttachment = (a) => ({
   asset_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   mime_type: 'video/mp4',
-  title: uuidv4(),
+  title: nanoid(),
   type: 'media',
   ...a,
 });
 
 export const generateImageAttachment = (a) => ({
-  image_url: uuidv4(),
-  text: uuidv4(),
-  thumb_url: uuidv4(),
-  title: uuidv4(),
+  image_url: nanoid(),
+  text: nanoid(),
+  thumb_url: nanoid(),
+  title: nanoid(),
   title_link: 'https://getstream.io',
   type: 'image',
   ...a,
@@ -27,32 +27,32 @@ export const generateImageAttachment = (a) => ({
 
 export const generateAudioAttachment = (a) => ({
   asset_url: 'http://www.jackblack.com/tribute.mp3',
-  description: uuidv4(),
+  description: nanoid(),
   image_url: 'http://www.jackblack.com/tenac_iousd.bmp',
-  text: uuidv4(),
-  title: uuidv4(),
+  text: nanoid(),
+  title: nanoid(),
   type: 'audio',
   ...a,
 });
 
 export const generateFileAttachment = (a) => ({
   asset_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  description: uuidv4(),
+  description: nanoid(),
   file_size: 1337,
-  mime_type: uuidv4(),
-  text: uuidv4(),
-  title: uuidv4(),
+  mime_type: nanoid(),
+  text: nanoid(),
+  title: nanoid(),
   type: 'file',
   ...a,
 });
 
 export const generateCardAttachment = (a) => ({
   image_url: 'http://www.jackblack.com/tenac_iousd.bmp',
-  og_scrape_url: uuidv4(),
-  text: uuidv4(),
+  og_scrape_url: nanoid(),
+  text: nanoid(),
   thumb_url: 'http://www.jackblack.com/tenac_iousd.bmp',
-  title: uuidv4(),
-  title_link: uuidv4(),
+  title: nanoid(),
+  title_link: nanoid(),
   ...a,
 });
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { act, cleanup, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import {
@@ -127,10 +128,14 @@ describe('MessageList', () => {
   });
 
   it('should not render DateSeparator if disableDateSeparator is true', async () => {
-    const { container } = renderComponent({
-      channelProps: { channel },
-      chatClient,
-      msgListProps: { disableDateSeparator: true },
+    let container;
+    await act(() => {
+      const result = renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { disableDateSeparator: true },
+      });
+      container = result.container;
     });
 
     await waitFor(() => {

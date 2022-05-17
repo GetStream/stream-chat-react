@@ -14,7 +14,7 @@ export const Navigation: React.FC = () => {
     <div className='navigation'>
       <div className='navigation-top'>
         <MainLogo setThemeModalOpen={setThemeModalOpen} themeModalOpen={themeModalOpen} />
-        <AnimatePresence>{themeModalOpen && <ThemeModal />}</AnimatePresence>
+        <AnimatePresence>{themeModalOpen ? <ThemeModal /> : null}</AnimatePresence>
         <div className='navigation-top-tabs'>
           <OverviewButton />
           <MainEventButton />

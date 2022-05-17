@@ -4,7 +4,6 @@ import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
 import { isValidElementType } from 'react-is';
 
-import Listeners, { KEY_CODES } from './listener';
 import { List as DefaultSuggestionList } from './List';
 import {
   DEFAULT_CARET_POSITION,
@@ -47,41 +46,12 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
-      keycodeSubmitShiftE: false,
       left: null,
-      listenerIndex: {},
       selectionEnd: 0,
       selectionStart: 0,
       top: null,
       value: value || '',
     };
-  }
-
-  componentDidMount() {
-    Listeners.add(KEY_CODES.ESC, () => this._closeAutocomplete());
-    Listeners.add(KEY_CODES.SPACE, () => this._onSpace());
-
-    const listenerIndex = {};
-    const newSubmitKeys = this.props.keycodeSubmitKeys;
-
-    if (newSubmitKeys) {
-      const keycodeIndex = this.addKeycodeSubmitListeners(newSubmitKeys);
-      listenerIndex[keycodeIndex] = keycodeIndex;
-    } else {
-      const enterIndex = Listeners.add(KEY_CODES.ENTER, (e) => this._onEnter(e));
-      listenerIndex[enterIndex] = enterIndex;
-    }
-
-    this.setState({
-      listenerIndex,
-    });
-
-    Listeners.startListen();
-  }
-
-  componentWillUnmount() {
-    Listeners.stopListen();
-    Listeners.remove(this.state.listenerIndex);
   }
 
   getSelectionPosition = () => {
@@ -115,35 +85,20 @@ export class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
-  addKeycodeSubmitListeners = (keyCodes) => {
-    keyCodes.forEach((arrayOfCodes) => {
-      let submitValue = arrayOfCodes;
-      if (submitValue.length === 1) {
-        submitValue = submitValue[0];
-      }
+  _defaultShouldSubmit = (event) => event.key === 'Enter' && !event.shiftKey;
 
-      // does submitted keycodes include shift+Enter?
-      const shiftE = arrayOfCodes.every((code) => [16, 13].includes(code));
-      if (shiftE) this.keycodeSubmitShiftE = true;
+  _handleKeyDown = (event) => {
+    const { shouldSubmit = this._defaultShouldSubmit } = this.props;
 
-      return Listeners.add(submitValue, (e) => this._onEnter(e));
-    });
+    if (shouldSubmit?.(event)) return this._onEnter(event);
+    if (event.key === ' ') return this._onSpace(event);
+    if (event.key === 'Escape') return this._closeAutocomplete();
   };
 
   _onEnter = (event) => {
     if (!this.textareaRef) return;
 
     const trigger = this.state.currentTrigger;
-    const hasFocus = this.textareaRef.matches(':focus');
-
-    // Don't submit if the element doesn't have focus or the shift key is pressed, unless shift+Enter were provided as submit keys
-    if (
-      !hasFocus ||
-      (event.shiftKey === true && !this.keycodeSubmitShiftE) ||
-      (event.shiftKey === true && !this.props.keycodeSubmitKeys)
-    ) {
-      return;
-    }
 
     if (!trigger || !this.state.data) {
       // trigger a submit
@@ -459,7 +414,6 @@ export class ReactTextareaAutocomplete extends React.Component {
       'innerRef',
       'itemClassName',
       'itemStyle',
-      'keycodeSubmitKeys',
       'listClassName',
       'listStyle',
       'loaderClassName',
@@ -472,6 +426,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       'ref',
       'replaceWord',
       'scrollToItem',
+      'shouldSubmit',
       'showCommandsList',
       'showMentionsList',
       'SuggestionItem',
@@ -738,6 +693,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           onChange={this._changeHandler}
           onClick={this._onClickAndBlurHandler}
           onFocus={this.props.onFocus}
+          onKeyDown={this._handleKeyDown}
           onScroll={this._onScrollHandler}
           onSelect={this._selectHandler}
           ref={(ref) => {
@@ -764,7 +720,6 @@ ReactTextareaAutocomplete.propTypes = {
   dropdownStyle: PropTypes.object,
   itemClassName: PropTypes.string,
   itemStyle: PropTypes.object,
-  keycodeSubmitKeys: PropTypes.array,
   listClassName: PropTypes.string,
   listStyle: PropTypes.object,
   loaderClassName: PropTypes.string,
@@ -775,6 +730,7 @@ ReactTextareaAutocomplete.propTypes = {
   onCaretPositionChange: PropTypes.func,
   onChange: PropTypes.func,
   onSelect: PropTypes.func,
+  shouldSubmit: PropTypes.func,
   style: PropTypes.object,
   SuggestionList: PropTypes.elementType,
   trigger: triggerPropsCheck,

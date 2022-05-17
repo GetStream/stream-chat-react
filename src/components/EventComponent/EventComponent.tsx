@@ -2,11 +2,12 @@ import React from 'react';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
-import { isDayOrMoment, useTranslationContext } from '../../context/TranslationContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { getDateString } from '../../i18n/utils';
 
 export type EventComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -29,12 +30,7 @@ const UnMemoizedEventComponent = <
 
   const { tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;
-
-  const dateFormatter = (date: string | Date, format: string) => {
-    const parsedDate = tDateTimeParser(date);
-    const formattedDate = isDayOrMoment(parsedDate) ? parsedDate.format(format) : parsedDate;
-    return formattedDate;
-  };
+  const getDateOptions = { messageCreatedAt: created_at.toString(), tDateTimeParser };
 
   if (type === 'system')
     return (
@@ -45,8 +41,8 @@ const UnMemoizedEventComponent = <
           <div className='str-chat__message--system__line' />
         </div>
         <div className='str-chat__message--system__date'>
-          <strong>{dateFormatter(created_at, 'dddd')} </strong>
-          at {dateFormatter(created_at, 'hh:mm A')}
+          <strong>{getDateString({ ...getDateOptions, format: 'dddd' })} </strong>
+          at {getDateString({ ...getDateOptions, format: 'hh:mm A' })}
         </div>
       </div>
     );
@@ -63,7 +59,7 @@ const UnMemoizedEventComponent = <
         <div className='str-chat__event-component__channel-event__content'>
           <em className='str-chat__event-component__channel-event__sentence'>{sentence}</em>
           <div className='str-chat__event-component__channel-event__date'>
-            {dateFormatter(created_at, 'LT')}
+            {getDateString({ ...getDateOptions, format: 'LT' })}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import ReactPlayer from 'react-player';
+import { nanoid } from 'nanoid';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -99,7 +100,7 @@ export const renderAttachmentWithinContainer = <
       className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
         attachment?.type || ''
       } str-chat__message-attachment--${componentType}--${extra}`}
-      key={`${isGalleryAttachmentType(attachment) ? '' : attachment?.id}-${
+      key={`${isGalleryAttachmentType(attachment) ? '' : attachment?.id || nanoid()}-${
         attachment?.type || 'none'
       } `}
     >
