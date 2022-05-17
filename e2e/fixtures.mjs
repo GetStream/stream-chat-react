@@ -11,9 +11,34 @@ dotenv.config({ path: `.env.local` });
     E2E_APP_KEY,
     E2E_APP_SECRET,
     E2E_JUMP_TO_MESSAGE_CHANNEL,
+    E2E_LONG_MESSAGE_LISTS_CHANNEL,
     E2E_TEST_USER_1,
     E2E_TEST_USER_2,
   } = process.env;
+
+  async function generateMessages(start, stop, channel, parent_id) {
+    const count = stop - start;
+    let messageToQuote;
+    const messageResponses = [];
+    for (let i = start; i < stop; i++) {
+      if (process.stdout.clearLine && process.stdout.cursorTo) {
+        printProgress((i-start) / count);
+      }
+
+      const res = await channel.sendMessage({
+        text: `Message ${i}`,
+        user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
+        ...(i === (start + 140) ? { quoted_message_id: messageToQuote.message.id } : {}),
+        ...(parent_id ? { parent_id } : {}),
+      });
+
+      if (i === (start + 20)) {
+        messageToQuote = res;
+      }
+      messageResponses.push(res);
+    }
+    return messageResponses;
+  }
 
   const chat = StreamChat.getInstance(E2E_APP_KEY, E2E_APP_SECRET);
 
@@ -32,22 +57,27 @@ dotenv.config({ path: `.env.local` });
     });
     await channel.create();
     await channel.truncate();
-    let messageToQuote;
-    for (let i = 0; i < MESSAGES_COUNT; i++) {
-      if (process.stdout.clearLine && process.stdout.cursorTo) {
-        printProgress(i / MESSAGES_COUNT);
-      }
 
-      const res = await channel.sendMessage({
-        text: `Message ${i}`,
-        user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
-        ...(i === 140 ? { quoted_message_id: messageToQuote.message.id } : {}),
-      });
+    await generateMessages(0, MESSAGES_COUNT, channel);
 
-      if (i === 20) {
-        messageToQuote = res;
-      }
-    }
+    process.stdout.write('\n');
+  }
+
+  // 'navigate-long-message-lists` channel
+  {
+    console.log(`Creating and populating channel '${E2E_LONG_MESSAGE_LISTS_CHANNEL}'...`);
+    const channel = chat.channel('messaging', E2E_LONG_MESSAGE_LISTS_CHANNEL, {
+      created_by_id: E2E_TEST_USER_1,
+      members: [E2E_TEST_USER_1, E2E_TEST_USER_2],
+      name: E2E_LONG_MESSAGE_LISTS_CHANNEL,
+    });
+    await channel.create();
+    await channel.truncate();
+
+    const messages = await generateMessages(0, 150, channel);
+    await generateMessages(150, 300, channel, messages.slice(-1)[0].message.id)
+
+
     process.stdout.write('\n');
   }
 
@@ -79,7 +109,7 @@ dotenv.config({ path: `.env.local` });
       await channel.truncate();
     }
   }
-})();
+})().catch(e => console.error(e));
 
 const printProgress = (progress) => {
   process.stdout.clearLine();

@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useMemo } from 'react';
+import type { Message } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
@@ -72,7 +73,11 @@ export type MessageInputProps<
   /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
-  overrideSubmitHandler?: (message: MessageToSend<StreamChatGenerics>, channelCid: string) => void;
+  overrideSubmitHandler?: (
+    message: MessageToSend<StreamChatGenerics>,
+    channelCid: string,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
+  ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: StreamMessage<StreamChatGenerics>;
   /** If true, triggers typing events on text input keystroke */

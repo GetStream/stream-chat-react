@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - main
+      - beta
 
 jobs:
   release:
@@ -24,4 +25,4 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn semantic-release --branches master main
+        run: yarn semantic-release
