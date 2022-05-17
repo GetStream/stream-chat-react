@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "framer-motion": "^4.1.17",
+    "framer-motion": "^6.3.3",
     "lottie-web": "^5.7.13",
     "react": "link:../../../node_modules/react",
     "react-dom": "link:../../../node_modules/react-dom",
@@ -15,8 +15,8 @@
   },
   "devDependencies": {
     "@types/node": "^12.0.0",
-    "@types/react": "17.0.13",
-    "@types/react-dom": "17.0.8"
+    "@types/react": "link:../../../node_modules/@types/react",
+    "@types/react-dom": "link:../../../node_modules/@types/react-dom"
   },
   "scripts": {
     "start": "react-scripts start",

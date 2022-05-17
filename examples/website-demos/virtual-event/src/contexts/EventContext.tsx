@@ -33,7 +33,7 @@ type EventContextValue = {
 
 const EventContext = React.createContext({} as EventContextValue);
 
-export const EventProvider: React.FC = ({ children }) => {
+export const EventProvider = ({ children }: {children?: React.ReactNode}) => {
   const [actionsModalOpen, setActionsModalOpen] = useState(false);
   const [chatType, setChatType] = useState<ChatType>('global');
   const [eventName, setEventName] = useState<string | undefined>();

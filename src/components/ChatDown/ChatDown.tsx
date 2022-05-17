@@ -32,7 +32,7 @@ const UnMemoizedChatDown = ({
         )}
         <h1>{type}</h1>
         <h3 aria-live='assertive'>
-          {text || t('Error connecting to chat, refresh the page to try again.')}
+          {text || t<string>('Error connecting to chat, refresh the page to try again.')}
         </h3>
       </div>
     </div>

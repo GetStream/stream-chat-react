@@ -44,8 +44,8 @@ export const usePinHandler = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   message: StreamMessage<StreamChatGenerics>,
-  // @ts-expect-error @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-  permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
+  // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+  _permissions: PinPermissions = defaultPinPermissions, // eslint-disable-line
   notifications: PinMessageNotifications<StreamChatGenerics> = {},
 ) => {
   const { getErrorNotification, notify } = notifications;

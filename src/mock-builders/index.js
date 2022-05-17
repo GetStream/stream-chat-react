@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 import { StreamChat } from 'stream-chat';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 const apiKey = 'API_KEY';
 const token = 'dummy_token';
@@ -33,7 +33,7 @@ function mockClient(client) {
 
 export const getTestClient = () => mockClient(new StreamChat(apiKey));
 
-export const getTestClientWithUser = async (user = { id: uuidv4() }) => {
+export const getTestClientWithUser = async (user = { id: nanoid() }) => {
   const client = mockClient(new StreamChat(apiKey));
   await connectUser(client, user);
   return client;

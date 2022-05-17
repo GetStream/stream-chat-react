@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 export const generateChannel = (options = { channel: {} }) => {
   const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
-  const id = (optionsChannel && optionsChannel.id) || uuidv4();
+  const id = (optionsChannel && optionsChannel.id) || nanoid();
   const type = (optionsChannel && optionsChannel.type) || 'messaging';
   return {
     members: [],

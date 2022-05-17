@@ -15,7 +15,7 @@ type VideoContextValue = {
 
 const VideoContext = React.createContext({} as VideoContextValue);
 
-export const VideoProvider: React.FC = ({ children }) => {
+export const VideoProvider = ({ children }: {children?: React.ReactNode}) => {
   const [eventNumber, setEventNumber] = useState<number>();
   const [label, setLabel] = useState<string>();
   const [presenters, setPresenters] = useState<number>();

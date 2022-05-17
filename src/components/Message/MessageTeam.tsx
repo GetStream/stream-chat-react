@@ -170,7 +170,7 @@ const MessageTeamWithContext = <
               <strong>{message.user?.name || message.user?.id}</strong>
               {message.type === 'error' && (
                 <div className='str-chat__message-team-error-header'>
-                  {t('Only visible to you')}
+                  {t<string>('Only visible to you')}
                 </div>
               )}
             </div>
@@ -247,8 +247,8 @@ const MessageTeamWithContext = <
               >
                 <ErrorIcon />
                 {message.errorStatusCode !== 403
-                  ? t('Message Failed · Click to try again')
-                  : t('Message Failed · Unauthorized')}
+                  ? t<string>('Message Failed · Click to try again')
+                  : t<string>('Message Failed · Unauthorized')}
               </button>
             )}
           </div>

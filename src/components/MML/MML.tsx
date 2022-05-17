@@ -21,7 +21,7 @@ export type MMLProps = {
 /**
  * A wrapper component around MML-React library
  */
-export const MML: React.FC<MMLProps> = (props) => {
+export const MML = (props: MMLProps) => {
   const { actionHandler, align = 'right', source } = props;
 
   const { theme } = useChatContext('MML');

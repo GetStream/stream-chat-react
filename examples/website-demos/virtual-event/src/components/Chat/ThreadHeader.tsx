@@ -3,7 +3,7 @@ import { useChannelActionContext, useChannelStateContext } from 'stream-chat-rea
 
 import { CloseX, Ellipse } from '../../assets';
 
-export const ThreadHeader: React.FC = () => {
+export const ThreadHeader = () => {
   const { thread } = useChannelStateContext();
   const { closeThread } = useChannelActionContext();
 

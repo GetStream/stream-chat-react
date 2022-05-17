@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 
-export const Tooltip: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
+export const Tooltip = (props: ComponentProps<'div'>) => {
   const { children, ...rest } = props;
   return (
     <div className='str-chat__tooltip' {...rest}>

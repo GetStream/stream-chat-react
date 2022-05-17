@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import { nlTranslations, frTranslations } from '../translations';
 import 'dayjs/locale/nl';
@@ -67,7 +67,7 @@ describe('Streami18n instance - default', () => {
 
   it('should provide default english translator', async () => {
     const { t: _t } = await streami18n.getTranslators();
-    const text = uuidv4();
+    const text = nanoid();
 
     expect(_t(text)).toBe(text);
   });

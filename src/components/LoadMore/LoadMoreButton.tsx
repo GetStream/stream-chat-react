@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { LoadingIndicator } from 'react-file-utils';
 
 export type LoadMoreButtonProps = {
@@ -8,7 +8,7 @@ export type LoadMoreButtonProps = {
   refreshing?: boolean;
 };
 
-const UnMemoizedLoadMoreButton: React.FC<LoadMoreButtonProps> = (props) => {
+const UnMemoizedLoadMoreButton = (props: PropsWithChildren<LoadMoreButtonProps>) => {
   const { children = 'Load more', onClick, refreshing } = props;
 
   return (

@@ -14,7 +14,7 @@ export type ModalWrapperProps = {
   index?: number;
 };
 
-export const ModalComponent: React.FC<ModalWrapperProps> = (props) => {
+export const ModalComponent = (props: ModalWrapperProps) => {
   const { images, index, modalIsOpen, toggleModal } = props;
 
   return (

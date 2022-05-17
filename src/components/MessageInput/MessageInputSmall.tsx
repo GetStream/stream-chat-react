@@ -111,8 +111,8 @@ export const MessageInputSmall = <
                   <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                     <Tooltip>
                       {maxFilesLeft
-                        ? t('Attach files')
-                        : t("You've reached the maximum number of files")}
+                        ? t<string>('Attach files')
+                        : t<string>("You've reached the maximum number of files")}
                     </Tooltip>
                     <FileUploadButton
                       accepts={acceptedFiles}
@@ -128,7 +128,9 @@ export const MessageInputSmall = <
                 )}
                 <div className='str-chat__emojiselect-wrapper'>
                   <Tooltip>
-                    {emojiPickerIsOpen ? t('Close emoji picker') : t('Open emoji picker')}
+                    {emojiPickerIsOpen
+                      ? t<string>('Close emoji picker')
+                      : t<string>('Open emoji picker')}
                   </Tooltip>
                   <button
                     aria-label='Emoji picker'

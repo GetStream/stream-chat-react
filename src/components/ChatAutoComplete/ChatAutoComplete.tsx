@@ -125,7 +125,7 @@ const UnMemoizedChatAutoComplete = <
       };
 
   const updateInnerRef = useCallback(
-    (ref) => {
+    (ref: HTMLTextAreaElement | null) => {
       if (innerRef) {
         innerRef.current = ref;
       }
@@ -148,7 +148,6 @@ const UnMemoizedChatAutoComplete = <
       handleSubmit={props.handleSubmit || messageInput.handleSubmit}
       innerRef={updateInnerRef}
       itemClassName='str-chat__emojisearch__item'
-      keycodeSubmitKeys={messageInput.keycodeSubmitKeys}
       listClassName='str-chat__emojisearch__list'
       loadingComponent={LoadingIndicator}
       maxRows={messageInput.maxRows}
@@ -160,6 +159,7 @@ const UnMemoizedChatAutoComplete = <
       placeholder={cooldownRemaining ? t('Slow Mode ON') : placeholder}
       replaceWord={emojiReplace}
       rows={props.rows || 1}
+      shouldSubmit={messageInput.shouldSubmit}
       showCommandsList={messageInput.showCommandsList}
       showMentionsList={messageInput.showMentionsList}
       SuggestionItem={SuggestionItem}

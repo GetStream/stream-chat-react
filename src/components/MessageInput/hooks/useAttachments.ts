@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
+import { nanoid } from 'nanoid';
 
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { generateRandomId } from '../../../utils';
 
 import type { FileLike } from 'react-file-utils';
 
@@ -55,7 +55,7 @@ export const useAttachments = <
       Array.from(files)
         .slice(0, maxFilesLeft)
         .forEach((file) => {
-          const id = generateRandomId();
+          const id = nanoid();
 
           if (
             file.type.startsWith('image/') &&

@@ -5,9 +5,10 @@ export type MessageNotificationProps = {
   onClick: React.MouseEventHandler;
   /** Whether or not to show notification */
   showNotification: boolean;
+  children?: React.ReactNode;
 };
 
-const UnMemoizedMessageNotification: React.FC<MessageNotificationProps> = (props) => {
+const UnMemoizedMessageNotification = (props: MessageNotificationProps) => {
   const { children, onClick, showNotification = true } = props;
 
   if (!showNotification) return null;

@@ -51,7 +51,7 @@ const UnMemoizedMessageStatus = <
         className={`str-chat__message-${messageType}-status`}
         data-testid='message-status-sending'
       >
-        <Tooltip>{t('Sending...')}</Tooltip>
+        <Tooltip>{t<string>('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
     );
@@ -90,7 +90,7 @@ const UnMemoizedMessageStatus = <
         className={`str-chat__message-${messageType}-status`}
         data-testid='message-status-received'
       >
-        <Tooltip>{t('Delivered')}</Tooltip>
+        <Tooltip>{t<string>('Delivered')}</Tooltip>
         <DeliveredCheckIcon />
       </span>
     );

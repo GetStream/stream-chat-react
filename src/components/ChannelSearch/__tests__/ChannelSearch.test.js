@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChannelSearch } from '../ChannelSearch';
@@ -11,18 +11,20 @@ const user = generateUser({ id: 'id', name: 'name' });
 const testId = 'channel-search';
 
 const renderSearch = async ({ props }) => {
-  const renderResult = render(
-    <Chat client={chatClient}>
-      <ChannelSearch {...props} />
-    </Chat>,
-  );
+  await act(() => {
+    render(
+      <Chat client={chatClient}>
+        <ChannelSearch {...props} />
+      </Chat>,
+    );
+  });
 
-  const channelSearch = await waitFor(() => renderResult.getByTestId(testId));
+  const channelSearch = await waitFor(() => screen.getByTestId(testId));
 
   const typeText = (text) => {
     fireEvent.change(channelSearch, { target: { value: text } });
   };
-  return { ...renderResult, channelSearch, typeText };
+  return { channelSearch, typeText };
 };
 
 describe('ChannelSearch', () => {
@@ -45,10 +47,10 @@ describe('ChannelSearch', () => {
           type="text"
           value=""
         />
-        
       </div>
     `);
   });
+
   it('displays custom placeholder', async () => {
     const placeholder = 'Custom placeholder';
     const { channelSearch } = await renderSearch({ props: { placeholder } });
@@ -63,7 +65,6 @@ describe('ChannelSearch', () => {
           type="text"
           value=""
         />
-        
       </div>
     `);
   });

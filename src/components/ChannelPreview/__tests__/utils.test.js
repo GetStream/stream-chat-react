@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import {
   generateChannel,
@@ -59,7 +59,7 @@ describe('ChannelPreview utils', () => {
 
   describe('getDisplayTitle', () => {
     it('should return channel name, if it exists', async () => {
-      const name = uuidv4();
+      const name = nanoid();
       const channel = await getQueriedChannelInstance(generateChannel({ channel: { name } }));
 
       expect(getDisplayTitle(channel, chatClient.user)).toBe(name);
@@ -78,7 +78,7 @@ describe('ChannelPreview utils', () => {
 
   describe('getDisplayImage', () => {
     it('should return channel image, if it exists', async () => {
-      const image = uuidv4();
+      const image = nanoid();
       const channel = await getQueriedChannelInstance(generateChannel({ channel: { image } }));
 
       expect(getDisplayImage(channel, chatClient.user)).toBe(image);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 
 import {
   generateAttachmentAction,
@@ -172,7 +172,7 @@ describe('Attachment', () => {
   it('should render "Card" if attachment type is not recognized, but has title_link or og_scrape_url', async () => {
     const { getByTestId } = render(
       getAttachmentComponent({
-        attachments: [generateCardAttachment({ type: uuidv4() })],
+        attachments: [generateCardAttachment({ type: nanoid() })],
       }),
     );
     await waitFor(() => {

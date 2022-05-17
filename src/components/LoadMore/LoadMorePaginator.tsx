@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
 import { LoadMoreButton as DefaultLoadMoreButton, LoadMoreButtonProps } from './LoadMoreButton';
 
@@ -12,7 +12,7 @@ export type LoadMorePaginatorProps = {
   reverse?: boolean;
 };
 
-export const UnMemoizedLoadMorePaginator: React.FC<LoadMorePaginatorProps> = (props) => {
+export const UnMemoizedLoadMorePaginator = (props: PropsWithChildren<LoadMorePaginatorProps>) => {
   const {
     children,
     hasNextPage,
