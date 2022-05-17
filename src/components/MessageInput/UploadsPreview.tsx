@@ -26,7 +26,7 @@ export const UploadsPreview = <
     uploadNewFiles,
   } = messageInput;
 
-  const imagesToPreview = imageOrder.map((id) => imageUploads[id]);
+  const imagesToPreview = imageOrder.map((id) => imageUploads[id]).filter((f) => !f.og_scrape_url);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
 
   return (

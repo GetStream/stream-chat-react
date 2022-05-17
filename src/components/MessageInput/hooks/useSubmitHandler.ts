@@ -49,16 +49,14 @@ export const useSubmitHandler = <
       .filter((
         { id, url },
         _,
-        self, // filter out duplicates based on url
+        self, // filter out duplicates based on id or url
       ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .map(
-        (upload) =>
-          ({
-            fallback: upload.file.name,
-            image_url: upload.url,
-            type: 'image',
-          } as Attachment<StreamChatGenerics>),
-      );
+      .filter((upload) => !upload.og_scrape_url) // filter out OG scraped attachments
+      .map<Attachment<StreamChatGenerics>>((upload) => ({
+        fallback: upload.file.name,
+        image_url: upload.url,
+        type: 'image',
+      }));
 
     const fileAttachments = fileOrder
       .map((id) => fileUploads[id])
