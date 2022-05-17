@@ -1,3 +1,15 @@
+# [8.2.0](https://github.com/GetStream/stream-chat-react/compare/v8.1.3...v8.2.0) (2022-05-17)
+
+
+### Bug Fixes
+
+* display textarea defaultValue in MessageInput ([#1570](https://github.com/GetStream/stream-chat-react/issues/1570)) ([516a56b](https://github.com/GetStream/stream-chat-react/commit/516a56b8b8a24739f66c0d7b47c159d6bca7d3be))
+
+
+### Features
+
+* add support for React 18 ([#1534](https://github.com/GetStream/stream-chat-react/issues/1534)) ([39cedcb](https://github.com/GetStream/stream-chat-react/commit/39cedcb8d0821e4bb6e8061349ae52132aa32c45)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
+
 ## [8.1.3](https://github.com/GetStream/stream-chat-react/compare/v8.1.2...v8.1.3) (2022-05-15)
 
 
