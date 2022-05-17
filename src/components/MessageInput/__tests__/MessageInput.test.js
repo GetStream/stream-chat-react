@@ -603,6 +603,7 @@ const tearDown = () => {
 
       it('Should use overrideSubmitHandler prop if it is defined', async () => {
         const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
+        const customMessageData = undefined;
         const { container, findByPlaceholderText, submit } = renderComponent({
           messageInputProps: {
             overrideSubmitHandler: overrideMock,
@@ -622,6 +623,7 @@ const tearDown = () => {
             text: messageText,
           }),
           channel.cid,
+          customMessageData,
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();
