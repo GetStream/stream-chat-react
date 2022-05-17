@@ -1,3 +1,17 @@
+# [9.0.0](https://github.com/GetStream/stream-chat-react/compare/v8.2.0...v9.0.0) (2022-05-17)
+
+
+### Features
+
+* **MessageInput:** add shouldSubmit, remove keycodeSubmitKeys ([9e69c0b](https://github.com/GetStream/stream-chat-react/commit/9e69c0b5d6169a221c2e478b42bf4c29154b05f9)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
+
+
+### BREAKING CHANGES
+
+* **MessageInput:** property  has been fully removed and replaced by the  property
+which should handle custom submit "trigger" functionality.
+Both  and usage of key codes were outdated and caused unnecessary issues.
+
 # [8.2.0](https://github.com/GetStream/stream-chat-react/compare/v8.1.3...v8.2.0) (2022-05-17)
 
 
