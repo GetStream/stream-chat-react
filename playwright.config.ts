@@ -15,6 +15,11 @@ const config: PlaywrightTestConfig = {
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100
+    }
+  },
   workers: 1,
 };
 

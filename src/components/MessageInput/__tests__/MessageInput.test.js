@@ -155,6 +155,28 @@ const tearDown = () => {
     });
     afterEach(tearDown);
 
+    it('should contain placeholder text if no default message text provided', async () => {
+      const { getByPlaceholderText } = renderComponent();
+      await waitFor(() => {
+        const textarea = getByPlaceholderText(inputPlaceholder);
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.value).toBe('');
+      });
+    });
+
+    it('should contain default message text if provided', async () => {
+      const defaultValue = uuidv4();
+      const { queryByDisplayValue } = renderComponent({
+        messageInputProps: {
+          additionalTextareaProps: { defaultValue },
+        },
+      });
+      await waitFor(() => {
+        const textarea = queryByDisplayValue(defaultValue);
+        expect(textarea).toBeInTheDocument();
+      });
+    });
+
     it('Should shift focus to the textarea if the `focus` prop is true', async () => {
       const { container, getByPlaceholderText } = renderComponent({
         messageInputProps: {
