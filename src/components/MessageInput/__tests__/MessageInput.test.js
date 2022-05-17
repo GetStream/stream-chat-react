@@ -166,6 +166,28 @@ function axeNoViolations(container) {
     });
     afterEach(tearDown);
 
+    it('should contain placeholder text if no default message text provided', async () => {
+      await renderComponent();
+      await waitFor(() => {
+        const textarea = screen.getByPlaceholderText(inputPlaceholder);
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.value).toBe('');
+      });
+    });
+
+    it('should contain default message text if provided', async () => {
+      const defaultValue = nanoid();
+      await renderComponent({
+        messageInputProps: {
+          additionalTextareaProps: { defaultValue },
+        },
+      });
+      await waitFor(() => {
+        const textarea = screen.queryByDisplayValue(defaultValue);
+        expect(textarea).toBeInTheDocument();
+      });
+    });
+
     it('Should shift focus to the textarea if the `focus` prop is true', async () => {
       const { container } = await renderComponent({
         messageInputProps: {
