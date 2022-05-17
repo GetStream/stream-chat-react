@@ -49,7 +49,10 @@ export type ImageUpload<
   state: 'finished' | 'failed' | 'uploading';
   previewUri?: string;
   url?: string;
-} & Pick<Attachment<StreamChatGenerics>, 'og_scrape_url'>;
+} & Pick<
+  Attachment<StreamChatGenerics>,
+  'og_scrape_url' | 'title' | 'title_link' | 'author_name' | 'text'
+>;
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -183,19 +186,29 @@ const initState = <
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
-      .reduce<Record<string, ImageUpload>>((acc, { fallback = '', image_url, og_scrape_url }) => {
-        const id = nanoid();
-        acc[id] = {
-          file: {
-            name: fallback,
-          },
-          id,
-          og_scrape_url,
-          state: 'finished',
-          url: image_url,
-        };
-        return acc;
-      }, {}) ?? {};
+      .reduce<Record<string, ImageUpload>>(
+        (
+          acc,
+          { author_name, fallback = '', image_url, og_scrape_url, text, title, title_link },
+        ) => {
+          const id = nanoid();
+          acc[id] = {
+            author_name,
+            file: {
+              name: fallback,
+            },
+            id,
+            og_scrape_url,
+            state: 'finished',
+            text,
+            title,
+            title_link,
+            url: image_url,
+          };
+          return acc;
+        },
+        {},
+      ) ?? {};
 
   const fileUploads =
     message.attachments

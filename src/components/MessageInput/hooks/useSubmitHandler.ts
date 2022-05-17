@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import * as linkify from 'linkifyjs';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -14,6 +16,8 @@ const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('audio/')) return 'audio';
   return 'file';
 };
+
+const urnRegularExpression = /(https?:\/\/)?(www\.)?/gi;
 
 export const useSubmitHandler = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -42,6 +46,11 @@ export const useSubmitHandler = <
   );
   const { t } = useTranslationContext('useSubmitHandler');
 
+  const urnList = useMemo(
+    () => linkify.find(text).map(({ value }) => value.replace(urnRegularExpression, '')),
+    [text],
+  );
+
   const getAttachmentsFromUploads = () => {
     const imageAttachments = imageOrder
       .map((id) => imageUploads[id])
@@ -51,11 +60,22 @@ export const useSubmitHandler = <
         _,
         self, // filter out duplicates based on id or url
       ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .filter((upload) => !upload.og_scrape_url) // filter out OG scraped attachments
-      .map<Attachment<StreamChatGenerics>>((upload) => ({
-        fallback: upload.file.name,
-        image_url: upload.url,
+      // .filter((upload) => !upload.og_scrape_url) // filter out OG scraped attachments
+      .filter(({ og_scrape_url: url }) => {
+        if (!url) return true;
+        const urn = url.replace(urnRegularExpression, '');
+        return urnList.includes(urn);
+      })
+      .map<Attachment<StreamChatGenerics>>(({ file: { name }, url, ...rest }) => ({
+        fallback: name,
+        image_url: url,
         type: 'image',
+        // eslint-disable-next-line sort-keys
+        author_name: rest.author_name,
+        og_scrape_url: rest.og_scrape_url,
+        text: rest.text,
+        title: rest.title,
+        title_link: rest.title_link,
       }));
 
     const fileAttachments = fileOrder
