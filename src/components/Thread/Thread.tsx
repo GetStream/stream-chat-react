@@ -10,7 +10,7 @@ import {
   VirtualizedMessageListProps,
 } from '../MessageList/VirtualizedMessageList';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { MessageToSend, useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -138,7 +138,9 @@ const ThreadInner = <
     threadLoadingMore,
     threadMessages,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
-  const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
+  const { closeThread, loadMoreThread, sendMessage } = useChannelActionContext<StreamChatGenerics>(
+    'Thread',
+  );
   const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
     ThreadInput: ContextInput,
@@ -164,16 +166,16 @@ const ThreadInner = <
     }
   }, []);
 
-  useEffect(() => {
-    if (messageList.current && threadMessages?.length) {
-      const { clientHeight, scrollHeight, scrollTop } = messageList.current;
-      const scrollDown = clientHeight + scrollTop !== scrollHeight;
-
-      if (scrollDown) {
-        messageList.current.scrollTop = scrollHeight - clientHeight;
-      }
+  const threadSubmitHandler: MessageInputProps['overrideSubmitHandler'] = async (
+    message,
+    _,
+    customMessageData,
+  ) => {
+    await sendMessage(message as MessageToSend<StreamChatGenerics>, customMessageData);
+    if (messageList.current) {
+      messageList.current.scrollTop = messageList.current.scrollHeight;
     }
-  }, [threadMessages?.length]);
+  };
 
   if (!thread) return null;
 
@@ -205,6 +207,7 @@ const ThreadInner = <
       <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
+        overrideSubmitHandler={threadSubmitHandler}
         parent={thread}
         publishTypingEvent={false}
         {...additionalMessageInputProps}

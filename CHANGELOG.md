@@ -1,3 +1,10 @@
+## [8.1.2](https://github.com/GetStream/stream-chat-react/compare/v8.1.1...v8.1.2) (2022-04-27)
+
+
+### Bug Fixes
+
+* display overlay "X more" on Gallery only if more images uploaded than displayed ([#1526](https://github.com/GetStream/stream-chat-react/issues/1526)) ([ed47cd1](https://github.com/GetStream/stream-chat-react/commit/ed47cd1e0d2df6b2af72ae33e5c1b2efffec1591))
+
 # Changelog
 
 ## [8.1.1](https://github.com/GetStream/stream-chat-react/compare/v8.1.0...v8.1.1) (2022-04-18)
