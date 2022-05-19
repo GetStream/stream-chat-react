@@ -64,6 +64,24 @@ const CustomListItem = (props) => {
 </Chat>;
 ```
 
+In cases where the customizations provided by `Preview` are not enough, e.g. grouping channels under sections based on some
+dynamic channel data, the `renderChannels` may be a good fit as all loaded channels are passed as an argument to the function.
+
+```jsx
+const renderChannels = (loadedChannels, ChannelPreview) => {
+  const groups = groupBy(loadedChannels, 'some_custom_channel_data');
+  return renderGroups(groups); // inside renderGroups you have have headings, etc...
+}
+
+<Chat client={client}>
+  <ChannelList {/* other props */} renderChannels={renderChannels} />
+  <Channel>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
 ## Event Listeners
 
 In order to handle the requisite, dynamic nature of the `ChannelList`, a variety of
