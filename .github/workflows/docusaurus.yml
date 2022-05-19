@@ -8,8 +8,23 @@ on:
 jobs:
   push_docusaurus:
     runs-on: ubuntu-latest
+    outputs:
+      target-version: $${{steps.target-version.outputs}}
     steps:
-      - uses: actions/checkout@v3
+      - name: Pull stream-chat-react
+        uses: actions/checkout@v3
+      # This part here is cloning a second repository
+      # While cloning the repository:
+      #   - it clones the repo into the given `path`
+      #   - it checks out the branch defined at `ref` (version tag)
+      - name: Pull stream-chat-css
+        uses: actions/checkout@v3
+        with:
+          repository: GetStream/stream-chat-css
+          path: stream-chat-css
+          ref: v${{ node -e 'pkg=require("./package.json"); console.log(pkg.dependencies["@stream-io/stream-chat-css"])' }}
+      - name: Merge docs stream-chat-css
+        run: bash scripts/merge-stream-chat-css-docs.sh stream-chat-css/docs
       - name: push
         uses: GetStream/push-stream-chat-docusaurus-action@main
         with:
