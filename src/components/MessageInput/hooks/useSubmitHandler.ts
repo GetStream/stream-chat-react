@@ -43,19 +43,15 @@ export const useSubmitHandler = <
   );
   const { t } = useTranslationContext('useSubmitHandler');
 
-  const textReference = useRef({ hasChanged: false, text });
+  const textReference = useRef({ hasChanged: false, initialText: text });
 
   useEffect(() => {
-    if (!text.length) return;
-
-    if (textReference.current.hasChanged) return;
-
-    if (!textReference.current.text.length) {
-      textReference.current.text = text;
+    if (!textReference.current.initialText.length) {
+      textReference.current.initialText = text;
       return;
     }
 
-    if (text !== textReference.current.text) textReference.current.hasChanged = true;
+    textReference.current.hasChanged = text !== textReference.current.initialText;
   }, [text]);
 
   const getAttachmentsFromUploads = () => {
