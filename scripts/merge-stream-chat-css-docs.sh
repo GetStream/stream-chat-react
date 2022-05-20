@@ -11,8 +11,8 @@ main() {
       exit 0
   fi
 
-  STREAM_CHAT_CSS_PATH=$1;
-  cp -r "$STREAM_CHAT_CSS_PATH"/* ./docusaurus/docs/React;
+  STREAM_CHAT_CSS_DOCS_PATH=$1;
+  cp -r "$STREAM_CHAT_CSS_DOCS_PATH"/* ./docusaurus/docs/React;
 }
 
 
