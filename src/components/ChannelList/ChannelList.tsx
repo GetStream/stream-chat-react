@@ -314,7 +314,7 @@ const UnMemoizedChannelList = <
         LoadingIndicator={LoadingIndicator}
         setChannels={setChannels}
       >
-        {loadedChannels?.length ? (
+        {!loadedChannels?.length ? (
           <EmptyStateIndicator listType='channel' />
         ) : (
           <Paginator
