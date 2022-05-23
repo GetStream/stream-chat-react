@@ -10,6 +10,7 @@ import makeMessageNotification from './components/MessageList/MessageNotificatio
 import messageSimple from './components/Message/MessageSimple';
 import makeQuotedMessage from './components/Message/QuotedMessage';
 import makeThread from './components/Thread/Thread';
+import makeModal from './components/Modal/Modal';
 
 export type TestingUser = ReturnType<typeof makeUser>;
 
@@ -24,7 +25,7 @@ export function makeUser(page: Page) {
   const MessageSimple = messageSimple(page);
   const QuotedMessage = makeQuotedMessage(page);
   const Thread = makeThread(page);
-
+  const Modal = makeModal(page);
 
   return {
     clicks: {
@@ -33,6 +34,7 @@ export function makeUser(page: Page) {
       MessageActions: MessageActions.click,
       MessageActionsBox: MessageActionsBox.click,
       MessageNotification: MessageNotification.click,
+      Modal: Modal.click,
       QuotedMessage: QuotedMessage.click,
       Thread: Thread.click,
     },
@@ -44,16 +46,16 @@ export function makeUser(page: Page) {
       Thread: Thread.get,
     },
     sees: {
+      ChannelPreview: ChannelPreview.see,
       Message: MessageSimple.see,
       MessageList: MessageList.see,
-      ChannelPreview: ChannelPreview.see,
       Thread: Thread.see,
+    },
+    submits: {
+      MessageInput: MessageInput.submit,
     },
     typesTo: {
       MessageInput: MessageInput.typeTo,
     },
-    submits: {
-      MessageInput: MessageInput.submit
-    }
-  }
+  };
 }
