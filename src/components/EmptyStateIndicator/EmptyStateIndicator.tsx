@@ -5,7 +5,7 @@ import { ChatBubble } from './icons';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
-  listType: 'channel' | 'message';
+  listType?: 'channel' | 'message';
 };
 
 const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
