@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
 import selectors from './user/selectors';
@@ -8,19 +9,18 @@ const ADDED_MESSAGE_MAIN_LIST = 'Hello world!' as const;
 const ADDED_MESSAGE_THREAD = 'Hello world back!' as const;
 
 test.describe('add text message', () => {
-
-  test.beforeEach(async ({controller, user}) => {
+  test.beforeEach(async ({ controller, user }) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
     await user.clicks.ChannelPreview.text(CHANNEL_NAME);
   });
 
-  test('message list and preview button should be clear', async ({controller, user}) => {
-    await controller.clearChannel()
+  test('message list and preview button should be clear', async ({ controller, user }) => {
+    await controller.clearChannel();
     await user.sees.MessageList.empty();
     await user.sees.ChannelPreview(CHANNEL_NAME).empty();
   });
 
-  test('message list should update for current user', async ({controller, user}) => {
+  test('message list should update for current user', async ({ controller, user }) => {
     await controller.sendMessage();
 
     await user.sees.MessageList.not.empty();
@@ -30,8 +30,7 @@ test.describe('add text message', () => {
 });
 
 test.describe('receive a message', () => {
-
-  test.beforeEach(async ({controller, user}) => {
+  test.beforeEach(async ({ controller, user }) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
 
     await user.clicks.ChannelPreview.text(CHANNEL_NAME);
@@ -41,15 +40,15 @@ test.describe('receive a message', () => {
     await controller.openStory('add-message--user2', selectors.channelPreviewButton);
   });
 
-  test('channel list should update for channel members and show unread', async ({user}) => {
+  test('channel list should update for channel members and show unread', async ({ user }) => {
     await user.sees.ChannelPreview(CHANNEL_NAME).not.read();
     await user.sees.ChannelPreview(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_MAIN_LIST);
   });
 
-  test('message list should update for different users on the channel', async ({user, page}) => {
+  test('message list should update for different users on the channel', async ({ page, user }) => {
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
-      user.clicks.ChannelPreview.text(CHANNEL_NAME)
+      user.clicks.ChannelPreview.text(CHANNEL_NAME),
     ]);
     await user.sees.MessageList.not.empty();
     await user.sees.ChannelPreview(CHANNEL_NAME).read();
@@ -57,25 +56,26 @@ test.describe('receive a message', () => {
   });
 });
 
-
 test.describe('reply to a message', () => {
-  test.beforeEach(async ({controller, user}) => {
+  test.beforeEach(async ({ controller, user }) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
     await user.clicks.ChannelPreview.text(CHANNEL_NAME);
   });
 
-  test.afterEach(async ({user}) => {
+  test.afterEach(async ({ user }) => {
     await user.clicks.Thread.close();
-  })
+  });
 
-  test('thread with no replies contains only parent message', async ({controller, user}) => {
+  test('thread with no replies contains only parent message', async ({ controller, user }) => {
     await controller.clearChannel();
     await controller.sendMessage();
     await user.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST);
     await user.sees.Thread.empty();
   });
 
-  test('reply to a message should appear at the bottom of the thread and in channel preview', async ({ user}) => {
+  test('reply to a message should appear at the bottom of the thread and in channel preview', async ({
+    user,
+  }) => {
     await user.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST);
     await user.submits.MessageInput.reply(ADDED_MESSAGE_THREAD);
     await user.sees.Thread.not.empty();
@@ -83,10 +83,10 @@ test.describe('reply to a message', () => {
     // todo: channel preview does not reflect new messages from thread
     // await user.sees.ChannelPreview(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_THREAD);
   });
-})
+});
 
 test.describe('receive the reply', () => {
-  test.beforeEach(async ({controller, user: user1, page}) => {
+  test.beforeEach(async ({ controller, page, user: user1 }) => {
     await controller.openStory('add-message--user1', selectors.channelPreviewButton);
     await user1.clicks.ChannelPreview.text(CHANNEL_NAME);
     await controller.clearChannel();
@@ -94,8 +94,8 @@ test.describe('receive the reply', () => {
     await user1.clicks.MessageActions.reply(ADDED_MESSAGE_MAIN_LIST);
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      user1.submits.MessageInput.reply(ADDED_MESSAGE_THREAD)
-    ])
+      user1.submits.MessageInput.reply(ADDED_MESSAGE_THREAD),
+    ]);
     await controller.openStory('add-message--user2', selectors.channelPreviewButton);
   });
 
@@ -105,10 +105,13 @@ test.describe('receive the reply', () => {
   //   await user2.sees.ChannelPreview(CHANNEL_NAME).contains.lastMessage(ADDED_MESSAGE_THREAD);
   // });
 
-  test('the other user sees that reply to a message appeared at the bottom of the thread and in channel preview', async ({user: user2, page}) => {
+  test('the other user sees that reply to a message appeared at the bottom of the thread and in channel preview', async ({
+    page,
+    user: user2,
+  }) => {
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/read') && r.ok()),
-      user2.clicks.ChannelPreview.text(CHANNEL_NAME)
+      user2.clicks.ChannelPreview.text(CHANNEL_NAME),
     ]);
 
     await Promise.all([

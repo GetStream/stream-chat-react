@@ -1,23 +1,15 @@
 import type { Page } from '@playwright/test';
 
+export const getAutocompleteSuggestionItem = (page: Page, num: number) =>
+  page.locator(`button.rta__entity >> :nth-match(span.str-chat__user-item--name, ${num})`);
 
-
-export async function  getAutocompleteSuggestionItem(page: Page, num: number) {
-  return page.locator(
-    `button.rta__entity >> :nth-match(span.str-chat__user-item--name, ${num})`,
-  );
-}
-export default (page: Page) => {
-  return {
-    see: {
-
+export default (page: Page) => ({
+  click: {
+    async nth(num: number) {
+      const item = await getAutocompleteSuggestionItem(page, num);
+      item.click();
+      return item;
     },
-    click: {
-      async nth(num: number) {
-        const item = await getAutocompleteSuggestionItem(page, num);
-        item.click();
-        return item;
-      }
-    }
-  }
-}
+  },
+  see: {},
+});

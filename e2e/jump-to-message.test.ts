@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
 import { expect } from '@playwright/test';
@@ -14,13 +15,10 @@ const onPageLoadWaitForMessage149 = 'data-testid=message-text-inner-wrapper >> t
 suiteArray.forEach(([mode, story]) => {
   test.describe(`jump to message - ${mode}`, () => {
     test.beforeEach(async ({ controller }) => {
-      await controller.openStory(
-        story,
-        onPageLoadWaitForMessage149
-      );
+      await controller.openStory(story, onPageLoadWaitForMessage149);
     });
 
-    test(`${mode} jumps to message 29 and then back to bottom`, async ({ user, page }) => {
+    test(`${mode} jumps to message 29 and then back to bottom`, async ({ page, user }) => {
       const message29 = await user.sees.Message.not.displayed('Message 29');
       await page.click(controlsButtonSelector);
       await expect(message29).toBeVisible();
@@ -31,18 +29,17 @@ suiteArray.forEach(([mode, story]) => {
 
     test(`${mode} jumps to quoted message`, async ({ user }) => {
       const text = 'Message 20';
-      await user.clicks.QuotedMessage.nth(text)
+      await user.clicks.QuotedMessage.nth(text);
       await user.sees.Message.displayed(text);
     });
   });
 });
 
-
 test.describe('jump to messsage - dataset', () => {
   test('only the current message set is loaded', async ({ controller, page, user }) => {
     await controller.openStory(
       'jump-to-message--jump-in-regular-message-list',
-      onPageLoadWaitForMessage149
+      onPageLoadWaitForMessage149,
     );
 
     await Promise.all([
