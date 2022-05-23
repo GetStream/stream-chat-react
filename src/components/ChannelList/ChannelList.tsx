@@ -301,34 +301,32 @@ const UnMemoizedChannelList = <
       : '';
 
   return (
-    <>
-      <div
-        className={`${chatClass} ${channelListClass} ${theme} ${navigationClass} ${windowsEmojiClass}`}
-        ref={channelListRef}
+    <div
+      className={`${chatClass} ${channelListClass} str-chat__channel-list ${theme} ${navigationClass} ${windowsEmojiClass}`}
+      ref={channelListRef}
+    >
+      {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
+      <List
+        error={status.error}
+        loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+        loading={status.loadingChannels}
+        LoadingErrorIndicator={LoadingErrorIndicator}
+        LoadingIndicator={LoadingIndicator}
+        setChannels={setChannels}
       >
-        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
-        <List
-          error={status.error}
-          loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-          loading={status.loadingChannels}
-          LoadingErrorIndicator={LoadingErrorIndicator}
-          LoadingIndicator={LoadingIndicator}
-          setChannels={setChannels}
-        >
-          {!loadedChannels?.length ? (
-            <EmptyStateIndicator listType='channel' />
-          ) : (
-            <Paginator
-              hasNextPage={hasNextPage}
-              loadNextPage={loadNextPage}
-              refreshing={status.refreshing}
-            >
-              {loadedChannels.map(renderChannel)}
-            </Paginator>
-          )}
-        </List>
-      </div>
-    </>
+        {loadedChannels?.length ? (
+          <EmptyStateIndicator listType='channel' />
+        ) : (
+          <Paginator
+            hasNextPage={hasNextPage}
+            loadNextPage={loadNextPage}
+            refreshing={status.refreshing}
+          >
+            {loadedChannels.map(renderChannel)}
+          </Paginator>
+        )}
+      </List>
+    </div>
   );
 };
 
