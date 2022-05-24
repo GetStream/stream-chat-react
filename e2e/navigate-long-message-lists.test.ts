@@ -1,8 +1,12 @@
 import { expect } from '@playwright/test';
+import dotenv from 'dotenv';
 
 import selectors from './user/selectors';
 import { test } from './user/test';
-import dotenv from 'dotenv';
+
+import MessageInput from './user/components/MessageInput';
+import Thread from './user/components/Thread/Thread';
+import ChannelPreview from './user/components/ChannelPreview';
 
 dotenv.config();
 dotenv.config({ path: `.env.local` });
@@ -19,10 +23,10 @@ test.describe('thread autoscroll', () => {
       'navigate-long-message-lists--user1',
       selectors.channelPreviewButton,
     );
-    await user.clicks.ChannelPreview.text(CHANNEL_NAME);
+    await user.clicks(ChannelPreview).text(CHANNEL_NAME);
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
-      user.clicks.Thread.open('replies'),
+      user.clicks(Thread).open('replies'),
     ]);
   });
 
@@ -41,7 +45,7 @@ test.describe('thread autoscroll', () => {
   });
 
   test('only if I send a message', async ({ page, user }) => {
-    let thread = await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME);
+    let thread = await user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
     const messageData = await thread.locator(selectors.messageData);
     const avatars = await thread.locator(selectors.avatar);
 
@@ -54,7 +58,7 @@ test.describe('thread autoscroll', () => {
 
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
-      user.submits.MessageInput.reply(MY_ADDED_REPLY_TEXT),
+      user.submits(MessageInput).reply(MY_ADDED_REPLY_TEXT),
     ]);
 
     await expect(thread).toHaveScreenshot({
@@ -63,7 +67,7 @@ test.describe('thread autoscroll', () => {
   });
 
   test('not if I receive a message', async ({ controller, page, user }) => {
-    const thread = await user.get.Thread(USER1_CHAT_VIEW_CLASSNAME);
+    const thread = await user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
     const messageData = await thread.locator(selectors.messageData);
     const avatars = await thread.locator(selectors.avatar);
 

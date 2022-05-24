@@ -13,14 +13,14 @@ export default (page: Page) => {
     const message = getMessage(page, targetMessageText, nthMessageWithText);
     await message.hover();
 
-    const [selector] = await Promise.all([
+    const [elementHandle] = await Promise.all([
       page.waitForSelector(`${selectors.messageActionsBox} >> text="${action}"`, {
         state: 'visible',
       }),
       message.locator(selectors.buttonOpenActionsBox).click(),
     ]);
 
-    return selector;
+    return elementHandle;
   };
 
   return {
@@ -29,10 +29,14 @@ export default (page: Page) => {
         return (await open(repliedMessageText, 'Delete', nthMessageWithText)).click();
       },
       async editMessage(repliedMessageText: string, nthMessageWithText?: number) {
-        const buttonSelector = await open(repliedMessageText, 'Edit Message', nthMessageWithText);
+        const buttonElementHandle = await open(
+          repliedMessageText,
+          'Edit Message',
+          nthMessageWithText,
+        );
         const [, clickEvent] = await Promise.all([
           page.waitForSelector(selectors.modalOpen),
-          buttonSelector.click(),
+          buttonElementHandle.click(),
         ]);
         return clickEvent;
       },

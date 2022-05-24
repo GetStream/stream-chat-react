@@ -2,7 +2,7 @@ import { Page } from '@playwright/test';
 
 import selectors from '../../selectors';
 
-export function getModal(page: Page) {
+export function getEditMessageForm(page: Page) {
   return page.locator(selectors.modalOpen);
 }
 
@@ -20,5 +20,5 @@ export default (page: Page) => ({
       return page.click(selectors.buttonSend);
     },
   },
-  get: () => getModal(page),
+  get: () => getEditMessageForm(page),
 });
