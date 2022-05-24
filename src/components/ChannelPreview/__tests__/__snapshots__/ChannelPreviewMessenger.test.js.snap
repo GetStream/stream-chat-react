@@ -7,7 +7,7 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
 >
   <button
     aria-label="Select Channel: Channel name"
-    className="str-chat__channel-preview-messenger str-chat__channel-preview-messenger--unread "
+    className="str-chat__channel-preview-messenger str-chat__channel-preview str-chat__channel-preview-messenger--unread "
     data-testid="channel-preview-button"
     onClick={[Function]}
     role="option"
@@ -50,14 +50,24 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__channel-preview-messenger--right"
+      className="str-chat__channel-preview-messenger--right str-chat__channel-preview-end"
     >
       <div
-        className="str-chat__channel-preview-messenger--name"
+        className="str-chat__channel-preview-end-first-row"
       >
-        <span>
-          Channel name
-        </span>
+        <div
+          className="str-chat__channel-preview-messenger--name"
+        >
+          <span>
+            Channel name
+          </span>
+        </div>
+        <div
+          className="str-chat__channel-preview-unread-badge"
+          data-testid="unread-badge"
+        >
+          10
+        </div>
       </div>
       <div
         className="str-chat__channel-preview-messenger--last-message"

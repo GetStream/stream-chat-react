@@ -8,13 +8,13 @@ exports[`ChatDown should render component with custom image url 1`] = `
     className="str-chat__loading-channels"
   >
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -25,13 +25,13 @@ exports[`ChatDown should render component with custom image url 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -42,13 +42,13 @@ exports[`ChatDown should render component with custom image url 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -87,13 +87,13 @@ exports[`ChatDown should render component with its default props 1`] = `
     className="str-chat__loading-channels"
   >
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -104,13 +104,13 @@ exports[`ChatDown should render component with its default props 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -121,13 +121,13 @@ exports[`ChatDown should render component with its default props 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -195,13 +195,13 @@ exports[`ChatDown should render custom image component 1`] = `
     className="str-chat__loading-channels"
   >
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -212,13 +212,13 @@ exports[`ChatDown should render custom image component 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"
@@ -229,13 +229,13 @@ exports[`ChatDown should render custom image component 1`] = `
       </div>
     </div>
     <div
-      className="str-chat__loading-channels-item"
+      className="str-chat__loading-channels-item str-chat__channel-preview-loading"
     >
       <div
         className="str-chat__loading-channels-avatar"
       />
       <div
-        className="str-chat__loading-channels-meta"
+        className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
       >
         <div
           className="str-chat__loading-channels-username"

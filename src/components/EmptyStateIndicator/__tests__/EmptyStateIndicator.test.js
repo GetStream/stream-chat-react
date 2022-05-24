@@ -24,8 +24,9 @@ describe('EmptyStateIndicator', () => {
   });
 
   it('should display correct text when listType is channel', () => {
-    const { getByText } = render(<EmptyStateIndicator listType='channel' />);
-    expect(getByText('You have no channels currently')).toBeInTheDocument();
+    const { queryAllByText } = render(<EmptyStateIndicator listType='channel' />);
+    // rendering the same text twice for backwards compatibility with css styling v1
+    expect(queryAllByText('You have no channels currently')).toHaveLength(2);
   });
 
   it('should display correct text when no listType is provided', () => {
