@@ -13,7 +13,7 @@ import type { StreamMessage } from './ChannelStateContext';
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { DefaultStreamChatGenerics, MessageErrorResponse, UnknownType } from '../types/types';
 
 export type MessageAttachments<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -23,6 +23,7 @@ export type MessageToSend<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachments?: MessageAttachments<StreamChatGenerics>;
+  error?: MessageErrorResponse;
   errorStatusCode?: number;
   id?: string;
   mentioned_users?: UserResponse<StreamChatGenerics>[];

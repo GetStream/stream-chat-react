@@ -46,10 +46,20 @@ export type DefaultMessageType<
 > = UnknownType & {
   customType?: CustomMessageType;
   date?: string | Date;
+  error?: MessageErrorResponse;
   errorStatusCode?: number;
   event?: Event<StreamChatGenerics>;
   unread?: boolean;
 };
+
+export interface MessageErrorResponse {
+  code: number;
+  details: [{ messages: string[] }];
+  duration: string;
+  message: string;
+  more_info: string;
+  StatusCode: number;
+}
 
 export type DefaultUserTypeInternal = {
   image?: string;

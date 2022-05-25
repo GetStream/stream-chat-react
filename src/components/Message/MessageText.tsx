@@ -13,6 +13,7 @@ import type { TranslationLanguages } from 'stream-chat';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { MODERATION_ERROR_CODE } from './MessageSimple';
 
 export type MessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -94,7 +95,9 @@ const UnMemoizedMessageTextComponent = <
         {message.status === 'failed' && (
           <div className={`str-chat__${theme}-message--error-message`}>
             {message.errorStatusCode !== 403
-              ? t<string>('Message Failed · Click to try again')
+              ? message.error?.code === MODERATION_ERROR_CODE
+                ? t<string>('Message failed · Moderation')
+                : t<string>('Message Failed · Click to try again')
               : t<string>('Message Failed · Unauthorized')}
           </div>
         )}

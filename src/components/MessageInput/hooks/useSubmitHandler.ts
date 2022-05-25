@@ -37,9 +37,12 @@ export const useSubmitHandler = <
   } = state;
 
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
-  const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
-    'useSubmitHandler',
-  );
+  const {
+    addNotification,
+    editMessage,
+    removeMessage,
+    sendMessage,
+  } = useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
 
   const getAttachmentsFromUploads = () => {
@@ -128,7 +131,49 @@ export const useSubmitHandler = <
       text,
     };
 
-    if (message) {
+    // re-sending a message that failed (due to moderation)
+    if (message && message.status === 'failed') {
+      try {
+        removeMessage(message);
+        dispatch({ type: 'clear' });
+
+        if (overrideSubmitHandler) {
+          await overrideSubmitHandler(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            channel.cid,
+            customMessageData,
+          );
+        } else {
+          await sendMessage(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            customMessageData,
+          );
+        }
+
+        if (publishTypingEvent) await channel.stopTyping();
+      } catch (err) {
+        dispatch({
+          getNewText: () => text,
+          type: 'setText',
+        });
+
+        if (actualMentionedUsers.length) {
+          actualMentionedUsers.forEach((user) => {
+            dispatch({ type: 'addMentionedUser', user });
+          });
+        }
+
+        addNotification(t('Send message request failed'), 'error');
+      } finally {
+        if (clearEditingState) clearEditingState();
+      }
+    } else if (message && message.status === 'received') {
       delete message.i18n;
 
       try {
@@ -140,6 +185,10 @@ export const useSubmitHandler = <
         if (clearEditingState) clearEditingState();
         dispatch({ type: 'clear' });
       } catch (err) {
+        // if we don't do that, the user can't see the error message.
+        // it's still not great, because in that way, we lose the edit state.
+        // this needs to be retought.
+        if (clearEditingState) clearEditingState();
         addNotification(t('Edit message request failed'), 'error');
       }
     } else {

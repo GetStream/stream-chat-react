@@ -606,6 +606,7 @@ const ChannelInner = <
 
       updateMessage({
         ...message,
+        error: parsedError,
         errorStatusCode: (parsedError.status as number) || undefined,
         status: 'failed',
       });

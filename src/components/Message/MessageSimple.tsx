@@ -19,7 +19,9 @@ import {
 } from '../Reactions';
 
 import { useComponentContext } from '../../context/ComponentContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -29,6 +31,7 @@ type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = MessageContextValue<StreamChatGenerics>;
 
+export const MODERATION_ERROR_CODE = 73;
 const MessageSimpleWithContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -51,6 +54,7 @@ const MessageSimpleWithContext = <
     onUserClick,
     onUserHover,
     reactionSelectorRef,
+    setEditingState,
     showDetailedReactions,
     threadList,
   } = props;
@@ -67,6 +71,10 @@ const MessageSimpleWithContext = <
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
+
+  const { removeMessage } = useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
+
+  const { t } = useTranslationContext('MessageText');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -89,6 +97,7 @@ const MessageSimpleWithContext = <
         <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
             clearEditingState={clearEditingState}
+            focus
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}
@@ -126,12 +135,9 @@ const MessageSimpleWithContext = <
             className='str-chat__message-inner'
             data-testid='message-inner'
             onClick={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
-            onKeyPress={
-              message.status === 'failed' && message.errorStatusCode !== 403
+              message.status === 'failed' &&
+              message.errorStatusCode !== 403 &&
+              message.error?.code !== MODERATION_ERROR_CODE
                 ? () => handleRetry(message)
                 : undefined
             }
@@ -149,6 +155,20 @@ const MessageSimpleWithContext = <
               <Attachment actionHandler={handleAction} attachments={message.attachments} />
             ) : null}
             <MessageText message={message} />
+            {message.error?.code === MODERATION_ERROR_CODE && (
+              <div className='str-chat__message-moderation-error-actions-box'>
+                <button onClick={() => removeMessage(message)}>{t<string>('Remove')}</button>
+
+                <button onClick={() => handleRetry(message)}>{t<string>('Send anyway')}</button>
+
+                <button
+                  className='str-chat__message-moderation-error-actions-box--primary'
+                  onClick={(e) => setEditingState(e)}
+                >
+                  {t<string>('Edit')}
+                </button>
+              </div>
+            )}
             {message.mml && (
               <MML
                 actionHandler={handleAction}
