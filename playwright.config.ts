@@ -7,7 +7,7 @@ const config: PlaywrightTestConfig = {
       maxDiffPixels: 100,
     },
   },
-  retries: 1,
+  retries: 2,
   testDir: './e2e',
   timeout: 15 * 1000,
   use: {
