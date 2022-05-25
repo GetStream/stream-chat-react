@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.0.0-development",
+  "version": "9.1.0-alpha.0",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -29,7 +29,7 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
-    "@stream-io/stream-chat-css": "^2.8.0",
+    "@stream-io/stream-chat-css": "2.10.0-alpha.0",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
