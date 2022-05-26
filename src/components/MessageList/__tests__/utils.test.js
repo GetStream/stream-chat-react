@@ -3,9 +3,9 @@ import { generateMessage } from '../../../mock-builders';
 import { makeDateMessageId, processMessages } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
-const mockedUuid = 'e50bc6f4-bbdb-11ec-9180-a4bb6d26ac2f';
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => mockedUuid),
+const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
+jest.mock('nanoid', () => ({
+  nanoid: jest.fn(() => mockedNanoId),
 }));
 
 const myUserId = 'myUserId';
@@ -84,8 +84,8 @@ describe('makeDateMessageId', () => {
       'message.date-1970-01-01T00:00:00.000Z',
     );
   });
-  it('generates string in format "message.date-<uuidV4>" if no date provided', () => {
-    expect(makeDateMessageId()).toBe(`message.date-${mockedUuid}`);
+  it('generates string in format "message.date-<nanoid>" if no date provided', () => {
+    expect(makeDateMessageId()).toBe(`message.date-${mockedNanoId}`);
   });
 });
 

@@ -2,14 +2,11 @@
 import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
 import type { ChannelSort } from 'stream-chat';
-import { v4 as uuid } from 'uuid';
+import { nanoid } from 'nanoid';
 import {
   Channel,
   ChannelHeader,
   ChannelList,
-  ChannelPreview,
-  ChannelPreviewProps,
-  ChannelPreviewUIComponentProps,
   MessageList,
   useChannelStateContext,
   Window,
@@ -33,7 +30,7 @@ const Controls = () => {
         data-testid='add-message'
         onClick={() =>
           channel.sendMessage({
-            text: uuid(),
+            text: nanoid(),
           })
         }
       >
@@ -46,37 +43,10 @@ const Controls = () => {
 // Sort in reverse order to avoid auto-selecting unread channel
 const sort: ChannelSort = { last_updated: 1 };
 
-const CustomPreviewUI = ({
-  activeChannel,
-  channel,
-  displayTitle,
-  setActiveChannel,
-  unread,
-  watchers,
-}: ChannelPreviewUIComponentProps) => {
-  const avatarName =
-    displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
-
-  return (
-    <div
-      data-testid={`channel-${channel.id}`}
-      onClick={() => setActiveChannel?.(channel, watchers)}
-      style={{ background: channel.cid === activeChannel?.cid ? '#fff' : 'initial' }}
-    >
-      <span>{avatarName}</span> || <span data-testid='unread-count'>{unread}</span>
-    </div>
-  );
-};
-
-const CustomPreview = (props: ChannelPreviewProps) => (
-  <ChannelPreview {...props} Preview={CustomPreviewUI} />
-);
-
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
   <ConnectedUser token={token} userId={userId}>
     <ChannelList
       filters={{ members: { $in: [userId] }, name: { $autocomplete: 'mr-channel' } }}
-      Preview={CustomPreview}
       setActiveChannelOnMount={false}
       sort={sort}
     />

@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useMemo } from 'react';
+import type { Message } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
@@ -54,13 +55,6 @@ export type MessageInputProps<
   grow?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
-  /**
-   * Currently, Enter is the default submission key and Shift+Enter is the default for new line.
-   * If provided, this array of keycode numbers will override the default Enter for submission, and Enter will then only create a new line.
-   * Shift + Enter will still always create a new line, unless Shift+Enter [16, 13] is included in the override.
-   * e.g.: [[16,13], [57], [48]] - submission keys would then be Shift+Enter, 9, and 0.
-   * */
-  keycodeSubmitKeys?: Array<number[]>;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
   maxRows?: number;
   /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
@@ -72,12 +66,26 @@ export type MessageInputProps<
   /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
-  overrideSubmitHandler?: (message: MessageToSend<StreamChatGenerics>, channelCid: string) => void;
+  overrideSubmitHandler?: (
+    message: MessageToSend<StreamChatGenerics>,
+    channelCid: string,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
+  ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: StreamMessage<StreamChatGenerics>;
   /** If true, triggers typing events on text input keystroke */
   publishTypingEvent?: boolean;
   /** If true, will use an optional dependency to support transliteration in the input for mentions, default is false. See: https://github.com/getstream/transliterate */
+  /**
+   * Currently, `Enter` is the default submission key and  `Shift`+`Enter` is the default combination for the new line.
+   * If specified, this function overrides the default behavior specified previously.
+   *
+   * Example of default behaviour:
+   * ```tsx
+   * const defaultShouldSubmit = (event) => event.key === "Enter" && !event.shiftKey;
+   * ```
+   */
+  shouldSubmit?: (event: KeyboardEvent) => boolean;
   useMentionsTransliteration?: boolean;
 };
 
@@ -118,10 +126,8 @@ const UnMemoizedMessageInput = <
   >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
-  const NullProvider: React.FC = ({ children }) => <>{children}</>;
-
   const OptionalMessageInputProvider = useMemo(
-    () => (dragAndDropWindow ? NullProvider : MessageInputProvider),
+    () => (dragAndDropWindow ? React.Fragment : MessageInputProvider),
     [dragAndDropWindow],
   );
 

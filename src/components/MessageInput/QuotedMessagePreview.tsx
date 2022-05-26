@@ -20,7 +20,7 @@ const QuotedMessagePreviewHeader = <
 
   return (
     <div className='quoted-message-preview-header'>
-      <div>{t('Reply to Message')}</div>
+      <div>{t<string>('Reply to Message')}</div>
       <button
         aria-label='Cancel Reply'
         className='str-chat__square-button'
@@ -61,10 +61,8 @@ export const QuotedMessagePreview = <
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     quotedMessage.text;
 
-  // @ts-expect-error
-  const quotedMessageAttachment = quotedMessage.attachments.length
-    ? // @ts-expect-error
-      quotedMessage.attachments[0]
+  const quotedMessageAttachment = quotedMessage.attachments?.length
+    ? quotedMessage.attachments[0]
     : null;
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;

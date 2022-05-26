@@ -1,3 +1,30 @@
+## [9.0.0](https://github.com/GetStream/stream-chat-react/compare/v8.2.0...v9.0.0) (2022-05-17)
+
+### Bug Fixes
+
+* display textarea defaultValue in MessageInput ([#1570](https://github.com/GetStream/stream-chat-react/issues/1570)) ([516a56b](https://github.com/GetStream/stream-chat-react/commit/516a56b8b8a24739f66c0d7b47c159d6bca7d3be))
+
+
+### Features
+
+* **MessageInput:** add shouldSubmit, remove keycodeSubmitKeys ([8e2cddd](https://github.com/GetStream/stream-chat-react/pull/1534/commits/8e2cdddddd256ec1ab77ba2bc7d59a40cfba7b11)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
+* add support for React 18 ([#1534](https://github.com/GetStream/stream-chat-react/issues/1534)) ([39cedcb](https://github.com/GetStream/stream-chat-react/commit/39cedcb8d0821e4bb6e8061349ae52132aa32c45))
+
+
+### BREAKING CHANGES
+
+* **MessageInput:** property `keycodeSubmitKeys` has been fully removed and replaced by the `shouldSubmit` property
+which should handle custom submit "trigger" functionality.
+Both `listener.js` and usage of key codes were outdated and caused unnecessary issues.
+
+## [8.1.3](https://github.com/GetStream/stream-chat-react/compare/v8.1.2...v8.1.3) (2022-05-15)
+
+
+### Bug Fixes
+
+* do not scroll thread message list when a new message is received ([#1568](https://github.com/GetStream/stream-chat-react/issues/1568)) ([b17c48a](https://github.com/GetStream/stream-chat-react/commit/b17c48ae87176ed8c7f54230ea67934774877210))
+* propagate user update data to UI ([#1566](https://github.com/GetStream/stream-chat-react/issues/1566)) ([3376e4c](https://github.com/GetStream/stream-chat-react/commit/3376e4ca736c0ac722bf7f71a2345e59aedf0fe0))
+
 ## [8.1.2](https://github.com/GetStream/stream-chat-react/compare/v8.1.1...v8.1.2) (2022-04-27)
 
 
@@ -5,7 +32,6 @@
 
 * display overlay "X more" on Gallery only if more images uploaded than displayed ([#1526](https://github.com/GetStream/stream-chat-react/issues/1526)) ([ed47cd1](https://github.com/GetStream/stream-chat-react/commit/ed47cd1e0d2df6b2af72ae33e5c1b2efffec1591))
 
-# Changelog
 
 ## [8.1.1](https://github.com/GetStream/stream-chat-react/compare/v8.1.0...v8.1.1) (2022-04-18)
 

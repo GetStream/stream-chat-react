@@ -105,9 +105,7 @@ export const useEmojiContext = (componentName?: string) => {
  * typing is desired while using the HOC withEmojiContext, the Props for the
  * wrapped component must be provided as the first generic.
  */
-export const withEmojiContext = <P extends UnknownType>(
-  Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof EmojiContextValue>> => {
+export const withEmojiContext = <P extends UnknownType>(Component: React.ComponentType<P>) => {
   const WithEmojiContextComponent = (props: Omit<P, keyof EmojiContextValue>) => {
     const componentContext = useEmojiContext();
 

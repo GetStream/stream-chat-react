@@ -13,7 +13,7 @@ export type EmoticonItemProps = {
   };
 };
 
-const UnMemoizedEmoticonItem: React.FC<EmoticonItemProps> = (props) => {
+const UnMemoizedEmoticonItem = (props: EmoticonItemProps) => {
   const { entity } = props;
 
   const hasEntity = Object.keys(entity).length;

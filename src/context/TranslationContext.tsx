@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -10,6 +10,7 @@ import type { Moment } from 'moment';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../types/types';
+import { defaultTranslatorFunction } from '../i18n';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
@@ -34,10 +35,10 @@ export const isLanguageSupported = (language: string): language is SupportedTran
 };
 
 export const isDayOrMoment = (output: TDateTimeParserOutput): output is Dayjs.Dayjs | Moment =>
-  (output as Dayjs.Dayjs | Moment).isSame != null;
+  !!(output as Dayjs.Dayjs | Moment)?.isSame;
 
 export const isDate = (output: TDateTimeParserOutput): output is Date =>
-  (output as Date).getMonth != null;
+  !!(output as Date)?.getMonth;
 
 export const isNumberOrString = (output: TDateTimeParserOutput): output is number | string =>
   typeof output === 'string' || typeof output === 'number';
@@ -49,20 +50,23 @@ export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs | Momen
 export type TDateTimeParser = (input?: TDateTimeParserInput) => TDateTimeParserOutput;
 
 export type TranslationContextValue = {
-  t: TFunction | ((key: string) => string);
+  t: TFunction;
   tDateTimeParser: TDateTimeParser;
   userLanguage: TranslationLanguages;
 };
 
+export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
+
 export const TranslationContext = React.createContext<TranslationContextValue>({
-  t: (key: string) => key,
-  tDateTimeParser: (input) => Dayjs(input),
+  t: defaultTranslatorFunction,
+  tDateTimeParser: defaultDateTimeParser,
   userLanguage: 'en',
 });
 
-export const TranslationProvider: React.FC<{
-  value: TranslationContextValue;
-}> = ({ children, value }) => (
+export const TranslationProvider = ({
+  children,
+  value,
+}: PropsWithChildren<{ value: TranslationContextValue }>) => (
   <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 );
 
@@ -82,7 +86,7 @@ export const useTranslationContext = (componentName?: string) => {
 
 export const withTranslationContext = <P extends UnknownType>(
   Component: React.ComponentType<P>,
-): React.FC<Omit<P, keyof TranslationContextValue>> => {
+) => {
   const WithTranslationContextComponent = (props: Omit<P, keyof TranslationContextValue>) => {
     const translationContext = useTranslationContext();
 

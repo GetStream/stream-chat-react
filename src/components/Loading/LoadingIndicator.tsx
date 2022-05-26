@@ -7,7 +7,7 @@ export type LoadingIndicatorProps = {
   size?: number;
 };
 
-const UnMemoizedLoadingIndicator: React.FC<LoadingIndicatorProps> = (props) => {
+const UnMemoizedLoadingIndicator = (props: LoadingIndicatorProps) => {
   const { color = '#006CFF', size = 15 } = props;
 
   return (

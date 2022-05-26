@@ -1,6 +1,7 @@
 import React from 'react';
+import type { PropsWithChildrenOnly } from '../../types/types';
 
-const UnMemoizedCenter: React.FC<{ key: string }> = ({ children }) => (
+const UnMemoizedCenter = ({ children }: PropsWithChildrenOnly) => (
   <div className='str-chat__list__center'>{children}</div>
 );
 

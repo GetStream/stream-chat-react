@@ -148,7 +148,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleQuote}
             role='option'
           >
-            {t('Reply')}
+            {t<string>('Reply')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1 && !message.parent_id && (
@@ -158,7 +158,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handlePin}
             role='option'
           >
-            {!message.pinned ? t('Pin') : t('Unpin')}
+            {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
@@ -168,7 +168,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleFlag}
             role='option'
           >
-            {t('Flag')}
+            {t<string>('Flag')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1 && (
@@ -178,7 +178,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleMute}
             role='option'
           >
-            {isUserMuted() ? t('Unmute') : t('Mute')}
+            {isUserMuted() ? t<string>('Unmute') : t<string>('Mute')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1 && (
@@ -188,7 +188,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleEdit}
             role='option'
           >
-            {t('Edit Message')}
+            {t<string>('Edit Message')}
           </button>
         )}
         {messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1 && (
@@ -198,7 +198,7 @@ const UnMemoizedMessageActionsBox = <
             onClick={handleDelete}
             role='option'
           >
-            {t('Delete')}
+            {t<string>('Delete')}
           </button>
         )}
       </div>

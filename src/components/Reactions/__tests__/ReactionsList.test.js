@@ -2,12 +2,15 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
-import { axe, toHaveNoViolations } from 'jest-axe';
+import { toHaveNoViolations } from 'jest-axe';
+import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { ReactionsList } from '../ReactionsList';
 
 import { EmojiProvider } from '../../../context/EmojiContext';
+import { MessageProvider } from '../../../context/MessageContext';
+
 import { emojiComponentMock, emojiDataMock, generateReaction } from '../../../mock-builders';
 
 jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
@@ -24,16 +27,19 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
     .flat();
 
   return render(
-    <EmojiProvider
-      value={{
-        Emoji: emojiComponentMock.Emoji,
-        emojiConfig: emojiDataMock,
-        EmojiIndex: emojiComponentMock.EmojiIndex,
-        EmojiPicker: emojiComponentMock.EmojiPicker,
-      }}
-    >
-      <ReactionsList reaction_counts={reaction_counts} reactions={reactions} {...props} />
-    </EmojiProvider>,
+    <MessageProvider value={{}}>
+      <EmojiProvider
+        value={{
+          Emoji: emojiComponentMock.Emoji,
+          emojiConfig: emojiDataMock,
+          EmojiIndex: emojiComponentMock.EmojiIndex,
+          EmojiPicker: emojiComponentMock.EmojiPicker,
+        }}
+      >
+        <ReactionsList reaction_counts={reaction_counts} reactions={reactions} {...props} />
+      </EmojiProvider>
+      ,
+    </MessageProvider>,
   );
 };
 

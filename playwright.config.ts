@@ -7,12 +7,18 @@ const config: PlaywrightTestConfig = {
   use: {
     headless: true,
     viewport: { height: 920, width: 1280 },
+    screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'ladle serve --open none',
     port: 61000,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+  },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100
+    }
   },
   workers: 1,
 };

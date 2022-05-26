@@ -37,7 +37,6 @@
   },
   "include": ["./src/**/*"],
   "exclude": [
-    "./src/docs/*",
     "./src/mock-builders",
     "node_modules",
     "babel.config.js",

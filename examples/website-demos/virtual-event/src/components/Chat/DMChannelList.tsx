@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import {
   Avatar,
   ChannelList,
@@ -37,11 +37,11 @@ export const SkeletonLoader: React.FC = () => (
   </ul>
 );
 
-const ListWrapper: React.FC = ({ children }) => {
+const ListWrapper = ({ children }: {children?: React.ReactNode}) => {
   return <div className='dm-list'>{children}</div>;
 };
 
-const ListUI: React.FC<ChannelListMessengerProps> = (props) => {
+const ListUI= (props: PropsWithChildren<ChannelListMessengerProps>) => {
   const { children, error, loading } = props;
 
   if (loading) {

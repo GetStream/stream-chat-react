@@ -5,7 +5,7 @@ import { CloseX } from '../../assets';
 
 import './SocialThread.scss';
 
-export const SocialThreadHeader: React.FC = () => {
+export const SocialThreadHeader = () => {
   const { thread } = useChannelStateContext();
   const { closeThread } = useChannelActionContext();
 

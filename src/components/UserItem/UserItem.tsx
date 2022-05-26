@@ -23,7 +23,7 @@ export type UserItemProps = {
 /**
  * UI component for mentions rendered in suggestion list
  */
-const UnMemoizedUserItem: React.FC<UserItemProps> = (props) => {
+const UnMemoizedUserItem = (props: UserItemProps) => {
   const { Avatar = DefaultAvatar, entity } = props;
 
   const hasEntity = Object.keys(entity).length;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Dayjs from 'dayjs';
 
 import {
+  defaultDateTimeParser,
   isLanguageSupported,
   SupportedTranslations,
   TranslationContextValue,
@@ -32,7 +32,7 @@ export const useChat = <
 }: UseChatParams<StreamChatGenerics>) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
     t: (key: string) => key,
-    tDateTimeParser: (input) => Dayjs(input),
+    tDateTimeParser: defaultDateTimeParser,
     userLanguage: 'en',
   });
 

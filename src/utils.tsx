@@ -1,6 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
+import { nanoid } from 'nanoid';
 //@ts-expect-error
 import findAndReplace from 'mdast-util-find-and-replace';
 import RootReactMarkdown, { NodeType } from 'react-markdown';
@@ -254,15 +255,10 @@ export function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#]/g, '\\$&');
 }
 
-function S4() {
-  return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-}
-
-// https://stackoverflow.com/a/6860916/2570866
-export function generateRandomId() {
-  // prettier-ignore
-  return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-}
+/**
+ * @deprecated will be removed in the next major release
+ */
+export const generateRandomId = nanoid;
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charAt#getting_whole_characters
 export const getWholeChar = (str: string, i: number) => {

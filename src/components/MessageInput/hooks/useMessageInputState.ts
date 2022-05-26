@@ -1,7 +1,7 @@
 import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
-import { generateRandomId } from '../../../utils';
 
 import { useEmojiIndex } from './useEmojiIndex';
 import { useAttachments } from './useAttachments';
@@ -144,7 +144,7 @@ export type MessageInputHookProps<
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
-  textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>;
+  textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
@@ -153,26 +153,30 @@ export type MessageInputHookProps<
 const emptyFileUploads: Record<string, FileUpload> = {};
 const emptyImageUploads: Record<string, ImageUpload> = {};
 
+const makeEmptyMessageInputState = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(): MessageInputState<StreamChatGenerics> => ({
+  attachments: [],
+  emojiPickerIsOpen: false,
+  fileOrder: [],
+  fileUploads: { ...emptyFileUploads },
+  imageOrder: [],
+  imageUploads: { ...emptyImageUploads },
+  mentioned_users: [],
+  setText: () => null,
+  text: '',
+});
+
 /**
  * Initializes the state. Empty if the message prop is falsy.
  */
 const initState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: StreamMessage<StreamChatGenerics>,
+  message?: Pick<StreamMessage<StreamChatGenerics>, 'attachments' | 'mentioned_users' | 'text'>,
 ): MessageInputState<StreamChatGenerics> => {
   if (!message) {
-    return {
-      attachments: [],
-      emojiPickerIsOpen: false,
-      fileOrder: [],
-      fileUploads: { ...emptyFileUploads },
-      imageOrder: [],
-      imageUploads: { ...emptyImageUploads },
-      mentioned_users: [],
-      setText: () => null,
-      text: '',
-    };
+    return makeEmptyMessageInputState();
   }
 
   // if message prop is defined, get image uploads, file uploads, text, etc.
@@ -180,7 +184,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'image')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.fallback || '',
@@ -198,7 +202,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'file')
       .reduce((acc, attachment) => {
-        const id = generateRandomId();
+        const id = nanoid();
         acc[id] = {
           file: {
             name: attachment.title || '',
@@ -217,7 +221,7 @@ const initState = <
   const attachments =
     message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
 
-  const mentioned_users = message.mentioned_users || [];
+  const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
 
   return {
     attachments,
@@ -249,16 +253,7 @@ const messageInputReducer = <
       return { ...state, text: action.getNewText(state.text) };
 
     case 'clear':
-      return {
-        attachments: [],
-        emojiPickerIsOpen: false,
-        fileOrder: [],
-        fileUploads: { ...emptyFileUploads },
-        imageOrder: [],
-        imageUploads: { ...emptyImageUploads },
-        mentioned_users: [],
-        text: '',
-      };
+      return makeEmptyMessageInputState();
 
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
@@ -349,18 +344,25 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { closeEmojiPickerOnClick, message } = props;
+  const { additionalTextareaProps, closeEmojiPickerOnClick, message } = props;
 
   const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
     'useMessageInputState',
   );
+
+  const defaultValue = additionalTextareaProps?.defaultValue;
+  const initialStateValue =
+    message ||
+    ((Array.isArray(defaultValue)
+      ? { text: defaultValue.join('') }
+      : { text: defaultValue?.toString() }) as Partial<StreamMessage<StreamChatGenerics>>);
 
   const [state, dispatch] = useReducer(
     messageInputReducer as Reducer<
       MessageInputState<StreamChatGenerics>,
       MessageInputReducerAction<StreamChatGenerics>
     >,
-    message,
+    initialStateValue,
     initState,
   );
 
@@ -423,11 +425,10 @@ export const useMessageInputState = <
     dispatch,
     numberOfUploads,
   );
-
-  const { onPaste } = usePasteHandler(uploadNewFiles, insertText);
-
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
+
+  const { onPaste } = usePasteHandler(uploadNewFiles, insertText, isUploadEnabled);
 
   const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
     dispatch({ type: 'addMentionedUser', user: item });

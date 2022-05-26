@@ -12,7 +12,7 @@ export type CooldownTimerProps = {
   setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
-export const CooldownTimer: React.FC<CooldownTimerProps> = (props) => {
+export const CooldownTimer = (props: CooldownTimerProps) => {
   const { cooldownInterval, setCooldownRemaining } = props;
 
   const [seconds, setSeconds] = useState(cooldownInterval);
