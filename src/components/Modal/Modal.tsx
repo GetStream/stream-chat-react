@@ -18,29 +18,21 @@ export const Modal = (props: PropsWithChildren<ModalProps>) => {
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      (event.target instanceof HTMLDivElement &&
-        !innerRef.current?.contains(event.target) &&
-        onClose) ||
-      (event.target instanceof HTMLButtonElement &&
-        closeRef.current?.contains(event.target) &&
-        onClose)
-    ) {
-      onClose();
-    }
+    const target = event.target as HTMLButtonElement | HTMLDivElement;
+    if (!innerRef.current || !closeRef.current) return;
+
+    if (!innerRef.current.contains(target) || closeRef.current.contains(target)) onClose?.();
   };
 
   useEffect(() => {
-    if (!open) return () => null;
+    if (!open) return;
 
-    const handleEscKey: EventListener = (event) => {
-      if (event instanceof KeyboardEvent && event.key === 'Escape' && onClose) {
-        onClose();
-      }
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose?.();
     };
 
-    document.addEventListener('keypress', handleEscKey);
-    return () => document.removeEventListener('keypress', handleEscKey);
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
   }, [onClose, open]);
 
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';
