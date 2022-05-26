@@ -216,7 +216,7 @@ export const channelReducer = <
 
     case 'setLoadingMore': {
       const { loadingMore } = action;
-      // supporess the autoscroll behavior
+      // suppress the autoscroll behavior
       return { ...state, loadingMore, suppressAutoscroll: true };
     }
 
