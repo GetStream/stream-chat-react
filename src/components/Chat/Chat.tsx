@@ -2,6 +2,7 @@ import React, { PropsWithChildren } from 'react';
 
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
+import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
@@ -84,10 +85,13 @@ export const Chat = <
     translators,
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
+  const channelsQueryState = useChannelsQueryState();
+
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
   const chatContextValue = useCreateChatContext({
     channel,
+    channelsQueryState,
     client,
     closeMobileNav,
     customClasses,

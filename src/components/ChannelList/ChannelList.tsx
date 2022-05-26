@@ -170,6 +170,7 @@ const UnMemoizedChannelList = <
 
   const {
     channel,
+    channelsQueryState,
     client,
     closeMobileNav,
     customClasses,
@@ -228,7 +229,7 @@ const UnMemoizedChannelList = <
    */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
-  const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
+  const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
     sort || DEFAULT_SORT,
@@ -308,9 +309,9 @@ const UnMemoizedChannelList = <
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         <List
-          error={status.error}
+          error={channelsQueryState.error}
           loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-          loading={status.loadingChannels}
+          loading={channelsQueryState.queryInProgress === 'reload'}
           LoadingErrorIndicator={LoadingErrorIndicator}
           LoadingIndicator={LoadingIndicator}
           setChannels={setChannels}
@@ -321,7 +322,7 @@ const UnMemoizedChannelList = <
             <Paginator
               hasNextPage={hasNextPage}
               loadNextPage={loadNextPage}
-              refreshing={status.refreshing}
+              refreshing={channelsQueryState.queryInProgress === 'load-more'}
             >
               {loadedChannels.map(renderChannel)}
             </Paginator>

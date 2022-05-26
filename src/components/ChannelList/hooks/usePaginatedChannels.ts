@@ -4,6 +4,8 @@ import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 
+import { useChatContext } from '../../../context/ChatContext';
+
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export const usePaginatedChannels = <
@@ -18,24 +20,24 @@ export const usePaginatedChannels = <
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   ) => void,
 ) => {
+  const {
+    channelsQueryState: { setError, setQueryInProgress },
+  } = useChatContext('usePaginatedChannels');
   const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
-  const [error, setError] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(true);
-  const [loadingChannels, setLoadingChannels] = useState(true);
-  const [refreshing, setRefreshing] = useState(true);
 
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
   const queryChannels = async (queryType?: string) => {
-    setError(false);
+    setError(null);
 
     if (queryType === 'reload') {
       setChannels([]);
-      setLoadingChannels(true);
+      setQueryInProgress('reload');
+    } else {
+      setQueryInProgress('load-more');
     }
-
-    setRefreshing(true);
 
     const offset = queryType === 'reload' ? 0 : channels.length;
 
@@ -60,11 +62,10 @@ export const usePaginatedChannels = <
       }
     } catch (err) {
       console.warn(err);
-      setError(true);
+      setError(err);
     }
 
-    setLoadingChannels(false);
-    setRefreshing(false);
+    setQueryInProgress(null);
   };
 
   const loadNextPage = () => {
@@ -80,10 +81,5 @@ export const usePaginatedChannels = <
     hasNextPage,
     loadNextPage,
     setChannels,
-    status: {
-      error,
-      loadingChannels,
-      refreshing,
-    },
   };
 };
