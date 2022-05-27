@@ -36,7 +36,6 @@ import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandler
 import { Attachment as DefaultAttachment } from '../Attachment/Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
-  LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message/MessageSimple';
@@ -199,11 +198,26 @@ const UnMemoizedChannel = <
 >(
   props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
 ) => {
-  const { channel: propsChannel, EmptyPlaceholder = null } = props;
+  const {
+    channel: propsChannel,
+    EmptyPlaceholder = null,
+    LoadingErrorIndicator,
+    LoadingIndicator,
+  } = props;
 
-  const { channel: contextChannel } = useChatContext<StreamChatGenerics>('Channel');
+  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
+    'Channel',
+  );
 
   const channel = propsChannel || contextChannel;
+
+  if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
+    return <LoadingIndicator size={25} />;
+  }
+
+  if (channelsQueryState.error && LoadingErrorIndicator) {
+    return <LoadingErrorIndicator error={channelsQueryState.error} />;
+  }
 
   if (!channel?.cid) return EmptyPlaceholder;
 
@@ -232,7 +246,6 @@ const ChannelInner = <
     dragAndDropWindow = false,
     emojiData = defaultEmojiData,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
-    LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,
@@ -859,14 +872,6 @@ const ChannelInner = <
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingErrorIndicator error={state.error} />
-      </div>
-    );
-  }
-
-  if (state.loading) {
-    return (
-      <div className={`${chatClass} ${channelClass} ${theme}`}>
-        <LoadingIndicator size={25} />
       </div>
     );
   }
