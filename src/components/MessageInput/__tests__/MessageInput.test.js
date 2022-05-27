@@ -30,6 +30,33 @@ import {
 
 expect.extend(toHaveNoViolations);
 
+jest.mock('react', () => {
+  const React = jest.requireActual('react');
+  const Suspense = ({ children }) => children;
+
+  const lazy = jest.fn().mockImplementation((fn) => {
+    const Component = (props) => {
+      const [C, setC] = React.useState();
+
+      React.useEffect(() => {
+        fn().then((v) => {
+          setC(v);
+        });
+      }, []);
+
+      return C ? <C.default {...props} /> : null;
+    };
+
+    return Component;
+  });
+
+  return {
+    ...React,
+    lazy,
+    Suspense,
+  };
+});
+
 jest.mock('../../Channel/utils', () => ({ makeAddNotifications: jest.fn }));
 
 let chatClient;
@@ -263,7 +290,8 @@ function axeNoViolations(container) {
       const { container } = await renderComponent();
 
       const emojiIcon = await screen.findByTitle('Open emoji picker');
-      fireEvent.click(emojiIcon);
+
+      act(() => fireEvent.click(emojiIcon));
 
       await waitFor(() => {
         expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
@@ -272,14 +300,13 @@ function axeNoViolations(container) {
       const emoji = '💯';
       const emojiButton = screen.queryAllByText(emoji)[0];
       expect(emojiButton).toBeInTheDocument();
-
-      fireEvent.click(emojiButton);
+      act(() => fireEvent.click(emojiButton));
 
       // expect input to have emoji as value
       expect(screen.getByDisplayValue(emoji)).toBeInTheDocument();
 
       // close picker
-      fireEvent.click(container);
+      act(() => fireEvent.click(container));
       expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -287,6 +314,8 @@ function axeNoViolations(container) {
 
     describe('Attachments', () => {
       it('Pasting images and files should result in uploading the files and showing previewers', async () => {
+        // FIXME: act is missing somewhere within this test which results in unwanted warning
+
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
@@ -624,7 +653,7 @@ function axeNoViolations(container) {
           },
         });
 
-        await submit();
+        await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
@@ -651,7 +680,7 @@ function axeNoViolations(container) {
           },
         });
 
-        await submit();
+        await act(() => submit());
 
         expect(overrideMock).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -666,7 +695,7 @@ function axeNoViolations(container) {
       it('Should not do anything if the message is empty and has no files', async () => {
         const { container, submit } = await renderComponent();
 
-        await submit();
+        await act(() => submit());
 
         expect(submitMock).not.toHaveBeenCalled();
         await axeNoViolations(container);
@@ -689,7 +718,7 @@ function axeNoViolations(container) {
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doImageUploadRequest).toHaveBeenCalled());
 
-        await submit();
+        await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
@@ -722,7 +751,7 @@ function axeNoViolations(container) {
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
-        await submit();
+        await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
@@ -757,7 +786,7 @@ function axeNoViolations(container) {
         // eslint-disable-next-line jest/prefer-called-with
         await waitFor(() => expect(doFileUploadRequest).toHaveBeenCalled());
 
-        await submit();
+        await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
           channel.cid,
@@ -920,7 +949,7 @@ function axeNoViolations(container) {
         },
       });
 
-      await waitFor(() => submit());
+      await act(() => submit());
 
       expect(editMock).toHaveBeenCalledWith(
         channel.cid,
@@ -958,7 +987,7 @@ function axeNoViolations(container) {
         fireEvent.click(usernameListItem);
       });
 
-      await submit();
+      await act(() => submit());
 
       expect(submitMock).toHaveBeenCalledWith(
         channel.cid,
@@ -991,7 +1020,7 @@ function axeNoViolations(container) {
         });
       });
 
-      await waitFor(() => submit());
+      await act(() => submit());
 
       expect(editMock).toHaveBeenCalledWith(
         channel.cid,
