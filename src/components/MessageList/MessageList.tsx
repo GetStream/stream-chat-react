@@ -67,6 +67,8 @@ const MessageListWithContext = <
     jumpToLatestMessage = () => Promise.resolve(),
   } = props;
 
+  const ulRef = React.useRef<HTMLUListElement>(null);
+
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
@@ -88,6 +90,7 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
+    ulRef,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -163,8 +166,6 @@ const MessageListWithContext = <
     }
   }, [scrollToBottom, hasMoreNewer]);
 
-  const ulRef = React.useRef<HTMLUListElement>(null);
-
   React.useLayoutEffect(() => {
     if (highlightedMessageId) {
       const element = ulRef.current?.querySelector(`[data-message-id='${highlightedMessageId}']`);
@@ -174,7 +175,12 @@ const MessageListWithContext = <
 
   return (
     <>
-      <div className={`${messageListClass} ${threadListClass}`} onScroll={onScroll} ref={listRef}>
+      <div
+        className={`${messageListClass} ${threadListClass}`}
+        onScroll={onScroll}
+        ref={listRef}
+        tabIndex={0}
+      >
         {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
