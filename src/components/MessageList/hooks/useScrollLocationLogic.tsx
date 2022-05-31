@@ -10,6 +10,7 @@ export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   hasMoreNewer: boolean;
+  listRef: RefObject<HTMLDivElement>;
   suppressAutoscroll: boolean;
   ulRef: RefObject<HTMLUListElement>;
   currentUserId?: string;
@@ -27,6 +28,7 @@ export const useScrollLocationLogic = <
     scrolledUpThreshold = 200,
     hasMoreNewer,
     suppressAutoscroll,
+    listRef,
     ulRef,
   } = params;
 
@@ -35,89 +37,50 @@ export const useScrollLocationLogic = <
 
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
-  const listRef = useRef<HTMLDivElement>(null);
-  const userInteraction = React.useRef({ clickedScrollBar: false, performedScroll: false });
+  const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
 
   const scrollToBottom = useCallback(() => {
     if (!listRef.current?.scrollTo || hasMoreNewer || suppressAutoscroll) {
       return;
     }
 
+    scrollCounter.current.autoScroll += 1;
     listRef.current?.scrollTo({
       top: listRef.current.scrollHeight,
     });
     setHasNewMessages(false);
   }, [listRef, hasMoreNewer, suppressAutoscroll]);
 
-  const resizeObserver = useRef(new ResizeObserver(scrollToBottom));
+  const resizeObserverState = useRef({
+    observer: new ResizeObserver(scrollToBottom),
+    observing: false,
+  });
 
   useEffect(() => {
     if (!listRef.current) return;
 
-    const cancelObserverOnUserScrollActivity = (
-      e: WheelEvent | TouchEvent | KeyboardEvent | MouseEvent | Event,
-    ) => {
-      if (!listRef.current) return;
-
-      const msgListIsScrollableVertically =
-        listRef.current.offsetHeight <= listRef.current.scrollHeight;
-      const notLeftBtnClick = e instanceof MouseEvent && e.type === 'mouseDown' && e.buttons !== 1;
-      const notClickedScrollBar =
-        e instanceof MouseEvent && e.buttons === 1 && e.offsetX < listRef.current.clientWidth;
-
-      if (
-        !msgListIsScrollableVertically ||
-        userInteraction.current.performedScroll ||
-        notLeftBtnClick ||
-        notClickedScrollBar
-      ) {
-        return;
-      }
-
-      const clickedOnScrollBar =
-        e instanceof MouseEvent && e.buttons === 1 && listRef.current.clientWidth < e.offsetX;
-
-      if (clickedOnScrollBar) {
-        userInteraction.current.clickedScrollBar = true;
-        return;
-      }
-
-      if (
-        (e.type === 'scroll' && userInteraction.current.clickedScrollBar) ||
-        (e instanceof KeyboardEvent && e.key === 'ArrowUp') ||
-        e instanceof WheelEvent ||
-        e instanceof TouchEvent
-      ) {
-        if (ulRef.current) resizeObserver.current.unobserve(ulRef.current);
-        userInteraction.current.performedScroll = true;
+    const cancelObserverOnUserScroll = () => {
+      scrollCounter.current.scroll += 1;
+      const userScrolled = scrollCounter.current.autoScroll < scrollCounter.current.scroll;
+      if (ulRef.current && userScrolled && resizeObserverState.current.observing) {
+        resizeObserverState.current.observer.unobserve(ulRef.current);
+        resizeObserverState.current.observing = false;
       }
     };
 
-    if (ulRef.current && !userInteraction.current.performedScroll) {
-      resizeObserver.current.observe(ulRef.current);
+    if (ulRef.current) {
+      resizeObserverState.current.observer.observe(ulRef.current);
+      resizeObserverState.current.observing = true;
     }
 
-    listRef.current.addEventListener('wheel', cancelObserverOnUserScrollActivity, {
-      once: true,
-      passive: true,
-    });
-    listRef.current.addEventListener('touchmove', cancelObserverOnUserScrollActivity, {
-      once: true,
-      passive: true,
-    });
-    listRef.current.addEventListener('keydown', cancelObserverOnUserScrollActivity);
-    listRef.current.addEventListener('mousedown', cancelObserverOnUserScrollActivity, {
-      passive: true,
-    });
-    listRef.current.addEventListener('scroll', cancelObserverOnUserScrollActivity);
+    listRef.current.addEventListener('scroll', cancelObserverOnUserScroll);
+
     return () => {
-      if (ulRef.current) resizeObserver.current.unobserve(ulRef.current);
+      if (ulRef.current) {
+        resizeObserverState.current.observer.unobserve(ulRef.current);
+      }
       if (listRef.current) {
-        listRef.current.removeEventListener('wheel', cancelObserverOnUserScrollActivity);
-        listRef.current.removeEventListener('touchmove', cancelObserverOnUserScrollActivity);
-        listRef.current.removeEventListener('keydown', cancelObserverOnUserScrollActivity);
-        listRef.current.removeEventListener('mousedown', cancelObserverOnUserScrollActivity);
-        listRef.current.removeEventListener('scroll', cancelObserverOnUserScrollActivity);
+        listRef.current.removeEventListener('scroll', cancelObserverOnUserScroll);
       }
     };
   }, [listRef.current, ulRef.current]);

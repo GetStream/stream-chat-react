@@ -67,6 +67,7 @@ const MessageListWithContext = <
     jumpToLatestMessage = () => Promise.resolve(),
   } = props;
 
+  const listRef = React.useRef<HTMLDivElement>(null);
   const ulRef = React.useRef<HTMLUListElement>(null);
 
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
@@ -80,13 +81,13 @@ const MessageListWithContext = <
 
   const {
     hasNewMessages,
-    listRef,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
     hasMoreNewer,
+    listRef,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
