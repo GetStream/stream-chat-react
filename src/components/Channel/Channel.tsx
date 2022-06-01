@@ -36,6 +36,7 @@ import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandler
 import { Attachment as DefaultAttachment } from '../Attachment/Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
+  LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicatorProps,
 } from '../Loading';
 import { MessageSimple } from '../Message/MessageSimple';
@@ -246,6 +247,7 @@ const ChannelInner = <
     dragAndDropWindow = false,
     emojiData = defaultEmojiData,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
+    LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,
@@ -272,7 +274,9 @@ const ChannelInner = <
 
   const [state, dispatch] = useReducer<ChannelStateReducer<StreamChatGenerics>>(
     channelReducer,
-    initialState,
+    // channel.initialized === false if client.channels() was not called, e.g. ChannelList is not used
+    // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
+    { ...initialState, loading: !channel.initialized },
   );
 
   const isMounted = useIsMounted();
@@ -872,6 +876,14 @@ const ChannelInner = <
     return (
       <div className={`${chatClass} ${channelClass} ${theme}`}>
         <LoadingErrorIndicator error={state.error} />
+      </div>
+    );
+  }
+
+  if (state.loading) {
+    return (
+      <div className={`${chatClass} ${channelClass} ${theme}`}>
+        <LoadingIndicator size={25} />
       </div>
     );
   }
