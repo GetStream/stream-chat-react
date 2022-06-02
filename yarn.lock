@@ -16049,10 +16049,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^6.5.0:
-  version "6.5.1"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.5.1.tgz#bf7661c0b6e10194cd1d3f5e73b81fc582fabc9c"
-  integrity sha512-FbjKfSstuK+vUwc3+p98mewczK9XwzCiiqDX9eCa/KUlF/Jp6UWVBzmcBPPk7nWCrnIgU/42XBFYKyjNfkqQmw==
+stream-chat@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.6.0.tgz#8891136694774d084a867819ff1ea8289576728a"
+  integrity sha512-m9eZ/fs4ix1/LsGR01TBLHj2At3fHao49QCr0hzjNmSIkVDuTUVODVjsIT6W8Jpfv57++PvrS6TyIrNqdU1NSw==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "^8.5.6"
