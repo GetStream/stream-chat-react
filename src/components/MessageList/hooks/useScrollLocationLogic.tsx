@@ -54,10 +54,7 @@ export const useScrollLocationLogic = <
     setHasNewMessages(false);
   }, [listRef, hasMoreNewer, suppressAutoscroll]);
 
-  const resizeObserverState = useRef({
-    observer: new ResizeObserver(scrollToBottom),
-    observing: false,
-  });
+  const [observer] = useState(() => new ResizeObserver(scrollToBottom));
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -65,22 +62,21 @@ export const useScrollLocationLogic = <
     const cancelObserverOnUserScroll = () => {
       scrollCounter.current.scroll += 1;
       const userScrolled = scrollCounter.current.autoScroll < scrollCounter.current.scroll;
-      if (ulRef.current && userScrolled && resizeObserverState.current.observing) {
-        resizeObserverState.current.observer.unobserve(ulRef.current);
-        resizeObserverState.current.observing = false;
+      if (ulRef.current && userScrolled) {
+        observer.unobserve(ulRef.current);
+        listRef.current?.removeEventListener('scroll', cancelObserverOnUserScroll);
       }
     };
 
     if (ulRef.current) {
-      resizeObserverState.current.observer.observe(ulRef.current);
-      resizeObserverState.current.observing = true;
+      observer.observe(ulRef.current);
     }
 
     listRef.current.addEventListener('scroll', cancelObserverOnUserScroll);
 
     return () => {
       if (ulRef.current) {
-        resizeObserverState.current.observer.unobserve(ulRef.current);
+        observer.unobserve(ulRef.current);
       }
       if (listRef.current) {
         listRef.current.removeEventListener('scroll', cancelObserverOnUserScroll);
