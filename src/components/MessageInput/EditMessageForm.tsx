@@ -45,7 +45,7 @@ export const EditMessageForm = <
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && clearEditingState) clearEditingState();
+      if (event.key === 'Escape') clearEditingState?.();
     };
 
     document.addEventListener('keydown', onKeyDown);

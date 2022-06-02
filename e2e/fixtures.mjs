@@ -22,17 +22,17 @@ dotenv.config({ path: `.env.local` });
     const messageResponses = [];
     for (let i = start; i < stop; i++) {
       if (process.stdout.clearLine && process.stdout.cursorTo) {
-        printProgress((i-start) / count);
+        printProgress((i - start) / count);
       }
 
       const res = await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
-        ...(i === (start + 140) ? { quoted_message_id: messageToQuote.message.id } : {}),
+        ...(i === start + 140 ? { quoted_message_id: messageToQuote.message.id } : {}),
         ...(parent_id ? { parent_id } : {}),
       });
 
-      if (i === (start + 20)) {
+      if (i === start + 20) {
         messageToQuote = res;
       }
       messageResponses.push(res);
@@ -75,8 +75,7 @@ dotenv.config({ path: `.env.local` });
     await channel.truncate();
 
     const messages = await generateMessages(0, 150, channel);
-    await generateMessages(150, 300, channel, messages.slice(-1)[0].message.id)
-
+    await generateMessages(150, 300, channel, messages.slice(-1)[0].message.id);
 
     process.stdout.write('\n');
   }
@@ -109,7 +108,7 @@ dotenv.config({ path: `.env.local` });
       await channel.truncate();
     }
   }
-})().catch(e => console.error(e));
+})().catch((e) => console.error(e));
 
 const printProgress = (progress) => {
   process.stdout.clearLine();
