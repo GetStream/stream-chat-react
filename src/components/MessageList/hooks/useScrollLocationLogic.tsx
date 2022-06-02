@@ -1,10 +1,13 @@
 import React, { RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ResizeObserver as Polyfill } from '@juggle/resize-observer';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 
 import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+
+const ResizeObserver = window.ResizeObserver || Polyfill;
 
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -88,6 +91,7 @@ export const useScrollLocationLogic = <
   useLayoutEffect(() => {
     if (listRef?.current) {
       setWrapperRect(listRef.current.getBoundingClientRect());
+      scrollToBottom();
     }
   }, [listRef.current, hasMoreNewer]);
 
