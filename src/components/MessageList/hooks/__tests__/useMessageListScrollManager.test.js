@@ -7,8 +7,10 @@ import { useMessageListScrollManager } from '../useMessageListScrollManager';
 import { ChatProvider } from '../../../../context/ChatContext';
 import { generateUser, getTestClientWithUser } from '../../../../mock-builders';
 
-const generateMessages = (length) =>
-  Array.from({ length }, (_, index) => ({ id: index.toString(), userId: '0' }));
+const myUserId = 'alice';
+
+const generateMessages = (length, userId = myUserId) =>
+  Array.from({ length }, (_, index) => ({ id: index.toString(), userId }));
 
 const defaultInputs = {
   messages: [],
@@ -21,7 +23,7 @@ const defaultInputs = {
   showNewMessages: () => {},
 };
 
-const alice = generateUser({ id: 'alice' });
+const alice = generateUser({ id: myUserId });
 let client;
 
 describe('useMessageListScrollManager', () => {
@@ -30,7 +32,7 @@ describe('useMessageListScrollManager', () => {
   });
   afterEach(cleanup);
 
-  it('emits scroll to bottom on mount', () => {
+  it('does not emit scroll to bottom on mount', () => {
     const scrollToBottom = jest.fn();
     const Comp = () => {
       useMessageListScrollManager({
@@ -52,7 +54,7 @@ describe('useMessageListScrollManager', () => {
       </ChatProvider>,
     );
 
-    expect(scrollToBottom).toHaveBeenCalledTimes(1);
+    expect(scrollToBottom).not.toHaveBeenCalled();
   });
 
   it('emits scrollTop delta when messages are prepended', () => {
@@ -118,7 +120,7 @@ describe('useMessageListScrollManager', () => {
       </ChatProvider>,
     );
 
-    expect(scrollToBottom).toHaveBeenCalledTimes(2);
+    expect(scrollToBottom).toHaveBeenCalledTimes(1);
   });
 
   it('does not emit scroll to bottom when new messages arrive and user has scrolled up', () => {
@@ -202,7 +204,7 @@ describe('useMessageListScrollManager', () => {
     rerender(
       <ChatProvider value={{ client }}>
         <Comp
-          messages={messages.concat([{ id: 100, userId: client.userID }])}
+          messages={messages.concat([{ id: 100, user: { id: client.userID } }])}
           offsetHeight={100}
           scrollHeight={600}
           scrollTop={200}
