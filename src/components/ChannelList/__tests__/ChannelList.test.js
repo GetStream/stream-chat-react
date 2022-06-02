@@ -394,7 +394,7 @@ describe('ChannelList', () => {
       filters: {},
       List: ChannelListComponent,
       Preview: ChannelPreviewComponent,
-      renderChannels: renderChannels,
+      renderChannels,
     };
     const { container, getByRole } = render(
       <Chat client={chatClientUthred}>
@@ -408,7 +408,7 @@ describe('ChannelList', () => {
     });
 
     await waitFor(() => {
-      expect(renderChannels).toHaveBeenCalled();
+      expect(renderChannels).toHaveBeenCalledTimes(1);
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
