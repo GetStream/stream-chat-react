@@ -32,7 +32,9 @@ export type FileUpload = {
   url?: string;
 };
 
-export type ImageUpload = {
+export type ImageUpload<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   file: {
     name: string;
     height?: number;
@@ -47,7 +49,10 @@ export type ImageUpload = {
   state: 'finished' | 'failed' | 'uploading';
   previewUri?: string;
   url?: string;
-};
+} & Pick<
+  Attachment<StreamChatGenerics>,
+  'og_scrape_url' | 'title' | 'title_link' | 'author_name' | 'text'
+>;
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -150,8 +155,6 @@ export type MessageInputHookProps<
   uploadNewFiles: (files: FileList | File[]) => void;
   emojiIndex?: NimbleEmojiIndex;
 };
-const emptyFileUploads: Record<string, FileUpload> = {};
-const emptyImageUploads: Record<string, ImageUpload> = {};
 
 const makeEmptyMessageInputState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -159,9 +162,9 @@ const makeEmptyMessageInputState = <
   attachments: [],
   emojiPickerIsOpen: false,
   fileOrder: [],
-  fileUploads: { ...emptyFileUploads },
+  fileUploads: {},
   imageOrder: [],
-  imageUploads: { ...emptyImageUploads },
+  imageUploads: {},
   mentioned_users: [],
   setText: () => null,
   text: '',
@@ -183,39 +186,52 @@ const initState = <
   const imageUploads =
     message.attachments
       ?.filter(({ type }) => type === 'image')
-      .reduce((acc, attachment) => {
-        const id = nanoid();
-        acc[id] = {
-          file: {
-            name: attachment.fallback || '',
-          },
-          id,
-          state: 'finished',
-          url: attachment.image_url,
-        };
-        return acc;
-      }, {} as Record<string, ImageUpload>) || {};
-
-  const imageOrder = Object.keys(imageUploads);
+      .reduce<Record<string, ImageUpload>>(
+        (
+          acc,
+          { author_name, fallback = '', image_url, og_scrape_url, text, title, title_link },
+        ) => {
+          const id = nanoid();
+          acc[id] = {
+            author_name,
+            file: {
+              name: fallback,
+            },
+            id,
+            og_scrape_url,
+            state: 'finished',
+            text,
+            title,
+            title_link,
+            url: image_url,
+          };
+          return acc;
+        },
+        {},
+      ) ?? {};
 
   const fileUploads =
     message.attachments
       ?.filter(({ type }) => type === 'file')
-      .reduce((acc, attachment) => {
-        const id = nanoid();
-        acc[id] = {
-          file: {
-            name: attachment.title || '',
-            size: attachment.file_size,
-            type: attachment.mime_type,
-          },
-          id,
-          state: 'finished',
-          url: attachment.asset_url,
-        };
-        return acc;
-      }, {} as Record<string, FileUpload>) || {};
+      .reduce<Record<string, FileUpload>>(
+        (acc, { asset_url, file_size, mime_type, title = '' }) => {
+          const id = nanoid();
+          acc[id] = {
+            file: {
+              name: title,
+              size: file_size,
+              type: mime_type,
+            },
+            id,
+            state: 'finished',
+            url: asset_url,
+          };
+          return acc;
+        },
+        {},
+      ) ?? {};
 
+  const imageOrder = Object.keys(imageUploads);
   const fileOrder = Object.keys(fileUploads);
 
   const attachments =

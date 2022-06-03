@@ -1,4 +1,5 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ResizeObserver as Polyfill } from '@juggle/resize-observer';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 
@@ -6,11 +7,15 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+const ResizeObserver = window.ResizeObserver || Polyfill;
+
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   hasMoreNewer: boolean;
+  listElement: HTMLDivElement | null;
   suppressAutoscroll: boolean;
+  ulElement: HTMLUListElement | null;
   currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
@@ -21,49 +26,78 @@ export const useScrollLocationLogic = <
 >(
   params: UseScrollLocationLogicParams<StreamChatGenerics>,
 ) => {
-  const { messages = [], scrolledUpThreshold = 200, hasMoreNewer, suppressAutoscroll } = params;
+  const {
+    messages = [],
+    scrolledUpThreshold = 200,
+    hasMoreNewer,
+    suppressAutoscroll,
+    listElement,
+    ulElement,
+  } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
 
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
-  const listRef = useRef<HTMLDivElement>(null);
+  const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
 
   const scrollToBottom = useCallback(() => {
-    if (!listRef.current?.scrollTo || hasMoreNewer || suppressAutoscroll) {
+    if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
       return;
     }
 
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
+    scrollCounter.current.autoScroll += 1;
+    listElement.scrollTo({
+      top: listElement.scrollHeight,
     });
     setHasNewMessages(false);
+  }, [listElement, hasMoreNewer, suppressAutoscroll]);
 
-    // this is hacky and unreliable, but that was the current implementation so not breaking it
-    setTimeout(() => {
-      listRef.current?.scrollTo({
-        top: listRef.current.scrollHeight,
-      });
-    }, 200);
-  }, [listRef, hasMoreNewer, suppressAutoscroll]);
+  useEffect(() => {
+    if (!listElement) return;
+    const observer = new ResizeObserver(scrollToBottom);
+
+    const cancelObserverOnUserScroll = () => {
+      scrollCounter.current.scroll += 1;
+      const userScrolled = scrollCounter.current.autoScroll < scrollCounter.current.scroll;
+      if (ulElement && userScrolled) {
+        observer.unobserve(ulElement);
+        listElement?.removeEventListener('scroll', cancelObserverOnUserScroll);
+      }
+    };
+
+    if (ulElement) {
+      observer.observe(ulElement);
+    }
+
+    listElement.addEventListener('scroll', cancelObserverOnUserScroll);
+
+    return () => {
+      observer.disconnect();
+
+      if (listElement) {
+        listElement.removeEventListener('scroll', cancelObserverOnUserScroll);
+      }
+    };
+  }, [ulElement, scrollToBottom]);
 
   useLayoutEffect(() => {
-    if (listRef?.current) {
-      setWrapperRect(listRef.current.getBoundingClientRect());
+    if (listElement) {
+      setWrapperRect(listElement.getBoundingClientRect());
       scrollToBottom();
     }
-  }, [listRef, hasMoreNewer]);
+  }, [listElement, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({
     messages,
     onScrollBy: (scrollBy) => {
-      listRef.current?.scrollBy({ top: scrollBy });
+      listElement?.scrollBy({ top: scrollBy });
     },
 
     scrollContainerMeasures: () => ({
-      offsetHeight: listRef.current?.offsetHeight || 0,
-      scrollHeight: listRef.current?.scrollHeight || 0,
+      offsetHeight: listElement?.offsetHeight || 0,
+      scrollHeight: listElement?.scrollHeight || 0,
     }),
     scrolledUpThreshold,
     scrollToBottom,
@@ -102,7 +136,7 @@ export const useScrollLocationLogic = <
 
   return {
     hasNewMessages,
-    listRef,
+    listElement,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,

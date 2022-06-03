@@ -120,6 +120,11 @@ export type ChannelListProps<
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
+  /** Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly */
+  renderChannels?: (
+    channels: Channel<StreamChatGenerics>[],
+    channelPreview: (item: Channel<StreamChatGenerics>) => React.ReactNode,
+  ) => React.ReactNode;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
   sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
@@ -161,6 +166,7 @@ const UnMemoizedChannelList = <
     options,
     Paginator = LoadMorePaginator,
     Preview,
+    renderChannels,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
@@ -170,6 +176,7 @@ const UnMemoizedChannelList = <
 
   const {
     channel,
+    channelsQueryState,
     client,
     closeMobileNav,
     customClasses,
@@ -228,7 +235,7 @@ const UnMemoizedChannelList = <
    */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
-  const { channels, hasNextPage, loadNextPage, setChannels, status } = usePaginatedChannels(
+  const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
     sort || DEFAULT_SORT,
@@ -308,9 +315,9 @@ const UnMemoizedChannelList = <
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         <List
-          error={status.error}
+          error={channelsQueryState.error}
           loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-          loading={status.loadingChannels}
+          loading={channelsQueryState.queryInProgress === 'reload'}
           LoadingErrorIndicator={LoadingErrorIndicator}
           LoadingIndicator={LoadingIndicator}
           setChannels={setChannels}
@@ -321,9 +328,11 @@ const UnMemoizedChannelList = <
             <Paginator
               hasNextPage={hasNextPage}
               loadNextPage={loadNextPage}
-              refreshing={status.refreshing}
+              refreshing={channelsQueryState.queryInProgress === 'load-more'}
             >
-              {loadedChannels.map(renderChannel)}
+              {renderChannels
+                ? renderChannels(loadedChannels, renderChannel)
+                : loadedChannels.map(renderChannel)}
             </Paginator>
           )}
         </List>

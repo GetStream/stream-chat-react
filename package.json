@@ -29,6 +29,7 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
+    "@juggle/resize-observer": "^3.3.1",
     "@stream-io/stream-chat-css": "^2.8.0",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
@@ -61,7 +62,7 @@
   "peerDependencies": {
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
-    "stream-chat": "^6.5.0"
+    "stream-chat": "^6.6.0"
   },
   "files": [
     "dist",
@@ -165,7 +166,7 @@
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^19.0.2",
     "semantic-release-cli": "^5.4.4",
-    "stream-chat": "^6.5.0",
+    "stream-chat": "^6.6.0",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
