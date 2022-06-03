@@ -67,8 +67,8 @@ const MessageListWithContext = <
     jumpToLatestMessage = () => Promise.resolve(),
   } = props;
 
-  const listRef = React.useRef<HTMLDivElement>(null);
-  const ulRef = React.useRef<HTMLUListElement>(null);
+  const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
+  const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
@@ -87,11 +87,11 @@ const MessageListWithContext = <
     wrapperRect,
   } = useScrollLocationLogic({
     hasMoreNewer,
-    listRef,
+    listElement,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
-    ulRef,
+    ulElement,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -169,7 +169,7 @@ const MessageListWithContext = <
 
   React.useLayoutEffect(() => {
     if (highlightedMessageId) {
-      const element = ulRef.current?.querySelector(`[data-message-id='${highlightedMessageId}']`);
+      const element = ulElement?.querySelector(`[data-message-id='${highlightedMessageId}']`);
       element?.scrollIntoView({ block: 'center' });
     }
   }, [highlightedMessageId]);
@@ -179,7 +179,7 @@ const MessageListWithContext = <
       <div
         className={`${messageListClass} ${threadListClass}`}
         onScroll={onScroll}
-        ref={listRef}
+        ref={setListElement}
         tabIndex={0}
       >
         {!elements.length ? (
@@ -200,7 +200,7 @@ const MessageListWithContext = <
             loadMoreNewer={loadMoreNewer}
             {...props.internalInfiniteScrollProps}
           >
-            <ul className='str-chat__ul' ref={ulRef}>
+            <ul className='str-chat__ul' ref={setUlElement}>
               {elements}
             </ul>
             <TypingIndicator threadList={threadList} />

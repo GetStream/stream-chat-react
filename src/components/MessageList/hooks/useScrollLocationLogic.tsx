@@ -1,4 +1,4 @@
-import React, { RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ResizeObserver as Polyfill } from '@juggle/resize-observer';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
@@ -13,9 +13,9 @@ export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   hasMoreNewer: boolean;
-  listRef: RefObject<HTMLDivElement>;
+  listElement: HTMLDivElement | null;
   suppressAutoscroll: boolean;
-  ulRef: RefObject<HTMLUListElement>;
+  ulElement: HTMLUListElement | null;
   currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
@@ -31,8 +31,8 @@ export const useScrollLocationLogic = <
     scrolledUpThreshold = 200,
     hasMoreNewer,
     suppressAutoscroll,
-    listRef,
-    ulRef,
+    listElement,
+    ulElement,
   } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
@@ -43,61 +43,61 @@ export const useScrollLocationLogic = <
   const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
 
   const scrollToBottom = useCallback(() => {
-    if (!listRef.current?.scrollTo || hasMoreNewer || suppressAutoscroll) {
+    if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
       return;
     }
 
     scrollCounter.current.autoScroll += 1;
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
+    listElement?.scrollTo({
+      top: listElement.scrollHeight,
     });
     setHasNewMessages(false);
-  }, [listRef, hasMoreNewer, suppressAutoscroll]);
+  }, [listElement, hasMoreNewer, suppressAutoscroll]);
 
   useEffect(() => {
-    if (!listRef.current) return;
+    if (!listElement) return;
     const observer = new ResizeObserver(scrollToBottom);
 
     const cancelObserverOnUserScroll = () => {
       scrollCounter.current.scroll += 1;
       const userScrolled = scrollCounter.current.autoScroll < scrollCounter.current.scroll;
-      if (ulRef.current && userScrolled) {
-        observer.unobserve(ulRef.current);
-        listRef.current?.removeEventListener('scroll', cancelObserverOnUserScroll);
+      if (ulElement && userScrolled) {
+        observer.unobserve(ulElement);
+        listElement?.removeEventListener('scroll', cancelObserverOnUserScroll);
       }
     };
 
-    if (ulRef.current) {
-      observer.observe(ulRef.current);
+    if (ulElement) {
+      observer.observe(ulElement);
     }
 
-    listRef.current.addEventListener('scroll', cancelObserverOnUserScroll);
+    listElement.addEventListener('scroll', cancelObserverOnUserScroll);
 
     return () => {
       observer.disconnect();
 
-      if (listRef.current) {
-        listRef.current.removeEventListener('scroll', cancelObserverOnUserScroll);
+      if (listElement) {
+        listElement.removeEventListener('scroll', cancelObserverOnUserScroll);
       }
     };
-  }, [ulRef.current, scrollToBottom]);
+  }, [ulElement, scrollToBottom]);
 
   useLayoutEffect(() => {
-    if (listRef?.current) {
-      setWrapperRect(listRef.current.getBoundingClientRect());
+    if (listElement) {
+      setWrapperRect(listElement.getBoundingClientRect());
       scrollToBottom();
     }
-  }, [listRef.current, hasMoreNewer]);
+  }, [listElement, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({
     messages,
     onScrollBy: (scrollBy) => {
-      listRef.current?.scrollBy({ top: scrollBy });
+      listElement?.scrollBy({ top: scrollBy });
     },
 
     scrollContainerMeasures: () => ({
-      offsetHeight: listRef.current?.offsetHeight || 0,
-      scrollHeight: listRef.current?.scrollHeight || 0,
+      offsetHeight: listElement?.offsetHeight || 0,
+      scrollHeight: listElement?.scrollHeight || 0,
     }),
     scrolledUpThreshold,
     scrollToBottom,
@@ -136,7 +136,7 @@ export const useScrollLocationLogic = <
 
   return {
     hasNewMessages,
-    listRef,
+    listElement,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
