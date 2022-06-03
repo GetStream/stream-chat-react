@@ -120,6 +120,11 @@ export type ChannelListProps<
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
+  /** Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly */
+  renderChannels?: (
+    channels: Channel<StreamChatGenerics>[],
+    channelPreview: (item: Channel<StreamChatGenerics>) => React.ReactNode,
+  ) => React.ReactNode;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
   sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
@@ -161,6 +166,7 @@ const UnMemoizedChannelList = <
     options,
     Paginator = LoadMorePaginator,
     Preview,
+    renderChannels,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
@@ -324,7 +330,9 @@ const UnMemoizedChannelList = <
               loadNextPage={loadNextPage}
               refreshing={channelsQueryState.queryInProgress === 'load-more'}
             >
-              {loadedChannels.map(renderChannel)}
+              {renderChannels
+                ? renderChannels(loadedChannels, renderChannel)
+                : loadedChannels.map(renderChannel)}
             </Paginator>
           )}
         </List>

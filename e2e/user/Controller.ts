@@ -1,10 +1,9 @@
 import type { Page } from '@playwright/test';
 
-import  selectors  from './selectors';
+import selectors from './selectors';
 
 export class Controller {
-  constructor(private baseURL: string | undefined, private page: Page) {
-  }
+  constructor(private baseURL: string | undefined, private page: Page) {}
 
   async openStory(story: string, waitForPresence: string) {
     await Promise.all([

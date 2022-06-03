@@ -37,7 +37,7 @@ describe('Modal', () => {
 
     fireEvent(
       document,
-      new KeyboardEvent('keypress', {
+      new KeyboardEvent('keydown', {
         key: 'Escape',
       }),
     );
@@ -45,14 +45,14 @@ describe('Modal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should clean up the escape keypress handler on unmount', () => {
+  it('should clean up the escape keydown handler on unmount', () => {
     const onClose = jest.fn();
     const { unmount } = render(<Modal onClose={onClose} open />);
 
     unmount();
     fireEvent(
       document,
-      new KeyboardEvent('keypress', {
+      new KeyboardEvent('keydown', {
         key: 'Escape',
       }),
     );

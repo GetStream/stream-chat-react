@@ -4,7 +4,7 @@ import { makeUser, TestingUser } from './User';
 
 interface CustomTestContext {
   controller: Controller;
-  user: TestingUser
+  user: TestingUser;
 }
 
 export const test = _test.extend<CustomTestContext>({
