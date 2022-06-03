@@ -48,7 +48,7 @@ export const useScrollLocationLogic = <
     }
 
     scrollCounter.current.autoScroll += 1;
-    listElement?.scrollTo({
+    listElement.scrollTo({
       top: listElement.scrollHeight,
     });
     setHasNewMessages(false);
