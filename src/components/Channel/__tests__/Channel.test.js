@@ -107,8 +107,9 @@ describe('Channel', () => {
     });
     chatClient = await getTestClientWithUser(user);
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
-    // await channel.query();
+    channel = chatClient.channel('messaging', mockedChannel.channel.id);
+
+    jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
   });
 
   afterEach(() => {
@@ -354,21 +355,17 @@ describe('Channel', () => {
     const markReadSpy = jest.spyOn(channel, 'markRead');
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    await act(() => {
-      renderComponent();
-    });
+    renderComponent();
+
     // first, wait for the effect in which the channel is watched,
     // so we know the event listener is added to the document.
     await waitFor(() => expect(watchSpy).toHaveBeenCalledWith());
-
-    act(() => fireEvent(document, new Event('visibilitychange')));
+    setTimeout(() => fireEvent(document, new Event('visibilitychange')), 0);
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
 
   it('should mark the channel as read if the count of unread messages is higher than 0 on mount', async () => {
-    await channel.query();
-
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
@@ -377,8 +374,6 @@ describe('Channel', () => {
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
   it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
-    await channel.query();
-
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const doMarkReadRequest = jest.fn();
 
