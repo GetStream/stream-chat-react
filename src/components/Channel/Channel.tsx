@@ -199,11 +199,26 @@ const UnMemoizedChannel = <
 >(
   props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
 ) => {
-  const { channel: propsChannel, EmptyPlaceholder = null } = props;
+  const {
+    channel: propsChannel,
+    EmptyPlaceholder = null,
+    LoadingErrorIndicator,
+    LoadingIndicator,
+  } = props;
 
-  const { channel: contextChannel } = useChatContext<StreamChatGenerics>('Channel');
+  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
+    'Channel',
+  );
 
   const channel = propsChannel || contextChannel;
+
+  if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
+    return <LoadingIndicator size={25} />;
+  }
+
+  if (channelsQueryState.error && LoadingErrorIndicator) {
+    return <LoadingErrorIndicator error={channelsQueryState.error} />;
+  }
 
   if (!channel?.cid) return EmptyPlaceholder;
 
@@ -259,7 +274,9 @@ const ChannelInner = <
 
   const [state, dispatch] = useReducer<ChannelStateReducer<StreamChatGenerics>>(
     channelReducer,
-    initialState,
+    // channel.initialized === false if client.channels() was not called, e.g. ChannelList is not used
+    // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
+    { ...initialState, loading: !channel.initialized },
   );
 
   const isMounted = useIsMounted();
@@ -606,6 +623,7 @@ const ChannelInner = <
 
       updateMessage({
         ...message,
+        error: parsedError,
         errorStatusCode: (parsedError.status as number) || undefined,
         status: 'failed',
       });

@@ -8,7 +8,7 @@ import { LoadingErrorIndicator } from '../../Loading';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useEmojiContext } from '../../../context/EmojiContext';
 import {
@@ -117,9 +117,144 @@ describe('Channel', () => {
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>} />);
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel EmptyPlaceholder={<div>empty</div>} />
+      </ChatProvider>,
+    );
 
-    await waitFor(() => expect(getByText('empty')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('empty')).toBeInTheDocument());
+  });
+
+  it('should render channel content if channels query loads more channels', async () => {
+    const childrenContent = 'Channel children';
+    await channel.watch();
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'load-more',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+          client: chatClient,
+        }}
+      >
+        <Channel channel={channel}>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
+  });
+
+  it('should render nothing if channels query is in progress', async () => {
+    const childrenContent = 'Channel children';
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render nothing if channel does not have cid', async () => {
+    const childrenContent = 'Channel children';
+    const { cid, ...channelWithoutCID } = channel;
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channel: channelWithoutCID,
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render nothing if channels query failed', async () => {
+    const childrenContent = 'Channel children';
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: new Error(),
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render provided loading indicator if channels query is in progress', async () => {
+    const childrenContent = 'Channel children';
+    const loadingText = 'Loading channels';
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel LoadingIndicator={() => <div>{loadingText}</div>}>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
+  });
+
+  it('should render provided error indicator if channels query failed', async () => {
+    const childrenContent = 'Channel children';
+    const errMsg = 'Channels query failed';
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: new Error(errMsg),
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel LoadingErrorIndicator={({ error }) => <div>{error.message}</div>}>
+          {childrenContent}
+        </Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
   });
 
   it('should watch the current channel on mount', async () => {
@@ -130,6 +265,15 @@ describe('Channel', () => {
     });
 
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
+  });
+
+  it('should not call watch the current channel on mount if channel is initialized', async () => {
+    const watchSpy = jest.spyOn(channel, 'watch');
+    channel.initialized = true;
+    await act(() => {
+      renderComponent();
+    });
+    await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
   });
 
   it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {

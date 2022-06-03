@@ -38,6 +38,13 @@ import {
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
+const channelsQueryStateMock = {
+  error: null,
+  queryInProgress: null,
+  setError: jest.fn(),
+  setQueryInProgress: jest.fn(),
+};
+
 /**
  * We are gonna use following custom UI components for preview and list.
  * If we use ChannelPreviewMessenger or ChannelPreviewLastMessage here, then changes
@@ -96,7 +103,14 @@ describe('ChannelList', () => {
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
       const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider value={{ client: chatClientUthred, closeMobileNav, navOpen: true }}>
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClientUthred,
+            closeMobileNav,
+            navOpen: true,
+          }}
+        >
           <ChannelList {...props} />
           <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
@@ -117,7 +131,14 @@ describe('ChannelList', () => {
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
       const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider value={{ client: chatClientUthred, closeMobileNav, navOpen: false }}>
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClientUthred,
+            closeMobileNav,
+            navOpen: false,
+          }}
+        >
           <ChannelList {...props} />
           <div data-testid='outside-channellist' />
         </ChatContext.Provider>,
@@ -309,7 +330,13 @@ describe('ChannelList', () => {
 
     it('should call `setActiveChannel` prop function with first channel as param', async () => {
       render(
-        <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClientUthred,
+            setActiveChannel,
+          }}
+        >
           <ChannelList
             filters={{}}
             List={ChannelListComponent}
@@ -334,7 +361,13 @@ describe('ChannelList', () => {
 
     it('should call `setActiveChannel` prop function with channel (which has `customActiveChannel` id)  as param', async () => {
       render(
-        <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClientUthred,
+            setActiveChannel,
+          }}
+        >
           <ChannelList
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
@@ -357,7 +390,13 @@ describe('ChannelList', () => {
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
       const { container, getAllByRole, getByRole, getByTestId } = render(
-        <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClientUthred,
+            setActiveChannel,
+          }}
+        >
           <ChannelList
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
@@ -372,18 +411,19 @@ describe('ChannelList', () => {
       );
 
       // Wait for list of channels to load in DOM.
-      await waitFor(() => {
+      await waitFor(async () => {
         expect(getByRole('list')).toBeInTheDocument();
+        const items = getAllByRole('listitem');
+
+        // Get the closest listitem to the channel that received new message.
+        const channelPreview = getByTestId(testChannel2.channel.id).closest(
+          ROLE_LIST_ITEM_SELECTOR,
+        );
+
+        expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
-
-      const items = getAllByRole('listitem');
-
-      // Get the closest listitem to the channel that received new message.
-      const channelPreview = getByTestId(testChannel2.channel.id).closest(ROLE_LIST_ITEM_SELECTOR);
-
-      expect(channelPreview.isEqualNode(items[0])).toBe(true);
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
     });
   });
 
@@ -808,7 +848,13 @@ describe('ChannelList', () => {
       it('should unset activeChannel if it was deleted', async () => {
         const setActiveChannel = jest.fn();
         const { container, getByRole } = render(
-          <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              setActiveChannel,
+            }}
+          >
             <ChannelList
               {...channelListProps}
               channel={{ cid: testChannel1.channel.cid }}
@@ -868,7 +914,13 @@ describe('ChannelList', () => {
       it('should unset activeChannel if it was hidden', async () => {
         const setActiveChannel = jest.fn();
         const { container, getByRole } = render(
-          <ChatContext.Provider value={{ client: chatClientUthred, setActiveChannel }}>
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              setActiveChannel,
+            }}
+          >
             <ChannelList
               {...channelListProps}
               channel={{ cid: testChannel1.channel.cid }}
