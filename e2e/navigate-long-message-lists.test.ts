@@ -25,7 +25,7 @@ test.describe('thread autoscroll', () => {
     );
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
     await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
+      page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
       user.clicks(Thread).open('replies'),
     ]);
   });
@@ -45,16 +45,13 @@ test.describe('thread autoscroll', () => {
   });
 
   test('only if I send a message', async ({ page, user }) => {
-    let thread = await user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const messageData = await thread.locator(selectors.messageData);
-    const avatars = await thread.locator(selectors.avatar);
+    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
+    const messageData = thread.locator(selectors.messageData);
+    const avatars = thread.locator(selectors.avatar);
 
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      expect(thread).toHaveScreenshot({
-        mask: [messageData, avatars],
-      }),
-    ]);
+    await expect(thread).toHaveScreenshot({
+      mask: [messageData, avatars],
+    });
 
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
@@ -67,17 +64,13 @@ test.describe('thread autoscroll', () => {
   });
 
   test('not if I receive a message', async ({ controller, page, user }) => {
-    const thread = await user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const messageData = await thread.locator(selectors.messageData);
-    const avatars = await thread.locator(selectors.avatar);
+    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
+    const messageData = thread.locator(selectors.messageData);
+    const avatars = thread.locator(selectors.avatar);
 
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      expect(thread).toHaveScreenshot({
-        mask: [messageData, avatars],
-      }),
-    ]);
-
+    await expect(thread).toHaveScreenshot({
+      mask: [messageData, avatars],
+    });
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply(),
