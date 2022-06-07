@@ -87,7 +87,7 @@ const SetThreadOpen = () => {
 
   useEffect(() => {
     if (!messages) return;
-    const lastMsg = messages.at(-1);
+    const [lastMsg] = messages.slice(-1);
 
     if (lastMsg) openThread(lastMsg, { preventDefault: () => null } as any);
   }, [messages]);
