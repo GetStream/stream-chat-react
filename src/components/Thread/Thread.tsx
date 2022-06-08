@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 import { FixedHeightMessage } from '../Message/FixedHeightMessage';
-import { Message } from '../Message/Message';
 import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
 import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
 import { MessageList, MessageListProps } from '../MessageList/MessageList';
@@ -10,7 +9,7 @@ import {
   VirtualizedMessageListProps,
 } from '../MessageList/VirtualizedMessageList';
 
-import { MessageToSend, useChannelActionContext } from '../../context/ChannelActionContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -107,12 +106,6 @@ const DefaultThreadHeader = <
   );
 };
 
-const DefaultThreadStart = () => {
-  const { t } = useTranslationContext('Thread');
-
-  return <div className='str-chat__thread-start'>{t<string>('Start of a new thread')}</div>;
-};
-
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -137,20 +130,16 @@ const ThreadInner = <
     threadHasMore,
     threadLoadingMore,
     threadMessages,
+    threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
-  const { closeThread, loadMoreThread, sendMessage } = useChannelActionContext<StreamChatGenerics>(
-    'Thread',
-  );
+  const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
   const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
-    ThreadStart = DefaultThreadStart,
     VirtualMessage = FixedHeightMessage,
   } = useComponentContext<StreamChatGenerics>('Thread');
-
-  const messageList = useRef<HTMLDivElement | null>(null);
 
   const ThreadInput =
     PropInput || additionalMessageInputProps?.Input || ContextInput || MessageInputSmall;
@@ -166,17 +155,6 @@ const ThreadInner = <
     }
   }, []);
 
-  const threadSubmitHandler: MessageInputProps['overrideSubmitHandler'] = async (
-    message,
-    _,
-    customMessageData,
-  ) => {
-    await sendMessage(message as MessageToSend<StreamChatGenerics>, customMessageData);
-    if (messageList.current) {
-      messageList.current.scrollTop = messageList.current.scrollHeight;
-    }
-  };
-
   if (!thread) return null;
 
   const threadClass = customClasses?.thread || 'str-chat__thread';
@@ -184,30 +162,21 @@ const ThreadInner = <
   return (
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
-      <div className='str-chat__thread-list' ref={messageList}>
-        <Message
-          initialMessage
-          message={thread}
-          Message={ThreadMessage || FallbackMessage}
-          threadList
-          {...additionalParentMessageProps}
-        />
-        <ThreadStart />
-        <ThreadMessageList
-          disableDateSeparator={!enableDateSeparator}
-          hasMore={threadHasMore}
-          loadingMore={threadLoadingMore}
-          loadMore={loadMoreThread}
-          Message={ThreadMessage || FallbackMessage}
-          messages={threadMessages || []}
-          threadList
-          {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
-        />
-      </div>
+      <ThreadMessageList
+        additionalParentMessageProps={additionalParentMessageProps}
+        disableDateSeparator={!enableDateSeparator}
+        hasMore={threadHasMore}
+        loadingMore={threadLoadingMore}
+        loadMore={loadMoreThread}
+        Message={ThreadMessage || FallbackMessage}
+        messages={threadMessages || []}
+        suppressAutoscroll={threadSuppressAutoscroll}
+        threadList
+        {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
+      />
       <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
-        overrideSubmitHandler={threadSubmitHandler}
         parent={thread}
         publishTypingEvent={false}
         {...additionalMessageInputProps}
