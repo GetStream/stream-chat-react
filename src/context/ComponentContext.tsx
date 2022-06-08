@@ -16,6 +16,7 @@ import type { MessageOptionsProps } from '../components/Message/MessageOptions';
 import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
+import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageStatusProps } from '../components/Message/MessageStatus';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
@@ -53,6 +54,7 @@ export type ComponentContextValue<
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
+  MessageListHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;

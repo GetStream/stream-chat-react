@@ -59,13 +59,14 @@ import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/Emo
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 import defaultEmojiData from '../../stream-emoji.json';
+import { makeAddNotifications } from './utils';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
-import { makeAddNotifications } from './utils';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -143,6 +144,8 @@ export type ChannelProps<
   Message?: ComponentContextValue<StreamChatGenerics>['Message'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<StreamChatGenerics>['MessageDeleted'];
+  /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  MessageListHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageList.tsx) */
   MessageListNotifications?: ComponentContextValue<StreamChatGenerics>['MessageListNotifications'];
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
@@ -824,6 +827,7 @@ const ChannelInner = <
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,
+      MessageListHead: props.MessageListHead,
       MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,
       MessageOptions: props.MessageOptions,
