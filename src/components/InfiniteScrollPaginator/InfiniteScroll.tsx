@@ -106,9 +106,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     },
   };
 
-  const childrenArray = [children];
-  if (isLoading && loader) {
-    childrenArray.unshift(loader);
-  }
+  const childrenArray = [loader, children];
+
   return React.createElement(element, attributes, childrenArray);
 };

@@ -4,7 +4,6 @@ import { useEnrichedMessages } from './hooks/useEnrichedMessages';
 import { useMessageListElements } from './hooks/useMessageListElements';
 import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
 
-import { Center } from './Center';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 
@@ -192,9 +191,9 @@ const MessageListWithContext = <
             hasMoreNewer={props.hasMoreNewer}
             isLoading={props.loadingMore}
             loader={
-              <Center key='loadingindicator'>
-                <LoadingIndicator size={20} />
-              </Center>
+              <div className='str-chat__list__loading' key='loadingindicator'>
+                {props.loadingMore && <LoadingIndicator size={20} />}
+              </div>
             }
             loadMore={loadMore}
             loadMoreNewer={loadMoreNewer}
