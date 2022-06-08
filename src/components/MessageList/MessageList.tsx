@@ -43,9 +43,11 @@ const MessageListWithContext = <
   props: MessageListWithContextProps<StreamChatGenerics>,
 ) => {
   const {
+    additionalParentMessageProps,
     channel,
     disableDateSeparator = false,
     groupStyles,
+    hasMore,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -55,6 +57,7 @@ const MessageListWithContext = <
     pinPermissions = defaultPinPermissions, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     returnAllReadData = false,
     threadList = false,
+    thread,
     unsafeHTML = false,
     headerPosition,
     read,
@@ -74,6 +77,7 @@ const MessageListWithContext = <
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
+    LoadingIndicator = DefaultLoadingIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
@@ -106,7 +110,10 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements({
+    additionalParentMessageProps,
+    emptyStateIndicator: <EmptyStateIndicator key={'empty-state-indicator'} listType='message' />,
     enrichedMessages,
+    hasMore,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
@@ -137,15 +144,14 @@ const MessageListWithContext = <
     onMessageLoadCaptured,
     read,
     returnAllReadData,
+    thread,
     threadList,
   });
 
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
-    'useInternalInfiniteScrollProps',
-  );
-
   const messageListClass = customClasses?.messageList || 'str-chat__list';
-  const threadListClass = threadList ? customClasses?.threadList || 'str-chat__list--thread' : '';
+  const threadListClass = threadList
+    ? customClasses?.threadList || 'str-chat__list--thread str-chat__thread-list'
+    : '';
 
   const loadMore = React.useCallback(() => {
     if (loadMoreCallback) {
@@ -182,31 +188,27 @@ const MessageListWithContext = <
         ref={setListElement}
         tabIndex={0}
       >
-        {!elements.length ? (
-          <EmptyStateIndicator listType='message' />
-        ) : (
-          <InfiniteScroll
-            className='str-chat__reverse-infinite-scroll'
-            data-testid='reverse-infinite-scroll'
-            hasMore={props.hasMore}
-            hasMoreNewer={props.hasMoreNewer}
-            isLoading={props.loadingMore}
-            loader={
-              <Center key='loadingindicator'>
-                <LoadingIndicator size={20} />
-              </Center>
-            }
-            loadMore={loadMore}
-            loadMoreNewer={loadMoreNewer}
-            {...props.internalInfiniteScrollProps}
-          >
-            <ul className='str-chat__ul' ref={setUlElement}>
-              {elements}
-            </ul>
-            <TypingIndicator threadList={threadList} />
-            <div key='bottom' />
-          </InfiniteScroll>
-        )}
+        <InfiniteScroll
+          className='str-chat__reverse-infinite-scroll'
+          data-testid='reverse-infinite-scroll'
+          hasMore={props.hasMore}
+          hasMoreNewer={props.hasMoreNewer}
+          isLoading={props.loadingMore}
+          loader={
+            <Center key='loadingindicator'>
+              <LoadingIndicator size={20} />
+            </Center>
+          }
+          loadMore={loadMore}
+          loadMoreNewer={loadMoreNewer}
+          {...props.internalInfiniteScrollProps}
+        >
+          <ul className='str-chat__ul' ref={setUlElement}>
+            {elements}
+          </ul>
+          <TypingIndicator threadList={threadList} />
+          <div key='bottom' />
+        </InfiniteScroll>
       </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
@@ -247,6 +249,8 @@ type PropsDrilledToMessage =
 export type MessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
+  /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
+  additionalParentMessageProps?: MessageProps<StreamChatGenerics>;
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */

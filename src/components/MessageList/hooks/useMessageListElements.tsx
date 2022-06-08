@@ -8,6 +8,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
 import { EventComponent } from '../../EventComponent/EventComponent';
 import { Message } from '../../Message';
+import { ThreadHead as DefaultMessageListHead } from '../../Thread/ThreadHead';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
@@ -17,9 +18,14 @@ import type { UserResponse } from 'stream-chat';
 
 import type { MessageProps } from '../../Message/types';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type {
+  ChannelState,
+  ChannelStateContextValue,
+  StreamMessage,
+} from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { MessageListProps } from '../MessageList';
 
 type MessagePropsToOmit =
   | 'channel'
@@ -33,14 +39,19 @@ type MessagePropsToOmit =
 type UseMessageListElementsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  emptyStateIndicator: React.ReactNode;
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
+  hasMore: ChannelStateContextValue<StreamChatGenerics>['hasMore'];
   internalMessageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
   onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   returnAllReadData: boolean;
+  thread: ChannelState<StreamChatGenerics>['thread'];
   threadList: boolean;
+  isLoading?: boolean;
+  loader?: React.ReactNode;
   read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
-};
+} & Pick<MessageListProps<StreamChatGenerics>, 'additionalParentMessageProps'>;
 
 export const useMessageListElements = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -48,12 +59,18 @@ export const useMessageListElements = <
   props: UseMessageListElementsProps<StreamChatGenerics>,
 ) => {
   const {
+    additionalParentMessageProps,
+    emptyStateIndicator,
     enrichedMessages,
+    hasMore,
     internalMessageProps,
+    isLoading,
+    loader,
     messageGroupStyles,
     onMessageLoadCaptured,
     read,
     returnAllReadData,
+    thread,
     threadList,
   } = props;
 
@@ -61,6 +78,7 @@ export const useMessageListElements = <
   const {
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
+    MessageListHead = DefaultMessageListHead,
     MessageSystem = EventComponent,
   } = useComponentContext<StreamChatGenerics>('useMessageListElements');
 
@@ -74,7 +92,7 @@ export const useMessageListElements = <
 
   const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
 
-  return useMemo(
+  const elements: React.ReactNode[] = useMemo(
     () =>
       enrichedMessages.map((message) => {
         if (
@@ -147,4 +165,23 @@ export const useMessageListElements = <
       threadList,
     ],
   );
+
+  if (threadList && thread && (enrichedMessages.length === 0 || !hasMore)) {
+    elements.unshift(
+      <MessageListHead
+        key={thread.id}
+        message={thread}
+        Message={internalMessageProps.Message}
+        {...additionalParentMessageProps}
+      />,
+    );
+  }
+
+  if (isLoading && loader) {
+    elements.unshift(loader);
+  } else if (emptyStateIndicator && enrichedMessages.length === 0) {
+    elements.unshift(emptyStateIndicator);
+  }
+
+  return elements;
 };
