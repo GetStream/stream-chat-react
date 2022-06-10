@@ -86,10 +86,10 @@ const SetThreadOpen = () => {
   const { messages } = useChannelStateContext();
 
   useEffect(() => {
-    if (messages && messages.length > 0) {
-      const lastMsg = messages.slice(-1)[0];
-      openThread(lastMsg, { preventDefault: () => null } as any);
-    }
+    if (!messages) return;
+    const [lastMsg] = messages.slice(-1);
+
+    if (lastMsg) openThread(lastMsg, { preventDefault: () => null } as any);
   }, [messages]);
 
   return null;
@@ -138,6 +138,12 @@ const OtherUserControls = () => {
 
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
   <div style={{ display: 'flex', flexDirection: 'column' }}>
+    {/* FIXME: temporary fix for screenshot tests */}
+    <style>{`
+	 	.str-chat__thread .str-chat__message-data.str-chat__message-simple-data {
+			 visibility: hidden;
+		}
+	 `}</style>
     <div className={userId}>
       <ConnectedUser token={token} userId={userId}>
         <ChannelList
