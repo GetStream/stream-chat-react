@@ -2,7 +2,7 @@ import { test as _test } from '@playwright/test';
 import { Controller } from './Controller';
 import { makeUser, TestingUser } from './User';
 
-interface CustomTestContext {
+export type CustomTestContext = {
   controller: Controller;
   user: TestingUser;
 }

@@ -13,8 +13,10 @@ export default (page: Page) => {
       async close() {
         await page.click(selectors.buttonCloseThread);
       },
-      async open(text: string) {
-        await page.locator(selectors.messageRepliesButton, { hasText: text }).click();
+      async openFor(messageText: string, nth: number = 0) {
+        await page
+          .locator(selectors.message, { hasText: messageText })
+          .locator(selectors.messageRepliesButton).nth(nth).click();
       },
     },
     see: {
