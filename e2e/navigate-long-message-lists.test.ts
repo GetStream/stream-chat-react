@@ -46,11 +46,10 @@ test.describe('thread autoscroll', () => {
 
   test('only if I send a message', async ({ page, user }) => {
     const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const messageData = thread.locator(selectors.messageData);
     const avatars = thread.locator(selectors.avatar);
 
     await expect(thread).toHaveScreenshot({
-      mask: [messageData, avatars],
+      mask: [avatars],
     });
 
     await Promise.all([
@@ -59,24 +58,23 @@ test.describe('thread autoscroll', () => {
     ]);
 
     await expect(thread).toHaveScreenshot({
-      mask: [messageData, avatars],
+      mask: [avatars],
     });
   });
 
   test('not if I receive a message', async ({ controller, page, user }) => {
     const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const messageData = thread.locator(selectors.messageData);
     const avatars = thread.locator(selectors.avatar);
 
     await expect(thread).toHaveScreenshot({
-      mask: [messageData, avatars],
+      mask: [avatars],
     });
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply(),
     ]);
     await expect(thread).toHaveScreenshot({
-      mask: [messageData, avatars],
+      mask: [avatars],
     });
   });
 });

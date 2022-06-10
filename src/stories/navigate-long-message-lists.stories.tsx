@@ -140,8 +140,8 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
   <div style={{ display: 'flex', flexDirection: 'column' }}>
     {/* FIXME: temporary fix for screenshot tests */}
     <style>{`
-	 	.str-chat__list--thread .str-chat__message-data.str-chat__message-simple-data {
-			 width: 100%;
+	 	.str-chat__thread .str-chat__message-data.str-chat__message-simple-data {
+			 visibility: hidden;
 		}
 	 `}</style>
     <div className={userId}>
