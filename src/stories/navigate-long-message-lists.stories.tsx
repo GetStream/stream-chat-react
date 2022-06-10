@@ -86,7 +86,7 @@ const SetThreadOpen = () => {
   const { messages } = useChannelStateContext();
 
   useEffect(() => {
-    if (messages) {
+    if (messages && messages.length > 0) {
       const lastMsg = messages.slice(-1)[0];
       openThread(lastMsg, { preventDefault: () => null } as any);
     }
