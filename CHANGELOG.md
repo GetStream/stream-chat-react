@@ -1,3 +1,10 @@
+## [9.1.1](https://github.com/GetStream/stream-chat-react/compare/v9.1.0...v9.1.1) (2022-06-10)
+
+
+### Bug Fixes
+
+* calculate jumped-to-message position correctly by keeping the loading indicator mounted ([671375a](https://github.com/GetStream/stream-chat-react/commit/671375ab3ad89b4a4bd011748264f00021fe144b))
+
 # [9.1.0](https://github.com/GetStream/stream-chat-react/compare/v9.0.0...v9.1.0) (2022-06-03)
 
 
