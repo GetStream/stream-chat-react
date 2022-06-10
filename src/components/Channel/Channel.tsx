@@ -58,6 +58,9 @@ import { useChatContext } from '../../context/ChatContext';
 import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
+
+import { DEFAULT_CHANNEL_PAGE_SIZE, DEFAULT_THREAD_PAGE_SIZE } from '../../constants/limits';
+
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 
@@ -193,8 +196,6 @@ export type ChannelProps<
   /** Custom UI component to display a message in the `VirtualizedMessageList`, defaults to and accepts same props as: [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
-
-const JUMP_MESSAGE_PAGE_SIZE = 25;
 
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -539,7 +540,7 @@ const ChannelInner = <
      * we have jumped to the beginning of the channel.
      */
     const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
-    const hasMoreMessages = indexOfMessage >= Math.floor(JUMP_MESSAGE_PAGE_SIZE / 2);
+    const hasMoreMessages = indexOfMessage >= Math.floor(DEFAULT_CHANNEL_PAGE_SIZE / 2);
 
     loadMoreFinished(hasMoreMessages, channel.state.messages);
     dispatch({
@@ -732,7 +733,7 @@ const ChannelInner = <
     { leading: true, trailing: true },
   );
 
-  const loadMoreThread = async () => {
+  const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     if (state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
@@ -744,7 +745,6 @@ const ChannelInner = <
 
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0]?.id;
-    const limit = 50;
 
     try {
       const queryResponse = await channel.getReplies(parentID, {

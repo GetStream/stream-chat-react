@@ -1,0 +1,2 @@
+export const DEFAULT_CHANNEL_PAGE_SIZE = 25;
+export const DEFAULT_THREAD_PAGE_SIZE = 50;
