@@ -37,6 +37,8 @@ export const Modal = (props: PropsWithChildren<ModalProps>) => {
 
   const openClasses = open ? 'str-chat__modal--open' : 'str-chat__modal--closed';
 
+  if (!open) return null;
+
   return (
     <div className={`str-chat__modal ${openClasses}`} onClick={handleClick}>
       <button className='str-chat__modal__close-button' ref={closeRef} title='Close'>
