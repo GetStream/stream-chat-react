@@ -1,3 +1,10 @@
+## [9.1.2](https://github.com/GetStream/stream-chat-react/compare/v9.1.1...v9.1.2) (2022-06-13)
+
+
+### Bug Fixes
+
+* add check if window is defined before using ResizeObserve ([f04e23e](https://github.com/GetStream/stream-chat-react/commit/f04e23e2f07edc2bba7bee85ac297e1a7b920c2b))
+
 ## [9.1.1](https://github.com/GetStream/stream-chat-react/compare/v9.1.0...v9.1.1) (2022-06-10)
 
 
