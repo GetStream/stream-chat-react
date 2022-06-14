@@ -24,8 +24,8 @@ dotenv.config({ path: `.env.local` });
       if (process.stdout.clearLine && process.stdout.cursorTo) {
         printProgress((i - start) / count);
       }
-      const indexWithOffset = (start + i).toString();
-      const messageToQuote = messagesToQuote[indexWithOffset];
+      const indexString = i.toString();
+      const messageToQuote = messagesToQuote[indexString];
       const res = await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
@@ -33,8 +33,8 @@ dotenv.config({ path: `.env.local` });
         ...(parent_id ? { parent_id } : {}),
       });
 
-      if (Object.keys(quoteMap).includes(indexWithOffset)) {
-        const quotingMessageText = quoteMap[indexWithOffset];
+      if (Object.keys(quoteMap).includes(indexString)) {
+        const quotingMessageText = quoteMap[indexString];
         messagesToQuote[quotingMessageText] = res;
       }
 
