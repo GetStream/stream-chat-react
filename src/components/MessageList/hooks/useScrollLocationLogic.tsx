@@ -136,7 +136,6 @@ export const useScrollLocationLogic = <
 
   return {
     hasNewMessages,
-    listElement,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
