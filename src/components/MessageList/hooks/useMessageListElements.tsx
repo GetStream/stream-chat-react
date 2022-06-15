@@ -48,8 +48,6 @@ type UseMessageListElementsProps<
   returnAllReadData: boolean;
   thread: ChannelState<StreamChatGenerics>['thread'];
   threadList: boolean;
-  isLoading?: boolean;
-  loader?: React.ReactNode;
   read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
 } & Pick<MessageListProps<StreamChatGenerics>, 'additionalParentMessageProps'>;
 
@@ -64,8 +62,6 @@ export const useMessageListElements = <
     enrichedMessages,
     hasMore,
     internalMessageProps,
-    isLoading,
-    loader,
     messageGroupStyles,
     onMessageLoadCaptured,
     read,
@@ -167,19 +163,25 @@ export const useMessageListElements = <
   );
 
   if (threadList && thread && (enrichedMessages.length === 0 || !hasMore)) {
+    const messageClass = customClasses?.message || `str-chat__li`;
     elements.unshift(
-      <MessageListHead
-        key={thread.id}
-        message={thread}
-        Message={internalMessageProps.Message}
-        {...additionalParentMessageProps}
-      />,
+      <li
+        className={messageClass}
+        data-message-id={thread.id}
+        data-testid={messageClass}
+        key={thread.id || (thread.created_at as string)}
+        onLoadCapture={onMessageLoadCaptured}
+      >
+        <MessageListHead
+          message={thread}
+          Message={internalMessageProps.Message}
+          {...additionalParentMessageProps}
+        />
+      </li>,
     );
   }
 
-  if (isLoading && loader) {
-    elements.unshift(loader);
-  } else if (emptyStateIndicator && enrichedMessages.length === 0) {
+  if (emptyStateIndicator && enrichedMessages.length === 0) {
     elements.unshift(emptyStateIndicator);
   }
 
