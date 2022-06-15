@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, render, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
@@ -24,9 +24,12 @@ let chatClient;
 let channel;
 const user1 = generateUser();
 const user2 = generateUser();
-const mockedChannel = generateChannel({
+const message1 = generateMessage({ text: 'message1', user: user1 });
+const reply1 = generateMessage({ parent_id: message1.id, text: 'reply1', user: user1 });
+const reply2 = generateMessage({ parent_id: message1.id, text: 'reply2', user: user2 });
+const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-  messages: [generateMessage({ user: user1 })],
+  messages: [message1],
 });
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
@@ -43,9 +46,9 @@ const renderComponent = ({ channelProps, chatClient, msgListProps }) =>
 describe('MessageList', () => {
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+    channel = chatClient.channel('messaging', mockedChannelData.id);
+    await channel.watch();
   });
 
   afterEach(cleanup);
@@ -60,7 +63,7 @@ describe('MessageList', () => {
     });
 
     const newMessage = generateMessage({ user: user2 });
-    act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel));
+    act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel));
 
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -69,54 +72,136 @@ describe('MessageList', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
-    const { container, getByTestId } = renderComponent({
-      channelProps: {
-        Avatar,
-        channel,
-      },
-      chatClient,
+  it('should render the parent message that starts the thread if no replies', async () => {
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages: [], thread: message1, threadList: true },
+      });
     });
 
     await waitFor(() => {
-      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
-      expect(getByTestId('custom-avatar')).toBeInTheDocument();
+      expect(screen.queryByText(message1.text)).toBeInTheDocument();
+      expect(screen.queryByText(reply1.text)).not.toBeInTheDocument();
+      expect(screen.queryByText(reply2.text)).not.toBeInTheDocument();
     });
-    const results = await axe(container);
+  });
+
+  it('should not render the parent message that starts the thread if replies exist', async () => {
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages: [reply1, reply2], thread: message1, threadList: true },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(message1.text)).not.toBeInTheDocument();
+      expect(screen.queryByText(reply1.text)).toBeInTheDocument();
+      expect(screen.queryByText(reply2.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should render the parent message that starts the thread if no more replies', async () => {
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: {
+          hasMore: false,
+          messages: [reply1, reply2],
+          thread: message1,
+          threadList: true,
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(message1.text)).toBeInTheDocument();
+      expect(screen.queryByText(reply1.text)).toBeInTheDocument();
+      expect(screen.queryByText(reply2.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should render EmptyStateIndicator in thread', async () => {
+    const indicatorContent = 'EmptyStateIndicator';
+    const EmptyStateIndicator = () => <div>{indicatorContent}</div>;
+    await act(() => {
+      renderComponent({
+        channelProps: { channel, EmptyStateIndicator },
+        chatClient,
+        msgListProps: { messages: [], thread: message1, threadList: true },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(message1.text)).toBeInTheDocument();
+      expect(screen.queryByText(indicatorContent)).toBeInTheDocument();
+    });
+  });
+
+  it('Message UI components should render `Avatar` when the custom prop is provided', async () => {
+    let renderResult;
+    await act(() => {
+      renderResult = renderComponent({
+        channelProps: {
+          Avatar,
+          channel,
+        },
+        chatClient,
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
+      expect(screen.getByTestId('custom-avatar')).toBeInTheDocument();
+    });
+    const results = await axe(renderResult.container);
     expect(results).toHaveNoViolations();
   });
 
   it('should accept a custom group style function', async () => {
     const classNameSuffix = 'msg-list-test';
-    const { container, getAllByTestId, getByTestId } = renderComponent({
-      channelProps: {
-        Avatar,
-        channel,
-      },
-      chatClient,
-      msgListProps: { groupStyles: () => classNameSuffix },
+    let renderResult;
+    await act(() => {
+      renderResult = renderComponent({
+        channelProps: {
+          Avatar,
+          channel,
+        },
+        chatClient,
+        msgListProps: { groupStyles: () => classNameSuffix },
+      });
     });
 
     await waitFor(() => {
-      expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
+      expect(screen.getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
     });
 
     for (let i = 0; i < 3; i++) {
       const newMessage = generateMessage({ text: `text-${i}`, user: user2 });
-      act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannel.channel));
+      act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel));
     }
 
     await waitFor(() => {
-      expect(getAllByTestId(`str-chat__li str-chat__li--${classNameSuffix}`)).toHaveLength(4); // 1 for channel initial message + 3 just sent
+      expect(screen.getAllByTestId(`str-chat__li str-chat__li--${classNameSuffix}`)).toHaveLength(
+        4,
+      ); // 1 for channel initial message + 3 just sent
     });
-    const results = await axe(container);
+    const results = await axe(renderResult.container);
     expect(results).toHaveNoViolations();
   });
 
   it('should render DateSeparator by default', async () => {
-    const { container } = renderComponent({
-      channelProps: { channel },
-      chatClient,
+    let container;
+    await act(() => {
+      const result = renderComponent({
+        channelProps: { channel },
+        chatClient,
+      });
+      container = result.container;
     });
 
     await waitFor(() => {
