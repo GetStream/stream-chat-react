@@ -122,20 +122,6 @@ describe('Thread', () => {
     expect(getByText('2 replies')).toBeInTheDocument();
   });
 
-  it('should render the message that starts the thread', () => {
-    renderComponent({
-      chatClient,
-      threadProps: { Message: MessageMock },
-    });
-
-    expect(MessageMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        message: threadStart,
-      }),
-      {},
-    );
-  });
-
   it('should render the MessageList component with the correct props without date separators', () => {
     const additionalMessageListProps = {
       loadingMore: false,
