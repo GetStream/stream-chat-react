@@ -194,7 +194,7 @@ const MessageListWithContext = <
           hasMoreNewer={props.hasMoreNewer}
           isLoading={props.loadingMore}
           loader={
-            <div className='str-chat__list__loading' key='loadingindicator'>
+            <div className='str-chat__list__loading' key='loading-indicator'>
               {props.loadingMore && <LoadingIndicator size={20} />}
             </div>
           }
