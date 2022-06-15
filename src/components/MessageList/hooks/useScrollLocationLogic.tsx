@@ -7,7 +7,8 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-const ResizeObserver = window.ResizeObserver || Polyfill;
+const isBrowser = typeof window !== 'undefined';
+const ResizeObserver = (isBrowser && window.ResizeObserver) || Polyfill;
 
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
