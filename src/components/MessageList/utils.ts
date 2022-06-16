@@ -307,3 +307,8 @@ export const getGroupStyles = <
 
   return '';
 };
+
+// "Probably" included, because it may happen that the last page was returned and it has exactly the size of the limit
+// but the back-end cannot provide us with information on whether it has still more messages in the DB
+export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
+  returnedCountMessages === limit;

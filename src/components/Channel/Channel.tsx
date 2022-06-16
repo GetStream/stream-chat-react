@@ -59,8 +59,13 @@ import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/Emo
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 
-import { DEFAULT_CHANNEL_PAGE_SIZE, DEFAULT_THREAD_PAGE_SIZE } from '../../constants/limits';
+import {
+  DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
+  DEFAULT_THREAD_PAGE_SIZE,
+} from '../../constants/limits';
 
+import { hasMoreMessagesProbably } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 
@@ -463,7 +468,7 @@ const ChannelInner = <
     },
   );
 
-  const loadMore = async (limit = 100) => {
+  const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (!online.current || !window.navigator.onLine) return 0;
 
     // prevent duplicate loading events...
@@ -474,7 +479,11 @@ const ChannelInner = <
     }
 
     // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-    if (channel.state.messages.length < 25) {
+    const hasMore = hasMoreMessagesProbably(
+      channel.state.messages.length,
+      DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+    );
+    if (!hasMore) {
       loadMoreFinished(false, channel.state.messages);
       return channel.state.messages.length;
     }
@@ -540,7 +549,7 @@ const ChannelInner = <
      * we have jumped to the beginning of the channel.
      */
     const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
-    const hasMoreMessages = indexOfMessage >= Math.floor(DEFAULT_CHANNEL_PAGE_SIZE / 2);
+    const hasMoreMessages = indexOfMessage >= Math.floor(DEFAULT_INITIAL_CHANNEL_PAGE_SIZE / 2);
 
     loadMoreFinished(hasMoreMessages, channel.state.messages);
     dispatch({
@@ -752,7 +761,7 @@ const ChannelInner = <
         limit,
       });
 
-      const threadHasMoreMessages = queryResponse.messages.length === limit;
+      const threadHasMoreMessages = hasMoreMessagesProbably(queryResponse.messages.length, limit);
       const newThreadMessages = channel.state.threads[parentID] || [];
 
       // next set loadingMore to false so we can start asking for more data
