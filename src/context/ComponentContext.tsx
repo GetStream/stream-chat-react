@@ -27,7 +27,7 @@ import type {
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
-import type { ThreadHeaderProps } from '../components/Thread/Thread';
+import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
