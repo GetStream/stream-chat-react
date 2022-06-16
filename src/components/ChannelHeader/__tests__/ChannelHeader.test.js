@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChannelHeader } from '../ChannelHeader';
@@ -7,24 +7,40 @@ import { ChannelHeader } from '../ChannelHeader';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
-import { generateChannel, generateUser, getTestClientWithUser } from '../../../mock-builders';
+import {
+  dispatchUserUpdatedEvent,
+  generateChannel,
+  generateMember,
+  generateUser,
+  getOrCreateChannelApi,
+  getTestClientWithUser,
+  useMockedApis,
+} from '../../../mock-builders';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
-const alice = generateUser();
+const user1 = generateUser();
+const user2 = generateUser({ image: null });
 let testChannel1;
+let client;
 
 const CustomMenuIcon = () => <div id='custom-icon'>Custom Menu Icon</div>;
-
-async function renderComponent(props, channelData) {
-  testChannel1 = generateChannel(channelData);
+const defaultChannelState = {
+  members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+};
+async function renderComponent(props, channelData, channelType = 'messaging') {
   const t = jest.fn((key) => key);
-  const client = await getTestClientWithUser(alice);
+  client = await getTestClientWithUser(user1);
+  testChannel1 = generateChannel({ ...defaultChannelState });
+  /* eslint-disable-next-line react-hooks/rules-of-hooks */
+  useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+  const channel = client.channel(channelType, testChannel1.id, channelData);
+  await channel.query();
 
   return render(
-    <ChatProvider value={{ channel: testChannel1, client }}>
-      <ChannelStateProvider value={{ channel: testChannel1 }}>
+    <ChatProvider value={{ channel, client }}>
+      <ChannelStateProvider value={{ channel }}>
         <TranslationProvider value={{ t }}>
           <ChannelHeader {...props} />
         </TranslationProvider>
@@ -39,7 +55,7 @@ describe('ChannelHeader', () => {
   it('should display live label when prop live is true', async () => {
     const { container } = await renderComponent(
       { live: true },
-      { data: { image: 'image.jpg', name: 'test-channel-1' } },
+      { image: 'image.jpg', name: 'test-channel-1' },
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -48,10 +64,18 @@ describe('ChannelHeader', () => {
     ).toBeInTheDocument();
   });
 
+  it("should display avatar with fallback image only if other user's name is available", async () => {
+    await renderComponent(null, { image: null });
+    await waitFor(() => {
+      expect(screen.queryByTestId('avatar-img')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
+    });
+  });
+
   it('should display avatar when channel has an image', async () => {
     const { container, getByTestId } = await renderComponent(
       { live: false },
-      { data: { image: 'image.jpg', name: 'test-channel-1' } },
+      { image: 'image.jpg', name: 'test-channel-1' },
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -62,7 +86,7 @@ describe('ChannelHeader', () => {
   it('should display custom title', async () => {
     const { container, getByText } = await renderComponent(
       { title: 'Custom Title' },
-      { data: { image: 'image.jpg', name: 'test-channel-1' } },
+      { image: 'image.jpg', name: 'test-channel-1' },
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -71,11 +95,9 @@ describe('ChannelHeader', () => {
 
   it('should display subtitle if present in channel data', async () => {
     const { container, getByText } = await renderComponent(null, {
-      data: {
-        image: 'image.jpg',
-        name: 'test-channel-1',
-        subtitle: 'test subtitle',
-      },
+      image: 'image.jpg',
+      name: 'test-channel-1',
+      subtitle: 'test subtitle',
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -83,14 +105,15 @@ describe('ChannelHeader', () => {
   });
 
   it('should display bigger image if channelType is commerce', async () => {
-    const { container, getByTestId } = await renderComponent(null, {
-      data: {
+    const { container, getByTestId } = await renderComponent(
+      null,
+      {
         image: 'image.jpg',
         name: 'test-channel-1',
         subtitle: 'test subtitle',
       },
-      type: 'commerce',
-    });
+      'commerce',
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
     expect(getByTestId('avatar-img')).toHaveStyle({
@@ -111,12 +134,10 @@ describe('ChannelHeader', () => {
 
   it('should display watcher_count', async () => {
     const { container, getByText } = await renderComponent(null, {
-      data: {
-        image: 'image.jpg',
-        name: 'test-channel-1',
-        subtitle: 'test subtitle',
-        watcher_count: 34,
-      },
+      image: 'image.jpg',
+      name: 'test-channel-1',
+      subtitle: 'test subtitle',
+      watcher_count: 34,
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -127,12 +148,10 @@ describe('ChannelHeader', () => {
 
   it('should display correct member_count', async () => {
     const { container, getByText } = await renderComponent(null, {
-      data: {
-        image: 'image.jpg',
-        member_count: 34,
-        name: 'test-channel-1',
-        subtitle: 'test subtitle',
-      },
+      image: 'image.jpg',
+      member_count: 34,
+      name: 'test-channel-1',
+      subtitle: 'test subtitle',
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -165,5 +184,33 @@ describe('ChannelHeader', () => {
       MenuIcon: CustomMenuIcon,
     });
     expect(container.querySelector('div#custom-icon')).toBeInTheDocument();
+  });
+
+  it("DM channel should reflect change of other user's name", async () => {
+    const updatedAttribute = { name: 'new-name' };
+    await renderComponent();
+
+    await waitFor(() => expect(screen.queryByText(updatedAttribute.name)).not.toBeInTheDocument());
+    act(() => {
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
+    });
+    await waitFor(() =>
+      expect(screen.queryAllByText(updatedAttribute.name).length).toBeGreaterThan(0),
+    );
+  });
+
+  it("DM channel should reflect change of other user's image", async () => {
+    const updatedAttribute = { image: 'new-image' };
+    await renderComponent();
+    await waitFor(() => {
+      expect(screen.queryByTestId('avatar-img')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
+    });
+    act(() => {
+      dispatchUserUpdatedEvent(client, { ...user2, ...updatedAttribute });
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('avatar-img')).toHaveAttribute('src', updatedAttribute.image),
+    );
   });
 });

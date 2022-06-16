@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
-import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from './utils';
+import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
+import { getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -62,8 +63,7 @@ export const ChannelPreview = <
     'ChannelPreview',
   );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
-  const [displayTitle, setDisplayTitle] = useState(getDisplayTitle(channel, client.user));
-  const [displayImage, setDisplayImage] = useState(getDisplayImage(channel, client.user));
+  const { displayImage, displayTitle } = useChannelPreviewInfo({ channel });
 
   const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
@@ -109,24 +109,6 @@ export const ChannelPreview = <
       channel.off('message.deleted', handleEvent);
     };
   }, [refreshUnreadCount, channelUpdateCount]);
-
-  useEffect(() => {
-    const handleEvent = () => {
-      setDisplayTitle((displayTitle) => {
-        const newDisplayTitle = getDisplayTitle(channel, client.user);
-        return displayTitle !== newDisplayTitle ? newDisplayTitle : displayTitle;
-      });
-      setDisplayImage((displayImage) => {
-        const newDisplayImage = getDisplayImage(channel, client.user);
-        return displayImage !== newDisplayImage ? newDisplayImage : displayImage;
-      });
-    };
-
-    client.on('user.updated', handleEvent);
-    return () => {
-      client.off('user.updated', handleEvent);
-    };
-  }, []);
 
   if (!Preview) return null;
 
