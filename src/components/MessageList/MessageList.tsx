@@ -179,7 +179,7 @@ const MessageListWithContext = <
           <EmptyStateIndicator listType='message' />
         ) : (
           <InfiniteScroll
-            className='str-chat__reverse-infinite-scroll'
+            className='str-chat__reverse-infinite-scroll str-chat__message-list-scroll'
             data-testid='reverse-infinite-scroll'
             hasMore={props.hasMore}
             hasMoreNewer={props.hasMoreNewer}
