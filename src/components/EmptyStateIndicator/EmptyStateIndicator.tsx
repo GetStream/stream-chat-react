@@ -28,7 +28,17 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     );
   }
 
-  if (listType === 'message') return null;
+  if (listType === 'message') {
+    const text = t<string>('No chats here yet…');
+    return (
+      <div className='str-chat__empty-channel'>
+        <ChatBubble />
+        <p className='str-chat__empty-channel-text' role='listitem'>
+          {text}
+        </p>
+      </div>
+    );
+  }
 
   return <p>No items exist</p>;
 };
