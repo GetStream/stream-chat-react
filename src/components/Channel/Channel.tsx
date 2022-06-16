@@ -36,9 +36,9 @@ import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandler
 import { Attachment as DefaultAttachment } from '../Attachment/Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
-  LoadingIndicator as DefaultLoadingIndicator,
   LoadingErrorIndicatorProps,
 } from '../Loading';
+import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
 import { MessageSimple } from '../Message/MessageSimple';
 import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
@@ -857,7 +857,7 @@ const ChannelInner = <
 
   if (state.error) {
     return (
-      <div className={`${chatClass} ${channelClass} ${theme}`}>
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
         <LoadingErrorIndicator error={state.error} />
       </div>
     );
@@ -865,22 +865,24 @@ const ChannelInner = <
 
   if (state.loading) {
     return (
-      <div className={`${chatClass} ${channelClass} ${theme}`}>
-        <LoadingIndicator size={25} />
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        <div className={`${chatContainerClass}`}>
+          <LoadingIndicator />
+        </div>
       </div>
     );
   }
 
   if (!channel.watch) {
     return (
-      <div className={`${chatClass} ${channelClass} ${theme}`}>
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
         <div>{t<string>('Channel Missing')}</div>
       </div>
     );
   }
 
   return (
-    <div className={`${chatClass} ${channelClass} ${theme} ${windowsEmojiClass}`}>
+    <div className={`${chatClass} ${channelClass} str-chat__channel ${theme} ${windowsEmojiClass}`}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>
