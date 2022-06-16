@@ -1398,6 +1398,11 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@juggle/resize-observer@^3.3.1":
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.3.1.tgz#b50a781709c81e10701004214340f25475a171a0"
+  integrity sha512-zMM9Ds+SawiUkakS7y94Ymqx+S0ORzpG3frZirN3l+UlXUmSUR7hF4wxCVqW+ei94JzV5kt0uXBcoOEAuiydrw==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -1426,10 +1431,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^2.8.0":
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.9.0.tgz#abc3d04d44207d8a372c43e390e633417152a6a0"
-  integrity sha512-o5fK5bPD2h+WYEkLZoWjUw+7dvHWcPyUPoOp65Aer0ElTPRryaWD00kG7TDKTsPFjQwJptolNnfrw9Yj7r9Z/Q==
+"@stream-io/stream-chat-css@^2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.10.0.tgz#3b4e7f9cdda2e71995412202bab5a852749d61a4"
+  integrity sha512-xPBFe3UKSPtYMffHP1wmRdH/R5Gg2deG64LSFArB0Wg7e+sv+b2ijZIz80jAcjyvIqhV3wFFsJnroxhNNrb2Ww==
 
 "@stream-io/stream-chat-css@link:../../node_modules/stream-io/stream-chat-css":
   version "0.0.0"
@@ -7617,6 +7622,11 @@ nan@^2.12.1:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
+nanoid@^3.3.4:
+  version "3.3.4"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
+  integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
+
 nanomatch@^1.2.9:
   version "1.2.13"
   resolved "https://registry.yarnpkg.com/nanomatch/-/nanomatch-1.2.13.tgz#b87a8aa4fc0de8fe6be88895b38983ff265bd119"
@@ -9372,10 +9382,10 @@ react-fast-compare@^3.0.1, react-fast-compare@^3.2.0:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
-react-file-utils@^1.1.11:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.11.tgz#7ca3391a4c7c4569023adb67bdb33469da53ddb1"
-  integrity sha512-KKVTGfNn5qyAHC2ib41M87EiTzc/iV6pIA4btXOw8CAwUlTEox8TEHLT3pYSLMvztprqF7rAmxQ8Dqr2qTx0sQ==
+react-file-utils@^1.1.12:
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/react-file-utils/-/react-file-utils-1.1.12.tgz#fb1d04d743e7cfc04f44047374dd4a79119006e6"
+  integrity sha512-ZbCRUeb9wjPgFWBB6P/vqJvmUmMd0j3YlXXvTwxjfGSq8spEfDNfKkmJKLQfd+3SQToPyP80VIg4HurNzKR00w==
   dependencies:
     react-dropzone "^12.0.5"
 
@@ -9415,10 +9425,10 @@ react-markdown@^5.0.3:
     unist-util-visit "^2.0.0"
     xtend "^4.0.1"
 
-react-player@^2.7.0:
-  version "2.9.0"
-  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.9.0.tgz#ef7fe7073434087565f00ff219824e1e02c4b046"
-  integrity sha512-jNUkTfMmUhwPPAktAdIqiBcVUKsFKrVGH6Ocutj6535CNfM91yrvWxHg6fvIX8Y/fjYUPoejddwh7qboNV9vGA==
+react-player@^2.10.1:
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.10.1.tgz#f2ee3ec31393d7042f727737545414b951ffc7e4"
+  integrity sha512-ova0jY1Y1lqLYxOehkzbNEju4rFXYVkr5rdGD71nsiG4UKPzRXQPTd3xjoDssheoMNjZ51mjT5ysTrdQ2tEvsg==
   dependencies:
     deepmerge "^4.0.0"
     load-script "^1.0.0"
@@ -11294,11 +11304,6 @@ uuid@^3.0.1, uuid@^3.3.2:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
-
-uuid@^8.3.1:
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
-  integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
 v8-compile-cache@^2.0.3:
   version "2.3.0"
