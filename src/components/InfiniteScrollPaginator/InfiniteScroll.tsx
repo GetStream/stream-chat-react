@@ -15,6 +15,8 @@ export type InfiniteScrollProps = {
   element?: React.ElementType;
   hasMore?: boolean;
   hasMoreNewer?: boolean;
+  /** Element to be rendered at the top of the thread message list. By default Message and ThreadStart components */
+  head?: React.ReactNode;
   initialLoad?: boolean;
   isLoading?: boolean;
   listenToScroll?: (offset: number, reverseOffset: number, threshold: number) => void;
@@ -33,6 +35,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     element = 'div',
     hasMore = false,
     hasMoreNewer = false,
+    head,
     initialLoad = true,
     isLoading = false,
     listenToScroll,
@@ -107,6 +110,10 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   };
 
   const childrenArray = [loader, children];
+
+  if (head) {
+    childrenArray.unshift(head);
+  }
 
   return React.createElement(element, attributes, childrenArray);
 };

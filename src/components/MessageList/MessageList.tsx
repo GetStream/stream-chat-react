@@ -42,11 +42,9 @@ const MessageListWithContext = <
   props: MessageListWithContextProps<StreamChatGenerics>,
 ) => {
   const {
-    additionalParentMessageProps,
     channel,
     disableDateSeparator = false,
     groupStyles,
-    hasMore,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -56,7 +54,6 @@ const MessageListWithContext = <
     pinPermissions = defaultPinPermissions, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
     returnAllReadData = false,
     threadList = false,
-    thread,
     unsafeHTML = false,
     headerPosition,
     read,
@@ -109,10 +106,8 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements({
-    additionalParentMessageProps,
     emptyStateIndicator: <EmptyStateIndicator key={'empty-state-indicator'} listType='message' />,
     enrichedMessages,
-    hasMore,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
@@ -143,7 +138,6 @@ const MessageListWithContext = <
     onMessageLoadCaptured,
     read,
     returnAllReadData,
-    thread,
     threadList,
   });
 
@@ -192,6 +186,7 @@ const MessageListWithContext = <
           data-testid='reverse-infinite-scroll'
           hasMore={props.hasMore}
           hasMoreNewer={props.hasMoreNewer}
+          head={props.head}
           isLoading={props.loadingMore}
           loader={
             <div className='str-chat__list__loading' key='loading-indicator'>
@@ -248,8 +243,6 @@ type PropsDrilledToMessage =
 export type MessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
-  /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: MessageProps<StreamChatGenerics>;
   /** Disables the injection of date separator components in MessageList, defaults to `false` */
   disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
@@ -261,6 +254,8 @@ export type MessageListProps<
   ) => GroupStyle;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
+  /** Element to be rendered at the top of the thread message list. By default Message and ThreadStart components */
+  head?: React.ReactElement;
   /** Position to render HeaderComponent */
   headerPosition?: number;
   /** Hides the MessageDeleted components from the list, defaults to `false` */

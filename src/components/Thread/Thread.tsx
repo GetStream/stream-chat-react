@@ -8,6 +8,7 @@ import {
   VirtualizedMessageList,
   VirtualizedMessageListProps,
 } from '../MessageList/VirtualizedMessageList';
+import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
@@ -137,6 +138,7 @@ const ThreadInner = <
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
+    ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
     VirtualMessage = FixedHeightMessage,
   } = useComponentContext<StreamChatGenerics>('Thread');
@@ -146,6 +148,7 @@ const ThreadInner = <
 
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
   const FallbackMessage = virtualized ? VirtualMessage : ContextMessage;
+  const MessageUIComponent = ThreadMessage || FallbackMessage;
 
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
@@ -163,12 +166,19 @@ const ThreadInner = <
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <ThreadMessageList
-        additionalParentMessageProps={additionalParentMessageProps}
         disableDateSeparator={!enableDateSeparator}
         hasMore={threadHasMore}
+        head={
+          <ThreadHead
+            key={thread.id}
+            message={thread}
+            Message={MessageUIComponent}
+            {...additionalParentMessageProps}
+          />
+        }
         loadingMore={threadLoadingMore}
         loadMore={loadMoreThread}
-        Message={ThreadMessage || FallbackMessage}
+        Message={MessageUIComponent}
         messages={threadMessages || []}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList

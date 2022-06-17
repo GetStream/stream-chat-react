@@ -54,7 +54,6 @@ export type ComponentContextValue<
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
-  MessageListHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
@@ -68,6 +67,7 @@ export type ComponentContextValue<
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<StreamChatGenerics>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
+  ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadStart?: React.ComponentType;
