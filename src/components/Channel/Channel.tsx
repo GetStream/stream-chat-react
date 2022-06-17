@@ -65,7 +65,7 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList/utils';
+import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 
@@ -479,11 +479,11 @@ const ChannelInner = <
     }
 
     // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-    const hasMore = hasMoreMessagesProbably(
+    const notHasMore = hasNotMoreMessages(
       channel.state.messages.length,
       DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
     );
-    if (!hasMore) {
+    if (notHasMore) {
       loadMoreFinished(false, channel.state.messages);
       return channel.state.messages.length;
     }

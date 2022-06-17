@@ -312,3 +312,6 @@ export const getGroupStyles = <
 // but the back-end cannot provide us with information on whether it has still more messages in the DB
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages === limit;
+
+export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
+  returnedCountMessages < limit;
