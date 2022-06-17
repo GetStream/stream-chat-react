@@ -310,6 +310,9 @@ export const getGroupStyles = <
 
 // "Probably" included, because it may happen that the last page was returned and it has exactly the size of the limit
 // but the back-end cannot provide us with information on whether it has still more messages in the DB
+// FIXME: once the pagination state is moved from Channel to MessageList, these should be moved as well.
+//  The MessageList should have configurable the limit for performing the requests.
+//  This parameter would then be used within these functions
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages === limit;
 
