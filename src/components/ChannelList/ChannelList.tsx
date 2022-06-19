@@ -310,7 +310,7 @@ const UnMemoizedChannelList = <
   return (
     <>
       <div
-        className={`${chatClass} ${channelListClass} ${theme} ${navigationClass} ${windowsEmojiClass}`}
+        className={`${chatClass} ${channelListClass} str-chat__channel-list ${theme} ${navigationClass} ${windowsEmojiClass}`}
         ref={channelListRef}
       >
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
