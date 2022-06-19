@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -42,6 +43,17 @@ export const useSubmitHandler = <
   );
   const { t } = useTranslationContext('useSubmitHandler');
 
+  const textReference = useRef({ hasChanged: false, initialText: text });
+
+  useEffect(() => {
+    if (!textReference.current.initialText.length) {
+      textReference.current.initialText = text;
+      return;
+    }
+
+    textReference.current.hasChanged = text !== textReference.current.initialText;
+  }, [text]);
+
   const getAttachmentsFromUploads = () => {
     const imageAttachments = imageOrder
       .map((id) => imageUploads[id])
@@ -49,30 +61,35 @@ export const useSubmitHandler = <
       .filter((
         { id, url },
         _,
-        self, // filter out duplicates based on url
+        self, // filter out duplicates based on ID or URL
       ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .map(
-        (upload) =>
-          ({
-            fallback: upload.file.name,
-            image_url: upload.url,
-            type: 'image',
-          } as Attachment<StreamChatGenerics>),
-      );
+      .filter((upload) => {
+        // keep the OG attachments in case the text has not changed as the BE
+        // won't re-enrich the message when only attachments have changed
+        if (!textReference.current.hasChanged) return true;
+        return !upload.og_scrape_url;
+      })
+      .map<Attachment<StreamChatGenerics>>(({ file: { name }, url, ...rest }) => ({
+        author_name: rest.author_name,
+        fallback: name,
+        image_url: url,
+        og_scrape_url: rest.og_scrape_url,
+        text: rest.text,
+        title: rest.title,
+        title_link: rest.title_link,
+        type: 'image',
+      }));
 
     const fileAttachments = fileOrder
       .map((id) => fileUploads[id])
       .filter((upload) => upload.state !== 'failed')
-      .map(
-        (upload) =>
-          ({
-            asset_url: upload.url,
-            file_size: upload.file.size,
-            mime_type: upload.file.type,
-            title: upload.file.name,
-            type: getAttachmentTypeFromMime(upload.file.type || ''),
-          } as Attachment<StreamChatGenerics>),
-      );
+      .map<Attachment<StreamChatGenerics>>((upload) => ({
+        asset_url: upload.url,
+        file_size: upload.file.size,
+        mime_type: upload.file.type,
+        title: upload.file.name,
+        type: getAttachmentTypeFromMime(upload.file.type || ''),
+      }));
 
     return [
       ...attachments, // from state
@@ -137,7 +154,7 @@ export const useSubmitHandler = <
           ...updatedMessage,
         } as unknown) as UpdatedMessage<StreamChatGenerics>);
 
-        if (clearEditingState) clearEditingState();
+        clearEditingState?.();
         dispatch({ type: 'clear' });
       } catch (err) {
         addNotification(t('Edit message request failed'), 'error');
@@ -172,11 +189,9 @@ export const useSubmitHandler = <
           type: 'setText',
         });
 
-        if (actualMentionedUsers.length) {
-          actualMentionedUsers.forEach((user) => {
-            dispatch({ type: 'addMentionedUser', user });
-          });
-        }
+        actualMentionedUsers?.forEach((user) => {
+          dispatch({ type: 'addMentionedUser', user });
+        });
 
         addNotification(t('Send message request failed'), 'error');
       }

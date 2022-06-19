@@ -4,7 +4,6 @@ import { useEnrichedMessages } from './hooks/useEnrichedMessages';
 import { useMessageListElements } from './hooks/useMessageListElements';
 import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
 
-import { Center } from './Center';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 
@@ -67,6 +66,9 @@ const MessageListWithContext = <
     jumpToLatestMessage = () => Promise.resolve(),
   } = props;
 
+  const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
+  const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
+
   const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
@@ -78,16 +80,17 @@ const MessageListWithContext = <
 
   const {
     hasNewMessages,
-    listRef,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
     hasMoreNewer,
+    listElement,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
+    ulElement,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -163,18 +166,21 @@ const MessageListWithContext = <
     }
   }, [scrollToBottom, hasMoreNewer]);
 
-  const ulRef = React.useRef<HTMLUListElement>(null);
-
   React.useLayoutEffect(() => {
     if (highlightedMessageId) {
-      const element = ulRef.current?.querySelector(`[data-message-id='${highlightedMessageId}']`);
+      const element = ulElement?.querySelector(`[data-message-id='${highlightedMessageId}']`);
       element?.scrollIntoView({ block: 'center' });
     }
   }, [highlightedMessageId]);
 
   return (
     <>
-      <div className={`${messageListClass} ${threadListClass}`} onScroll={onScroll} ref={listRef}>
+      <div
+        className={`${messageListClass} ${threadListClass}`}
+        onScroll={onScroll}
+        ref={setListElement}
+        tabIndex={0}
+      >
         {!elements.length ? (
           <EmptyStateIndicator listType='message' />
         ) : (
@@ -185,15 +191,15 @@ const MessageListWithContext = <
             hasMoreNewer={props.hasMoreNewer}
             isLoading={props.loadingMore}
             loader={
-              <Center key='loadingindicator'>
-                <LoadingIndicator size={20} />
-              </Center>
+              <div className='str-chat__list__loading' key='loadingindicator'>
+                {props.loadingMore && <LoadingIndicator size={20} />}
+              </div>
             }
             loadMore={loadMore}
             loadMoreNewer={loadMoreNewer}
             {...props.internalInfiniteScrollProps}
           >
-            <ul className='str-chat__ul' ref={ulRef}>
+            <ul className='str-chat__ul' ref={setUlElement}>
               {elements}
             </ul>
             <TypingIndicator threadList={threadList} />

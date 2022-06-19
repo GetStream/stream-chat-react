@@ -6,42 +6,41 @@ import selectors from '../selectors';
 
 export default (page: Page) => {
   function getChannelPreview(text: string) {
-    return page.locator(`${selectors.channelPreviewButton}`, {hasText: text});
+    return page.locator(`${selectors.channelPreviewButton}`, { hasText: text });
   }
 
   return {
-    get: (text: string) => getChannelPreview(text),
     click: {
-      async text(text: string) {
-        await page.click(`${selectors.channelPreviewButton} :has-text("${text}")`, {strict: false})
-      }
+      text(text: string) {
+        return page.click(`${selectors.channelPreviewButton} :has-text("${text}")`, {
+          strict: false,
+        });
+      },
     },
+    get: (text: string) => getChannelPreview(text),
     see(text: string) {
       const target = getChannelPreview(text);
       return {
-        async empty() {
-          return await expect(target).toContainText('Nothing yet...');
-        },
-        async read() {
-          return await expect(target).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
-        },
         contains: {
-          async message(text: string | RegExp) {
-            return await expect(target).toContainText(text);
+          lastMessage(text: string | RegExp) {
+            return expect(target.locator(selectors.channelPreviewLastMessage)).toContainText(text);
           },
-          async lastMessage(text: string | RegExp) {
-            await expect(target.locator(selectors.channelPreviewLastMessage)).toContainText(text)
-          }
+          message(text: string | RegExp) {
+            return expect(target).toContainText(text);
+          },
+        },
+        empty() {
+          return expect(target).toContainText('Nothing yet...');
         },
         not: {
-          async read() {
-            return await expect(target).toHaveClass(/str-chat__channel-preview-messenger--unread/);
-          }
-        }
-      }
+          read() {
+            return expect(target).toHaveClass(/str-chat__channel-preview-messenger--unread/);
+          },
+        },
+        read() {
+          return expect(target).not.toHaveClass(/str-chat__channel-preview-messenger--unread/);
+        },
+      };
     },
-  }
-}
-
-
-
+  };
+};

@@ -8,7 +8,7 @@ import { LoadingErrorIndicator } from '../../Loading';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useEmojiContext } from '../../../context/EmojiContext';
 import {
@@ -30,7 +30,11 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
 
-const MockAvatar = ({ user }) => <div className='avatar'>{user.custom}</div>;
+const MockAvatar = ({ user }) => (
+  <div className='avatar' data-testid='custom-avatar'>
+    {user.custom}
+  </div>
+);
 
 let chatClient;
 let channel;
@@ -70,10 +74,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
 
 // create a full message state so we can properly test `loadMore`
-const messages = [];
-for (let i = 0; i < 25; i++) {
-  messages.push(generateMessage({ user }));
-}
+const messages = Array.from({ length: 25 }, () => generateMessage({ user }));
 
 const pinnedMessages = [generateMessage({ pinned: true, user })];
 
@@ -93,7 +94,7 @@ describe('Channel', () => {
     const { messages: channelMessages } = useChannelStateContext();
 
     return channelMessages.map(
-      ({ status, text }, i) => status !== 'failed' && <div key={i}>{text}</div>,
+      ({ id, status, text }) => status !== 'failed' && <div key={id}>{text}</div>,
     );
   };
 
@@ -106,8 +107,9 @@ describe('Channel', () => {
     });
     chatClient = await getTestClientWithUser(user);
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
-    await channel.query();
+    channel = chatClient.channel('messaging', mockedChannel.channel.id);
+
+    jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
   });
 
   afterEach(() => {
@@ -117,9 +119,144 @@ describe('Channel', () => {
   it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
     // get rid of console warnings as they are expected - Channel reaches to ChatContext
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const { getByText } = render(<Channel EmptyPlaceholder={<div>empty</div>} />);
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel EmptyPlaceholder={<div>empty</div>} />
+      </ChatProvider>,
+    );
 
-    await waitFor(() => expect(getByText('empty')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('empty')).toBeInTheDocument());
+  });
+
+  it('should render channel content if channels query loads more channels', async () => {
+    const childrenContent = 'Channel children';
+    await channel.watch();
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'load-more',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+          client: chatClient,
+        }}
+      >
+        <Channel channel={channel}>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
+  });
+
+  it('should render nothing if channels query is in progress', async () => {
+    const childrenContent = 'Channel children';
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render nothing if channel does not have cid', async () => {
+    const childrenContent = 'Channel children';
+    const { cid, ...channelWithoutCID } = channel;
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channel: channelWithoutCID,
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render nothing if channels query failed', async () => {
+    const childrenContent = 'Channel children';
+    const { container } = render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: new Error(),
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(container.childElementCount).toBe(0));
+  });
+
+  it('should render provided loading indicator if channels query is in progress', async () => {
+    const childrenContent = 'Channel children';
+    const loadingText = 'Loading channels';
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel LoadingIndicator={() => <div>{loadingText}</div>}>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
+  });
+
+  it('should render provided error indicator if channels query failed', async () => {
+    const childrenContent = 'Channel children';
+    const errMsg = 'Channels query failed';
+    render(
+      <ChatProvider
+        value={{
+          channelsQueryState: {
+            error: new Error(errMsg),
+            queryInProgress: null,
+            setError: jest.fn(),
+            setQueryInProgress: jest.fn(),
+          },
+        }}
+      >
+        <Channel LoadingErrorIndicator={({ error }) => <div>{error.message}</div>}>
+          {childrenContent}
+        </Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
   });
 
   it('should watch the current channel on mount', async () => {
@@ -130,6 +267,15 @@ describe('Channel', () => {
     });
 
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
+  });
+
+  it('should not call watch the current channel on mount if channel is initialized', async () => {
+    const watchSpy = jest.spyOn(channel, 'watch');
+    channel.initialized = true;
+    await act(() => {
+      renderComponent();
+    });
+    await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
   });
 
   it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {
@@ -209,13 +355,12 @@ describe('Channel', () => {
     const markReadSpy = jest.spyOn(channel, 'markRead');
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    await act(() => {
-      renderComponent();
-    });
+    renderComponent();
+
     // first, wait for the effect in which the channel is watched,
     // so we know the event listener is added to the document.
     await waitFor(() => expect(watchSpy).toHaveBeenCalledWith());
-    fireEvent(document, new Event('visibilitychange'));
+    setTimeout(() => fireEvent(document, new Event('visibilitychange')), 0);
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
@@ -364,8 +509,10 @@ describe('Channel', () => {
 
       const usernameText = await findByText(`@${username}`);
 
-      fireEvent.mouseOver(usernameText);
-      fireEvent.click(usernameText);
+      act(() => {
+        fireEvent.mouseOver(usernameText);
+        fireEvent.click(usernameText);
+      });
 
       await waitFor(() =>
         expect(onMentionsHoverMock).toHaveBeenCalledWith(
@@ -759,98 +906,83 @@ describe('Channel', () => {
         await waitFor(() => expect(newThreadMessageWasAdded).toBe(true));
       });
 
-      it('should update user data in MessageList based on updated_at', async () => {
-        const updatedAttribute = { custom: 'newCustomValue' };
-        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-          {
-            user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
+      [
+        { component: MessageList, name: 'MessageList' },
+        {
+          callback: (message) => ({ openThread, thread }) => {
+            if (!thread) openThread(message, { preventDefault: () => null });
           },
-          'user.updated',
-        );
-        renderComponent({ Avatar: MockAvatar, children: <MessageList /> });
+          component: Thread,
+          name: 'Thread',
+        },
+      ].forEach(({ callback, component: Component, name }) => {
+        const [threadMessage] = messages;
 
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
-        act(() => {
-          dispatchUserUpdatedEvent();
-        });
-        await waitFor(() =>
-          expect(screen.queryAllByText(updatedAttribute.custom).length).toBeGreaterThan(0),
-        );
-      });
+        it(`should update user data in ${name} based on updated_at`, async () => {
+          const updatedAttribute = { custom: 'newCustomValue' };
+          const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+            {
+              user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
+            },
+            'user.updated',
+          );
+          const { getAllByTestId } = renderComponent(
+            {
+              Avatar: MockAvatar,
+              children: <Component />,
+            },
+            callback?.(threadMessage),
+          );
 
-      it('should not update user data in MessageList if updated_at has not changed', async () => {
-        const updatedAttribute = { custom: 'newCustomValue' };
-        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-          {
-            user: { ...user, ...updatedAttribute },
-          },
-          'user.updated',
-        );
-        renderComponent({ Avatar: MockAvatar, children: <MessageList /> });
+          await waitFor(() => {
+            const [element] = getAllByTestId('custom-avatar');
 
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
-        act(() => {
-          dispatchUserUpdatedEvent();
-        });
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
-      });
+            expect(element).toHaveTextContent(user.custom);
+          });
 
-      it('should update user data in Thread if updated_at has changed', async () => {
-        const threadMessage = messages[0];
-        const updatedAttribute = { custom: 'newCustomValue' };
-        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-          {
-            user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
-          },
-          'user.updated',
-        );
-        renderComponent({ Avatar: MockAvatar, children: <Thread /> }, ({ openThread, thread }) => {
-          if (!thread) {
-            openThread(threadMessage, { preventDefault: () => null });
-          }
+          act(() => {
+            dispatchUserUpdatedEvent();
+          });
+
+          await waitFor(() => {
+            const [element] = getAllByTestId('custom-avatar');
+
+            expect(element).toHaveTextContent(updatedAttribute.custom);
+          });
         });
 
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
-        act(() => {
-          dispatchUserUpdatedEvent();
-        });
-        await waitFor(() =>
-          expect(screen.queryAllByText(updatedAttribute.custom).length).toBeGreaterThan(0),
-        );
-      });
+        it(`should not update user data in ${name} if updated_at has not changed`, async () => {
+          const updatedAttribute = { custom: 'newCustomValue' };
+          const dispatchUserUpdatedEvent = createChannelEventDispatcher(
+            {
+              user: { ...user, ...updatedAttribute },
+            },
+            'user.updated',
+          );
+          const { getAllByTestId } = renderComponent(
+            {
+              Avatar: MockAvatar,
+              children: <Component />,
+            },
+            callback?.(threadMessage),
+          );
 
-      it('should not update user data in Thread if updated_at has not changed', async () => {
-        const threadMessage = messages[0];
-        const updatedAttribute = { custom: 'newCustomValue' };
-        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-          {
-            user: { ...user, ...updatedAttribute },
-          },
-          'user.updated',
-        );
-        renderComponent({ Avatar: MockAvatar, children: <Thread /> }, ({ openThread, thread }) => {
-          if (!thread) {
-            openThread(threadMessage, { preventDefault: () => null });
-          }
-        });
+          await waitFor(() => {
+            const [element] = getAllByTestId('custom-avatar');
 
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
-        act(() => {
-          dispatchUserUpdatedEvent();
+            expect(element).toHaveTextContent(user.custom);
+          });
+
+          act(() => {
+            dispatchUserUpdatedEvent();
+          });
+
+          await waitFor(() => {
+            const [element] = getAllByTestId('custom-avatar');
+
+            expect(element).toHaveTextContent(user.custom);
+          });
         });
-        await waitFor(() =>
-          expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
-        );
       });
     });
   });

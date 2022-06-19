@@ -6,26 +6,21 @@ export function getMessageInput(page: Page) {
   return page.locator(selectors.messageInput);
 }
 
-
-export default (page: Page) => {
-  return {
-    see: {
-
+export default (page: Page) => ({
+  see: {},
+  submit: {
+    async message(text: string) {
+      await page.fill(selectors.messageInput, text);
+      return page.keyboard.press('Enter');
     },
-    typeTo: {
-      async text(text: string) {
-        await page.fill(selectors.messageInput, text);
-      }
+    async reply(text: string) {
+      await page.fill(selectors.messageInputTextareaThread, text);
+      return page.keyboard.press('Enter');
     },
-    submit: {
-      async message(text: string) {
-        await page.fill(selectors.messageInput, text);
-        await page.keyboard.press('Enter');
-      },
-      async reply(text: string) {
-        await page.fill(selectors.messageInputTextareaThread, text);
-        await page.keyboard.press('Enter');
-      }
-    }
-  };
-}
+  },
+  typeTo: {
+    text(text: string) {
+      return page.fill(selectors.messageInput, text);
+    },
+  },
+});
