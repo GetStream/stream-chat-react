@@ -7,7 +7,10 @@ import { Thread } from '../Thread';
 
 import { Message as MessageMock } from '../../Message/Message';
 import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
-import { MessageList as MessageListMock } from '../../MessageList';
+import {
+  MessageList as MessageListMock,
+  VirtualizedMessageList as VirtualizedMessageListMock,
+} from '../../MessageList';
 import { useMessageInputContext } from '../../../context/MessageInputContext';
 
 import {
@@ -33,6 +36,9 @@ jest.mock('../../Message/Message', () => ({
 }));
 jest.mock('../../MessageList/MessageList', () => ({
   MessageList: jest.fn(() => <div />),
+}));
+jest.mock('../../MessageList/VirtualizedMessageList', () => ({
+  VirtualizedMessageList: jest.fn(() => <div />),
 }));
 jest.mock('../../MessageInput/MessageInputSmall', () => ({
   MessageInputSmall: jest.fn(() => <div />),
@@ -141,6 +147,7 @@ describe('Thread', () => {
       expect.objectContaining({
         disableDateSeparator: true,
         hasMore: channelStateContextMock.threadHasMore,
+        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
         loadingMore: channelActionContextMock.threadLoadingMore,
         loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
@@ -172,6 +179,7 @@ describe('Thread', () => {
       expect.objectContaining({
         disableDateSeparator: false,
         hasMore: channelStateContextMock.threadHasMore,
+        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
         loadingMore: channelActionContextMock.threadLoadingMore,
         loadMore: channelStateContextMock.loadMoreThread,
         Message: MessageMock,
@@ -287,5 +295,29 @@ describe('Thread', () => {
       .toJSON();
 
     expect(tree).toMatchInlineSnapshot(`null`);
+  });
+
+  it('should not provide head prop to underlying virtualized message list component', () => {
+    const additionalMessageListProps = {
+      loadingMore: false,
+      loadMore: channelActionContextMock.threadLoadingMore,
+      propName: 'value',
+      read: {},
+    };
+    renderComponent({
+      chatClient,
+      threadProps: {
+        additionalMessageListProps,
+        Message: MessageMock,
+        virtualized: true,
+      },
+    });
+
+    expect(VirtualizedMessageListMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
+      }),
+      {},
+    );
   });
 });

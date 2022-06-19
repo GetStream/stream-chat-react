@@ -161,21 +161,23 @@ const ThreadInner = <
   if (!thread) return null;
 
   const threadClass = customClasses?.thread || 'str-chat__thread';
+  const head = (
+    <ThreadHead
+      key={thread.id}
+      message={thread}
+      Message={MessageUIComponent}
+      {...additionalParentMessageProps}
+    />
+  );
 
   return (
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
+      {virtualized && head}
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}
         hasMore={threadHasMore}
-        head={
-          <ThreadHead
-            key={thread.id}
-            message={thread}
-            Message={MessageUIComponent}
-            {...additionalParentMessageProps}
-          />
-        }
+        head={!virtualized ? head : undefined}
         loadingMore={threadLoadingMore}
         loadMore={loadMoreThread}
         Message={MessageUIComponent}
