@@ -43,10 +43,6 @@ export function useMessageListScrollManager<
   const scrollTop = useRef(0);
 
   useEffect(() => {
-    scrollToBottom();
-  }, []);
-
-  useEffect(() => {
     const prevMeasures = measures.current;
     const prevMessages = messages.current;
     const newMessages = params.messages;

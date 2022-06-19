@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { LoadingChannels } from '../Loading/LoadingChannels';
-
 import { useTranslationContext } from '../../context/TranslationContext';
 import { ConnectionErrorIcon } from './icons';
 
@@ -23,7 +21,6 @@ const UnMemoizedChatDown = ({
 
   return (
     <div className='str-chat__down'>
-      <LoadingChannels />
       <div className='str-chat__down-main'>
         {typeof image === 'string' ? (
           <img alt='Connection error' data-testid='chatdown-img' src={image} />

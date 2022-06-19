@@ -5,6 +5,7 @@ import type { AppSettingsAPIResponse, Channel, Mute, StreamChat } from 'stream-c
 import { getDisplayName } from './utils/getDisplayName';
 import type { Theme } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
 
 type CSSClasses =
   | 'chat'
@@ -23,6 +24,7 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  channelsQueryState: ChannelsQueryState;
   client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;

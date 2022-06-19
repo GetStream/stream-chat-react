@@ -5,28 +5,47 @@ import selectors from '../../selectors';
 type MessageBoxAction = 'Reply' | 'Pin' | 'Edit Message' | 'Delete';
 
 export default (page: Page) => {
-  const open = async (targetMessageText: string, action: MessageBoxAction, nthMessageWithText?: number) => {
+  const open = async (
+    targetMessageText: string,
+    action: MessageBoxAction,
+    nthMessageWithText?: number,
+  ) => {
     const message = getMessage(page, targetMessageText, nthMessageWithText);
     await message.hover();
-    await message.locator(selectors.buttonOpenActionsBox).click()
-    return await page.waitForSelector(`${selectors.messageActionsBox} >> text="${action}"`, {state: 'visible'});
-  };
 
+    const [elementHandle] = await Promise.all([
+      page.waitForSelector(`${selectors.messageActionsBox} >> text="${action}"`, {
+        state: 'visible',
+      }),
+      message.locator(selectors.buttonOpenActionsBox).click(),
+    ]);
+
+    return elementHandle;
+  };
 
   return {
     click: {
-      async reply(repliedMessageText: string, nthMessageWithText?: number) {
-        await (await open(repliedMessageText, 'Reply', nthMessageWithText)).click();
-      },
-      async pin(repliedMessageText: string, nthMessageWithText?: number) {
-        await (await open(repliedMessageText, 'Pin', nthMessageWithText)).click();
+      async delete(repliedMessageText: string, nthMessageWithText?: number) {
+        return (await open(repliedMessageText, 'Delete', nthMessageWithText)).click();
       },
       async editMessage(repliedMessageText: string, nthMessageWithText?: number) {
-        await (await open(repliedMessageText, 'Edit Message', nthMessageWithText)).click();
+        const buttonElementHandle = await open(
+          repliedMessageText,
+          'Edit Message',
+          nthMessageWithText,
+        );
+        const [, clickEvent] = await Promise.all([
+          page.waitForSelector(selectors.modalOpen),
+          buttonElementHandle.click(),
+        ]);
+        return clickEvent;
       },
-      async delete(repliedMessageText: string, nthMessageWithText?: number) {
-        await (await open(repliedMessageText, 'Delete', nthMessageWithText)).click();
-      }
-    }
-  }
-}
+      async pin(repliedMessageText: string, nthMessageWithText?: number) {
+        return (await open(repliedMessageText, 'Pin', nthMessageWithText)).click();
+      },
+      async reply(repliedMessageText: string, nthMessageWithText?: number) {
+        return (await open(repliedMessageText, 'Reply', nthMessageWithText)).click();
+      },
+    },
+  };
+};

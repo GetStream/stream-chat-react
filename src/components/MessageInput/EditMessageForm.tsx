@@ -45,7 +45,7 @@ export const EditMessageForm = <
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && clearEditingState) clearEditingState();
+      if (event.key === 'Escape') clearEditingState?.();
     };
 
     document.addEventListener('keydown', onKeyDown);
@@ -95,15 +95,7 @@ export const EditMessageForm = <
               )}
             </div>
             <div>
-              <button
-                onClick={() => {
-                  if (clearEditingState) {
-                    clearEditingState();
-                  }
-                }}
-              >
-                {t<string>('Cancel')}
-              </button>
+              <button onClick={clearEditingState}>{t<string>('Cancel')}</button>
               <button type='submit'>{t<string>('Send')}</button>
             </div>
           </div>
