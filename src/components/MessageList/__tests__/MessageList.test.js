@@ -72,23 +72,29 @@ describe('MessageList', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render the parent message that starts the thread if no replies', async () => {
+  it('should render the thread head if provided', async () => {
+    const MsgListHead = (props) => <div>{props.message.text}</div>;
+
     await act(() => {
       renderComponent({
         channelProps: { channel },
         chatClient,
-        msgListProps: { messages: [], thread: message1, threadList: true },
+        msgListProps: {
+          head: <MsgListHead key={'head'} message={message1} />,
+          messages: [reply1, reply2],
+          threadList: true,
+        },
       });
     });
 
     await waitFor(() => {
       expect(screen.queryByText(message1.text)).toBeInTheDocument();
-      expect(screen.queryByText(reply1.text)).not.toBeInTheDocument();
-      expect(screen.queryByText(reply2.text)).not.toBeInTheDocument();
+      expect(screen.queryByText(reply1.text)).toBeInTheDocument();
+      expect(screen.queryByText(reply2.text)).toBeInTheDocument();
     });
   });
 
-  it('should not render the parent message that starts the thread if replies exist', async () => {
+  it('should not render the thread head if not provided', async () => {
     await act(() => {
       renderComponent({
         channelProps: { channel },
@@ -104,40 +110,18 @@ describe('MessageList', () => {
     });
   });
 
-  it('should render the parent message that starts the thread if no more replies', async () => {
-    await act(() => {
-      renderComponent({
-        channelProps: { channel },
-        chatClient,
-        msgListProps: {
-          hasMore: false,
-          messages: [reply1, reply2],
-          thread: message1,
-          threadList: true,
-        },
-      });
-    });
-
-    await waitFor(() => {
-      expect(screen.queryByText(message1.text)).toBeInTheDocument();
-      expect(screen.queryByText(reply1.text)).toBeInTheDocument();
-      expect(screen.queryByText(reply2.text)).toBeInTheDocument();
-    });
-  });
-
-  it('should render EmptyStateIndicator in thread', async () => {
+  it('should render EmptyStateIndicator', async () => {
     const indicatorContent = 'EmptyStateIndicator';
     const EmptyStateIndicator = () => <div>{indicatorContent}</div>;
     await act(() => {
       renderComponent({
         channelProps: { channel, EmptyStateIndicator },
         chatClient,
-        msgListProps: { messages: [], thread: message1, threadList: true },
+        msgListProps: { messages: [] },
       });
     });
 
     await waitFor(() => {
-      expect(screen.queryByText(message1.text)).toBeInTheDocument();
       expect(screen.queryByText(indicatorContent)).toBeInTheDocument();
     });
   });
