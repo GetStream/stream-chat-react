@@ -5,6 +5,7 @@ import {
   ChannelPreviewInfoParams,
   useChannelPreviewInfo,
 } from '../ChannelPreview/hooks/useChannelPreviewInfo';
+import { CloseIcon } from './icons';
 
 import { StreamMessage, useChannelStateContext, useTranslationContext } from '../../context';
 
@@ -45,12 +46,7 @@ export const ThreadHeader = <
         data-testid='close-button'
         onClick={(event) => closeThread(event)}
       >
-        <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
-          <path
-            d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
-            fillRule='evenodd'
-          />
-        </svg>
+        <CloseIcon />
       </button>
     </div>
   );

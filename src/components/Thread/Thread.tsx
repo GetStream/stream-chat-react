@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
-import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { FixedHeightMessage } from '../Message/FixedHeightMessage';
+import { Message } from '../Message/Message';
 import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
 import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
 import { MessageList, MessageListProps } from '../MessageList/MessageList';
@@ -9,6 +9,8 @@ import {
   VirtualizedMessageList,
   VirtualizedMessageListProps,
 } from '../MessageList/VirtualizedMessageList';
+import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
+import { ThreadStart as DefaultThreadStart } from './ThreadStart';
 
 import { MessageToSend, useChannelActionContext } from '../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -71,6 +73,7 @@ const ThreadInner = <
   const {
     additionalMessageInputProps,
     additionalMessageListProps,
+    additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
     autoFocus = true,
     enableDateSeparator = false,
@@ -94,6 +97,7 @@ const ThreadInner = <
     ThreadInput: ContextInput,
     Message: ContextMessage,
     ThreadHeader = DefaultThreadHeader,
+    ThreadStart = DefaultThreadStart,
     VirtualMessage = FixedHeightMessage,
   } = useComponentContext<StreamChatGenerics>('Thread');
 
@@ -136,6 +140,14 @@ const ThreadInner = <
     >
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <div className='str-chat__thread-list' ref={messageList}>
+        <Message
+          initialMessage
+          message={thread}
+          Message={ThreadMessage || FallbackMessage}
+          threadList
+          {...additionalParentMessageProps}
+        />
+        <ThreadStart />
         <ThreadMessageList
           disableDateSeparator={!enableDateSeparator}
           hasMore={threadHasMore}
