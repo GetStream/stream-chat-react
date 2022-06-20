@@ -297,12 +297,12 @@ describe('Channel', () => {
   it('should render a LoadingIndicator if it is loading', async () => {
     const watchPromise = new Promise(() => {});
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
-
+    let result;
     await act(() => {
-      renderComponent();
+      result = renderComponent();
     });
 
-    await waitFor(() => expect(screen.getByText('loading')).toBeInTheDocument());
+    await waitFor(() => expect(result.asFragment()).toMatchSnapshot());
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
