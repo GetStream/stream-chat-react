@@ -40,7 +40,7 @@ export const Avatar = <
   props: AvatarProps<StreamChatGenerics>,
 ) => {
   const {
-    className,
+    className: customClassName,
     image,
     name,
     onClick = () => undefined,
@@ -59,10 +59,13 @@ export const Avatar = <
 
   const nameStr = name?.toString() || '';
   const initials = getWholeChar(nameStr, 0);
+  const className = ['str-chat__avatar', `str-chat__avatar--${shape}`, customClassName]
+    .join(' ')
+    .trim();
 
   return (
     <div
-      className={`str-chat__avatar str-chat__avatar--${shape} ${className}`}
+      className={className}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}
