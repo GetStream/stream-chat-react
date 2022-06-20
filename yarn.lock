@@ -14423,6 +14423,14 @@ react-virtuoso@^2.10.2:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
 
+react-virtuoso@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.13.3.tgz#11f67d56a0f7e259bc9d92547f952b446b43b56a"
+  integrity sha512-K/mPeJcNvY0R24r1XcNTPV5bs7LujTjhbvysEhVxS6hjssY5OI+2HpY4e3cKEb/8BMGFwsQ/c/b6BLCcmprquw==
+  dependencies:
+    "@virtuoso.dev/react-urx" "^0.2.12"
+    "@virtuoso.dev/urx" "^0.2.12"
+
 react@^18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.1.0.tgz#6f8620382decb17fdc5cc223a115e2adbf104890"
