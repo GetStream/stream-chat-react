@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { EmptyStateIndicator } from '../EmptyStateIndicator';
@@ -18,20 +18,20 @@ describe('EmptyStateIndicator', () => {
     `);
   });
 
-  it('should return null if listType is message', () => {
-    const { container } = render(<EmptyStateIndicator listType='message' />);
-    expect(container).toBeEmptyDOMElement();
+  it('should display correct text when listType is message', () => {
+    render(<EmptyStateIndicator listType='message' />);
+    expect(screen.queryByText('No chats here yet…')).toBeInTheDocument();
   });
 
   it('should display correct text when listType is channel', () => {
-    const { queryAllByText } = render(<EmptyStateIndicator listType='channel' />);
+    render(<EmptyStateIndicator listType='channel' />);
     // rendering the same text twice for backwards compatibility with css styling v1
-    expect(queryAllByText('You have no channels currently')).toHaveLength(2);
+    expect(screen.queryAllByText('You have no channels currently')).toHaveLength(2);
   });
 
   it('should display correct text when no listType is provided', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => null);
-    const { getByText } = render(<EmptyStateIndicator />);
-    expect(getByText('No items exist')).toBeInTheDocument();
+    render(<EmptyStateIndicator />);
+    expect(screen.getByText('No items exist')).toBeInTheDocument();
   });
 });
