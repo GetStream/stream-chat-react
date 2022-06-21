@@ -47,9 +47,9 @@ jest.mock('../../MessageInput/MessageInputSmall', () => ({
 let chatClient;
 const alice = generateUser({ id: 'alice', name: 'alice' });
 const bob = generateUser({ id: 'bob', name: 'bob' });
-const threadStart = generateMessage({ reply_count: 2, user: alice });
-const reply1 = generateMessage({ parent_id: threadStart.id, user: bob });
-const reply2 = generateMessage({ parent_id: threadStart.id, user: alice });
+const parentMessage = generateMessage({ reply_count: 2, user: alice });
+const reply1 = generateMessage({ parent_id: parentMessage.id, user: bob });
+const reply2 = generateMessage({ parent_id: parentMessage.id, user: alice });
 
 const mockedChannel = {
   off: jest.fn(),
@@ -59,7 +59,7 @@ const mockedChannel = {
 };
 const channelStateContextMock = {
   channel: mockedChannel,
-  thread: threadStart,
+  thread: parentMessage,
   threadHasMore: true,
   threadLoadingMore: false,
   threadMessages: [reply1, reply2],
@@ -117,15 +117,6 @@ describe('Thread', () => {
   afterEach(() => {
     cleanup();
     jest.clearAllMocks();
-  });
-
-  it('should render the reply count', () => {
-    const { getByText } = renderComponent({ chatClient });
-
-    expect(i18nMock).toHaveBeenCalledWith('replyCount', {
-      count: threadStart.reply_count,
-    });
-    expect(getByText('2 replies')).toBeInTheDocument();
   });
 
   it('should render the MessageList component with the correct props without date separators', () => {
@@ -238,7 +229,7 @@ describe('Thread', () => {
       expect(CustomThreadHeader).toHaveBeenCalledWith(
         expect.objectContaining({
           closeThread: channelActionContextMock.closeThread,
-          thread: threadStart,
+          thread: parentMessage,
         }),
         {},
       );
