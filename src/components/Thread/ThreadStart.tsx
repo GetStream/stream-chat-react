@@ -7,11 +7,11 @@ export const ThreadStart = () => {
   const { thread } = useChannelStateContext('ThreadStart');
   const { t } = useTranslationContext('ThreadStart');
 
+  if (!thread?.reply_count) return null;
+
   return (
     <div className='str-chat__thread-start'>
-      {thread?.reply_count
-        ? t<string>('replyCount', { count: thread.reply_count })
-        : t<string>('Start of a new thread')}
+      {t<string>('replyCount', { count: thread.reply_count })}
     </div>
   );
 };
