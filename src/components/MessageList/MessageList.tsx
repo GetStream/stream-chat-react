@@ -106,7 +106,12 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements({
-    emptyStateIndicator: <EmptyStateIndicator key={'empty-state-indicator'} listType='message' />,
+    emptyStateIndicator: (
+      <EmptyStateIndicator
+        key={'empty-state-indicator'}
+        listType={threadList ? 'thread' : 'message'}
+      />
+    ),
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,

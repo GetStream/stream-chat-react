@@ -5,13 +5,15 @@ import { ChatBubble } from './icons';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
-  listType?: 'channel' | 'message';
+  listType?: 'channel' | 'message' | 'thread';
 };
 
 const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType } = props;
 
   const { t } = useTranslationContext('EmptyStateIndicator');
+
+  if (listType === 'thread') return null;
 
   if (listType === 'channel') {
     const text = t<string>('You have no channels currently');

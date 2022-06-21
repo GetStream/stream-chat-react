@@ -29,6 +29,11 @@ describe('EmptyStateIndicator', () => {
     expect(screen.queryAllByText('You have no channels currently')).toHaveLength(2);
   });
 
+  it('should return null if listType is thread', () => {
+    const { container } = render(<EmptyStateIndicator listType='thread' />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('should display correct text when no listType is provided', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => null);
     render(<EmptyStateIndicator />);

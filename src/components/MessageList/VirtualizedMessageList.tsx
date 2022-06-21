@@ -127,6 +127,7 @@ const VirtualizedMessageListWithContext = <
     shouldGroupByUser = false,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
+    threadList,
   } = props;
 
   // Stops errors generated from react-virtuoso to bubble up
@@ -331,7 +332,11 @@ const VirtualizedMessageListWithContext = <
 
   const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
-      <>{EmptyStateIndicator && <EmptyStateIndicator listType='message' />}</>
+      <>
+        {EmptyStateIndicator && (
+          <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
+        )}
+      </>
     );
 
     const Header: Components['Header'] = () =>

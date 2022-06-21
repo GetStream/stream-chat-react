@@ -20,6 +20,12 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 
+import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
+
+jest.mock('../../EmptyStateIndicator', () => ({
+  EmptyStateIndicator: jest.fn(),
+}));
+
 let chatClient;
 let channel;
 const user1 = generateUser();
@@ -51,7 +57,10 @@ describe('MessageList', () => {
     await channel.watch();
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    jest.clearAllMocks();
+  });
 
   it('should add new message at bottom of the list', async () => {
     const { container, getByTestId, getByText } = renderComponent({
@@ -110,19 +119,37 @@ describe('MessageList', () => {
     });
   });
 
-  it('should render EmptyStateIndicator', async () => {
-    const indicatorContent = 'EmptyStateIndicator';
-    const EmptyStateIndicator = () => <div>{indicatorContent}</div>;
+  it('should render EmptyStateIndicator with corresponding list type in main message list', async () => {
     await act(() => {
       renderComponent({
-        channelProps: { channel, EmptyStateIndicator },
+        channelProps: { channel },
         chatClient,
         msgListProps: { messages: [] },
       });
     });
 
     await waitFor(() => {
-      expect(screen.queryByText(indicatorContent)).toBeInTheDocument();
+      expect(EmptyStateIndicatorMock).toHaveBeenCalledWith(
+        expect.objectContaining({ listType: 'message' }),
+        expect.any(Object),
+      );
+    });
+  });
+
+  it('should render EmptyStateIndicator with corresponding list type in thread', async () => {
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages: [], threadList: true },
+      });
+    });
+
+    await waitFor(() => {
+      expect(EmptyStateIndicatorMock).toHaveBeenCalledWith(
+        expect.objectContaining({ listType: 'thread' }),
+        expect.any(Object),
+      );
     });
   });
 
