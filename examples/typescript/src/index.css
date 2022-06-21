@@ -11,3 +11,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#root {
+  display: flex;
+  height: 100%;
+  width: 100vw;
+}
+.str-chat__channel-list {
+  flex: 1 0 300px;
+  min-width: 0;
+}
+
+.str-chat__channel {
+  flex: 4 1 auto;
+  min-width:0;
+}
+
+.str-chat__main-panel {
+  min-width: 0;
+  flex:1;
+}
+.str-chat__thread, .str-chat__thread-container {
+  flex:1;
+}
