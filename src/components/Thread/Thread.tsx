@@ -1,22 +1,24 @@
 import React, { useEffect, useRef } from 'react';
 
-import { FixedHeightMessage } from '../Message/FixedHeightMessage';
-import { Message } from '../Message/Message';
-import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
-import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
-import { MessageList, MessageListProps } from '../MessageList/MessageList';
+import type { MessageActionsArray, MessageProps, MessageUIComponentProps } from '../Message';
+import { FixedHeightMessage, Message, MESSAGE_ACTIONS } from '../Message';
+import { MessageInput, MessageInputProps, MessageInputSmall } from '../MessageInput';
 import {
+  MessageList,
+  MessageListProps,
   VirtualizedMessageList,
   VirtualizedMessageListProps,
-} from '../MessageList/VirtualizedMessageList';
+} from '../MessageList';
 
-import { MessageToSend, useChannelActionContext } from '../../context/ChannelActionContext';
-import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { MessageProps, MessageUIComponentProps } from '../Message/types';
+import {
+  MessageToSend,
+  StreamMessage,
+  useChannelActionContext,
+  useChannelStateContext,
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
@@ -42,6 +44,8 @@ export type ThreadProps<
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
+  messageActions?: MessageActionsArray;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -129,6 +133,7 @@ const ThreadInner = <
     fullWidth = false,
     Input: PropInput,
     Message: PropMessage,
+    messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
 
@@ -199,6 +204,7 @@ const ThreadInner = <
           loadingMore={threadLoadingMore}
           loadMore={loadMoreThread}
           Message={ThreadMessage || FallbackMessage}
+          messageActions={messageActions}
           messages={threadMessages || []}
           threadList
           {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}

@@ -167,3 +167,11 @@ Custom thread message UI component used to override the default `Message` value 
 | Type      | Default                                                                  |
 | --------- | ------------------------------------------------------------------------ |
 | component | [ComponentContext['Message']](../contexts/component-context.mdx#message) |
+
+### messageActions
+
+Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all actions, provide an empty array.
+
+| Type  | Default                                                              |
+|-------|----------------------------------------------------------------------|
+| array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
