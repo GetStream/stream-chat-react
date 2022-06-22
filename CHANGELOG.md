@@ -1,3 +1,10 @@
+## [9.1.4](https://github.com/GetStream/stream-chat-react/compare/v9.1.3...v9.1.4) (2022-06-22)
+
+
+### Bug Fixes
+
+* respect updates to messageActions prop, support messageActions overrides in Thread ([#1634](https://github.com/GetStream/stream-chat-react/issues/1634)) ([aed8e01](https://github.com/GetStream/stream-chat-react/commit/aed8e0159b12f221d8a8716c1998ccff29f5cc73)), closes [#1627](https://github.com/GetStream/stream-chat-react/issues/1627)
+
 ## [9.1.3](https://github.com/GetStream/stream-chat-react/compare/v9.1.2...v9.1.3) (2022-06-19)
 
 
