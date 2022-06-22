@@ -136,7 +136,7 @@ describe('MessageList', () => {
     });
   });
 
-  it('should render EmptyStateIndicator with corresponding list type in thread', async () => {
+  it('should not render EmptyStateIndicator with corresponding list type in thread', async () => {
     await act(() => {
       renderComponent({
         channelProps: { channel },
@@ -146,10 +146,7 @@ describe('MessageList', () => {
     });
 
     await waitFor(() => {
-      expect(EmptyStateIndicatorMock).toHaveBeenCalledWith(
-        expect.objectContaining({ listType: 'thread' }),
-        expect.any(Object),
-      );
+      expect(EmptyStateIndicatorMock).toHaveBeenCalledTimes(0);
     });
   });
 

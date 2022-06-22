@@ -172,6 +172,8 @@ const MessageListWithContext = <
     }
   }, [highlightedMessageId]);
 
+  const showEmptyStateIndicator = elements.length === 0 && !threadList;
+
   return (
     <>
       <div
@@ -180,7 +182,7 @@ const MessageListWithContext = <
         ref={setListElement}
         tabIndex={0}
       >
-        {!elements.length ? (
+        {showEmptyStateIndicator ? (
           <EmptyStateIndicator
             key={'empty-state-indicator'}
             listType={threadList ? 'thread' : 'message'}
