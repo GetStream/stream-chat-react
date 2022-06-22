@@ -106,12 +106,6 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements({
-    emptyStateIndicator: (
-      <EmptyStateIndicator
-        key={'empty-state-indicator'}
-        listType={threadList ? 'thread' : 'message'}
-      />
-    ),
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
@@ -186,28 +180,35 @@ const MessageListWithContext = <
         ref={setListElement}
         tabIndex={0}
       >
-        <InfiniteScroll
-          className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
-          data-testid='reverse-infinite-scroll'
-          hasMore={props.hasMore}
-          hasMoreNewer={props.hasMoreNewer}
-          head={props.head}
-          isLoading={props.loadingMore}
-          loader={
-            <div className='str-chat__list__loading' key='loading-indicator'>
-              {props.loadingMore && <LoadingIndicator size={20} />}
-            </div>
-          }
-          loadMore={loadMore}
-          loadMoreNewer={loadMoreNewer}
-          {...props.internalInfiniteScrollProps}
-        >
-          <ul className='str-chat__ul' ref={setUlElement}>
-            {elements}
-          </ul>
-          <TypingIndicator threadList={threadList} />
-          <div key='bottom' />
-        </InfiniteScroll>
+        {!elements.length ? (
+          <EmptyStateIndicator
+            key={'empty-state-indicator'}
+            listType={threadList ? 'thread' : 'message'}
+          />
+        ) : (
+          <InfiniteScroll
+            className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
+            data-testid='reverse-infinite-scroll'
+            hasMore={props.hasMore}
+            hasMoreNewer={props.hasMoreNewer}
+            head={props.head}
+            isLoading={props.loadingMore}
+            loader={
+              <div className='str-chat__list__loading' key='loading-indicator'>
+                {props.loadingMore && <LoadingIndicator size={20} />}
+              </div>
+            }
+            loadMore={loadMore}
+            loadMoreNewer={loadMoreNewer}
+            {...props.internalInfiniteScrollProps}
+          >
+            <ul className='str-chat__ul' ref={setUlElement}>
+              {elements}
+            </ul>
+            <TypingIndicator threadList={threadList} />
+            <div key='bottom' />
+          </InfiniteScroll>
+        )}
       </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}

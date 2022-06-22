@@ -33,7 +33,6 @@ type MessagePropsToOmit =
 type UseMessageListElementsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  emptyStateIndicator: React.ReactNode;
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
   internalMessageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
@@ -49,7 +48,6 @@ export const useMessageListElements = <
   props: UseMessageListElementsProps<StreamChatGenerics>,
 ) => {
   const {
-    emptyStateIndicator,
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
@@ -76,76 +74,79 @@ export const useMessageListElements = <
 
   const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
 
-  const elements: React.ReactNode[] = useMemo(() => {
-    if (emptyStateIndicator && enrichedMessages.length === 0) {
-      return [emptyStateIndicator];
-    }
-    return enrichedMessages.map((message) => {
-      if (message.customType === CUSTOM_MESSAGE_TYPE.date && message.date && isDate(message.date)) {
+  const elements: React.ReactNode[] = useMemo(
+    () =>
+      enrichedMessages.map((message) => {
+        if (
+          message.customType === CUSTOM_MESSAGE_TYPE.date &&
+          message.date &&
+          isDate(message.date)
+        ) {
+          return (
+            <li key={`${message.date.toISOString()}-i`}>
+              <DateSeparator
+                date={message.date}
+                formatDate={internalMessageProps.formatDate}
+                unread={message.unread}
+              />
+            </li>
+          );
+        }
+
+        if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
+          return (
+            <li key='intro'>
+              <HeaderComponent />
+            </li>
+          );
+        }
+
+        if (message.type === 'system') {
+          return (
+            <li
+              key={
+                (message.event as { created_at: string })?.created_at ||
+                (message.created_at as string) ||
+                ''
+              }
+            >
+              <MessageSystem message={message} />
+            </li>
+          );
+        }
+
+        const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+        const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
+
         return (
-          <li key={`${message.date.toISOString()}-i`}>
-            <DateSeparator
-              date={message.date}
-              formatDate={internalMessageProps.formatDate}
-              unread={message.unread}
+          <li
+            className={messageClass}
+            data-message-id={message.id}
+            data-testid={messageClass}
+            key={message.id || (message.created_at as string)}
+            onLoadCapture={onMessageLoadCaptured}
+          >
+            <Message
+              groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              lastReceivedId={lastReceivedId}
+              message={message}
+              readBy={readData[message.id] || []}
+              threadList={threadList}
+              {...internalMessageProps}
             />
           </li>
         );
-      }
-
-      if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
-        return (
-          <li key='intro'>
-            <HeaderComponent />
-          </li>
-        );
-      }
-
-      if (message.type === 'system') {
-        return (
-          <li
-            key={
-              (message.event as { created_at: string })?.created_at ||
-              (message.created_at as string) ||
-              ''
-            }
-          >
-            <MessageSystem message={message} />
-          </li>
-        );
-      }
-
-      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
-      const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
-
-      return (
-        <li
-          className={messageClass}
-          data-message-id={message.id}
-          data-testid={messageClass}
-          key={message.id || (message.created_at as string)}
-          onLoadCapture={onMessageLoadCaptured}
-        >
-          <Message
-            groupStyles={[groupStyles]} /* TODO: convert to simple string */
-            lastReceivedId={lastReceivedId}
-            message={message}
-            readBy={readData[message.id] || []}
-            threadList={threadList}
-            {...internalMessageProps}
-          />
-        </li>
-      );
-    });
-  }, [
-    enrichedMessages,
-    internalMessageProps,
-    lastReceivedId,
-    messageGroupStyles,
-    onMessageLoadCaptured,
-    readData,
-    threadList,
-  ]);
+      }),
+    [
+      enrichedMessages,
+      internalMessageProps,
+      lastReceivedId,
+      messageGroupStyles,
+      onMessageLoadCaptured,
+      readData,
+      threadList,
+    ],
+  );
 
   return elements;
 };
