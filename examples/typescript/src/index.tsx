@@ -1,6 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import './index.css';
+// import '@stream-io/stream-chat-css/dist/css/index.css';
+import '@stream-io/stream-chat-css/dist/v2/css/index.css';
+import './index.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
