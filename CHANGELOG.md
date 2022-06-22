@@ -1,3 +1,11 @@
+## [9.1.3](https://github.com/GetStream/stream-chat-react/compare/v9.1.2...v9.1.3) (2022-06-19)
+
+
+### Bug Fixes
+
+* correct calculation of scrollback with date separators ([#1628](https://github.com/GetStream/stream-chat-react/issues/1628)) ([88a4d64](https://github.com/GetStream/stream-chat-react/commit/88a4d6413c15b52d394ab338c8348664debfd1a2))
+* upgrade react-player to its latest version ([#1629](https://github.com/GetStream/stream-chat-react/issues/1629)) ([8848700](https://github.com/GetStream/stream-chat-react/commit/88487001de49dceded0bd950f35d527a0c2526e1))
+
 ## [9.1.2](https://github.com/GetStream/stream-chat-react/compare/v9.1.1...v9.1.2) (2022-06-13)
 
 
