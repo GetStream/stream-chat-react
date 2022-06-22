@@ -75,6 +75,7 @@ import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
+import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -215,22 +216,45 @@ const UnMemoizedChannel = <
     LoadingIndicator,
   } = props;
 
-  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
-    'Channel',
-  );
+  const {
+    channel: contextChannel,
+    channelsQueryState,
+    customClasses,
+    theme,
+  } = useChatContext<StreamChatGenerics>('Channel');
+  const { channelClass, chatClass, chatContainerClass } = useChannelContainerClasses({
+    customClasses,
+  });
 
   const channel = propsChannel || contextChannel;
 
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
-    return <LoadingIndicator size={25} />;
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        <div className={`${chatContainerClass}`}>
+          <LoadingIndicator size={25} />
+        </div>
+      </div>
+    );
   }
 
   if (channelsQueryState.error && LoadingErrorIndicator) {
-    return <LoadingErrorIndicator error={channelsQueryState.error} />;
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        <LoadingErrorIndicator error={channelsQueryState.error} />
+      </div>
+    );
   }
 
-  if (!channel?.cid) return EmptyPlaceholder;
+  if (!channel?.cid) {
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        {EmptyPlaceholder}
+      </div>
+    );
+  }
 
+  // @ts-ignore
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
@@ -271,9 +295,14 @@ const ChannelInner = <
     latestMessageDatesByChannels,
     mutes,
     theme,
-    useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
+  const {
+    channelClass,
+    chatClass,
+    chatContainerClass,
+    windowsEmojiClass,
+  } = useChannelContainerClasses({ customClasses });
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
@@ -872,14 +901,6 @@ const ChannelInner = <
   const typingContextValue = useCreateTypingContext({
     typing,
   });
-
-  const chatClass = customClasses?.chat || 'str-chat';
-  const chatContainerClass = customClasses?.chatContainer || 'str-chat__container';
-  const channelClass = customClasses?.channel || 'str-chat-channel';
-  const windowsEmojiClass =
-    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
-      ? 'str-chat--windows-flags'
-      : '';
 
   const OptionalMessageInputProvider = useMemo(
     () => (dragAndDropWindow ? DropzoneProvider : React.Fragment),
