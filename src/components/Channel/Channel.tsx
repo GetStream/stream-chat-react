@@ -58,14 +58,24 @@ import { useChatContext } from '../../context/ChatContext';
 import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
+
+import {
+  DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
+  DEFAULT_THREAD_PAGE_SIZE,
+} from '../../constants/limits';
+
+import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
+import { makeAddNotifications } from './utils';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
+import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
-import { makeAddNotifications } from './utils';
+import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -179,6 +189,8 @@ export type ChannelProps<
   SendButton?: ComponentContextValue<StreamChatGenerics>['SendButton'];
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
   skipMessageDataMemoization?: boolean;
+  /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
+  ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadHeader?: ComponentContextValue<StreamChatGenerics>['ThreadHeader'];
   /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
@@ -191,8 +203,6 @@ export type ChannelProps<
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 
-const JUMP_MESSAGE_PAGE_SIZE = 25;
-
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -203,25 +213,46 @@ const UnMemoizedChannel = <
     channel: propsChannel,
     EmptyPlaceholder = null,
     LoadingErrorIndicator,
-    LoadingIndicator,
+    LoadingIndicator = DefaultLoadingIndicator,
   } = props;
 
-  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
-    'Channel',
-  );
+  const {
+    channel: contextChannel,
+    channelsQueryState,
+    customClasses,
+    theme,
+  } = useChatContext<StreamChatGenerics>('Channel');
+  const { channelClass, chatClass } = useChannelContainerClasses({
+    customClasses,
+  });
 
   const channel = propsChannel || contextChannel;
 
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
-    return <LoadingIndicator size={25} />;
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        <LoadingIndicator />
+      </div>
+    );
   }
 
   if (channelsQueryState.error && LoadingErrorIndicator) {
-    return <LoadingErrorIndicator error={channelsQueryState.error} />;
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        <LoadingErrorIndicator error={channelsQueryState.error} />
+      </div>
+    );
   }
 
-  if (!channel?.cid) return EmptyPlaceholder;
+  if (!channel?.cid) {
+    return (
+      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+        {EmptyPlaceholder}
+      </div>
+    );
+  }
 
+  // @ts-ignore
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
 };
 
@@ -262,9 +293,14 @@ const ChannelInner = <
     latestMessageDatesByChannels,
     mutes,
     theme,
-    useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
+  const {
+    channelClass,
+    chatClass,
+    chatContainerClass,
+    windowsEmojiClass,
+  } = useChannelContainerClasses({ customClasses });
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
@@ -459,7 +495,7 @@ const ChannelInner = <
     },
   );
 
-  const loadMore = async (limit = 100) => {
+  const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (!online.current || !window.navigator.onLine) return 0;
 
     // prevent duplicate loading events...
@@ -470,7 +506,11 @@ const ChannelInner = <
     }
 
     // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-    if (channel.state.messages.length < 25) {
+    const notHasMore = hasNotMoreMessages(
+      channel.state.messages.length,
+      DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+    );
+    if (notHasMore) {
       loadMoreFinished(false, channel.state.messages);
       return channel.state.messages.length;
     }
@@ -536,7 +576,7 @@ const ChannelInner = <
      * we have jumped to the beginning of the channel.
      */
     const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
-    const hasMoreMessages = indexOfMessage >= Math.floor(JUMP_MESSAGE_PAGE_SIZE / 2);
+    const hasMoreMessages = indexOfMessage >= Math.floor(DEFAULT_INITIAL_CHANNEL_PAGE_SIZE / 2);
 
     loadMoreFinished(hasMoreMessages, channel.state.messages);
     dispatch({
@@ -729,7 +769,7 @@ const ChannelInner = <
     { leading: true, trailing: true },
   );
 
-  const loadMoreThread = async () => {
+  const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     if (state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
@@ -741,7 +781,6 @@ const ChannelInner = <
 
     const oldMessages = channel.state.threads[parentID] || [];
     const oldestMessageID = oldMessages[0]?.id;
-    const limit = 50;
 
     try {
       const queryResponse = await channel.getReplies(parentID, {
@@ -749,7 +788,7 @@ const ChannelInner = <
         limit,
       });
 
-      const threadHasMoreMessages = queryResponse.messages.length === limit;
+      const threadHasMoreMessages = hasMoreMessagesProbably(queryResponse.messages.length, limit);
       const newThreadMessages = channel.state.threads[parentID] || [];
 
       // next set loadingMore to false so we can start asking for more data
@@ -837,6 +876,7 @@ const ChannelInner = <
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
+      ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
       TriggerProvider: props.TriggerProvider,
@@ -860,14 +900,6 @@ const ChannelInner = <
     typing,
   });
 
-  const chatClass = customClasses?.chat || 'str-chat';
-  const chatContainerClass = customClasses?.chatContainer || 'str-chat__container';
-  const channelClass = customClasses?.channel || 'str-chat-channel';
-  const windowsEmojiClass =
-    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
-      ? 'str-chat--windows-flags'
-      : '';
-
   const OptionalMessageInputProvider = useMemo(
     () => (dragAndDropWindow ? DropzoneProvider : React.Fragment),
     [dragAndDropWindow],
@@ -884,9 +916,7 @@ const ChannelInner = <
   if (state.loading) {
     return (
       <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
-        <div className={`${chatContainerClass}`}>
-          <LoadingIndicator />
-        </div>
+        <LoadingIndicator />
       </div>
     );
   }

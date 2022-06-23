@@ -45,6 +45,7 @@ const MessageSimpleWithContext = <
     handleOpenThread,
     handleRetry,
     highlighted,
+    initialMessage,
     isMyMessage,
     isReactionEnabled,
     message,
@@ -109,6 +110,7 @@ const MessageSimpleWithContext = <
             ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}
             ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}
             ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
+            ${initialMessage ? 'str-chat__parent-message-li' : ''}
 					`.trim()}
           key={message.id}
         >

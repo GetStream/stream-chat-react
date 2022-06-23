@@ -12,7 +12,6 @@ const UnMemoizedScrollToBottomButton = (props: Omit<MessageNotificationProps, 'c
       <button
         aria-live='polite'
         className={`
-        str-chat__message-notification
         str-chat__message-notification-right
         str-chat__message-notification-scroll-to-latest
         str-chat__circle-fab

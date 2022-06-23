@@ -21,6 +21,8 @@ type CSSClasses =
 
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
+type ChannelCID = string; // e.g.: "messaging:general"
+
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -28,7 +30,7 @@ export type ChatContextValue<
   client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
-  latestMessageDatesByChannels: { [key: string]: Date };
+  latestMessageDatesByChannels: Record<ChannelCID, Date>;
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
   setActiveChannel: (

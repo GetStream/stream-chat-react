@@ -1,13 +1,15 @@
 import React from 'react';
 
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
 import {
   ChannelPreviewInfoParams,
   useChannelPreviewInfo,
 } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 import { CloseIcon } from './icons';
 
-import { StreamMessage, useChannelStateContext, useTranslationContext } from '../../context';
+import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -17,6 +19,7 @@ export type ThreadHeaderProps<
   closeThread: (event: React.BaseSyntheticEvent) => void;
   thread: StreamMessage<StreamChatGenerics>;
 };
+
 export const ThreadHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -25,6 +28,7 @@ export const ThreadHeader = <
 ) => {
   const { closeThread, overrideImage, overrideTitle } = props;
 
+  const { Avatar = DefaultAvatar } = useComponentContext('ThreadHeader');
   const { t } = useTranslationContext('ThreadHeader');
   const { channel } = useChannelStateContext<StreamChatGenerics>('');
   const { displayImage, displayTitle } = useChannelPreviewInfo({

@@ -174,13 +174,3 @@ export const User1 = () => {
   }
   return <WrappedConnectedUser token={user1Token} userId={user1Id} />;
 };
-
-export const User2 = () => {
-  if (!user2Id || typeof user2Id !== 'string') {
-    throw new Error('expected TEST_USER_2');
-  }
-  if (!user2Token || typeof user2Token !== 'string') {
-    throw new Error('expected TEST_USER_2_TOKEN');
-  }
-  return <WrappedConnectedUser token={user2Token} userId={user2Id} />;
-};

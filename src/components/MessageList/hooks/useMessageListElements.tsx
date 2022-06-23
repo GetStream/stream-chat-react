@@ -74,7 +74,7 @@ export const useMessageListElements = <
 
   const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
 
-  return useMemo(
+  const elements: React.ReactNode[] = useMemo(
     () =>
       enrichedMessages.map((message) => {
         if (
@@ -147,4 +147,6 @@ export const useMessageListElements = <
       threadList,
     ],
   );
+
+  return elements;
 };

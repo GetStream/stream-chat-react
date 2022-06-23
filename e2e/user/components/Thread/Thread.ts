@@ -8,16 +8,20 @@ export default (page: Page) => ({
     close() {
       return page.click(selectors.buttonCloseThread);
     },
-    open(text: string) {
-      return page.locator(selectors.messageRepliesButton, { hasText: text }).click();
+    async openFor(messageText: string, nth: number = 0) {
+      await page
+        .locator(selectors.message, { hasText: messageText })
+        .locator(selectors.messageRepliesButton)
+        .nth(nth)
+        .click();
     },
   },
   get: (prependSelectors?: string) =>
     page.locator(`${prependSelectors || ''} ${selectors.threadMessageList}`),
   see: {
     empty() {
-      const replies = page.locator(`${selectors.threadReplyList}`);
-      return expect(replies).toBeEmpty();
+      const replies = page.locator(`${selectors.threadReplyList} ${selectors.message}`);
+      return expect(replies).toHaveCount(1);
     },
     inViewport: {
       async nthMessage(text: string, nth?: number) {
