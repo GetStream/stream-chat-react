@@ -1,26 +1,20 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
-import React from 'react';
-import testRenderer from 'react-test-renderer';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { toHaveNoViolations } from 'jest-axe';
+import React from 'react';
+import testRenderer from 'react-test-renderer';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
-import { Message } from '../Message';
-import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
-import { MessageSimple } from '../MessageSimple';
-import { MessageText } from '../MessageText';
-
-import { Attachment } from '../../Attachment/Attachment';
-
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import { EmojiProvider } from '../../../context/EmojiContext';
-import { ComponentProvider } from '../../../context/ComponentContext';
-import { TranslationProvider } from '../../../context/TranslationContext';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+  ComponentProvider,
+  EmojiProvider,
+  TranslationProvider,
+} from '../../../context';
 import {
   emojiDataMock,
   generateChannel,
@@ -29,6 +23,14 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+
+import { Attachment } from '../../Attachment';
+import { Message } from '../Message';
+import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
+import { MessageSimple } from '../MessageSimple';
+import { MessageText } from '../MessageText';
+
+expect.extend(toHaveNoViolations);
 
 jest.mock('../MessageOptions', () => ({
   MessageOptions: jest.fn(() => <div />),
@@ -299,6 +301,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
@@ -314,9 +317,7 @@ describe('<MessageText />', () => {
               onClick={[Function]}
               onMouseOver={[Function]}
             >
-              <div
-                onClick={[Function]}
-              >
+              <div>
                 <p>
                   hello world
                 </p>
@@ -341,6 +342,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
@@ -356,9 +358,7 @@ describe('<MessageText />', () => {
               onClick={[Function]}
               onMouseOver={[Function]}
             >
-              <div
-                onClick={[Function]}
-              >
+              <div>
                 <p>
                   hi mate
                 </p>
@@ -382,6 +382,7 @@ describe('<MessageText />', () => {
       						str-chat__message--regular
       						str-chat__message--received
       						str-chat__message--has-text"
+        tabIndex={0}
       >
         <div
           className="str-chat__message-inner"
@@ -397,9 +398,7 @@ describe('<MessageText />', () => {
               onClick={[Function]}
               onMouseOver={[Function]}
             >
-              <div
-                onClick={[Function]}
-              >
+              <div>
                 <p>
                   whatup?!
                 </p>
