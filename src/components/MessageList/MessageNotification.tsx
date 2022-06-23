@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
-export type MessageNotificationProps = {
+export type MessageNotificationProps = PropsWithChildren<{
   /** button click event handler */
   onClick: React.MouseEventHandler;
   /** Whether or not to show notification */
   showNotification: boolean;
-  children?: React.ReactNode;
-};
+}>;
 
 const UnMemoizedMessageNotification = (props: MessageNotificationProps) => {
   const { children, onClick, showNotification = true } = props;
@@ -16,7 +15,7 @@ const UnMemoizedMessageNotification = (props: MessageNotificationProps) => {
   return (
     <button
       aria-live='polite'
-      className='str-chat__message-notification'
+      className={`str-chat__message-notification`}
       data-testid='message-notification'
       onClick={onClick}
     >

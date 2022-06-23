@@ -16,6 +16,7 @@ import type { MessageOptionsProps } from '../components/Message/MessageOptions';
 import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
+import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageStatusProps } from '../components/Message/MessageStatus';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
@@ -27,7 +28,7 @@ import type {
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
-import type { ThreadHeaderProps } from '../components/Thread/Thread';
+import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
@@ -66,6 +67,7 @@ export type ComponentContextValue<
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<StreamChatGenerics>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
+  ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadStart?: React.ComponentType;

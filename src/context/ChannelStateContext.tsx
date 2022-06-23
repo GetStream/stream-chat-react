@@ -42,6 +42,7 @@ export type ChannelState<
   threadHasMore?: boolean;
   threadLoadingMore?: boolean;
   threadMessages?: StreamMessage<StreamChatGenerics>[];
+  threadSuppressAutoscroll?: boolean;
   typing?: StreamChannelState<StreamChatGenerics>['typing'];
   watcherCount?: number;
   watchers?: StreamChannelState<StreamChatGenerics>['watchers'];

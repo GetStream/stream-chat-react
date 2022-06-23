@@ -10,7 +10,7 @@ import {
   Thread,
   Window,
 } from 'stream-chat-react';
-import '@stream-io/stream-chat-css/dist/css/index.css';
+
 import './App.css';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
