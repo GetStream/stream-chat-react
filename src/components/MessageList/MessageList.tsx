@@ -262,7 +262,7 @@ export type MessageListProps<
   ) => GroupStyle;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
-  /** Element to be rendered at the top of the thread message list when using non-virtualized message list. By default, these are the Message and ThreadStart components */
+  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
   head?: React.ReactElement;
   /** Position to render HeaderComponent */
   headerPosition?: number;
