@@ -6,8 +6,9 @@ import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export function usePrependedMessagesCount<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(messages: StreamMessage<StreamChatGenerics>[]) {
-  const currentFirstMessageId = messages?.[0]?.id;
+>(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
+  const firstRealMessageIndex = hasDateSeparator ? 1 : 0;
+  const currentFirstMessageId = messages?.[firstRealMessageIndex]?.id;
   const firstMessageId = useRef(currentFirstMessageId);
   const earliestMessageId = useRef(currentFirstMessageId);
   const previousNumItemsPrepended = useRef(0);

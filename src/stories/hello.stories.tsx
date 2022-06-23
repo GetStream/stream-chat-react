@@ -9,6 +9,7 @@ import {
   MessageInput,
   MessageList,
   Thread,
+  VirtualizedMessageList,
   Window,
 } from '../index';
 import { ConnectedUser } from './utils';
@@ -33,6 +34,21 @@ export const BasicSetup = () => (
       <Window>
         <ChannelHeader />
         <MessageList />
+        <MessageInput focus />
+      </Window>
+      <Thread />
+    </Channel>
+  </ConnectedUser>
+);
+
+// basic setup with virtualized list
+export const VirtualizedSetup = () => (
+  <ConnectedUser token={token} userId={userId}>
+    <ChannelList filters={filters} options={options} showChannelSearch sort={sort} />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <VirtualizedMessageList disableDateSeparator={false} messageLimit={50} />
         <MessageInput focus />
       </Window>
       <Thread />
