@@ -18,8 +18,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 
-import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { MessageContextValue, useComponentContext, useMessageContext } from '../../context';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -113,6 +112,7 @@ const MessageSimpleWithContext = <
             ${initialMessage ? 'str-chat__parent-message-li' : ''}
 					`.trim()}
           key={message.id}
+          tabIndex={0}
         >
           <MessageStatus />
           {message.user && (
