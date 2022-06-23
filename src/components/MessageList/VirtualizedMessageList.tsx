@@ -252,7 +252,7 @@ const VirtualizedMessageListWithContext = <
     };
   }, [scrollToBottomIfConfigured]);
 
-  const numItemsPrepended = usePrependedMessagesCount(processedMessages);
+  const numItemsPrepended = usePrependedMessagesCount(processedMessages, !disableDateSeparator);
 
   /**
    * Logic to update the key of the virtuoso component when the list jumps to a new location.
@@ -261,8 +261,7 @@ const VirtualizedMessageListWithContext = <
   const firstMessageId = useRef<string | undefined>();
 
   useEffect(() => {
-    const continuousSet =
-      messages && messages.find((message) => message.id === firstMessageId.current);
+    const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
     if (!continuousSet) {
       setMessageSetKey(+new Date());
     }
