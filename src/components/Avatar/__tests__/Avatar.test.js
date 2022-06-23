@@ -72,32 +72,6 @@ describe('Avatar', () => {
     `);
   });
 
-  it('should render with custom class name', () => {
-    const tree = renderer.create(<Avatar className='custom-class-name' />).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__avatar str-chat__avatar--circle custom-class-name"
-        data-testid="avatar"
-        onClick={[Function]}
-        onMouseOver={[Function]}
-        style={
-          Object {
-            "flexBasis": "32px",
-            "fontSize": "16px",
-            "height": "32px",
-            "lineHeight": "32px",
-            "width": "32px",
-          }
-        }
-      >
-        <div
-          className="str-chat__avatar-fallback"
-          data-testid="avatar-fallback"
-        />
-      </div>
-    `);
-  });
-
   it('should render with different shape', () => {
     const shape = 'square';
 

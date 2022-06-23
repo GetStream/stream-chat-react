@@ -9,8 +9,6 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type AvatarProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Custom class name to change e.g. the avatar size or shape */
-  className?: string;
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string | null;
   /** Name of the image, used for title tag fallback */
@@ -40,7 +38,6 @@ export const Avatar = <
   props: AvatarProps<StreamChatGenerics>,
 ) => {
   const {
-    className: customClassName,
     image,
     name,
     onClick = () => undefined,
@@ -59,13 +56,10 @@ export const Avatar = <
 
   const nameStr = name?.toString() || '';
   const initials = getWholeChar(nameStr, 0);
-  const className = ['str-chat__avatar', `str-chat__avatar--${shape}`, customClassName]
-    .join(' ')
-    .trim();
 
   return (
     <div
-      className={className}
+      className={`str-chat__avatar str-chat__avatar--${shape}`}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}
