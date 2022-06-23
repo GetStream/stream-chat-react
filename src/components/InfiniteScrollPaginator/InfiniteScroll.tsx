@@ -81,10 +81,6 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     scrollElement.addEventListener('scroll', scrollListener, useCapture);
     scrollElement.addEventListener('resize', scrollListener, useCapture);
 
-    if (initialLoad) {
-      scrollListener();
-    }
-
     return () => {
       scrollElement.removeEventListener('scroll', scrollListener, useCapture);
       scrollElement.removeEventListener('resize', scrollListener, useCapture);
@@ -110,9 +106,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     },
   };
 
-  const childrenArray = [children];
-  if (isLoading && loader) {
-    childrenArray.unshift(loader);
-  }
+  const childrenArray = [loader, children];
+
   return React.createElement(element, attributes, childrenArray);
 };

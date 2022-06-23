@@ -1,4 +1,58 @@
+## [9.1.3](https://github.com/GetStream/stream-chat-react/compare/v9.1.2...v9.1.3) (2022-06-19)
+
+
+### Bug Fixes
+
+* correct calculation of scrollback with date separators ([#1628](https://github.com/GetStream/stream-chat-react/issues/1628)) ([88a4d64](https://github.com/GetStream/stream-chat-react/commit/88a4d6413c15b52d394ab338c8348664debfd1a2))
+* upgrade react-player to its latest version ([#1629](https://github.com/GetStream/stream-chat-react/issues/1629)) ([8848700](https://github.com/GetStream/stream-chat-react/commit/88487001de49dceded0bd950f35d527a0c2526e1))
+
+## [9.1.2](https://github.com/GetStream/stream-chat-react/compare/v9.1.1...v9.1.2) (2022-06-13)
+
+
+### Bug Fixes
+
+* add check if window is defined before using ResizeObserve ([f04e23e](https://github.com/GetStream/stream-chat-react/commit/f04e23e2f07edc2bba7bee85ac297e1a7b920c2b))
+
+## [9.1.1](https://github.com/GetStream/stream-chat-react/compare/v9.1.0...v9.1.1) (2022-06-10)
+
+
+### Bug Fixes
+
+* calculate jumped-to-message position correctly by keeping the loading indicator mounted ([671375a](https://github.com/GetStream/stream-chat-react/commit/671375ab3ad89b4a4bd011748264f00021fe144b))
+
+# [9.1.0](https://github.com/GetStream/stream-chat-react/compare/v9.0.0...v9.1.0) (2022-06-03)
+
+
+### Bug Fixes
+
+* filter out OG scraped images from attachments ([#1598](https://github.com/GetStream/stream-chat-react/issues/1598)) ([9d9c8b9](https://github.com/GetStream/stream-chat-react/commit/9d9c8b99339c58eb435dbe57703a991b8c671dd0))
+
+
+### Features
+
+* add optional renderChannels prop to ChannelList ([#1572](https://github.com/GetStream/stream-chat-react/issues/1572)) ([8edca9e](https://github.com/GetStream/stream-chat-react/commit/8edca9e64b7494d0900cafa5194186cf3c273cd1))
+* lift channels query state to chat context ([#1606](https://github.com/GetStream/stream-chat-react/issues/1606)) ([ed4febc](https://github.com/GetStream/stream-chat-react/commit/ed4febc864f9a5e476e13a4bbcf434c167f3e8d7))
+* use ResizeObserver to keep Channel scrolled to bottom on page load ([#1608](https://github.com/GetStream/stream-chat-react/issues/1608)) ([c33e155](https://github.com/GetStream/stream-chat-react/commit/c33e1552747ed8a60ffb7da1313451603db07d80))
+
 ## [9.0.0](https://github.com/GetStream/stream-chat-react/compare/v8.2.0...v9.0.0) (2022-05-17)
+
+### Bug Fixes
+
+* display textarea defaultValue in MessageInput ([#1570](https://github.com/GetStream/stream-chat-react/issues/1570)) ([516a56b](https://github.com/GetStream/stream-chat-react/commit/516a56b8b8a24739f66c0d7b47c159d6bca7d3be))
+
+### Features
+
+* **MessageInput:** add shouldSubmit, remove keycodeSubmitKeys ([8e2cddd](https://github.com/GetStream/stream-chat-react/pull/1534/commits/8e2cdddddd256ec1ab77ba2bc7d59a40cfba7b11)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
+* add support for React 18 ([#1534](https://github.com/GetStream/stream-chat-react/issues/1534)) ([39cedcb](https://github.com/GetStream/stream-chat-react/commit/39cedcb8d0821e4bb6e8061349ae52132aa32c45))
+
+### BREAKING CHANGES
+
+* **MessageInput:** property  has been fully removed and replaced by the  property
+which should handle custom submit "trigger" functionality.
+Both `listener.js` and usage of key codes were outdated and caused unnecessary issues.
+
+# [8.2.0](https://github.com/GetStream/stream-chat-react/compare/v8.1.3...v8.2.0) (2022-05-17)
+
 
 ### Bug Fixes
 
@@ -7,15 +61,7 @@
 
 ### Features
 
-* **MessageInput:** add shouldSubmit, remove keycodeSubmitKeys ([8e2cddd](https://github.com/GetStream/stream-chat-react/pull/1534/commits/8e2cdddddd256ec1ab77ba2bc7d59a40cfba7b11)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
-* add support for React 18 ([#1534](https://github.com/GetStream/stream-chat-react/issues/1534)) ([39cedcb](https://github.com/GetStream/stream-chat-react/commit/39cedcb8d0821e4bb6e8061349ae52132aa32c45))
-
-
-### BREAKING CHANGES
-
-* **MessageInput:** property `keycodeSubmitKeys` has been fully removed and replaced by the `shouldSubmit` property
-which should handle custom submit "trigger" functionality.
-Both `listener.js` and usage of key codes were outdated and caused unnecessary issues.
+* add support for React 18 ([#1534](https://github.com/GetStream/stream-chat-react/issues/1534)) ([39cedcb](https://github.com/GetStream/stream-chat-react/commit/39cedcb8d0821e4bb6e8061349ae52132aa32c45)), closes [#1530](https://github.com/GetStream/stream-chat-react/issues/1530)
 
 ## [8.1.3](https://github.com/GetStream/stream-chat-react/compare/v8.1.2...v8.1.3) (2022-05-15)
 

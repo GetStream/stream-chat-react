@@ -95,15 +95,7 @@ export const EditMessageForm = <
               )}
             </div>
             <div>
-              <button
-                onClick={() => {
-                  if (clearEditingState) {
-                    clearEditingState();
-                  }
-                }}
-              >
-                {t<string>('Cancel')}
-              </button>
+              <button onClick={clearEditingState}>{t<string>('Cancel')}</button>
               <button type='submit'>{t<string>('Send')}</button>
             </div>
           </div>
