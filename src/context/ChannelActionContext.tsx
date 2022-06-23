@@ -1,7 +1,9 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
 import type {
+  APIErrorResponse,
   Attachment,
+  ErrorFromResponse,
   Message,
   UpdatedMessage,
   UpdateMessageAPIResponse,
@@ -23,6 +25,7 @@ export type MessageToSend<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachments?: MessageAttachments<StreamChatGenerics>;
+  error?: ErrorFromResponse<APIErrorResponse>;
   errorStatusCode?: number;
   id?: string;
   mentioned_users?: UserResponse<StreamChatGenerics>[];

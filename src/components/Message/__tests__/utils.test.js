@@ -199,6 +199,28 @@ describe('Message utils', () => {
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
     });
+
+    it('should update when messageActions change', () => {
+      const message = generateMessage();
+      const prevMessageActions = ['edit', 'delete'];
+      const nextMessageActions = ['edit', 'delete', 'reply'];
+      const shouldUpdate = !areMessagePropsEqual(
+        { message, messageActions: prevMessageActions },
+        { message, messageActions: nextMessageActions },
+      );
+      expect(shouldUpdate).toBe(true);
+    });
+
+    it('should not update when messageActions stay same', () => {
+      const message = generateMessage();
+      const prevMessageActions = ['edit', 'delete'];
+      const nextMessageActions = ['edit', 'delete'];
+      const shouldUpdate = !areMessagePropsEqual(
+        { message, messageActions: prevMessageActions },
+        { message, messageActions: nextMessageActions },
+      );
+      expect(shouldUpdate).toBe(false);
+    });
   });
 
   describe('messageHasReactions', () => {

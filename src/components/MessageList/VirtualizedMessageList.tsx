@@ -251,7 +251,7 @@ const VirtualizedMessageListWithContext = <
     };
   }, [scrollToBottomIfConfigured]);
 
-  const numItemsPrepended = usePrependedMessagesCount(processedMessages);
+  const numItemsPrepended = usePrependedMessagesCount(processedMessages, !disableDateSeparator);
 
   /**
    * Logic to update the key of the virtuoso component when the list jumps to a new location.
@@ -260,8 +260,7 @@ const VirtualizedMessageListWithContext = <
   const firstMessageId = useRef<string | undefined>();
 
   useEffect(() => {
-    const continuousSet =
-      messages && messages.find((message) => message.id === firstMessageId.current);
+    const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
     if (!continuousSet) {
       setMessageSetKey(+new Date());
     }
@@ -329,6 +328,18 @@ const VirtualizedMessageListWithContext = <
     [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
   );
 
+  const Item = useMemo(() => {
+    // using 'display: inline-block'
+    // traps CSS margins of the item elements, preventing incorrect item measurements
+    const Item: Components['Item'] = (props) => (
+      <div
+        {...props}
+        className={customClasses?.virtualMessage || 'str-chat__virtual-list-message-wrapper'}
+      />
+    );
+    return Item;
+  }, [customClasses?.virtualMessage]);
+
   const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
       <>{EmptyStateIndicator && <EmptyStateIndicator listType='message' />}</>
@@ -342,12 +353,6 @@ const VirtualizedMessageListWithContext = <
       ) : (
         <></>
       );
-
-    const virtualMessageClass =
-      customClasses?.virtualMessage || 'str-chat__virtual-list-message-wrapper';
-
-    // using 'display: inline-block' traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => <div {...props} className={virtualMessageClass} />;
 
     const Footer: Components['Footer'] = () =>
       TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
@@ -396,6 +401,9 @@ const VirtualizedMessageListWithContext = <
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
           components={virtuosoComponents}
+          computeItemKey={(index) =>
+            processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
+          }
           endReached={endReached}
           firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
           followOutput={followOutput}
@@ -503,8 +511,6 @@ export type VirtualizedMessageListProps<
 /**
  * The VirtualizedMessageList component renders a list of messages in a virtualized list.
  * It is a consumer of the React contexts set in [Channel](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/Channel.tsx).
- *
- * **Note**: It works well when there are thousands of messages in a channel, it has a shortcoming though - the message UI should have a fixed height.
  */
 export function VirtualizedMessageList<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -21,6 +21,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
             "overflowX": "hidden",
             "overflowY": "auto",
             "position": "relative",
+            "willChange": "transform",
           }
         }
         tabIndex={0}
