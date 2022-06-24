@@ -44,6 +44,8 @@ export type ChatProps<
   initialNavOpen?: boolean;
   /** @deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#css-variables) of your app  */
   theme?: Theme;
+  /** temporary flag to signal whether markup for newer V2 styles version should be generated. Defaults to 1 */
+  themeVersion?: 1 | 2;
   /** Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
    * Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending on the platform).
    * Set this prop to true if you want to use these custom emojis for Windows users.
@@ -70,6 +72,7 @@ export const Chat = <
     i18nInstance,
     initialNavOpen = true,
     theme = 'messaging light',
+    themeVersion = 1,
     useImageFlagEmojisOnWindows = false,
   } = props;
 
@@ -102,6 +105,7 @@ export const Chat = <
     openMobileNav,
     setActiveChannel,
     theme,
+    themeVersion,
     useImageFlagEmojisOnWindows,
   });
 
