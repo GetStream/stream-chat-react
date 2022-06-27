@@ -112,7 +112,6 @@ const MessageSimpleWithContext = <
             ${initialMessage ? 'str-chat__parent-message-li' : ''}
 					`.trim()}
           key={message.id}
-          tabIndex={0}
         >
           <MessageStatus />
           {message.user && (

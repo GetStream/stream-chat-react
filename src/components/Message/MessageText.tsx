@@ -62,7 +62,7 @@ const UnMemoizedMessageTextComponent = <
   if (!messageTextToRender && !message.quoted_message) return null;
 
   return (
-    <div className={wrapperClass}>
+    <div className={wrapperClass} tabIndex={0}>
       <div
         className={`
           ${innerClass}
