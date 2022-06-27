@@ -18,8 +18,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 
-import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { MessageContextValue, useComponentContext, useMessageContext } from '../../context';
 
 import type { MessageUIComponentProps } from './types';
 
