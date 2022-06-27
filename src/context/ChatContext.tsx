@@ -3,7 +3,7 @@ import React, { PropsWithChildren, useContext } from 'react';
 import type { AppSettingsAPIResponse, Channel, Mute, StreamChat } from 'stream-chat';
 
 import { getDisplayName } from './utils/getDisplayName';
-import type { ChatProps, Theme } from '../components/Chat/Chat';
+import type { Theme } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
 
@@ -23,6 +23,8 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 type ChannelCID = string; // e.g.: "messaging:general"
 
+type ThemeVersion = '1' | '2';
+
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -40,7 +42,7 @@ export type ChatContextValue<
   ) => void;
   /** @deprecated */
   theme: Theme;
-  themeVersion: ChatProps['themeVersion'];
+  themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<StreamChatGenerics>;
   customClasses?: CustomClasses;
