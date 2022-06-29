@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import clsx from 'clsx';
 
 import { useEmojiContext } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -9,12 +10,8 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-const filterEmoji = (emoji: EmojiData) => {
-  if (emoji.name === 'White Smiling Face' || emoji.name === 'White Frowning Face') {
-    return false;
-  }
-  return true;
-};
+const filterEmoji = (emoji: EmojiData) =>
+  !(emoji.name === 'White Smiling Face' || emoji.name === 'White Frowning Face');
 
 export type MessageInputEmojiPickerProps = {
   small?: boolean;
@@ -22,42 +19,45 @@ export type MessageInputEmojiPickerProps = {
 
 export const EmojiPicker = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: MessageInputEmojiPickerProps,
-) => {
-  const { small } = props;
-
+>({
+  small,
+}: MessageInputEmojiPickerProps) => {
   const { emojiConfig, EmojiPicker: EmojiPickerComponent } = useEmojiContext('EmojiPicker');
   const { t } = useTranslationContext('EmojiPicker');
 
-  const messageInput = useMessageInputContext<StreamChatGenerics>('EmojiPicker');
+  const {
+    emojiPickerIsOpen,
+    emojiPickerRef,
+    onSelectEmoji,
+  } = useMessageInputContext<StreamChatGenerics>('EmojiPicker');
 
   const { emojiData } = emojiConfig || {};
 
-  if (messageInput.emojiPickerIsOpen && emojiData) {
-    const className = small
-      ? 'str-chat__small-message-input-emojipicker'
-      : 'str-chat__input--emojipicker';
+  if (!emojiPickerIsOpen || !emojiData) return null;
 
-    return (
-      <div className={className} ref={messageInput.emojiPickerRef}>
-        <Suspense fallback={null}>
-          <EmojiPickerComponent
-            color='#006CFF'
-            data={emojiData}
-            emoji='point_up'
-            emojisToShowFilter={filterEmoji}
-            native
-            onSelect={messageInput.onSelectEmoji}
-            set='facebook'
-            showPreview={false}
-            showSkinTones={false}
-            title={t('Pick your emoji')}
-            useButton
-          />
-        </Suspense>
-      </div>
-    );
-  }
-  return null;
+  return (
+    <div
+      className={clsx('str-chat__emoji-picker-container', {
+        'str-chat__input--emojipicker': !small,
+        'str-chat__small-message-input-emojipicker': small,
+      })}
+      ref={emojiPickerRef}
+    >
+      <Suspense fallback={null}>
+        <EmojiPickerComponent
+          color='#006CFF'
+          data={emojiData}
+          emoji='point_up'
+          emojisToShowFilter={filterEmoji}
+          native
+          onSelect={onSelectEmoji}
+          set='facebook'
+          showPreview={false}
+          showSkinTones={false}
+          title={t('Pick your emoji')}
+          useButton
+        />
+      </Suspense>
+    </div>
+  );
 };
