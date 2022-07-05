@@ -93,14 +93,10 @@ const reactionActionTestId = 'message-reaction-action';
 describe('<MessageOptions />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render message options when there is no message set', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { queryByTestId } = await renderMessageOptions({
       message: {},
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MessageTimestamp was called without a message, or message has invalid created_at date.',
-    );
   });
 
   it.each([
@@ -125,7 +121,7 @@ describe('<MessageOptions />', () => {
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
 
-  it('should display thread actions when message is not displayed on a thread list and channel has replies configured', async () => {
+  it('should display thread actions when message is not displayed in a thread list and channel has replies configured', async () => {
     const { getByTestId } = await renderMessageOptions(
       defaultMessageProps,
       {},
