@@ -2,10 +2,16 @@ import React from 'react';
 
 import type { PinIndicatorProps } from './types';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 
-export const ActionsIcon = () => (
-  <svg height='4' viewBox='0 0 11 4' width='11' xmlns='http://www.w3.org/2000/svg'>
+export const ActionsIcon = ({ className = '' }: IconProps) => (
+  <svg
+    className={className}
+    height='4'
+    viewBox='0 0 11 4'
+    width='11'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <path
       d='M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z'
       fillRule='nonzero'
@@ -32,8 +38,14 @@ export const DeliveredCheckIcon = () => (
   </svg>
 );
 
-export const ReactionIcon = () => (
-  <svg height='12' viewBox='0 0 12 12' width='12' xmlns='http://www.w3.org/2000/svg'>
+export const ReactionIcon = ({ className = '' }: IconProps) => (
+  <svg
+    className={className}
+    height='12'
+    viewBox='0 0 12 12'
+    width='12'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <g clipRule='evenodd' fillRule='evenodd'>
       <path d='M6 1.2C3.3 1.2 1.2 3.3 1.2 6c0 2.7 2.1 4.8 4.8 4.8 2.7 0 4.8-2.1 4.8-4.8 0-2.7-2.1-4.8-4.8-4.8zM0 6c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6-6-2.7-6-6z' />
       <path d='M5.4 4.5c0 .5-.4.9-.9.9s-.9-.4-.9-.9.4-.9.9-.9.9.4.9.9zM8.4 4.5c0 .5-.4.9-.9.9s-.9-.4-.9-.9.4-.9.9-.9.9.4.9.9zM3.3 6.7c.3-.2.6-.1.8.1.3.4.8.9 1.5 1 .6.2 1.4.1 2.4-1 .2-.2.6-.3.8 0 .2.2.3.6 0 .8-1.1 1.3-2.4 1.7-3.5 1.5-1-.2-1.8-.9-2.2-1.5-.2-.3-.1-.7.2-.9z' />
@@ -41,8 +53,8 @@ export const ReactionIcon = () => (
   </svg>
 );
 
-export const ThreadIcon = () => (
-  <svg height='10' width='14' xmlns='http://www.w3.org/2000/svg'>
+export const ThreadIcon = ({ className = '' }: IconProps) => (
+  <svg className={className} height='10' width='14' xmlns='http://www.w3.org/2000/svg'>
     <path
       d='M8.516 3c4.78 0 4.972 6.5 4.972 6.5-1.6-2.906-2.847-3.184-4.972-3.184v2.872L3.772 4.994 8.516.5V3zM.484 5l4.5-4.237v1.78L2.416 5l2.568 2.125v1.828L.484 5z'
       fillRule='evenodd'
@@ -95,3 +107,41 @@ export const PinIndicator = <
     </div>
   );
 };
+
+export const MessageDeliveredIcon = () => (
+  <svg
+    data-testid='delivered-icon'
+    fill='none'
+    height='24'
+    viewBox='0 0 24 24'
+    width='24'
+    xmlns='http://www.w3.org/2000/svg'
+  >
+    <path
+      clipRule='evenodd'
+      d='M8.9999 16.2L4.7999 12L3.3999 13.4L8.9999 19L20.9999 6.99998L19.5999 5.59998L8.9999 16.2Z'
+      fill='black'
+      fillRule='evenodd'
+    />
+  </svg>
+);
+
+export const MessageErrorIcon = () => (
+  <div className='str-chat__message-error-icon'>
+    <svg
+      data-testid='error'
+      fill='none'
+      height='24'
+      viewBox='0 0 24 24'
+      width='24'
+      xmlns='http://www.w3.org/2000/svg'
+    >
+      <path
+        d='M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z'
+        fill='black'
+        id='background'
+      />
+      <path d='M13 17H11V15H13V17ZM13 13H11V7H13V13Z' fill='white' />
+    </svg>
+  </div>
+);
