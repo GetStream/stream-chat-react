@@ -1,21 +1,27 @@
-import React from 'react';
-
-import {
-  isAudioAttachment,
-  isFileAttachment,
-  isGalleryAttachmentType,
-  isImageAttachment,
-  isMediaAttachment,
-  renderAudio,
-  renderCard,
-  renderFile,
-  renderGallery,
-  renderImage,
-  renderMedia,
-} from './utils';
-
+import React, { useMemo } from 'react';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
+
+import {
+  AttachmentComponentType,
+  GroupedRenderedAttachment,
+  isAudioAttachment,
+  isFileAttachment,
+  isGiphyAttachment,
+  isMediaAttachment,
+  isScrapedContent,
+  isUploadedImage,
+} from './utils';
+
+import {
+  AudioContainer,
+  CardContainer,
+  FileContainer,
+  GalleryContainer,
+  ImageContainer,
+  MediaContainer,
+} from './AttachmentContainer';
 
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
@@ -25,6 +31,22 @@ import type { GalleryProps, ImageProps } from '../Gallery';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+
+const CONTAINER_MAP = {
+  audio: AudioContainer,
+  card: CardContainer,
+  file: FileContainer,
+  media: MediaContainer,
+} as const;
+
+const ATTACHMENT_GROUPS_ORDER: AttachmentComponentType[] = [
+  'card',
+  'gallery',
+  'image',
+  'media',
+  'audio',
+  'file',
+];
 
 export type AttachmentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -57,54 +79,99 @@ export const Attachment = <
 >(
   props: AttachmentProps<StreamChatGenerics>,
 ) => {
-  const { attachments, ...rest } = props;
+  const { attachments } = props;
 
-  const gallery = {
-    images: attachments?.filter(
-      (attachment) =>
-        attachment.type === 'image' && !(attachment.og_scrape_url || attachment.title_link),
-    ),
-    type: 'gallery',
-  };
-
-  const newAttachments =
-    gallery.images.length >= 2
-      ? [
-          ...attachments.filter(
-            (attachment) =>
-              !(
-                attachment.type === 'image' && !(attachment.og_scrape_url || attachment.title_link)
-              ),
-          ),
-          gallery,
-        ]
-      : attachments;
+  const groupedAttachments = useMemo(() => renderGroupedAttachments(props), [attachments]);
 
   return (
-    <>
-      {newAttachments.map((attachment) => {
-        if (isGalleryAttachmentType(attachment)) {
-          return renderGallery({ ...rest, attachment });
-        }
-
-        if (isImageAttachment(attachment)) {
-          return renderImage({ ...rest, attachment });
-        }
-
-        if (isAudioAttachment(attachment)) {
-          return renderAudio({ ...rest, attachment });
-        }
-
-        if (isFileAttachment(attachment)) {
-          return renderFile({ ...rest, attachment });
-        }
-
-        if (isMediaAttachment(attachment)) {
-          return renderMedia({ ...rest, attachment });
-        }
-
-        return renderCard({ ...rest, attachment });
-      })}
-    </>
+    <div className='str-chat__attachment-list'>
+      {ATTACHMENT_GROUPS_ORDER.reduce(
+        (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
+        [] as React.ReactNode[],
+      )}
+    </div>
   );
+};
+
+const renderGroupedAttachments = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  attachments,
+  ...rest
+}: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
+  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = [];
+
+  const containers = attachments.reduce(
+    (acc, attachment) => {
+      if (isUploadedImage(attachment)) {
+        uploadedImages.push({
+          ...attachment,
+          image_url: sanitizeUrl(attachment.image_url),
+          og_scrape_url: sanitizeUrl(attachment.og_scrape_url),
+          thumb_url: sanitizeUrl(attachment.thumb_url),
+          title_link: sanitizeUrl(attachment.title_link),
+        });
+      } else {
+        const attachmentType = getAttachmentType(attachment);
+        // allow single card attachment
+        if (acc.card.length === 1 && attachmentType === 'card') return acc;
+
+        if (attachmentType) {
+          const Container = CONTAINER_MAP[attachmentType];
+          acc[attachmentType].push(
+            <Container
+              key={`${attachmentType}-${acc[attachmentType].length}`}
+              {...rest}
+              attachment={attachment}
+            />,
+          );
+        }
+      }
+      return acc;
+    },
+    {
+      audio: [],
+      card: [],
+      file: [],
+      gallery: [],
+      image: [],
+      media: [],
+    } as GroupedRenderedAttachment,
+  );
+
+  if (uploadedImages.length > 1) {
+    containers['gallery'] = [
+      <GalleryContainer
+        key='gallery-container'
+        {...rest}
+        attachment={{
+          images: uploadedImages,
+          type: 'gallery',
+        }}
+      />,
+    ];
+  } else if (uploadedImages.length === 1) {
+    containers['image'] = [
+      <ImageContainer key='image-container' {...rest} attachment={uploadedImages[0]} />,
+    ];
+  }
+  return containers;
+};
+
+const getAttachmentType = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
+): keyof typeof CONTAINER_MAP | null => {
+  if (isScrapedContent(attachment) || isGiphyAttachment(attachment)) {
+    return 'card';
+  } else if (isMediaAttachment(attachment)) {
+    return 'media';
+  } else if (isAudioAttachment(attachment)) {
+    return 'audio';
+  } else if (isFileAttachment(attachment)) {
+    return 'file';
+  }
+
+  return null;
 };
