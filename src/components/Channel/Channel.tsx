@@ -167,6 +167,8 @@ export type ChannelProps<
   MessageSystem?: ComponentContextValue<StreamChatGenerics>['MessageSystem'];
   /** Custom UI component to display a timestamp on a message, defaults to and accepts same props as: [MessageTimestamp](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) */
   MessageTimestamp?: ComponentContextValue<StreamChatGenerics>['MessageTimestamp'];
+  /** Custom UI component for image viewing message's image attachments, defaults to and accepts the same props as [ModalGallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/ModalGallery.tsx) */
+  ModalGallery?: ComponentContextValue<StreamChatGenerics>['ModalGallery'];
   /** Whether to allow multiple attachment uploads */
   multipleUploads?: boolean;
   /** Custom action handler function to run on click of an @mention in a message */
@@ -870,6 +872,7 @@ const ChannelInner = <
       MessageStatus: props.MessageStatus,
       MessageSystem: props.MessageSystem,
       MessageTimestamp: props.MessageTimestamp,
+      ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
