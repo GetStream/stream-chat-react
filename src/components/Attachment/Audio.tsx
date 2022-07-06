@@ -1,10 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import { PauseIcon, PlayTriangleIcon } from './icons';
+import { isScrapedContent } from './utils';
 
-const progressUpdateInterval = 500;
+import { FileSizeIndicator } from './FileSizeIndicator';
+import { DownloadButton } from './DownloadButton';
+import { useAudioController } from './hooks/useAudioController';
+
+import { useChatContext } from '../../context/ChatContext';
+
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AudioProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -12,43 +19,9 @@ export type AudioProps<
   og: Attachment<StreamChatGenerics>;
 };
 
-const UnMemoizedAudio = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: AudioProps<StreamChatGenerics>,
-) => {
-  const { og } = props;
-
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const updateProgress = useCallback(() => {
-    if (audioRef.current !== null) {
-      const position = audioRef.current.currentTime;
-      const { duration } = audioRef.current;
-      const currentProgress = (100 / duration) * position;
-      setProgress(currentProgress);
-      if (position === duration) {
-        setIsPlaying(false);
-      }
-    }
-  }, [audioRef]);
-
-  useEffect(() => {
-    if (audioRef.current !== null) {
-      if (isPlaying) {
-        audioRef.current.play();
-        const interval = setInterval(updateProgress, progressUpdateInterval);
-        return () => clearInterval(interval);
-      }
-      audioRef.current.pause();
-    }
-    return;
-  }, [isPlaying, updateProgress]);
-
+const AudioV1 = ({ og }: AudioProps) => {
   const { asset_url, description, image_url, text, title } = og;
+  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
 
   return (
     <div className='str-chat__audio'>
@@ -62,7 +35,7 @@ const UnMemoizedAudio = <
               <button
                 className='str-chat__audio__image--button'
                 data-testid='play-audio'
-                onClick={() => setIsPlaying(true)}
+                onClick={togglePlay}
               >
                 <svg height='40' viewBox='0 0 64 64' width='40' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -75,7 +48,7 @@ const UnMemoizedAudio = <
               <button
                 className='str-chat__audio__image--button'
                 data-testid='pause-audio'
-                onClick={() => setIsPlaying(false)}
+                onClick={togglePlay}
               >
                 <svg height='40' viewBox='0 0 64 64' width='40' xmlns='http://www.w3.org/2000/svg'>
                   <path
@@ -100,6 +73,100 @@ const UnMemoizedAudio = <
       </div>
     </div>
   );
+};
+
+type PlayButtonProps = {
+  isPlaying: boolean;
+  onClick: () => void;
+};
+
+const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
+  <button
+    className='str-chat__message-attachment-audio-widget--play-button'
+    data-testid={isPlaying ? 'pause-audio' : 'play-audio'}
+    onClick={onClick}
+  >
+    {isPlaying ? <PauseIcon /> : <PlayTriangleIcon />}
+  </button>
+);
+
+type ProgressBarProps = {
+  progress: number;
+};
+
+const ProgressBar = ({ progress }: ProgressBarProps) => (
+  <div className='str-chat__message-attachment-audio-widget--progress-track'>
+    <div
+      className='str-chat__message-attachment-audio-widget--progress-indicator'
+      data-testid='audio-progress'
+      style={{ width: `${progress}%` }}
+    />
+    <div
+      className='str-chat__message-attachment-audio-widget--progress-slider'
+      style={{ left: `${progress}px` }}
+    />
+  </div>
+);
+
+const AudioV2 = ({ og }: AudioProps) => {
+  const { asset_url, file_size, text, title } = og;
+  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+
+  let rootClassName = 'str-chat__message-attachment-audio-widget';
+  let audioContent = (
+    <>
+      <div className='str-chat__message-attachment-audio-widget--play-controls'>
+        <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+      </div>
+      <div className='str-chat__message-attachment-audio-widget--text'>
+        <div className='str-chat__message-attachment-audio-widget--text-first-row'>
+          <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>
+          <DownloadButton assetUrl={asset_url} />
+        </div>
+        <div className='str-chat__message-attachment-audio-widget--text-second-row'>
+          <FileSizeIndicator fileSize={file_size} />
+          <ProgressBar progress={progress} />
+        </div>
+      </div>
+    </>
+  );
+
+  if (isScrapedContent(og)) {
+    rootClassName = 'str-chat__message-attachment-card-audio-widget';
+    audioContent = (
+      <>
+        <div className='str-chat__message-attachment-card-audio-widget--first-row'>
+          <div className='str-chat__message-attachment-audio-widget--play-controls'>
+            <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+          </div>
+          <ProgressBar progress={progress} />
+        </div>
+        <div className='str-chat__message-attachment-audio-widget--second-row'>
+          <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>
+          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <div className={rootClassName}>
+      <audio ref={audioRef}>
+        <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
+      </audio>
+      {audioContent}
+    </div>
+  );
+};
+
+const UnMemoizedAudio = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: AudioProps<StreamChatGenerics>,
+) => {
+  const { themeVersion } = useChatContext<StreamChatGenerics>('Audio');
+
+  return themeVersion === '1' ? <AudioV1 {...props} /> : <AudioV2 {...props} />;
 };
 
 /**
