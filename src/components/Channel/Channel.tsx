@@ -45,7 +45,6 @@ import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 import {
   ChannelActionContextValue,
   ChannelActionProvider,
-  MessageAttachments,
   MessageToSend,
 } from '../../context/ChannelActionContext';
 import {
@@ -630,20 +629,23 @@ const ChannelInner = <
     }
   };
 
-  const createMessagePreview = (
-    text: string,
-    attachments: MessageAttachments<StreamChatGenerics>,
-    parent: StreamMessage<StreamChatGenerics> | undefined,
-    mentioned_users: UserResponse<StreamChatGenerics>[],
+  const sendMessage = async (
+    {
+      attachments = [],
+      mentioned_users = [],
+      parent,
+      text = '',
+    }: MessageToSend<StreamChatGenerics>,
+    customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => {
-    const clientSideID = `${client.userID}-${nanoid()}`;
+    channel.state.filterErrorMessages();
 
-    return ({
+    const messagePreview = {
       __html: text,
       attachments,
       created_at: new Date(),
       html: text,
-      id: clientSideID,
+      id: customMessageData?.id ?? `${client.userID}-${nanoid()}`,
       mentioned_users,
       reactions: [],
       status: 'sending',
@@ -651,21 +653,7 @@ const ChannelInner = <
       type: 'regular',
       user: client.user,
       ...(parent?.id ? { parent_id: parent.id } : null),
-    } as unknown) as MessageResponse<StreamChatGenerics>;
-  };
-
-  const sendMessage = async (
-    {
-      attachments = [],
-      mentioned_users = [],
-      parent = undefined,
-      text = '',
-    }: MessageToSend<StreamChatGenerics>,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
-  ) => {
-    channel.state.filterErrorMessages();
-
-    const messagePreview = createMessagePreview(text, attachments, parent, mentioned_users);
+    };
 
     updateMessage(messagePreview);
 
