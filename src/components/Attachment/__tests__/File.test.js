@@ -1,8 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
+
 import { FileAttachment } from '../FileAttachment';
-import { ChatContext } from '../../../context';
+
+import { ChatContext } from '../../../context/ChatContext';
 
 const getComponent = ({ attachment, chatContext }) => (
   <ChatContext.Provider value={chatContext}>
