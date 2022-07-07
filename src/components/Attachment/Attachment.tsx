@@ -107,9 +107,7 @@ const renderGroupedAttachments = <
         uploadedImages.push({
           ...attachment,
           image_url: sanitizeUrl(attachment.image_url),
-          og_scrape_url: sanitizeUrl(attachment.og_scrape_url),
           thumb_url: sanitizeUrl(attachment.thumb_url),
-          title_link: sanitizeUrl(attachment.title_link),
         });
       } else {
         const attachmentType = getAttachmentType(attachment);
