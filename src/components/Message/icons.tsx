@@ -20,7 +20,7 @@ export const ActionsIcon = ({ className = '' }: IconProps) => (
 );
 
 export const ReplyIcon = () => (
-  <svg height='15' width='18' xmlns='http://www.w3.org/2000/svg'>
+  <svg data-testid='reply-icon' height='15' width='18' xmlns='http://www.w3.org/2000/svg'>
     <path
       d='M.56 10.946H.06l-.002-.498L.025.92a.5.5 0 1 1 1-.004l.032 9.029H9.06v-4l9 4.5-9 4.5v-4H.56z'
       fillRule='nonzero'
