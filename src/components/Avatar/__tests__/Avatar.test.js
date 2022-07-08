@@ -12,7 +12,7 @@ describe('Avatar', () => {
     const tree = renderer.create(<Avatar />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__avatar str-chat__avatar--circle"
+        className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
@@ -38,7 +38,7 @@ describe('Avatar', () => {
     const tree = renderer.create(<Avatar image='random' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__avatar str-chat__avatar--circle"
+        className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
