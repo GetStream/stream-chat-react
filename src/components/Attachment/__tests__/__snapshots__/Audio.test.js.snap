@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Audio in v1 uploaded should render title and render the image with description as alt tag 1`] = `
+exports[`Audio in v1 should render title and render the image with description as alt tag 1`] = `
 <div>
   <div
     class="str-chat__audio"

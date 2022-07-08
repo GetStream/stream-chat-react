@@ -3,7 +3,6 @@ import React from 'react';
 import type { Attachment } from 'stream-chat';
 
 import { PauseIcon, PlayTriangleIcon } from './icons';
-import { isScrapedContent } from './utils';
 
 import { FileSizeIndicator } from './FileSizeIndicator';
 import { DownloadButton } from './DownloadButton';
@@ -108,13 +107,50 @@ const ProgressBar = ({ progress }: ProgressBarProps) => (
   </div>
 );
 
-const AudioV2 = ({ og }: AudioProps) => {
-  const { asset_url, file_size, text, title } = og;
+export const CardAudio = ({ og: { asset_url, text, title } }: AudioProps) => {
   const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
 
-  let rootClassName = 'str-chat__message-attachment-audio-widget';
-  let audioContent = (
-    <>
+  const dataTestId = 'card-audio-widget';
+  const rootClassName = 'str-chat__message-attachment-card-audio-widget';
+  return (
+    <div className={rootClassName} data-testid={dataTestId}>
+      {asset_url && (
+        <>
+          <audio ref={audioRef}>
+            <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
+          </audio>
+          <div className='str-chat__message-attachment-card-audio-widget--first-row'>
+            <div className='str-chat__message-attachment-audio-widget--play-controls'>
+              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+            </div>
+            <ProgressBar progress={progress} />
+          </div>
+        </>
+      )}
+      <div className='str-chat__message-attachment-audio-widget--second-row'>
+        {title && <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>}
+        {text && (
+          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const AudioV2 = ({ og }: AudioProps) => {
+  const { asset_url, file_size, title } = og;
+  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+
+  if (!asset_url) return null;
+
+  const dataTestId = 'audio-widget';
+  const rootClassName = 'str-chat__message-attachment-audio-widget';
+
+  return (
+    <div className={rootClassName} data-testid={dataTestId}>
+      <audio ref={audioRef}>
+        <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
+      </audio>
       <div className='str-chat__message-attachment-audio-widget--play-controls'>
         <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
       </div>
@@ -128,33 +164,6 @@ const AudioV2 = ({ og }: AudioProps) => {
           <ProgressBar progress={progress} />
         </div>
       </div>
-    </>
-  );
-
-  if (isScrapedContent(og)) {
-    rootClassName = 'str-chat__message-attachment-card-audio-widget';
-    audioContent = (
-      <>
-        <div className='str-chat__message-attachment-card-audio-widget--first-row'>
-          <div className='str-chat__message-attachment-audio-widget--play-controls'>
-            <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-          </div>
-          <ProgressBar progress={progress} />
-        </div>
-        <div className='str-chat__message-attachment-audio-widget--second-row'>
-          <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>
-          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
-        </div>
-      </>
-    );
-  }
-
-  return (
-    <div className={rootClassName}>
-      <audio ref={audioRef}>
-        <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
-      </audio>
-      {audioContent}
     </div>
   );
 };

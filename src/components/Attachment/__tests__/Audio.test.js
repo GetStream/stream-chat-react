@@ -7,19 +7,14 @@ import { Audio } from '../Audio';
 
 import { ChatContext } from '../../../context/ChatContext';
 
-import { generateAudioAttachment, generateScrapedAudioAttachment } from 'mock-builders';
+import { generateAudioAttachment } from 'mock-builders';
 
-const THEME_VERSIONS = ['1', '2'];
-
-const AUDIO = {
-  scraped: generateScrapedAudioAttachment(),
-  uploaded: generateAudioAttachment(),
-};
+const AUDIO = generateAudioAttachment();
 
 const renderComponent = (
   props = {
     chatContext: { themeVersion: '1' },
-    og: AUDIO.scraped,
+    og: AUDIO,
   },
 ) =>
   render(
@@ -40,74 +35,39 @@ describe('Audio', () => {
   });
   afterEach(cleanup);
 
-  it('in v1 scraped should render title and description as text, and render the image with description as alt tag', () => {
-    const audioData = AUDIO.scraped;
-    const { getByAltText, getByText } = renderComponent({
-      chatContext: { themeVersion: '1' },
-      og: audioData,
-    });
-
-    expect(getByText(audioData.title)).toBeInTheDocument();
-    expect(getByText(audioData.text)).toBeInTheDocument();
-
-    const image = getByAltText(audioData.description);
-    expect(image).toBeInTheDocument();
-    expect(image.src).toBe(audioData.image_url);
-  });
-
-  it('in v1 uploaded should render title and render the image with description as alt tag', () => {
-    const audioData = AUDIO.uploaded;
+  it('in v1 should render title and render the image with description as alt tag', () => {
     const { container } = renderComponent({
       chatContext: { themeVersion: '1' },
-      og: { ...audioData, title: 'deterministic' },
+      og: { ...AUDIO, title: 'deterministic' },
     });
 
     expect(container).toMatchSnapshot();
   });
 
-  it('in v2 scraped should render title and description as text, and render the image with description as alt tag', () => {
-    const { container, getByText } = renderComponent({
-      chatContext: { themeVersion: '2' },
-      og: AUDIO.scraped,
-    });
-
-    expect(getByText(AUDIO.scraped.title)).toBeInTheDocument();
-    expect(getByText(AUDIO.scraped.text)).toBeInTheDocument();
-
-    expect(container.querySelector('img')).not.toBeInTheDocument();
-  });
-
   it('in v2 uploaded should render title and file size', () => {
     const { container, getByText } = renderComponent({
       chatContext: { themeVersion: '2' },
-      og: AUDIO.uploaded,
+      og: AUDIO,
     });
 
-    expect(getByText(AUDIO.uploaded.title)).toBeInTheDocument();
-    expect(getByText(prettybytes(AUDIO.uploaded.file_size))).toBeInTheDocument();
+    expect(getByText(AUDIO.title)).toBeInTheDocument();
+    expect(getByText(prettybytes(AUDIO.file_size))).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
-  const matrix = THEME_VERSIONS.reduce((acc, version) => {
-    Object.entries(AUDIO).forEach(([type, attachment]) => {
-      acc.push([type, version, attachment]);
-    });
-    return acc;
-  }, []);
-
-  describe.each(matrix)('%s in version %s', (type, themeVersion, audioData) => {
+  describe.each([['1'], ['2']])('version %s', (themeVersion) => {
     it('should render an audio element with the right source', () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: audioData });
+      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       const source = getByTestId('audio-source');
 
       expect(source).toBeInTheDocument();
-      expect(source.src).toBe(audioData.asset_url);
+      expect(source.src).toBe(AUDIO.asset_url);
       expect(source.parentElement).toBeInstanceOf(HTMLAudioElement);
     });
 
     it('should show the correct button if the song is paused/playing', async () => {
-      const { queryByTestId } = renderComponent({ chatContext: { themeVersion }, og: audioData });
+      const { queryByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       const playButton = () => queryByTestId(playButtonTestId);
       const pauseButton = () => queryByTestId(pauseButtonTestId);
@@ -127,7 +87,7 @@ describe('Audio', () => {
     });
 
     it('should poll for progress every 500ms if the file is played, and stop doing that when it is paused', () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: audioData });
+      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       let intervalId;
       const setIntervalSpy = jest.spyOn(window, 'setInterval').mockImplementationOnce(() => {
@@ -146,7 +106,7 @@ describe('Audio', () => {
     it('should clean up the progress interval if the component is unmounted while the file is playing', () => {
       const { getByTestId, unmount = cleanup } = renderComponent({
         chatContext: { themeVersion },
-        og: audioData,
+        og: AUDIO,
       });
 
       let intervalId;
@@ -164,7 +124,7 @@ describe('Audio', () => {
     });
 
     it('should show the correct progress', async () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: audioData });
+      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
       jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
