@@ -38,9 +38,9 @@ export const AttachmentWithinContainer = <
 
   const classNames = clsx(
     'str-chat__message-attachment',
-    `str-chat__message-attachment--${componentType}`,
+    componentType && `str-chat__message-attachment--${componentType}`,
     attachment?.type && `str-chat__message-attachment--${attachment?.type}`,
-    extra && `str-chat__message-attachment--${componentType}--${extra}`,
+    componentType && extra && `str-chat__message-attachment--${componentType}--${extra}`,
     extra === 'actions' && 'str-chat__message-attachment-with-actions', // added for theme V2 (better readability)
   );
 
@@ -116,14 +116,14 @@ export const CardContainer = <
 >(
   props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
-  const { attachment, Media, Card = DefaultCard } = props;
+  const { attachment, Card = DefaultCard } = props;
   const componentType = 'card';
 
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
-          <Card {...attachment} Media={Media} />
+          <Card {...attachment} />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -132,7 +132,7 @@ export const CardContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Card {...attachment} Media={Media} />
+      <Card {...attachment} />
     </AttachmentWithinContainer>
   );
 };
