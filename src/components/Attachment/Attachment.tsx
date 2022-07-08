@@ -8,7 +8,6 @@ import {
   GroupedRenderedAttachment,
   isAudioAttachment,
   isFileAttachment,
-  isGiphyAttachment,
   isMediaAttachment,
   isScrapedContent,
   isUploadedImage,
@@ -161,7 +160,7 @@ const getAttachmentType = <
 >(
   attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
 ): keyof typeof CONTAINER_MAP | null => {
-  if (isScrapedContent(attachment) || isGiphyAttachment(attachment)) {
+  if (isScrapedContent(attachment)) {
     return 'card';
   } else if (isMediaAttachment(attachment)) {
     return 'media';

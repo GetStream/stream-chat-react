@@ -49,13 +49,6 @@ export const isScrapedContent = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: Attachment<StreamChatGenerics>,
-) => attachment.og_scrape_url && attachment.title_link;
-
-// giphy attachment has only title_link, but not og_scrape_url
-export const isCardRenderable = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  attachment: Attachment<StreamChatGenerics>,
 ) => attachment.og_scrape_url || attachment.title_link;
 
 export const isUploadedImage = <
@@ -93,12 +86,6 @@ export const isMediaAttachment = <
 ) =>
   (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
-
-export const isGiphyAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  attachment: Attachment<StreamChatGenerics>,
-) => attachment.type === 'giphy';
 
 /**
  * @deprecated will be removed in the next major release,
