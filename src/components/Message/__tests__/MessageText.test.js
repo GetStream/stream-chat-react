@@ -103,25 +103,17 @@ const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MessageTimestamp was called without a message, or message has invalid created_at date.',
-    );
   });
 
   it('should not render anything if message text is not set', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container, queryByTestId } = await renderMessageText({ message: {} });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      'MessageTimestamp was called without a message, or message has invalid created_at date.',
-    );
   });
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
@@ -295,10 +287,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ customWrapperClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple
-      						str-chat__message--regular
-      						str-chat__message--received
-      						str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
@@ -306,26 +295,27 @@ describe('<MessageText />', () => {
         >
           <div />
           <div
-            className="str-chat__message-text"
+            className="str-chat__message-bubble"
           >
             <div
-              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-              data-testid="message-text-inner-wrapper"
-              onClick={[Function]}
-              onMouseOver={[Function]}
+              className="str-chat__message-text"
             >
               <div
+                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+                data-testid="message-text-inner-wrapper"
                 onClick={[Function]}
+                onMouseOver={[Function]}
               >
-                <p>
-                  hello world
-                </p>
+                <div
+                  onClick={[Function]}
+                >
+                  <p>
+                    hello world
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div
-            className="str-chat__message-data str-chat__message-simple-data"
-          />
         </div>
       </div>
     `);
@@ -337,10 +327,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ customInnerClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple
-      						str-chat__message--regular
-      						str-chat__message--received
-      						str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
@@ -348,26 +335,27 @@ describe('<MessageText />', () => {
         >
           <div />
           <div
-            className="str-chat__message-text"
+            className="str-chat__message-bubble"
           >
             <div
-              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-              data-testid="message-text-inner-wrapper"
-              onClick={[Function]}
-              onMouseOver={[Function]}
+              className="str-chat__message-text"
             >
               <div
+                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+                data-testid="message-text-inner-wrapper"
                 onClick={[Function]}
+                onMouseOver={[Function]}
               >
-                <p>
-                  hi mate
-                </p>
+                <div
+                  onClick={[Function]}
+                >
+                  <p>
+                    hi mate
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div
-            className="str-chat__message-data str-chat__message-simple-data"
-          />
         </div>
       </div>
     `);
@@ -378,10 +366,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ message, theme: 'custom' }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple
-      						str-chat__message--regular
-      						str-chat__message--received
-      						str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
@@ -389,26 +374,27 @@ describe('<MessageText />', () => {
         >
           <div />
           <div
-            className="str-chat__message-text"
+            className="str-chat__message-bubble"
           >
             <div
-              className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-              data-testid="message-text-inner-wrapper"
-              onClick={[Function]}
-              onMouseOver={[Function]}
+              className="str-chat__message-text"
             >
               <div
+                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
+                data-testid="message-text-inner-wrapper"
                 onClick={[Function]}
+                onMouseOver={[Function]}
               >
-                <p>
-                  whatup?!
-                </p>
+                <div
+                  onClick={[Function]}
+                >
+                  <p>
+                    whatup?!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div
-            className="str-chat__message-data str-chat__message-simple-data"
-          />
         </div>
       </div>
     `);
