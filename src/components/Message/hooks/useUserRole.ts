@@ -24,7 +24,9 @@ export const useUserRole = <
   const isModerator =
     client.user?.role === 'channel_moderator' ||
     channel.state.membership.role === 'channel_moderator' ||
-    channel.state.membership.role === 'moderator';
+    channel.state.membership.role === 'moderator' ||
+    channel.state.membership.is_moderator === true ||
+    channel.state.membership.channel_role === 'channel_moderator';
 
   const canEdit =
     (!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
