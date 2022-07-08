@@ -117,17 +117,14 @@ describe('attachment', () => {
   });
 
   describe('scraped content', () => {
-    it.each([
-      { og_scrape_url: undefined, title_link: nanoid() },
-      { og_scrape_url: nanoid(), title_link: undefined },
-    ])(
-      'should render null, if scraped attachment og_scrape_url is %s & title_link is %s',
-      ({ og_scrape_url, title_link }) => {
-        const attachment = generateScrapedDataAttachment({ og_scrape_url, title_link });
-        const { container } = renderComponent({ attachments: [attachment] });
-        expect(container.firstChild).toBeEmptyDOMElement();
-      },
-    );
+    it('should render null, if og_scrape_url & title_link are undefined', () => {
+      const attachment = generateScrapedDataAttachment({
+        og_scrape_url: undefined,
+        title_link: undefined,
+      });
+      const { container } = renderComponent({ attachments: [attachment] });
+      expect(container.firstChild).toBeEmptyDOMElement();
+    });
 
     const cases = [
       {
