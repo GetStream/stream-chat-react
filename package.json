@@ -30,6 +30,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
     "@juggle/resize-observer": "^3.3.1",
+    "@popperjs/core": "^2.11.5",
     "@stream-io/stream-chat-css": "^2.10.0",
     "clsx": "^1.1.1",
     "dayjs": "^1.10.4",
@@ -52,6 +53,7 @@
     "react-is": "^18.1.0",
     "react-markdown": "^5.0.3",
     "react-player": "^2.10.1",
+    "react-popper": "^2.3.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "^2.10.2",
     "textarea-caret": "^3.1.0"
