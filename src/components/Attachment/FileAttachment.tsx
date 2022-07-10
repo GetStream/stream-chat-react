@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileIcon, FileIconV2 } from 'react-file-utils';
+import { FileIcon } from 'react-file-utils';
 import type { Attachment } from 'stream-chat';
 
 import { DownloadButton } from './DownloadButton';
@@ -22,7 +22,7 @@ const UnMemoizedFileAttachmentV1 = <
   attachment,
 }: FileAttachmentProps<StreamChatGenerics>) => (
   <div className='str-chat__message-attachment-file--item' data-testid='attachment-file'>
-    <FileIcon big={true} filename={attachment.title} mimeType={attachment.mime_type} size={30} />
+    <FileIcon big={true} mimeType={attachment.mime_type} size={30} />
     <div className='str-chat__message-attachment-file--item-text'>
       <SafeAnchor download href={attachment.asset_url} target='_blank'>
         {attachment.title}
@@ -38,7 +38,7 @@ const UnMemoizedFileAttachmentV2 = <
   attachment,
 }: FileAttachmentProps<StreamChatGenerics>) => (
   <div className='str-chat__message-attachment-file--item' data-testid='attachment-file'>
-    <FileIconV2 className='str-chat__file-icon' mimeType={attachment.mime_type} />
+    <FileIcon className='str-chat__file-icon' mimeType={attachment.mime_type} version={'2'} />
     <div className='str-chat__message-attachment-file--item-text'>
       <div className='str-chat__message-attachment-file--item-first-row'>
         <div className='str-chat__message-attachment-file--item-name' data-testid='file-title'>
@@ -58,9 +58,11 @@ const UnMemoizedFileAttachment = <
 }: FileAttachmentProps<StreamChatGenerics>) => {
   const { themeVersion } = useChatContext('FileAttachment');
 
-  if (themeVersion === '2') return <UnMemoizedFileAttachmentV2 attachment={attachment} />;
-
-  return <UnMemoizedFileAttachmentV1 attachment={attachment} />;
+  return themeVersion === '2' ? (
+    <UnMemoizedFileAttachmentV2 attachment={attachment} />
+  ) : (
+    <UnMemoizedFileAttachmentV1 attachment={attachment} />
+  );
 };
 
 export const FileAttachment = React.memo(
