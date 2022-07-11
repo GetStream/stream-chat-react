@@ -12,10 +12,6 @@ The Stream Chat React library provides a variety of useful hooks for use in your
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useActionHandler.ts) to handler function to handle when an action is sent in a `Channel`.
 
-### useBreakpoint
-
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useBreakpoint.ts) that returns an object with the device type (ex: 'mobile' \| 'tablet' \| 'full') and width, for responsive development.
-
 ### useDeleteHandler
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useDeleteHandler.ts) to handle message deletion.
@@ -101,10 +97,6 @@ const MyCustomMessageComponent = () => {
 };
 ```
 
-### useMobileHandler
-
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useMobileHandler.ts) to handle click events for mobile devices, returns an event handler.
-
 ### useMuteHandler
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useMuteHandler.ts) to handle muting users. Returns an event handler that processes user muting.
@@ -117,7 +109,7 @@ const MyCustomMessageComponent = () => {
 
   return (
     <div>
-      {message.text
+      {message.text}
        <button onClick={handleMute}>Mute the user that sent this!</button>
     </div>
   );

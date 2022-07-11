@@ -1,13 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
+import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 import { ChannelOrUserResponse, isChannel } from './utils';
+import { Avatar } from '../Avatar';
 
-import { Avatar } from '../Avatar/Avatar';
-import { useBreakpoint } from '../Message/hooks/useBreakpoint';
-
-import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../../types/types';
+import { useTranslationContext } from '../../context';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type DropdownContainerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -85,6 +81,14 @@ const DefaultSearchResultItem = <
   }
 };
 
+const ResultsContainer = ({
+  children,
+  popupResults,
+}: PropsWithChildren<{ popupResults?: boolean }>) => {
+  const containerStyle = popupResults ? 'popup' : 'inline';
+  return <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>;
+};
+
 export type SearchResultsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -117,16 +121,7 @@ export const SearchResults = <
   } = props;
 
   const { t } = useTranslationContext('SearchResults');
-
   const [focusedUser, setFocusedUser] = useState<number>();
-
-  const { device } = useBreakpoint();
-
-  const containerStyle = popupResults && device === 'full' ? 'popup' : 'inline';
-
-  const ResultsContainer = ({ children }: PropsWithChildrenOnly) => (
-    <div className={`str-chat__channel-search-container ${containerStyle}`}>{children}</div>
-  );
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -162,7 +157,7 @@ export const SearchResults = <
 
   if (searching) {
     return (
-      <ResultsContainer>
+      <ResultsContainer popupResults={popupResults}>
         {SearchLoading ? (
           <SearchLoading />
         ) : (
@@ -176,7 +171,7 @@ export const SearchResults = <
 
   if (!results.length) {
     return (
-      <ResultsContainer>
+      <ResultsContainer popupResults={popupResults}>
         {SearchEmpty ? (
           <SearchEmpty />
         ) : (
@@ -189,7 +184,7 @@ export const SearchResults = <
   }
 
   return (
-    <ResultsContainer>
+    <ResultsContainer popupResults={popupResults}>
       {SearchResultsHeader && <SearchResultsHeader />}
       <DropdownContainer
         focusedUser={focusedUser}
