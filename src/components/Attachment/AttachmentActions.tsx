@@ -30,11 +30,7 @@ const UnMemoizedAttachmentActions = <
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     name?: string,
     value?: string,
-  ) => {
-    if (actionHandler) {
-      actionHandler(name, value, event);
-    }
-  };
+  ) => actionHandler?.(name, value, event);
 
   return (
     <div className='str-chat__message-attachment-actions'>

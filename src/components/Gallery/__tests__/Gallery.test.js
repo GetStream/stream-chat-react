@@ -1,4 +1,5 @@
 import React from 'react';
+import { nanoid } from 'nanoid';
 import renderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -7,6 +8,8 @@ import { getTestClientWithUser } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import { Gallery } from '../Gallery';
+
+import { ComponentProvider } from '../../../context/ComponentContext';
 
 let chatClient;
 
@@ -38,33 +41,62 @@ const mockGalleryAssets = [
   },
 ];
 
-afterEach(cleanup); // eslint-disable-line
-
 describe('Gallery', () => {
+  afterEach(cleanup);
+
   it('should render component with default props', () => {
-    const tree = renderer.create(<Gallery images={mockGalleryAssets.slice(0, 2)} />).toJSON();
+    const tree = renderer
+      .create(
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets.slice(0, 2)} />
+        </ComponentProvider>,
+      )
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('should render component with 3 images', () => {
-    const tree = renderer.create(<Gallery images={mockGalleryAssets.slice(0, 3)} />).toJSON();
+    const tree = renderer
+      .create(
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets.slice(0, 3)} />
+        </ComponentProvider>,
+      )
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('should render component with 4 images', () => {
-    const tree = renderer.create(<Gallery images={mockGalleryAssets.slice(0, 4)} />).toJSON();
+    const tree = renderer
+      .create(
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets.slice(0, 4)} />
+        </ComponentProvider>,
+      )
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('should render component with 5 images', () => {
-    const tree = renderer.create(<Gallery images={mockGalleryAssets} />).toJSON();
+    const tree = renderer
+      .create(
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets} />
+        </ComponentProvider>,
+      )
+      .toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   it('should open modal on image click', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => null);
 
-    const { getByTestId, getByTitle } = render(<Gallery images={mockGalleryAssets.slice(0, 1)} />);
+    const { getByTestId, getByTitle } = render(
+      <ComponentProvider value={{}}>
+        <Gallery images={mockGalleryAssets.slice(0, 1)} />
+      </ComponentProvider>,
+    );
+
     fireEvent.click(getByTestId('gallery-image'));
 
     await waitFor(() => {
@@ -76,7 +108,9 @@ describe('Gallery', () => {
     chatClient = await getTestClientWithUser({ id: 'test' });
     const { getByText } = await render(
       <Chat client={chatClient}>
-        <Gallery images={mockGalleryAssets} />,
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets} />
+        </ComponentProvider>
       </Chat>,
     );
     await waitFor(() => {
@@ -88,7 +122,9 @@ describe('Gallery', () => {
     chatClient = await getTestClientWithUser({ id: 'test' });
     const { container, getByText } = render(
       <Chat client={chatClient}>
-        <Gallery images={mockGalleryAssets} />,
+        <ComponentProvider value={{}}>
+          <Gallery images={mockGalleryAssets} />
+        </ComponentProvider>
       </Chat>,
     );
 
@@ -99,6 +135,22 @@ describe('Gallery', () => {
 
     await waitFor(() => {
       expect(container.querySelector('.image-gallery-index')).toHaveTextContent('4 / 5');
+    });
+  });
+
+  it('should render custom ModalGallery component from context', async () => {
+    const galleryContent = nanoid();
+    const CustomGallery = () => <div>{galleryContent}</div>;
+    const { getAllByTestId, getByText } = render(
+      <ComponentProvider value={{ ModalGallery: CustomGallery }}>
+        <Gallery images={mockGalleryAssets} />
+      </ComponentProvider>,
+    );
+
+    fireEvent.click(getAllByTestId('gallery-image')[0]);
+
+    await waitFor(() => {
+      expect(getByText(galleryContent)).toBeInTheDocument();
     });
   });
 });

@@ -59,7 +59,7 @@ export const Avatar = <
 
   return (
     <div
-      className={`str-chat__avatar str-chat__avatar--${shape}`}
+      className={`str-chat__avatar str-chat__avatar--${shape} str-chat__message-sender-avatar`}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}

@@ -20,6 +20,7 @@ import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageStatusProps } from '../components/Message/MessageStatus';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
+import type { ModalGalleryProps } from '../components/Gallery/ModalGallery';
 import type { ReactionSelectorProps } from '../components/Reactions/ReactionSelector';
 import type { ReactionsListProps } from '../components/Reactions/ReactionsList';
 import type {
@@ -61,6 +62,7 @@ export type ComponentContextValue<
   MessageStatus?: React.ComponentType<MessageStatusProps>;
   MessageSystem?: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<StreamChatGenerics>>;
+  ModalGallery?: React.ComponentType<ModalGalleryProps>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
   QuotedMessage?: React.ComponentType;
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<StreamChatGenerics>>;

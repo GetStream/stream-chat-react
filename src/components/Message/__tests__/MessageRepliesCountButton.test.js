@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { TranslationProvider } from '../../../context';
+import { ChatProvider, TranslationProvider } from '../../../context';
 
 const onClickMock = jest.fn();
 const defaultSingularText = '1 reply';
@@ -10,11 +10,13 @@ const defaultPluralText = '2 replies';
 
 const i18nMock = (key, { count }) => (count > 1 ? defaultPluralText : defaultSingularText);
 
-const renderComponent = (props) =>
+const renderComponent = (props, themeVersion = '1') =>
   render(
-    <TranslationProvider value={{ t: i18nMock }}>
-      <MessageRepliesCountButton {...props} onClick={onClickMock} />
-    </TranslationProvider>,
+    <ChatProvider value={{ themeVersion }}>
+      <TranslationProvider value={{ t: i18nMock }}>
+        <MessageRepliesCountButton {...props} onClick={onClickMock} />
+      </TranslationProvider>
+    </ChatProvider>,
   );
 
 describe('MessageRepliesCountButton', () => {
@@ -64,5 +66,16 @@ describe('MessageRepliesCountButton', () => {
     });
 
     expect(queryByTestId('replies-count-button')).not.toBeInTheDocument();
+  });
+
+  it('should not render ReplyIcon for theming v2', () => {
+    const themeVersion = '2';
+    const { queryByTestId } = renderComponent(
+      {
+        reply_count: 1,
+      },
+      themeVersion,
+    );
+    expect(queryByTestId('reply-icon')).not.toBeInTheDocument();
   });
 });

@@ -18,7 +18,7 @@ describe('UserItem', () => {
         className="str-chat__user-item"
       >
         <div
-          className="str-chat__avatar str-chat__avatar--circle"
+          className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
           data-testid="avatar"
           onClick={[Function]}
           onMouseOver={[Function]}

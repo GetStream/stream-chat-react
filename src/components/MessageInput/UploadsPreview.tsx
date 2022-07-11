@@ -5,10 +5,12 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useChatContext } from '../../context';
 
 export const UploadsPreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
+  const { themeVersion } = useChatContext('UploadsPreview');
   const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'UploadsPreview',
   );
@@ -48,6 +50,10 @@ export const UploadsPreview = <
       )}
       {fileOrder.length > 0 && (
         <FilePreviewer
+          fileIconProps={{
+            className: 'str-chat__file-icon',
+            version: themeVersion,
+          }}
           handleFiles={uploadNewFiles}
           handleRemove={removeFile}
           handleRetry={uploadFile}

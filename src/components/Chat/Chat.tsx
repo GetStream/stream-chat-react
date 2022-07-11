@@ -86,6 +86,9 @@ export const Chat = <
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
   const channelsQueryState = useChannelsQueryState();
+  const themeVersion = (getComputedStyle(document.documentElement)
+    .getPropertyValue('--str-chat__theme-version')
+    .replace(' ', '') || '1') as '1' | '2';
 
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
@@ -102,6 +105,7 @@ export const Chat = <
     openMobileNav,
     setActiveChannel,
     theme,
+    themeVersion,
     useImageFlagEmojisOnWindows,
   });
 

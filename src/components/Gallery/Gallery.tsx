@@ -1,7 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import clsx from 'clsx';
 
-import { ModalComponent as ModalWrapper } from './ModalWrapper';
+import { Modal } from '../Modal';
+import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
@@ -29,6 +32,7 @@ const UnMemoizedGallery = <
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const { ModalGallery = DefaultModalGallery } = useComponentContext('Gallery');
   const { t } = useTranslationContext('Gallery');
 
   const countImagesDisplayedInPreview = 4;
@@ -42,16 +46,6 @@ const UnMemoizedGallery = <
       setModalOpen(true);
     }
   };
-
-  const formattedArray = useMemo(
-    () =>
-      images.map((image) => ({
-        original: image.image_url || image.thumb_url || '',
-        originalAlt: 'User uploaded content',
-        source: image.image_url || image.thumb_url || '',
-      })),
-    [images],
-  );
 
   const renderImages = images.slice(0, countImagesDisplayedInPreview).map((image, i) =>
     i === lastImageIndexInPreview && images.length > countImagesDisplayedInPreview ? (
@@ -81,19 +75,18 @@ const UnMemoizedGallery = <
     ),
   );
 
+  const className = clsx(
+    'str-chat__gallery',
+    images.length > lastImageIndexInPreview && 'str-chat__gallery--square',
+    images.length > 2 && 'str-chat__gallery-two-rows',
+  );
+
   return (
-    <div
-      className={`str-chat__gallery ${
-        images.length > lastImageIndexInPreview ? 'str-chat__gallery--square' : ''
-      }`}
-    >
+    <div className={className}>
       {renderImages}
-      <ModalWrapper
-        images={formattedArray}
-        index={index}
-        modalIsOpen={modalOpen}
-        toggleModal={() => setModalOpen(!modalOpen)}
-      />
+      <Modal onClose={() => setModalOpen((modalOpen) => !modalOpen)} open={modalOpen}>
+        <ModalGallery images={images} index={index} />
+      </Modal>
     </div>
   );
 };
