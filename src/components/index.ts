@@ -1,6 +1,7 @@
 export * from './Attachment';
 export * from './AutoCompleteTextarea';
 export * from './Avatar/Avatar';
+export * from './Carousel';
 export * from './Channel';
 export * from './ChannelHeader';
 export * from './ChannelList';
