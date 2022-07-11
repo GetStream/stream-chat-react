@@ -1,4 +1,5 @@
 import React, { Suspense, useMemo } from 'react';
+import clsx from 'clsx';
 
 import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
@@ -48,7 +49,7 @@ const UnMemoizedReactionsList = <
 
   const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
-  const reactions = propReactions || message.latest_reactions || [];
+  const latestReactions = propReactions || message.latest_reactions || [];
   const reactionCounts = propReactionCounts || message.reaction_counts || {};
   const reactionOptions = propReactionOptions || defaultMinimalEmojis;
   const reactionsAreCustom = !!propReactionOptions?.length;
@@ -58,34 +59,19 @@ const UnMemoizedReactionsList = <
     [fullEmojiData, reactionsAreCustom],
   );
 
-  if (!reactions.length) return null;
+  if (!latestReactions.length) return null;
 
-  const getTotalReactionCount = () =>
-    Object.values(reactionCounts).reduce((total, count) => total + count, 0);
-
-  const getCurrentMessageReactionTypes = () => {
-    const reactionTypes: string[] = [];
-    reactions.forEach(({ type }) => {
-      if (reactionTypes.indexOf(type) === -1) {
-        reactionTypes.push(type);
-      }
-    });
+  const messageReactionTypes = latestReactions.reduce((reactionTypes, { type }) => {
+    if (reactionTypes.indexOf(type) === -1) {
+      reactionTypes.push(type);
+    }
     return reactionTypes;
-  };
+  }, [] as string[]);
 
-  const getEmojiByReactionType = (type: string): ReactionEmoji | undefined => {
-    const reactionEmoji = reactionOptions.find((option: ReactionEmoji) => option.id === type);
-    return reactionEmoji;
-  };
-
-  const getSupportedReactionMap = () => {
-    const reactionMap: Record<string, boolean> = {};
-    reactionOptions.forEach(({ id }) => (reactionMap[id] = true));
-    return reactionMap;
-  };
-
-  const messageReactionTypes = getCurrentMessageReactionTypes();
-  const supportedReactionMap = getSupportedReactionMap();
+  const supportedReactionMap = reactionOptions.reduce((acc, { id }) => {
+    acc[id] = true;
+    return acc;
+  }, {} as Record<string, boolean>);
 
   const supportedReactionsArePresent = messageReactionTypes.some(
     (type) => supportedReactionMap[type],
@@ -93,39 +79,67 @@ const UnMemoizedReactionsList = <
 
   if (!supportedReactionsArePresent) return null;
 
+  const totalReactionCount = Object.values(reactionCounts).reduce(
+    (total, count) => total + count,
+    0,
+  );
+
+  const iHaveReactedWithReaction = (reactionType: string) =>
+    latestReactions.find((reaction) => reaction.type === reactionType);
+
+  const getEmojiByReactionType = (type: string): ReactionEmoji | undefined =>
+    reactionOptions.find((option: ReactionEmoji) => option.id === type);
+
   return (
     <div
       aria-label='Reaction list'
-      className={`str-chat__reaction-list ${reverse ? 'str-chat__reaction-list--reverse' : ''}`}
+      className={clsx(
+        'str-chat__reaction-list str-chat__message-reactions-container',
+        reverse && 'str-chat__reaction-list--reverse',
+      )}
       data-testid='reaction-list'
       onClick={onClick || onReactionListClick}
-      onKeyPress={onClick || onReactionListClick}
+      onKeyUp={onClick || onReactionListClick}
       role='figure'
     >
-      <ul>
+      <ul className='str-chat__message-reactions'>
         {messageReactionTypes.map((reactionType) => {
           const emojiObject = getEmojiByReactionType(reactionType);
-
+          const isOwnReaction = iHaveReactedWithReaction(reactionType);
           return emojiObject ? (
-            <li key={emojiObject.id}>
+            <li
+              className={clsx(
+                'str-chat__message-reaction',
+                isOwnReaction && 'str-chat__message-reaction-own',
+              )}
+              key={emojiObject.id}
+            >
               <button aria-label={`Reactions: ${reactionType}`}>
                 {
                   <Suspense fallback={null}>
-                    <Emoji
-                      data={emojiData}
-                      emoji={emojiObject}
-                      size={16}
-                      {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                    />
+                    <span className='str-chat__message-reaction-emoji'>
+                      <Emoji
+                        data={emojiData}
+                        emoji={emojiObject}
+                        size={16}
+                        {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                      />
+                    </span>
                   </Suspense>
                 }
                 &nbsp;
+                <span
+                  className='str-chat__message-reaction-count'
+                  data-testclass='reaction-list-reaction-count'
+                >
+                  {reactionCounts[reactionType]}
+                </span>
               </button>
             </li>
           ) : null;
         })}
         <li>
-          <span className='str-chat__reaction-list--counter'>{getTotalReactionCount()}</span>
+          <span className='str-chat__reaction-list--counter'>{totalReactionCount}</span>
         </li>
       </ul>
     </div>

@@ -222,7 +222,7 @@ export const useReactionClick = <
     if (event?.stopPropagation) {
       event.stopPropagation();
     }
-    setShowDetailedReactions(true);
+    setShowDetailedReactions((prev) => !prev);
   };
 
   return {

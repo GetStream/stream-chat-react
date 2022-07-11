@@ -1,4 +1,5 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
 
 import { isMutableRef } from './utils/utils';
 
@@ -127,15 +128,19 @@ const UnMemoizedReactionSelector = React.forwardRef(
         })
         .filter(Boolean);
 
+    const iHaveReactedWithReaction = (reactionType: string) =>
+      latestReactions.find((reaction) => reaction.type === reactionType);
+
     const getLatestUserForReactionType = (type: string | null) =>
       latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
       undefined;
 
     return (
       <div
-        className={`str-chat__reaction-selector ${
-          reverse ? 'str-chat__reaction-selector--reverse' : ''
-        }`}
+        className={clsx(
+          'str-chat__reaction-selector str-chat__message-reaction-selector',
+          reverse && 'str-chat__reaction-selector--reverse',
+        )}
         data-testid='reaction-selector'
         ref={ref}
       >
@@ -156,48 +161,51 @@ const UnMemoizedReactionSelector = React.forwardRef(
             ))}
           </div>
         )}
-        <ul className='str-chat__message-reactions-list'>
+        <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
           {reactionOptions.map((reactionOption: ReactionEmoji) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
             const count = reactionCounts && reactionCounts[reactionOption.id];
-
             return (
               <li key={`item-${reactionOption.id}`}>
                 <button
                   aria-label={`Select Reaction: ${reactionOption.name}`}
-                  className='str-chat__message-reactions-list-item'
+                  className={clsx(
+                    'str-chat__message-reactions-list-item str-chat__message-reactions-option',
+                    iHaveReactedWithReaction(reactionOption.id) &&
+                      'str-chat__message-reactions-option-selected',
+                  )}
                   data-text={reactionOption.id}
                   onClick={(event) => handleReaction(reactionOption.id, event)}
                 >
                   {!!count && detailedView && (
-                    <>
-                      <div
-                        className='latest-user'
-                        onClick={hideTooltip}
-                        onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
-                        onMouseLeave={hideTooltip}
-                      >
-                        {latestUser ? (
-                          <Avatar
-                            image={latestUser.image}
-                            name={latestUser.name}
-                            size={20}
-                            user={latestUser}
-                          />
-                        ) : (
-                          <div className='latest-user-not-found' />
-                        )}
-                      </div>
-                    </>
+                    <div
+                      className='latest-user str-chat__message-reactions-last-user'
+                      onClick={hideTooltip}
+                      onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
+                      onMouseLeave={hideTooltip}
+                    >
+                      {latestUser ? (
+                        <Avatar
+                          image={latestUser.image}
+                          name={latestUser.name}
+                          size={20}
+                          user={latestUser}
+                        />
+                      ) : (
+                        <div className='latest-user-not-found' />
+                      )}
+                    </div>
                   )}
                   {
                     <Suspense fallback={null}>
-                      <Emoji
-                        data={emojiData}
-                        emoji={reactionOption}
-                        size={20}
-                        {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                      />
+                      <span className='str-chat__message-reaction-emoji'>
+                        <Emoji
+                          data={emojiData}
+                          emoji={reactionOption}
+                          size={20}
+                          {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                        />
+                      </span>
                     </Suspense>
                   }
                   {Boolean(count) && detailedView && (
