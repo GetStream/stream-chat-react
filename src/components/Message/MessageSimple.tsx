@@ -146,15 +146,13 @@ const MessageSimpleWithContext = <
             }
           >
             <MessageOptions />
+            <div className='str-chat__message-reactions-host'>
+              {hasReactions && isReactionEnabled && <ReactionsList reverse />}
+              {showDetailedReactions && isReactionEnabled && (
+                <ReactionSelector ref={reactionSelectorRef} />
+              )}
+            </div>
             <div className='str-chat__message-bubble'>
-              <>
-                {hasReactions && !showDetailedReactions && isReactionEnabled && (
-                  <ReactionsList reverse />
-                )}
-                {showDetailedReactions && isReactionEnabled && (
-                  <ReactionSelector ref={reactionSelectorRef} />
-                )}
-              </>
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
