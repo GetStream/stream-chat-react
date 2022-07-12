@@ -60,9 +60,9 @@ export type MessageInputState<
   attachments: Attachment<StreamChatGenerics>[];
   emojiPickerIsOpen: boolean;
   fileOrder: string[];
-  fileUploads: { [id: string]: FileUpload };
+  fileUploads: Record<string, FileUpload>;
   imageOrder: string[];
-  imageUploads: { [id: string]: ImageUpload };
+  imageUploads: Record<string, ImageUpload>;
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
