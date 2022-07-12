@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DeliveredCheckIcon } from './icons';
-import { getReadByTooltipText } from './utils';
+import { getReadByTooltipText, ReadByToolTipFormat } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
@@ -17,6 +17,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type MessageStatusProps = {
   Avatar?: React.ComponentType<AvatarProps>;
   messageType?: string;
+  readByToolTipFormat?: ReadByToolTipFormat;
 };
 
 const UnMemoizedMessageStatus = <
@@ -24,7 +25,7 @@ const UnMemoizedMessageStatus = <
 >(
   props: MessageStatusProps,
 ) => {
-  const { Avatar: propAvatar, messageType = 'simple' } = props;
+  const { Avatar: propAvatar, messageType = 'simple', readByToolTipFormat } = props;
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
@@ -65,7 +66,7 @@ const UnMemoizedMessageStatus = <
         className={`str-chat__message-${messageType}-status`}
         data-testid='message-status-read-by'
       >
-        <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
+        <Tooltip>{getReadByTooltipText(readBy, t, client, readByToolTipFormat)}</Tooltip>
         <Avatar
           image={lastReadUser.image}
           name={lastReadUser.name || lastReadUser.id}
