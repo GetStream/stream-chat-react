@@ -369,13 +369,13 @@ export const getReadByTooltipText = <
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
+      const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
       outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
         commaSeparatedUsers: slicedArr.join(', '),
         lastUser,
       });
     } else {
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
+      outStr = t('{{ commaSeparatedUsers }}, and {{ moreCount }} more', {
         commaSeparatedUsers: slicedArr.join(', '),
         moreCount: restLength,
       });
