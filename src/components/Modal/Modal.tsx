@@ -42,7 +42,7 @@ export const Modal = (props: PropsWithChildren<ModalProps>) => {
       <button className='str-chat__modal__close-button' ref={closeRef} title='Close'>
         <CloseIcon />
       </button>
-      <div className='str-chat__modal__inner' ref={innerRef}>
+      <div className='str-chat__modal__inner str-chat-react__modal__inner' ref={innerRef}>
         {children}
       </div>
     </div>
