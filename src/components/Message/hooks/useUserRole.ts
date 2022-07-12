@@ -17,10 +17,18 @@ export const useUserRole = <
   } = useChannelStateContext<StreamChatGenerics>('useUserRole');
   const { client } = useChatContext<StreamChatGenerics>('useUserRole');
 
+  /**
+   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
+   * `isAdmin` will be removed in future release. See `channelCapabilities`.
+   */
   const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
   const isMyMessage = client.userID === message.user?.id;
   const isOwner = channel.state.membership.role === 'owner';
 
+  /**
+   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
+   * `isModerator` will be removed in future release. See `channelCapabilities`.
+   */
   const isModerator =
     client.user?.role === 'channel_moderator' ||
     channel.state.membership.role === 'channel_moderator' ||
