@@ -360,5 +360,20 @@ describe('Message utils', () => {
       const result = getReadByTooltipText(users, mockTranslatorFunction, client);
       expect(result).toStrictEqual(`1, 2, 3, 4, 5, and 5 more`);
     });
+    it('overrides user format with readByToolTipFormat', () => {
+      const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
+      const result = getReadByTooltipText(
+        users,
+        mockTranslatorFunction,
+        client,
+        (user) => `Dr. ${user.name}`,
+      );
+      expect(result).toStrictEqual(`Dr. 1 and Dr. 2`);
+    });
+    it('throws error if no translator function provided', () => {
+      expect(() => getReadByTooltipText([], null, client)).toThrow(
+        '`getReadByTooltipText was called, but translation function is not available`',
+      );
+    });
   });
 });

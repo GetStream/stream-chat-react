@@ -334,12 +334,19 @@ export const getNonImageAttachments = <
   return message.attachments.filter((item) => item.type !== 'image');
 };
 
+export interface ReadByToolTipFormat {
+  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+    user: UserResponse<StreamChatGenerics>,
+  ): string;
+}
+
 export const getReadByTooltipText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
   client: StreamChat<StreamChatGenerics>,
+  readByToolTipFormat?: ReadByToolTipFormat,
 ) => {
   let outStr = '';
 
@@ -347,10 +354,12 @@ export const getReadByTooltipText = <
     throw new Error('`getReadByTooltipText was called, but translation function is not available`');
   }
 
+  const defaultFormat = (user: UserResponse<StreamChatGenerics>) => user.name || user.id;
+
   // first filter out client user, so restLength won't count it
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)
-    .map((item) => item.name || item.id);
+    .map(readByToolTipFormat || defaultFormat);
 
   const slicedArr = otherUsers.slice(0, 5);
   const restLength = otherUsers.length - slicedArr.length;
