@@ -28,6 +28,8 @@ export type ReactionSelectorProps<
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** An array of the reaction objects to display in the list */
   latest_reactions?: ReactionResponse<StreamChatGenerics>[];
+  /** An array of the own reaction objects to distinguish own reactions visually */
+  own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
   /** A list of the currently supported reactions on a message */
@@ -47,6 +49,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
       detailedView = true,
       handleReaction: propHandleReaction,
       latest_reactions: propLatestReactions,
+      own_reactions: propOwnReactions,
       reaction_counts: propReactionCounts,
       reactionOptions: propReactionOptions,
       reverse = false,
@@ -64,6 +67,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const handleReaction = propHandleReaction || contextHandleReaction;
     const latestReactions = propLatestReactions || message?.latest_reactions || [];
+    const ownReactions = propOwnReactions || message?.own_reactions || [];
     const reactionCounts = propReactionCounts || message?.reaction_counts || {};
     const reactionOptions = propReactionOptions || defaultMinimalEmojis;
     const reactionsAreCustom = !!propReactionOptions?.length;
@@ -129,7 +133,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
         .filter(Boolean);
 
     const iHaveReactedWithReaction = (reactionType: string) =>
-      latestReactions.find((reaction) => reaction.type === reactionType);
+      ownReactions.find((reaction) => reaction.type === reactionType);
 
     const getLatestUserForReactionType = (type: string | null) =>
       latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
