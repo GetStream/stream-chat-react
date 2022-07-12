@@ -25,6 +25,15 @@ import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMes
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
+/**
+ * @deprecated This component has beend deprecated in favor of `MessageInputFlat` from which
+ * `MessageInputSmall` "inherited" most of the code with only slight modification to classNames
+ * and markup.
+ * In case you need to change styling in places where `MessageInputSmall` has been used previously (`Thread`)
+ * please do so by updating the CSS or by overriding the component itself.
+ *
+ * **Will be removed in the next major version of the SDK.**
+ */
 export const MessageInputSmall = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
