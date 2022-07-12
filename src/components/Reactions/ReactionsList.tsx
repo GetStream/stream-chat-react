@@ -1,10 +1,9 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense } from 'react';
 import clsx from 'clsx';
-
-import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
 import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
+import { useProcessReactions } from './hooks/useProcessReactions';
 
 import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
@@ -12,6 +11,7 @@ import type { ReactionResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../Message/types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { ReactionEmoji } from '../Channel/emojiData';
 
 export type ReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -20,6 +20,8 @@ export type ReactionsListProps<
   additionalEmojiProps?: Partial<NimbleEmojiProps>;
   /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
+  /** An array of the own reaction objects to distinguish own reactions visually */
+  own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
   /** A list of the currently supported reactions on a message */
@@ -35,60 +37,26 @@ const UnMemoizedReactionsList = <
 >(
   props: ReactionsListProps<StreamChatGenerics>,
 ) => {
-  const {
-    additionalEmojiProps,
-    onClick,
-    reaction_counts: propReactionCounts,
-    reactionOptions: propReactionOptions,
-    reactions: propReactions,
-    reverse = false,
-  } = props;
+  const { onClick, reverse = false, ...rest } = props;
 
   const { Emoji, emojiConfig } = useEmojiContext('ReactionsList');
-  const { message, onReactionListClick } = useMessageContext<StreamChatGenerics>('ReactionsList');
+  const { onReactionListClick } = useMessageContext<StreamChatGenerics>('ReactionsList');
 
-  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
-
-  const latestReactions = propReactions || message.latest_reactions || [];
-  const reactionCounts = propReactionCounts || message.reaction_counts || {};
-  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-  const reactionsAreCustom = !!propReactionOptions?.length;
-
-  const emojiData = useMemo(
-    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-    [fullEmojiData, reactionsAreCustom],
-  );
+  const {
+    additionalEmojiProps,
+    emojiData,
+    getEmojiByReactionType,
+    iHaveReactedWithReaction,
+    latestReactions,
+    latestReactionTypes,
+    reactionCounts,
+    supportedReactionsArePresent,
+    totalReactionCount,
+  } = useProcessReactions({ emojiConfig, ...rest });
 
   if (!latestReactions.length) return null;
 
-  const messageReactionTypes = latestReactions.reduce((reactionTypes, { type }) => {
-    if (reactionTypes.indexOf(type) === -1) {
-      reactionTypes.push(type);
-    }
-    return reactionTypes;
-  }, [] as string[]);
-
-  const supportedReactionMap = reactionOptions.reduce((acc, { id }) => {
-    acc[id] = true;
-    return acc;
-  }, {} as Record<string, boolean>);
-
-  const supportedReactionsArePresent = messageReactionTypes.some(
-    (type) => supportedReactionMap[type],
-  );
-
   if (!supportedReactionsArePresent) return null;
-
-  const totalReactionCount = Object.values(reactionCounts).reduce(
-    (total, count) => total + count,
-    0,
-  );
-
-  const iHaveReactedWithReaction = (reactionType: string) =>
-    latestReactions.find((reaction) => reaction.type === reactionType);
-
-  const getEmojiByReactionType = (type: string): ReactionEmoji | undefined =>
-    reactionOptions.find((option: ReactionEmoji) => option.id === type);
 
   return (
     <div
@@ -103,7 +71,7 @@ const UnMemoizedReactionsList = <
       role='figure'
     >
       <ul className='str-chat__message-reactions'>
-        {messageReactionTypes.map((reactionType) => {
+        {latestReactionTypes.map((reactionType) => {
           const emojiObject = getEmojiByReactionType(reactionType);
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
           return emojiObject ? (
@@ -122,7 +90,7 @@ const UnMemoizedReactionsList = <
                         data={emojiData}
                         emoji={emojiObject}
                         size={16}
-                        {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                        {...additionalEmojiProps}
                       />
                     </span>
                   </Suspense>
