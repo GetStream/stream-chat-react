@@ -45,7 +45,7 @@ export const ImageComponent = <
         className='str-chat__message-attachment--img'
         data-testid='image-test'
         onClick={toggleModal}
-        onKeyUp={toggleModal}
+        onKeyDown={toggleModal}
         src={imageSrc}
         tabIndex={0}
       />
