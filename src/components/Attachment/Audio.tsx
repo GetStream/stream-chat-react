@@ -79,7 +79,7 @@ type PlayButtonProps = {
   onClick: () => void;
 };
 
-const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
+export const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
   <button
     className='str-chat__message-attachment-audio-widget--play-button'
     data-testid={isPlaying ? 'pause-audio' : 'play-audio'}
@@ -93,7 +93,7 @@ type ProgressBarProps = {
   progress: number;
 };
 
-const ProgressBar = ({ progress }: ProgressBarProps) => (
+export const ProgressBar = ({ progress }: ProgressBarProps) => (
   <div className='str-chat__message-attachment-audio-widget--progress-track'>
     <div
       className='str-chat__message-attachment-audio-widget--progress-indicator'
@@ -106,36 +106,6 @@ const ProgressBar = ({ progress }: ProgressBarProps) => (
     />
   </div>
 );
-
-export const CardAudio = ({ og: { asset_url, text, title } }: AudioProps) => {
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
-
-  const dataTestId = 'card-audio-widget';
-  const rootClassName = 'str-chat__message-attachment-card-audio-widget';
-  return (
-    <div className={rootClassName} data-testid={dataTestId}>
-      {asset_url && (
-        <>
-          <audio ref={audioRef}>
-            <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
-          </audio>
-          <div className='str-chat__message-attachment-card-audio-widget--first-row'>
-            <div className='str-chat__message-attachment-audio-widget--play-controls'>
-              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-            </div>
-            <ProgressBar progress={progress} />
-          </div>
-        </>
-      )}
-      <div className='str-chat__message-attachment-audio-widget--second-row'>
-        {title && <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>}
-        {text && (
-          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const AudioV2 = ({ og }: AudioProps) => {
   const { asset_url, file_size, title } = og;

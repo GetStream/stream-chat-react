@@ -2,8 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
-import { CardAudio } from './Audio';
+import { AudioProps, PlayButton, ProgressBar } from './Audio';
 import { SafeAnchor } from '../SafeAnchor';
+import { useAudioController } from './hooks/useAudioController';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -109,8 +110,8 @@ const CardV1 = (props: CardV1Props) => {
   );
 };
 
-const Caption = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url: string }) => (
-  <div className='str-chat__message-attachment-card--caption' data-testid='card-caption'>
+const SourceLink = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url: string }) => (
+  <div className='str-chat__message-attachment-card--source-link' data-testid='card-source-link'>
     <SafeAnchor
       className='str-chat__message-attachment-card--url'
       href={url}
@@ -122,22 +123,13 @@ const Caption = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url: s
   </div>
 );
 
-type CardHeaderProps = Pick<
-  CardProps,
-  'asset_url' | 'author_name' | 'og_scrape_url' | 'title' | 'title_link' | 'type'
-> & { dimensions: Dimensions; image?: string };
+type CardHeaderProps = Pick<CardProps, 'asset_url' | 'title' | 'type'> & {
+  dimensions: Dimensions;
+  image?: string;
+};
 
 const CardHeader = (props: CardHeaderProps) => {
-  const {
-    asset_url,
-    author_name,
-    dimensions,
-    image,
-    og_scrape_url,
-    title,
-    title_link,
-    type,
-  } = props;
+  const { asset_url, dimensions, image, title, type } = props;
 
   let visual = null;
   if (asset_url && type === 'video') {
@@ -148,12 +140,9 @@ const CardHeader = (props: CardHeaderProps) => {
     visual = <img alt={title || image} src={image} {...dimensions} />;
   }
 
-  const url = og_scrape_url || title_link;
-
   return visual ? (
     <div className='str-chat__message-attachment-card--header' data-testid={'card-header'}>
       {visual}
-      {url && <Caption author_name={author_name} url={url} />}
     </div>
   ) : null;
 };
@@ -161,7 +150,8 @@ const CardHeader = (props: CardHeaderProps) => {
 type CardContentProps = RenderAttachmentProps['attachment'];
 
 const CardContent = (props: CardContentProps) => {
-  const { text, title, type } = props;
+  const { author_name, og_scrape_url, text, title, title_link, type } = props;
+  const url = og_scrape_url || title_link;
 
   return (
     <div className='str-chat__message-attachment-card--content'>
@@ -169,6 +159,7 @@ const CardContent = (props: CardContentProps) => {
         <CardAudio og={props} />
       ) : (
         <div className='str-chat__message-attachment-card--flex'>
+          {url && <SourceLink author_name={author_name} url={url} />}
           {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
           {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
         </div>
@@ -199,6 +190,40 @@ const CardV2 = (props: CardProps) => {
     <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
       <CardHeader {...props} dimensions={dimensions} image={image} />
       <CardContent {...props} />
+    </div>
+  );
+};
+
+export const CardAudio = ({
+  og: { asset_url, author_name, og_scrape_url, text, title, title_link },
+}: AudioProps) => {
+  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+
+  const url = og_scrape_url || title_link;
+  const dataTestId = 'card-audio-widget';
+  const rootClassName = 'str-chat__message-attachment-card-audio-widget';
+  return (
+    <div className={rootClassName} data-testid={dataTestId}>
+      {asset_url && (
+        <>
+          <audio ref={audioRef}>
+            <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
+          </audio>
+          <div className='str-chat__message-attachment-card-audio-widget--first-row'>
+            <div className='str-chat__message-attachment-audio-widget--play-controls'>
+              <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+            </div>
+            <ProgressBar progress={progress} />
+          </div>
+        </>
+      )}
+      <div className='str-chat__message-attachment-audio-widget--second-row'>
+        {url && <SourceLink author_name={author_name} url={url} />}
+        {title && <div className='str-chat__message-attachment-audio-widget--title'>{title}</div>}
+        {text && (
+          <div className='str-chat__message-attachment-audio-widget--description'>{text}</div>
+        )}
+      </div>
     </div>
   );
 };
