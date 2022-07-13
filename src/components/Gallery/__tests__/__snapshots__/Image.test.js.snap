@@ -5,7 +5,7 @@ exports[`Image should render component with default props 1`] = `
   className="str-chat__message-attachment--img"
   data-testid="image-test"
   onClick={[Function]}
-  onKeyUp={[Function]}
+  onKeyDown={[Function]}
   src="about:blank"
   tabIndex={0}
 />
