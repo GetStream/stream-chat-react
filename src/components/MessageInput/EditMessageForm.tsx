@@ -95,8 +95,12 @@ export const EditMessageForm = <
               )}
             </div>
             <div>
-              <button onClick={clearEditingState}>{t<string>('Cancel')}</button>
-              <button type='submit'>{t<string>('Send')}</button>
+              <button className='str-chat__edit-message-cancel' onClick={clearEditingState}>
+                {t<string>('Cancel')}
+              </button>
+              <button className='str-chat__edit-message-send' type='submit'>
+                {t<string>('Send')}
+              </button>
             </div>
           </div>
         </form>
