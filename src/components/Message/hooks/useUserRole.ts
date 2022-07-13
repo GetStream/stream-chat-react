@@ -22,7 +22,11 @@ export const useUserRole = <
    * `isAdmin` will be removed in future release. See `channelCapabilities`.
    */
   const isAdmin = client.user?.role === 'admin' || channel.state.membership.role === 'admin';
-  const isMyMessage = client.userID === message.user?.id;
+
+  /**
+   * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
+   * `isOwner` will be removed in future release. See `channelCapabilities`.
+   */
   const isOwner = channel.state.membership.role === 'owner';
 
   /**
@@ -36,6 +40,7 @@ export const useUserRole = <
     channel.state.membership.is_moderator === true ||
     channel.state.membership.channel_role === 'channel_moderator';
 
+  const isMyMessage = client.userID === message.user?.id;
   const canEdit =
     (!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
     (isMyMessage && channelCapabilities['update-own-message']);
