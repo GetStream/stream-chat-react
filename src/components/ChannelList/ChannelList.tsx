@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
@@ -299,20 +300,23 @@ const UnMemoizedChannelList = <
     return <ChannelPreview {...previewProps} />;
   };
 
-  const chatClass = customClasses?.chat || 'str-chat';
-  const channelListClass = customClasses?.channelList || 'str-chat-channel-list';
-  const navigationClass = navOpen ? 'str-chat-channel-list--open' : '';
   const windowsEmojiClass =
     useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
       ? 'str-chat--windows-flags'
       : '';
 
+  const className = clsx(
+    'str-chat__channel-list',
+    customClasses?.chat || 'str-chat',
+    customClasses?.channelList || 'str-chat-channel-list',
+    navOpen && 'str-chat-channel-list--open',
+    theme,
+    windowsEmojiClass,
+  );
+
   return (
     <>
-      <div
-        className={`${chatClass} ${channelListClass} str-chat__channel-list ${theme} ${navigationClass} ${windowsEmojiClass}`}
-        ref={channelListRef}
-      >
+      <div className={className} ref={channelListRef}>
         {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
         <List
           error={channelsQueryState.error}
