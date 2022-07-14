@@ -41,6 +41,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (!trigger) {
       throw new Error('RTA: trigger is not defined');
     }
+
     this.state = {
       actualToken: '',
       component: null,
@@ -623,6 +624,10 @@ export class ReactTextareaAutocomplete extends React.Component {
     return triggerProps;
   };
 
+  setDropdownRef = (element) => {
+    this.dropdownRef = element;
+  };
+
   renderSuggestionListContainer() {
     const {
       disableMentions,
@@ -644,16 +649,18 @@ export class ReactTextareaAutocomplete extends React.Component {
     ) {
       return (
         <div
-          className={clsx('rta__autocomplete', dropdownClassName)}
-          ref={(ref) => {
-            this.dropdownRef = ref;
-          }}
+          className={clsx(
+            'rta__autocomplete',
+            'str-chat__suggestion-list-container',
+            dropdownClassName,
+          )}
+          ref={this.setDropdownRef}
           style={dropdownStyle}
         >
           <SuggestionList
-            className={listClassName}
+            className={clsx('str-chat__suggestion-list', listClassName)}
             dropdownScroll={this._dropdownScroll}
-            itemClassName={itemClassName}
+            itemClassName={clsx('str-chat__suggestion-list-item', itemClassName)}
             itemStyle={itemStyle}
             onSelect={this._onSelect}
             SuggestionItem={SuggestionItem}
