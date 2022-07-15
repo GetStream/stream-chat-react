@@ -2,40 +2,20 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { ChannelOrUserResponse } from './utils';
-
+import type { ChannelSearchProps } from './ChannelSearch';
+import type { SearchControllerState } from './hooks/useChannelSearch';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type ChannelSearchFunctionParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<
-    React.SetStateAction<Array<ChannelOrUserResponse<StreamChatGenerics>>>
-  >;
-  setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export type SearchInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  channelSearchParams: {
-    setQuery: React.Dispatch<React.SetStateAction<string>>;
-    setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
-    setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setSearching: React.Dispatch<React.SetStateAction<boolean>>;
+> = Pick<
+  SearchControllerState<StreamChatGenerics>,
+  'channelSearchParams' | 'clearState' | 'inputRef' | 'onSearch' | 'query'
+> &
+  Pick<ChannelSearchProps<StreamChatGenerics>, 'searchFunction'> & {
+    /** Custom placeholder text to be displayed in the search input */
+    placeholder?: string;
   };
-  inputRef: React.RefObject<HTMLInputElement>;
-  onSearch: (event: React.BaseSyntheticEvent) => void;
-  query: string;
-  /** Custom placeholder text to be displayed in the search input */
-  placeholder?: string;
-  searchFunction?: (
-    params: ChannelSearchFunctionParams<StreamChatGenerics>,
-    event: React.BaseSyntheticEvent,
-  ) => Promise<void> | void;
-};
 
 export const SearchInput = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
