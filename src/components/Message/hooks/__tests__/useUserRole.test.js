@@ -115,13 +115,52 @@ describe('useUserRole custom hook', () => {
     ['channel_moderator', true],
     ['owner', false],
   ])(
-    'should tell if user is moderator when channel state membership is set to %s',
+    'should tell if user is moderator when channel state membership role is set to %s',
     async (role, expected) => {
       const message = generateMessage();
       const { isModerator } = await renderUserRoleHook(message, {
         state: {
           membership: {
             role,
+          },
+        },
+      });
+      expect(isModerator).toBe(expected);
+    },
+  );
+
+  it.each([
+    [true, true],
+    [false, false],
+    [undefined, false],
+  ])(
+    'should tell if user is moderator when channel state membership is_moderator is set to %s',
+    async (bool, expected) => {
+      const message = generateMessage();
+      const { isModerator } = await renderUserRoleHook(message, {
+        state: {
+          membership: {
+            is_moderator: bool,
+          },
+        },
+      });
+      expect(isModerator).toBe(expected);
+    },
+  );
+
+  it.each([
+    ['admin', false],
+    ['member', false],
+    ['channel_moderator', true],
+    ['owner', false],
+  ])(
+    'should tell if user is moderator when channel state membership channel_role is set to %s',
+    async (role, expected) => {
+      const message = generateMessage();
+      const { isModerator } = await renderUserRoleHook(message, {
+        state: {
+          membership: {
+            channel_role: role,
           },
         },
       });

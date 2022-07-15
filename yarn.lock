@@ -2924,10 +2924,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^2.10.0":
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.10.0.tgz#3b4e7f9cdda2e71995412202bab5a852749d61a4"
-  integrity sha512-xPBFe3UKSPtYMffHP1wmRdH/R5Gg2deG64LSFArB0Wg7e+sv+b2ijZIz80jAcjyvIqhV3wFFsJnroxhNNrb2Ww==
+"@stream-io/stream-chat-css@^2.10.1":
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.10.1.tgz#317b225d2a8a424e056e1d4aff5dc0f7f9b575ed"
+  integrity sha512-8ykbkvxOWHbagRMCacXBzta3FbB0Vs+1wGRKy9IP2Md4Rm88Id9Cti6ikYi5ltmjnpyvsWSe+G/G1CvTmFpnqA==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -14423,6 +14423,14 @@ react-virtuoso@^2.10.2:
     "@virtuoso.dev/react-urx" "^0.2.12"
     "@virtuoso.dev/urx" "^0.2.12"
 
+react-virtuoso@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/react-virtuoso/-/react-virtuoso-2.13.3.tgz#11f67d56a0f7e259bc9d92547f952b446b43b56a"
+  integrity sha512-K/mPeJcNvY0R24r1XcNTPV5bs7LujTjhbvysEhVxS6hjssY5OI+2HpY4e3cKEb/8BMGFwsQ/c/b6BLCcmprquw==
+  dependencies:
+    "@virtuoso.dev/react-urx" "^0.2.12"
+    "@virtuoso.dev/urx" "^0.2.12"
+
 react@^18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.1.0.tgz#6f8620382decb17fdc5cc223a115e2adbf104890"
@@ -16042,10 +16050,10 @@ stream-browserify@^2.0.1:
     inherits "~2.0.1"
     readable-stream "^2.0.2"
 
-stream-chat@^6.6.0:
-  version "6.6.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.6.0.tgz#8891136694774d084a867819ff1ea8289576728a"
-  integrity sha512-m9eZ/fs4ix1/LsGR01TBLHj2At3fHao49QCr0hzjNmSIkVDuTUVODVjsIT6W8Jpfv57++PvrS6TyIrNqdU1NSw==
+stream-chat@^6.7.3:
+  version "6.7.3"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-6.7.3.tgz#5d3a0f1678c5bcac6241e15882230bf71b56d06d"
+  integrity sha512-O2gBocLG4rgAMOHq4PlXDkexfgkXFp1ZEGF+W3lllFXBC2/e52KbbojQNMhyoQPv82n2JQCGpkychUP4jdpn9Q==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "^8.5.6"
