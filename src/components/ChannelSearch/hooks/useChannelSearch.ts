@@ -29,6 +29,7 @@ export type SearchControllerState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channelSearchParams: ChannelSearchFunctionParams<StreamChatGenerics>;
+  clearState: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
   onSearch: (event: React.BaseSyntheticEvent) => void;
   query: string;
@@ -83,6 +84,7 @@ export const useChannelSearch = <
   const inputRef = useRef<HTMLInputElement>(null);
 
   const clearState = () => {
+    console.log('clear');
     setQuery('');
     setResults([]);
     setResultsOpen(false);
@@ -182,6 +184,7 @@ export const useChannelSearch = <
   };
   return {
     channelSearchParams,
+    clearState,
     inputRef,
     onSearch,
     query,
