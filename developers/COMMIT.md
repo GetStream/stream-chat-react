@@ -1,4 +1,4 @@
-We follow [Angular's Commit Messag Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format). Even though these are curated sets of rules, the following represent our additions to them:
+We follow [Angular's Commit Message Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format). Even though these are curated sets of rules, the following represent our additions to them:
 
 ## Commit message type
 
@@ -21,3 +21,4 @@ It must be one of the following:
 * **refactor**: A code change that neither fixes a bug nor adds a feature
 * **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 * **test**: Adding missing tests or correcting existing tests
+* **deprecate**: Certain parts or APIs are deprecated and scheduled for a removal in a newer major version
