@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DeliveredCheckIcon } from './icons';
-import { getReadByTooltipText, ReadByToolTipFormat } from './utils';
+import { getReadByTooltipText, TooltipUsernameMapper } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
@@ -17,7 +17,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type MessageStatusProps = {
   Avatar?: React.ComponentType<AvatarProps>;
   messageType?: string;
-  readByToolTipFormat?: ReadByToolTipFormat;
+  readByToolTipFormat?: TooltipUsernameMapper;
 };
 
 const UnMemoizedMessageStatus = <
