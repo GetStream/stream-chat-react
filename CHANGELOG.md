@@ -1,3 +1,13 @@
+## [9.1.5](https://github.com/GetStream/stream-chat-react/compare/v9.1.4...v9.1.5) (2022-07-15)
+
+
+### Bug Fixes
+
+* align user role checks with channel membership, deprecate isModerator, isAdmin, isOwner ([#1666](https://github.com/GetStream/stream-chat-react/issues/1666)) ([31f0916](https://github.com/GetStream/stream-chat-react/commit/31f09168fafe054c102ea85905243a1915fb957d))
+* allow quoting quoted messages ([#1662](https://github.com/GetStream/stream-chat-react/issues/1662)) ([36dbc82](https://github.com/GetStream/stream-chat-react/commit/36dbc82df0c17939f603f6f6c33acb472cd40f9b))
+* **Channel:** allow usage of custom message ID in sendMessage ([#1663](https://github.com/GetStream/stream-chat-react/issues/1663)) ([41bae84](https://github.com/GetStream/stream-chat-react/commit/41bae841568e661339277e0b241be4cbe83b2030))
+* initial load earlier in vml persists the position ([#1640](https://github.com/GetStream/stream-chat-react/issues/1640)) ([dd53d5c](https://github.com/GetStream/stream-chat-react/commit/dd53d5c1fe2707d8807cfec341fbbdd612ff7cfd)), closes [/github.com/petyosi/react-virtuoso/blob/master/e2e/prepend-items.test.ts#L27-L34](https://github.com//github.com/petyosi/react-virtuoso/blob/master/e2e/prepend-items.test.ts/issues/L27-L34)
+
 ## [9.1.4](https://github.com/GetStream/stream-chat-react/compare/v9.1.3...v9.1.4) (2022-06-22)
 
 
