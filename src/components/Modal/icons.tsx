@@ -1,8 +1,8 @@
 import React from 'react';
 
-export const CloseIcon = () => (
+export const CloseIconRound = () => (
   <svg
-    data-testid='close-icon'
+    data-testid='close-icon-round'
     fill='none'
     height='28'
     viewBox='0 0 28 28'
