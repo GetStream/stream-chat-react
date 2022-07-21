@@ -113,6 +113,14 @@ while editing (overrides the value stored in `MessageContext`).
 | ------ |
 | object |
 
+### autoscrollToBottom
+
+Call this function to keep message list scrolled to the bottom when the message list container scroll height increases (only available in the `VirtualizedMessageList`). An example use case is that upon user's interaction with the application, a new element appears below the last message. In order to keep the newly rendered content visible, the `autoscrollToBottom` function can be called. The container, however, is not scrolled to the bottom, if already scrolled up more than 4px from the bottom.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### clearEditingState
 
 When called, this function will exit the editing state on the message (overrides the function stored in `MessageContext`).
