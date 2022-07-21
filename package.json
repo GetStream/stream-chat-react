@@ -52,7 +52,7 @@
     "react-markdown": "^5.0.3",
     "react-player": "^2.10.1",
     "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "^2.13.3",
+    "react-virtuoso": "^2.16.5",
     "textarea-caret": "^3.1.0"
   },
   "optionalDependencies": {
