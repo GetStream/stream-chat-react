@@ -314,6 +314,7 @@ const VirtualizedMessageListWithContext = <
 
       return (
         <Message
+          autoscrollToBottom={virtuoso.current?.autoscrollToBottom}
           closeReactionSelectorOnClick={closeReactionSelectorOnClick}
           customMessageActions={props.customMessageActions}
           endOfGroup={endOfGroup}

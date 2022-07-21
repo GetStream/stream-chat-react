@@ -222,6 +222,7 @@ export const Message = <
   return (
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
+      autoscrollToBottom={props.autoscrollToBottom}
       canPin={canPin}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
