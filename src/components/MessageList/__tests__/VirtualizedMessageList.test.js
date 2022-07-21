@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup } from '@testing-library/react';
+import { cleanup, waitFor } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
@@ -101,6 +101,40 @@ describe('VirtualizedMessageList', () => {
     });
 
     expect(tree.toJSON()).toMatchSnapshot();
+  });
+
+  it('should provide autoscrollToBottom to Message component', async () => {
+    const MessageUIMock = jest.fn(() => <div>hey</div>);
+    const { channel, client } = await createChannel();
+
+    function createNodeMock(element) {
+      if (element.type === 'div') {
+        return {
+          addEventListener() {},
+          removeEventListener() {},
+        };
+      }
+      return null;
+    }
+
+    await renderer.act(() => {
+      renderer.create(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList Message={MessageUIMock} />
+          </Channel>
+        </Chat>,
+        {
+          createNodeMock,
+        },
+      );
+    });
+
+    await waitFor(() => {
+      expect(MessageUIMock).toHaveBeenCalledWith(
+        expect.objectContaining({ autoscrollToBottom: expect.any(Function) }),
+      );
+    });
   });
 });
 
