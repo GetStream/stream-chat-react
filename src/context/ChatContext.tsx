@@ -23,7 +23,7 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 type ChannelCID = string; // e.g.: "messaging:general"
 
-type ThemeVersion = '1' | '2';
+export type ThemeVersion = '1' | '2';
 
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
