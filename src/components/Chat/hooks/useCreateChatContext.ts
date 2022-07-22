@@ -21,6 +21,7 @@ export const useCreateChatContext = <
     openMobileNav,
     setActiveChannel,
     theme,
+    themeVersion,
     useImageFlagEmojisOnWindows,
   } = value;
 
@@ -47,6 +48,7 @@ export const useCreateChatContext = <
       openMobileNav,
       setActiveChannel,
       theme,
+      themeVersion,
       useImageFlagEmojisOnWindows,
     }),
     [

@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`attachment combines scraped & uploaded content should render all uploaded attachments 1`] = `
+<div>
+  <div
+    class="str-chat__attachment-list"
+  >
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--gallery str-chat__message-attachment--gallery"
+    >
+      <div
+        data-testid="gallery-attachment"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+    >
+      <div
+        class="str-chat__player-wrapper"
+      >
+        <div
+          data-testid="media-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+    >
+      <div
+        class="str-chat__player-wrapper"
+      >
+        <div
+          data-testid="media-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--audio str-chat__message-attachment--audio"
+    >
+      <div
+        class="str-chat__attachment"
+      >
+        <div
+          data-testid="audio-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--audio str-chat__message-attachment--audio"
+    >
+      <div
+        class="str-chat__attachment"
+      >
+        <div
+          data-testid="audio-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--file str-chat__message-attachment--file"
+    >
+      <div
+        data-testid="file-attachment"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--file str-chat__message-attachment--file"
+    >
+      <div
+        data-testid="file-attachment"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`attachment combines scraped & uploaded content should render attachments in default order 1`] = `
+<div>
+  <div
+    class="str-chat__attachment-list"
+  >
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--card str-chat__message-attachment--audio"
+    >
+      <div
+        data-testid="card-attachment"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--gallery str-chat__message-attachment--gallery"
+    >
+      <div
+        data-testid="gallery-attachment"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+    >
+      <div
+        class="str-chat__player-wrapper"
+      >
+        <div
+          data-testid="media-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--audio str-chat__message-attachment--audio"
+    >
+      <div
+        class="str-chat__attachment"
+      >
+        <div
+          data-testid="audio-attachment"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment str-chat__message-attachment--file str-chat__message-attachment--file"
+    >
+      <div
+        data-testid="file-attachment"
+      />
+    </div>
+  </div>
+</div>
+`;

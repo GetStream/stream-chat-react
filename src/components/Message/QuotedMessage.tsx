@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 
@@ -41,7 +42,7 @@ export const QuotedMessage = <
   return (
     <>
       <div
-        className={`${isMyMessage() ? 'quoted-message mine' : 'quoted-message'}`}
+        className={clsx('str-chat__quoted-message-preview quoted-message', isMyMessage() && 'mine')}
         onClick={() => jumpToMessage(quoted_message.id)}
       >
         {quoted_message.user && (
@@ -52,7 +53,7 @@ export const QuotedMessage = <
             user={quoted_message.user}
           />
         )}
-        <div className='quoted-message-inner'>
+        <div className='quoted-message-inner str-chat__quoted-message-bubble'>
           {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
           <div>{quotedMessageText}</div>
         </div>

@@ -67,7 +67,7 @@ async function renderMessageSimple(
   const client = await getTestClientWithUser(alice);
 
   return render(
-    <ChatProvider value={{ client }}>
+    <ChatProvider value={{ client, themeVersion: '1' }}>
       <ChannelStateProvider
         value={{ channel, channelCapabilities, channelConfig, emojiConfig: emojiDataMock }}
       >

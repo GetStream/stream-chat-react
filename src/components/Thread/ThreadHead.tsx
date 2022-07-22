@@ -16,9 +16,9 @@ export const ThreadHead = <
     'ThreadHead',
   );
   return (
-    <>
+    <div className='str-chat__parent-message-li'>
       <Message initialMessage threadList {...props} />
       <ThreadStart />
-    </>
+    </div>
   );
 };

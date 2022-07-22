@@ -23,6 +23,8 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 type ChannelCID = string; // e.g.: "messaging:general"
 
+export type ThemeVersion = '1' | '2';
+
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -40,6 +42,7 @@ export type ChatContextValue<
   ) => void;
   /** @deprecated */
   theme: Theme;
+  themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<StreamChatGenerics>;
   customClasses?: CustomClasses;

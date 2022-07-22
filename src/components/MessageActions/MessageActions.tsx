@@ -127,8 +127,9 @@ export const MessageActions = <
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
         aria-label='Open Message Actions Menu'
+        className='str-chat__message-actions-box-button'
       >
-        <ActionsIcon />
+        <ActionsIcon className='str-chat__message-action-icon' />
       </button>
     </MessageActionsWrapper>
   );
@@ -143,8 +144,10 @@ export type MessageActionsWrapperProps = {
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
-  const defaultWrapperClass =
-    'str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options';
+  const defaultWrapperClass = `
+  str-chat__message-simple__actions__action
+  str-chat__message-simple__actions__action--options
+  str-chat__message-actions-container`;
 
   const wrapperClass = customWrapperClass || defaultWrapperClass;
 

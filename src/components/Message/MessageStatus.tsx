@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DeliveredCheckIcon } from './icons';
+import { DeliveredCheckIcon, MessageDeliveredIcon } from './icons';
 import { getReadByTooltipText } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
@@ -36,6 +36,7 @@ const UnMemoizedMessageStatus = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
+  const { themeVersion } = useChatContext('MessageStatus');
 
   const Avatar = propAvatar || contextAvatar || DefaultAvatar;
 
@@ -44,13 +45,11 @@ const UnMemoizedMessageStatus = <
   }
 
   const justReadByMe = readBy?.length === 1 && readBy[0].id === client.user?.id;
+  const rootClassName = `str-chat__message-${messageType}-status str-chat__message-status`;
 
   if (message.status === 'sending') {
     return (
-      <span
-        className={`str-chat__message-${messageType}-status`}
-        data-testid='message-status-sending'
-      >
+      <span className={rootClassName} data-testid='message-status-sending'>
         <Tooltip>{t<string>('Sending...')}</Tooltip>
         <LoadingIndicator />
       </span>
@@ -61,10 +60,7 @@ const UnMemoizedMessageStatus = <
     const lastReadUser = readBy.filter((item) => item.id !== client.user?.id)[0];
 
     return (
-      <span
-        className={`str-chat__message-${messageType}-status`}
-        data-testid='message-status-read-by'
-      >
+      <span className={rootClassName} data-testid='message-status-read-by'>
         <Tooltip>{getReadByTooltipText(readBy, t, client)}</Tooltip>
         <Avatar
           image={lastReadUser.image}
@@ -86,12 +82,9 @@ const UnMemoizedMessageStatus = <
 
   if (message.status === 'received' && message.id === lastReceivedId && !threadList) {
     return (
-      <span
-        className={`str-chat__message-${messageType}-status`}
-        data-testid='message-status-received'
-      >
+      <span className={rootClassName} data-testid='message-status-received'>
         <Tooltip>{t<string>('Delivered')}</Tooltip>
-        <DeliveredCheckIcon />
+        {themeVersion === '2' ? <MessageDeliveredIcon /> : <DeliveredCheckIcon />}
       </span>
     );
   }

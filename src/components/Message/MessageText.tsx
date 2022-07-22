@@ -79,12 +79,16 @@ const UnMemoizedMessageTextComponent = <
       >
         {message.quoted_message && <QuotedMessage />}
         {message.type === 'error' && (
-          <div className={`str-chat__${theme}-message--error-message`}>
+          <div
+            className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
+          >
             {t<string>('Error · Unsent')}
           </div>
         )}
         {message.status === 'failed' && (
-          <div className={`str-chat__${theme}-message--error-message`}>
+          <div
+            className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
+          >
             {message.errorStatusCode !== 403
               ? t<string>('Message Failed · Click to try again')
               : t<string>('Message Failed · Unauthorized')}
