@@ -289,7 +289,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ customWrapperClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
@@ -331,7 +331,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ customInnerClass, message }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
@@ -372,7 +372,7 @@ describe('<MessageText />', () => {
     const tree = await renderMessageText({ message, theme: 'custom' }, {}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message str-chat__message-simple str-chat__message--other str-chat__message--regular str-chat__message--received str-chat__message--has-text"
+        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
       >
         <div
           className="str-chat__message-inner"
