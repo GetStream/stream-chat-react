@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import clsx from 'clsx';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 
@@ -15,6 +16,7 @@ const UnMemoizedChannelPreviewMessenger = <
     active,
     Avatar = DefaultAvatar,
     channel,
+    className: customClassName = '',
     displayImage,
     displayTitle,
     latestMessage,
@@ -24,9 +26,6 @@ const UnMemoizedChannelPreviewMessenger = <
   } = props;
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
-
-  const activeClass = active ? 'str-chat__channel-preview-messenger--active' : '';
-  const unreadClass = unread && unread >= 1 ? 'str-chat__channel-preview-messenger--unread' : '';
 
   const avatarName =
     displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
@@ -44,7 +43,12 @@ const UnMemoizedChannelPreviewMessenger = <
     <button
       aria-label={`Select Channel: ${displayTitle || ''}`}
       aria-selected={active}
-      className={`str-chat__channel-preview-messenger str-chat__channel-preview ${unreadClass} ${activeClass}`}
+      className={clsx(
+        `str-chat__channel-preview-messenger str-chat__channel-preview`,
+        active && 'str-chat__channel-preview-messenger--active',
+        unread && unread >= 1 && 'str-chat__channel-preview-messenger--unread',
+        customClassName,
+      )}
       data-testid='channel-preview-button'
       onClick={onSelectChannel}
       ref={channelPreviewButton}

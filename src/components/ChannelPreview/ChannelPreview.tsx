@@ -44,6 +44,8 @@ export type ChannelPreviewProps<
   Avatar?: React.ComponentType<AvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
+  /** Custom class for the channel preview root */
+  className?: string;
   key?: string;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
