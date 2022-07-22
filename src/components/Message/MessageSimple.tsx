@@ -87,24 +87,25 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
 
   const rootClassName = clsx(
-    isMyMessage()
-      ? 'str-chat__message str-chat__message-simple str-chat__message--me str-chat__message-simple--me'
-      : 'str-chat__message str-chat__message-simple str-chat__message--other',
+    'str-chat__message str-chat__message-simple',
     `str-chat__message--${message.type}`,
     `str-chat__message--${message.status}`,
+    isMyMessage()
+      ? 'str-chat__message--me str-chat__message-simple--me'
+      : 'str-chat__message--other',
     message.text ? 'str-chat__message--has-text' : 'has-no-text',
-    hasAttachment && 'str-chat__message--has-attachment',
-    hasReactions &&
-      isReactionEnabled &&
-      'str-chat__message--with-reactions str-chat__message-with-thread-link',
-    highlighted && 'str-chat__message--highlighted',
-    message.pinned && 'pinned-message',
-    groupedByUser && 'str-chat__virtual-message__wrapper--group',
-    firstOfGroup && 'str-chat__virtual-message__wrapper--first',
-    endOfGroup && 'str-chat__virtual-message__wrapper--end',
-    message?.status === 'failed' &&
-      message?.errorStatusCode !== 403 &&
-      'str-chat__message-send-can-be-retried',
+    {
+      'pinned-message': message.pinned,
+      'str-chat__message--has-attachment': hasAttachment,
+      'str-chat__message--highlighted': highlighted,
+      'str-chat__message--with-reactions str-chat__message-with-thread-link':
+        hasReactions && isReactionEnabled,
+      'str-chat__message-send-can-be-retried':
+        message?.status === 'failed' && message?.errorStatusCode !== 403,
+      'str-chat__virtual-message__wrapper--end': endOfGroup,
+      'str-chat__virtual-message__wrapper--first': firstOfGroup,
+      'str-chat__virtual-message__wrapper--group': groupedByUser,
+    },
   );
 
   return (

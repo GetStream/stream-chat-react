@@ -75,11 +75,10 @@ const UnMemoizedGallery = <
     ),
   );
 
-  const className = clsx(
-    'str-chat__gallery',
-    images.length > lastImageIndexInPreview && 'str-chat__gallery--square',
-    images.length > 2 && 'str-chat__gallery-two-rows',
-  );
+  const className = clsx('str-chat__gallery', {
+    'str-chat__gallery--square': images.length > lastImageIndexInPreview,
+    'str-chat__gallery-two-rows': images.length > 2,
+  });
 
   return (
     <div className={className}>
