@@ -114,6 +114,7 @@ const MessageSimpleWithContext = <
         <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
             clearEditingState={clearEditingState}
+            grow
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}

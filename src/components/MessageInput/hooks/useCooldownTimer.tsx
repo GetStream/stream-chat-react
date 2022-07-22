@@ -12,9 +12,7 @@ export type CooldownTimerProps = {
   setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
-export const CooldownTimer = (props: CooldownTimerProps) => {
-  const { cooldownInterval, setCooldownRemaining } = props;
-
+export const CooldownTimer = ({ cooldownInterval, setCooldownRemaining }: CooldownTimerProps) => {
   const [seconds, setSeconds] = useState(cooldownInterval);
 
   useEffect(() => {
@@ -29,7 +27,11 @@ export const CooldownTimer = (props: CooldownTimerProps) => {
     return () => clearInterval(countdownInterval);
   });
 
-  return <div>{seconds === 0 ? null : seconds}</div>;
+  return (
+    <div className='str-chat__message-input-cooldown' data-testid='cooldown-timer'>
+      {seconds === 0 ? null : seconds}
+    </div>
+  );
 };
 
 export type CooldownTimerState = {

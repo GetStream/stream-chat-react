@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
@@ -31,11 +32,20 @@ const UnMemoizedTypingIndicator = <
   const { Avatar: PropAvatar, avatarSize = 32, threadList } = props;
 
   const { channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('TypingIndicator');
-  const { client } = useChatContext<StreamChatGenerics>('TypingIndicator');
+  const { client, themeVersion } = useChatContext<StreamChatGenerics>('TypingIndicator');
   const { Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>('TypingIndicator');
   const { typing = {} } = useTypingContext<StreamChatGenerics>('TypingIndicator');
 
   const Avatar = PropAvatar || ContextAvatar || DefaultAvatar;
+
+  // TODO: add translations for "and", "is/are typing"
+  const generateTypingString = (names: string[]) => {
+    const [name, ...rest] = names;
+
+    if (names.length === 1) return `${name} is typing...`;
+
+    return `${rest.join(', ').trim()} and ${name} are typing...`;
+  };
 
   if (channelConfig?.typing_events === false) {
     return null;
@@ -53,13 +63,39 @@ const UnMemoizedTypingIndicator = <
       )
     : [];
 
+  const typingUserList = (threadList ? typingInThread : typingInChannel)
+    .map(({ user }) => user?.name || user?.id)
+    .filter(Boolean) as string[];
+
+  const isTypingActive =
+    (threadList && typingInThread.length) || (!threadList && typingInChannel.length);
+
+  if (themeVersion === '2') {
+    if (!isTypingActive) return null;
+    return (
+      <div
+        className={clsx('str-chat__typing-indicator', {
+          'str-chat__typing-indicator--typing': isTypingActive,
+        })}
+        data-testid='typing-indicator'
+      >
+        <div className='str-chat__typing-indicator__dots'>
+          <span className='str-chat__typing-indicator__dot'></span>
+          <span className='str-chat__typing-indicator__dot'></span>
+          <span className='str-chat__typing-indicator__dot'></span>
+        </div>
+        <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
+          {generateTypingString(typingUserList)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`str-chat__typing-indicator ${
-        (threadList && typingInThread.length) || (!threadList && typingInChannel.length)
-          ? 'str-chat__typing-indicator--typing'
-          : ''
-      }`}
+      className={clsx('str-chat__typing-indicator', {
+        'str-chat__typing-indicator--typing': isTypingActive,
+      })}
     >
       <div className='str-chat__typing-indicator__avatars'>
         {(threadList ? typingInThread : typingInChannel).map(({ user }, i) => (

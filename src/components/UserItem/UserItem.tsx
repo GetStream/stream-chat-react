@@ -1,4 +1,7 @@
 import React from 'react';
+import clsx from 'clsx';
+
+import { useChatContext } from '../../context/ChatContext';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
@@ -23,29 +26,30 @@ export type UserItemProps = {
 /**
  * UI component for mentions rendered in suggestion list
  */
-const UnMemoizedUserItem = (props: UserItemProps) => {
-  const { Avatar = DefaultAvatar, entity } = props;
+const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
+  const { themeVersion } = useChatContext('UserItem');
 
-  const hasEntity = Object.keys(entity).length;
+  const hasEntity = !!Object.keys(entity).length;
   const itemParts = entity?.itemNameParts;
 
   const renderName = () => {
     if (!hasEntity) return null;
 
-    return (
-      hasEntity &&
-      itemParts.parts.map((part, i) =>
-        part.toLowerCase() === itemParts.match.toLowerCase() ? (
-          <span className='str-chat__emoji-item--highlight' key={`part-${i}`}>
-            {part}
-          </span>
-        ) : (
-          <span className='str-chat__emoji-item--part' key={`part-${i}`}>
-            {part}
-          </span>
-        ),
-      )
-    );
+    return itemParts.parts.map((part, i) => {
+      const matches = part.toLowerCase() === itemParts.match.toLowerCase();
+
+      return (
+        <span
+          className={clsx({
+            'str-chat__emoji-item--highlight': matches,
+            'str-chat__emoji-item--part': !matches,
+          })}
+          key={`part-${i}`}
+        >
+          {part}
+        </span>
+      );
+    });
   };
 
   return (
@@ -54,6 +58,7 @@ const UnMemoizedUserItem = (props: UserItemProps) => {
       <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
         {renderName()}
       </span>
+      {themeVersion === '2' && <div className='str-chat__user-item-at'>@</div>}
     </div>
   );
 };
