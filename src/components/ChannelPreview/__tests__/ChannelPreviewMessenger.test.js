@@ -76,4 +76,10 @@ describe('ChannelPreviewMessenger', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('should render custom class name', () => {
+    const className = 'custom-xxx';
+    const { container } = render(renderComponent({ className }));
+    expect(container.querySelector(`.${className}`)).toBeInTheDocument();
+  });
 });
