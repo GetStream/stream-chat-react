@@ -175,7 +175,7 @@ const MessageSimpleWithContext = <
               />
             )}
             {showMetadata && themeVersion === '1' && (
-              <div className={`str-chat__message-data str-chat__message-simple-data`}>
+              <div className='str-chat__message-data str-chat__message-simple-data'>
                 {!isMyMessage() && message.user ? (
                   <span className='str-chat__message-simple-name'>
                     {message.user.name || message.user.id}
@@ -192,9 +192,7 @@ const MessageSimpleWithContext = <
             />
           )}
           {showMetadata && themeVersion === '2' && (
-            <div
-              className={`str-chat__message-data str-chat__message-simple-data str-chat__message-metadata`}
-            >
+            <div className='str-chat__message-data str-chat__message-simple-data str-chat__message-metadata'>
               <MessageStatus />
               {!isMyMessage() && !!message.user && (
                 <span className='str-chat__message-simple-name'>

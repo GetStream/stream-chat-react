@@ -27,10 +27,9 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
 
   return (
     <div
-      className={clsx(
-        'str-chat__message-attachment-card',
-        type && `str-chat__message-attachment-card--${type}`,
-      )}
+      className={clsx('str-chat__message-attachment-card', {
+        [`str-chat__message-attachment-card--${type}`]: type,
+      })}
     >
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--text'>

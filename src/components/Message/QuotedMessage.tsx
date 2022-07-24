@@ -42,7 +42,7 @@ export const QuotedMessage = <
   return (
     <>
       <div
-        className={clsx('str-chat__quoted-message-preview quoted-message', isMyMessage() && 'mine')}
+        className={clsx('str-chat__quoted-message-preview quoted-message', { mine: isMyMessage() })}
         onClick={() => jumpToMessage(quoted_message.id)}
       >
         {quoted_message.user && (
