@@ -20,9 +20,17 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
+  AdditionalChannelSearchProps,
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
 } from '../ChannelSearch/ChannelSearch';
+import { ChannelSearchParams, useChannelSearch } from '../ChannelSearch/hooks/useChannelSearch';
+import {
+  AdditionalSearchBarProps,
+  SearchBar as DefaultSearchBar,
+  SearchBarProps,
+} from '../ChannelSearch/SearchBar';
+import { SearchResults } from '../ChannelSearch/SearchResults';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
@@ -44,8 +52,10 @@ const DEFAULT_SORT = {};
 export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: ChannelSearchProps<StreamChatGenerics>;
+  /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
+  additionalChannelSearchProps?: AdditionalChannelSearchProps<StreamChatGenerics> &
+    AdditionalSearchBarProps &
+    ChannelSearchParams<StreamChatGenerics>;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -59,7 +69,9 @@ export type ChannelListProps<
   channelRenderFilterFn?: (
     channels: Array<Channel<StreamChatGenerics>>,
   ) => Array<Channel<StreamChatGenerics>>;
-  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
+  /** @deprecated: in the future only SearchBar and SearchResults props will be available
+   * Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx)
+   */
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
@@ -126,6 +138,8 @@ export type ChannelListProps<
     channels: Channel<StreamChatGenerics>[],
     channelPreview: (item: Channel<StreamChatGenerics>) => React.ReactNode,
   ) => React.ReactNode;
+  /** Custom UI component to display the search bar with text input */
+  SearchBar?: React.ComponentType<SearchBarProps>;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
   sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
@@ -168,12 +182,29 @@ const UnMemoizedChannelList = <
     Paginator = LoadMorePaginator,
     Preview,
     renderChannels,
+    SearchBar = DefaultSearchBar,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
+
+  const {
+    ClearInputIcon,
+    ExitSearchIcon,
+    MenuIcon,
+    placeholder,
+    popupResults,
+    SearchEmpty,
+    SearchInput,
+    SearchInputIcon,
+    SearchLoading,
+    SearchResultItem,
+    SearchResultsHeader,
+    SearchResultsList,
+    ...channelSearchParams
+  } = additionalChannelSearchProps || {};
 
   const {
     channel,
@@ -184,8 +215,23 @@ const UnMemoizedChannelList = <
     navOpen = false,
     setActiveChannel,
     theme,
+    themeVersion,
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
+
+  const channelSearchController = useChannelSearch<StreamChatGenerics>({
+    enabled: showChannelSearch,
+    ...channelSearchParams,
+  });
+  const {
+    clearState,
+    inputRef,
+    onSearch,
+    query,
+    results,
+    searching,
+    selectResult,
+  } = channelSearchController;
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
@@ -300,46 +346,82 @@ const UnMemoizedChannelList = <
     return <ChannelPreview {...previewProps} />;
   };
 
-  const windowsEmojiClass =
-    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
-      ? 'str-chat--windows-flags'
-      : '';
-
   const className = clsx(
     'str-chat__channel-list',
+    theme,
     customClasses?.chat || 'str-chat',
     customClasses?.channelList || 'str-chat-channel-list',
-    navOpen && 'str-chat-channel-list--open',
-    theme,
-    windowsEmojiClass,
+    {
+      'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
+      'str-chat-channel-list--open': navOpen,
+    },
   );
 
+  const showSearchV2 = themeVersion === '2' && !popupResults;
   return (
     <>
       <div className={className} ref={channelListRef}>
-        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
-        <List
-          error={channelsQueryState.error}
-          loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-          loading={channelsQueryState.queryInProgress === 'reload'}
-          LoadingErrorIndicator={LoadingErrorIndicator}
-          LoadingIndicator={LoadingIndicator}
-          setChannels={setChannels}
-        >
-          {!loadedChannels?.length ? (
-            <EmptyStateIndicator listType='channel' />
+        {showChannelSearch &&
+          (showSearchV2 ? (
+            <SearchBar
+              ClearInputIcon={ClearInputIcon}
+              clearState={clearState}
+              ExitSearchIcon={ExitSearchIcon}
+              inputRef={inputRef}
+              MenuIcon={MenuIcon}
+              onSearch={onSearch}
+              placeholder={placeholder}
+              query={query}
+              SearchInputIcon={SearchInputIcon}
+            />
           ) : (
-            <Paginator
-              hasNextPage={hasNextPage}
-              loadNextPage={loadNextPage}
-              refreshing={channelsQueryState.queryInProgress === 'load-more'}
-            >
-              {renderChannels
-                ? renderChannels(loadedChannels, renderChannel)
-                : loadedChannels.map(renderChannel)}
-            </Paginator>
-          )}
-        </List>
+            <ChannelSearch
+              placeholder={placeholder}
+              popupResults={popupResults}
+              SearchEmpty={SearchEmpty}
+              SearchInput={SearchInput}
+              SearchLoading={SearchLoading}
+              SearchResultItem={SearchResultItem}
+              SearchResultsHeader={SearchResultsHeader}
+              SearchResultsList={SearchResultsList}
+              {...channelSearchController}
+            />
+          ))}
+        {query && showSearchV2 ? (
+          <SearchResults
+            results={results}
+            SearchEmpty={SearchEmpty}
+            searching={searching}
+            SearchLoading={SearchLoading}
+            SearchResultItem={SearchResultItem}
+            SearchResultsHeader={SearchResultsHeader}
+            SearchResultsList={SearchResultsList}
+            selectResult={selectResult}
+          />
+        ) : (
+          <List
+            error={channelsQueryState.error}
+            loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+            loading={channelsQueryState.queryInProgress === 'reload'}
+            LoadingErrorIndicator={LoadingErrorIndicator}
+            LoadingIndicator={LoadingIndicator}
+            setChannels={setChannels}
+          >
+            {!loadedChannels?.length ? (
+              <EmptyStateIndicator listType='channel' />
+            ) : (
+              <Paginator
+                hasNextPage={hasNextPage}
+                loadNextPage={loadNextPage}
+                refreshing={channelsQueryState.queryInProgress === 'load-more'}
+              >
+                {renderChannels
+                  ? renderChannels(loadedChannels, renderChannel)
+                  : loadedChannels.map((channel) => renderChannel(channel))}
+              </Paginator>
+            )}
+          </List>
+        )}
       </div>
     </>
   );
