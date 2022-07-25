@@ -14,6 +14,8 @@ import type {
   UserSort,
 } from 'stream-chat';
 
+import type { SearchInputController } from '../SearchInput';
+import type { SearchResultsController } from '../SearchResults';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type ChannelSearchFunctionParams<
@@ -25,18 +27,9 @@ export type ChannelSearchFunctionParams<
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export type SearchControllerState<
+export type SearchController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  channelSearchParams: ChannelSearchFunctionParams<StreamChatGenerics>;
-  clearState: () => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  onSearch: (event: React.BaseSyntheticEvent) => void;
-  query: string;
-  results: ChannelOrUserResponse<StreamChatGenerics>[];
-  searching: boolean;
-  selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
-};
+> = SearchInputController & SearchResultsController<StreamChatGenerics>;
 
 export type SearchQueryParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -53,15 +46,27 @@ export type SearchQueryParams<
   };
 };
 
-type UseChannelSearchParams<
+export type ChannelSearchParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** The type of channel to create on user result select, defaults to `messaging` */
-  channelType: string;
-  /** */
-  disabled?: boolean;
+  channelType?: string;
+  /** Clear search state / results on every click outside the search input, defaults to true */
+  clearSearchOnClickOutside?: boolean;
+  /** Search can be enabled, defaults to false */
+  enabled?: boolean;
+  /** Custom handler function to run on search result item selection */
+  onSelectResult?: (
+    params: ChannelSearchFunctionParams<StreamChatGenerics>,
+    result: ChannelOrUserResponse<StreamChatGenerics>,
+  ) => Promise<void> | void;
   /** Boolean to search for channels as well as users in the server query, default is false and just searches for users */
   searchForChannels?: boolean;
+  /** Custom search function to override the default implementation */
+  searchFunction?: (
+    params: ChannelSearchFunctionParams<StreamChatGenerics>,
+    event: React.BaseSyntheticEvent,
+  ) => Promise<void> | void;
   /** Object containing filters/sort/options overrides for user search */
   searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
 };
@@ -69,11 +74,14 @@ type UseChannelSearchParams<
 export const useChannelSearch = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  channelType,
-  disabled = false,
-  searchForChannels,
+  channelType = 'messaging',
+  clearSearchOnClickOutside = true,
+  enabled = false,
+  onSelectResult,
+  searchForChannels = false,
+  searchFunction,
   searchQueryParams,
-}: UseChannelSearchParams<StreamChatGenerics>): SearchControllerState<StreamChatGenerics> => {
+}: ChannelSearchParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
   const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
 
   const [query, setQuery] = useState('');
@@ -84,7 +92,6 @@ export const useChannelSearch = <
   const inputRef = useRef<HTMLInputElement>(null);
 
   const clearState = () => {
-    console.log('clear');
     setQuery('');
     setResults([]);
     setResultsOpen(false);
@@ -92,12 +99,12 @@ export const useChannelSearch = <
   };
 
   useEffect(() => {
-    if (disabled) return;
+    if (!enabled) return;
 
     const clickListener = (event: MouseEvent) => {
       if (resultsOpen && event.target instanceof HTMLElement) {
         const isInputClick = inputRef.current?.contains(event.target);
-        if (!isInputClick) {
+        if (!isInputClick && clearSearchOnClickOutside) {
           clearState();
         }
       }
@@ -109,6 +116,18 @@ export const useChannelSearch = <
 
   const selectResult = async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
     if (!client.userID) return;
+    if (onSelectResult) {
+      await onSelectResult(
+        {
+          setQuery,
+          setResults,
+          setResultsOpen,
+          setSearching,
+        },
+        result,
+      );
+      return;
+    }
 
     if (isChannel(result)) {
       setActiveChannel(result);
@@ -118,7 +137,9 @@ export const useChannelSearch = <
 
       setActiveChannel(newChannel);
     }
-    clearState();
+    if (clearSearchOnClickOutside) {
+      clearState();
+    }
   };
 
   const getChannels = async (text: string) => {
@@ -172,18 +193,25 @@ export const useChannelSearch = <
 
   const onSearch = (event: React.BaseSyntheticEvent) => {
     event.preventDefault();
-    setQuery(event.target.value);
-    getChannelsThrottled(event.target.value);
+    if (!enabled) return;
+
+    if (searchFunction) {
+      searchFunction(
+        {
+          setQuery,
+          setResults,
+          setResultsOpen,
+          setSearching,
+        },
+        event,
+      );
+    } else {
+      setQuery(event.target.value);
+      getChannelsThrottled(event.target.value);
+    }
   };
 
-  const channelSearchParams = {
-    setQuery,
-    setResults,
-    setResultsOpen,
-    setSearching,
-  };
   return {
-    channelSearchParams,
     clearState,
     inputRef,
     onSearch,
