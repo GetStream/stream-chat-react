@@ -239,6 +239,14 @@ Message type string to be added to CSS class names.
 | ------ | -------- |
 | string | 'simple' |
 
+### tooltipUserNameMapper
+
+Allows you to customize the username(s) that appear on the message status tooltip.
+
+| Type                                               | Default                         |
+| -------------------------------------------------- | ------------------------------- |
+| (user: UserResponse<StreamchatGenerics>) => string | (user ) => user.name || user.id |
+
 ## MessageText Props
 
 ### customInnerClass
