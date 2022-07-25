@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, queryByTestId, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
@@ -8,43 +8,39 @@ import { Chat } from '../../Chat';
 import { useChannelSearch } from '../hooks/useChannelSearch';
 
 import {
-  generateChannel,
-  getOrCreateChannelApi,
+  generateUser,
   getTestClientWithUser,
+  queryUsersApi,
   useMockedApis,
 } from '../../../mock-builders';
 
-async function createClientWithChannel() {
-  const mockedChannel = generateChannel();
-  const client = await getTestClientWithUser({ id: 'id' });
-  useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', mockedChannel.id);
-  await channel.watch();
-
-  return { channel, client };
-}
+let client;
+const inputText = new Date().getTime().toString();
 
 const SearchContainer = ({ props = {}, searchParams }) => {
   const controller = useChannelSearch(searchParams);
   return <SearchBar {...controller} {...props} />;
 };
 
-const renderComponent = async ({ props = {}, searchParams }) => {
-  const { client } = await createClientWithChannel();
-
-  return render(
+const renderComponent = ({ client, props = {}, searchParams }) =>
+  render(
     <Chat client={client}>
       <SearchContainer props={props} searchParams={searchParams} />
     </Chat>,
   );
-};
 
 describe('SearchBar', () => {
+  beforeEach(async () => {
+    const user = generateUser();
+    client = await getTestClientWithUser({ id: user.id });
+    useMockedApis(client, [queryUsersApi([user])]); // eslint-disable-line react-hooks/rules-of-hooks
+  });
+
   it.each([
     ['enable', true, 'xxxxxxxxxx', 'xxxxxxxxxx'],
     ['disable', false, 'xxxxxxxxxx', ''],
   ])('should %s typing', async (_, enabled, inputText, expectedValue) => {
-    await renderComponent({ searchParams: { enabled } });
+    await renderComponent({ client, searchParams: { enabled } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -94,8 +90,10 @@ describe('SearchBar', () => {
     expect(screen.queryByText('CustomSearchInputIcon')).toBeInTheDocument();
   });
 
-  it.todo('should not render ExitSearchIcon if input not focused', async () => {
-    await renderComponent({ searchParams: { enabled: true } });
+  it('should not render ExitSearchIcon if input is not focused', async () => {
+    await act(() => {
+      renderComponent({ client, searchParams: { enabled: true } });
+    });
 
     await waitFor(() => {
       expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
@@ -103,7 +101,7 @@ describe('SearchBar', () => {
   });
 
   it('should render ExitSearchIcon on input focus', async () => {
-    await renderComponent({ searchParams: { enabled: true } });
+    await renderComponent({ client, searchParams: { enabled: true } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -115,9 +113,10 @@ describe('SearchBar', () => {
       expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
     });
   });
-  it.todo('should render custom ExitSearchIcon', async () => {
+  it('should render custom ExitSearchIcon', async () => {
     const ExitSearchIcon = () => <div>CustomExitSearchIcon</div>;
     await renderComponent({
+      client,
       props: { ExitSearchIcon },
       searchParams: { enabled: true },
     });
@@ -132,24 +131,27 @@ describe('SearchBar', () => {
       expect(screen.queryByText('CustomExitSearchIcon')).toBeInTheDocument();
     });
   });
-  it.todo('should render custom input placeholder', async () => {
+  it('should render custom input placeholder', async () => {
     const placeholder = 'Type and search xxxx';
-    await renderComponent({
-      props: { placeholder },
-      searchParams: { enabled: true },
+    await act(() => {
+      renderComponent({
+        client,
+        props: { placeholder },
+        searchParams: { enabled: true },
+      });
     });
 
     await waitFor(() => {
       expect(screen.queryByPlaceholderText(placeholder)).toBeInTheDocument();
     });
   });
-  it.todo('should clear input', async () => {
-    const inputText = +new Date().getTime();
-    await renderComponent({ searchParams: { enabled: true } });
+  it('should clear input', async () => {
+    renderComponent({ client, searchParams: { enabled: true } });
 
     const input = screen.queryByTestId('search-input');
 
     await act(() => {
+      input.focus();
       fireEvent.change(input, {
         target: {
           value: inputText,
@@ -163,23 +165,24 @@ describe('SearchBar', () => {
 
     const clearButton = screen.queryByTestId('clear-input-button');
 
-    await (() => {
+    await act(() => {
       fireEvent.click(clearButton);
     });
+
     await waitFor(() => {
-      expect(input).toBeEmpty();
+      expect(input).toHaveValue('');
       expect(input).toHaveFocus();
-      expect(queryByTestId('return-icon')).toBeInTheDocument();
+      expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
     });
   });
 
-  it.todo('should exit search UI', async () => {
-    const inputText = +new Date().getTime();
-    await renderComponent({ searchParams: { enabled: true } });
+  it('should exit search UI', async () => {
+    await renderComponent({ client, searchParams: { enabled: true } });
 
     const input = screen.queryByTestId('search-input');
 
     await act(() => {
+      input.focus();
       fireEvent.change(input, {
         target: {
           value: inputText,
@@ -193,22 +196,25 @@ describe('SearchBar', () => {
 
     const returnButton = screen.queryByTestId('search-bar-button');
 
-    await (() => {
+    await act(() => {
       fireEvent.click(returnButton);
     });
     await waitFor(() => {
-      expect(input).toBeEmpty();
+      expect(input).toHaveValue('');
       expect(input).not.toHaveFocus();
-      expect(queryByTestId('return-icon')).not.toBeInTheDocument();
-      expect(queryByTestId('menu')).toBeInTheDocument();
+      expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('menu')).toBeInTheDocument();
     });
   });
 
   it('should render custom SearchInput', async () => {
     const SearchInput = () => <div>CustomSearchInput</div>;
-    await renderComponent({
-      props: { SearchInput },
-      searchParams: { enabled: true },
+    await act(() => {
+      renderComponent({
+        client,
+        props: { SearchInput },
+        searchParams: { enabled: true },
+      });
     });
 
     await waitFor(() => {
