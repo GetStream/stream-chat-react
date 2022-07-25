@@ -346,15 +346,19 @@ export const getReadByTooltipText = <
   users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
   client: StreamChat<StreamChatGenerics>,
-  tooltipUserNameMapper: TooltipUsernameMapper = (user: UserResponse<StreamChatGenerics>) =>
-    user.name || user.id,
+  tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
   let outStr = '';
 
   if (!t) {
-    throw new Error('`getReadByTooltipText was called, but translation function is not available`');
+    throw new Error('getReadByTooltipText was called, but translation function is not available');
   }
 
+  if (!tooltipUserNameMapper) {
+    throw new Error(
+      'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
+    );
+  }
   // first filter out client user, so restLength won't count it
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)

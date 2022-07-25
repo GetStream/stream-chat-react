@@ -13,11 +13,12 @@ import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { UserResponse } from 'stream-chat';
 
 export type MessageStatusProps = {
   Avatar?: React.ComponentType<AvatarProps>;
   messageType?: string;
-  readByToolTipFormat?: TooltipUsernameMapper;
+  tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
 const UnMemoizedMessageStatus = <
@@ -25,7 +26,11 @@ const UnMemoizedMessageStatus = <
 >(
   props: MessageStatusProps,
 ) => {
-  const { Avatar: propAvatar, messageType = 'simple', readByToolTipFormat } = props;
+  const {
+    Avatar: propAvatar,
+    messageType = 'simple',
+    tooltipUserNameMapper = (user: UserResponse<StreamChatGenerics>) => user.name || user.id,
+  } = props;
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
@@ -66,7 +71,7 @@ const UnMemoizedMessageStatus = <
         className={`str-chat__message-${messageType}-status`}
         data-testid='message-status-read-by'
       >
-        <Tooltip>{getReadByTooltipText(readBy, t, client, readByToolTipFormat)}</Tooltip>
+        <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
         <Avatar
           image={lastReadUser.image}
           name={lastReadUser.name || lastReadUser.id}
