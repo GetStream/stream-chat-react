@@ -1,45 +1,68 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import clsx from 'clsx';
 
-import { SearchInput } from './SearchInput';
 import {
   MenuIcon as DefaultMenuIcon,
   SearchInputIcon as DefaultSearchInputIcon,
   ReturnIcon,
   XIcon,
 } from './icons';
+import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
 
-import { useChatContext } from '../../context/ChatContext';
-
-import type { SearchInputProps } from './SearchInput';
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type SearchBarProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  ClearIcon?: React.ComponentType;
-  HideSearchResultsIcon?: React.ComponentType;
+export type AdditionalSearchBarProps = {
+  /** Custom icon component used to clear the input value on click. Displayed within the search input wrapper. */
+  ClearInputIcon?: React.ComponentType;
+  /** Custom icon component used to terminate the search UI session on click. */
+  ExitSearchIcon?: React.ComponentType;
+  /** Custom icon component used to invoke context menu. */
   MenuIcon?: React.ComponentType;
+  /** Custom UI component to display the search text input */
+  SearchInput?: React.ComponentType<SearchInputProps>;
+  /** Custom icon used to indicate search input. */
   SearchInputIcon?: React.ComponentType;
-} & SearchInputProps<StreamChatGenerics>;
+};
 
-const TheSearchBar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: SearchBarProps<StreamChatGenerics>,
-) => {
+export type SearchBarProps = AdditionalSearchBarProps & SearchInputProps;
+
+// todo: add context menu control logic
+export const SearchBar = (props: SearchBarProps) => {
   const {
-    ClearIcon = XIcon,
-    HideSearchResultsIcon = ReturnIcon,
+    ClearInputIcon = XIcon,
+    ExitSearchIcon = ReturnIcon,
     MenuIcon = DefaultMenuIcon,
+    SearchInput = DefaultSearchInput,
     SearchInputIcon = DefaultSearchInputIcon,
     ...inputProps
   } = props;
+  const [inputIsFocused, setInputIsFocused] = useState(false);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      setInputIsFocused(true);
+    };
+    const handleBlur = (e: Event) => {
+      e.stopPropagation();
+    };
+    props.inputRef.current?.addEventListener('focus', handleFocus);
+    props.inputRef.current?.addEventListener('blur', handleBlur);
+    return () => {
+      props.inputRef.current?.removeEventListener('focus', handleFocus);
+      props.inputRef.current?.addEventListener('blur', handleBlur);
+    };
+  }, []);
 
   return (
     <div className='str-chat__channel-search-bar'>
-      <button className='str-chat__channel-search-bar--menu-button'>
-        {props.query ? <HideSearchResultsIcon /> : <MenuIcon />}
+      <button
+        className='str-chat__channel-search-bar--menu-button'
+        data-testid='search-bar-button'
+        onClick={() => {
+          setInputIsFocused(false);
+          inputProps.inputRef.current?.blur();
+          inputProps.clearState();
+        }}
+      >
+        {inputIsFocused ? <ExitSearchIcon /> : <MenuIcon />}
       </button>
       <div
         className={clsx(
@@ -51,19 +74,17 @@ const TheSearchBar = <
           <SearchInputIcon />
         </div>
         <SearchInput {...inputProps} />
-        <div className='str-chat__channel-search-input--clear-icon' onClick={inputProps.clearState}>
-          <ClearIcon />
+        <div
+          className='str-chat__channel-search-input--clear-icon'
+          data-testid='clear-input-button'
+          onClick={() => {
+            inputProps.clearState();
+            inputProps.inputRef.current?.focus();
+          }}
+        >
+          <ClearInputIcon />
         </div>
       </div>
     </div>
   );
-};
-
-export const SearchBar = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: SearchBarProps<StreamChatGenerics>,
-) => {
-  const { themeVersion } = useChatContext();
-  return themeVersion === '2' ? <TheSearchBar {...props} /> : <SearchInput {...props} />;
 };
