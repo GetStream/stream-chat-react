@@ -44,6 +44,7 @@ import { useChatContext } from '../../context/ChatContext';
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
+import uniqBy from 'lodash.uniqby';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -218,7 +219,7 @@ const UnMemoizedChannelList = <
     themeVersion,
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
-
+  console.log('active', channel);
   const channelSearchController = useChannelSearch<StreamChatGenerics>({
     enabled: showChannelSearch,
     ...channelSearchParams,
@@ -290,7 +291,12 @@ const UnMemoizedChannelList = <
     activeChannelHandler,
   );
 
-  const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
+  const loadedAndSearchSelectedChannels = channel
+    ? uniqBy([channel, ...channels], 'cid')
+    : channels;
+  const loadedChannels = channelRenderFilterFn
+    ? channelRenderFilterFn(loadedAndSearchSelectedChannels)
+    : loadedAndSearchSelectedChannels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
