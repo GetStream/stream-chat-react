@@ -1,10 +1,10 @@
 import React from 'react';
+import { nanoid } from 'nanoid';
 import { getNodeText } from '@testing-library/dom';
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import {
   dispatchChannelDeletedEvent,
@@ -19,24 +19,27 @@ import {
   dispatchNotificationRemovedFromChannel,
   erroredPostApi,
   generateChannel,
+  generateMember,
   generateMessage,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
   queryChannelsApi,
+  queryUsersApi,
   useMockedApis,
 } from 'mock-builders';
-import { nanoid } from 'nanoid';
 
-import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
-
 import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
   ChannelPreviewLastMessage,
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
+
+import { ChatContext } from '../../../context/ChatContext';
+
+expect.extend(toHaveNoViolations);
 
 const channelsQueryStateMock = {
   error: null,
@@ -423,6 +426,198 @@ describe('ChannelList', () => {
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
         const results = await axe(container);
         expect(results).toHaveNoViolations();
+      });
+    });
+
+    describe('channel search', () => {
+      const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
+      const inputText = 'xxxxxxxxxx';
+      const user1 = generateUser();
+      const user2 = generateUser();
+      const mockedChannels = Array.from({ length: 3 }, (_, i) =>
+        generateChannel({
+          data: { image: `image-xxx-${i}`, name: `channel-xxx-${i}` },
+          members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+          messages: ' '
+            .repeat(20)
+            .split(' ')
+            .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
+        }),
+      );
+
+      let client;
+      let channel;
+      beforeEach(async () => {
+        client = await getTestClientWithUser({ id: user1.id });
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useMockedApis(client, [
+          queryChannelsApi(mockedChannels), // first API call goes to /channels endpoint
+          queryUsersApi([user1, user2]), // onSearch starts searching users first
+        ]);
+        channel = client.channel('messaging', mockedChannels[0].id);
+      });
+
+      const renderComponents = (chatContext = {}, channeListProps) =>
+        render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              setActiveChannel,
+              ...chatContext,
+            }}
+          >
+            <ChannelList
+              filters={{}}
+              options={{ presence: true, state: true }}
+              showChannelSearch
+              {...channeListProps}
+            />
+          </ChatContext.Provider>,
+        );
+
+      it.each([['1'], ['2']])(
+        "theme v%s should not render search results on input focus if user haven't started to type",
+        async (themeVersion) => {
+          const { container } = await renderComponents({ channel, client, themeVersion });
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.focus(input);
+          });
+
+          await waitFor(() => {
+            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+          });
+        },
+      );
+      it.each([['1'], ['2']])(
+        'theme v%s should not render inline search results if popupResults is true',
+        async (themeVersion) => {
+          const { container } = await renderComponents(
+            { channel, client, themeVersion },
+            { additionalChannelSearchProps: { popupResults: true } },
+          );
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+          await waitFor(() => {
+            expect(
+              container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
+            ).toBeInTheDocument();
+            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+          });
+        },
+      );
+      it('theme v2 should render inline search results if popupResults is false', async () => {
+        const { container } = await renderComponents(
+          { channel, client, themeVersion: '2' },
+          { additionalChannelSearchProps: { popupResults: false } },
+        );
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.inline`),
+          ).toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+
+      it.each([
+        ['1', 'should not', false],
+        ['2', 'should not', false],
+        ['1', 'should', true],
+        ['2', 'should', true],
+      ])(
+        'theme v%s %s unmount search results on result click, if configured',
+        async (themeVersion, _, clearSearchOnClickOutside) => {
+          const { container } = await renderComponents(
+            { channel, client, themeVersion },
+            { additionalChannelSearchProps: { clearSearchOnClickOutside } },
+          );
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+
+          const searchResults = screen.queryAllByRole('option');
+          useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
+          await act(() => {
+            fireEvent.click(searchResults[0]);
+          });
+
+          await waitFor(() => {
+            if (clearSearchOnClickOutside) {
+              expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            } else {
+              expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).toBeInTheDocument();
+            }
+          });
+        },
+      );
+
+      it('theme v2 should unmount search results if user cleared the input', async () => {
+        const { container } = await renderComponents({ channel, client, themeVersion: '2' });
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          input.focus();
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        const clearButton = screen.queryByTestId('clear-input-button');
+        await act(() => {
+          fireEvent.click(clearButton);
+        });
+        await waitFor(() => {
+          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+          expect(input).toHaveValue('');
+          expect(input).toHaveFocus();
+          expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+        });
+      });
+
+      it('theme v2 should unmount search results if user clicked the return button', async () => {
+        const { container } = await renderComponents({ channel, client, themeVersion: '2' });
+        const input = screen.queryByTestId('search-input');
+
+        await act(() => {
+          input.focus();
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        const returnIcon = screen.queryByTestId('return-icon');
+        await act(() => {
+          fireEvent.click(returnIcon);
+        });
+        await waitFor(() => {
+          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+          expect(input).not.toHaveFocus();
+          expect(input).toHaveValue('');
+          expect(returnIcon).not.toBeInTheDocument();
+        });
       });
     });
   });
