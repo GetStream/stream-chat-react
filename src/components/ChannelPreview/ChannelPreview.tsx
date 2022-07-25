@@ -29,6 +29,8 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /** Custom ChannelPreview click handler function */
+  onSelect?: (event: React.MouseEvent) => void;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -47,6 +49,8 @@ export type ChannelPreviewProps<
   /** Custom class for the channel preview root */
   className?: string;
   key?: string;
+  /** Custom ChannelPreview click handler function */
+  onSelect?: (event: React.MouseEvent) => void;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
   /** Setter for selected Channel */

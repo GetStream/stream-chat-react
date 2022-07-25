@@ -20,6 +20,7 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
+    onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
     watchers,
@@ -30,8 +31,10 @@ const UnMemoizedChannelPreviewMessenger = <
   const avatarName =
     displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
 
-  const onSelectChannel = () => {
-    if (setActiveChannel) {
+  const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (customOnSelectChannel) {
+      customOnSelectChannel(e);
+    } else if (setActiveChannel) {
       setActiveChannel(channel, watchers);
     }
     if (channelPreviewButton?.current) {
