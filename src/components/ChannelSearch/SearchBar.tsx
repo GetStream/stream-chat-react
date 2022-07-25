@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import {
   MenuIcon as DefaultMenuIcon,
-  SearchInputIcon as DefaultSearchInputIcon,
+  SearchIcon as DefaultSearchInputIcon,
   ReturnIcon,
   XIcon,
 } from './icons';

@@ -20,7 +20,14 @@ export const MenuIcon = () => (
 );
 
 export const ReturnIcon = () => (
-  <svg fill='none' height='24' viewBox='0 0 22 22' width='24' xmlns='http://www.w3.org/2000/svg'>
+  <svg
+    data-testid='return-icon'
+    fill='none'
+    height='24'
+    viewBox='0 0 22 22'
+    width='24'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <path
       d='M21.6668 9.66666V12.3333H5.6529L12.9932 19.6736L11.1076 21.5592L0.54834 11L11.1076 0.440765L12.9932 2.32638L5.6529 9.66666H21.6668Z'
       fill='#080707'
@@ -37,7 +44,7 @@ export const XIcon = () => (
   </svg>
 );
 
-export const SearchInputIcon = ({ className }: IconProps) => (
+export const SearchIcon = ({ className }: IconProps) => (
   <svg
     className={className}
     fill='none'
