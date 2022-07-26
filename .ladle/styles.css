@@ -8,3 +8,11 @@
 .str-chat-channel-list {
   overflow: auto;
 }
+
+.chat-root {
+  display: flex;
+}
+
+.chat-root .str-chat__channel {
+  flex-grow: 1;
+}

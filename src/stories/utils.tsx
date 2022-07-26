@@ -63,7 +63,9 @@ export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>(
   return (
     <>
       <h3>User: {userId}</h3>
-      <Chat client={client}>{children}</Chat>
+      <div className='chat-root'>
+        <Chat client={client}>{children}</Chat>
+      </div>
     </>
   );
 };
