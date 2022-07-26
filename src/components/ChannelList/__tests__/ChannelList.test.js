@@ -105,20 +105,23 @@ describe('ChannelList', () => {
       useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
-            closeMobileNav,
-            navOpen: true,
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
-      );
-
+      let result;
+      await act(() => {
+        result = render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              closeMobileNav,
+              navOpen: true,
+            }}
+          >
+            <ChannelList {...props} />
+            <div data-testid='outside-channellist' />
+          </ChatContext.Provider>,
+        );
+      });
+      const { container, getByRole, getByTestId } = result;
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
@@ -133,19 +136,23 @@ describe('ChannelList', () => {
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
-            closeMobileNav,
-            navOpen: false,
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
-      );
+      let result;
+      await act(() => {
+        result = render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              closeMobileNav,
+              navOpen: false,
+            }}
+          >
+            <ChannelList {...props} />
+            <div data-testid='outside-channellist' />
+          </ChatContext.Provider>,
+        );
+      });
+      const { container, getByRole, getByTestId } = result;
 
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
