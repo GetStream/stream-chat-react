@@ -436,7 +436,7 @@ describe('ChannelList', () => {
       const user2 = generateUser();
       const mockedChannels = Array.from({ length: 3 }, (_, i) =>
         generateChannel({
-          data: { image: `image-xxx-${i}`, name: `channel-xxx-${i}` },
+          channel: { image: `image-xxx-${i}`, name: `channel-xxx-${i}` },
           members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
           messages: ' '
             .repeat(20)
@@ -450,11 +450,13 @@ describe('ChannelList', () => {
       beforeEach(async () => {
         client = await getTestClientWithUser({ id: user1.id });
         // eslint-disable-next-line react-hooks/rules-of-hooks
+        useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
+        channel = client.channel('messaging', mockedChannels[0].id);
+        await channel.watch();
         useMockedApis(client, [
           queryChannelsApi(mockedChannels), // first API call goes to /channels endpoint
           queryUsersApi([user1, user2]), // onSearch starts searching users first
         ]);
-        channel = client.channel('messaging', mockedChannels[0].id);
       });
 
       const renderComponents = (chatContext = {}, channeListProps) =>
@@ -619,6 +621,59 @@ describe('ChannelList', () => {
           expect(returnIcon).not.toBeInTheDocument();
         });
       });
+      it.each([['1'], ['2']])(
+        'theme v%s should add the selected result to the top of the channel list',
+        async (themeVersion) => {
+          const getComputedStyleMock = jest.spyOn(window, 'getComputedStyle');
+          getComputedStyleMock.mockReturnValue({
+            getPropertyValue: jest.fn().mockReturnValue(themeVersion),
+          });
+          await render(
+            <Chat client={client}>
+              <ChannelList
+                additionalChannelSearchProps={{ searchForChannels: true }}
+                filters={{}}
+                options={{ presence: true, state: true }}
+                showChannelSearch
+              />
+            </Chat>,
+          );
+
+          const channelNotInTheList = generateChannel({
+            channel: { name: 'channel-not-loaded-yet' },
+          });
+
+          await waitFor(() => {
+            expect(screen.queryAllByRole('option')).toHaveLength(3);
+            expect(screen.queryByText(channelNotInTheList.channel.name)).not.toBeInTheDocument();
+          });
+
+          useMockedApis(client, [queryChannelsApi([channelNotInTheList, ...mockedChannels])]);
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            input.focus();
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+
+          const targetChannelPreview = screen.queryByText(channelNotInTheList.channel.name);
+          expect(targetChannelPreview).toBeInTheDocument();
+          await act(() => {
+            fireEvent.click(targetChannelPreview);
+          });
+          const returnIcon = screen.queryByTestId('return-icon');
+          await act(() => {
+            if (themeVersion === '2') fireEvent.click(returnIcon);
+          });
+          await waitFor(() => {
+            expect(screen.queryByText(channelNotInTheList.channel.name)).toBeInTheDocument();
+          });
+          getComputedStyleMock.mockClear();
+        },
+      );
     });
   });
 
