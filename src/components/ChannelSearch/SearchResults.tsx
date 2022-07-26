@@ -35,8 +35,8 @@ const DefaultSearchResultsHeader = <
       className='str-chat__channel-search-results-header'
       data-testid='channel-search-results-header'
     >
-      {t<string>('{{ searchResultsCount }} results', {
-        searchResultsCount: results.length,
+      {t<string>('searchResultsCount', {
+        count: results.length,
       })}
     </div>
   );

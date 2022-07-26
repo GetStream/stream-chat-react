@@ -62,6 +62,8 @@
   "live": "canlı",
   "replyCount_one": "1 cevap",
   "replyCount_other": "{{ count }} cevaplar",
+  "searchResultsCount_one": "1 sonuç",
+  "searchResultsCount_other": "{{ count }} sonuç",
   "this content could not be displayed": "bu içerik gösterilemiyor",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} ve {{ moreCount }} daha",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, ve {{ lastUser }}",

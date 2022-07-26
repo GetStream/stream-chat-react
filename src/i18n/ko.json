@@ -62,6 +62,8 @@
   "live": "라이브",
   "replyCount_one": "답장 1개",
   "replyCount_other": "{{ count }} 답장",
+  "searchResultsCount_one": "하나의 결과",
+  "searchResultsCount_other": "{{ count }} 결과",
   "this content could not be displayed": "이 콘텐츠를 표시할 수 없습니다",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} 그리고 {{ moreCount }}명 더",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} 그리고 {{ lastUser }}",

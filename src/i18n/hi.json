@@ -62,6 +62,8 @@
   "live": "लाइव",
   "replyCount_one": "1 रिप्लाई",
   "replyCount_other": "{{ count }} रिप्लाई",
+  "searchResultsCount_one": "1 परिणाम",
+  "searchResultsCount_other": "{{ count }} परिणाम",
   "this content could not be displayed": "यह कॉन्टेंट लोड नहीं हो पाया",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} और {{ moreCount }} और",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} और {{ lastUser }}",
