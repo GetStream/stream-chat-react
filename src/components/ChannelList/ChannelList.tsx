@@ -219,7 +219,7 @@ const UnMemoizedChannelList = <
     themeVersion,
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
-  console.log('active', channel);
+
   const channelSearchController = useChannelSearch<StreamChatGenerics>({
     enabled: showChannelSearch,
     ...channelSearchParams,
