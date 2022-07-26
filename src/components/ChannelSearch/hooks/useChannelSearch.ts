@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
+import uniqBy from 'lodash.uniqby';
 
 import { ChannelOrUserResponse, isChannel } from '../utils';
 
@@ -14,6 +15,7 @@ import type {
   UserSort,
 } from 'stream-chat';
 
+import type { Channel } from 'stream-chat';
 import type { SearchInputController } from '../SearchInput';
 import type { SearchResultsController } from '../SearchResults';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
@@ -71,6 +73,13 @@ export type ChannelSearchParams<
   searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
 };
 
+type ChannelSearchControllerParams<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = ChannelSearchParams<StreamChatGenerics> & {
+  /** Set the array of channels displayed in the ChannelList */
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+};
+
 export const useChannelSearch = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
@@ -81,7 +90,8 @@ export const useChannelSearch = <
   searchForChannels = false,
   searchFunction,
   searchQueryParams,
-}: ChannelSearchParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
+  setChannels,
+}: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
   const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
 
   const [query, setQuery] = useState('');
@@ -128,15 +138,18 @@ export const useChannelSearch = <
       );
       return;
     }
-
+    let selectedChannel: Channel<StreamChatGenerics>;
     if (isChannel(result)) {
       setActiveChannel(result);
+      selectedChannel = result;
     } else {
       const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
       await newChannel.watch();
 
       setActiveChannel(newChannel);
+      selectedChannel = newChannel;
     }
+    setChannels((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
     if (clearSearchOnClickOutside) {
       clearState();
     }

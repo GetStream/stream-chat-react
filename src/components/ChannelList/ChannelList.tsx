@@ -44,7 +44,6 @@ import { useChatContext } from '../../context/ChatContext';
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
-import uniqBy from 'lodash.uniqby';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
@@ -220,20 +219,6 @@ const UnMemoizedChannelList = <
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
 
-  const channelSearchController = useChannelSearch<StreamChatGenerics>({
-    enabled: showChannelSearch,
-    ...channelSearchParams,
-  });
-  const {
-    clearState,
-    inputRef,
-    onSearch,
-    query,
-    results,
-    searching,
-    selectResult,
-  } = channelSearchController;
-
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
 
@@ -291,12 +276,22 @@ const UnMemoizedChannelList = <
     activeChannelHandler,
   );
 
-  const loadedAndSearchSelectedChannels = channel
-    ? uniqBy([channel, ...channels], 'cid')
-    : channels;
-  const loadedChannels = channelRenderFilterFn
-    ? channelRenderFilterFn(loadedAndSearchSelectedChannels)
-    : loadedAndSearchSelectedChannels;
+  const channelSearchController = useChannelSearch<StreamChatGenerics>({
+    enabled: showChannelSearch,
+    setChannels,
+    ...channelSearchParams,
+  });
+  const {
+    clearState,
+    inputRef,
+    onSearch,
+    query,
+    results,
+    searching,
+    selectResult,
+  } = channelSearchController;
+
+  const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
