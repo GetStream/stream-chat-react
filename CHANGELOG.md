@@ -1,3 +1,10 @@
+# [9.2.0](https://github.com/GetStream/stream-chat-react/compare/v9.1.5...v9.2.0) (2022-07-26)
+
+
+### Features
+
+* add autoscrollToBottom to message context ([#1681](https://github.com/GetStream/stream-chat-react/issues/1681)) ([a616184](https://github.com/GetStream/stream-chat-react/commit/a6161843509c55e9b432f4f66dfb344f0faa8b18))
+
 ## [9.1.5](https://github.com/GetStream/stream-chat-react/compare/v9.1.4...v9.1.5) (2022-07-15)
 
 
