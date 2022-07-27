@@ -191,6 +191,7 @@ const UnMemoizedChannelList = <
   } = props;
 
   const {
+    AppMenu,
     ClearInputIcon,
     ExitSearchIcon,
     MenuIcon,
@@ -282,11 +283,15 @@ const UnMemoizedChannelList = <
     ...channelSearchParams,
   });
   const {
+    activateSearch,
     clearState,
+    exitSearch,
+    inputIsFocused,
     inputRef,
     onSearch,
     query,
     results,
+    searchBarRef,
     searching,
     selectResult,
   } = channelSearchController;
@@ -365,14 +370,19 @@ const UnMemoizedChannelList = <
         {showChannelSearch &&
           (showSearchV2 ? (
             <SearchBar
+              activateSearch={activateSearch}
+              AppMenu={AppMenu}
               ClearInputIcon={ClearInputIcon}
               clearState={clearState}
+              exitSearch={exitSearch}
               ExitSearchIcon={ExitSearchIcon}
+              inputIsFocused={inputIsFocused}
               inputRef={inputRef}
               MenuIcon={MenuIcon}
               onSearch={onSearch}
               placeholder={placeholder}
               query={query}
+              searchBarRef={searchBarRef}
               SearchInputIcon={SearchInputIcon}
             />
           ) : (

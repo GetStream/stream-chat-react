@@ -3,7 +3,7 @@ import type { IconProps } from '../../types/types';
 
 export const MenuIcon = () => (
   <svg
-    data-testid='menu'
+    data-testid='menu-icon'
     fill='none'
     height='24'
     viewBox='0 0 24 24'
@@ -23,9 +23,9 @@ export const ReturnIcon = () => (
   <svg
     data-testid='return-icon'
     fill='none'
-    height='24'
+    height='20'
     viewBox='0 0 22 22'
-    width='24'
+    width='20'
     xmlns='http://www.w3.org/2000/svg'
   >
     <path

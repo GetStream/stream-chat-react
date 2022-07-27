@@ -671,12 +671,12 @@ describe('ChannelList', () => {
           await act(() => {
             fireEvent.click(targetChannelPreview);
           });
-          const returnIcon = screen.queryByTestId('return-icon');
-          await act(() => {
-            if (themeVersion === '2') fireEvent.click(returnIcon);
-          });
+
           await waitFor(() => {
             expect(screen.queryByText(channelNotInTheList.channel.name)).toBeInTheDocument();
+            if (themeVersion === '2') {
+              expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
+            }
           });
           getComputedStyleMock.mockClear();
         },

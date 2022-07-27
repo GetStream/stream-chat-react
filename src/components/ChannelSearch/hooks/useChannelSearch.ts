@@ -16,6 +16,7 @@ import type {
 } from 'stream-chat';
 
 import type { Channel } from 'stream-chat';
+import type { SearchBarController } from '../SearchBar';
 import type { SearchInputController } from '../SearchInput';
 import type { SearchResultsController } from '../SearchResults';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
@@ -31,7 +32,7 @@ export type ChannelSearchFunctionParams<
 
 export type SearchController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = SearchInputController & SearchResultsController<StreamChatGenerics>;
+> = SearchInputController & SearchBarController & SearchResultsController<StreamChatGenerics>;
 
 export type SearchQueryParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -92,14 +93,18 @@ export const useChannelSearch = <
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
+  const { client, navOpen, setActiveChannel, themeVersion } = useChatContext<StreamChatGenerics>(
+    'useChannelSearch',
+  );
 
+  const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<ChannelOrUserResponse<StreamChatGenerics>>>([]);
   const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchBarRef = useRef<HTMLDivElement>(null);
 
   const clearState = () => {
     setQuery('');
@@ -108,21 +113,40 @@ export const useChannelSearch = <
     setSearching(false);
   };
 
+  const activateSearch = () => {
+    setInputIsFocused(true);
+  };
+
+  const exitSearch = () => {
+    setInputIsFocused(false);
+    inputRef.current?.blur();
+    clearState();
+  };
+
   useEffect(() => {
     if (!enabled) return;
 
     const clickListener = (event: MouseEvent) => {
-      if (resultsOpen && event.target instanceof HTMLElement) {
-        const isInputClick = inputRef.current?.contains(event.target);
-        if (!isInputClick && clearSearchOnClickOutside) {
-          clearState();
-        }
+      if (!(event.target instanceof HTMLElement)) return;
+      const isInputClick =
+        themeVersion === '2'
+          ? searchBarRef.current?.contains(event.target)
+          : inputRef.current?.contains(event.target);
+
+      if (isInputClick) return;
+
+      if (
+        (navOpen && inputIsFocused) ||
+        (resultsOpen && clearSearchOnClickOutside) ||
+        (inputIsFocused && !query)
+      ) {
+        exitSearch();
       }
     };
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [resultsOpen]);
+  }, [enabled, inputIsFocused, resultsOpen]);
 
   const selectResult = async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
     if (!client.userID) return;
@@ -225,11 +249,15 @@ export const useChannelSearch = <
   };
 
   return {
+    activateSearch,
     clearState,
+    exitSearch,
+    inputIsFocused,
     inputRef,
     onSearch,
     query,
     results,
+    searchBarRef,
     searching,
     selectResult,
   };

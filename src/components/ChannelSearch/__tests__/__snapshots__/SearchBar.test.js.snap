@@ -4,27 +4,6 @@ exports[`SearchBar should render default layout 1`] = `
 <div
   className="str-chat__channel-search-bar"
 >
-  <button
-    className="str-chat__channel-search-bar--menu-button"
-    data-testid="search-bar-button"
-    onClick={[Function]}
-  >
-    <svg
-      data-testid="menu"
-      fill="none"
-      height="24"
-      viewBox="0 0 24 24"
-      width="24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        clipRule="evenodd"
-        d="M3 8V6H21V8H3ZM3 13H21V11H3V13ZM3 18H21V16H3V18Z"
-        fill="black"
-        fillRule="evenodd"
-      />
-    </svg>
-  </button>
   <div
     className="str-chat__channel-search-input--wrapper"
   >
@@ -52,9 +31,10 @@ exports[`SearchBar should render default layout 1`] = `
       type="text"
       value=""
     />
-    <div
-      className="str-chat__channel-search-input--clear-icon"
+    <button
+      className="str-chat__channel-search-input--clear-button"
       data-testid="clear-input-button"
+      disabled={true}
       onClick={[Function]}
     >
       <svg
@@ -69,7 +49,7 @@ exports[`SearchBar should render default layout 1`] = `
           fill="#747881"
         />
       </svg>
-    </div>
+    </button>
   </div>
 </div>
 `;

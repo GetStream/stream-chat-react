@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  MouseEventHandler,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import clsx from 'clsx';
 
 import {
@@ -9,7 +15,39 @@ import {
 } from './icons';
 import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
 
+type SearchBarButtonProps = {
+  className?: string;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+};
+
+const SearchBarButton = ({
+  children,
+  className,
+  onClick,
+}: PropsWithChildren<SearchBarButtonProps>) => (
+  <button
+    className={clsx('str-chat__channel-search-bar-button', className)}
+    data-testid='search-bar-button'
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+
+export type SearchBarController = {
+  /** Called on search input focus */
+  activateSearch: () => void;
+  /** Clears the search state, removes focus from the search input */
+  exitSearch: () => void;
+  /** Flag determining whether the search input is focused */
+  inputIsFocused: boolean;
+  /** Ref object for the input wrapper in the SearchBar */
+  searchBarRef: React.RefObject<HTMLDivElement>;
+};
+
 export type AdditionalSearchBarProps = {
+  /** Application menu to be displayed  when clicked on MenuIcon */
+  AppMenu?: React.ComponentType;
   /** Custom icon component used to clear the input value on click. Displayed within the search input wrapper. */
   ClearInputIcon?: React.ComponentType;
   /** Custom icon component used to terminate the search UI session on click. */
@@ -22,26 +60,32 @@ export type AdditionalSearchBarProps = {
   SearchInputIcon?: React.ComponentType;
 };
 
-export type SearchBarProps = AdditionalSearchBarProps & SearchInputProps;
+export type SearchBarProps = AdditionalSearchBarProps & SearchBarController & SearchInputProps;
 
 // todo: add context menu control logic
 export const SearchBar = (props: SearchBarProps) => {
   const {
+    activateSearch,
+    AppMenu,
     ClearInputIcon = XIcon,
+    exitSearch,
     ExitSearchIcon = ReturnIcon,
+    inputIsFocused,
+    searchBarRef,
     MenuIcon = DefaultMenuIcon,
     SearchInput = DefaultSearchInput,
     SearchInputIcon = DefaultSearchInputIcon,
     ...inputProps
   } = props;
-  const [inputIsFocused, setInputIsFocused] = useState(false);
+
+  const [menuIsOpen, setMenuIsOpen] = useState(false);
 
   useEffect(() => {
     const handleFocus = () => {
-      setInputIsFocused(true);
+      activateSearch();
     };
     const handleBlur = (e: Event) => {
-      e.stopPropagation();
+      e.stopPropagation(); // handle blur/focus state with React state
     };
     props.inputRef.current?.addEventListener('focus', handleFocus);
     props.inputRef.current?.addEventListener('blur', handleBlur);
@@ -51,19 +95,29 @@ export const SearchBar = (props: SearchBarProps) => {
     };
   }, []);
 
+  const handleClearClick = useCallback(() => {
+    inputProps.clearState();
+    inputProps.inputRef.current?.focus();
+  }, []);
+
   return (
-    <div className='str-chat__channel-search-bar'>
-      <button
-        className='str-chat__channel-search-bar--menu-button'
-        data-testid='search-bar-button'
-        onClick={() => {
-          setInputIsFocused(false);
-          inputProps.inputRef.current?.blur();
-          inputProps.clearState();
-        }}
-      >
-        {inputIsFocused ? <ExitSearchIcon /> : <MenuIcon />}
-      </button>
+    <div className='str-chat__channel-search-bar' ref={searchBarRef}>
+      {inputIsFocused ? (
+        <SearchBarButton
+          className='str-chat__channel-search-bar-button--exit-search'
+          onClick={exitSearch}
+        >
+          <ExitSearchIcon />
+        </SearchBarButton>
+      ) : AppMenu ? (
+        <SearchBarButton
+          className='str-chat__channel-search-bar-button--menu'
+          onClick={() => setMenuIsOpen((prev) => !prev)}
+        >
+          <MenuIcon />
+        </SearchBarButton>
+      ) : null}
+
       <div
         className={clsx(
           'str-chat__channel-search-input--wrapper',
@@ -74,17 +128,16 @@ export const SearchBar = (props: SearchBarProps) => {
           <SearchInputIcon />
         </div>
         <SearchInput {...inputProps} />
-        <div
-          className='str-chat__channel-search-input--clear-icon'
+        <button
+          className='str-chat__channel-search-input--clear-button'
           data-testid='clear-input-button'
-          onClick={() => {
-            inputProps.clearState();
-            inputProps.inputRef.current?.focus();
-          }}
+          disabled={!inputProps.query}
+          onClick={handleClearClick}
         >
           <ClearInputIcon />
-        </div>
+        </button>
       </div>
+      {menuIsOpen && AppMenu && <AppMenu />}
     </div>
   );
 };

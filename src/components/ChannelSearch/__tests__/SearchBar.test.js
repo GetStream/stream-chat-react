@@ -14,8 +14,18 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
+// SearchBar needs searchBarRef to work correctly. That is not expected to be used with theme version 1.
+jest.spyOn(window, 'getComputedStyle').mockReturnValue({
+  getPropertyValue: jest.fn().mockReturnValue('2'),
+});
+
 let client;
 const inputText = new Date().getTime().toString();
+
+const AppMenu = () => <div>AppMenu</div>;
+const ClearInputIcon = () => <div>CustomClearInputIcon</div>;
+const MenuIcon = () => <div>CustomMenuIcon</div>;
+const SearchInputIcon = () => <div>CustomSearchInputIcon</div>;
 
 const SearchContainer = ({ props = {}, searchParams }) => {
   const controller = useChannelSearch(searchParams);
@@ -61,27 +71,58 @@ describe('SearchBar', () => {
       renderer
         .create(
           <SearchBar
+            activateSearch={jest.fn}
             clearState={jest.fn}
+            exitSearch={jest.fn}
+            inputIsFocused={false}
             inputRef={{ current: null }}
             onSearch={jest.fn}
             query=''
+            searchBarRef={{ current: null }}
           />,
         )
         .toJSON(),
     ).toMatchSnapshot();
   });
-  it('should render custom icons', async () => {
-    const ClearInputIcon = () => <div>CustomClearInputIcon</div>;
-    const MenuIcon = () => <div>CustomMenuIcon</div>;
-    const SearchInputIcon = () => <div>CustomSearchInputIcon</div>;
+  it.each([
+    ['should not render', undefined],
+    ['should render', AppMenu],
+  ])('%s menu icon', async (_, AppMenu) => {
     await render(
       <SearchBar
+        activateSearch={jest.fn}
+        AppMenu={AppMenu}
+        clearState={jest.fn}
+        exitSearch={jest.fn}
+        inputIsFocused={false}
+        inputRef={{ current: null }}
+        onSearch={jest.fn}
+        query=''
+        searchBarRef={{ current: null }}
+      />,
+    );
+    await waitFor(() => {
+      if (!AppMenu) {
+        expect(screen.queryByTestId('menu-icon')).not.toBeInTheDocument();
+      } else {
+        expect(screen.queryByTestId('menu-icon')).toBeInTheDocument();
+      }
+    });
+  });
+  it('should render custom icons', async () => {
+    await render(
+      <SearchBar
+        activateSearch={jest.fn}
+        AppMenu={AppMenu}
         ClearInputIcon={ClearInputIcon}
         clearState={jest.fn}
+        exitSearch={jest.fn}
+        inputIsFocused={false}
         inputRef={{ current: null }}
         MenuIcon={MenuIcon}
         onSearch={jest.fn}
         query=''
+        searchBarRef={{ current: null }}
         SearchInputIcon={SearchInputIcon}
       />,
     );
@@ -203,7 +244,6 @@ describe('SearchBar', () => {
       expect(input).toHaveValue('');
       expect(input).not.toHaveFocus();
       expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('menu')).toBeInTheDocument();
     });
   });
 
