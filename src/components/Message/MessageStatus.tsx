@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { DeliveredCheckIcon } from './icons';
-import { getReadByTooltipText, TooltipUsernameMapper } from './utils';
+import { getReadByTooltipText, mapToUserNameOrId, TooltipUsernameMapper } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
@@ -13,7 +13,6 @@ import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { UserResponse } from 'stream-chat';
 
 export type MessageStatusProps = {
   Avatar?: React.ComponentType<AvatarProps>;
@@ -29,7 +28,7 @@ const UnMemoizedMessageStatus = <
   const {
     Avatar: propAvatar,
     messageType = 'simple',
-    tooltipUserNameMapper = (user: UserResponse<StreamChatGenerics>) => user.name || user.id,
+    tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');

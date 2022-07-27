@@ -8,6 +8,7 @@ import {
   getNonImageAttachments,
   getReadByTooltipText,
   isUserMuted,
+  mapToUserNameOrId,
   MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
@@ -327,8 +328,8 @@ describe('Message utils', () => {
     });
   });
 
-  describe('getReadbyTooltipText', () => {
-    const tooltipUserNameMapper = (user) => user.name || user.id;
+  describe('getReadByTooltipText', () => {
+    const tooltipUserNameMapper = mapToUserNameOrId;
 
     let client;
 
@@ -377,7 +378,7 @@ describe('Message utils', () => {
       );
       expect(result).toStrictEqual(`1, 2, and 3`);
     });
-    it('returns "1, 2, 3, 4, 5, and 5 more if read by ten users', () => {
+    it('returns "1, 2, 3, 4, 5 and 5 more if read by ten users', () => {
       const users = [...Array(10).keys()].map((n) => generateUser({ name: (n + 1).toString() }));
       const result = getReadByTooltipText(
         users,
@@ -385,7 +386,7 @@ describe('Message utils', () => {
         client,
         tooltipUserNameMapper,
       );
-      expect(result).toStrictEqual(`1, 2, 3, 4, 5, and 5 more`);
+      expect(result).toStrictEqual(`1, 2, 3, 4, 5 and 5 more`);
     });
     it('overrides user format with tooltipUserNameMapper', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
@@ -403,7 +404,7 @@ describe('Message utils', () => {
       );
     });
     it('throws error if no tooltipUserNameMapper function provided', () => {
-      expect(() => getReadByTooltipText([], mockTranslatorFunction, client)).toThrow(
+      expect(() => getReadByTooltipText([], mockTranslatorFunction, client, undefined)).toThrow(
         'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
       );
     });

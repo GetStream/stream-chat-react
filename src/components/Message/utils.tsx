@@ -340,6 +340,13 @@ export interface TooltipUsernameMapper {
   ): string;
 }
 
+/**
+ * Default Tooltip Username mapper implementation.
+ *
+ * @param user the user.
+ */
+export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
+
 export const getReadByTooltipText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -387,7 +394,7 @@ export const getReadByTooltipText = <
         lastUser,
       });
     } else {
-      outStr = t('{{ commaSeparatedUsers }}, and {{ moreCount }} more', {
+      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
         commaSeparatedUsers: slicedArr.join(', '),
         moreCount: restLength,
       });
