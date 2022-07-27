@@ -10,7 +10,7 @@ import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
-import { MessageInputFlat } from './';
+import { MessageInputFlat } from './MessageInputFlat';
 
 import {
   useChannelStateContext,
