@@ -3,6 +3,7 @@ import React, {
   PropsWithChildren,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import clsx from 'clsx';
@@ -71,29 +72,44 @@ export const SearchBar = (props: SearchBarProps) => {
     exitSearch,
     ExitSearchIcon = ReturnIcon,
     inputIsFocused,
-    searchBarRef,
     MenuIcon = DefaultMenuIcon,
+    searchBarRef,
     SearchInput = DefaultSearchInput,
     SearchInputIcon = DefaultSearchInputIcon,
     ...inputProps
   } = props;
 
   const [menuIsOpen, setMenuIsOpen] = useState(false);
+  const appMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const clickListener = (e: MouseEvent) => {
+      if (
+        !(e.target instanceof HTMLElement) ||
+        !menuIsOpen ||
+        appMenuRef.current?.contains(e.target)
+      )
+        return;
+      setMenuIsOpen(false);
+    };
+
     const handleFocus = () => {
       activateSearch();
     };
+
     const handleBlur = (e: Event) => {
       e.stopPropagation(); // handle blur/focus state with React state
     };
+
+    document.addEventListener('click', clickListener);
     props.inputRef.current?.addEventListener('focus', handleFocus);
     props.inputRef.current?.addEventListener('blur', handleBlur);
     return () => {
+      document.removeEventListener('click', clickListener);
       props.inputRef.current?.removeEventListener('focus', handleFocus);
       props.inputRef.current?.addEventListener('blur', handleBlur);
     };
-  }, []);
+  }, [menuIsOpen]);
 
   const handleClearClick = useCallback(() => {
     inputProps.clearState();
@@ -101,7 +117,7 @@ export const SearchBar = (props: SearchBarProps) => {
   }, []);
 
   return (
-    <div className='str-chat__channel-search-bar' ref={searchBarRef}>
+    <div className='str-chat__channel-search-bar' data-testid='search-bar' ref={searchBarRef}>
       {inputIsFocused ? (
         <SearchBarButton
           className='str-chat__channel-search-bar-button--exit-search'
@@ -137,7 +153,11 @@ export const SearchBar = (props: SearchBarProps) => {
           <ClearInputIcon />
         </button>
       </div>
-      {menuIsOpen && AppMenu && <AppMenu />}
+      {menuIsOpen && AppMenu && (
+        <div ref={appMenuRef}>
+          <AppMenu />
+        </div>
+      )}
     </div>
   );
 };

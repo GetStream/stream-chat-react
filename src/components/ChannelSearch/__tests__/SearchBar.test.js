@@ -262,4 +262,51 @@ describe('SearchBar', () => {
       expect(screen.queryByTestId('search-input')).not.toBeInTheDocument();
     });
   });
+
+  it('should toggle app menu render with menu icon click', async () => {
+    await act(() => {
+      renderComponent({
+        client,
+        props: { AppMenu },
+        searchParams: { enabled: true },
+      });
+    });
+    const menuIcon = screen.queryByTestId('menu-icon');
+    await act(() => {
+      fireEvent.click(menuIcon);
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('AppMenu')).toBeInTheDocument();
+    });
+    await act(() => {
+      fireEvent.click(menuIcon);
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('AppMenu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should close app menu on click outside', async () => {
+    await act(() => {
+      renderComponent({
+        client,
+        props: { AppMenu },
+        searchParams: { enabled: true },
+      });
+    });
+    const menuIcon = screen.queryByTestId('menu-icon');
+    const searchBar = screen.queryByTestId('search-bar');
+    await act(() => {
+      fireEvent.click(menuIcon);
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('AppMenu')).toBeInTheDocument();
+    });
+    await act(() => {
+      fireEvent.click(searchBar);
+    });
+    await waitFor(() => {
+      expect(screen.queryByText('AppMenu')).not.toBeInTheDocument();
+    });
+  });
 });
