@@ -217,7 +217,20 @@ describe('SearchBar', () => {
     });
   });
 
-  it('should exit search UI', async () => {
+  it.each([
+    [
+      'on return button click',
+      (target) => {
+        fireEvent.click(target);
+      },
+    ],
+    [
+      'on Escape key down',
+      (target) => {
+        fireEvent.keyDown(target, { key: 'Escape' });
+      },
+    ],
+  ])('should exit search UI %s', async (_case, doExitAction) => {
     await renderComponent({ client, searchParams: { enabled: true } });
 
     const input = screen.queryByTestId('search-input');
@@ -238,8 +251,10 @@ describe('SearchBar', () => {
     const returnButton = screen.queryByTestId('search-bar-button');
 
     await act(() => {
-      fireEvent.click(returnButton);
+      const target = _case === 'on return button click' ? returnButton : input;
+      doExitAction(target);
     });
+
     await waitFor(() => {
       expect(input).toHaveValue('');
       expect(input).not.toHaveFocus();
@@ -286,7 +301,20 @@ describe('SearchBar', () => {
     });
   });
 
-  it('should close app menu on click outside', async () => {
+  it.each([
+    [
+      'on click outside',
+      (target) => {
+        fireEvent.click(target);
+      },
+    ],
+    [
+      'on Escape key down',
+      (target) => {
+        fireEvent.keyDown(target, { key: 'Escape' });
+      },
+    ],
+  ])('should close app menu %s', async (_, doCloseAction) => {
     await act(() => {
       renderComponent({
         client,
@@ -302,9 +330,11 @@ describe('SearchBar', () => {
     await waitFor(() => {
       expect(screen.queryByText('AppMenu')).toBeInTheDocument();
     });
+
     await act(() => {
-      fireEvent.click(searchBar);
+      doCloseAction(searchBar);
     });
+
     await waitFor(() => {
       expect(screen.queryByText('AppMenu')).not.toBeInTheDocument();
     });

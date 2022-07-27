@@ -83,6 +83,14 @@ export const SearchBar = (props: SearchBarProps) => {
   const appMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    if (!appMenuRef.current) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (menuIsOpen && event.key === 'Escape') {
+        setMenuIsOpen(false);
+      }
+    };
+
     const clickListener = (e: MouseEvent) => {
       if (
         !(e.target instanceof HTMLElement) ||
@@ -93,6 +101,17 @@ export const SearchBar = (props: SearchBarProps) => {
       setMenuIsOpen(false);
     };
 
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', clickListener);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('click', clickListener);
+    };
+  }, [menuIsOpen]);
+
+  useEffect(() => {
+    if (!props.inputRef.current) return;
+
     const handleFocus = () => {
       activateSearch();
     };
@@ -101,15 +120,13 @@ export const SearchBar = (props: SearchBarProps) => {
       e.stopPropagation(); // handle blur/focus state with React state
     };
 
-    document.addEventListener('click', clickListener);
-    props.inputRef.current?.addEventListener('focus', handleFocus);
-    props.inputRef.current?.addEventListener('blur', handleBlur);
+    props.inputRef.current.addEventListener('focus', handleFocus);
+    props.inputRef.current.addEventListener('blur', handleBlur);
     return () => {
-      document.removeEventListener('click', clickListener);
       props.inputRef.current?.removeEventListener('focus', handleFocus);
       props.inputRef.current?.addEventListener('blur', handleBlur);
     };
-  }, [menuIsOpen]);
+  }, []);
 
   const handleClearClick = useCallback(() => {
     inputProps.clearState();

@@ -148,6 +148,19 @@ export const useChannelSearch = <
     return () => document.removeEventListener('click', clickListener);
   }, [enabled, inputIsFocused, resultsOpen]);
 
+  useEffect(() => {
+    if (!(inputRef.current && enabled)) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') return exitSearch();
+    };
+    inputRef.current.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      inputRef.current?.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const selectResult = async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
     if (!client.userID) return;
     if (onSelectResult) {
