@@ -3,6 +3,7 @@
 exports[`SearchBar should render default layout 1`] = `
 <div
   className="str-chat__channel-search-bar"
+  data-testid="search-bar"
 >
   <div
     className="str-chat__channel-search-input--wrapper"
