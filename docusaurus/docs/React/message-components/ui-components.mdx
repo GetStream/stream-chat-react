@@ -239,6 +239,41 @@ Message type string to be added to CSS class names.
 | ------ | -------- |
 | string | 'simple' |
 
+### tooltipUserNameMapper
+
+Allows you to customize the username(s) that appear on the message status tooltip.
+
+| Type                           | Default                         |
+| ------------------------------ | ------------------------------- |
+| (user: UserResponse) => string | (user) => user.name || user.id  |
+
+This prop's implementation is not provided out of the box by the SDK. See below for a customization example:
+
+```tsx
+const CustomMessageStatus = (props: MessageStatusProps) => {
+  const allCapsUserName = useCallback<TooltipUsernameMapper>(
+    (user) => (user.name || user.id).toUpperCase(),
+    [],
+  );
+  return <MessageStatus {...props} tooltipUserNameMapper={allCapsUserName} />;
+};
+
+// Sort in reverse order to avoid auto-selecting unread channel
+const sort: ChannelSort = { last_updated: 1 };
+const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
+  <ConnectedUser token={token} userId={userId}>
+    <ChannelList filters={{ id: { $eq: 'add-message' }, members: { $in: [userId] } }} sort={sort} />
+    <Channel MessageStatus={CustomMessageStatus}>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+      </Window>
+      <Thread />
+    </Channel>
+  </ConnectedUser>
+);
+```
+
 ## MessageText Props
 
 ### customInnerClass
