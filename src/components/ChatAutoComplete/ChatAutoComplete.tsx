@@ -29,7 +29,7 @@ export type SuggestionItemProps<
 > = {
   className: string;
   component: React.ComponentType<{
-    enitty: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
+    entity: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
     selected: boolean;
   }>;
   item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
