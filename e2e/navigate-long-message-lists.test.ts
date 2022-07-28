@@ -90,13 +90,14 @@ test.describe('thread autoscroll', () => {
 });
 
 test.describe('scroll to the bottom', () => {
-  const scrollInSteps = async (user: TestingUser) => {
-    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 131').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 128').scrollIntoViewIfNeeded();
+  const scrollInSteps = async (user: TestingUser, cycles = 1) => {
+    for (let i = 0; i < cycles; i++) {
+      await Promise.all(
+        ['142', '135', '128'].map((num: string) =>
+          user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded(),
+        ),
+      );
+    }
   };
   test.beforeEach(async ({ controller, user }) => {
     await controller.openStory(
@@ -124,7 +125,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user);
+    await scrollInSteps(user, 3);
 
     await controller.sendOtherUserMessage();
 
@@ -144,7 +145,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user);
+    await scrollInSteps(user, 3);
 
     // trigger load more messages
     const firstLoadedMessage = await page.locator(
