@@ -4,9 +4,16 @@ import dotenv from 'dotenv';
 import selectors from './user/selectors';
 import { test } from './user/test';
 
-import MessageInput from './user/components/MessageInput';
-import Thread from './user/components/Thread/Thread';
 import ChannelPreview from './user/components/ChannelPreview';
+import Message from './user/components/Message/MessageSimple';
+import MessageInput from './user/components/MessageInput';
+import MessageList from './user/components/MessageList/MessageList';
+import MessageNotification, {
+  getMessageNotificationSelector,
+} from './user/components/MessageList/MessageNotification';
+import Thread from './user/components/Thread/Thread';
+
+import type { TestingUser } from './user/User';
 
 dotenv.config();
 dotenv.config({ path: `.env.local` });
@@ -15,7 +22,9 @@ const user1Id = process.env.E2E_TEST_USER_1;
 const CHANNEL_NAME = 'navigate-long-message-lists' as const;
 const MY_ADDED_REPLY_TEXT = 'My reply' as const;
 const OTHER_USER_ADDED_REPLY_TEXT = 'Reply back' as const;
+const OTHER_USER_ADDED_MESSAGE_TEXT = "Other user's message" as const;
 const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
+const NEW_MESSAGE_NOTIFICATION_TEXT = 'New Messages!' as const;
 
 test.describe('thread autoscroll', () => {
   test.beforeEach(async ({ controller, page, user }) => {
@@ -76,5 +85,79 @@ test.describe('thread autoscroll', () => {
     await expect(thread).toHaveScreenshot({
       mask: [avatars],
     });
+  });
+});
+
+test.describe('scroll to the bottom', () => {
+  const scrollInSteps = async (user: TestingUser) => {
+    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 138').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 131').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 128').scrollIntoViewIfNeeded();
+  };
+  test.beforeEach(async ({ controller, user }) => {
+    await controller.openStory(
+      'navigate-long-message-lists--user1',
+      selectors.channelPreviewButton,
+    );
+    await user.clicks(ChannelPreview).text(CHANNEL_NAME);
+  });
+
+  test.afterEach(async ({ controller, page }) => {
+    const lastMessage = await page
+      .locator(
+        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList} li:last-of-type ${selectors.messageText}`,
+      )
+      .textContent();
+    if (!lastMessage) return;
+    if (lastMessage.match(OTHER_USER_ADDED_MESSAGE_TEXT)) {
+      await controller.deleteOtherUserLastMessage();
+    }
+  });
+
+  test('without loading more messages on new message notification click', async ({
+    controller,
+    page,
+    user,
+  }) => {
+    // scroll without loading more messages
+    await scrollInSteps(user);
+
+    await controller.sendOtherUserMessage();
+
+    // click the notification
+    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
+    await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
+
+    // check that you are at the bottom
+    await user
+      .sees(MessageList)
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+  });
+
+  test('after loading more messages on new message notification click', async ({
+    controller,
+    page,
+    user,
+  }) => {
+    // scroll without loading more messages
+    await scrollInSteps(user);
+
+    // trigger load more messages
+    const firstLoadedMessage = await page.locator(
+      `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList} li:first-of-type`,
+    );
+    await firstLoadedMessage.scrollIntoViewIfNeeded();
+    await controller.sendOtherUserMessage();
+
+    // click the notification
+    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
+    await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
+
+    // check that you are at the bottom
+    await user
+      .sees(MessageList)
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
   });
 });
