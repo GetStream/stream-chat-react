@@ -28,7 +28,10 @@ export type SuggestionItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   className: string;
-  component: JSX.Element;
+  component: React.ComponentType<{
+    entity: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
+    selected: boolean;
+  }>;
   item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
   key: React.Key;
   onClickHandler: (event: React.BaseSyntheticEvent) => void;
@@ -40,6 +43,11 @@ export type SuggestionItemProps<
   value: string;
 };
 
+export interface SuggestionHeaderProps {
+  currentTrigger: string;
+  value: string;
+}
+
 export type SuggestionListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -47,6 +55,7 @@ export type SuggestionListProps<
   {
     [key in keyof TriggerSettings<StreamChatGenerics, V>]: {
       component: TriggerSettings<StreamChatGenerics, V>[key]['component'];
+      currentTrigger: string;
       dropdownScroll: (element: HTMLDivElement) => void;
       getSelectedItem:
         | ((item: Parameters<TriggerSettings<StreamChatGenerics, V>[key]['output']>[0]) => void)
@@ -58,10 +67,13 @@ export type SuggestionListProps<
         text: string;
         key?: string;
       };
+      Header: React.ComponentType<SuggestionHeaderProps>;
       onSelect: (newToken: {
         caretPosition: 'start' | 'end' | 'next' | number;
         text: string;
       }) => void;
+      selectionEnd: number;
+      SuggestionItem: React.ComponentType<SuggestionItemProps>;
       values: Parameters<
         Parameters<TriggerSettings<StreamChatGenerics, V>[key]['dataProvider']>[2]
       >[0];
