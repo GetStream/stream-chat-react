@@ -4,10 +4,16 @@ import dotenv from 'dotenv';
 import selectors from './user/selectors';
 import { test } from './user/test';
 
-import MessageInput from './user/components/MessageInput';
-import Thread from './user/components/Thread/Thread';
 import ChannelPreview from './user/components/ChannelPreview';
-import MessageNotification from './user/components/MessageList/MessageNotification';
+import Message from './user/components/Message/MessageSimple';
+import MessageInput from './user/components/MessageInput';
+import MessageList from './user/components/MessageList/MessageList';
+import MessageNotification, {
+  getMessageNotificationSelector,
+} from './user/components/MessageList/MessageNotification';
+import Thread from './user/components/Thread/Thread';
+
+import type { TestingUser } from './user/User';
 
 dotenv.config();
 dotenv.config({ path: `.env.local` });
@@ -18,6 +24,7 @@ const MY_ADDED_REPLY_TEXT = 'My reply' as const;
 const OTHER_USER_ADDED_REPLY_TEXT = 'Reply back' as const;
 const OTHER_USER_ADDED_MESSAGE_TEXT = "Other user's message" as const;
 const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
+const NEW_MESSAGE_NOTIFICATION_TEXT = 'New Messages!' as const;
 
 test.describe('thread autoscroll', () => {
   test.beforeEach(async ({ controller, page, user }) => {
@@ -82,6 +89,13 @@ test.describe('thread autoscroll', () => {
 });
 
 test.describe('scroll to the bottom', () => {
+  const scrollInSteps = async (user: TestingUser) => {
+    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 138').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 131').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 128').scrollIntoViewIfNeeded();
+  };
   test.beforeEach(async ({ controller, user }) => {
     await controller.openStory(
       'navigate-long-message-lists--user1',
@@ -107,27 +121,19 @@ test.describe('scroll to the bottom', () => {
     page,
     user,
   }) => {
-    // scroll up to load more messages
-    const messageList = page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
-    const messageListBox = await messageList.boundingBox();
-    const scrollBarClickTarget = { x: (messageListBox?.width || 1) - 1, y: 5 };
-    // multiple scroll events have to be triggered in order to turn off ResizeObserver
-    // the current implementation seems very fragile
-    await messageList.click({ clickCount: 5, position: scrollBarClickTarget });
+    // scroll without loading more messages
+    await scrollInSteps(user);
 
     await controller.sendOtherUserMessage();
+
     // click the notification
-    await user.clicks(MessageNotification).text('New Messages!');
+    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
+    await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
+
     // check that you are at the bottom
-    const isScrolledToBottom = await page.evaluate(
-      ([selector]) => {
-        const messageList = document.querySelector(selector);
-        if (!messageList) return false;
-        return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
-      },
-      [`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`],
-    );
-    expect(isScrolledToBottom).toBeTruthy();
+    await user
+      .sees(MessageList)
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
   });
 
   test('after loading more messages on new message notification click', async ({
@@ -135,29 +141,23 @@ test.describe('scroll to the bottom', () => {
     page,
     user,
   }) => {
-    // scroll up to load more messages
-    const messageList = page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
-    const messageListBox = await messageList.boundingBox();
-    const scrollBarClickTarget = { x: (messageListBox?.width || 1) - 1, y: 5 };
-    // multiple scroll events have to be triggered in order to turn off ResizeObserver
-    // the current implementation seems very fragile
-    await messageList.click({ clickCount: 5, position: scrollBarClickTarget });
+    // scroll without loading more messages
+    await scrollInSteps(user);
+
+    // trigger load more messages
     const firstLoadedMessage = await page.locator(
       `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList} li:first-of-type`,
     );
     await firstLoadedMessage.scrollIntoViewIfNeeded();
     await controller.sendOtherUserMessage();
+
     // click the notification
-    await user.clicks(MessageNotification).text('New Messages!');
+    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
+    await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
+
     // check that you are at the bottom
-    const isScrolledToBottom = await page.evaluate(
-      ([selector]) => {
-        const messageList = document.querySelector(selector);
-        if (!messageList) return false;
-        return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
-      },
-      [`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`],
-    );
-    expect(isScrolledToBottom).toBeTruthy();
+    await user
+      .sees(MessageList)
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
   });
 });
