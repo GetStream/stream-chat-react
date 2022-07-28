@@ -8,8 +8,10 @@ export default (page: Page) => ({
     close() {
       return page.click(selectors.buttonCloseThread);
     },
-    open(text: string) {
-      return page.locator(selectors.messageRepliesButton, { hasText: text }).click();
+    open(text: string, nth = 0) {
+      return page
+        .locator(`${selectors.messageRepliesButton} >> nth=${nth} `, { hasText: text })
+        .click();
     },
   },
   get: (prependSelectors?: string) =>

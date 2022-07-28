@@ -35,7 +35,7 @@ test.describe('thread autoscroll', () => {
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      user.clicks(Thread).open('replies'),
+      user.clicks(Thread).open('replies', -1),
     ]);
   });
 
@@ -56,7 +56,7 @@ test.describe('thread autoscroll', () => {
   test('only if I send a message', async ({ page, user }) => {
     const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
     const avatars = thread.locator(selectors.avatar);
-
+    await page.mouse.move(0, 0);
     await expect(thread).toHaveScreenshot({
       mask: [avatars],
     });
@@ -65,7 +65,7 @@ test.describe('thread autoscroll', () => {
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       user.submits(MessageInput).reply(MY_ADDED_REPLY_TEXT),
     ]);
-
+    await page.mouse.move(0, 0);
     await expect(thread).toHaveScreenshot({
       mask: [avatars],
     });
@@ -74,7 +74,7 @@ test.describe('thread autoscroll', () => {
   test('not if I receive a message', async ({ controller, page, user }) => {
     const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
     const avatars = thread.locator(selectors.avatar);
-
+    await page.mouse.move(0, 0);
     await expect(thread).toHaveScreenshot({
       mask: [avatars],
     });
@@ -82,6 +82,7 @@ test.describe('thread autoscroll', () => {
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply(),
     ]);
+    await page.mouse.move(0, 0);
     await expect(thread).toHaveScreenshot({
       mask: [avatars],
     });
@@ -91,9 +92,10 @@ test.describe('thread autoscroll', () => {
 test.describe('scroll to the bottom', () => {
   const scrollInSteps = async (user: TestingUser) => {
     await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 138').scrollIntoViewIfNeeded();
     await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
     await user.get(Message)('Message 131').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
+    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
     await user.get(Message)('Message 128').scrollIntoViewIfNeeded();
   };
   test.beforeEach(async ({ controller, user }) => {
