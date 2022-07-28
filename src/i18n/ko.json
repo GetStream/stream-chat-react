@@ -72,6 +72,9 @@
   "{{ memberCount }} members": "{{ memberCount }}명",
   "{{ user }} has been muted": "{{ user }} 음소거되었습니다",
   "{{ user }} has been unmuted": "{{ user }} 음소거가 해제되었습니다",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} 온라인",
   "🏙 Attachment...": "🏙 부착..."
 }

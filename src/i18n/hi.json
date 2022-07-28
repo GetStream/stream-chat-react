@@ -72,6 +72,9 @@
   "{{ memberCount }} members": "{{ memberCount }} मेंबर्स",
   "{{ user }} has been muted": "{{ user }} को म्यूट कर दिया गया है",
   "{{ user }} has been unmuted": "{{ user }} को अनम्यूट कर दिया गया है",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 अटैचमेंट"
 }

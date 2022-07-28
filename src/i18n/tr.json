@@ -72,6 +72,9 @@
   "{{ memberCount }} members": "{{ memberCount }} üyeler",
   "{{ user }} has been muted": "{{ user }} sessize alındı",
   "{{ user }} has been unmuted": "{{ user }} sesi açıldı",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} çevrimiçi",
   "🏙 Attachment...": "🏙 Ek..."
 }

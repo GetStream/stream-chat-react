@@ -74,6 +74,9 @@
   "{{ memberCount }} members": "{{ memberCount }} miembros",
   "{{ user }} has been muted": "{{ user }} ha sido silenciado",
   "{{ user }} has been unmuted": "{{ user }} se ha desactivado",
+  "{{ user }} is typing...": "{{ user }} está escribiendo...",
+  "{{ users }} and more are typing...": "{{ users }} y más están escribiendo...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} y {{ user }} están escribiendo...",
   "{{ watcherCount }} online": "{{ watcherCount }} en línea",
   "🏙 Attachment...": "🏙 Adjunto..."
 }

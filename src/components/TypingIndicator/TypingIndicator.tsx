@@ -7,6 +7,7 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -19,6 +20,35 @@ export type TypingIndicatorProps<
   avatarSize?: number;
   /** Whether or not the typing indicator is in a thread */
   threadList?: boolean;
+};
+
+const useJoinTypingUsers = (names: string[]) => {
+  const { t } = useTranslationContext();
+
+  if (!names.length) return null;
+
+  const [name, ...rest] = names;
+
+  if (names.length === 1)
+    return t('{{ user }} is typing...', {
+      user: name,
+    });
+
+  const MAX_JOINED_USERS = 3;
+
+  const isLargeArray = names.length > MAX_JOINED_USERS;
+
+  const joinedUsers = (isLargeArray ? names.slice(0, MAX_JOINED_USERS) : rest).join(', ').trim();
+
+  if (isLargeArray)
+    return t('{{ users }} and more are typing...', {
+      users: joinedUsers,
+    });
+
+  return t('{{ users }} and {{ user }} are typing...', {
+    user: name,
+    users: joinedUsers,
+  });
 };
 
 /**
@@ -38,19 +68,6 @@ const UnMemoizedTypingIndicator = <
 
   const Avatar = PropAvatar || ContextAvatar || DefaultAvatar;
 
-  // TODO: add translations for "and", "is/are typing"
-  const generateTypingString = (names: string[]) => {
-    const [name, ...rest] = names;
-
-    if (names.length === 1) return `${name} is typing...`;
-
-    return `${rest.join(', ').trim()} and ${name} are typing...`;
-  };
-
-  if (channelConfig?.typing_events === false) {
-    return null;
-  }
-
   const typingInChannel = !threadList
     ? Object.values(typing).filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
@@ -67,8 +84,15 @@ const UnMemoizedTypingIndicator = <
     .map(({ user }) => user?.name || user?.id)
     .filter(Boolean) as string[];
 
+  const joinedTypingUsers = useJoinTypingUsers(typingUserList);
+
   const isTypingActive =
     (threadList && typingInThread.length) || (!threadList && typingInChannel.length);
+
+  if (channelConfig?.typing_events === false) {
+    console.log('here');
+    return null;
+  }
 
   if (themeVersion === '2') {
     if (!isTypingActive) return null;
@@ -85,7 +109,7 @@ const UnMemoizedTypingIndicator = <
           <span className='str-chat__typing-indicator__dot'></span>
         </div>
         <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
-          {generateTypingString(typingUserList)}
+          {joinedTypingUsers}
         </div>
       </div>
     );
