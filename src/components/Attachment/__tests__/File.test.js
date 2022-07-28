@@ -22,16 +22,9 @@ const file = {
 };
 
 describe('File', () => {
-  it('should render File component in V1', () => {
+  it.each([['1'], ['2']])('should render File component in V%s', (themeVersion) => {
     const tree = renderer
-      .create(getComponent({ attachment: file, chatContext: { themeVersion: '1' } }))
-      .toJSON();
-    expect(tree).toMatchSnapshot();
-  });
-
-  it('should render File component in V2', () => {
-    const tree = renderer
-      .create(getComponent({ attachment: file, chatContext: { themeVersion: '2' } }))
+      .create(getComponent({ attachment: file, chatContext: { themeVersion } }))
       .toJSON();
     expect(tree).toMatchSnapshot();
   });

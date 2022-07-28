@@ -31,7 +31,7 @@ are drilled to the component via the `additionalChannelSearchProps` prop on `Cha
 Since we've enabled the search to also search for channels, let's customize the dropdown results container to fit a design that separates the result by type.
 
 ```jsx
-const CustomDropdown = (props: DropdownContainerProps) => {
+const CustomDropdown = (props: SearchResultsListProps) => {
   const { results, focusedUser, selectResult, SearchResultItem } = props;
 
   let items: ChannelOrUserResponse[] = results.filter((x) => x.cid);
@@ -67,7 +67,7 @@ const CustomDropdown = (props: DropdownContainerProps) => {
 ```
 
 ```jsx
-const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
+const DropDown = (props: SearchResultsListProps) => <CustomDropdown {...props} />;
 const additionalProps = {
   DropdownContainer: DropDown
   searchForChannels: true,
@@ -198,7 +198,7 @@ const additionalProps = {
 ```
 
 ```jsx
-  const CustomDropdown = (props: DropdownContainerProps) => {
+  const CustomDropdown = (props: SearchResultsListProps) => {
     const { results, focusedUser, selectResult, SearchResultItem } = props;
 
     let items: ChannelOrUserResponse[] = results.filter(x => x.cid);
@@ -275,7 +275,7 @@ const additionalProps = {
 ```
 
 ```jsx
-  const DropDown = (props: DropdownContainerProps) => <CustomDropdown {...props} />;
+  const DropDown = (props: SearchResultsListProps) => <CustomDropdown {...props} />;
   const SearchResult = (props: SearchResultItemProps) => <CustomResultItem {...props} />;
 
   const additionalProps = {

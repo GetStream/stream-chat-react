@@ -14,7 +14,7 @@ import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
 import type { Channel, SendFileAPIResponse } from 'stream-chat';
 
-import type { SearchQueryParams } from '../ChannelSearch/ChannelSearch';
+import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';

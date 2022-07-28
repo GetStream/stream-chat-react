@@ -8,9 +8,9 @@ import { UserItem } from '../../UserItem/UserItem';
 import { useChatContext } from '../../../context/ChatContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { SearchQueryParams } from '../../ChannelSearch/ChannelSearch';
 import type { UserResponse } from 'stream-chat';
 
+import type { SearchQueryParams } from '../../ChannelSearch/hooks/useChannelSearch';
 import type { UserTriggerSetting } from '../../MessageInput/DefaultTriggerProvider';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';

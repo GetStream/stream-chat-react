@@ -62,6 +62,8 @@
   "live": "live",
   "replyCount_one": "1 antwoord",
   "replyCount_other": "{{ count }} antwoorden",
+  "searchResultsCount_one": "1 resultaat",
+  "searchResultsCount_other": "{{ count }} resultaten",
   "this content could not be displayed": "Deze inhoud kan niet weergegeven worden",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} en {{ moreCount }} meer",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} en {{ lastUser }}",

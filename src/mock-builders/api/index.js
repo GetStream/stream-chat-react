@@ -15,6 +15,7 @@ export const useMockedApis = (client, apiResponses) => {
 
 export * from './queryChannels';
 export * from './queryMembers';
+export * from './queryUsers';
 export * from './getOrCreateChannel';
 export * from './threadReplies';
 export * from './sendMessage';

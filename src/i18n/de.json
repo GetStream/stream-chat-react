@@ -62,6 +62,8 @@
   "live": "live",
   "replyCount_one": "1 Antwort",
   "replyCount_other": "{{ count }} Antworten",
+  "searchResultsCount_one": "1 Ergebnis",
+  "searchResultsCount_other": "{{ count }} Ergebnisse",
   "this content could not be displayed": "Dieser Inhalt konnte nicht angezeigt werden",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} und {{moreCount}} Mehr",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} und {{ lastUser }}",

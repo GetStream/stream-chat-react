@@ -62,6 +62,8 @@
   "live": "ライブ",
   "replyCount_one": "1件の返信",
   "replyCount_other": "{{ count }} 返信",
+  "searchResultsCount_one": "1件の結果",
+  "searchResultsCount_other": "{{ count }}件の結果",
   "this content could not be displayed": "このコンテンツは表示できませんでした",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} と {{ moreCount }} 他人",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} と {{ lastUser }}",
