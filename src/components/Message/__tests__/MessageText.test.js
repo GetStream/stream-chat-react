@@ -343,6 +343,7 @@ describe('<MessageText />', () => {
           />
           <div
             className="str-chat__message-bubble"
+            tabIndex={0}
           >
             <div
               className="str-chat__message-text"
@@ -384,6 +385,7 @@ describe('<MessageText />', () => {
           />
           <div
             className="str-chat__message-bubble"
+            tabIndex={0}
           >
             <div
               className="str-chat__message-text"
