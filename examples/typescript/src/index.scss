@@ -1,20 +1,144 @@
+@layer defaults {
+  @import '~@stream-io/stream-chat-css/dist/v2/scss/index.scss';
+}
+@import '~@radix-ui/colors/sage.css';
+@import '~@radix-ui/colors/mint.css';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+.str-chat {
+  // Theme variables
+  // Neutral colors for backgrounds, borders, texts
+  --str-chat__background-color: var(--sage1);
+  --str-chat__secondary-background-color: var(--sage3);
+  --str-chat__surface-color: var(--sage5);
+  --str-chat__secondary-surface-color: var(--sage4);
+  --str-chat__tertiary-surface-color: var(--sage3);
+  --str-chat__text-color: var(--sage12);
+  --str-chat__text-low-emphasis-color: var(--sage11);
+  --str-chat__disabled-color: var(--sage8);
+  --str-chat__on-primary-color: var(--sage12);
+
+  // Vibrant colors to emphasize UI elements
+  --str-chat__primary-color: var(--mint7);
+  --str-chat__primary-color-low-emphasis: var(--mint5);
+  --str-chat__active-primary-color: var(--mint10);
+  --str-chat__primary-surface-color: var(--mint4);
+  --str-chat__primary-surface-color-low-emphasis: var(--mint2);
+
+  // Font
+  --str-chat__font-family: 'Roboto', sans-serif;
+
+  // Component variables
+  // Avatar
+  --str-chat__avatar-border-radius: 20%;
+  --str-chat__avatar-background-color: var(--mint11);
+  --str-chat__avatar-color: var(--sage2);
+
+  // Channel preview
+  --str-chat__channel-preview-border-block-end: 1px solid var(--sage5);
+
+  // Message input
+  --str-chat__message-textarea-border-block-start: none;
+  --str-chat__message-textarea-border-block-end: none;
+  --str-chat__message-textarea-border-inline-start: none;
+  --str-chat__message-textarea-border-inline-end: none;
+  --str-chat__message-input-border-block-start: 1px solid var(--sage5);
+  --str-chat__message-input-background-color: var(--sage2);
+
+  // Message
+  --str-chat__message-bubble-background-color: transparent;
+  --str-chat__own-message-bubble-background-color: transparent;
+  --str-chat__quoted-message-bubble-background-color: transparent;
+  --str-chat__deleted-message-background-color: transparent;
+  --str-chat__card-attachment-border-inline-start: 3px solid var(--sage4);
+  --str-chat__message-reaction-background-color: var(--sage4);
+  --str-chat__own-message-reaction-background-color: var(--mint5);
+}
+
+@layer overrides {
+  // Custom message layout
+  .str-chat__message {
+    // Display the avatar at the top of the message
+    .str-chat__message-sender-avatar {
+      align-self: flex-start;
+    }
+
+    .str-chat__message-inner {
+      // Display reactions under the message
+      grid-template-areas:
+        'message-bubble options'
+        'reactions reactions';
+
+      // Make message bubble full width
+      .str-chat__message-bubble {
+        max-width: 100%;
+        align-self: center;
+
+        // Padding added for the border displayed for links and GIFs
+        // Quoted message padding for indentation
+        .str-chat__message-attachment--card,
+        .str-chat__quoted-message-preview {
+          padding-inline-start: 0.5rem;
+        }
+      }
+    }
+
+    .str-chat__message-text,
+    .str-chat__quoted-message-bubble {
+      padding: 0;
+    }
+  }
+}
+
+@layer overrides {
+  .str-chat__message.str-chat__message--me {
+    // Align message to left
+    grid-template-areas:
+      'avatar message'
+      '. replies'
+      '. metadata';
+    justify-items: start;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.5rem;
+
+    // Don't hide the chat user's avatar
+    .str-chat__message-sender-avatar {
+      display: block;
+    }
+
+    // Align reactions selector to left
+    .str-chat__message-reactions-container {
+      justify-content: flex-start;
+    }
+
+    // Align message reactions to left
+    .str-chat__message-reaction-selector {
+      inset-inline-end: unset;
+      inset-inline-start: 0;
+    }
+
+    // Align system messages center
+    &.str-chat__message--system {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-$stream-chat-theme-version: "2";
+$stream-chat-theme-version: '2';
 
-@if $stream-chat-theme-version == "2" {
+@if $stream-chat-theme-version == '2' {
   #root {
     display: flex;
     height: 100%;
@@ -91,7 +215,6 @@ $stream-chat-theme-version: "2";
     }
 
     @media screen and (min-width: 1024px) {
-
       //.str-chat-channel-list {
       //  max-width: 420px;
       //  position: initial;
@@ -108,8 +231,6 @@ $stream-chat-theme-version: "2";
         display: none;
       }
     }
-
-
   }
 } @else {
   .menu-button {
