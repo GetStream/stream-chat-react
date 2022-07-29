@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+/* eslint-disable jest/expect-expect */
 import dotenv from 'dotenv';
 
 import selectors from './user/selectors';
@@ -11,7 +11,7 @@ import MessageList from './user/components/MessageList/MessageList';
 import MessageNotification, {
   getMessageNotificationSelector,
 } from './user/components/MessageList/MessageNotification';
-import Thread from './user/components/Thread/Thread';
+import Thread, { composeThreadSelector } from './user/components/Thread/Thread';
 
 import type { TestingUser } from './user/User';
 
@@ -54,38 +54,26 @@ test.describe('thread autoscroll', () => {
   });
 
   test('only if I send a message', async ({ page, user }) => {
-    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const avatars = thread.locator(selectors.avatar);
-    await page.mouse.move(0, 0);
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
+    await user.sees(Thread).not.isScrolledToBottom(selector);
 
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       user.submits(MessageInput).reply(MY_ADDED_REPLY_TEXT),
     ]);
-    await page.mouse.move(0, 0);
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+
+    await user.sees(Thread).isScrolledToBottom(selector);
   });
 
   test('not if I receive a message', async ({ controller, page, user }) => {
-    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const avatars = thread.locator(selectors.avatar);
-    await page.mouse.move(0, 0);
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
+    await user.sees(Thread).not.isScrolledToBottom(selector);
+
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply(),
     ]);
-    await page.mouse.move(0, 0);
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    await user.sees(Thread).not.isScrolledToBottom(selector);
   });
 });
 
