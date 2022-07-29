@@ -16,7 +16,7 @@ export default (page: Page) => ({
       },
     },
     async empty() {
-      return await expect(getMessageList(page)).toBeEmpty();
+      return await expect(getMessageList(page)).toContainText('No chats here yet…');
     },
     async hasLength(count: number) {
       const listItems = page.locator(selectors.messagesInMessageList);
