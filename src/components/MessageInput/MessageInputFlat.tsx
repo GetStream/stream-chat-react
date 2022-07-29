@@ -184,9 +184,11 @@ const MessageInputV2 = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    message,
     numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
+    text,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
@@ -256,13 +258,21 @@ const MessageInputV2 = <
               </div>
             </div>
           </div>
-          {cooldownRemaining ? (
-            <CooldownTimer
-              cooldownInterval={cooldownRemaining}
-              setCooldownRemaining={setCooldownRemaining}
-            />
-          ) : (
-            <SendButton sendMessage={handleSubmit} />
+          {/* hide SendButton if this component is rendered in the edit message form */}
+          {!message && (
+            <>
+              {cooldownRemaining ? (
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
+              ) : (
+                <SendButton
+                  disabled={!numberOfUploads && !text.length}
+                  sendMessage={handleSubmit}
+                />
+              )}
+            </>
           )}
         </div>
       </div>
