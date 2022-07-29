@@ -110,8 +110,6 @@ const renderGroupedAttachments = <
         });
       } else {
         const attachmentType = getAttachmentType(attachment);
-        // allow single card attachment
-        if (acc.card.length === 1 && attachmentType === 'card') return acc;
 
         if (attachmentType) {
           const Container = CONTAINER_MAP[attachmentType];

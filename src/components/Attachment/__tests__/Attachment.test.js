@@ -191,7 +191,7 @@ describe('attachment', () => {
       });
     });
 
-    it('should render only the first scraped attachment in a single card', async () => {
+    it('should render all scraped attachments', async () => {
       const scrapedAudio = { ...ATTACHMENTS.scraped.audio, customTestId: nanoid() };
       const scrapedVideo = { ...ATTACHMENTS.scraped.video, customTestId: nanoid() };
       const scrapedImage = { ...ATTACHMENTS.scraped.image, customTestId: nanoid() };
@@ -210,8 +210,10 @@ describe('attachment', () => {
       await waitFor(() => {
         /* eslint-disable jest-dom/prefer-in-document */
         const Card = screen.queryAllByTestId('card-attachment');
-        expect(Card).toHaveLength(1);
+        expect(Card).toHaveLength(3);
         expect(Card[0]).toHaveTextContent(scrapedAudio.customTestId);
+        expect(Card[0]).toHaveTextContent(scrapedVideo.customTestId);
+        expect(Card[0]).toHaveTextContent(scrapedImage.customTestId);
       });
     });
 
