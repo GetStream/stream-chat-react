@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+/* eslint-disable jest/expect-expect */
 import dotenv from 'dotenv';
 
 import selectors from './user/selectors';
@@ -11,7 +11,7 @@ import MessageList from './user/components/MessageList/MessageList';
 import MessageNotification, {
   getMessageNotificationSelector,
 } from './user/components/MessageList/MessageNotification';
-import Thread from './user/components/Thread/Thread';
+import Thread, { composeThreadSelector } from './user/components/Thread/Thread';
 
 import type { TestingUser } from './user/User';
 
@@ -35,7 +35,7 @@ test.describe('thread autoscroll', () => {
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/replies') && r.ok()),
-      user.clicks(Thread).open('replies'),
+      user.clicks(Thread).open('replies', -1),
     ]);
   });
 
@@ -54,47 +54,38 @@ test.describe('thread autoscroll', () => {
   });
 
   test('only if I send a message', async ({ page, user }) => {
-    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const avatars = thread.locator(selectors.avatar);
-
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
+    await user.sees(Thread).not.isScrolledToBottom(selector);
 
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       user.submits(MessageInput).reply(MY_ADDED_REPLY_TEXT),
     ]);
 
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    await user.sees(Thread).isScrolledToBottom(selector);
   });
 
   test('not if I receive a message', async ({ controller, page, user }) => {
-    const thread = user.get(Thread)(USER1_CHAT_VIEW_CLASSNAME);
-    const avatars = thread.locator(selectors.avatar);
+    const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
+    await user.sees(Thread).not.isScrolledToBottom(selector);
 
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
     await Promise.all([
       page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
       await controller.sendOtherUserReply(),
     ]);
-    await expect(thread).toHaveScreenshot({
-      mask: [avatars],
-    });
+    await user.sees(Thread).not.isScrolledToBottom(selector);
   });
 });
 
 test.describe('scroll to the bottom', () => {
-  const scrollInSteps = async (user: TestingUser) => {
-    await user.get(Message)('Message 142').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 138').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 135').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 131').scrollIntoViewIfNeeded();
-    await user.get(Message)('Message 128').scrollIntoViewIfNeeded();
+  const scrollInSteps = async (user: TestingUser, cycles = 1) => {
+    for (let i = 0; i < cycles; i++) {
+      await Promise.all(
+        ['142', '135', '128'].map((num: string) =>
+          user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded(),
+        ),
+      );
+    }
   };
   test.beforeEach(async ({ controller, user }) => {
     await controller.openStory(
@@ -122,7 +113,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user);
+    await scrollInSteps(user, 3);
 
     await controller.sendOtherUserMessage();
 
@@ -142,7 +133,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user);
+    await scrollInSteps(user, 3);
 
     // trigger load more messages
     const firstLoadedMessage = await page.locator(

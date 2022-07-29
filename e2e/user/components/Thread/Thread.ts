@@ -1,19 +1,25 @@
+/* eslint-disable jest/no-standalone-expect */
 import type { Page } from '@playwright/test';
 import selectors from '../../selectors';
 import { expect } from '@playwright/test';
 import { getMessage } from '../Message/MessageSimple';
+
+export function composeThreadSelector(prependSelectors?: string) {
+  return `${prependSelectors || ''} ${selectors.threadMessageList}`;
+}
 
 export default (page: Page) => ({
   click: {
     close() {
       return page.click(selectors.buttonCloseThread);
     },
-    open(text: string) {
-      return page.locator(selectors.messageRepliesButton, { hasText: text }).click();
+    open(text: string, nth = 0) {
+      return page
+        .locator(`${selectors.messageRepliesButton} >> nth=${nth} `, { hasText: text })
+        .click();
     },
   },
-  get: (prependSelectors?: string) =>
-    page.locator(`${prependSelectors || ''} ${selectors.threadMessageList}`),
+  get: (prependSelectors?: string) => page.locator(composeThreadSelector(prependSelectors)),
   see: {
     empty() {
       const replies = page.locator(`${selectors.threadReplyList}`);
@@ -30,6 +36,18 @@ export default (page: Page) => ({
         // const msgBox = await getMessage(page, text, nth, isThread).boundingBox();
         // expect(isVisible(msgBox, threadMsgListBox)).toBeTruthy();
       },
+    },
+    async isScrolledToBottom(selector: string) {
+      expect(
+        await page.evaluate(
+          ([selector]) => {
+            const messageList = document.querySelector(selector);
+            if (!messageList) return false;
+            return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+          },
+          [selector],
+        ),
+      ).toBeTruthy();
     },
     not: {
       empty() {
@@ -57,6 +75,18 @@ export default (page: Page) => ({
           // const msgBox = await msgLocator.boundingBox();
           // expect(isVisible(msgBox, threadMsgListBox)).toBeFalsy();
         },
+      },
+      async isScrolledToBottom(selector: string) {
+        expect(
+          await page.evaluate(
+            ([selector]) => {
+              const messageList = document.querySelector(selector);
+              if (!messageList) return false;
+              return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+            },
+            [selector],
+          ),
+        ).toBeFalsy();
       },
     },
     start() {
