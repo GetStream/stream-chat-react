@@ -80,6 +80,8 @@ export type MessageContextValue<
   showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<StreamChatGenerics>;
+  /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
+  autoscrollToBottom?: () => void;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions<StreamChatGenerics>;
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */

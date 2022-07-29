@@ -48,7 +48,7 @@ export const VirtualizedSetup = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <VirtualizedMessageList disableDateSeparator={false} messageLimit={16} />
+        <VirtualizedMessageList disableDateSeparator={false} messageLimit={50} />
         <MessageInput focus />
       </Window>
       <Thread />

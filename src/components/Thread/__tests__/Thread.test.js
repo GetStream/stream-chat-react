@@ -1,17 +1,17 @@
+import '@testing-library/jest-dom';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 
-import { Thread } from '../Thread';
-
-import { Message as MessageMock } from '../../Message/Message';
-import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
 import {
-  MessageList as MessageListMock,
-  VirtualizedMessageList as VirtualizedMessageListMock,
-} from '../../MessageList';
-import { useMessageInputContext } from '../../../context/MessageInputContext';
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+  ComponentProvider,
+  EmojiProvider,
+  TranslationProvider,
+  useMessageInputContext,
+} from '../../../context';
 
 import {
   emojiComponentMock,
@@ -24,12 +24,13 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import { ComponentProvider } from '../../../context/ComponentContext';
-import { EmojiProvider } from '../../../context/EmojiContext';
-import { TranslationProvider } from '../../../context/TranslationContext';
+import { Message as MessageMock } from '../../Message/Message';
+import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
+import {
+  MessageList as MessageListMock,
+  VirtualizedMessageList as VirtualizedMessageListMock,
+} from '../../MessageList';
+import { Thread } from '../Thread';
 
 jest.mock('../../Message/Message', () => ({
   Message: jest.fn(() => <div />),
@@ -242,6 +243,23 @@ describe('Thread', () => {
     fireEvent.click(getByTestId('close-button'));
 
     expect(channelActionContextMock.closeThread).toHaveBeenCalledTimes(1);
+  });
+
+  it('should pass messageActions prop to the used messageList', () => {
+    const messageActions = ['edit', 'reply', 'delete'];
+    renderComponent({
+      chatClient,
+      threadProps: {
+        messageActions,
+      },
+    });
+
+    expect(MessageListMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageActions,
+      }),
+      expect.anything(), // refOrContext
+    );
   });
 
   it('should assign the str-chat__thread--full modifier class if the fullWidth prop is set to true', () => {

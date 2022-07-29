@@ -17,13 +17,15 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import { MessageContextValue, MessageProvider } from '../../context/MessageContext';
+import {
+  MessageContextValue,
+  MessageProvider,
+  useChannelActionContext,
+  useChannelStateContext,
+  useComponentContext,
+} from '../../context';
 
 import type { MessageProps } from './types';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessagePropsToOmit = 'onMentionsClick' | 'onMentionsHover' | 'openThread' | 'retrySendMessage';
@@ -104,7 +106,7 @@ const MessageWithContext = <
         canReact,
         canReply,
       }),
-    [canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply],
+    [messageActions, canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply],
   );
 
   const {
@@ -220,6 +222,7 @@ export const Message = <
   return (
     <MemoizedMessage
       additionalMessageInputProps={props.additionalMessageInputProps}
+      autoscrollToBottom={props.autoscrollToBottom}
       canPin={canPin}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}

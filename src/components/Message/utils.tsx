@@ -2,13 +2,9 @@ import deepequal from 'react-fast-compare';
 
 import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
-
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
-import type { MessageContextValue } from '../../context/MessageContext';
-
+import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 /**
@@ -214,6 +210,23 @@ export const showMessageActionsBox = (
   return true;
 };
 
+const areMessagesEqual = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  prevMessage: StreamMessage<StreamChatGenerics>,
+  nextMessage: StreamMessage<StreamChatGenerics>,
+) =>
+  prevMessage.deleted_at === nextMessage.deleted_at &&
+  prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
+  prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+  prevMessage.pinned === nextMessage.pinned &&
+  prevMessage.reply_count === nextMessage.reply_count &&
+  prevMessage.status === nextMessage.status &&
+  prevMessage.text === nextMessage.text &&
+  prevMessage.type === nextMessage.type &&
+  prevMessage.updated_at === nextMessage.updated_at &&
+  prevMessage.user?.updated_at === nextMessage.user?.updated_at;
+
 export const areMessagePropsEqual = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -236,21 +249,11 @@ export const areMessagePropsEqual = <
     return false;
   }
 
-  const messagesAreEqual =
-    prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
-    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
-    prevMessage.pinned === nextMessage.pinned &&
-    prevMessage.reply_count === nextMessage.reply_count &&
-    prevMessage.status === nextMessage.status &&
-    prevMessage.text === nextMessage.text &&
-    prevMessage.type === nextMessage.type &&
-    prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.updated_at === nextMessage.user?.updated_at;
-
+  const messagesAreEqual = areMessagesEqual(prevMessage, nextMessage);
   if (!messagesAreEqual) return false;
 
   const deepEqualProps =
+    deepequal(nextProps.messageActions, prevProps.messageActions) &&
     deepequal(nextProps.readBy, prevProps.readBy) &&
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
     deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
@@ -294,18 +297,7 @@ export const areMessageUIPropsEqual = <
     return false;
   }
 
-  return (
-    prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
-    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
-    prevMessage.pinned === nextMessage.pinned &&
-    prevMessage.reply_count === nextMessage.reply_count &&
-    prevMessage.status === nextMessage.status &&
-    prevMessage.text === nextMessage.text &&
-    prevMessage.type === nextMessage.type &&
-    prevMessage.updated_at === nextMessage.updated_at &&
-    prevMessage.user?.updated_at === nextMessage.user?.updated_at
-  );
+  return areMessagesEqual(prevMessage, nextMessage);
 };
 
 export const messageHasReactions = <
@@ -342,23 +334,42 @@ export const getNonImageAttachments = <
   return message.attachments.filter((item) => item.type !== 'image');
 };
 
+export interface TooltipUsernameMapper {
+  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+    user: UserResponse<StreamChatGenerics>,
+  ): string;
+}
+
+/**
+ * Default Tooltip Username mapper implementation.
+ *
+ * @param user the user.
+ */
+export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
+
 export const getReadByTooltipText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
   client: StreamChat<StreamChatGenerics>,
+  tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
   let outStr = '';
 
   if (!t) {
-    throw new Error('`getReadByTooltipText was called, but translation function is not available`');
+    throw new Error('getReadByTooltipText was called, but translation function is not available');
   }
 
+  if (!tooltipUserNameMapper) {
+    throw new Error(
+      'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
+    );
+  }
   // first filter out client user, so restLength won't count it
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)
-    .map((item) => item.name || item.id);
+    .map(tooltipUserNameMapper);
 
   const slicedArr = otherUsers.slice(0, 5);
   const restLength = otherUsers.length - slicedArr.length;
@@ -377,7 +388,7 @@ export const getReadByTooltipText = <
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
+      const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
       outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
         commaSeparatedUsers: slicedArr.join(', '),
         lastUser,

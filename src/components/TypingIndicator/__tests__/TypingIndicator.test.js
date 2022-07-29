@@ -58,7 +58,7 @@ describe('TypingIndicator', () => {
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__typing-indicator "
+        className="str-chat__typing-indicator"
       >
         <div
           className="str-chat__typing-indicator__avatars"
@@ -98,7 +98,7 @@ describe('TypingIndicator', () => {
 
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__typing-indicator "
+        className="str-chat__typing-indicator"
       >
         <div
           className="str-chat__typing-indicator__avatars"

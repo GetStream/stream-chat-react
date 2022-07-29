@@ -143,7 +143,7 @@ const UnMemoizedMessageActionsBox = <
         {customMessageActions && (
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && !message.quoted_message && (
+        {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
           <button
             aria-selected='false'
             className={buttonClassName}

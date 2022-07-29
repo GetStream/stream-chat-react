@@ -1,24 +1,30 @@
 import React, { useEffect } from 'react';
 
-import { FixedHeightMessage } from '../Message/FixedHeightMessage';
-import { MessageInput, MessageInputProps } from '../MessageInput/MessageInput';
-import { MessageInputSmall } from '../MessageInput/MessageInputSmall';
-import { MessageInputFlat } from '../MessageInput/MessageInputFlat';
-
-import { MessageList, MessageListProps } from '../MessageList/MessageList';
+import { FixedHeightMessage, MESSAGE_ACTIONS } from '../Message';
 import {
+  MessageInput,
+  MessageInputFlat,
+  MessageInputProps,
+  MessageInputSmall,
+} from '../MessageInput';
+import {
+  MessageList,
+  MessageListProps,
   VirtualizedMessageList,
   VirtualizedMessageListProps,
-} from '../MessageList/VirtualizedMessageList';
-import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
+} from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
+import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
-import { useChannelActionContext } from '../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import {
+  useChannelActionContext,
+  useChannelStateContext,
+  useChatContext,
+  useComponentContext,
+} from '../../context';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
+import type { MessageActionsArray } from '../Message/utils';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
@@ -44,6 +50,8 @@ export type ThreadProps<
   Input?: React.ComponentType;
   /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
+  messageActions?: MessageActionsArray;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -81,6 +89,7 @@ const ThreadInner = <
     fullWidth = false,
     Input: PropInput,
     Message: PropMessage,
+    messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
 
@@ -142,6 +151,7 @@ const ThreadInner = <
         loadingMore={threadLoadingMore}
         loadMore={loadMoreThread}
         Message={MessageUIComponent}
+        messageActions={messageActions}
         messages={threadMessages || []}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList

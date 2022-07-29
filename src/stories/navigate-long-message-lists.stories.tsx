@@ -27,7 +27,7 @@ if (!channelId || typeof channelId !== 'string') {
 
 const OtherUserControlButtons = () => {
   const { client } = useChatContext();
-  const { channel, threadMessages } = useChannelStateContext();
+  const { channel, messages, threadMessages } = useChannelStateContext();
   const lastMessage = channel.state.messages.slice(-1)[0];
   return (
     <>
@@ -52,6 +52,27 @@ const OtherUserControlButtons = () => {
         }}
       >
         Delete other user&apos;s last reply
+      </button>
+      <button
+        data-testid='add-other-user-message'
+        onClick={() =>
+          channel.sendMessage({
+            text: "Other user's message",
+          })
+        }
+      >
+        Receive a message
+      </button>
+      <button
+        data-testid='delete-other-last-message'
+        onClick={async () => {
+          const lastMessage = messages?.slice(-1)[0];
+          if (lastMessage) {
+            await client.deleteMessage(lastMessage.id, true);
+          }
+        }}
+      >
+        Delete other user&apos;s last message
       </button>
     </>
   );
