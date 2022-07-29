@@ -1,11 +1,14 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
+import { getTestClientWithUser, mockTranslatorFunction } from '../../../mock-builders';
 import {
   areMessagePropsEqual,
   areMessageUIPropsEqual,
   getImages,
   getMessageActions,
   getNonImageAttachments,
+  getReadByTooltipText,
   isUserMuted,
+  mapToUserNameOrId,
   MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
@@ -322,6 +325,88 @@ describe('Message utils', () => {
         attachments: [pdf, img],
       });
       expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
+    });
+  });
+
+  describe('getReadByTooltipText', () => {
+    const tooltipUserNameMapper = mapToUserNameOrId;
+
+    let client;
+
+    beforeAll(async () => {
+      client = await getTestClientWithUser(alice);
+    });
+    it('ignores the client user', () => {
+      const result = getReadByTooltipText(
+        [client.user],
+        mockTranslatorFunction,
+        client,
+        tooltipUserNameMapper,
+      );
+      expect(result).toStrictEqual('');
+    });
+    it('returns a single user if only one user in array', () => {
+      const result = getReadByTooltipText(
+        [bob],
+        mockTranslatorFunction,
+        client,
+        tooltipUserNameMapper,
+      );
+      expect(result).toStrictEqual(`${bob.name} `);
+    });
+    it('returns "1 and 2" if read by two users', () => {
+      const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
+      const result = getReadByTooltipText(
+        users,
+        mockTranslatorFunction,
+        client,
+        tooltipUserNameMapper,
+      );
+      expect(result).toStrictEqual(`1 and 2`);
+    });
+    it('returns "1, 2, and 3" if read by three users', () => {
+      const users = [
+        generateUser({ name: '1' }),
+        generateUser({ name: '2' }),
+        generateUser({ name: '3' }),
+      ];
+      const result = getReadByTooltipText(
+        users,
+        mockTranslatorFunction,
+        client,
+        tooltipUserNameMapper,
+      );
+      expect(result).toStrictEqual(`1, 2, and 3`);
+    });
+    it('returns "1, 2, 3, 4, 5 and 5 more if read by ten users', () => {
+      const users = [...Array(10).keys()].map((n) => generateUser({ name: (n + 1).toString() }));
+      const result = getReadByTooltipText(
+        users,
+        mockTranslatorFunction,
+        client,
+        tooltipUserNameMapper,
+      );
+      expect(result).toStrictEqual(`1, 2, 3, 4, 5 and 5 more`);
+    });
+    it('overrides user format with tooltipUserNameMapper', () => {
+      const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
+      const result = getReadByTooltipText(
+        users,
+        mockTranslatorFunction,
+        client,
+        (user) => `Dr. ${user.name}`,
+      );
+      expect(result).toStrictEqual(`Dr. 1 and Dr. 2`);
+    });
+    it('throws error if no translator function provided', () => {
+      expect(() => getReadByTooltipText([], null, client, tooltipUserNameMapper)).toThrow(
+        'getReadByTooltipText was called, but translation function is not available',
+      );
+    });
+    it('throws error if no tooltipUserNameMapper function provided', () => {
+      expect(() => getReadByTooltipText([], mockTranslatorFunction, client, undefined)).toThrow(
+        'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
+      );
     });
   });
 });

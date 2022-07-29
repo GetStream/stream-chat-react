@@ -334,23 +334,42 @@ export const getNonImageAttachments = <
   return message.attachments.filter((item) => item.type !== 'image');
 };
 
+export interface TooltipUsernameMapper {
+  <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
+    user: UserResponse<StreamChatGenerics>,
+  ): string;
+}
+
+/**
+ * Default Tooltip Username mapper implementation.
+ *
+ * @param user the user.
+ */
+export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
+
 export const getReadByTooltipText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   users: UserResponse<StreamChatGenerics>[],
   t: TFunction,
   client: StreamChat<StreamChatGenerics>,
+  tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
   let outStr = '';
 
   if (!t) {
-    throw new Error('`getReadByTooltipText was called, but translation function is not available`');
+    throw new Error('getReadByTooltipText was called, but translation function is not available');
   }
 
+  if (!tooltipUserNameMapper) {
+    throw new Error(
+      'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
+    );
+  }
   // first filter out client user, so restLength won't count it
   const otherUsers = users
     .filter((item) => item && client?.user && item.id !== client.user.id)
-    .map((item) => item.name || item.id);
+    .map(tooltipUserNameMapper);
 
   const slicedArr = otherUsers.slice(0, 5);
   const restLength = otherUsers.length - slicedArr.length;
@@ -369,7 +388,7 @@ export const getReadByTooltipText = <
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 2, 1);
+      const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
       outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
         commaSeparatedUsers: slicedArr.join(', '),
         lastUser,

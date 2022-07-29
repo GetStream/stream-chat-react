@@ -22,9 +22,22 @@ export default (page: Page) => ({
       const listItems = page.locator(selectors.messagesInMessageList);
       return await expect(listItems).toHaveCount(count);
     },
+    async isScrolledToBottom(selector: string) {
+      expect(
+        await page.evaluate(
+          ([selector]) => {
+            const messageList = document.querySelector(selector);
+            if (!messageList) return false;
+            return messageList.scrollTop + messageList.clientHeight === messageList.scrollHeight;
+          },
+          [selector],
+        ),
+      ).toBeTruthy();
+    },
     not: {
       async empty() {
-        return await expect(getMessageList(page)).not.toBeEmpty();
+        // eslint-disable-next-line jest/no-standalone-expect
+        await expect(getMessageList(page)).not.toBeEmpty();
       },
     },
   },
