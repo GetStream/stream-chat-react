@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const progressUpdateInterval = 500;
+export const PROGRESS_UPDATE_INTERVAL = 100;
 
 export const useAudioController = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -8,39 +8,52 @@ export const useAudioController = () => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const updateProgress = useCallback(() => {
-    if (!audioRef.current) return;
-
-    const position = audioRef.current.currentTime;
-    const { duration } = audioRef.current;
-    const currentProgress = (100 / duration) * position;
-    setProgress(currentProgress);
-
-    if (position === duration) {
-      setIsPlaying(false);
-    }
-  }, [audioRef]);
-
   const togglePlay = useCallback(() => {
     setIsPlaying((playing) => !playing);
   }, []);
 
-  useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.play();
-      const interval = setInterval(updateProgress, progressUpdateInterval);
-      return () => clearInterval(interval);
-    }
-    audioRef.current.pause();
+  const seek = useCallback<React.MouseEventHandler<HTMLDivElement>>(
+    ({ clientX, currentTarget }) => {
+      if (!audioRef.current) return;
 
-    return;
-  }, [isPlaying, updateProgress]);
+      const { width, x } = currentTarget.getBoundingClientRect();
+
+      const ratio = (clientX - x) / width;
+
+      if (!isPlaying) setProgress(ratio * 100);
+
+      audioRef.current.currentTime = ratio * audioRef.current.duration;
+    },
+    [isPlaying],
+  );
+
+  useEffect(() => {
+    if (!audioRef.current || !isPlaying) return;
+
+    const interval = window.setInterval(() => {
+      if (!audioRef.current) return;
+
+      const { currentTime, duration } = audioRef.current;
+
+      setProgress((currentTime / duration) * 100);
+
+      if (currentTime === duration) setIsPlaying(false);
+    }, PROGRESS_UPDATE_INTERVAL);
+
+    audioRef.current.play();
+
+    return () => {
+      audioRef.current?.pause();
+
+      window.clearInterval(interval);
+    };
+  }, [isPlaying]);
 
   return {
     audioRef,
     isPlaying,
     progress,
+    seek,
     togglePlay,
   };
 };
