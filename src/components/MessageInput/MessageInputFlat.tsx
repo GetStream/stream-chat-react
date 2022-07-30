@@ -241,7 +241,12 @@ const MessageInputV2 = <
 
               <div className='str-chat__message-textarea-emoji-picker'>
                 {emojiPickerIsOpen && (
-                  <div style={styles.popper} {...attributes.popper} ref={setPopperElement}>
+                  <div
+                    className='str-chat__message-textarea-emoji-picker-container'
+                    style={styles.popper}
+                    {...attributes.popper}
+                    ref={setPopperElement}
+                  >
                     <EmojiPicker />
                   </div>
                 )}
