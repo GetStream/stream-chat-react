@@ -69,7 +69,7 @@ const MessageListWithContext = <
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
-  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
+  const { customClasses, themeVersion } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -207,11 +207,12 @@ const MessageListWithContext = <
             <ul className='str-chat__ul' ref={setUlElement}>
               {elements}
             </ul>
-            <TypingIndicator threadList={threadList} />
+            {themeVersion === '1' && <TypingIndicator threadList={threadList} />}
             <div key='bottom' />
           </InfiniteScroll>
         )}
       </div>
+      {themeVersion === '2' && <TypingIndicator threadList={threadList} />}
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
         isNotAtLatestMessageSet={hasMoreNewer}

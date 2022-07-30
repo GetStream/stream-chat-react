@@ -90,7 +90,6 @@ const UnMemoizedTypingIndicator = <
     (threadList && typingInThread.length) || (!threadList && typingInChannel.length);
 
   if (channelConfig?.typing_events === false) {
-    console.log('here');
     return null;
   }
 
@@ -98,7 +97,7 @@ const UnMemoizedTypingIndicator = <
     if (!isTypingActive) return null;
     return (
       <div
-        className={clsx('str-chat__typing-indicator', {
+        className={clsx('str-chat__typing-indicator', 'str-chat__typing-indicator-react-host', {
           'str-chat__typing-indicator--typing': isTypingActive,
         })}
         data-testid='typing-indicator'
