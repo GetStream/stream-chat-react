@@ -3,6 +3,7 @@ import ReactPlayer from 'react-player';
 import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
+import type { ATTACHMENT_GROUPS_ORDER } from './Attachment';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { Card as DefaultCard } from './Card';
@@ -15,7 +16,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
-export type AttachmentComponentType = 'audio' | 'card' | 'file' | 'gallery' | 'image' | 'media';
+export type AttachmentComponentType = typeof ATTACHMENT_GROUPS_ORDER[number];
 
 export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
 
