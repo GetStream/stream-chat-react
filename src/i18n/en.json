@@ -72,6 +72,9 @@
   "{{ memberCount }} members": "{{ memberCount }} members",
   "{{ user }} has been muted": "{{ user }} has been muted",
   "{{ user }} has been unmuted": "{{ user }} has been unmuted",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Attachment..."
 }

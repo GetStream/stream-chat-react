@@ -74,6 +74,9 @@
   "{{ memberCount }} members": "{{ memberCount }} membres",
   "{{ user }} has been muted": "{{ user }} a été mis en sourdine",
   "{{ user }} has been unmuted": "{{ user }} n'est plus en sourdine",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} en ligne",
   "🏙 Attachment...": "🏙 Pièce jointe..."
 }

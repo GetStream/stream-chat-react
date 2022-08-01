@@ -76,6 +76,9 @@
   "{{ memberCount }} members": "{{ memberCount }} члены",
   "{{ user }} has been muted": "Вы отписались от уведомлений от {{ user }}",
   "{{ user }} has been unmuted": "Уведомления от {{ user }} были включены",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} в сети",
   "🏙 Attachment...": "🏙 Вложение..."
 }

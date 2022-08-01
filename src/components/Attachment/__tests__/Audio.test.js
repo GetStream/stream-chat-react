@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
+import { PROGRESS_UPDATE_INTERVAL } from '../hooks/useAudioController';
 
 import { ChatContext } from '../../../context/ChatContext';
 
@@ -55,6 +56,24 @@ describe('Audio', () => {
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
+  it('in v2 should show the correct progress after clicking to the middle of a progress bar (seeking)', async () => {
+    const { getByTestId } = renderComponent({ chatContext: { themeVersion: '2' }, og: AUDIO });
+
+    jest
+      .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
+      .mockImplementationOnce(() => ({ width: 120, x: 0 }));
+
+    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'set').mockImplementationOnce(() => {});
+
+    fireEvent.click(getByTestId('audio-progress'), {
+      clientX: 60,
+    });
+
+    await waitFor(() => {
+      expect(getByTestId('audio-progress')).toHaveStyle({ width: '50%' });
+    });
+  });
+
   describe.each([['1'], ['2']])('version %s', (themeVersion) => {
     it('should render an audio element with the right source', () => {
       const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
@@ -86,7 +105,7 @@ describe('Audio', () => {
       expect(await pauseButton()).not.toBeInTheDocument();
     });
 
-    it('should poll for progress every 500ms if the file is played, and stop doing that when it is paused', () => {
+    it(`should poll for progress every ${PROGRESS_UPDATE_INTERVAL}ms if the file is played, and stop doing that when it is paused`, () => {
       const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       let intervalId;
@@ -97,7 +116,7 @@ describe('Audio', () => {
       const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
 
       fireEvent.click(getByTestId(playButtonTestId));
-      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 500);
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), PROGRESS_UPDATE_INTERVAL);
 
       fireEvent.click(getByTestId(pauseButtonTestId));
       expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);

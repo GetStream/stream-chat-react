@@ -109,13 +109,12 @@ export const renderAttachmentWithinContainer = <
         : '';
   }
 
-  const classNames = clsx(
-    'str-chat__message-attachment',
-    `str-chat__message-attachment--${componentType}`,
-    attachment?.type && `str-chat__message-attachment--${attachment?.type}`,
-    extra && `str-chat__message-attachment--${componentType}--${extra}`,
-    extra === 'actions' && 'str-chat__message-attachment-with-actions', // added for theme V2 (better readability)
-  );
+  const classNames = clsx('str-chat__message-attachment', {
+    [`str-chat__message-attachment--${componentType}`]: componentType,
+    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+  });
 
   return (
     <div

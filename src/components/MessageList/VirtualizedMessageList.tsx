@@ -146,7 +146,9 @@ const VirtualizedMessageListWithContext = <
     VirtualMessage: contextMessage = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
 
-  const { client, customClasses } = useChatContext<StreamChatGenerics>('VirtualizedMessageList');
+  const { client, customClasses, themeVersion } = useChatContext<StreamChatGenerics>(
+    'VirtualizedMessageList',
+  );
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -361,7 +363,7 @@ const VirtualizedMessageListWithContext = <
       );
 
     const Footer: Components['Footer'] = () =>
-      TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
+      themeVersion === '1' && TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
 
     return {
       EmptyPlaceholder,
@@ -431,6 +433,7 @@ const VirtualizedMessageListWithContext = <
           {...(defaultItemHeight ? { defaultItemHeight } : {})}
         />
       </div>
+      {themeVersion === '2' && TypingIndicator && <TypingIndicator threadList={threadList} />}
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
         isNotAtLatestMessageSet={hasMoreNewer}

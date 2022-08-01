@@ -141,10 +141,9 @@ const UnMemoizedReactionSelector = React.forwardRef(
 
     return (
       <div
-        className={clsx(
-          'str-chat__reaction-selector str-chat__message-reaction-selector',
-          reverse && 'str-chat__reaction-selector--reverse',
-        )}
+        className={clsx('str-chat__reaction-selector str-chat__message-reaction-selector', {
+          'str-chat__reaction-selector--reverse': reverse,
+        })}
         data-testid='reaction-selector'
         ref={ref}
       >
@@ -175,8 +174,11 @@ const UnMemoizedReactionSelector = React.forwardRef(
                   aria-label={`Select Reaction: ${reactionOption.name}`}
                   className={clsx(
                     'str-chat__message-reactions-list-item str-chat__message-reactions-option',
-                    iHaveReactedWithReaction(reactionOption.id) &&
-                      'str-chat__message-reactions-option-selected',
+                    {
+                      'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
+                        reactionOption.id,
+                      ),
+                    },
                   )}
                   data-text={reactionOption.id}
                   onClick={(event) => handleReaction(reactionOption.id, event)}

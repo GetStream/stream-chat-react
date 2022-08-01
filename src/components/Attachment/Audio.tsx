@@ -91,10 +91,14 @@ export const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
 
 type ProgressBarProps = {
   progress: number;
-};
+} & Pick<React.ComponentProps<'div'>, 'onClick'>;
 
-export const ProgressBar = ({ progress }: ProgressBarProps) => (
-  <div className='str-chat__message-attachment-audio-widget--progress-track'>
+export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
+  <div
+    className='str-chat__message-attachment-audio-widget--progress-track'
+    onClick={onClick}
+    role='progressbar'
+  >
     <div
       className='str-chat__message-attachment-audio-widget--progress-indicator'
       data-testid='audio-progress'
@@ -109,7 +113,7 @@ export const ProgressBar = ({ progress }: ProgressBarProps) => (
 
 const AudioV2 = ({ og }: AudioProps) => {
   const { asset_url, file_size, title } = og;
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
 
   if (!asset_url) return null;
 
@@ -131,7 +135,7 @@ const AudioV2 = ({ og }: AudioProps) => {
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
           <FileSizeIndicator fileSize={file_size} />
-          <ProgressBar progress={progress} />
+          <ProgressBar onClick={seek} progress={progress} />
         </div>
       </div>
     </div>

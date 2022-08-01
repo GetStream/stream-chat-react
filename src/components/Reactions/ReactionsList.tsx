@@ -61,10 +61,9 @@ const UnMemoizedReactionsList = <
   return (
     <div
       aria-label='Reaction list'
-      className={clsx(
-        'str-chat__reaction-list str-chat__message-reactions-container',
-        reverse && 'str-chat__reaction-list--reverse',
-      )}
+      className={clsx('str-chat__reaction-list str-chat__message-reactions-container', {
+        'str-chat__reaction-list--reverse': reverse,
+      })}
       data-testid='reaction-list'
       onClick={onClick || onReactionListClick}
       onKeyUp={onClick || onReactionListClick}
@@ -76,10 +75,9 @@ const UnMemoizedReactionsList = <
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
           return emojiObject ? (
             <li
-              className={clsx(
-                'str-chat__message-reaction',
-                isOwnReaction && 'str-chat__message-reaction-own',
-              )}
+              className={clsx('str-chat__message-reaction', {
+                'str-chat__message-reaction-own': isOwnReaction,
+              })}
               key={emojiObject.id}
             >
               <button aria-label={`Reactions: ${reactionType}`}>
