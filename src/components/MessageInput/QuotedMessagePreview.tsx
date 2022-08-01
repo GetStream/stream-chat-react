@@ -7,6 +7,7 @@ import { CloseIcon } from './icons';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useChatContext } from '../../context/ChatContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -37,19 +38,18 @@ export type QuotedMessagePreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   quotedMessage: StreamMessage<StreamChatGenerics>;
-  PreviewHeader?: React.ComponentType<Record<never, never>> | null;
 };
 
 export const QuotedMessagePreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  PreviewHeader = QuotedMessagePreviewHeader,
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
   const { Attachment, Avatar = DefaultAvatar } = useComponentContext<StreamChatGenerics>(
     'QuotedMessagePreview',
   );
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
+  const { themeVersion } = useChatContext('QuotedMessagePreview');
 
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -62,12 +62,12 @@ export const QuotedMessagePreview = <
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
-  // remove div.quoted-message-preview-content when deprecating V1 theming
+  // TODO: remove div.quoted-message-preview-content when deprecating V1 theming
   // move str-chat__quoted-message-preview to main div
 
   return (
-    <div className='quoted-message-preview'>
-      {PreviewHeader && <PreviewHeader />}
+    <div className='quoted-message-preview' data-testid='quoted-message-preview'>
+      {themeVersion === '1' && <QuotedMessagePreviewHeader />}
       <div className='quoted-message-preview-content str-chat__quoted-message-preview'>
         {quotedMessage.user && (
           <Avatar
@@ -78,9 +78,10 @@ export const QuotedMessagePreview = <
           />
         )}
         <div className='quoted-message-preview-content-inner str-chat__quoted-message-bubble'>
-          {quotedMessageAttachment.length && <Attachment attachments={quotedMessageAttachment} />}
+          {!!quotedMessageAttachment.length && <Attachment attachments={quotedMessageAttachment} />}
           <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
-            {quotedMessageText}
+            {themeVersion === '2' && <p>{quotedMessageText}</p>}
+            {themeVersion === '1' && <>{quotedMessageText}</>}
           </div>
         </div>
       </div>

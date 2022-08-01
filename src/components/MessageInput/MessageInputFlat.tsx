@@ -231,7 +231,7 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {quotedMessage && !quotedMessage.parent_id && (
-              <QuotedMessagePreview PreviewHeader={null} quotedMessage={quotedMessage} />
+              <QuotedMessagePreview quotedMessage={quotedMessage} />
             )}
 
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
