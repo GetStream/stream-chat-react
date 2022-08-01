@@ -195,7 +195,7 @@ describe('attachment', () => {
       const scrapedAudio = { ...ATTACHMENTS.scraped.audio, customTestId: nanoid() };
       const scrapedVideo = { ...ATTACHMENTS.scraped.video, customTestId: nanoid() };
       const scrapedImage = { ...ATTACHMENTS.scraped.image, customTestId: nanoid() };
-      renderComponent({
+      const { queryAllByTestId } = renderComponent({
         attachments: [
           ATTACHMENTS.uploaded.file,
           ATTACHMENTS.uploaded.audio,
@@ -209,11 +209,14 @@ describe('attachment', () => {
       });
       await waitFor(() => {
         /* eslint-disable jest-dom/prefer-in-document */
-        const Card = screen.queryAllByTestId('card-attachment');
+        const Card = queryAllByTestId('card-attachment');
+
         expect(Card).toHaveLength(3);
-        expect(Card[0]).toHaveTextContent(scrapedAudio.customTestId);
-        expect(Card[0]).toHaveTextContent(scrapedVideo.customTestId);
-        expect(Card[0]).toHaveTextContent(scrapedImage.customTestId);
+
+        const idList = Array.from(Card).map((v) => v.textContent);
+        expect(idList).toContain(scrapedAudio.customTestId);
+        expect(idList).toContain(scrapedVideo.customTestId);
+        expect(idList).toContain(scrapedImage.customTestId);
       });
     });
 
