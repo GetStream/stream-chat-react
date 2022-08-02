@@ -20,6 +20,16 @@ export type MessageStatusProps = {
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 
+// TODO: remove after fully deprecating V1 theming
+const TooltipContainer = ({ children }: React.PropsWithChildren<Record<never, never>>) => {
+  const { themeVersion } = useChatContext('TooltipContainer');
+  return themeVersion === '2' ? (
+    <div className='str-chat__message-status-tooltip-container'>{children}</div>
+  ) : (
+    <>{children}</>
+  );
+};
+
 const UnMemoizedMessageStatus = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -62,17 +72,19 @@ const UnMemoizedMessageStatus = <
   }
 
   if (readBy?.length && !threadList && !justReadByMe) {
-    const lastReadUser = readBy.filter((item) => item.id !== client.user?.id)[0];
+    const [lastReadUser] = readBy.filter((item) => item.id !== client.user?.id);
 
     return (
       <span className={rootClassName} data-testid='message-status-read-by'>
-        <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
-        <Avatar
-          image={lastReadUser.image}
-          name={lastReadUser.name || lastReadUser.id}
-          size={15}
-          user={lastReadUser}
-        />
+        <TooltipContainer>
+          <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
+          <Avatar
+            image={lastReadUser.image}
+            name={lastReadUser.name || lastReadUser.id}
+            size={15}
+            user={lastReadUser}
+          />
+        </TooltipContainer>
         {readBy.length > 2 && (
           <span
             className={`str-chat__message-${messageType}-status-number`}
