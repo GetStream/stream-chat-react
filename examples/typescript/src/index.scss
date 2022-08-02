@@ -1,20 +1,18 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-$stream-chat-theme-version: "2";
+$stream-chat-theme-version: '2';
 
-@if $stream-chat-theme-version == "2" {
+@if $stream-chat-theme-version == '2' {
   #root {
     display: flex;
     height: 100%;
@@ -42,15 +40,18 @@ $stream-chat-theme-version: "2";
 
     .str-chat__channel-header .str-chat__header-hamburger {
       width: 30px;
-      height: 38px;
-      padding: var(--xxs-p);
-      margin-right: var(--xs-m);
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: none;
       background: transparent;
+
+      svg {
+        width: 25px;
+        height: 25px;
+      }
 
       &:hover {
         svg path {
@@ -88,10 +89,13 @@ $stream-chat-theme-version: "2";
         position: initial;
         z-index: 0;
       }
+
+      .str-chat__channel-header .str-chat__header-hamburger {
+        display: none;
+      }
     }
 
     @media screen and (min-width: 1024px) {
-
       //.str-chat-channel-list {
       //  max-width: 420px;
       //  position: initial;
@@ -108,8 +112,6 @@ $stream-chat-theme-version: "2";
         display: none;
       }
     }
-
-
   }
 } @else {
   .menu-button {
