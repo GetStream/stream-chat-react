@@ -4,7 +4,6 @@ import type { Attachment } from 'stream-chat';
 
 import { DownloadButton } from './DownloadButton';
 import { FileSizeIndicator } from './FileSizeIndicator';
-import { SafeAnchor } from '../SafeAnchor/SafeAnchor';
 
 import { useChatContext } from '../../context/ChatContext';
 
@@ -24,9 +23,12 @@ const UnMemoizedFileAttachmentV1 = <
   <div className='str-chat__message-attachment-file--item' data-testid='attachment-file'>
     <FileIcon big={true} mimeType={attachment.mime_type} size={30} />
     <div className='str-chat__message-attachment-file--item-text'>
-      <SafeAnchor download href={attachment.asset_url} target='_blank'>
-        {attachment.title}
-      </SafeAnchor>
+      <div className='str-chat__message-attachment-file--item-first-row'>
+        <div className='str-chat__message-attachment-file--item-name' data-testid='file-title'>
+          {attachment.title}
+        </div>
+        <DownloadButton assetUrl={attachment.asset_url} />
+      </div>
       <FileSizeIndicator fileSize={attachment.file_size} />
     </div>
   </div>
