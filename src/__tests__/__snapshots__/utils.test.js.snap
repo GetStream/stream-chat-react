@@ -100,6 +100,37 @@ exports[`renderText handles the special case where user name matches to an e-mai
 </p>
 `;
 
+exports[`renderText renders custom mention 1`] = `
+<p>
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <a
+    className=""
+    href="mailto:username@email.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    username@email.com
+  </a>
+   
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+</p>
+`;
+
 exports[`renderText renders standard markdown text 1`] = `
 <p>
   Hi, shall we meet on 
