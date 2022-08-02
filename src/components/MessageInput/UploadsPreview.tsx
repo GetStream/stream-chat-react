@@ -157,7 +157,7 @@ const FilePreviewItem = ({ id }: PreviewItemProps) => {
   return (
     <div className='str-chat__attachment-preview-file'>
       <div className='str-chat__attachment-preview-file-icon'>
-        <FileIcon filename={file.file.name} version='2' />
+        <FileIcon filename={file.file.name} mimeType={file.file.type} version='2' />
       </div>
 
       <button
