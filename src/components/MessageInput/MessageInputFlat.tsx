@@ -17,7 +17,8 @@ import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { AttachmentPreviewList, UploadsPreview } from './UploadsPreview';
+import { AttachmentPreviewList } from './AttachmentPreviewList';
+import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
