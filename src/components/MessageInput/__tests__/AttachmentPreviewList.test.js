@@ -4,6 +4,7 @@ import React from 'react';
 import capitalize from 'lodash/capitalize';
 
 import { fireEvent, render } from '@testing-library/react';
+import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import { AttachmentPreviewList } from '../AttachmentPreviewList';
@@ -29,8 +30,8 @@ const generateMessageInputContextValue = ({ files = [], images = [] } = {}) => (
   uploadImage: jest.fn(),
 });
 
-const renderComponent = (value = {}) =>
-  render(
+const renderComponent = (value = {}, renderFunction = render) =>
+  renderFunction(
     <MessageInputContextProvider value={{ ...generateMessageInputContextValue(), ...value }}>
       <AttachmentPreviewList />
     </MessageInputContextProvider>,
@@ -59,13 +60,12 @@ describe('AttachmentPreviewList', () => {
         }),
       ];
 
-      const { getByTestId } = renderComponent(
+      const tree = renderComponent(
         generateMessageInputContextValue({ files: [file], images: [image] }),
-      );
+        renderer.create,
+      ).toJSON();
 
-      const attachmentList = getByTestId('attachment-list-scroll-container');
-
-      expect(attachmentList.outerHTML).toMatchSnapshot();
+      expect(tree).toMatchSnapshot();
     },
   );
 
@@ -96,9 +96,9 @@ describe('AttachmentPreviewList', () => {
 
     const { getByTestId } = renderComponent(contextValue);
 
-    const retryButton = getByTestId(`${type}-preview-item-delete-button`);
+    const deleteButton = getByTestId(`${type}-preview-item-delete-button`);
 
-    fireEvent.click(retryButton);
+    fireEvent.click(deleteButton);
 
     expect(contextValue[`remove${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
   });
