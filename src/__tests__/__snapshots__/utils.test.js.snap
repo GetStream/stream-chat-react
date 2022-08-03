@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renderText handles the special case where user name matches to an e-mail pattern - 1 1`] = `
+<p>
+  Hello 
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+  , is 
+  <a
+    className=""
+    href="mailto:username@email.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    username@email.com
+  </a>
+   your @primary e-mail?
+</p>
+`;
+
+exports[`renderText handles the special case where user name matches to an e-mail pattern - 2 1`] = `
+<p>
+  <a
+    className=""
+    href="mailto:username@email.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    username@email.com
+  </a>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   is this the right address?
+</p>
+`;
+
+exports[`renderText handles the special case where user name matches to an e-mail pattern - 3 1`] = `
+<p>
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+</p>
+`;
+
+exports[`renderText handles the special case where user name matches to an e-mail pattern - 4 1`] = `
+<p>
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <a
+    className=""
+    href="mailto:username@email.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    username@email.com
+  </a>
+   
+  <span
+    className="str-chat__message-mention"
+  >
+    @username@email.com
+  </span>
+</p>
+`;
+
+exports[`renderText renders custom mention 1`] = `
+<p>
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+   
+  <a
+    className=""
+    href="mailto:username@email.com"
+    rel="nofollow noreferrer noopener"
+    target="_blank"
+  >
+    username@email.com
+  </a>
+   
+  <span
+    className="my-mention"
+  >
+    @username@email.com
+  </span>
+</p>
+`;
+
+exports[`renderText renders standard markdown text 1`] = `
+<p>
+  Hi, shall we meet on 
+  <strong>
+    Tuesday
+  </strong>
+  ?
+</p>
+`;

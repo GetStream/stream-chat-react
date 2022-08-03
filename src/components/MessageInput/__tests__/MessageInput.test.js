@@ -15,6 +15,7 @@ import { Channel } from '../../Channel/Channel';
 import { MessageActionsBox } from '../../MessageActions';
 
 import { MessageProvider } from '../../../context/MessageContext';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 import { useChatContext } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -661,6 +662,57 @@ function axeNoViolations(container) {
             text: messageText,
           }),
         );
+        await axeNoViolations(container);
+      });
+
+      it('should allow to send custom message data', async () => {
+        const customMessageData = { customX: 'customX' };
+        const CustomInputForm = () => {
+          const { handleChange, handleSubmit, value } = useMessageInputContext();
+          return (
+            <form>
+              <input onChange={handleChange} placeholder={inputPlaceholder} value={value} />
+              <button
+                onClick={(event) => {
+                  handleSubmit(event, customMessageData);
+                }}
+                type='submit'
+              >
+                Send
+              </button>
+            </form>
+          );
+        };
+
+        const messageInputProps =
+          componentName === 'EditMessageForm'
+            ? {
+                messageInputProps: {
+                  message: {
+                    text: `abc`,
+                  },
+                },
+              }
+            : {};
+
+        const renderComponent = makeRenderFn(CustomInputForm);
+        const { container, submit } = await renderComponent(messageInputProps);
+
+        fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+          target: {
+            value: 'Some text',
+          },
+        });
+
+        await act(() => submit());
+
+        await waitFor(() => {
+          const calledMock = componentName === 'EditMessageForm' ? editMock : submitMock;
+          expect(calledMock).toHaveBeenCalledWith(
+            expect.stringMatching(/.+:.+/),
+            expect.objectContaining(customMessageData),
+          );
+        });
         await axeNoViolations(container);
       });
 

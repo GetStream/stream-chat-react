@@ -152,6 +152,7 @@ export const useSubmitHandler = <
         await editMessage(({
           ...message,
           ...updatedMessage,
+          ...customMessageData,
         } as unknown) as UpdatedMessage<StreamChatGenerics>);
 
         clearEditingState?.();
