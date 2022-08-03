@@ -56,7 +56,9 @@ exports[`Audio in v1 should render title and render the image with description a
           class="str-chat__audio__content--progress"
         >
           <div
+            data-progress="0"
             data-testid="audio-progress"
+            role="progressbar"
             style="width: 0%;"
           />
         </div>

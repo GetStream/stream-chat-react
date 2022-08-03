@@ -70,7 +70,7 @@ describe('Audio', () => {
     });
 
     await waitFor(() => {
-      expect(getByTestId('audio-progress')).toHaveStyle({ width: '50%' });
+      expect(getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
     });
   });
 
@@ -151,7 +151,7 @@ describe('Audio', () => {
       fireEvent.click(getByTestId(playButtonTestId));
 
       await waitFor(() => {
-        expect(getByTestId('audio-progress')).toHaveStyle({ width: '50%' });
+        expect(getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
       });
     });
   });
