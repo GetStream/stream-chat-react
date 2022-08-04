@@ -202,6 +202,7 @@
     "test": "jest",
     "types": "tsc --strict",
     "validate-translations": "node scripts/validate-translations.js",
+    "validate-cjs": "node scripts/validate-cjs-bundle.cjs",
     "semantic-release": "semantic-release",
     "browse-examples": "ladle serve",
     "e2e": "playwright test",
