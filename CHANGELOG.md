@@ -1,3 +1,10 @@
+## [9.4.1](https://github.com/GetStream/stream-chat-react/compare/v9.4.0...v9.4.1) (2022-08-04)
+
+
+### Bug Fixes
+
+* include mdast-util-find-and-replace into our CJS bundle ([#1702](https://github.com/GetStream/stream-chat-react/issues/1702)) ([#1703](https://github.com/GetStream/stream-chat-react/issues/1703)) ([8010889](https://github.com/GetStream/stream-chat-react/commit/801088972032dcfd0374b00aa424a5952b7e72ae)), closes [#1698](https://github.com/GetStream/stream-chat-react/issues/1698)
+
 # [9.4.0](https://github.com/GetStream/stream-chat-react/compare/v9.3.0...v9.4.0) (2022-08-03)
 
 
