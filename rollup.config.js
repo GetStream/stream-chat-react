@@ -33,6 +33,7 @@ const externalDependencies = [
   '@braintree/sanitize-url',
   '@fortawesome/free-regular-svg-icons',
   '@fortawesome/react-fontawesome',
+  '@juggle/resize-observer',
   '@stream-io/transliterate',
   'custom-event',
   /dayjs/,
@@ -45,13 +46,14 @@ const externalDependencies = [
   'lodash.isequal',
   'lodash.throttle',
   'lodash.uniqby',
-  'mdast-util-find-and-replace',
   'mml-react',
+  'nanoid',
   'pretty-bytes',
   'prop-types',
   'react-fast-compare',
   /react-file-utils/,
   'react-images',
+  'react-image-gallery',
   'react-is',
   /react-markdown/,
   'react-player',
@@ -61,7 +63,7 @@ const externalDependencies = [
   /uuid/,
 ];
 
-const basePlugins = [
+const basePlugins = ({ useBrowserResolve = false }) => [
   replace({
     preventAssignment: true,
     'process.env.NODE_ENV': JSON.stringify('production'),
@@ -69,6 +71,9 @@ const basePlugins = [
   // Remove peer-dependencies from final bundle
   external(),
   image(),
+  resolve({
+    browser: useBrowserResolve,
+  }),
   typescript(),
   babel({
     babelHelpers: 'runtime',
@@ -107,7 +112,7 @@ const normalBundle = {
       sourcemap: true,
     },
   ],
-  plugins: [...basePlugins],
+  plugins: [...basePlugins({ useBrowserResolve: false })],
 };
 
 const fullBrowserBundle = ({ min } = { min: false }) => ({
@@ -126,16 +131,13 @@ const fullBrowserBundle = ({ min } = { min: false }) => ({
     },
   ],
   plugins: [
-    ...basePlugins,
+    ...basePlugins({ useBrowserResolve: true }),
     {
       load: (id) => (id.match(/.s?css$/) ? '' : null),
       name: 'ignore-css-and-scss',
       resolveId: (importee) => (importee.match(/.s?css$/) ? importee : null),
     },
     builtins(),
-    resolve({
-      browser: true,
-    }),
     globals({
       buffer: false,
       dirname: false,
