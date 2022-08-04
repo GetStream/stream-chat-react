@@ -21,6 +21,8 @@ jobs:
           node-version: 'lts/*'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Validate CommonJS bundle
+        run: yarn validate-cjs
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
