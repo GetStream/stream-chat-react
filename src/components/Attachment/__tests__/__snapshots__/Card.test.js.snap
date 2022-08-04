@@ -52,13 +52,10 @@ exports[`Card theme V2 (1) should render card without caption if attachment type
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -263,13 +260,10 @@ exports[`Card theme V2 (7) should render audio with caption using og_scrape_url 
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -469,13 +463,10 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -660,13 +651,10 @@ exports[`Card theme V2 (13) should render audio without title and with caption u
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -842,13 +830,10 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -1349,13 +1334,10 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
             role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
