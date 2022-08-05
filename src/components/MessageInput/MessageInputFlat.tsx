@@ -1,8 +1,10 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from 'react-file-utils';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';
+import { useDropzone } from 'react-dropzone';
+import zipObject from 'lodash/zipObject';
 
 import { EmojiPicker } from './EmojiPicker';
 import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
@@ -171,12 +173,12 @@ const MessageInputV2 = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const {
-    acceptedFiles,
+    acceptedFiles = [],
     multipleUploads,
     quotedMessage,
   } = useChannelStateContext<StreamChatGenerics>('MessageInputV2');
 
-  //   const { t } = useTranslationContext('MessageInputV2');
+  const { t } = useTranslationContext('MessageInputV2');
 
   const {
     closeEmojiPicker,
@@ -209,6 +211,23 @@ const MessageInputV2 = <
 
   const id = useId();
 
+  const accept = useMemo(
+    () =>
+      zipObject(
+        acceptedFiles,
+        Array.from({ length: acceptedFiles.length }, () => []),
+      ),
+    [acceptedFiles],
+  );
+
+  const { getRootProps, isDragActive, isDragReject } = useDropzone({
+    accept,
+    disabled: !isUploadEnabled || maxFilesLeft === 0,
+    multiple: multipleUploads,
+    noClick: true,
+    onDrop: uploadNewFiles,
+  });
+
   return (
     <>
       <div className='str-chat__message-input'>
@@ -230,12 +249,23 @@ const MessageInputV2 = <
               <FileUploadIcon />
             </label>
           </div>
-          <div className='str-chat__message-textarea-container'>
+          <div {...getRootProps({ className: 'str-chat__message-textarea-container' })}>
             {quotedMessage && !quotedMessage.parent_id && (
               <QuotedMessagePreview quotedMessage={quotedMessage} />
             )}
 
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
+
+            {isDragActive && (
+              <div
+                className={clsx('str-chat__dropzone-container', {
+                  'str-chat__dropzone-container--not-accepted': isDragReject,
+                })}
+              >
+                {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
+                {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
+              </div>
+            )}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
