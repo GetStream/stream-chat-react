@@ -1,4 +1,3 @@
-import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
 import type { ChannelSort } from 'stream-chat';
 import {
