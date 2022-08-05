@@ -46,7 +46,9 @@ export const AttachmentWithinContainer = <
   return (
     <div
       className={classNames}
-      key={`${isGAT ? '' : attachment?.id || nanoid()}-${attachment?.type || 'none'}`}
+      key={`${isGAT ? '' : attachment?.id || attachment?.fallback || nanoid()}-${
+        attachment?.type || 'none'
+      }`}
     >
       {children}
     </div>
