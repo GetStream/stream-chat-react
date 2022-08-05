@@ -42,6 +42,7 @@ export const useScrollLocationLogic = <
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
   const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
+  const ulElementHeight = useRef(0);
 
   const scrollToBottom = useCallback(() => {
     if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
@@ -57,7 +58,14 @@ export const useScrollLocationLogic = <
 
   useEffect(() => {
     if (!listElement) return;
-    const observer = new ResizeObserver(scrollToBottom);
+    ulElementHeight.current = ulElement?.getBoundingClientRect().height || 0;
+
+    const observer = new ResizeObserver(([entry]) => {
+      if (ulElementHeight.current !== entry.contentRect.height) {
+        ulElementHeight.current = entry.contentRect.height;
+        scrollToBottom();
+      }
+    });
 
     const cancelObserverOnUserScroll = () => {
       scrollCounter.current.scroll += 1;

@@ -1,7 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
-import { nanoid } from 'nanoid';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -43,16 +42,7 @@ export const AttachmentWithinContainer = <
     'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
   });
 
-  return (
-    <div
-      className={classNames}
-      key={`${isGAT ? '' : attachment?.id || attachment?.fallback || nanoid()}-${
-        attachment?.type || 'none'
-      }`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };
 
 export const AttachmentActionsContainer = <

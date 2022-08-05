@@ -1,6 +1,5 @@
 import React, { PropsWithChildren, ReactNode } from 'react';
 import ReactPlayer from 'react-player';
-import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
 import type { ATTACHMENT_GROUPS_ORDER } from './Attachment';
@@ -117,14 +116,7 @@ export const renderAttachmentWithinContainer = <
     'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
   });
 
-  return (
-    <div
-      className={classNames}
-      key={`${isGAT ? '' : attachment?.id || nanoid()}-${attachment?.type || 'none'}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };
 
 /**
