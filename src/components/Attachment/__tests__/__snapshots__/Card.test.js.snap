@@ -483,7 +483,7 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -536,7 +536,7 @@ exports[`Card theme V2 (11) should render video without title if attachment type
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -581,7 +581,7 @@ exports[`Card theme V2 (12) should render image without title if attachment type
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -850,7 +850,7 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -908,7 +908,7 @@ exports[`Card theme V2 (17) should render video widget in header and title & tex
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -949,7 +949,7 @@ exports[`Card theme V2 (18) should render card with title and text only and with
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1003,7 +1003,7 @@ exports[`Card theme V2 (19) should render image loaded from thumb_url not audio 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1054,7 +1054,7 @@ exports[`Card theme V2 (20) should render image loaded from thumb_url not video 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1104,7 +1104,7 @@ exports[`Card theme V2 (21) should render image loaded from thumb_url if attachm
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1158,7 +1158,7 @@ exports[`Card theme V2 (22) should render image loaded from image_url not audio 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1209,7 +1209,7 @@ exports[`Card theme V2 (23) should render image loaded from image_url not video 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1259,7 +1259,7 @@ exports[`Card theme V2 (24) should render image loaded from image_url if attachm
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1354,7 +1354,7 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1412,7 +1412,7 @@ exports[`Card theme V2 (26) should render video widget in header and title & tex
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1457,7 +1457,7 @@ exports[`Card theme V2 (27) should render content part with title and text only 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1499,7 +1499,7 @@ exports[`Card theme V2 (28) should render content part with title and text only 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >

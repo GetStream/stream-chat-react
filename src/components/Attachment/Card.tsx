@@ -13,7 +13,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from './utils';
 
-const trimUrl = (url?: string | null) => {
+const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
     const [trimmedUrl] = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/');
 
@@ -100,7 +100,7 @@ const CardV1 = (props: CardV1Props) => {
               rel='noopener noreferrer'
               target='_blank'
             >
-              {trimUrl(title_link || og_scrape_url)}
+              {getHostFromURL(title_link || og_scrape_url)}
             </SafeAnchor>
           )}
         </div>
@@ -117,7 +117,7 @@ const SourceLink = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url
       rel='noopener noreferrer'
       target='_blank'
     >
-      {author_name || trimUrl(url)}
+      {author_name || getHostFromURL(url)}
     </SafeAnchor>
   </div>
 );
@@ -150,7 +150,7 @@ type CardContentProps = RenderAttachmentProps['attachment'];
 
 const CardContent = (props: CardContentProps) => {
   const { author_name, og_scrape_url, text, title, title_link, type } = props;
-  const url = og_scrape_url || title_link;
+  const url = title_link || og_scrape_url;
 
   return (
     <div className='str-chat__message-attachment-card--content'>
@@ -196,9 +196,9 @@ const CardV2 = (props: CardProps) => {
 export const CardAudio = ({
   og: { asset_url, author_name, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
 
-  const url = og_scrape_url || title_link;
+  const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';
   return (
@@ -212,7 +212,7 @@ export const CardAudio = ({
             <div className='str-chat__message-attachment-audio-widget--play-controls'>
               <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
             </div>
-            <ProgressBar progress={progress} />
+            <ProgressBar onClick={seek} progress={progress} />
           </div>
         </>
       )}
