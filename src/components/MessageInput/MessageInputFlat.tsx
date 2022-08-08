@@ -230,7 +230,18 @@ const MessageInputV2 = <
 
   return (
     <>
-      <div className='str-chat__message-input'>
+      <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {isDragActive && (
+          <div
+            className={clsx('str-chat__dropzone-container', {
+              'str-chat__dropzone-container--not-accepted': isDragReject,
+            })}
+          >
+            {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
+            {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
+          </div>
+        )}
+
         {quotedMessage && !quotedMessage.parent_id && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
@@ -249,23 +260,12 @@ const MessageInputV2 = <
               <FileUploadIcon />
             </label>
           </div>
-          <div {...getRootProps({ className: 'str-chat__message-textarea-container' })}>
+          <div className='str-chat__message-textarea-container'>
             {quotedMessage && !quotedMessage.parent_id && (
               <QuotedMessagePreview quotedMessage={quotedMessage} />
             )}
 
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
-
-            {isDragActive && (
-              <div
-                className={clsx('str-chat__dropzone-container', {
-                  'str-chat__dropzone-container--not-accepted': isDragReject,
-                })}
-              >
-                {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
-                {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
-              </div>
-            )}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
