@@ -923,7 +923,7 @@ describe('Channel', () => {
           getFirstMessageAvatar: () => {
             // the first avatar is that of the ThreadHeader
             const avatars = screen.queryAllByTestId('custom-avatar') || [];
-            return avatars[1];
+            return avatars[0];
           },
           name: 'Thread',
         },
