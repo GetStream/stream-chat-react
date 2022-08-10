@@ -29,7 +29,7 @@ export const useScrollLocationLogic = <
 ) => {
   const {
     messages = [],
-    scrolledUpThreshold = 200,
+    scrolledUpThreshold = 50,
     hasMoreNewer,
     suppressAutoscroll,
     listElement,
@@ -39,6 +39,7 @@ export const useScrollLocationLogic = <
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
 
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
   const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
@@ -123,11 +124,17 @@ export const useScrollLocationLogic = <
       const offsetHeight = element.offsetHeight;
       const scrollHeight = element.scrollHeight;
 
+      const prevCloseToBottom = closeToBottom.current;
       closeToBottom.current = scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
 
       if (closeToBottom.current) {
         setHasNewMessages(false);
+      }
+      if (prevCloseToBottom && !closeToBottom.current) {
+        setIsMessageListScrolledToBottom(false);
+      } else if (!prevCloseToBottom && closeToBottom.current) {
+        setIsMessageListScrolledToBottom(true);
       }
     },
     [updateScrollTop, closeToTop, closeToBottom, scrolledUpThreshold],
@@ -145,6 +152,7 @@ export const useScrollLocationLogic = <
 
   return {
     hasNewMessages,
+    isMessageListScrolledToBottom,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,

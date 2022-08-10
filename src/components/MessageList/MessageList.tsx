@@ -81,6 +81,7 @@ const MessageListWithContext = <
 
   const {
     hasNewMessages,
+    isMessageListScrolledToBottom,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
@@ -215,10 +216,12 @@ const MessageListWithContext = <
       {themeVersion === '2' && <TypingIndicator threadList={threadList} />}
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
+        isMessageListScrolledToBottom={isMessageListScrolledToBottom}
         isNotAtLatestMessageSet={hasMoreNewer}
         MessageNotification={MessageNotification}
         notifications={notifications}
         scrollToBottom={scrollToBottomFromNotification}
+        threadList={threadList}
       />
     </>
   );
@@ -294,7 +297,7 @@ export type MessageListProps<
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** If true, indicates the message list is a thread  */
-  threadList?: boolean;
+  threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
 };
 
 /**

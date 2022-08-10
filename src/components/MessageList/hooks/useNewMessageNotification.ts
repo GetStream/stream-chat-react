@@ -12,6 +12,7 @@ export function useNewMessageNotification<
   hasMoreNewer?: boolean,
 ) {
   const [newMessagesNotification, setNewMessagesNotification] = useState(false);
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
   /**
    * use the flag to avoid the initial "new messages" quick blink
    */
@@ -46,5 +47,11 @@ export function useNewMessageNotification<
     didMount.current = true;
   }, [currentUserId, messages, hasMoreNewer]);
 
-  return { atBottom, newMessagesNotification, setNewMessagesNotification };
+  return {
+    atBottom,
+    isMessageListScrolledToBottom,
+    newMessagesNotification,
+    setIsMessageListScrolledToBottom,
+    setNewMessagesNotification,
+  };
 }
