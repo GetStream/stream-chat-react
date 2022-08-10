@@ -6,38 +6,9 @@ import { SearchResults } from '../SearchResults';
 
 import { ChatProvider } from '../../../context/ChatContext';
 
-import {
-  generateChannel,
-  generateMember,
-  generateMessage,
-  generateUser,
-  getOrCreateChannelApi,
-  getTestClientWithUser,
-  useMockedApis,
-} from '../../../mock-builders';
+import { createClientWithChannel, generateChannel, generateUser } from '../../../mock-builders';
 
 const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
-
-async function createClientWithChannel(empty = false) {
-  const user1 = generateUser();
-  const user2 = generateUser();
-  const mockedChannel = generateChannel({
-    data: { image: 'image-xxx', name: 'channel-xxx' },
-    members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-    messages: empty
-      ? []
-      : ' '
-          .repeat(20)
-          .split(' ')
-          .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
-  });
-  const client = await getTestClientWithUser({ id: 'id' });
-  useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', mockedChannel.id);
-  await channel.watch();
-
-  return { channel, client };
-}
 
 const renderComponent = (props = {}, chatContext = { themeVersion: '2' }) =>
   render(
