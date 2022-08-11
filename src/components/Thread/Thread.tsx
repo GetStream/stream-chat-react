@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { FixedHeightMessage, MESSAGE_ACTIONS } from '../Message';
+import { MESSAGE_ACTIONS } from '../Message';
 import {
   MessageInput,
   MessageInputFlat,
@@ -107,7 +107,7 @@ const ThreadInner = <
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
-    VirtualMessage = FixedHeightMessage,
+    VirtualMessage,
   } = useComponentContext<StreamChatGenerics>('Thread');
 
   const ThreadInput =
@@ -117,7 +117,7 @@ const ThreadInner = <
     (themeVersion === '2' ? MessageInputFlat : MessageInputSmall);
 
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
-  const FallbackMessage = virtualized ? VirtualMessage : ContextMessage;
+  const FallbackMessage = virtualized && VirtualMessage ? VirtualMessage : ContextMessage;
   const MessageUIComponent = ThreadMessage || FallbackMessage;
 
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
