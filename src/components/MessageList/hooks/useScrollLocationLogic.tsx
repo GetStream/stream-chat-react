@@ -29,7 +29,7 @@ export const useScrollLocationLogic = <
 ) => {
   const {
     messages = [],
-    scrolledUpThreshold = 50,
+    scrolledUpThreshold = 200,
     hasMoreNewer,
     suppressAutoscroll,
     listElement,

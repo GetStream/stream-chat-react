@@ -411,7 +411,7 @@ const VirtualizedMessageListWithContext = <
       <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
-          atBottomThreshold={50}
+          atBottomThreshold={200}
           components={virtuosoComponents}
           computeItemKey={(index) =>
             processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
