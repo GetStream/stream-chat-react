@@ -110,6 +110,7 @@ const VirtualizedMessageListWithContext = <
     groupStyles,
     hasMore,
     hasMoreNewer,
+    head,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     highlightedMessageId,
@@ -393,7 +394,7 @@ const VirtualizedMessageListWithContext = <
           <LoadingIndicator size={20} />
         </div>
       ) : (
-        <></>
+        head || null
       );
 
     const Footer: Components['Footer'] = () =>
@@ -405,7 +406,7 @@ const VirtualizedMessageListWithContext = <
       Header,
       Item,
     };
-  }, [loadingMore]);
+  }, [loadingMore, head, Item]);
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
@@ -507,6 +508,8 @@ export type VirtualizedMessageListProps<
   hasMore?: boolean;
   /** Whether or not the list has newer items to load */
   hasMoreNewer?: boolean;
+  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
+  head?: React.ReactElement;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */

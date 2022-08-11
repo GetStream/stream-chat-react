@@ -143,11 +143,10 @@ const ThreadInner = <
   return (
     <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
-      {virtualized && head}
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}
         hasMore={threadHasMore}
-        head={!virtualized ? head : undefined}
+        head={head}
         loadingMore={threadLoadingMore}
         loadMore={loadMoreThread}
         Message={MessageUIComponent}
