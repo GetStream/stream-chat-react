@@ -51,7 +51,7 @@ const UnMemoizedScrollToBottomButton = (
     return () => {
       client.off(observedEvent, handleEvent);
     };
-  }, [activeChannel, isMessageListScrolledToBottom, replyCount, thread]);
+  }, [activeChannel, isMessageListScrolledToBottom, observedEvent, replyCount, thread]);
 
   useEffect(() => {
     if (isMessageListScrolledToBottom) {
