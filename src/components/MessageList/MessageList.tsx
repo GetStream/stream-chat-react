@@ -22,6 +22,7 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
+import { MessageListMainPanel } from './MessageListMainPanel';
 
 import type { GroupStyle } from './utils';
 
@@ -69,7 +70,7 @@ const MessageListWithContext = <
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
-  const { customClasses, themeVersion } = useChatContext<StreamChatGenerics>('MessageList');
+  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -177,43 +178,45 @@ const MessageListWithContext = <
 
   return (
     <>
-      <div
-        className={`${messageListClass} ${threadListClass}`}
-        onScroll={onScroll}
-        ref={setListElement}
-        tabIndex={0}
-      >
-        {showEmptyStateIndicator ? (
-          <EmptyStateIndicator
-            key={'empty-state-indicator'}
-            listType={threadList ? 'thread' : 'message'}
-          />
-        ) : (
-          <InfiniteScroll
-            className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
-            data-testid='reverse-infinite-scroll'
-            hasMore={props.hasMore}
-            hasMoreNewer={props.hasMoreNewer}
-            head={props.head}
-            isLoading={props.loadingMore}
-            loader={
-              <div className='str-chat__list__loading' key='loading-indicator'>
-                {props.loadingMore && <LoadingIndicator size={20} />}
-              </div>
-            }
-            loadMore={loadMore}
-            loadMoreNewer={loadMoreNewer}
-            {...props.internalInfiniteScrollProps}
-          >
-            <ul className='str-chat__ul' ref={setUlElement}>
-              {elements}
-            </ul>
-            {themeVersion === '1' && <TypingIndicator threadList={threadList} />}
-            <div key='bottom' />
-          </InfiniteScroll>
-        )}
-      </div>
-      {themeVersion === '2' && <TypingIndicator threadList={threadList} />}
+      <MessageListMainPanel>
+        <div
+          className={`${messageListClass} ${threadListClass}`}
+          onScroll={onScroll}
+          ref={setListElement}
+          tabIndex={0}
+        >
+          {showEmptyStateIndicator ? (
+            <EmptyStateIndicator
+              key={'empty-state-indicator'}
+              listType={threadList ? 'thread' : 'message'}
+            />
+          ) : (
+            <InfiniteScroll
+              className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
+              data-testid='reverse-infinite-scroll'
+              hasMore={props.hasMore}
+              hasMoreNewer={props.hasMoreNewer}
+              head={props.head}
+              isLoading={props.loadingMore}
+              loader={
+                <div className='str-chat__list__loading' key='loading-indicator'>
+                  {props.loadingMore && <LoadingIndicator size={20} />}
+                </div>
+              }
+              loadMore={loadMore}
+              loadMoreNewer={loadMoreNewer}
+              {...props.internalInfiniteScrollProps}
+            >
+              <ul className='str-chat__ul' ref={setUlElement}>
+                {elements}
+              </ul>
+              <TypingIndicator threadList={threadList} />
+
+              <div key='bottom' />
+            </InfiniteScroll>
+          )}
+        </div>
+      </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}

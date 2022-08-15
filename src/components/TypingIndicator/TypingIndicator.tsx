@@ -97,7 +97,7 @@ const UnMemoizedTypingIndicator = <
     if (!isTypingActive) return null;
     return (
       <div
-        className={clsx('str-chat__typing-indicator', 'str-chat__typing-indicator-react-host', {
+        className={clsx('str-chat__typing-indicator', {
           'str-chat__typing-indicator--typing': isTypingActive,
         })}
         data-testid='typing-indicator'

@@ -16,6 +16,7 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
+import { MessageListMainPanel } from './MessageListMainPanel';
 import { getGroupStyles, GroupStyle, processMessages } from './utils';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -149,9 +150,7 @@ const VirtualizedMessageListWithContext = <
     VirtualMessage: contextMessage = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
 
-  const { client, customClasses, themeVersion } = useChatContext<StreamChatGenerics>(
-    'VirtualizedMessageList',
-  );
+  const { client, customClasses } = useChatContext<StreamChatGenerics>('VirtualizedMessageList');
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -400,7 +399,7 @@ const VirtualizedMessageListWithContext = <
       );
 
     const Footer: Components['Footer'] = () =>
-      themeVersion === '1' && TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
+      TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
 
     return {
       EmptyPlaceholder,
@@ -443,37 +442,38 @@ const VirtualizedMessageListWithContext = <
 
   return (
     <>
-      <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
-        <Virtuoso
-          atBottomStateChange={atBottomStateChange}
-          atBottomThreshold={200}
-          className='str-chat__message-list-scroll'
-          components={virtuosoComponents}
-          computeItemKey={(index) =>
-            processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
-          }
-          endReached={endReached}
-          firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
-          followOutput={followOutput}
-          increaseViewportBy={{ bottom: 200, top: 0 }}
-          initialTopMostItemIndex={calculateInitialTopMostItemIndex(
-            processedMessages,
-            highlightedMessageId,
-          )}
-          itemContent={(i) => messageRenderer(processedMessages, i)}
-          itemSize={fractionalItemSize}
-          key={messageSetKey}
-          overscan={overscan}
-          ref={virtuoso}
-          startReached={startReached}
-          style={{ overflowX: 'hidden' }}
-          totalCount={processedMessages.length}
-          {...additionalVirtuosoProps}
-          {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-          {...(defaultItemHeight ? { defaultItemHeight } : {})}
-        />
-      </div>
-      {themeVersion === '2' && TypingIndicator && <TypingIndicator threadList={threadList} />}
+      <MessageListMainPanel>
+        <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
+          <Virtuoso
+            atBottomStateChange={atBottomStateChange}
+            atBottomThreshold={200}
+            className='str-chat__message-list-scroll'
+            components={virtuosoComponents}
+            computeItemKey={(index) =>
+              processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
+            }
+            endReached={endReached}
+            firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
+            followOutput={followOutput}
+            increaseViewportBy={{ bottom: 200, top: 0 }}
+            initialTopMostItemIndex={calculateInitialTopMostItemIndex(
+              processedMessages,
+              highlightedMessageId,
+            )}
+            itemContent={(i) => messageRenderer(processedMessages, i)}
+            itemSize={fractionalItemSize}
+            key={messageSetKey}
+            overscan={overscan}
+            ref={virtuoso}
+            startReached={startReached}
+            style={{ overflowX: 'hidden' }}
+            totalCount={processedMessages.length}
+            {...additionalVirtuosoProps}
+            {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
+            {...(defaultItemHeight ? { defaultItemHeight } : {})}
+          />
+        </div>
+      </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}
