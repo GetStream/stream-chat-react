@@ -214,7 +214,9 @@ const VirtualizedMessageListWithContext = <
 
   const {
     atBottom,
+    isMessageListScrolledToBottom,
     newMessagesNotification,
+    setIsMessageListScrolledToBottom,
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID, hasMoreNewer);
 
@@ -410,6 +412,7 @@ const VirtualizedMessageListWithContext = <
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
+    setIsMessageListScrolledToBottom(isAtBottom);
     if (isAtBottom && newMessagesNotification) {
       setNewMessagesNotification(false);
     }
@@ -443,6 +446,7 @@ const VirtualizedMessageListWithContext = <
       <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
+          atBottomThreshold={200}
           className='str-chat__message-list-scroll'
           components={virtuosoComponents}
           computeItemKey={(index) =>
@@ -472,10 +476,12 @@ const VirtualizedMessageListWithContext = <
       {themeVersion === '2' && TypingIndicator && <TypingIndicator threadList={threadList} />}
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
+        isMessageListScrolledToBottom={isMessageListScrolledToBottom}
         isNotAtLatestMessageSet={hasMoreNewer}
         MessageNotification={MessageNotification}
         notifications={notifications}
         scrollToBottom={scrollToBottom}
+        threadList={threadList}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
