@@ -200,7 +200,7 @@ export type ChannelProps<
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
-  /** Custom UI component to display a message in the `VirtualizedMessageList`, defaults to and accepts same props as: [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
+  /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 

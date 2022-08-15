@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Components,
@@ -15,7 +16,7 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
-import { processMessages } from './utils';
+import { getGroupStyles, GroupStyle, processMessages } from './utils';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
@@ -106,8 +107,10 @@ const VirtualizedMessageListWithContext = <
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
+    groupStyles,
     hasMore,
     hasMoreNewer,
+    head,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
     highlightedMessageId,
@@ -190,6 +193,22 @@ const VirtualizedMessageListWithContext = <
     messages?.length,
     client.userID,
   ]);
+
+  const groupStylesFn = groupStyles || getGroupStyles;
+  const messageGroupStyles = useMemo(
+    () =>
+      processedMessages.reduce((acc, message, i) => {
+        const style = groupStylesFn(
+          message,
+          processedMessages[i - 1],
+          processedMessages[i + 1],
+          !shouldGroupByUser,
+        );
+        if (style) acc[message.id] = style;
+        return acc;
+      }, {} as Record<string, GroupStyle>),
+    [processedMessages.length, shouldGroupByUser],
+  );
 
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -337,14 +356,30 @@ const VirtualizedMessageListWithContext = <
   const Item = useMemo(() => {
     // using 'display: inline-block'
     // traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => (
-      <div
-        {...props}
-        className={customClasses?.virtualMessage || 'str-chat__virtual-list-message-wrapper'}
-      />
-    );
+    const Item: Components['Item'] = (props) => {
+      const streamMessageIndex = props['data-item-index'] + numItemsPrepended - PREPEND_OFFSET;
+      const message = processedMessages[streamMessageIndex];
+      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+
+      return (
+        <div
+          {...props}
+          className={
+            customClasses?.virtualMessage ||
+            clsx('str-chat__virtual-list-message-wrapper str-chat__li', {
+              [`str-chat__li--${groupStyles}`]: groupStyles,
+            })
+          }
+        />
+      );
+    };
     return Item;
-  }, [customClasses?.virtualMessage]);
+  }, [
+    customClasses?.virtualMessage,
+    Object.keys(messageGroupStyles),
+    numItemsPrepended,
+    processedMessages.length,
+  ]);
 
   const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
@@ -361,7 +396,7 @@ const VirtualizedMessageListWithContext = <
           <LoadingIndicator size={20} />
         </div>
       ) : (
-        <></>
+        head || null
       );
 
     const Footer: Components['Footer'] = () =>
@@ -373,7 +408,7 @@ const VirtualizedMessageListWithContext = <
       Header,
       Item,
     };
-  }, [loadingMore]);
+  }, [loadingMore, head, Item]);
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
@@ -412,6 +447,7 @@ const VirtualizedMessageListWithContext = <
         <Virtuoso
           atBottomStateChange={atBottomStateChange}
           atBottomThreshold={200}
+          className='str-chat__message-list-scroll'
           components={virtuosoComponents}
           computeItemKey={(index) =>
             processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
@@ -468,10 +504,19 @@ export type VirtualizedMessageListProps<
   defaultItemHeight?: number;
   /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
+  /** Callback function to set group styles for each message */
+  groupStyles?: (
+    message: StreamMessage<StreamChatGenerics>,
+    previousMessage: StreamMessage<StreamChatGenerics>,
+    nextMessage: StreamMessage<StreamChatGenerics>,
+    noGroupByUser: boolean,
+  ) => GroupStyle;
   /** Whether or not the list has more items to load */
   hasMore?: boolean;
   /** Whether or not the list has newer items to load */
   hasMoreNewer?: boolean;
+  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
+  head?: React.ReactElement;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */

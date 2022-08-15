@@ -11,6 +11,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
       className="str-chat__virtual-list"
     >
       <div
+        className="str-chat__message-list-scroll"
         data-test-id="virtuoso-scroller"
         data-virtuoso-scroller={true}
         style={

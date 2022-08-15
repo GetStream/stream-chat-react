@@ -26,10 +26,7 @@ import {
 
 import { Message as MessageMock } from '../../Message/Message';
 import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
-import {
-  MessageList as MessageListMock,
-  VirtualizedMessageList as VirtualizedMessageListMock,
-} from '../../MessageList';
+import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
 
 jest.mock('../../Message/Message', () => ({
@@ -37,9 +34,6 @@ jest.mock('../../Message/Message', () => ({
 }));
 jest.mock('../../MessageList/MessageList', () => ({
   MessageList: jest.fn(() => <div />),
-}));
-jest.mock('../../MessageList/VirtualizedMessageList', () => ({
-  VirtualizedMessageList: jest.fn(() => <div />),
 }));
 jest.mock('../../MessageInput/MessageInputSmall', () => ({
   MessageInputSmall: jest.fn(() => <div />),
@@ -304,29 +298,5 @@ describe('Thread', () => {
       .toJSON();
 
     expect(tree).toMatchInlineSnapshot(`null`);
-  });
-
-  it('should not provide head prop to underlying virtualized message list component', () => {
-    const additionalMessageListProps = {
-      loadingMore: false,
-      loadMore: channelActionContextMock.threadLoadingMore,
-      propName: 'value',
-      read: {},
-    };
-    renderComponent({
-      chatClient,
-      threadProps: {
-        additionalMessageListProps,
-        Message: MessageMock,
-        virtualized: true,
-      },
-    });
-
-    expect(VirtualizedMessageListMock).not.toHaveBeenCalledWith(
-      expect.objectContaining({
-        head: expect.objectContaining({ type: expect.objectContaining({ name: 'ThreadHead' }) }),
-      }),
-      {},
-    );
   });
 });

@@ -281,7 +281,8 @@ export const getGroupStyles = <
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
-    previousMessage.deleted_at;
+    previousMessage.deleted_at ||
+    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0);
 
   const isBottomMessage =
     !nextMessage ||
@@ -291,7 +292,8 @@ export const getGroupStyles = <
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
-    nextMessage.deleted_at;
+    nextMessage.deleted_at ||
+    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';
