@@ -85,7 +85,7 @@ export const useScrollLocationLogic = <
       const prevCloseToBottom = closeToBottom.current;
       closeToBottom.current = scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
-      console.log('scrollTop, scrolledUpThreshold', scrollTop, scrolledUpThreshold);
+
       if (closeToBottom.current) {
         setHasNewMessages(false);
       }
