@@ -29,7 +29,6 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
-    "@juggle/resize-observer": "^3.3.1",
     "@popperjs/core": "^2.11.5",
     "@stream-io/stream-chat-css": "^2.10.1",
     "clsx": "^1.1.1",

@@ -93,7 +93,6 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
-    ulElement,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
