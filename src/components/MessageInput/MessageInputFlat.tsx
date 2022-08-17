@@ -1,10 +1,11 @@
-import React, { useEffect, useId, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from 'react-file-utils';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';
 import { useDropzone } from 'react-dropzone';
 import zipObject from 'lodash/zipObject';
+import { nanoid } from 'nanoid';
 
 import { EmojiPicker } from './EmojiPicker';
 import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
@@ -209,7 +210,7 @@ const MessageInputV2 = <
     placement: 'top-end',
   });
 
-  const id = useId();
+  const id = useMemo(() => nanoid(), []);
 
   const accept = useMemo(
     () =>
@@ -228,6 +229,10 @@ const MessageInputV2 = <
     onDrop: uploadNewFiles,
   });
 
+  // TODO: "!message" condition is a temporary fix for shared
+  // state when editing a message (fix shared state issue)
+  const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
+
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
@@ -242,7 +247,7 @@ const MessageInputV2 = <
           </div>
         )}
 
-        {quotedMessage && !quotedMessage.parent_id && <QuotedMessagePreviewHeader />}
+        {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
           <div className='str-chat__file-input-container' data-testid='file-upload-button'>
@@ -261,9 +266,7 @@ const MessageInputV2 = <
             </label>
           </div>
           <div className='str-chat__message-textarea-container'>
-            {quotedMessage && !quotedMessage.parent_id && (
-              <QuotedMessagePreview quotedMessage={quotedMessage} />
-            )}
+            {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
 
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
 
