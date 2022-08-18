@@ -5,6 +5,7 @@ on:
       - master
       - main
       - beta
+      - theming-v2
 
 jobs:
   release:

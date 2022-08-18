@@ -5,6 +5,10 @@
     {
       "name": "beta",
       "prerelease": true
+    },
+    {
+      "name": "theming-v2",
+      "prerelease": true
     }
   ],
   "plugins": [
