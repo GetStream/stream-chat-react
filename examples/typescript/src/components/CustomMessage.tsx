@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React  from 'react';
 import {
   Attachment,
   Avatar,
@@ -23,15 +23,13 @@ export const CustomMessage = () => {
     reactionSelectorRef,
   } = useMessageContext();
 
-  const messageWrapperRef = useRef<HTMLDivElement>(null);
-
   const hasReactions = messageHasReactions(message);
 
   return (
     <div className='message-wrapper'>
       <Avatar image={message.user?.image} />
       <div className='message-wrapper-content'>
-        <MessageOptions displayLeft={false} messageWrapperRef={messageWrapperRef} />
+        <MessageOptions displayLeft={false} />
         <div className='message-header'>
           <div className='message-header-name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>
