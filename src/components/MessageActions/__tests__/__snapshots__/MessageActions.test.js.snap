@@ -1,0 +1,165 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MessageActions /> component modal is attached to custom container when provided container element 1`] = `
+<DocumentFragment>
+  <div
+    id="custom-container-id"
+  >
+    <div
+      class="str-chat__modal str-chat__modal--open str-chat__message-actions-box--modal-overlay"
+      data-testid="modal-overlay"
+    >
+      <div
+        class="str-chat__modal__inner str-chat-react__modal__inner"
+      >
+        <div
+          data-popper-escaped="true"
+          data-popper-placement="right-start"
+          data-popper-reference-hidden="true"
+          style="position: absolute; left: 0px; top: 0px; transform: translate(0px, 0px);"
+        >
+          <div
+            class="str-chat__message-actions-box"
+            data-testid="message-actions-box"
+          >
+            <div
+              aria-label="Message Options"
+              class="str-chat__message-actions-list"
+              role="listbox"
+            >
+              <button
+                aria-selected="false"
+                class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
+                role="option"
+              >
+                Flag
+              </button>
+              <button
+                aria-selected="false"
+                class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
+                role="option"
+              >
+                Mute
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    id="str-chat__main-list-container"
+  >
+    <div
+      class="
+  str-chat__message-simple__actions__action
+  str-chat__message-simple__actions__action--options
+  str-chat__message-actions-container"
+      data-testid="message-actions"
+    >
+      <button
+        aria-expanded="true"
+        aria-haspopup="true"
+        aria-label="Open Message Actions Menu"
+        class="str-chat__message-actions-box-button"
+        data-testid="message-actions-button"
+      >
+        <svg
+          class="str-chat__message-action-icon"
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fill-rule="nonzero"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`<MessageActions /> component modal is attached to custom container when provided container id 1`] = `
+<DocumentFragment>
+  <div
+    id="custom-container-id"
+  >
+    <div
+      class="str-chat__modal str-chat__modal--open str-chat__message-actions-box--modal-overlay"
+      data-testid="modal-overlay"
+    >
+      <div
+        class="str-chat__modal__inner str-chat-react__modal__inner"
+      >
+        <div
+          data-popper-escaped="true"
+          data-popper-placement="right-start"
+          data-popper-reference-hidden="true"
+          style="position: absolute; left: 0px; top: 0px; transform: translate(0px, 0px);"
+        >
+          <div
+            class="str-chat__message-actions-box"
+            data-testid="message-actions-box"
+          >
+            <div
+              aria-label="Message Options"
+              class="str-chat__message-actions-list"
+              role="listbox"
+            >
+              <button
+                aria-selected="false"
+                class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
+                role="option"
+              >
+                Flag
+              </button>
+              <button
+                aria-selected="false"
+                class="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
+                role="option"
+              >
+                Mute
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    id="str-chat__main-list-container"
+  >
+    <div
+      class="
+  str-chat__message-simple__actions__action
+  str-chat__message-simple__actions__action--options
+  str-chat__message-actions-container"
+      data-testid="message-actions"
+    >
+      <button
+        aria-expanded="true"
+        aria-haspopup="true"
+        aria-label="Open Message Actions Menu"
+        class="str-chat__message-actions-box-button"
+        data-testid="message-actions-button"
+      >
+        <svg
+          class="str-chat__message-action-icon"
+          height="4"
+          viewBox="0 0 11 4"
+          width="11"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+            fill-rule="nonzero"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+</DocumentFragment>
+`;
