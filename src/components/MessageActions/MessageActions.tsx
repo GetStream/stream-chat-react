@@ -1,9 +1,19 @@
-import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { usePopper } from 'react-popper';
+import React, {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted } from '../Message/utils';
+import { Modal } from '../Modal/Modal';
+import { Portal } from '../Modal/Portal';
 
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
@@ -21,11 +31,19 @@ type MessageContextPropsToPick =
 export type MessageActionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
+  /** Wrapping element to which the modal with MessageActionsBox can be appended. By default, the wrapping message list container is used */
+  actionsBoxModalContainer?: Element;
+  /** Wrapping element id to which the modal with MessageActionsBox can be appended. By default, the wrapping message list container id is used */
+  actionsBoxModalContainerId?: string;
+  /** Custom component rendered on the message actions button */
   ActionsIcon?: React.FunctionComponent;
+  /** Custom class that overrides the default class on the message actions wrapper element */
   customWrapperClass?: string;
   inline?: boolean;
-  messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  /** Function determines whether the enclosing message was posted me */
   mine?: () => boolean;
+  /** Sets the flag that allows to set visibility class on the message options root element */
+  setMessageOptionsVisible?: Dispatch<SetStateAction<boolean>>;
 };
 
 export const MessageActions = <
@@ -33,20 +51,6 @@ export const MessageActions = <
 >(
   props: MessageActionsProps<StreamChatGenerics>,
 ) => {
-  const {
-    ActionsIcon = DefaultActionsIcon,
-    customWrapperClass = '',
-    getMessageActions: propGetMessageActions,
-    handleDelete: propHandleDelete,
-    handleFlag: propHandleFlag,
-    handleMute: propHandleMute,
-    handlePin: propHandlePin,
-    inline,
-    message: propMessage,
-    messageWrapperRef,
-    mine,
-  } = props;
-
   const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
   const {
     customMessageActions,
@@ -57,8 +61,35 @@ export const MessageActions = <
     handlePin: contextHandlePin,
     isMyMessage,
     message: contextMessage,
+    messageListContainer,
+    messageListContainerId,
     setEditingState,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
+
+  const {
+    actionsBoxModalContainer = messageListContainer,
+    actionsBoxModalContainerId = messageListContainerId,
+    ActionsIcon = DefaultActionsIcon,
+    customWrapperClass = '',
+    getMessageActions: propGetMessageActions,
+    handleDelete: propHandleDelete,
+    handleFlag: propHandleFlag,
+    handleMute: propHandleMute,
+    handlePin: propHandlePin,
+    inline,
+    message: propMessage,
+    mine,
+    setMessageOptionsVisible,
+  } = props;
+
+  const belongsToMyMessage = useMemo(() => (mine ? mine() : isMyMessage()), [mine, isMyMessage]);
+
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  // todo: make the positioning configurable
+  const { attributes, styles } = usePopper(referenceElement, popperElement, {
+    placement: belongsToMyMessage ? 'left-start' : 'right-start',
+  });
 
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
@@ -71,78 +102,75 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
-  const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
-    if (event instanceof KeyboardEvent && event.key !== 'Escape') {
-      return;
-    }
-    setActionsBoxOpen(false);
-  }, []);
   const messageActions = getMessageActions();
-  const messageDeletedAt = !!message?.deleted_at;
 
-  useEffect(() => {
-    if (messageWrapperRef?.current) {
-      messageWrapperRef.current.addEventListener('mouseleave', hideOptions);
-    }
-  }, [hideOptions, messageWrapperRef]);
+  const closeActionsBox = () => {
+    setMessageOptionsVisible?.(false);
+    setActionsBoxOpen(false);
+  };
 
-  useEffect(() => {
-    if (messageDeletedAt) {
-      document.removeEventListener('click', hideOptions);
-    }
-  }, [hideOptions, messageDeletedAt]);
-
-  useEffect(() => {
-    if (!actionsBoxOpen) return;
-
-    document.addEventListener('click', hideOptions);
-    document.addEventListener('keyup', hideOptions);
-
-    return () => {
-      document.removeEventListener('click', hideOptions);
-      document.removeEventListener('keyup', hideOptions);
-    };
-  }, [actionsBoxOpen, hideOptions]);
+  const openActionsBox = (event: React.BaseSyntheticEvent) => {
+    event.stopPropagation();
+    setMessageOptionsVisible?.(true);
+    setActionsBoxOpen(true);
+  };
 
   if (!messageActions.length && !customMessageActions) return null;
 
   return (
-    <MessageActionsWrapper
-      customWrapperClass={customWrapperClass}
-      inline={inline}
-      setActionsBoxOpen={setActionsBoxOpen}
-    >
-      <MessageActionsBox
-        getMessageActions={getMessageActions}
-        handleDelete={handleDelete}
-        handleEdit={setEditingState}
-        handleFlag={handleFlag}
-        handleMute={handleMute}
-        handlePin={handlePin}
-        isUserMuted={isMuted}
-        mine={mine ? mine() : isMyMessage()}
-        open={actionsBoxOpen}
-      />
-      <button
-        aria-expanded={actionsBoxOpen}
-        aria-haspopup='true'
-        aria-label='Open Message Actions Menu'
-        className='str-chat__message-actions-box-button'
-      >
-        <ActionsIcon className='str-chat__message-action-icon' />
-      </button>
-    </MessageActionsWrapper>
+    <>
+      {actionsBoxOpen && (
+        <Portal container={actionsBoxModalContainer} containerId={actionsBoxModalContainerId}>
+          <Modal
+            className={{ overlay: 'str-chat__message-actions-box--modal-overlay' }}
+            hideCloseButton
+            onClose={closeActionsBox}
+            open={actionsBoxOpen}
+          >
+            <div
+              ref={setPopperElement}
+              style={styles.popper}
+              {...attributes.popper}
+              onClick={closeActionsBox}
+            >
+              <MessageActionsBox
+                getMessageActions={getMessageActions}
+                handleDelete={handleDelete}
+                handleEdit={setEditingState}
+                handleFlag={handleFlag}
+                handleMute={handleMute}
+                handlePin={handlePin}
+                isUserMuted={isMuted}
+                mine={belongsToMyMessage}
+              />
+            </div>
+          </Modal>
+        </Portal>
+      )}
+      <MessageActionsWrapper customWrapperClass={customWrapperClass} inline={inline}>
+        <button
+          aria-expanded={actionsBoxOpen}
+          aria-haspopup='true'
+          aria-label='Open Message Actions Menu'
+          className='str-chat__message-actions-box-button'
+          data-testid='message-actions-button'
+          onClick={openActionsBox}
+          ref={setReferenceElement}
+        >
+          <ActionsIcon className='str-chat__message-action-icon' />
+        </button>
+      </MessageActionsWrapper>
+    </>
   );
 };
 
 export type MessageActionsWrapperProps = {
-  setActionsBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
   customWrapperClass?: string;
   inline?: boolean;
 };
 
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
-  const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
+  const { children, customWrapperClass, inline } = props;
 
   const defaultWrapperClass = `
   str-chat__message-simple__actions__action
@@ -151,15 +179,9 @@ const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperPro
 
   const wrapperClass = customWrapperClass || defaultWrapperClass;
 
-  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
-    event.stopPropagation();
-    setActionsBoxOpen((prev) => !prev);
-  };
-
   const wrapperProps = {
     className: wrapperClass,
     'data-testid': 'message-actions',
-    onClick: onClickOptionsAction,
   };
 
   if (inline) return <span {...wrapperProps}>{children}</span>;

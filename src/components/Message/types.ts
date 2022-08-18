@@ -65,6 +65,10 @@ export type MessageProps<
   Message?: ComponentContextValue<StreamChatGenerics>['Message'];
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
+  /** Wrapping container element around the message list */
+  messageListContainer?: Element | null;
+  /** Wrapping message list element id */
+  messageListContainerId?: string;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** If true, only the sender of the message has editing privileges */

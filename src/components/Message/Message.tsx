@@ -119,6 +119,8 @@ const MessageWithContext = <
     ...rest
   } = props;
 
+  const isMyMessageCallback = useCallback(() => isMyMessage, [isMyMessage]);
+
   const messageContextValue: MessageContextValue<StreamChatGenerics> = {
     ...rest,
     actionsEnabled,
@@ -126,7 +128,7 @@ const MessageWithContext = <
     editing,
     getMessageActions: messageActionsHandler,
     handleEdit: setEdit,
-    isMyMessage: () => isMyMessage,
+    isMyMessage: isMyMessageCallback,
     onUserClick,
     onUserHover,
     setEditingState: setEdit,
@@ -246,6 +248,8 @@ export const Message = <
       message={message}
       Message={props.Message}
       messageActions={props.messageActions}
+      messageListContainer={props.messageListContainer}
+      messageListContainerId={props.messageListContainerId}
       messageListRect={props.messageListRect}
       mutes={mutes}
       onMentionsClickMessage={onMentionsClick}
