@@ -128,12 +128,11 @@ const UnMemoizedMessageActionsBox = <
     }
   };
 
-  const rootClassName = clsx(
-    'str-chat__message-actions-box',
-    open && 'str-chat__message-actions-box--open',
-    mine && 'str-chat__message-actions-box--mine',
-    reverse && 'str-chat__message-actions-box--reverse',
-  );
+  const rootClassName = clsx('str-chat__message-actions-box', {
+    'str-chat__message-actions-box--mine': mine,
+    'str-chat__message-actions-box--open': open,
+    'str-chat__message-actions-box--reverse': reverse,
+  });
   const buttonClassName =
     'str-chat__message-actions-list-item str-chat__message-actions-list-item-button';
 

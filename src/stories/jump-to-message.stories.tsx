@@ -9,7 +9,6 @@ import {
   VirtualizedMessageList,
   Window,
 } from '../index';
-import '@stream-io/stream-chat-css/dist/css/index.css';
 import { ConnectedUser } from './utils';
 
 void MessageList;

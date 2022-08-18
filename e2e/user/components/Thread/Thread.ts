@@ -45,6 +45,8 @@ export default (page: Page) => ({
       },
     },
     async isScrolledToBottom(selector: string) {
+      await page.waitForTimeout(500);
+
       expect(
         await page.evaluate(
           ([selector]) => {

@@ -1,8 +1,8 @@
 import React, { PropsWithChildren, ReactNode } from 'react';
 import ReactPlayer from 'react-player';
-import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
+import type { ATTACHMENT_GROUPS_ORDER } from './Attachment';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { Card as DefaultCard } from './Card';
@@ -15,7 +15,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
-export type AttachmentComponentType = 'audio' | 'card' | 'file' | 'gallery' | 'image' | 'media';
+export type AttachmentComponentType = typeof ATTACHMENT_GROUPS_ORDER[number];
 
 export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
 
@@ -109,22 +109,14 @@ export const renderAttachmentWithinContainer = <
         : '';
   }
 
-  const classNames = clsx(
-    'str-chat__message-attachment',
-    `str-chat__message-attachment--${componentType}`,
-    attachment?.type && `str-chat__message-attachment--${attachment?.type}`,
-    extra && `str-chat__message-attachment--${componentType}--${extra}`,
-    extra === 'actions' && 'str-chat__message-attachment-with-actions', // added for theme V2 (better readability)
-  );
+  const classNames = clsx('str-chat__message-attachment', {
+    [`str-chat__message-attachment--${componentType}`]: componentType,
+    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+  });
 
-  return (
-    <div
-      className={classNames}
-      key={`${isGAT ? '' : attachment?.id || nanoid()}-${attachment?.type || 'none'}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };
 
 /**

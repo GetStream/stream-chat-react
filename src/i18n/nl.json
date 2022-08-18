@@ -8,6 +8,7 @@
   "Connection failure, reconnecting now...": "Probleem met de verbinding, opnieuw verbinding maken...",
   "Delete": "Verwijder",
   "Delivered": "Afgeleverd",
+  "Drag your files here": "Drag your files here",
   "Edit Message": "Pas bericht aan",
   "Edit message request failed": "Verzoek om bericht bewerken mislukt",
   "Emoji matching": "Emoji-overeenkomsten",
@@ -50,6 +51,7 @@
   "Send message request failed": "Verzoek om bericht te verzenden mislukt",
   "Sending...": "Aan het verzenden...",
   "Slow Mode ON": "Langzame modus aan",
+  "Some of the files will not be accepted": "Some of the files will not be accepted",
   "This message was deleted...": "Dit bericht was verwijderd",
   "Thread": "Draadje",
   "Type your message": "Type je bericht",
@@ -72,6 +74,9 @@
   "{{ memberCount }} members": "{{ memberCount }} deelnemers",
   "{{ user }} has been muted": "{{ user }} is muted",
   "{{ user }} has been unmuted": "{{ user }} is unmuted",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Bijlage..."
 }

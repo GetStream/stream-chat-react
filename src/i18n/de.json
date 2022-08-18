@@ -8,6 +8,7 @@
   "Connection failure, reconnecting now...": "Verbindungsfehler, Wiederherstellung der Verbindung...",
   "Delete": "Löschen",
   "Delivered": "Zugestellt",
+  "Drag your files here": "Drag your files here",
   "Edit Message": "Nachricht bearbeiten",
   "Edit message request failed": "Anfrage zum Bearbeiten der Nachricht fehlgeschlagen",
   "Emoji matching": "Emoji passend",
@@ -50,6 +51,7 @@
   "Send message request failed": "Senden der Nachrichtenanfrage fehlgeschlagen",
   "Sending...": "Senden...",
   "Slow Mode ON": "Slow-Mode EIN",
+  "Some of the files will not be accepted": "Some of the files will not be accepted",
   "This message was deleted...": "Diese Nachricht wurde gelöscht...",
   "Thread": "Thread",
   "Type your message": "Nachricht eingeben",
@@ -72,6 +74,9 @@
   "{{ memberCount }} members": "{{ memberCount }} Mitglieder",
   "{{ user }} has been muted": "{{ user }} wurde stummgeschaltet",
   "{{ user }} has been unmuted": "{{ user }} wurde nicht stummgeschaltet",
+  "{{ user }} is typing...": "{{ user }} tippt...",
+  "{{ users }} and more are typing...": "{{ users }} und mehr tippen...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} und {{ user }} tippen...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Anhang..."
 }

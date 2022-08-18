@@ -42,8 +42,12 @@ export const QuotedMessage = <
   return (
     <>
       <div
-        className={clsx('str-chat__quoted-message-preview quoted-message', isMyMessage() && 'mine')}
-        onClick={() => jumpToMessage(quoted_message.id)}
+        className={clsx('str-chat__quoted-message-preview quoted-message', { mine: isMyMessage() })}
+        onClickCapture={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          jumpToMessage(quoted_message.id);
+        }}
       >
         {quoted_message.user && (
           <Avatar

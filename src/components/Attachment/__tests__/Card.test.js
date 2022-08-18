@@ -6,6 +6,7 @@ import { Card } from '../Card';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { ComponentProvider } from '../../../context/ComponentContext';
 
 import {
   generateChannel,
@@ -31,7 +32,9 @@ const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
   theRenderer(
     <ChatProvider value={{ themeVersion: '1', ...chatContext }}>
       <ChannelStateProvider value={{}}>
-        <Card {...cardProps} />
+        <ComponentProvider value={{}}>
+          <Card {...cardProps} />
+        </ComponentProvider>
       </ChannelStateProvider>
     </ChatProvider>,
   );

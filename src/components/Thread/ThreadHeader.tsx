@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
 import {
   ChannelPreviewInfoParams,
   useChannelPreviewInfo,
@@ -8,7 +7,6 @@ import {
 import { CloseIcon } from './icons';
 
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -16,7 +14,9 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type ThreadHeaderProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  /** Callback for closing the thread */
   closeThread: (event: React.BaseSyntheticEvent) => void;
+  /** The thread parent message */
   thread: StreamMessage<StreamChatGenerics>;
 };
 
@@ -28,10 +28,9 @@ export const ThreadHeader = <
 ) => {
   const { closeThread, overrideImage, overrideTitle } = props;
 
-  const { Avatar = DefaultAvatar } = useComponentContext('ThreadHeader');
   const { t } = useTranslationContext('ThreadHeader');
   const { channel } = useChannelStateContext<StreamChatGenerics>('');
-  const { displayImage, displayTitle } = useChannelPreviewInfo({
+  const { displayTitle } = useChannelPreviewInfo({
     channel,
     overrideImage,
     overrideTitle,
@@ -39,7 +38,6 @@ export const ThreadHeader = <
 
   return (
     <div className='str-chat__thread-header'>
-      <Avatar image={displayImage} name={displayTitle} shape='rounded' size={40} />
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t<string>('Thread')}</div>
         <div className='str-chat__thread-header-subtitle'>{displayTitle}</div>

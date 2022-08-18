@@ -66,7 +66,12 @@ const AudioV1 = ({ og }: AudioProps) => {
           </span>
           <span className='str-chat__audio__content--subtitle'>{text}</span>
           <div className='str-chat__audio__content--progress'>
-            <div data-testid='audio-progress' style={{ width: `${progress}%` }} />
+            <div
+              data-progress={progress}
+              data-testid='audio-progress'
+              role='progressbar'
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
       </div>
@@ -91,15 +96,25 @@ export const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
 
 type ProgressBarProps = {
   progress: number;
-};
+} & Pick<React.ComponentProps<'div'>, 'onClick'>;
 
-export const ProgressBar = ({ progress }: ProgressBarProps) => (
-  <div className='str-chat__message-attachment-audio-widget--progress-track'>
-    <div
-      className='str-chat__message-attachment-audio-widget--progress-indicator'
-      data-testid='audio-progress'
-      style={{ width: `${progress}%` }}
-    />
+export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
+  <div
+    className='str-chat__message-attachment-audio-widget--progress-track'
+    data-progress={progress}
+    data-testid='audio-progress'
+    onClick={onClick}
+    role='progressbar'
+    style={{
+      background: `linear-gradient(
+		 to right, 
+		 var(--str-chat__primary-color),
+		 var(--str-chat__primary-color) ${progress}%,
+		 var(--str-chat__disabled-color) ${progress}%,
+		 var(--str-chat__disabled-color)
+	  )`,
+    }}
+  >
     <div
       className='str-chat__message-attachment-audio-widget--progress-slider'
       style={{ left: `${progress}px` }}
@@ -109,7 +124,7 @@ export const ProgressBar = ({ progress }: ProgressBarProps) => (
 
 const AudioV2 = ({ og }: AudioProps) => {
   const { asset_url, file_size, title } = og;
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
 
   if (!asset_url) return null;
 
@@ -131,7 +146,7 @@ const AudioV2 = ({ og }: AudioProps) => {
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
           <FileSizeIndicator fileSize={file_size} />
-          <ProgressBar progress={progress} />
+          <ProgressBar onClick={seek} progress={progress} />
         </div>
       </div>
     </div>

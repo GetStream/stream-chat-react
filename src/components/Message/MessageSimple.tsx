@@ -85,6 +85,7 @@ const MessageSimpleWithContext = <
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
+  const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -134,18 +135,12 @@ const MessageSimpleWithContext = <
             />
           )}
           <div
-            className='str-chat__message-inner'
+            className={clsx('str-chat__message-inner', {
+              'str-chat__simple-message--error-failed': allowRetry,
+            })}
             data-testid='message-inner'
-            onClick={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
-            onKeyUp={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
+            onClick={allowRetry ? () => handleRetry(message) : undefined}
+            onKeyUp={allowRetry ? () => handleRetry(message) : undefined}
           >
             <MessageOptions />
             <div className='str-chat__message-reactions-host'>
@@ -175,7 +170,7 @@ const MessageSimpleWithContext = <
               />
             )}
             {showMetadata && themeVersion === '1' && (
-              <div className={`str-chat__message-data str-chat__message-simple-data`}>
+              <div className='str-chat__message-data str-chat__message-simple-data'>
                 {!isMyMessage() && message.user ? (
                   <span className='str-chat__message-simple-name'>
                     {message.user.name || message.user.id}
@@ -192,9 +187,7 @@ const MessageSimpleWithContext = <
             />
           )}
           {showMetadata && themeVersion === '2' && (
-            <div
-              className={`str-chat__message-data str-chat__message-simple-data str-chat__message-metadata`}
-            >
+            <div className='str-chat__message-data str-chat__message-simple-data str-chat__message-metadata'>
               <MessageStatus />
               {!isMyMessage() && !!message.user && (
                 <span className='str-chat__message-simple-name'>

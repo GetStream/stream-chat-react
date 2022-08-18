@@ -6,11 +6,11 @@ import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { useComponentContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';
 
 export type ImageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> =
+> = { dimensions?: Dimensions } & (
   | {
       /** The text fallback for the image */
       fallback?: string;
@@ -19,7 +19,8 @@ export type ImageProps<
       /** The thumb url */
       thumb_url?: string;
     }
-  | Attachment<StreamChatGenerics>;
+  | Attachment<StreamChatGenerics>
+);
 
 /**
  * A simple component that displays an image.
@@ -29,7 +30,7 @@ export const ImageComponent = <
 >(
   props: ImageProps<StreamChatGenerics>,
 ) => {
-  const { fallback, image_url, thumb_url } = props;
+  const { dimensions = {}, fallback, image_url, thumb_url } = props;
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const { ModalGallery = DefaultModalGallery } = useComponentContext('ImageComponent');
@@ -45,9 +46,9 @@ export const ImageComponent = <
         className='str-chat__message-attachment--img'
         data-testid='image-test'
         onClick={toggleModal}
-        onKeyDown={toggleModal}
         src={imageSrc}
         tabIndex={0}
+        {...dimensions}
       />
       <Modal onClose={toggleModal} open={modalIsOpen}>
         <ModalGallery images={[props]} index={0} />

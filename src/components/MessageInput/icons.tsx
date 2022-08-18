@@ -216,12 +216,13 @@ export type SendButtonProps<
     event: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => void;
-};
+} & React.ComponentProps<'button'>;
 
 export const SendButton = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   sendMessage,
+  ...rest
 }: SendButtonProps<StreamChatGenerics>) => {
   const { themeVersion } = useChatContext('SendButton');
 
@@ -232,6 +233,7 @@ export const SendButton = <
       data-testid='send-button'
       onClick={sendMessage}
       type='button'
+      {...rest}
     >
       {themeVersion === '2' ? <SendIconV2 /> : <SendIconV1 />}
     </button>

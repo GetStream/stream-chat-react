@@ -22,6 +22,7 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
+import { MessageListMainPanel } from './MessageListMainPanel';
 
 import type { GroupStyle } from './utils';
 
@@ -81,6 +82,7 @@ const MessageListWithContext = <
 
   const {
     hasNewMessages,
+    isMessageListScrolledToBottom,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
@@ -91,7 +93,6 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
-    ulElement,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -176,48 +177,53 @@ const MessageListWithContext = <
 
   return (
     <>
-      <div
-        className={`${messageListClass} ${threadListClass}`}
-        onScroll={onScroll}
-        ref={setListElement}
-        tabIndex={0}
-      >
-        {showEmptyStateIndicator ? (
-          <EmptyStateIndicator
-            key={'empty-state-indicator'}
-            listType={threadList ? 'thread' : 'message'}
-          />
-        ) : (
-          <InfiniteScroll
-            className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
-            data-testid='reverse-infinite-scroll'
-            hasMore={props.hasMore}
-            hasMoreNewer={props.hasMoreNewer}
-            head={props.head}
-            isLoading={props.loadingMore}
-            loader={
-              <div className='str-chat__list__loading' key='loading-indicator'>
-                {props.loadingMore && <LoadingIndicator size={20} />}
-              </div>
-            }
-            loadMore={loadMore}
-            loadMoreNewer={loadMoreNewer}
-            {...props.internalInfiniteScrollProps}
-          >
-            <ul className='str-chat__ul' ref={setUlElement}>
-              {elements}
-            </ul>
-            <TypingIndicator threadList={threadList} />
-            <div key='bottom' />
-          </InfiniteScroll>
-        )}
-      </div>
+      <MessageListMainPanel>
+        <div
+          className={`${messageListClass} ${threadListClass}`}
+          onScroll={onScroll}
+          ref={setListElement}
+          tabIndex={0}
+        >
+          {showEmptyStateIndicator ? (
+            <EmptyStateIndicator
+              key={'empty-state-indicator'}
+              listType={threadList ? 'thread' : 'message'}
+            />
+          ) : (
+            <InfiniteScroll
+              className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
+              data-testid='reverse-infinite-scroll'
+              hasMore={props.hasMore}
+              hasMoreNewer={props.hasMoreNewer}
+              head={props.head}
+              isLoading={props.loadingMore}
+              loader={
+                <div className='str-chat__list__loading' key='loading-indicator'>
+                  {props.loadingMore && <LoadingIndicator size={20} />}
+                </div>
+              }
+              loadMore={loadMore}
+              loadMoreNewer={loadMoreNewer}
+              {...props.internalInfiniteScrollProps}
+            >
+              <ul className='str-chat__ul' ref={setUlElement}>
+                {elements}
+              </ul>
+              <TypingIndicator threadList={threadList} />
+
+              <div key='bottom' />
+            </InfiniteScroll>
+          )}
+        </div>
+      </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
+        isMessageListScrolledToBottom={isMessageListScrolledToBottom}
         isNotAtLatestMessageSet={hasMoreNewer}
         MessageNotification={MessageNotification}
         notifications={notifications}
         scrollToBottom={scrollToBottomFromNotification}
+        threadList={threadList}
       />
     </>
   );
@@ -293,7 +299,7 @@ export type MessageListProps<
   /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
   scrolledUpThreshold?: number;
   /** If true, indicates the message list is a thread  */
-  threadList?: boolean;
+  threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
 };
 
 /**

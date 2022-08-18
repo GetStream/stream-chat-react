@@ -1,7 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
-import { nanoid } from 'nanoid';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -36,22 +35,14 @@ export const AttachmentWithinContainer = <
         : '';
   }
 
-  const classNames = clsx(
-    'str-chat__message-attachment',
-    componentType && `str-chat__message-attachment--${componentType}`,
-    attachment?.type && `str-chat__message-attachment--${attachment?.type}`,
-    componentType && extra && `str-chat__message-attachment--${componentType}--${extra}`,
-    extra === 'actions' && 'str-chat__message-attachment-with-actions', // added for theme V2 (better readability)
-  );
+  const classNames = clsx('str-chat__message-attachment', {
+    [`str-chat__message-attachment--${componentType}`]: componentType,
+    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+  });
 
-  return (
-    <div
-      className={classNames}
-      key={`${isGAT ? '' : attachment?.id || nanoid()}-${attachment?.type || 'none'}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={classNames}>{children}</div>;
 };
 
 export const AttachmentActionsContainer = <

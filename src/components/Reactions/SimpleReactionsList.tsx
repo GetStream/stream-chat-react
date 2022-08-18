@@ -82,10 +82,9 @@ const UnMemoizedSimpleReactionsList = <
 
           return emojiObject ? (
             <li
-              className={clsx(
-                'str-chat__simple-reactions-list-item',
-                isOwnReaction && 'str-chat__message-reaction-own',
-              )}
+              className={clsx('str-chat__simple-reactions-list-item', {
+                'str-chat__message-reaction-own': isOwnReaction,
+              })}
               key={`${emojiObject.id}-${i}`}
               onClick={(event) => handleReaction(reactionType, event)}
               onKeyUp={(event) => handleReaction(reactionType, event)}

@@ -1,8 +1,11 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from 'react-file-utils';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';
+import { useDropzone } from 'react-dropzone';
+import zipObject from 'lodash/zipObject';
+import { nanoid } from 'nanoid';
 
 import { EmojiPicker } from './EmojiPicker';
 import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
@@ -17,7 +20,8 @@ import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { AttachmentPreviewList, UploadsPreview } from './UploadsPreview';
+import { AttachmentPreviewList } from './AttachmentPreviewList';
+import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -170,12 +174,12 @@ const MessageInputV2 = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const {
-    acceptedFiles,
+    acceptedFiles = [],
     multipleUploads,
     quotedMessage,
   } = useChannelStateContext<StreamChatGenerics>('MessageInputV2');
 
-  //   const { t } = useTranslationContext('MessageInputV2');
+  const { t } = useTranslationContext('MessageInputV2');
 
   const {
     closeEmojiPicker,
@@ -184,9 +188,11 @@ const MessageInputV2 = <
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
+    message,
     numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
+    text,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
@@ -204,12 +210,44 @@ const MessageInputV2 = <
     placement: 'top-end',
   });
 
-  const id = useId();
+  const id = useMemo(() => nanoid(), []);
+
+  const accept = useMemo(
+    () =>
+      zipObject(
+        acceptedFiles,
+        Array.from({ length: acceptedFiles.length }, () => []),
+      ),
+    [acceptedFiles],
+  );
+
+  const { getRootProps, isDragActive, isDragReject } = useDropzone({
+    accept,
+    disabled: !isUploadEnabled || maxFilesLeft === 0,
+    multiple: multipleUploads,
+    noClick: true,
+    onDrop: uploadNewFiles,
+  });
+
+  // TODO: "!message" condition is a temporary fix for shared
+  // state when editing a message (fix shared state issue)
+  const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
 
   return (
     <>
-      <div className='str-chat__message-input'>
-        {quotedMessage && !quotedMessage.parent_id && <QuotedMessagePreviewHeader />}
+      <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {isDragActive && (
+          <div
+            className={clsx('str-chat__dropzone-container', {
+              'str-chat__dropzone-container--not-accepted': isDragReject,
+            })}
+          >
+            {!isDragReject && <p>{t<string>('Drag your files here')}</p>}
+            {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
+          </div>
+        )}
+
+        {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
           <div className='str-chat__file-input-container' data-testid='file-upload-button'>
@@ -228,9 +266,7 @@ const MessageInputV2 = <
             </label>
           </div>
           <div className='str-chat__message-textarea-container'>
-            {quotedMessage && !quotedMessage.parent_id && (
-              <QuotedMessagePreview PreviewHeader={null} quotedMessage={quotedMessage} />
-            )}
+            {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
 
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
 
@@ -239,7 +275,12 @@ const MessageInputV2 = <
 
               <div className='str-chat__message-textarea-emoji-picker'>
                 {emojiPickerIsOpen && (
-                  <div style={styles.popper} {...attributes.popper} ref={setPopperElement}>
+                  <div
+                    className='str-chat__message-textarea-emoji-picker-container'
+                    style={styles.popper}
+                    {...attributes.popper}
+                    ref={setPopperElement}
+                  >
                     <EmojiPicker />
                   </div>
                 )}
@@ -256,13 +297,21 @@ const MessageInputV2 = <
               </div>
             </div>
           </div>
-          {cooldownRemaining ? (
-            <CooldownTimer
-              cooldownInterval={cooldownRemaining}
-              setCooldownRemaining={setCooldownRemaining}
-            />
-          ) : (
-            <SendButton sendMessage={handleSubmit} />
+          {/* hide SendButton if this component is rendered in the edit message form */}
+          {!message && (
+            <>
+              {cooldownRemaining ? (
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
+              ) : (
+                <SendButton
+                  disabled={!numberOfUploads && !text.length}
+                  sendMessage={handleSubmit}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

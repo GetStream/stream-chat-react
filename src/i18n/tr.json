@@ -8,6 +8,7 @@
   "Connection failure, reconnecting now...": "Bağlantı hatası, tekrar bağlanılıyor...",
   "Delete": "Sil",
   "Delivered": "İletildi",
+  "Drag your files here": "Drag your files here",
   "Edit Message": "Mesajı Düzenle",
   "Edit message request failed": "Mesaj düzenleme isteği başarısız oldu",
   "Emoji matching": "Emoji eşleştirme",
@@ -50,6 +51,7 @@
   "Send message request failed": "Mesaj gönderme isteği başarısız oldu",
   "Sending...": "Gönderiliyor...",
   "Slow Mode ON": "Yavaş Mod Açık",
+  "Some of the files will not be accepted": "Some of the files will not be accepted",
   "This message was deleted...": "Bu mesaj silindi",
   "Thread": "Konu",
   "Type your message": "Mesajınızı yazın",
@@ -72,6 +74,9 @@
   "{{ memberCount }} members": "{{ memberCount }} üyeler",
   "{{ user }} has been muted": "{{ user }} sessize alındı",
   "{{ user }} has been unmuted": "{{ user }} sesi açıldı",
+  "{{ user }} is typing...": "{{ user }} is typing...",
+  "{{ users }} and more are typing...": "{{ users }} and more are typing...",
+  "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} çevrimiçi",
   "🏙 Attachment...": "🏙 Ek..."
 }

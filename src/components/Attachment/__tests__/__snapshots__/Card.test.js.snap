@@ -6,12 +6,15 @@ exports[`Card theme V2 (1) should render card without caption if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -52,12 +55,10 @@ exports[`Card theme V2 (1) should render card without caption if attachment type
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -90,7 +91,7 @@ exports[`Card theme V2 (2) should render card without caption if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -126,12 +127,15 @@ exports[`Card theme V2 (3) should render card without caption if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -216,12 +220,15 @@ exports[`Card theme V2 (7) should render audio with caption using og_scrape_url 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -262,12 +269,10 @@ exports[`Card theme V2 (7) should render audio with caption using og_scrape_url 
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -314,7 +319,7 @@ exports[`Card theme V2 (8) should render video with caption using og_scrape_url 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -371,12 +376,15 @@ exports[`Card theme V2 (9) should render image with caption using og_scrape_url 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -421,12 +429,15 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_thumb_url"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -467,12 +478,10 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -489,7 +498,7 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -514,7 +523,7 @@ exports[`Card theme V2 (11) should render video without title if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -542,7 +551,7 @@ exports[`Card theme V2 (11) should render video without title if attachment type
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -566,12 +575,15 @@ exports[`Card theme V2 (12) should render image without title if attachment type
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_thumb_url"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -587,7 +599,7 @@ exports[`Card theme V2 (12) should render image without title if attachment type
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -611,12 +623,15 @@ exports[`Card theme V2 (13) should render audio without title and with caption u
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_thumb_url"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -657,12 +672,10 @@ exports[`Card theme V2 (13) should render audio without title and with caption u
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -704,7 +717,7 @@ exports[`Card theme V2 (14) should render video without title and with caption u
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -756,12 +769,15 @@ exports[`Card theme V2 (15) should render image without title and with caption u
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_thumb_url"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -838,12 +854,10 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -860,7 +874,7 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -890,7 +904,7 @@ exports[`Card theme V2 (17) should render video widget in header and title & tex
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -918,7 +932,7 @@ exports[`Card theme V2 (17) should render video widget in header and title & tex
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -959,7 +973,7 @@ exports[`Card theme V2 (18) should render card with title and text only and with
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -988,12 +1002,15 @@ exports[`Card theme V2 (19) should render image loaded from thumb_url not audio 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_thumb_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1013,7 +1030,7 @@ exports[`Card theme V2 (19) should render image loaded from thumb_url not audio 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1043,12 +1060,15 @@ exports[`Card theme V2 (20) should render image loaded from thumb_url not video 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_thumb_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1064,7 +1084,7 @@ exports[`Card theme V2 (20) should render image loaded from thumb_url not video 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1093,12 +1113,15 @@ exports[`Card theme V2 (21) should render image loaded from thumb_url if attachm
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_thumb_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1114,7 +1137,7 @@ exports[`Card theme V2 (21) should render image loaded from thumb_url if attachm
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1143,12 +1166,15 @@ exports[`Card theme V2 (22) should render image loaded from image_url not audio 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1168,7 +1194,7 @@ exports[`Card theme V2 (22) should render image loaded from image_url not audio 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1198,12 +1224,15 @@ exports[`Card theme V2 (23) should render image loaded from image_url not video 
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1219,7 +1248,7 @@ exports[`Card theme V2 (23) should render image loaded from image_url not video 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1248,12 +1277,15 @@ exports[`Card theme V2 (24) should render image loaded from image_url if attachm
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
         src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1269,7 +1301,7 @@ exports[`Card theme V2 (24) should render image loaded from image_url if attachm
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1298,12 +1330,15 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <img
         alt="dummyAttachment_title"
-        src="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
       />
     </div>
     <div
@@ -1344,12 +1379,10 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
           </div>
           <div
             class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
           >
-            <div
-              class="str-chat__message-attachment-audio-widget--progress-indicator"
-              data-testid="audio-progress"
-              style="width: 0%;"
-            />
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
               style="left: 0px;"
@@ -1366,7 +1399,7 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1396,7 +1429,7 @@ exports[`Card theme V2 (26) should render video widget in header and title & tex
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
   >
     <div
-      class="str-chat__message-attachment-card--header"
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
       data-testid="card-header"
     >
       <div
@@ -1424,7 +1457,7 @@ exports[`Card theme V2 (26) should render video widget in header and title & tex
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -1469,7 +1502,7 @@ exports[`Card theme V2 (27) should render content part with title and text only 
             <a
               aria-label="Attachment"
               class="str-chat__message-attachment-card--url"
-              href="dummyAttachment_og_scrape_url"
+              href="dummyAttachment_title_link"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -1511,7 +1544,7 @@ exports[`Card theme V2 (28) should render content part with title and text only 
           <a
             aria-label="Attachment"
             class="str-chat__message-attachment-card--url"
-            href="dummyAttachment_og_scrape_url"
+            href="dummyAttachment_title_link"
             rel="noopener noreferrer"
             target="_blank"
           >

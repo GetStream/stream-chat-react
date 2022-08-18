@@ -1,13 +1,15 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+html,
+body,
+#root {
+  margin: unset;
+  padding: unset;
+  height: 100%;
 }
 
 $stream-chat-theme-version: '2';
@@ -40,18 +42,15 @@ $stream-chat-theme-version: '2';
 
     .str-chat__channel-header .str-chat__header-hamburger {
       width: 30px;
-      height: 30px;
+      height: 38px;
+      padding: var(--xxs-p);
+      margin-right: var(--xs-m);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: none;
       background: transparent;
-
-      svg {
-        width: 25px;
-        height: 25px;
-      }
 
       &:hover {
         svg path {
@@ -88,10 +87,6 @@ $stream-chat-theme-version: '2';
       .str-chat__thread {
         position: initial;
         z-index: 0;
-      }
-
-      .str-chat__channel-header .str-chat__header-hamburger {
-        display: none;
       }
     }
 

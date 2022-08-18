@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
 import { AudioProps, PlayButton, ProgressBar } from './Audio';
+import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
 import { useAudioController } from './hooks/useAudioController';
 
@@ -12,8 +13,9 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from './utils';
+import type { Dimensions } from '../../types/types';
 
-const trimUrl = (url?: string | null) => {
+const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
     const [trimmedUrl] = url.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/');
 
@@ -27,10 +29,9 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
 
   return (
     <div
-      className={clsx(
-        'str-chat__message-attachment-card',
-        type && `str-chat__message-attachment-card--${type}`,
-      )}
+      className={clsx('str-chat__message-attachment-card', {
+        [`str-chat__message-attachment-card--${type}`]: type,
+      })}
     >
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--text'>
@@ -40,8 +41,6 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
     </div>
   );
 };
-
-type Dimensions = { height?: string; width?: string };
 
 interface CardV1Props {
   giphy?: Attachment['giphy'];
@@ -101,7 +100,7 @@ const CardV1 = (props: CardV1Props) => {
               rel='noopener noreferrer'
               target='_blank'
             >
-              {trimUrl(title_link || og_scrape_url)}
+              {getHostFromURL(title_link || og_scrape_url)}
             </SafeAnchor>
           )}
         </div>
@@ -118,18 +117,21 @@ const SourceLink = ({ author_name, url }: Pick<CardProps, 'author_name'> & { url
       rel='noopener noreferrer'
       target='_blank'
     >
-      {author_name || trimUrl(url)}
+      {author_name || getHostFromURL(url)}
     </SafeAnchor>
   </div>
 );
 
-type CardHeaderProps = Pick<CardProps, 'asset_url' | 'title' | 'type'> & {
+type CardHeaderProps = Pick<
+  CardProps,
+  'asset_url' | 'title' | 'type' | 'image_url' | 'thumb_url'
+> & {
   dimensions: Dimensions;
   image?: string;
 };
 
 const CardHeader = (props: CardHeaderProps) => {
-  const { asset_url, dimensions, image, title, type } = props;
+  const { asset_url, dimensions, image, image_url, thumb_url, title, type } = props;
 
   let visual = null;
   if (asset_url && type === 'video') {
@@ -137,11 +139,21 @@ const CardHeader = (props: CardHeaderProps) => {
       <ReactPlayer className='react-player' controls height='100%' url={asset_url} width='100%' />
     );
   } else if (image) {
-    visual = <img alt={title || image} src={image} {...dimensions} />;
+    visual = (
+      <ImageComponent
+        dimensions={dimensions}
+        fallback={title || image}
+        image_url={image_url}
+        thumb_url={thumb_url}
+      />
+    );
   }
 
   return visual ? (
-    <div className='str-chat__message-attachment-card--header' data-testid={'card-header'}>
+    <div
+      className='str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header'
+      data-testid={'card-header'}
+    >
       {visual}
     </div>
   ) : null;
@@ -151,7 +163,7 @@ type CardContentProps = RenderAttachmentProps['attachment'];
 
 const CardContent = (props: CardContentProps) => {
   const { author_name, og_scrape_url, text, title, title_link, type } = props;
-  const url = og_scrape_url || title_link;
+  const url = title_link || og_scrape_url;
 
   return (
     <div className='str-chat__message-attachment-card--content'>
@@ -197,9 +209,9 @@ const CardV2 = (props: CardProps) => {
 export const CardAudio = ({
   og: { asset_url, author_name, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
 
-  const url = og_scrape_url || title_link;
+  const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';
   return (
@@ -213,7 +225,7 @@ export const CardAudio = ({
             <div className='str-chat__message-attachment-audio-widget--play-controls'>
               <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
             </div>
-            <ProgressBar progress={progress} />
+            <ProgressBar onClick={seek} progress={progress} />
           </div>
         </>
       )}

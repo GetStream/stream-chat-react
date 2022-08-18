@@ -32,6 +32,14 @@ const MESSAGES_WITH_REPLIES = ['Message 149', 'Message 137', 'Message 124', 'Mes
 
 const QUOTED_MESSAGES = ['Message 99', 'Message 137'];
 
+const scrollInSteps = async (user: TestingUser, msgNumbers = ['142', '135', '128'], cycles = 3) => {
+  for (let i = 0; i < cycles; i++) {
+    await Promise.all(
+      msgNumbers.map((num: string) => user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded()),
+    );
+  }
+};
+
 test.describe('thread autoscroll', () => {
   test.describe('on thread open', () => {
     test.beforeEach(async ({ controller, user }) => {
@@ -113,8 +121,8 @@ test.describe('thread autoscroll', () => {
 
     test('only if I send a message', async ({ page, user }) => {
       const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
-      await user.sees(Thread).not.isScrolledToBottom(selector);
-
+      await user.sees(Thread).isScrolledToBottom(selector);
+      await scrollInSteps(user, ['292', '285', '278']);
       await Promise.all([
         page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
         user.submits(MessageInput).reply(MY_ADDED_REPLY_TEXT),
@@ -125,7 +133,8 @@ test.describe('thread autoscroll', () => {
 
     test('not if I receive a message', async ({ controller, page, user }) => {
       const selector = composeThreadSelector(USER1_CHAT_VIEW_CLASSNAME);
-      await user.sees(Thread).not.isScrolledToBottom(selector);
+      await user.sees(Thread).isScrolledToBottom(selector);
+      await scrollInSteps(user, ['292', '285', '278']);
 
       await Promise.all([
         page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
@@ -137,15 +146,6 @@ test.describe('thread autoscroll', () => {
 });
 
 test.describe('scroll to the bottom', () => {
-  const scrollInSteps = async (user: TestingUser, cycles = 1) => {
-    for (let i = 0; i < cycles; i++) {
-      await Promise.all(
-        ['142', '135', '128'].map((num: string) =>
-          user.get(Message)(`Message ${num}`).scrollIntoViewIfNeeded(),
-        ),
-      );
-    }
-  };
   test.beforeEach(async ({ controller, user }) => {
     await controller.openStory(
       'navigate-long-message-lists--user1',
@@ -172,7 +172,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user, 3);
+    await scrollInSteps(user);
 
     await controller.sendOtherUserMessage();
 
@@ -192,7 +192,7 @@ test.describe('scroll to the bottom', () => {
     user,
   }) => {
     // scroll without loading more messages
-    await scrollInSteps(user, 3);
+    await scrollInSteps(user);
 
     // trigger load more messages
     const firstLoadedMessage = await page.locator(

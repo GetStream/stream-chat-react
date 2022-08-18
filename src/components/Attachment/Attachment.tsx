@@ -4,7 +4,6 @@ import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
 import {
-  AttachmentComponentType,
   GroupedRenderedAttachment,
   isAudioAttachment,
   isFileAttachment,
@@ -38,14 +37,14 @@ const CONTAINER_MAP = {
   media: MediaContainer,
 } as const;
 
-const ATTACHMENT_GROUPS_ORDER: AttachmentComponentType[] = [
+export const ATTACHMENT_GROUPS_ORDER = [
   'card',
   'gallery',
   'image',
   'media',
   'audio',
   'file',
-];
+] as const;
 
 export type AttachmentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -100,7 +99,7 @@ const renderGroupedAttachments = <
 }: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
   const uploadedImages: StreamAttachment<StreamChatGenerics>[] = [];
 
-  const containers = attachments.reduce(
+  const containers = attachments.reduce<GroupedRenderedAttachment>(
     (acc, attachment) => {
       if (isUploadedImage(attachment)) {
         uploadedImages.push({
@@ -110,8 +109,6 @@ const renderGroupedAttachments = <
         });
       } else {
         const attachmentType = getAttachmentType(attachment);
-        // allow single card attachment
-        if (acc.card.length === 1 && attachmentType === 'card') return acc;
 
         if (attachmentType) {
           const Container = CONTAINER_MAP[attachmentType];
@@ -133,7 +130,7 @@ const renderGroupedAttachments = <
       gallery: [],
       image: [],
       media: [],
-    } as GroupedRenderedAttachment,
+    },
   );
 
   if (uploadedImages.length > 1) {
