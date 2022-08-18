@@ -124,26 +124,25 @@ export const MessageActions = <
           <Modal
             className={{ overlay: 'str-chat__message-actions-box--modal-overlay' }}
             hideCloseButton
+            innerContainerProps={{
+              style: styles.popper,
+              ...attributes.popper,
+              onClick: closeActionsBox,
+            }}
             onClose={closeActionsBox}
             open={actionsBoxOpen}
+            setInnerContainer={setPopperElement}
           >
-            <div
-              ref={setPopperElement}
-              style={styles.popper}
-              {...attributes.popper}
-              onClick={closeActionsBox}
-            >
-              <MessageActionsBox
-                getMessageActions={getMessageActions}
-                handleDelete={handleDelete}
-                handleEdit={setEditingState}
-                handleFlag={handleFlag}
-                handleMute={handleMute}
-                handlePin={handlePin}
-                isUserMuted={isMuted}
-                mine={belongsToMyMessage}
-              />
-            </div>
+            <MessageActionsBox
+              getMessageActions={getMessageActions}
+              handleDelete={handleDelete}
+              handleEdit={setEditingState}
+              handleFlag={handleFlag}
+              handleMute={handleMute}
+              handlePin={handlePin}
+              isUserMuted={isMuted}
+              mine={belongsToMyMessage}
+            />
           </Modal>
         </Portal>
       )}
