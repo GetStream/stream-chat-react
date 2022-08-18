@@ -1,5 +1,12 @@
 import clsx from 'clsx';
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import React, {
+  Dispatch,
+  PropsWithChildren,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { CloseIconRound } from './icons';
 
@@ -12,30 +19,35 @@ export type ModalProps = {
   className?: { content?: string; overlay?: string };
   /** If true, the close button will not be rendered */
   hideCloseButton?: boolean;
+  /** Additional props for the div element wrapping the modal content */
+  innerContainerProps?: React.HTMLAttributes<HTMLDivElement>;
   /** Callback handler for closing of modal. */
   onClose?: (
     event: React.KeyboardEvent | React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
   ) => void;
+  /** Allows to set reference to the inner container for the parent components */
+  setInnerContainer?: Dispatch<SetStateAction<HTMLDivElement | null>>;
 };
 
 export const Modal = ({
   children,
   className,
   hideCloseButton,
+  innerContainerProps = {},
   onClose,
   open,
+  setInnerContainer,
 }: PropsWithChildren<ModalProps>) => {
   const { t } = useTranslationContext('Modal');
   const { themeVersion } = useChatContext('Modal');
 
-  const innerRef = useRef<HTMLDivElement | null>(null);
+  const [innerContainer, setInnerContainerInternally] = useState<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
     const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (!innerRef.current) return;
 
-    if (!innerRef.current.contains(target) || closeRef?.current?.contains(target)) onClose?.(event);
+    if (!innerContainer?.contains(target) || closeRef?.current?.contains(target)) onClose?.(event);
   };
 
   useEffect(() => {
@@ -75,7 +87,11 @@ export const Modal = ({
       )}
       <div
         className={clsx('str-chat__modal__inner str-chat-react__modal__inner', className?.content)}
-        ref={innerRef}
+        {...innerContainerProps}
+        ref={(instance) => {
+          setInnerContainerInternally(instance);
+          setInnerContainer?.(instance);
+        }}
       >
         {children}
       </div>
