@@ -2078,10 +2078,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^2.10.1":
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.10.1.tgz#317b225d2a8a424e056e1d4aff5dc0f7f9b575ed"
-  integrity sha512-8ykbkvxOWHbagRMCacXBzta3FbB0Vs+1wGRKy9IP2Md4Rm88Id9Cti6ikYi5ltmjnpyvsWSe+G/G1CvTmFpnqA==
+"@stream-io/stream-chat-css@3.0.0-theming2.4":
+  version "3.0.0-theming2.4"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.0.0-theming2.4.tgz#35fc780855d3637a813212a791fa0c3e1ee881ec"
+  integrity sha512-0m2avWt8IUQz36Oog4lLAQv+FbRL1XlXR7UUIqRRwrcMCGE89tFqt6OehfqD+/pYzOY1vHwk9XBBOGtaQ5wh0A==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -2361,7 +2361,7 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
   integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
 
-"@types/mdast@^3.0.0", "@types/mdast@^3.0.3", "@types/mdast@^3.0.10":
+"@types/mdast@^3.0.0", "@types/mdast@^3.0.10", "@types/mdast@^3.0.3":
   version "3.0.10"
   resolved "https://registry.yarnpkg.com/@types/mdast/-/mdast-3.0.10.tgz#4724244a82a4598884cbbe9bcfd73dff927ee8af"
   integrity sha512-W864tg/Osz1+9f4lrGTZpCSO5/z4608eUp19tbozkq2HJK6i3z1kT0H9tlADXuYIb1YYOBByU4Jsqkk75q48qA==

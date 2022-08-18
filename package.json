@@ -12,7 +12,7 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "jsnext:main": "dist/index.js",
-  "style": "dist/css/index.css",
+  "style": "dist/css/v2/index.css",
   "sideEffects": [
     "*.css"
   ],
@@ -30,7 +30,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
     "@popperjs/core": "^2.11.5",
-    "@stream-io/stream-chat-css": "^2.10.1",
+    "@stream-io/stream-chat-css": "3.0.0-theming2.4",
     "clsx": "^1.1.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
