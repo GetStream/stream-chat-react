@@ -2,14 +2,13 @@ import React, { PropsWithChildren } from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
 import { nanoid } from 'nanoid';
-//@ts-expect-error
-import findAndReplace from 'mdast-util-find-and-replace';
+import { findAndReplace, ReplaceFunction } from 'mdast-util-find-and-replace';
 import RootReactMarkdown, { NodeType } from 'react-markdown';
 import ReactMarkdown from 'react-markdown/with-html';
 import uniqBy from 'lodash.uniqby';
 
 import type { UserResponse } from 'stream-chat';
-
+import type { Root } from 'mdast';
 import type { DefaultStreamChatGenerics } from './types/types';
 
 export const isOnlyEmojis = (text?: string) => {
@@ -119,7 +118,7 @@ export const emojiMarkdownPlugin = () => {
   }
 
   const transform = <T extends unknown>(markdownAST: T) => {
-    findAndReplace(markdownAST, emojiRegex(), replace);
+    findAndReplace(markdownAST as Root, emojiRegex(), replace as ReplaceFunction);
     return markdownAST;
   };
 
@@ -156,7 +155,7 @@ export const mentionsMarkdownPlugin = <
       mentioned_usernames.map((username) => `@${username}`).join('|'),
       'g',
     );
-    findAndReplace(markdownAST, mentionedUsersRegex, replace);
+    findAndReplace(markdownAST as Root, mentionedUsersRegex, replace as ReplaceFunction);
     return markdownAST;
   };
 
@@ -213,6 +212,24 @@ export const renderText = <
     if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
     try {
+      // special case for mentions:
+      // it could happen that a user's name matches with an e-mail format pattern.
+      // in that case, we check whether the found e-mail is actually a mention
+      // by naively checking for an existence of @ sign in front of it.
+      if (type === 'email' && mentioned_users) {
+        const emailMatchesWithName = mentioned_users.some((u) => u.name === value);
+        if (emailMatchesWithName) {
+          newText = newText.replace(new RegExp(escapeRegExp(value), 'g'), (match, position) => {
+            const isMention = newText.charAt(position - 1) === '@';
+            // in case of mention, we leave the match in its original form,
+            // and we let `mentionsMarkdownPlugin` to do its job
+            return isMention ? match : `[${match}](${encodeDecode(href)})`;
+          });
+
+          return;
+        }
+      }
+
       const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
 
       newText = newText.replace(

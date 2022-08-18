@@ -15,6 +15,10 @@ The `MessageInput` component accepts an `overrideSubmitHandler` prop, which allo
 conclusion of the underlying `textarea` element's [`handleSubmit`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts)
 function.
 
+:::note
+You do not have to implement your custom submit handler, if the only thing you need is to pass custom message data to the underlying API call. In that case you can use the [`handleSubmit`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts) function from the [`MessageInputContext`](../contexts/message-input-context.mdx). The `handleSubmit` function allows you to pass custom message data through its second parameter `customMessageData`. This applies to sending a new message as well as updating an existing one. In order for this to work, you will have to implement custom message input components and pass them to [`Channel`](../core-components/channel.mdx)  props `EditMessageInput` or `Input` respectively.
+:::
+
 The `overrideSubmitHandler` function receives two arguments, the message to be sent and the `cid` (channel type prepended to channel id)
 for the currently active channel. The message object is of the following type:
 

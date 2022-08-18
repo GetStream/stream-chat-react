@@ -93,3 +93,6 @@ jobs:
           yarn lint
           yarn coverage
           yarn validate-translations
+
+      - name: 🧪 Validate CommonJS bundle with ${{ matrix.node }}
+        run: yarn validate-cjs

@@ -42,7 +42,7 @@
     "lodash.isequal": "^4.5.0",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
-    "mdast-util-find-and-replace": "1.1.1",
+    "mdast-util-find-and-replace": "^2.2.1",
     "nanoid": "^3.3.4",
     "pretty-bytes": "^5.4.1",
     "prop-types": "^15.7.2",
@@ -106,6 +106,7 @@
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.throttle": "^4.1.6",
     "@types/lodash.uniqby": "^4.7.6",
+    "@types/mdast": "^3.0.10",
     "@types/moment": "^2.13.0",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
@@ -204,6 +205,7 @@
     "test": "jest",
     "types": "tsc --strict",
     "validate-translations": "node scripts/validate-translations.js",
+    "validate-cjs": "node scripts/validate-cjs-bundle.cjs",
     "semantic-release": "semantic-release",
     "browse-examples": "ladle serve",
     "e2e": "playwright test",
@@ -212,7 +214,8 @@
     "docs-merge": "scripts/merge-stream-chat-css-docs.sh"
   },
   "resolutions": {
-    "ast-types": "^0.14.0"
+    "ast-types": "^0.14.0",
+    "@types/unist": "^2.0.6"
   },
   "browserslist": [
     ">0.2%",

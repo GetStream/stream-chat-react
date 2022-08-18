@@ -1,3 +1,28 @@
+# [9.4.0](https://github.com/GetStream/stream-chat-react/compare/v9.3.0...v9.4.0) (2022-08-03)
+
+
+### Bug Fixes
+
+* detect mentions of users who have email as their name ([#1698](https://github.com/GetStream/stream-chat-react/issues/1698)) ([367b7c4](https://github.com/GetStream/stream-chat-react/commit/367b7c4cb30454140ff113e2b0a2671a14d9d276))
+
+
+### Features
+
+* allow to send custom message data when editing a message ([#1696](https://github.com/GetStream/stream-chat-react/issues/1696)) ([05eae28](https://github.com/GetStream/stream-chat-react/commit/05eae28cd04f1605ae3fb1cd5767fa4bbbd067d3))
+
+# [9.3.0](https://github.com/GetStream/stream-chat-react/compare/v9.2.0...v9.3.0) (2022-07-29)
+
+
+### Bug Fixes
+
+* scroll to bottom on new message notification click after message list pagination ([#1689](https://github.com/GetStream/stream-chat-react/issues/1689)) ([d8f4bc5](https://github.com/GetStream/stream-chat-react/commit/d8f4bc57a602e5deeefeb0c8419658c61c7e695a))
+* update types for suggestions ([#1691](https://github.com/GetStream/stream-chat-react/issues/1691)) ([bb7442c](https://github.com/GetStream/stream-chat-react/commit/bb7442cbf4bb709ac477fc59f0ee35afb60888d5)), closes [#1659](https://github.com/GetStream/stream-chat-react/issues/1659)
+
+
+### Features
+
+* **message-status:** extendable user information in read-by tooltip ([#1670](https://github.com/GetStream/stream-chat-react/issues/1670)) ([902029a](https://github.com/GetStream/stream-chat-react/commit/902029a3c9f7a720d0265dcfeb1957b17b8bdc9a))
+
 # [9.2.0](https://github.com/GetStream/stream-chat-react/compare/v9.1.5...v9.2.0) (2022-07-26)
 
 
