@@ -16,7 +16,6 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
-import { MessageListMainPanel } from './MessageListMainPanel';
 import { getGroupStyles, getMsgListContainerId, GroupStyle, processMessages } from './utils';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -453,7 +452,7 @@ const VirtualizedMessageListWithContext = <
 
   return (
     <>
-      <MessageListMainPanel>
+      <div className='str-chat__main-panel-inner'>
         <div
           className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
           ref={setListElement}
@@ -487,7 +486,7 @@ const VirtualizedMessageListWithContext = <
             {...(defaultItemHeight ? { defaultItemHeight } : {})}
           />
         </div>
-      </MessageListMainPanel>
+      </div>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}

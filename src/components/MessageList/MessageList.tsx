@@ -22,7 +22,6 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
-import { MessageListMainPanel } from './MessageListMainPanel';
 import { getMsgListContainerId } from './utils';
 
 import type { GroupStyle } from './utils';
@@ -181,7 +180,7 @@ const MessageListWithContext = <
 
   return (
     <>
-      <MessageListMainPanel>
+      <div className='str-chat__main-panel-inner'>
         <div
           className={`${messageListClass} ${threadListClass}`}
           id={messageListContainerId}
@@ -220,7 +219,7 @@ const MessageListWithContext = <
             </InfiniteScroll>
           )}
         </div>
-      </MessageListMainPanel>
+      </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}
