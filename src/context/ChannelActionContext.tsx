@@ -49,7 +49,7 @@ export type ChannelActionContextValue<
     message: UpdatedMessage<StreamChatGenerics>,
   ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
   jumpToLatestMessage: () => Promise<void>;
-  jumpToMessage: (messageId: string) => Promise<void>;
+  jumpToMessage: (messageId: string, limit?: number) => Promise<void>;
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
