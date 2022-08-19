@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { PropsWithChildren } from 'react';
 
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
@@ -24,9 +25,10 @@ const UnMemoizedWindow = <
 
   return (
     <div
-      className={`str-chat__main-panel   ${
-        hideOnThread && thread ? 'str-chat__main-panel--hideOnThread' : ''
-      }`}
+      className={clsx('str-chat__main-panel', {
+        'str-chat__main-panel--hideOnThread': hideOnThread && thread,
+      })}
+      id='str-chat__main-panel'
     >
       {children}
     </div>
