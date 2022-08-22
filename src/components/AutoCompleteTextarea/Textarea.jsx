@@ -85,7 +85,15 @@ export class ReactTextareaAutocomplete extends React.Component {
     return this.textareaRef.selectionEnd;
   };
 
-  _defaultShouldSubmit = (event) => event.key === 'Enter' && !event.shiftKey;
+  /**
+   * isComposing prevents double submissions in Korean and other languages.
+   * starting point for a read:
+   * https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/isComposing
+   * In the long term, the fix should happen by handling keypress, but changing this has unknown implications.
+   * @param event React.KeyboardEvent
+   */
+  _defaultShouldSubmit = (event) =>
+    event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
   _handleKeyDown = (event) => {
     const { shouldSubmit = this._defaultShouldSubmit } = this.props;
