@@ -1,3 +1,10 @@
+# [10.0.0-theming-v2.2](https://github.com/GetStream/stream-chat-react/compare/v10.0.0-theming-v2.1...v10.0.0-theming-v2.2) (2022-08-22)
+
+
+### Features
+
+* add svg image class to attachment ([3d0237d](https://github.com/GetStream/stream-chat-react/commit/3d0237d3dad20b4aeb605c8bf78c7165f7469fd8))
+
 # [10.0.0-theming-v2.1](https://github.com/GetStream/stream-chat-react/compare/v9.4.0...v10.0.0-theming-v2.1) (2022-08-18)
 
 
