@@ -10,6 +10,7 @@ import { FileAttachment as DefaultFile } from './FileAttachment';
 import {
   AttachmentContainerProps,
   isGalleryAttachmentType,
+  isSvgAttachment,
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
@@ -39,6 +40,7 @@ export const AttachmentWithinContainer = <
     [`str-chat__message-attachment--${componentType}`]: componentType,
     [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
     [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
     'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
   });
 

@@ -87,6 +87,11 @@ export const isMediaAttachment = <
   (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
 
+export const isSvgAttachment = (attachment: Attachment) => {
+  const filename = attachment.fallback || '';
+  return filename.toLowerCase().endsWith('.svg');
+};
+
 /**
  * @deprecated will be removed in the next major release,
  * replaced with the proper component equivalent `AttachmentContainer/AttachmentWithinContainer`
@@ -113,6 +118,7 @@ export const renderAttachmentWithinContainer = <
     [`str-chat__message-attachment--${componentType}`]: componentType,
     [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
     [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
     'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
   });
 
