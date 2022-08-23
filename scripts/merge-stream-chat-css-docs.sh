@@ -8,7 +8,7 @@ usage() {
 main() {
   if [ $# -eq 0 ]; then
       usage
-      exit 0
+      exit 1
   fi
 
   STREAM_CHAT_CSS_DOCS_PATH=$1;
