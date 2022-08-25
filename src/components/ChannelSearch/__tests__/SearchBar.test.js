@@ -47,10 +47,10 @@ describe('SearchBar', () => {
   });
 
   it.each([
-    ['enable', true, 'xxxxxxxxxx', 'xxxxxxxxxx'],
-    ['disable', false, 'xxxxxxxxxx', ''],
-  ])('should %s typing', async (_, enabled, inputText, expectedValue) => {
-    await renderComponent({ client, searchParams: { enabled } });
+    ['enable', false, 'xxxxxxxxxx', 'xxxxxxxxxx'],
+    ['disable', true, 'xxxxxxxxxx', ''],
+  ])('should %s typing', async (_, disabled, inputText, expectedValue) => {
+    await renderComponent({ client, searchParams: { disabled } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -133,7 +133,7 @@ describe('SearchBar', () => {
 
   it('should not render ExitSearchIcon if input is not focused', async () => {
     await act(() => {
-      renderComponent({ client, searchParams: { enabled: true } });
+      renderComponent({ client, searchParams: { disabled: false } });
     });
 
     await waitFor(() => {
@@ -142,7 +142,7 @@ describe('SearchBar', () => {
   });
 
   it('should render ExitSearchIcon on input focus', async () => {
-    await renderComponent({ client, searchParams: { enabled: true } });
+    await renderComponent({ client, searchParams: { disabled: false } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -159,7 +159,7 @@ describe('SearchBar', () => {
     await renderComponent({
       client,
       props: { ExitSearchIcon },
-      searchParams: { enabled: true },
+      searchParams: { disabled: false },
     });
 
     const input = screen.queryByTestId('search-input');
@@ -178,7 +178,7 @@ describe('SearchBar', () => {
       renderComponent({
         client,
         props: { placeholder },
-        searchParams: { enabled: true },
+        searchParams: { disabled: false },
       });
     });
 
@@ -187,7 +187,7 @@ describe('SearchBar', () => {
     });
   });
   it('should clear input', async () => {
-    renderComponent({ client, searchParams: { enabled: true } });
+    renderComponent({ client, searchParams: { disabled: false } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -231,7 +231,7 @@ describe('SearchBar', () => {
       },
     ],
   ])('should exit search UI %s', async (_case, doExitAction) => {
-    await renderComponent({ client, searchParams: { enabled: true } });
+    await renderComponent({ client, searchParams: { disabled: false } });
 
     const input = screen.queryByTestId('search-input');
 
@@ -268,7 +268,7 @@ describe('SearchBar', () => {
       renderComponent({
         client,
         props: { SearchInput },
-        searchParams: { enabled: true },
+        searchParams: { disabled: false },
       });
     });
 
@@ -283,7 +283,7 @@ describe('SearchBar', () => {
       renderComponent({
         client,
         props: { AppMenu },
-        searchParams: { enabled: true },
+        searchParams: { disabled: false },
       });
     });
     const menuIcon = screen.queryByTestId('menu-icon');
@@ -319,7 +319,7 @@ describe('SearchBar', () => {
       renderComponent({
         client,
         props: { AppMenu },
-        searchParams: { enabled: true },
+        searchParams: { disabled: false },
       });
     });
     const menuIcon = screen.queryByTestId('menu-icon');
