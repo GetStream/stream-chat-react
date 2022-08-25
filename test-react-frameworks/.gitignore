@@ -1,3 +1,4 @@
 stream-chat-react.tgz
-test-next-app
-test-remix-app
+next/test-next-app
+remix/test-remix-app
+vite/test-vite-app
