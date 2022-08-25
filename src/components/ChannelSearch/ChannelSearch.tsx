@@ -78,6 +78,7 @@ const UnMemoizedChannelSearch = <
           AppMenu={AppMenu}
           ClearInputIcon={ClearInputIcon}
           clearState={clearState}
+          disabled={channelSearchParams.disabled}
           exitSearch={exitSearch}
           ExitSearchIcon={ExitSearchIcon}
           inputIsFocused={inputIsFocused}
@@ -92,6 +93,7 @@ const UnMemoizedChannelSearch = <
       ) : (
         <SearchInput
           clearState={clearState}
+          disabled={channelSearchParams.disabled}
           inputRef={inputRef}
           onSearch={onSearch}
           placeholder={placeholder}
