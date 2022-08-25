@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import throttle from 'lodash.throttle';
 import uniqBy from 'lodash.uniqby';
 
@@ -58,6 +58,10 @@ export type ChannelSearchParams<
   clearSearchOnClickOutside?: boolean;
   /** Search can be enabled, defaults to false */
   enabled?: boolean;
+  /** Callback invoked with every search input change handler */
+  onSearch?: SearchInputController['onSearch'];
+  /** Callback invoked when the search UI is deactivated */
+  onSearchExit?: () => void;
   /** Custom handler function to run on search result item selection */
   onSelectResult?: (
     params: ChannelSearchFunctionParams<StreamChatGenerics>,
@@ -74,7 +78,7 @@ export type ChannelSearchParams<
   searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
 };
 
-type ChannelSearchControllerParams<
+export type ChannelSearchControllerParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = ChannelSearchParams<StreamChatGenerics> & {
   /** Set the array of channels displayed in the ChannelList */
@@ -86,7 +90,9 @@ export const useChannelSearch = <
 >({
   channelType = 'messaging',
   clearSearchOnClickOutside = true,
-  enabled = false,
+  enabled = true,
+  onSearch: onSearchCallback,
+  onSearchExit,
   onSelectResult,
   searchForChannels = false,
   searchFunction,
@@ -106,22 +112,23 @@ export const useChannelSearch = <
   const inputRef = useRef<HTMLInputElement>(null);
   const searchBarRef = useRef<HTMLDivElement>(null);
 
-  const clearState = () => {
+  const clearState = useCallback(() => {
     setQuery('');
     setResults([]);
     setResultsOpen(false);
     setSearching(false);
-  };
+  }, []);
 
-  const activateSearch = () => {
+  const activateSearch = useCallback(() => {
     setInputIsFocused(true);
-  };
+  }, []);
 
-  const exitSearch = () => {
+  const exitSearch = useCallback(() => {
     setInputIsFocused(false);
     inputRef.current?.blur();
     clearState();
-  };
+    onSearchExit?.();
+  }, [clearState, onSearchExit]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -161,105 +168,115 @@ export const useChannelSearch = <
     };
   }, []);
 
-  const selectResult = async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
-    if (!client.userID) return;
-    if (onSelectResult) {
-      await onSelectResult(
-        {
-          setQuery,
-          setResults,
-          setResultsOpen,
-          setSearching,
-        },
-        result,
-      );
-      return;
-    }
-    let selectedChannel: Channel<StreamChatGenerics>;
-    if (isChannel(result)) {
-      setActiveChannel(result);
-      selectedChannel = result;
-    } else {
-      const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
-      await newChannel.watch();
-
-      setActiveChannel(newChannel);
-      selectedChannel = newChannel;
-    }
-    setChannels((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
-    if (clearSearchOnClickOutside) {
-      clearState();
-    }
-  };
-
-  const getChannels = async (text: string) => {
-    if (!text || searching) return;
-    setSearching(true);
-
-    try {
-      const userResponse = await client.queryUsers(
-        // @ts-expect-error
-        {
-          $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
-          id: { $ne: client.userID },
-          ...searchQueryParams?.userFilters?.filters,
-        },
-        { id: 1, ...searchQueryParams?.userFilters?.sort },
-        { limit: 8, ...searchQueryParams?.userFilters?.options },
-      );
-
-      if (searchForChannels) {
-        const channelResponse = client.queryChannels(
-          // @ts-expect-error
+  const selectResult = useCallback(
+    async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
+      if (!client.userID) return;
+      if (onSelectResult) {
+        await onSelectResult(
           {
-            name: { $autocomplete: text },
-            ...searchQueryParams?.channelFilters?.filters,
+            setQuery,
+            setResults,
+            setResultsOpen,
+            setSearching,
           },
-          searchQueryParams?.channelFilters?.sort || {},
-          { limit: 5, ...searchQueryParams?.channelFilters?.options },
+          result,
         );
-
-        const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
-
-        setResults([...channels, ...users]);
-        setResultsOpen(true);
-        setSearching(false);
         return;
       }
+      let selectedChannel: Channel<StreamChatGenerics>;
+      if (isChannel(result)) {
+        setActiveChannel(result);
+        selectedChannel = result;
+      } else {
+        const newChannel = client.channel(channelType, { members: [client.userID, result.id] });
+        await newChannel.watch();
 
-      const { users } = await Promise.resolve(userResponse);
+        setActiveChannel(newChannel);
+        selectedChannel = newChannel;
+      }
+      setChannels((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
+      if (clearSearchOnClickOutside) {
+        exitSearch();
+      }
+    },
+    [clearSearchOnClickOutside, client, exitSearch, onSelectResult],
+  );
 
-      setResults(users);
-      setResultsOpen(true);
-    } catch (error) {
-      clearState();
-      console.error(error);
-    }
+  const getChannels = useCallback(
+    async (text: string) => {
+      if (!text || searching) return;
+      setSearching(true);
 
-    setSearching(false);
-  };
+      try {
+        const userResponse = await client.queryUsers(
+          // @ts-expect-error
+          {
+            $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
+            id: { $ne: client.userID },
+            ...searchQueryParams?.userFilters?.filters,
+          },
+          { id: 1, ...searchQueryParams?.userFilters?.sort },
+          { limit: 8, ...searchQueryParams?.userFilters?.options },
+        );
+
+        if (searchForChannels) {
+          const channelResponse = client.queryChannels(
+            // @ts-expect-error
+            {
+              name: { $autocomplete: text },
+              ...searchQueryParams?.channelFilters?.filters,
+            },
+            searchQueryParams?.channelFilters?.sort || {},
+            { limit: 5, ...searchQueryParams?.channelFilters?.options },
+          );
+
+          const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
+
+          setResults([...channels, ...users]);
+          setResultsOpen(true);
+          setSearching(false);
+          return;
+        }
+
+        const { users } = await Promise.resolve(userResponse);
+
+        setResults(users);
+        setResultsOpen(true);
+      } catch (error) {
+        clearState();
+        console.error(error);
+      }
+
+      setSearching(false);
+    },
+    [client],
+  );
 
   const getChannelsThrottled = throttle(getChannels, 200);
 
-  const onSearch = (event: React.BaseSyntheticEvent) => {
-    event.preventDefault();
-    if (!enabled) return;
+  const onSearch = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      event.preventDefault();
+      if (!enabled) return;
 
-    if (searchFunction) {
-      searchFunction(
-        {
-          setQuery,
-          setResults,
-          setResultsOpen,
-          setSearching,
-        },
-        event,
-      );
-    } else {
-      setQuery(event.target.value);
-      getChannelsThrottled(event.target.value);
-    }
-  };
+      if (searchFunction) {
+        searchFunction(
+          {
+            setQuery,
+            setResults,
+            setResultsOpen,
+            setSearching,
+          },
+          event,
+        );
+      } else {
+        setQuery(event.target.value);
+        getChannelsThrottled(event.target.value);
+      }
+      onSearchCallback?.(event);
+    },
+    [enabled, getChannelsThrottled, searchFunction],
+  );
 
   return {
     activateSearch,

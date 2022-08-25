@@ -142,17 +142,17 @@ const DefaultSearchResultItem = <
 const ResultsContainer = ({
   children,
   popupResults,
-}: PropsWithChildren<{ popupResults?: boolean }>) => {
-  const containerStyle = popupResults ? 'popup' : 'inline';
-  return (
-    <div
-      aria-label='Channel search results'
-      className={`str-chat__channel-search-container str-chat__channel-search-result-list ${containerStyle}`}
-    >
-      {children}
-    </div>
-  );
-};
+}: PropsWithChildren<{ popupResults?: boolean }>) => (
+  <div
+    aria-label='Channel search results'
+    className={clsx(
+      `str-chat__channel-search-container str-chat__channel-search-result-list`,
+      popupResults ? 'popup' : 'inline',
+    )}
+  >
+    {children}
+  </div>
+);
 
 export type SearchResultsController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
