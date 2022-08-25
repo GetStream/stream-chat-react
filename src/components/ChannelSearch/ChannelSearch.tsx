@@ -88,6 +88,7 @@ const UnMemoizedChannelSearch = <
           placeholder={placeholder}
           query={query}
           searchBarRef={searchBarRef}
+          SearchInput={SearchInput}
           SearchInputIcon={SearchInputIcon}
         />
       ) : (
