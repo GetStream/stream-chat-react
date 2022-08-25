@@ -26,7 +26,6 @@ export type ChannelSearchFunctionParams<
 > = {
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
-  setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSearching: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -74,7 +73,7 @@ export type ChannelSearchParams<
     params: ChannelSearchFunctionParams<StreamChatGenerics>,
     event: React.BaseSyntheticEvent,
   ) => Promise<void> | void;
-  /** Object containing filters/sort/options overrides for user search */
+  /** Object containing filters/sort/options overrides for user / channel search */
   searchQueryParams?: SearchQueryParams<StreamChatGenerics>;
 };
 
@@ -106,7 +105,6 @@ export const useChannelSearch = <
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Array<ChannelOrUserResponse<StreamChatGenerics>>>([]);
-  const [resultsOpen, setResultsOpen] = useState(false);
   const [searching, setSearching] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -115,7 +113,6 @@ export const useChannelSearch = <
   const clearState = useCallback(() => {
     setQuery('');
     setResults([]);
-    setResultsOpen(false);
     setSearching(false);
   }, []);
 
@@ -142,18 +139,14 @@ export const useChannelSearch = <
 
       if (isInputClick) return;
 
-      if (
-        (navOpen && inputIsFocused) ||
-        (resultsOpen && clearSearchOnClickOutside) ||
-        (inputIsFocused && !query)
-      ) {
+      if ((inputIsFocused && (!query || navOpen)) || clearSearchOnClickOutside) {
         exitSearch();
       }
     };
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [disabled, inputIsFocused, resultsOpen]);
+  }, [disabled, inputIsFocused]);
 
   useEffect(() => {
     if (!inputRef.current || disabled) return;
@@ -176,7 +169,6 @@ export const useChannelSearch = <
           {
             setQuery,
             setResults,
-            setResultsOpen,
             setSearching,
           },
           result,
@@ -233,7 +225,6 @@ export const useChannelSearch = <
           const [channels, { users }] = await Promise.all([channelResponse, userResponse]);
 
           setResults([...channels, ...users]);
-          setResultsOpen(true);
           setSearching(false);
           return;
         }
@@ -241,7 +232,6 @@ export const useChannelSearch = <
         const { users } = await Promise.resolve(userResponse);
 
         setResults(users);
-        setResultsOpen(true);
       } catch (error) {
         clearState();
         console.error(error);
@@ -264,7 +254,6 @@ export const useChannelSearch = <
           {
             setQuery,
             setResults,
-            setResultsOpen,
             setSearching,
           },
           event,
