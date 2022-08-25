@@ -15,11 +15,12 @@ import {
 
 import 'stream-chat-react/dist/css/index.css';
 
-const apiKey = (import.meta.env.STREAM_API_KEY as string) ?? 'pnxrtw9c3jeq';
-const userId = (import.meta.env.USER_ID as string) ?? 'test-user-1';
-const userToken =
-  (import.meta.env.USER_TOKEN as string) ??
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidGVzdC11c2VyLTEifQ.gRbKDG6PYuqCmvpBHKk4ibdz-WO9YiOTVmpG7gw9o74';
+const apiKey = import.meta.env.VITE_STREAM_API_KEY as string;
+const userId = import.meta.env.VITE_USER_ID as string;
+const userToken = import.meta.env.VITE_USER_TOKEN as string;
+
+if (!apiKey || !userId || !userToken)
+  throw new Error('Missing either STREAM_API_KEY, USER_ID or USER_TOKEN');
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
