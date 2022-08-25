@@ -32,7 +32,7 @@ const defaultChannelState = {
 async function renderComponent(props, channelData, channelType = 'messaging') {
   const t = jest.fn((key) => key);
   client = await getTestClientWithUser(user1);
-  testChannel1 = generateChannel({ ...defaultChannelState });
+  testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
   useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
   const channel = client.channel(channelType, testChannel1.id, channelData);
