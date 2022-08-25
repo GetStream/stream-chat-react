@@ -99,3 +99,34 @@ jobs:
 
       - name: 🧪 Validate CommonJS bundle with ${{ matrix.node }}
         run: yarn validate-cjs
+  test-frameworks:
+    runs-on: ubuntu-latest
+    if: always()
+    strategy:
+      matrix:
+        framework: ['next', 'remix', 'vite']
+    name: Test with framework ${{ matrix.framework }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - uses: actions/cache@v3
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('./yarn.lock') }}
+      - name: Install packages and build
+        run: yarn install --frozen-lockfile --ignore-engines
+      - name: Install Playwright
+        if: matrix.framework == 'vite'
+        run: |
+          npx playwright install
+          npx playwright install-deps
+      - name: Pack package (stream-chat-react.tgz)
+        working-directory: ./test-react-frameworks
+        run: ./pack-package.sh
+      - name: Run ${{ matrix.framework }}.sh test
+        env:
+          STREAM_API_KEY: ${{ secrets.E2E_APP_KEY }}
+          USER_ID: test-user-1
+          USER_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
+        working-directory: ./test-react-frameworks/${{ matrix.framework }}
+        run: ./${{ matrix.framework }}.sh
