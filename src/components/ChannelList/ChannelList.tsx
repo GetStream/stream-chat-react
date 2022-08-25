@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
@@ -20,17 +20,9 @@ import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
-  AdditionalChannelSearchProps,
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
 } from '../ChannelSearch/ChannelSearch';
-import { ChannelSearchParams, useChannelSearch } from '../ChannelSearch/hooks/useChannelSearch';
-import {
-  AdditionalSearchBarProps,
-  SearchBar as DefaultSearchBar,
-  SearchBarProps,
-} from '../ChannelSearch/SearchBar';
-import { SearchResults } from '../ChannelSearch/SearchResults';
 import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
@@ -53,9 +45,7 @@ export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: AdditionalChannelSearchProps<StreamChatGenerics> &
-    AdditionalSearchBarProps &
-    ChannelSearchParams<StreamChatGenerics>;
+  additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -69,9 +59,7 @@ export type ChannelListProps<
   channelRenderFilterFn?: (
     channels: Array<Channel<StreamChatGenerics>>,
   ) => Array<Channel<StreamChatGenerics>>;
-  /** @deprecated: in the future only SearchBar and SearchResults props will be available
-   * Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx)
-   */
+  /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
@@ -138,8 +126,6 @@ export type ChannelListProps<
     channels: Channel<StreamChatGenerics>[],
     channelPreview: (item: Channel<StreamChatGenerics>) => React.ReactNode,
   ) => React.ReactNode;
-  /** Custom UI component to display the search bar with text input */
-  SearchBar?: React.ComponentType<SearchBarProps>;
   /** If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop */
   sendChannelsToList?: boolean;
   /** Last channel will be set as active channel if true, defaults to true */
@@ -182,30 +168,12 @@ const UnMemoizedChannelList = <
     Paginator = LoadMorePaginator,
     Preview,
     renderChannels,
-    SearchBar = DefaultSearchBar,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
     showChannelSearch = false,
     sort = DEFAULT_SORT,
     watchers = {},
   } = props;
-
-  const {
-    AppMenu,
-    ClearInputIcon,
-    ExitSearchIcon,
-    MenuIcon,
-    placeholder,
-    popupResults,
-    SearchEmpty,
-    SearchInput,
-    SearchInputIcon,
-    SearchLoading,
-    SearchResultItem,
-    SearchResultsHeader,
-    SearchResultsList,
-    ...channelSearchParams
-  } = additionalChannelSearchProps || {};
 
   const {
     channel,
@@ -216,13 +184,12 @@ const UnMemoizedChannelList = <
     navOpen = false,
     setActiveChannel,
     theme,
-    themeVersion,
     useImageFlagEmojisOnWindows,
   } = useChatContext<StreamChatGenerics>('ChannelList');
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
-
+  const [searchActive, setSearchActive] = useState(false);
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
@@ -269,6 +236,16 @@ const UnMemoizedChannelList = <
    */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
+  const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchActive(true);
+    additionalChannelSearchProps?.onSearch?.(event);
+  }, []);
+
+  const onSearchExit = useCallback(() => {
+    setSearchActive(false);
+    additionalChannelSearchProps?.onSearchExit?.();
+  }, []);
+
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
@@ -276,25 +253,6 @@ const UnMemoizedChannelList = <
     options || DEFAULT_OPTIONS,
     activeChannelHandler,
   );
-
-  const channelSearchController = useChannelSearch<StreamChatGenerics>({
-    enabled: showChannelSearch,
-    setChannels,
-    ...channelSearchParams,
-  });
-  const {
-    activateSearch,
-    clearState,
-    exitSearch,
-    inputIsFocused,
-    inputRef,
-    onSearch,
-    query,
-    results,
-    searchBarRef,
-    searching,
-    selectResult,
-  } = channelSearchController;
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
@@ -363,53 +321,19 @@ const UnMemoizedChannelList = <
     },
   );
 
-  const showSearchV2 = themeVersion === '2' && !popupResults;
+  const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
   return (
     <>
       <div className={className} ref={channelListRef}>
-        {showChannelSearch &&
-          (showSearchV2 ? (
-            <SearchBar
-              activateSearch={activateSearch}
-              AppMenu={AppMenu}
-              ClearInputIcon={ClearInputIcon}
-              clearState={clearState}
-              exitSearch={exitSearch}
-              ExitSearchIcon={ExitSearchIcon}
-              inputIsFocused={inputIsFocused}
-              inputRef={inputRef}
-              MenuIcon={MenuIcon}
-              onSearch={onSearch}
-              placeholder={placeholder}
-              query={query}
-              searchBarRef={searchBarRef}
-              SearchInputIcon={SearchInputIcon}
-            />
-          ) : (
-            <ChannelSearch
-              placeholder={placeholder}
-              popupResults={popupResults}
-              SearchEmpty={SearchEmpty}
-              SearchInput={SearchInput}
-              SearchLoading={SearchLoading}
-              SearchResultItem={SearchResultItem}
-              SearchResultsHeader={SearchResultsHeader}
-              SearchResultsList={SearchResultsList}
-              {...channelSearchController}
-            />
-          ))}
-        {query && showSearchV2 ? (
-          <SearchResults
-            results={results}
-            SearchEmpty={SearchEmpty}
-            searching={searching}
-            SearchLoading={SearchLoading}
-            SearchResultItem={SearchResultItem}
-            SearchResultsHeader={SearchResultsHeader}
-            SearchResultsList={SearchResultsList}
-            selectResult={selectResult}
+        {showChannelSearch && (
+          <ChannelSearch
+            onSearch={onSearch}
+            onSearchExit={onSearchExit}
+            setChannels={setChannels}
+            {...additionalChannelSearchProps}
           />
-        ) : (
+        )}
+        {showChannelList && (
           <List
             error={channelsQueryState.error}
             loadedChannels={sendChannelsToList ? loadedChannels : undefined}
