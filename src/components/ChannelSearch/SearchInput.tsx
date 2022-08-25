@@ -7,7 +7,7 @@ export type SearchInputController = {
   clearState: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
   /** Search input change handler */
-  onSearch: (event: React.BaseSyntheticEvent) => void;
+  onSearch: React.ChangeEventHandler<HTMLInputElement>;
   /** Current search string */
   query: string;
 };

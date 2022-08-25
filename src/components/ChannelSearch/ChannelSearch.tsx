@@ -1,5 +1,10 @@
 import React from 'react';
 
+import { useChatContext } from '../../context/ChatContext';
+
+import { ChannelSearchControllerParams, useChannelSearch } from './hooks/useChannelSearch';
+
+import { SearchBar as DefaultSearchBar } from './SearchBar';
 import {
   AdditionalSearchInputProps,
   SearchInput as DefaultSearchInput,
@@ -8,19 +13,22 @@ import {
 import { AdditionalSearchResultsProps, SearchResults } from './SearchResults';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { SearchController } from './hooks/useChannelSearch';
+import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 
-export type AdditionalChannelSearchProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AdditionalSearchInputProps &
-  AdditionalSearchResultsProps<StreamChatGenerics> & {
-    /** Custom UI component to display the search text input */
-    SearchInput?: React.ComponentType<SearchInputProps>;
-  };
+export type AdditionalChannelSearchProps = {
+  /** Custom UI component to display the search bar with text input */
+  SearchBar?: React.ComponentType<SearchBarProps>;
+  /** Custom UI component to display the search text input */
+  SearchInput?: React.ComponentType<SearchInputProps>;
+};
 
 export type ChannelSearchProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AdditionalChannelSearchProps<StreamChatGenerics> & SearchController<StreamChatGenerics>;
+> = AdditionalSearchBarProps &
+  AdditionalSearchInputProps &
+  AdditionalSearchResultsProps<StreamChatGenerics> &
+  AdditionalChannelSearchProps &
+  ChannelSearchControllerParams<StreamChatGenerics>;
 
 const UnMemoizedChannelSearch = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -28,32 +36,68 @@ const UnMemoizedChannelSearch = <
   props: ChannelSearchProps<StreamChatGenerics>,
 ) => {
   const {
-    clearState,
-    SearchResultsList,
-    inputRef,
-    onSearch,
+    AppMenu,
+    ClearInputIcon,
+    ExitSearchIcon,
+    MenuIcon,
     placeholder,
     popupResults = false,
-    query,
-    results,
+    SearchBar = DefaultSearchBar,
     SearchEmpty,
-    searching,
     SearchInput = DefaultSearchInput,
     SearchLoading,
+    SearchInputIcon,
     SearchResultItem,
+    SearchResultsList,
     SearchResultsHeader,
-    selectResult,
+    ...channelSearchParams
   } = props;
+  const { themeVersion } = useChatContext<StreamChatGenerics>('ChannelSearch');
+
+  const {
+    activateSearch,
+    clearState,
+    exitSearch,
+    inputIsFocused,
+    inputRef,
+    onSearch,
+    query,
+    results,
+    searchBarRef,
+    searching,
+    selectResult,
+  } = useChannelSearch<StreamChatGenerics>(channelSearchParams);
+
+  const showSearchBarV2 = themeVersion === '2';
 
   return (
     <div className='str-chat__channel-search' data-testid='channel-search'>
-      <SearchInput
-        clearState={clearState}
-        inputRef={inputRef}
-        onSearch={onSearch}
-        placeholder={placeholder}
-        query={query}
-      />
+      {showSearchBarV2 ? (
+        <SearchBar
+          activateSearch={activateSearch}
+          AppMenu={AppMenu}
+          ClearInputIcon={ClearInputIcon}
+          clearState={clearState}
+          exitSearch={exitSearch}
+          ExitSearchIcon={ExitSearchIcon}
+          inputIsFocused={inputIsFocused}
+          inputRef={inputRef}
+          MenuIcon={MenuIcon}
+          onSearch={onSearch}
+          placeholder={placeholder}
+          query={query}
+          searchBarRef={searchBarRef}
+          SearchInputIcon={SearchInputIcon}
+        />
+      ) : (
+        <SearchInput
+          clearState={clearState}
+          inputRef={inputRef}
+          onSearch={onSearch}
+          placeholder={placeholder}
+          query={query}
+        />
+      )}
       {query && (
         <SearchResults
           popupResults={popupResults}
