@@ -2,9 +2,6 @@
 
 rm -rf test-remix-app
 
-# pack stream-chat-react. Linking causes issues with React.
-yarn pack --cwd "../" -f stream-chat-react.tgz
-
 yes | yarn create remix --template remix-run/indie-stack test-remix-app
 
 # Apply a hello-world chat page to the project. 

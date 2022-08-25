@@ -2,9 +2,6 @@
 
 rm -rf test-next-app
 
-# pack stream-chat-react. Linking causes issues with React.
-yarn pack --cwd "../" -f stream-chat-react.tgz
-
 yarn create next-app --typescript test-next-app
 
 # Apply a hello-world chat page to the project. 
