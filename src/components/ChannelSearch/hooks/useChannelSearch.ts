@@ -56,8 +56,8 @@ export type ChannelSearchParams<
   channelType?: string;
   /** Clear search state / results on every click outside the search input, defaults to true */
   clearSearchOnClickOutside?: boolean;
-  /** Search can be enabled, defaults to false */
-  enabled?: boolean;
+  /** Disables execution of the search queries, defaults to false */
+  disabled?: boolean;
   /** Callback invoked with every search input change handler */
   onSearch?: SearchInputController['onSearch'];
   /** Callback invoked when the search UI is deactivated */
@@ -90,7 +90,7 @@ export const useChannelSearch = <
 >({
   channelType = 'messaging',
   clearSearchOnClickOutside = true,
-  enabled = true,
+  disabled = false,
   onSearch: onSearchCallback,
   onSearchExit,
   onSelectResult,
@@ -131,7 +131,7 @@ export const useChannelSearch = <
   }, [clearState, onSearchExit]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (disabled) return;
 
     const clickListener = (event: MouseEvent) => {
       if (!(event.target instanceof HTMLElement)) return;
@@ -153,10 +153,10 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [enabled, inputIsFocused, resultsOpen]);
+  }, [disabled, inputIsFocused, resultsOpen]);
 
   useEffect(() => {
-    if (!(inputRef.current && enabled)) return;
+    if (!inputRef.current || disabled) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') return exitSearch();
@@ -257,7 +257,7 @@ export const useChannelSearch = <
   const onSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       event.preventDefault();
-      if (!enabled) return;
+      if (disabled) return;
 
       if (searchFunction) {
         searchFunction(
@@ -275,7 +275,7 @@ export const useChannelSearch = <
       }
       onSearchCallback?.(event);
     },
-    [enabled, getChannelsThrottled, searchFunction],
+    [disabled, getChannelsThrottled, searchFunction],
   );
 
   return {

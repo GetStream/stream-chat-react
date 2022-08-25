@@ -13,6 +13,8 @@ export type SearchInputController = {
 };
 
 export type AdditionalSearchInputProps = {
+  /** Sets the input element into disabled state */
+  disabled?: boolean;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
 };
@@ -20,7 +22,7 @@ export type AdditionalSearchInputProps = {
 export type SearchInputProps = AdditionalSearchInputProps & SearchInputController;
 
 export const SearchInput = (props: SearchInputProps) => {
-  const { inputRef, onSearch, placeholder, query } = props;
+  const { disabled, inputRef, onSearch, placeholder, query } = props;
 
   const { t } = useTranslationContext('SearchInput');
 
@@ -28,6 +30,7 @@ export const SearchInput = (props: SearchInputProps) => {
     <input
       className='str-chat__channel-search-input'
       data-testid='search-input'
+      disabled={disabled}
       onChange={onSearch}
       placeholder={placeholder ?? t('Search')}
       ref={inputRef}
