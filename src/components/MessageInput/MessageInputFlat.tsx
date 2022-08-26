@@ -213,9 +213,9 @@ const MessageInputV2 = <
 
   const accept = useMemo(
     () =>
-      acceptedFiles.reduce<Record<string, Array<string>>>((av, cv) => {
-        av[cv] ??= [];
-        return av;
+      acceptedFiles.reduce<Record<string, Array<string>>>((mediaTypeMap, mediaType) => {
+        mediaTypeMap[mediaType] ??= [];
+        return mediaTypeMap;
       }, {}),
     [acceptedFiles],
   );
