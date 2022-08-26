@@ -33,6 +33,8 @@ The currently active channel, which populates the [`Channel`](../core-components
 | ------- |
 | Channel |
 
+[//]: # (REVIEW_NOTE_START[8f87022a-2305-11ed-9971-a4bb6d26ac2f])
+[//]: # (This applies only to theme V1. We should include deprecation notice.)
 ### closeMobileNav
 
 The function to close mobile navigation.
@@ -40,6 +42,7 @@ The function to close mobile navigation.
 | Type     |
 | -------- |
 | function |
+[//]: # (REVIEW_NOTE_END[8f87022a-2305-11ed-9971-a4bb6d26ac2f])
 
 ### customClasses
 
@@ -74,14 +77,19 @@ An array of users that have been muted by the connected user.
 | ------ |
 | Mute[] |
 
+[//]: # (REVIEW_NOTE_START[db6b3990-2305-11ed-bcfc-a4bb6d26ac2f])
+[//]: # (This applies only to theme V1. We should include deprecation notice.)
 ### navOpen
 
-When the screen width is at a mobile breakpoint, whether or not the mobile navigation menu is open.
+When the screen width is at a mobile breakpoint, whether the mobile navigation menu is open.
 
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+[//]: # (REVIEW_NOTE_END[db6b3990-2305-11ed-bcfc-a4bb6d26ac2f])
 
+[//]: # (REVIEW_NOTE_START[eeaf7eb2-2305-11ed-9285-a4bb6d26ac2f])
+[//]: # (This applies only to theme V1. We should include deprecation notice.)
 ### openMobileNav
 
 The function to open mobile navigation.
@@ -89,6 +97,7 @@ The function to open mobile navigation.
 | Type     |
 | -------- |
 | function |
+[//]: # (REVIEW_NOTE_END[eeaf7eb2-2305-11ed-9285-a4bb6d26ac2f])
 
 ### setActiveChannel
 
@@ -99,6 +108,8 @@ You can override the default behavior by pulling it from context and then utiliz
 | -------- |
 | function |
 
+[//]: # (REVIEW_NOTE_START[57bc33a6-2369-11ed-aefd-a4bb6d26ac2f])
+[//]: # (Should we remove this value from the chat context?)
 ### theme
 
 Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../customization/css-and-theming.mdx#css-variables) of your app.
@@ -106,6 +117,17 @@ Deprecated and to be removed in a future major release. Use the `customStyles` p
 | Type  |
 | ----- |
 | Theme |
+[//]: # (REVIEW_NOTE_END[57bc33a6-2369-11ed-aefd-a4bb6d26ac2f])
+
+[//]: # (REVIEW_NOTE_START[df7331b2-243d-11ed-8076-a4bb6d26ac2f])
+[//]: # (Proposing to add information about which release has introduced a given prop/value)
+### themeVersion
+[//]: # (REVIEW_NOTE_START[df7331b2-243d-11ed-8076-a4bb6d26ac2f])
+Stream chat theme version 2 has been introduced with the release of stream-chat-react v10.0.0. This flag is used internally by some UI components of the SDK and the integrators shouldn't need to use it. The value is extracted from a CSS variable `--str-chat__theme-version`. You can set it to values `'1'` or `'2'` in your stylesheets and import the corresponding v2 stylesheet from `stream-chat-react/dist`. Find out more about benefits that the theme version 2 brings to the integrators with [the theming guide](../theming/introduction.mdx).
+
+|   Type         |  Default  |
+| -------------- | --------- |
+| `'1'` \| `'2'` |   `'1'`   |
 
 ### useImageFlagEmojisOnWindow
 
