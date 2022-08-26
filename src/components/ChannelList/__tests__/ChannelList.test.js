@@ -75,6 +75,8 @@ const ChannelListComponent = (props) => {
   return <div role='list'>{props.children}</div>;
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
+const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
+const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
 
 describe('ChannelList', () => {
   let chatClientUthred;
@@ -437,7 +439,6 @@ describe('ChannelList', () => {
     });
 
     describe('channel search', () => {
-      const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
       const inputText = 'xxxxxxxxxx';
       const user1 = generateUser();
       const user2 = generateUser();
@@ -580,29 +581,43 @@ describe('ChannelList', () => {
         },
       );
 
-      it('theme v2 should unmount search results if user cleared the input', async () => {
-        const { container } = await renderComponents({ channel, client, themeVersion: '2' });
-        const input = screen.queryByTestId('search-input');
-        await act(() => {
-          input.focus();
-          fireEvent.change(input, {
-            target: {
-              value: inputText,
-            },
+      it.each([['1'], ['2']])(
+        'theme v%s should unmount search results if user cleared the input',
+        async (themeVersion) => {
+          const { container } = await renderComponents({ channel, client, themeVersion });
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            input.focus();
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
           });
-        });
 
-        const clearButton = screen.queryByTestId('clear-input-button');
-        await act(() => {
-          fireEvent.click(clearButton);
-        });
-        await waitFor(() => {
-          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
-          expect(input).toHaveValue('');
-          expect(input).toHaveFocus();
-          expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
-        });
-      });
+          await act(() => {
+            if (themeVersion === '2') {
+              const clearButton = screen.queryByTestId('clear-input-button');
+              fireEvent.click(clearButton);
+            } else {
+              fireEvent.change(input, {
+                target: {
+                  value: '',
+                },
+              });
+            }
+          });
+          await waitFor(() => {
+            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
+            expect(input).toHaveValue('');
+            expect(input).toHaveFocus();
+            if (themeVersion === '2') {
+              expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+            }
+          });
+        },
+      );
 
       it('theme v2 should unmount search results if user clicked the return button', async () => {
         const { container } = await renderComponents({ channel, client, themeVersion: '2' });

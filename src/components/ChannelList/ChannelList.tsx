@@ -237,7 +237,11 @@ const UnMemoizedChannelList = <
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
 
   const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchActive(true);
+    if (!event.target.value) {
+      setSearchActive(false);
+    } else {
+      setSearchActive(true);
+    }
     additionalChannelSearchProps?.onSearch?.(event);
   }, []);
 

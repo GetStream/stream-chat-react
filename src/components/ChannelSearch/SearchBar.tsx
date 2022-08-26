@@ -129,7 +129,7 @@ export const SearchBar = (props: SearchBarProps) => {
   }, []);
 
   const handleClearClick = useCallback(() => {
-    inputProps.clearState();
+    exitSearch();
     inputProps.inputRef.current?.focus();
   }, []);
 
