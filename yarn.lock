@@ -2925,9 +2925,9 @@
     process-es6 "^0.11.2"
 
 "@stream-io/stream-chat-css@^2.10.1":
-  version "2.10.1"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.10.1.tgz#317b225d2a8a424e056e1d4aff5dc0f7f9b575ed"
-  integrity sha512-8ykbkvxOWHbagRMCacXBzta3FbB0Vs+1wGRKy9IP2Md4Rm88Id9Cti6ikYi5ltmjnpyvsWSe+G/G1CvTmFpnqA==
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-2.11.0.tgz#fdf0a3fd557f09ca02a344c7a6b70027df37068c"
+  integrity sha512-lsPEWpsB3ygNSO0PrTULgcCyxrCH5NWg0WuCbWP/i7fF5Slqswrs+yF6uEx6tBMW+pBZmOBPvbhHTG+CK2iczg==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
