@@ -5,6 +5,8 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Vite', () => {
   test('MessageList rendered', async ({ page }) => {
+    page.on('console', (message) => console.log('VITE_LOGS: ', message.text()));
+
     await Promise.all([
       page.waitForSelector('#root'),
       page.waitForLoadState('networkidle'),
