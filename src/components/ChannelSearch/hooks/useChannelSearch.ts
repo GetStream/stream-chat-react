@@ -239,7 +239,7 @@ export const useChannelSearch = <
 
       setSearching(false);
     },
-    [client],
+    [client, searching],
   );
 
   const getChannelsThrottled = throttle(getChannels, 200);
