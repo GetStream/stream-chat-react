@@ -38,10 +38,18 @@ jobs:
       - name: 🔨 Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
+      - uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}${{ runner.arch }}-playwright
+
+      - name: Install Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+
       - name: ⚗️ End-to-end tests
         run: |
-          npx playwright install
-          npx playwright install-deps
           yarn e2e-fixtures
           # running with --browser=all causes failures
           yarn e2e --browser=chromium
@@ -117,19 +125,24 @@ jobs:
         with:
           path: ./node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('./yarn.lock') }}
+
       - uses: actions/cache@v3
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}${{ runner.arch }}-playwright
+
       - name: Install packages and build
         run: yarn install --frozen-lockfile --ignore-engines
+
       - name: Install Playwright
         if: steps.playwright-cache.outputs.cache-hit != 'true' && matrix.framework == 'vite'
         run: npx playwright install --with-deps
+
       - name: Pack package (stream-chat-react.tgz)
         working-directory: ./test-react-frameworks
         run: ./pack-package.sh
+
       - name: Run ${{ matrix.framework }}.sh test
         working-directory: ./test-react-frameworks/${{ matrix.framework }}
         run: ./${{ matrix.framework }}.sh
