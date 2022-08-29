@@ -97,8 +97,11 @@ export const useImageUploads = <
         return;
       }
 
+      if (img.previewUri) URL.revokeObjectURL?.(img.previewUri);
+
       dispatch({
         id,
+        previewUri: undefined,
         state: 'finished',
         type: 'setImageUpload',
         url: response.file,
@@ -108,32 +111,12 @@ export const useImageUploads = <
   );
 
   useEffect(() => {
-    if (FileReader) {
-      const upload = Object.values(imageUploads).find(
-        (imageUpload) =>
-          imageUpload.state === 'uploading' && !!imageUpload.file && !imageUpload.previewUri,
-      );
-      if (upload) {
-        const { file, id } = upload;
-        // TODO: Possibly use URL.createObjectURL instead. However, then we need
-        // to release the previews when not used anymore though.
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (typeof event.target?.result !== 'string') return;
-          dispatch({
-            id,
-            previewUri: event.target.result,
-            type: 'setImageUpload',
-          });
-        };
-        reader.readAsDataURL((file as unknown) as Blob);
-        uploadImage(id);
-        return () => {
-          reader.onload = null;
-        };
-      }
-    }
-    return;
+    const upload = Object.values(imageUploads).find(
+      (imageUpload) => imageUpload.state === 'uploading' && imageUpload.file,
+    );
+    if (!upload) return;
+
+    uploadImage(upload.id);
   }, [imageUploads, uploadImage]);
 
   return {

@@ -31,33 +31,6 @@ import {
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('react', () => {
-  const React = jest.requireActual('react');
-  const Suspense = ({ children }) => children;
-
-  const lazy = jest.fn().mockImplementation((fn) => {
-    const Component = (props) => {
-      const [C, setC] = React.useState();
-
-      React.useEffect(() => {
-        fn().then((v) => {
-          setC(v);
-        });
-      }, []);
-
-      return C ? <C.default {...props} /> : null;
-    };
-
-    return Component;
-  });
-
-  return {
-    ...React,
-    lazy,
-    Suspense,
-  };
-});
-
 jest.mock('../../Channel/utils', () => ({ makeAddNotifications: jest.fn }));
 
 let chatClient;

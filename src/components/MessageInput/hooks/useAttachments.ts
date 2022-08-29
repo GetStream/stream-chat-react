@@ -63,7 +63,13 @@ export const useAttachments = <
             file.type.startsWith('image/') &&
             !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
           ) {
-            dispatch({ file, id, state: 'uploading', type: 'setImageUpload' });
+            dispatch({
+              file,
+              id,
+              previewUri: URL.createObjectURL?.(file),
+              state: 'uploading',
+              type: 'setImageUpload',
+            });
           } else if (file instanceof File && !noFiles) {
             dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
           }
