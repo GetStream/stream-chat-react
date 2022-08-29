@@ -13,7 +13,6 @@ import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPr
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
-import type { CooldownTimerProps } from '../components/MessageInput/hooks/useCooldownTimer';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
 import type { MessageProps } from '../components/Message/types';
@@ -33,6 +32,7 @@ import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { CooldownTimerProps } from '../components';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
