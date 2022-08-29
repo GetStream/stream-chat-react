@@ -33,7 +33,7 @@ const UnMemoizedMessageStatus = <
     tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
 
-  const { handleEnter, handleLeave, popperVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
+  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
 
   const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
@@ -82,7 +82,7 @@ const UnMemoizedMessageStatus = <
             <PopperTooltip
               offset={[0, 5]}
               referenceElement={referenceElement}
-              visible={popperVisible}
+              visible={tooltipVisible}
             >
               {t<string>('Sending...')}
             </PopperTooltip>
@@ -98,7 +98,7 @@ const UnMemoizedMessageStatus = <
             <PopperTooltip
               offset={[0, 5]}
               referenceElement={referenceElement}
-              visible={popperVisible}
+              visible={tooltipVisible}
             >
               {t<string>('Delivered')}
             </PopperTooltip>
@@ -116,7 +116,7 @@ const UnMemoizedMessageStatus = <
             <PopperTooltip
               offset={[0, 5]}
               referenceElement={referenceElement}
-              visible={popperVisible}
+              visible={tooltipVisible}
             >
               {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
             </PopperTooltip>
