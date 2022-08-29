@@ -1,7 +1,6 @@
 /* eslint-disable jest-dom/prefer-in-document */
 
 import React from 'react';
-import capitalize from 'lodash/capitalize';
 
 import { fireEvent, render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
@@ -16,6 +15,13 @@ const uploadsReducer = (pv, cv) => {
   pv[cv.id] = cv;
   return pv;
 };
+
+/**
+ * @param {string} word
+ * @returns string
+ */
+const capitalize = ([firstLetter, ...restOfTheWord]) =>
+  `${firstLetter.toUpperCase()}${restOfTheWord.join('')}`;
 
 const orderMapper = ({ id }) => id;
 
