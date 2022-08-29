@@ -7,7 +7,6 @@ import { useDropzone } from 'react-dropzone';
 import { nanoid } from 'nanoid';
 
 import { EmojiPicker } from './EmojiPicker';
-import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconLarge as DefaultEmojiIcon,
   EmojiPickerIcon as DefaultEmojiPickerIcon,
@@ -33,6 +32,7 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

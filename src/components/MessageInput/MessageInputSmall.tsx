@@ -3,7 +3,6 @@ import { FileUploadButton, ImageDropzone } from 'react-file-utils';
 import type { Event } from 'stream-chat';
 
 import { EmojiPicker } from './EmojiPicker';
-import { CooldownTimer as DefaultCooldownTimer } from './hooks/useCooldownTimer';
 import {
   EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
@@ -24,6 +23,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 
 /**
  * @deprecated This component has beend deprecated in favor of [`MessageInputFlat`](./MessageInputFlat.tsx) from which
