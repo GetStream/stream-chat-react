@@ -1,3 +1,18 @@
+# [9.5.0](https://github.com/GetStream/stream-chat-react/compare/v9.4.1...v9.5.0) (2022-08-29)
+
+
+### Bug Fixes
+
+* include mdast-util-find-and-replace into our CJS bundle ([#1702](https://github.com/GetStream/stream-chat-react/issues/1702)) ([61c4eec](https://github.com/GetStream/stream-chat-react/commit/61c4eecf5c03ab36109a94b7afa5f678e99fcc8b)), closes [#1698](https://github.com/GetStream/stream-chat-react/issues/1698)
+* prevent double submissions in korean ([#1720](https://github.com/GetStream/stream-chat-react/issues/1720)) ([5d781d8](https://github.com/GetStream/stream-chat-react/commit/5d781d896cb9153bcf3554d04714215c0bbf5c12))
+* replace FileReader with URL.createObjectURL ([#1701](https://github.com/GetStream/stream-chat-react/issues/1701)) ([c8a490e](https://github.com/GetStream/stream-chat-react/commit/c8a490ebc53da03c2b0f064de88c0cb634ed2a70))
+* **Vite:** add emoji-mart (emoji, picker) re-export ([#1724](https://github.com/GetStream/stream-chat-react/issues/1724)) ([c90cf4b](https://github.com/GetStream/stream-chat-react/commit/c90cf4bfc6b6aa74233fd041200e8180a70604e4))
+
+
+### Features
+
+* increase and support overriding jump to message limit ([#1718](https://github.com/GetStream/stream-chat-react/issues/1718)) ([8c720f4](https://github.com/GetStream/stream-chat-react/commit/8c720f41e349f753a126ad5e062c1475e3893771))
+
 ## [9.4.1](https://github.com/GetStream/stream-chat-react/compare/v9.4.0...v9.4.1) (2022-08-04)
 
 
