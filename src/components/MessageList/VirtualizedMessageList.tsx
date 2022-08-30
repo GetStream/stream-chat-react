@@ -531,7 +531,7 @@ export type VirtualizedMessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when new messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** Custom UI component to display a message, defaults to and accepts same props as [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) */
+  /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
