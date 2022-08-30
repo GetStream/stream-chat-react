@@ -86,7 +86,7 @@ export const useProcessReactions = <
     [reactionCounts, supportedReactionsArePresent],
   );
 
-  const aggregatedNamesByType = useMemo(
+  const aggregatedUserNamesByType = useMemo(
     () =>
       latestReactions.reduce<Record<string, Array<string>>>((typeMap, { type, user }) => {
         typeMap[type] ??= [];
@@ -100,7 +100,7 @@ export const useProcessReactions = <
 
   return {
     additionalEmojiProps: reactionsAreCustom ? additionalEmojiProps : emojiSetDef,
-    aggregatedNamesByType,
+    aggregatedUserNamesByType,
     emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,

@@ -4,11 +4,11 @@ export const useEnterLeaveHandlers = <T extends HTMLElement>({
   onMouseEnter,
   onMouseLeave,
 }: Partial<Record<'onMouseEnter' | 'onMouseLeave', React.MouseEventHandler<T>>> = {}) => {
-  const [popperVisible, setPopperVisible] = useState(false);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const handleEnter: React.MouseEventHandler<T> = useCallback(
     (e) => {
-      setPopperVisible(true);
+      setTooltipVisible(true);
       onMouseEnter?.(e);
     },
     [onMouseEnter],
@@ -16,11 +16,11 @@ export const useEnterLeaveHandlers = <T extends HTMLElement>({
 
   const handleLeave: React.MouseEventHandler<T> = useCallback(
     (e) => {
-      setPopperVisible(false);
+      setTooltipVisible(false);
       onMouseLeave?.(e);
     },
     [onMouseLeave],
   );
 
-  return { handleEnter, handleLeave, popperVisible };
+  return { handleEnter, handleLeave, tooltipVisible };
 };

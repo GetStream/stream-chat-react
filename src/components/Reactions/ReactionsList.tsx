@@ -44,7 +44,7 @@ const ButtonWithTooltip = ({
 }: Omit<ComponentProps<'button'>, 'ref'>) => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
 
-  const { handleEnter, handleLeave, popperVisible } = useEnterLeaveHandlers({
+  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers({
     onMouseEnter,
     onMouseLeave,
   });
@@ -54,7 +54,7 @@ const ButtonWithTooltip = ({
   return (
     <>
       {themeVersion === '2' && (
-        <PopperTooltip referenceElement={referenceElement} visible={popperVisible}>
+        <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
           {rest.title}
         </PopperTooltip>
       )}
@@ -82,7 +82,7 @@ const UnMemoizedReactionsList = <
 
   const {
     additionalEmojiProps,
-    aggregatedNamesByType,
+    aggregatedUserNamesByType,
     emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
@@ -121,7 +121,7 @@ const UnMemoizedReactionsList = <
             >
               <ButtonWithTooltip
                 aria-label={`Reactions: ${reactionType}`}
-                title={aggregatedNamesByType[reactionType].join(', ')}
+                title={aggregatedUserNamesByType[reactionType].join(', ')}
                 type='button'
               >
                 {
