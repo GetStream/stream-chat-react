@@ -38,15 +38,19 @@ jobs:
       - name: 🔨 Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
-      - uses: actions/cache@v3
+      - name: 💾 Cache Playwright browsers
+        uses: actions/cache@v3
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}${{ runner.arch }}-playwright
+          key: ${{ runner.os }}${{ runner.arch }}-playwright-browsers
 
-      - name: Install Playwright
+      - name: Install Playwright browsers if not cached
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium webkit firefox
+
+      - name: Install Playwright system dependencies (always)
+        run: npx playwright install-deps
 
       - name: ⚗️ End-to-end tests
         run: |
@@ -126,18 +130,21 @@ jobs:
           path: ./node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('./yarn.lock') }}
 
+      - name: Install packages
+        run: yarn install --frozen-lockfile --ignore-engines
+
       - uses: actions/cache@v3
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}${{ runner.arch }}-playwright
+          key: ${{ runner.os }}${{ runner.arch }}-playwright-browsers
 
-      - name: Install packages and build
-        run: yarn install --frozen-lockfile --ignore-engines
-
-      - name: Install Playwright
+      - name: Install Playwright browsers if not cached
         if: steps.playwright-cache.outputs.cache-hit != 'true' && matrix.framework == 'vite'
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium webkit firefox
+
+      - name: Install Playwright system dependencies (always)
+        run: npx playwright install-deps
 
       - name: Pack package (stream-chat-react.tgz)
         working-directory: ./test-react-frameworks
