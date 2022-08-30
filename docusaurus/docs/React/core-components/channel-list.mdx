@@ -6,21 +6,8 @@ title: ChannelList
 import CodeBlock from '@theme/CodeBlock';
 
 import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+import ReviewNote from '../_docusaurus-components/ReviewNote';
 
-export const OnEventCallbackTypeTable = () => (
-  <table>
-    <tr><th>Type</th></tr>
-    <tr>
-      <td>
-        <CodeBlock className='language-typescript'>({'\n'}
-          {'  '}setChannels: React.Dispatch&lt;React.SetStateAction&lt;Array&lt;Channel&lt;StreamChatGenerics>>>>,{'\n'}
-          {'  '}event: Event&lt;StreamChatGenerics>,{'\n'}
-          ) => void;{'\n'}
-        </CodeBlock>
-      </td>
-    </tr>
-  </table>
-)
 
 The `ChannelList` component queries an array of `channel` objects from the Stream Chat API and displays as a customizable list
 in the UI. It accepts props for [`filters`](#filters), [`sort`](#sort) and [`options`](#options), which allows you to tailor
@@ -36,12 +23,16 @@ The `ChannelList` component also comes pre-built with navigation functionality. 
 
 ## Basic Usage
 
-[//]: # (REVIEW_NOTE_START[a0523cee-2375-11ed-8530-a4bb6d26ac2f])
-[//]: # (Proposing to make filters mandatory as per the below caution - At a minimum, the filter should include `{members: { $in: [userID] }}` - it is confusing to newcomers that the channels query fails due to this missing param)
+<ReviewNote
+  id='a0523cee-2375-11ed-8530-a4bb6d26ac2f'
+>
+  Proposing to make filters mandatory as per the JS docs requirement: At a minimum, the filter should include:
+  <CodeBlock>{`{members: { $in: [userID] }}`}</CodeBlock>
+  It is confusing to newcomers that the channels query fails due to this missing param
+</ReviewNote>
+
 The `ChannelList` does not have any required props, but in order to refine channel query results we recommend providing
 values for [`filters`](#filters), [`sort`](#sort) and [`options`](#options).
-
-[//]: # (REVIEW_NOTE_END[a0523cee-2375-11ed-8530-a4bb6d26ac2f])
 
 :::caution
 By default when channels query does not have any filter it will match all the channels in your application. While this might be convenient during the development, you most likely want to have at least some basic filtering.
@@ -189,7 +180,7 @@ Similarly, events other than `notification.message_new` can be handled as per ap
 Additional props to be passed to the underlying [`ChannelSearch`](../utility-components/channel-search.mdx) component.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### allowNewMessagesFromUnfilteredChannels
@@ -289,49 +280,65 @@ When true, channels won't dynamically sort by most recent message.
 
 Function to override the default behavior when a user is added to a channel.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onChannelDeleted
 
 Function to override the default behavior when a channel is deleted.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onChannelHidden
 
 Function to override the default behavior when a channel is hidden.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onChannelTruncated
 
 Function to override the default behavior when a channel is truncated.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onChannelUpdated
 
 Function to override the default behavior when a channel is updated.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onChannelVisible
 
 Function to override the default channel visible behavior.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onMessageNew
 
 Function to override the default behavior when a message is received on a channel not being watched.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### onRemovedFromChannel
 
 Function to override the default behavior when a user gets removed from a channel.
 
-<OnEventCallbackTypeTable/>
+| Type     |
+|----------|
+| function |
 
 ### options
 
@@ -366,8 +373,13 @@ Function to override the default behavior when rendering channels, so this funct
 |----------|
 | function |
 
-[//]: # (REVIEW_NOTE_START[6bd7d78e-2542-11ed-a44c-a4bb6d26ac2f])
-[//]: # (Missing example use case to better understand the purpose. The default List component does not make use of the loadedChannels prop)
+<ReviewNote
+  id='6bd7d78e-2542-11ed-a44c-a4bb6d26ac2f'
+>
+  Missing example use case to better understand the purpose. The default `List` component does not make use of the
+  loadedChannels prop
+</ReviewNote>
+
 ### sendChannelsToList
 
 If true, sends the list's currently loaded channels to the `List` component as the `loadedChannels` prop.
@@ -375,7 +387,6 @@ If true, sends the list's currently loaded channels to the `List` component as t
 | Type    | Default |
 |---------|---------|
 | boolean | false   |
-[//]: # (REVIEW_NOTE_END[6bd7d78e-2542-11ed-a44c-a4bb6d26ac2f])
 
 ### setActiveChannelOnMount
 
