@@ -8,10 +8,33 @@ Staying with v1 - breaking changes
 
 Upgrading to v2 - news
 
-Removed deprecated message components
+### Message
+
+- Removed deprecated message components
 
 ### ChannelSearch
 
 - renamed prop `DropdownContainer` to `SearchResultsList` to better reflect the purpose of the component. The search results are not always shown in a drop-down container.
 
 - introduction of a new `SearchBar` component available with theme version 2 only.
+
+- removed redundant setResultsOpen setStateAction function from `ChannelSearchFunctionParams`. this has impact on `onSelectResult` and `searchFunction` props
+
+### VirtualizeMessageList
+
+- default message in VML Thread is MessageSimple and not FixedHeightMessage
+- added new prop `groupStyles` with the same purpose as in non-virtualized `MessageList`
+
+### MessageList
+- has been wrapped in a new div with class `str-chat__main-panel-inner` if using theme version 2
+- The loading indicator is now wrapped by a div with class `str-chat__list__loading` so that you can style its positioning
+
+### MessageNotifications
+
+New props  `isMessageListScrolledToBottom` and `threadList`
+
+### Thread
+
+It is possible to customize the `ThreadHead`. That is the combination of `ThreadStart` and the thread parent message.
+Thread separator now displays the number of replies in the thread.
+The parent message is now part of the scrollable message list also if using `virtualized` message list under the hood is
