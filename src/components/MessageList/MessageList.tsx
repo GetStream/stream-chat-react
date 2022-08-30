@@ -266,7 +266,7 @@ export type MessageListProps<
     nextMessage: StreamMessage<StreamChatGenerics>,
     noGroupByUser: boolean,
   ) => GroupStyle;
-  /** Whether or not the list has more items to load */
+  /** Whether the list has more items to load */
   hasMore?: boolean;
   /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
   head?: React.ReactElement;

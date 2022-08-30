@@ -97,7 +97,7 @@ export type ChatAutoCompleteProps = {
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
   /** Function to override the default onPaste behavior on the underlying `textarea` component */
   onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  /** Placeholder for the the underlying `textarea` component */
+  /** Placeholder for the underlying `textarea` component */
   placeholder?: string;
   /** The initial number of rows for the underlying `textarea` component */
   rows?: number;
