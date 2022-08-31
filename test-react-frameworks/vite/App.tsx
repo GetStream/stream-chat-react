@@ -7,6 +7,7 @@ import {
   ChannelHeader,
   ChannelList,
   Chat,
+  EmojiProvider,
   MessageInput,
   MessageList,
   Thread,
@@ -53,6 +54,10 @@ const App = () => (
     <ChannelList filters={filters} options={options} showChannelSearch sort={sort} />
     <Channel>
       <Window>
+        {/* @ts-ignore */}
+        <EmojiProvider value={{}}>
+          <h1>Test</h1>
+        </EmojiProvider>
         <ChannelHeader />
         <MessageList />
         <MessageInput focus />
