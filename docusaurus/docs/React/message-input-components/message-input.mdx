@@ -133,6 +133,30 @@ If specified, this function overrides the default behavior specified previously.
 | --------------------------------- |
 | (event: KeyboardEvent) => boolean |
 
+:::note
+
+### Migration from versions older than `9.0.0`
+
+Property **keycodeSubmitKeys** has been replaced by **shouldSubmit** and thus is no longer supported.
+If you had custom key codes specified like so:
+
+```ts
+keyCodeSubmitKeys={[[16,13], [57], [48]]} // submission keys are Shift+Enter, 9, and 0
+```
+
+then that would newly translate to:
+
+```ts
+const shouldSubmit = (event) =>
+  (event.key === 'Enter' && event.shiftKey) || event.key === '9' || event.key === '0';
+
+...
+
+shouldSubmit={shouldSubmit}
+```
+
+:::
+
 ### maxRows
 
 Max number of rows the underlying `textarea` component is allowed to grow.
