@@ -1,9 +1,7 @@
 import React from 'react';
-
 import type { Action, Attachment } from 'stream-chat';
 
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AttachmentActionsProps<
@@ -35,7 +33,7 @@ const UnMemoizedAttachmentActions = <
   return (
     <div className='str-chat__message-attachment-actions'>
       <div className='str-chat__message-attachment-actions-form'>
-        <span key={0}>{text}</span>
+        <span>{text}</span>
         {actions.map((action) => (
           <button
             className={`str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`}

@@ -59,7 +59,7 @@ export const AttachmentActionsContainer = <
   return (
     <AttachmentActions
       {...attachment}
-      actionHandler={(event, name, value) => actionHandler?.(event, name, value)}
+      actionHandler={actionHandler}
       actions={attachment.actions}
       id={attachment.id || ''}
       text={attachment.text || ''}
@@ -115,7 +115,7 @@ export const CardContainer = <
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-        <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
+        <div className='str-chat__attachment'>
           <Card {...attachment} />
           <AttachmentActionsContainer {...props} />
         </div>
