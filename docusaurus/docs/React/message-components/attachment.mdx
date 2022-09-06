@@ -7,7 +7,7 @@ title: Attachments
 The `Attachment` component takes a list of message attachments and conditionally renders the UI of each individual attachment based
 upon its type. The following table shows the attachment UI components that will be rendered for various attachment types:
 
-| Attachment Type | UI Component                                                                                                    |  File type(s) (non-exhaustive)                         |
+| Attachment Type | UI Component                                                                                                    | File type(s) (non-exhaustive)                          |
 | --------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `audio`         | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)         | MP3, WAV, M4A, FLAC, AAC                               |
 | `file`          | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) | DOC, DOCX, PDF, PPT, PPTX, TXT, XLS, XLSX              |
@@ -48,7 +48,7 @@ const CustomMessage = () => {
 ## UI Customization
 
 `Attachment` accepts component override props for each attachment UI component. Building upon the previous example, the below
-snippet shows how to customize one of the individual attachment UI components.
+snippets show how to customize one of the individual attachment UI components with either custom Message UI component:
 
 ```jsx
 const CustomImage = (props) => {
@@ -62,13 +62,34 @@ const CustomMessage = () => {
   return (
     <div>
       {message.attachments && <Attachment attachments={message.attachments} Image={CustomImage} />}
-      // render remaining custom Message UI
+      {/* render remaining custom Message UI */}
     </div>
   );
 };
 
 <Chat client={client}>
   <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+or using wrapped `Attachment` component:
+
+```jsx
+const CustomAudioAttachment = (props) => {
+  // you can add any custom data (such as "customType" in this case)
+  if (props.og?.customType === 'voice-memo') return <div>my custom voice-memo component</div>;
+  return <Audio {...props} />;
+};
+
+const CustomAttachment = (props) => {
+  return <Attachment {...props} Audio={CustomAudioAttachment} />;
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Attachment={CustomAttachment}>
     <MessageList />
     <MessageInput />
   </Channel>
