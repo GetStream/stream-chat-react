@@ -1,3 +1,20 @@
+# [10.0.0-theming-v2.3](https://github.com/GetStream/stream-chat-react/compare/v10.0.0-theming-v2.2...v10.0.0-theming-v2.3) (2022-09-06)
+
+
+### Bug Fixes
+
+* include mdast-util-find-and-replace into our CJS bundle ([#1702](https://github.com/GetStream/stream-chat-react/issues/1702)) ([#1703](https://github.com/GetStream/stream-chat-react/issues/1703)) ([8010889](https://github.com/GetStream/stream-chat-react/commit/801088972032dcfd0374b00aa424a5952b7e72ae)), closes [#1698](https://github.com/GetStream/stream-chat-react/issues/1698)
+* prevent double submissions in korean ([#1720](https://github.com/GetStream/stream-chat-react/issues/1720)) ([5d781d8](https://github.com/GetStream/stream-chat-react/commit/5d781d896cb9153bcf3554d04714215c0bbf5c12))
+* ThemingV2 beta adjustments ([#1728](https://github.com/GetStream/stream-chat-react/issues/1728)) ([785ee11](https://github.com/GetStream/stream-chat-react/commit/785ee11f736ff1e8698e47c5f1ca3e2b8a222bae))
+* **ThemingV2:** MessageInputFlat missing lodash/zipObject ([#1721](https://github.com/GetStream/stream-chat-react/issues/1721)) ([dd8a457](https://github.com/GetStream/stream-chat-react/commit/dd8a4576483d114d1c8f0f6c9bb383896d926a97))
+* **Vite:** add emoji-mart (emoji, picker) re-export ([#1724](https://github.com/GetStream/stream-chat-react/issues/1724)) ([c90cf4b](https://github.com/GetStream/stream-chat-react/commit/c90cf4bfc6b6aa74233fd041200e8180a70604e4))
+
+
+### Features
+
+* increase and support overriding jump to message limit ([#1718](https://github.com/GetStream/stream-chat-react/issues/1718)) ([8c720f4](https://github.com/GetStream/stream-chat-react/commit/8c720f41e349f753a126ad5e062c1475e3893771))
+* **ThemingV2:** PopperTooltip component ([#1714](https://github.com/GetStream/stream-chat-react/issues/1714)) ([9b6301e](https://github.com/GetStream/stream-chat-react/commit/9b6301e9f7089560ba4cfe694583bd93c1aa10de))
+
 # [10.0.0-theming-v2.2](https://github.com/GetStream/stream-chat-react/compare/v10.0.0-theming-v2.1...v10.0.0-theming-v2.2) (2022-08-22)
 
 
