@@ -27,6 +27,13 @@ dotenv.config({ path: `.env.local` });
       const indexString = i.toString();
       const messageToQuote = messagesToQuote[indexString];
       const res = await channel.sendMessage({
+        attachments: i % 5 === 0 ? [{
+          "type": "image",
+          "fallback": "brooke-lark--F_5g8EEHYE-unsplash.jpg",
+          "image_url": "https://us-east.stream-io-cdn.com/1143119/images/045d9a3a-9af3-4b04-9c75-fc877ec1be02.brooke-lark--F_5g8EEHYE-unsplash.jpg?Key-Pair-Id=APKAIHG36VEWPDULE23Q&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy1lYXN0LnN0cmVhbS1pby1jZG4uY29tLzExNDMxMTkvaW1hZ2VzLzA0NWQ5YTNhLTlhZjMtNGIwNC05Yzc1LWZjODc3ZWMxYmUwMi5icm9va2UtbGFyay0tRl81ZzhFRUhZRS11bnNwbGFzaC5qcGc~Km9oPTU3MTEqb3c9Mzg0MCoiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NjM2NzQzODJ9fX1dfQ__&Signature=QzBVaqUI6T9rUoJNjlWnTiZXhMFL-oWGvYz3F16sIrIPRSYnVlllcBjFL6XgGLxKW9PSDKqJUpz-8Wzw1vfhoV07fJQYQc1TWqFc0iGT3fWvVn~JnFnD5TQf3WzfEAg~atKI0gbhCXt~X4Lqw22Kl~L2m5-9CGcynVxHAEnr1Y0K2mN9P8b3AqcZmsKsTUc9q7lwUVyjV6JIcR5yPPwOzcf434vcZCqBikZ-PV-ay8bzq533LL4JrSg9heG78JVzJLx4b8QRmuUnmb47IY32iBhh9qYqrhYNo8xm86PBWJFTJpuQWEH5IpOBBtlCsrj0hEFCljwbwlndmfj7meiotA__&oh=5711&ow=3840",
+          "original_width": 3840,
+          "original_height": 5711
+        }] : [],
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
         ...(messageToQuote ? { quoted_message_id: messageToQuote.message.id } : {}),
