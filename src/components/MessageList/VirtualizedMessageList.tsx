@@ -284,7 +284,9 @@ const VirtualizedMessageListWithContext = <
 
   useEffect(() => {
     const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
+    /* console.log({ continuousSet }); */
     if (!continuousSet) {
+      console.log(+new Date(), messages);
       setMessageSetKey(+new Date());
     }
     firstMessageId.current = messages?.[0]?.id;
@@ -439,6 +441,8 @@ const VirtualizedMessageListWithContext = <
   }, [highlightedMessageId]);
 
   if (!processedMessages) return null;
+
+  console.log('render ');
 
   return (
     <>
