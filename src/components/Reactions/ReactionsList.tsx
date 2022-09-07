@@ -1,8 +1,9 @@
-import React, { Suspense } from 'react';
+import React, { ComponentProps, Suspense, useState } from 'react';
 import clsx from 'clsx';
 
 import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
+import { useChatContext } from '../../context/ChatContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
 
 import type { NimbleEmojiProps } from 'emoji-mart';
@@ -12,6 +13,9 @@ import type { ReactEventHandler } from '../Message/types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionEmoji } from '../Channel/emojiData';
+
+import { PopperTooltip } from '../Tooltip';
+import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 export type ReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -32,6 +36,40 @@ export type ReactionsListProps<
   reverse?: boolean;
 };
 
+const ButtonWithTooltip = ({
+  children,
+  onMouseEnter,
+  onMouseLeave,
+  ...rest
+}: Omit<ComponentProps<'button'>, 'ref'>) => {
+  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
+
+  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers({
+    onMouseEnter,
+    onMouseLeave,
+  });
+
+  const { themeVersion } = useChatContext('ButtonWithTooltip');
+
+  return (
+    <>
+      {themeVersion === '2' && (
+        <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
+          {rest.title}
+        </PopperTooltip>
+      )}
+      <button
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        ref={setReferenceElement}
+        {...rest}
+      >
+        {children}
+      </button>
+    </>
+  );
+};
+
 const UnMemoizedReactionsList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -44,6 +82,7 @@ const UnMemoizedReactionsList = <
 
   const {
     additionalEmojiProps,
+    aggregatedUserNamesByType,
     emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
@@ -80,7 +119,11 @@ const UnMemoizedReactionsList = <
               })}
               key={emojiObject.id}
             >
-              <button aria-label={`Reactions: ${reactionType}`}>
+              <ButtonWithTooltip
+                aria-label={`Reactions: ${reactionType}`}
+                title={aggregatedUserNamesByType[reactionType].join(', ')}
+                type='button'
+              >
                 {
                   <Suspense fallback={null}>
                     <span className='str-chat__message-reaction-emoji'>
@@ -100,7 +143,7 @@ const UnMemoizedReactionsList = <
                 >
                   {reactionCounts[reactionType]}
                 </span>
-              </button>
+              </ButtonWithTooltip>
             </li>
           ) : null;
         })}

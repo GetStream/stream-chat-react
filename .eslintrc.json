@@ -7,6 +7,7 @@
     "markdown",
     "prettier",
     "react-hooks",
+    "import",
     "sort-destructure-keys"
   ],
   "extends": [
@@ -67,6 +68,14 @@
     "valid-typeof": 2,
     "import/prefer-default-export": 0,
     "import/extensions": [0],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true, // TODO: set to false once React is in the dependencies (not devDependencies)
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ],
     "max-classes-per-file": 0,
     "camelcase": 0,
     "react-hooks/rules-of-hooks": 1,

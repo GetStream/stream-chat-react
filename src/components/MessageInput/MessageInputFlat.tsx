@@ -4,7 +4,6 @@ import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';
 import { useDropzone } from 'react-dropzone';
-import zipObject from 'lodash/zipObject';
 import { nanoid } from 'nanoid';
 
 import { EmojiPicker } from './EmojiPicker';
@@ -214,10 +213,10 @@ const MessageInputV2 = <
 
   const accept = useMemo(
     () =>
-      zipObject(
-        acceptedFiles,
-        Array.from({ length: acceptedFiles.length }, () => []),
-      ),
+      acceptedFiles.reduce<Record<string, Array<string>>>((mediaTypeMap, mediaType) => {
+        mediaTypeMap[mediaType] ??= [];
+        return mediaTypeMap;
+      }, {}),
     [acceptedFiles],
   );
 

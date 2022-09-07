@@ -1,6 +1,5 @@
 import React from 'react';
 import { nanoid } from 'nanoid';
-import { getNodeText } from '@testing-library/dom';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -1304,15 +1303,13 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const updateCount = parseInt(getNodeText(getByTestId('channelUpdateCount')), 10);
+        const updateCount = parseInt(getByTestId('channelUpdateCount').textContent, 10);
 
         useMockedApis(chatClientUthred, [queryChannelsApi([channel2])]);
         act(() => dispatchConnectionRecoveredEvent(chatClientUthred));
 
         await waitFor(() => {
-          expect(parseInt(getNodeText(getByTestId('channelUpdateCount')), 10)).toBe(
-            updateCount + 1,
-          );
+          expect(parseInt(getByTestId('channelUpdateCount').textContent, 10)).toBe(updateCount + 1);
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();

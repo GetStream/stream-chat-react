@@ -49,17 +49,9 @@ export type EmojiContextValue = {
   EmojiPicker?: React.ComponentType<NimblePickerProps>;
 };
 
-const DefaultEmoji = React.lazy(async () => {
-  //@ts-expect-error
-  const emoji = await import('emoji-mart/dist/components/emoji/nimble-emoji.js');
-  return { default: emoji.default };
-});
+const DefaultEmoji = React.lazy(() => import('./DefaultEmoji'));
 
-const DefaultEmojiPicker = React.lazy(async () => {
-  // @ts-expect-error
-  const emojiPicker = await import('emoji-mart/dist/components/picker/nimble-picker.js');
-  return { default: emojiPicker.default };
-});
+const DefaultEmojiPicker = React.lazy(() => import('./DefaultEmojiPicker'));
 
 export const EmojiContext = React.createContext<EmojiContextValue | undefined>(undefined);
 

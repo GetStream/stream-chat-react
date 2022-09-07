@@ -568,16 +568,16 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const jumpToMessage = async (messageId: string) => {
+  const jumpToMessage = async (messageId: string, messageLimit = 100) => {
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
-    await channel.state.loadMessageIntoState(messageId);
+    await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
     /**
      * if the message we are jumping to has less than half of the page size older messages,
      * we have jumped to the beginning of the channel.
      */
     const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
-    const hasMoreMessages = indexOfMessage >= Math.floor(DEFAULT_INITIAL_CHANNEL_PAGE_SIZE / 2);
+    const hasMoreMessages = indexOfMessage >= Math.floor(messageLimit / 2);
 
     loadMoreFinished(hasMoreMessages, channel.state.messages);
     dispatch({

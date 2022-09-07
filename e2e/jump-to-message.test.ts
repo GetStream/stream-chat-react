@@ -40,7 +40,7 @@ suiteArray.forEach(([mode, story]) => {
   });
 });
 
-test.describe('jump to messsage - dataset', () => {
+test.describe('jump to message - dataset', () => {
   test('only the current message set is loaded', async ({ controller, page, user }) => {
     await controller.openStory(
       'jump-to-message--jump-in-regular-message-list',
@@ -52,6 +52,6 @@ test.describe('jump to messsage - dataset', () => {
       page.click(controlsButtonSelector),
     ]);
 
-    await user.sees(MessageList).hasLength(26);
+    await user.sees(MessageList).hasLength(100 + 1);
   });
 });

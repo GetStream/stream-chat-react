@@ -86,8 +86,21 @@ export const useProcessReactions = <
     [reactionCounts, supportedReactionsArePresent],
   );
 
+  const aggregatedUserNamesByType = useMemo(
+    () =>
+      latestReactions.reduce<Record<string, Array<string>>>((typeMap, { type, user }) => {
+        typeMap[type] ??= [];
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        typeMap[type].push(user?.name || user!.id);
+        return typeMap;
+      }, {}),
+    [latestReactions],
+  );
+
   return {
     additionalEmojiProps: reactionsAreCustom ? additionalEmojiProps : emojiSetDef,
+    aggregatedUserNamesByType,
     emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
