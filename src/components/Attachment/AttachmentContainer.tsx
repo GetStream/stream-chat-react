@@ -175,6 +175,7 @@ export const MediaContainer = <
               controls
               height='100%'
               url={attachment.asset_url}
+              config={{ file: { attributes: { poster: attachment.thumb_url } } }}
               width='100%'
             />
           </div>
@@ -189,6 +190,7 @@ export const MediaContainer = <
       <div className='str-chat__player-wrapper'>
         <Media
           className='react-player'
+          config={{ file: { attributes: { poster: attachment.thumb_url } } }}
           controls
           height='100%'
           url={attachment.asset_url}
