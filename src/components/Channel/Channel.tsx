@@ -568,6 +568,8 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
+  const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const jumpToMessage = async (messageId: string, messageLimit = 100) => {
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
     await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
@@ -586,7 +588,12 @@ const ChannelInner = <
       type: 'jumpToMessageFinished',
     });
 
-    setTimeout(() => {
+    if (clearHighlightedMessageTimeoutId.current) {
+      clearTimeout(clearHighlightedMessageTimeoutId.current);
+    }
+
+    clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+      clearHighlightedMessageTimeoutId.current = null;
       dispatch({ type: 'clearHighlightedMessage' });
     }, 500);
   };
