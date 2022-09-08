@@ -87,6 +87,7 @@ export const useSubmitHandler = <
         asset_url: upload.url,
         file_size: upload.file.size,
         mime_type: upload.file.type,
+        thumb_url: upload.thumb_url,
         title: upload.file.name,
         type: getAttachmentTypeFromMime(upload.file.type || ''),
       }));

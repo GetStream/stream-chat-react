@@ -100,6 +100,7 @@ export const useFileUploads = <
       dispatch({
         id,
         state: 'finished',
+        thumb_url: response.thumb_url,
         type: 'setFileUpload',
         url: response.file,
       });
