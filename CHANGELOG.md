@@ -1,3 +1,10 @@
+## [9.5.1](https://github.com/GetStream/stream-chat-react/compare/v9.5.0...v9.5.1) (2022-09-08)
+
+
+### Bug Fixes
+
+* avoid race condition crash in jumping ([488a1b1](https://github.com/GetStream/stream-chat-react/commit/488a1b1981eeecedb5d26b22dff581f6cf9a5338))
+
 # [9.5.0](https://github.com/GetStream/stream-chat-react/compare/v9.4.1...v9.5.0) (2022-08-29)
 
 
