@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - docusaurus/**
+      - .github/workflows/docusaurus.yml
 env:
   branch_map: '{"refs/heads/master": "production", "refs/heads/develop": "staging"}'
 
@@ -17,18 +18,10 @@ jobs:
     steps:
       - name: Pull stream-chat-react
         uses: actions/checkout@v3
-      # This part here is cloning a second repository
-      # While cloning the repository:
-      #   - it clones the repo into the given `path`
-      #   - it checks out the branch defined at `ref` (version tag)
-      - name: Pull stream-chat-css
-        uses: actions/checkout@v3
-        with:
-          repository: GetStream/stream-chat-css
-          path: stream-chat-css
-          ref: v${{ node -e 'pkg=require("./package.json"); console.log(pkg.dependencies["@stream-io/stream-chat-css"])' }}
+      - name: 🔨 Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
       - name: Merge docs stream-chat-css
-        run: bash scripts/merge-stream-chat-css-docs.sh stream-chat-css/docs
+        run: bash scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs
       - name: Push to stream-chat-docusaurus
         uses: GetStream/push-stream-chat-docusaurus-action@main
         with:
