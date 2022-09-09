@@ -1,7 +1,8 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 import ReactPlayer from 'react-player';
-import { nanoid } from 'nanoid';
+import clsx from 'clsx';
 
+import type { ATTACHMENT_GROUPS_ORDER } from './Attachment';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { Card as DefaultCard } from './Card';
@@ -14,18 +15,22 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
+export type AttachmentComponentType = typeof ATTACHMENT_GROUPS_ORDER[number];
+
+export type GroupedRenderedAttachment = Record<AttachmentComponentType, ReactNode[]>;
+
 export type GalleryAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   images: Attachment<StreamChatGenerics>[];
-  type: string;
+  type: 'gallery';
 };
 
 export type AttachmentContainerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
-  componentType: string;
+  componentType: AttachmentComponentType;
 };
 
 export type RenderAttachmentProps<
@@ -40,12 +45,23 @@ export type RenderGalleryProps<
   attachment: GalleryAttachment<StreamChatGenerics>;
 };
 
+export const isScrapedContent = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
+) => attachment.og_scrape_url || attachment.title_link;
+
+export const isUploadedImage = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
+) => attachment.type === 'image' && !isScrapedContent(attachment);
+
 export const isGalleryAttachmentType = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   output: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>,
-): output is GalleryAttachment<StreamChatGenerics> =>
-  (output as GalleryAttachment<StreamChatGenerics>).images != null;
+): output is GalleryAttachment<StreamChatGenerics> => Array.isArray(output.images);
 
 export const isAudioAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -63,12 +79,6 @@ export const isFileAttachment = <
     SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) === -1 &&
     attachment.type !== 'video');
 
-export const isImageAttachment = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  attachment: Attachment<StreamChatGenerics>,
-) => attachment.type === 'image' && !attachment.title_link && !attachment.og_scrape_url;
-
 export const isMediaAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -77,38 +87,48 @@ export const isMediaAttachment = <
   (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';
 
+export const isSvgAttachment = (attachment: Attachment) => {
+  const filename = attachment.fallback || '';
+  return filename.toLowerCase().endsWith('.svg');
+};
+
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/AttachmentWithinContainer`
+ */
 export const renderAttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: PropsWithChildren<AttachmentContainerProps<StreamChatGenerics>>,
 ) => {
   const { attachment, children, componentType } = props;
-
+  const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
 
-  if (!isGalleryAttachmentType(attachment)) {
+  if (!isGAT) {
     extra =
       componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
         ? 'no-image'
-        : attachment && attachment.actions && attachment.actions.length
+        : attachment?.actions?.length
         ? 'actions'
         : '';
   }
 
-  return (
-    <div
-      className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
-        attachment?.type || ''
-      } str-chat__message-attachment--${componentType}--${extra}`}
-      key={`${isGalleryAttachmentType(attachment) ? '' : attachment?.id || nanoid()}-${
-        attachment?.type || 'none'
-      } `}
-    >
-      {children}
-    </div>
-  );
+  const classNames = clsx('str-chat__message-attachment', {
+    [`str-chat__message-attachment--${componentType}`]: componentType,
+    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+    'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
+    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+  });
+
+  return <div className={classNames}>{children}</div>;
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/AttachmentActionsContainer`
+ */
 export const renderAttachmentActions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -130,6 +150,10 @@ export const renderAttachmentActions = <
   );
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/GalleryContainer`
+ */
 export const renderGallery = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -144,6 +168,10 @@ export const renderGallery = <
   });
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/ImageContainer`
+ */
 export const renderImage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -171,6 +199,10 @@ export const renderImage = <
   });
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/CardContainer`
+ */
 export const renderCard = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -198,6 +230,10 @@ export const renderCard = <
   });
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/FileContainer`
+ */
 export const renderFile = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -214,6 +250,10 @@ export const renderFile = <
   });
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/AudioContainer`
+ */
 export const renderAudio = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -232,6 +272,10 @@ export const renderAudio = <
   });
 };
 
+/**
+ * @deprecated will be removed in the next major release,
+ * replaced with the proper component equivalent `AttachmentContainer/MediaContainer`
+ */
 export const renderMedia = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(

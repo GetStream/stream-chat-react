@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
-import { getDisplayImage, getDisplayTitle, getLatestMessagePreview } from './utils';
+import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
+import { getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -28,6 +29,8 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /** Custom ChannelPreview click handler function */
+  onSelect?: (event: React.MouseEvent) => void;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -43,7 +46,11 @@ export type ChannelPreviewProps<
   Avatar?: React.ComponentType<AvatarProps>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
+  /** Custom class for the channel preview root */
+  className?: string;
   key?: string;
+  /** Custom ChannelPreview click handler function */
+  onSelect?: (event: React.MouseEvent) => void;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
   /** Setter for selected Channel */
@@ -62,8 +69,7 @@ export const ChannelPreview = <
     'ChannelPreview',
   );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
-  const [displayTitle, setDisplayTitle] = useState(getDisplayTitle(channel, client.user));
-  const [displayImage, setDisplayImage] = useState(getDisplayImage(channel, client.user));
+  const { displayImage, displayTitle } = useChannelPreviewInfo({ channel });
 
   const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
@@ -109,24 +115,6 @@ export const ChannelPreview = <
       channel.off('message.deleted', handleEvent);
     };
   }, [refreshUnreadCount, channelUpdateCount]);
-
-  useEffect(() => {
-    const handleEvent = () => {
-      setDisplayTitle((displayTitle) => {
-        const newDisplayTitle = getDisplayTitle(channel, client.user);
-        return displayTitle !== newDisplayTitle ? newDisplayTitle : displayTitle;
-      });
-      setDisplayImage((displayImage) => {
-        const newDisplayImage = getDisplayImage(channel, client.user);
-        return displayImage !== newDisplayImage ? newDisplayImage : displayImage;
-      });
-    };
-
-    client.on('user.updated', handleEvent);
-    return () => {
-      client.off('user.updated', handleEvent);
-    };
-  }, []);
 
   if (!Preview) return null;
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
@@ -75,5 +75,19 @@ describe('ChannelPreviewMessenger', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should render custom class name', () => {
+    const className = 'custom-xxx';
+    const { container } = render(renderComponent({ className }));
+    expect(container.querySelector(`.${className}`)).toBeInTheDocument();
+  });
+
+  it('should call custom onSelect function', () => {
+    const onSelect = jest.fn();
+    render(renderComponent({ onSelect }));
+    const previewButton = screen.queryByTestId('channel-preview-button');
+    fireEvent.click(previewButton);
+    expect(onSelect).toHaveBeenCalledTimes(1);
   });
 });

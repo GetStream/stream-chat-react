@@ -13,7 +13,7 @@ const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificatio
   return (
     <div
       aria-live='polite'
-      className={`str-chat__custom-notification notification-${type}`}
+      className={`str-chat__custom-notification notification-${type} str-chat__notification`}
       data-testid='custom-notification'
     >
       {children}

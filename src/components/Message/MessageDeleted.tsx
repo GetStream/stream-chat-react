@@ -27,7 +27,7 @@ export const MessageDeleted = <
 
   const messageClasses = isMyMessage
     ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
-    : 'str-chat__message str-chat__message-simple';
+    : 'str-chat__message str-chat__message-simple str-chat__message--other';
 
   return (
     <div

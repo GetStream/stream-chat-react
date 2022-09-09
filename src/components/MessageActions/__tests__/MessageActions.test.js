@@ -65,7 +65,10 @@ describe('<MessageActions /> component', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+        className="
+        str-chat__message-simple__actions__action
+        str-chat__message-simple__actions__action--options
+        str-chat__message-actions-container"
         data-testid="message-actions"
         onClick={[Function]}
       >
@@ -74,8 +77,10 @@ describe('<MessageActions /> component', () => {
           aria-expanded={false}
           aria-haspopup="true"
           aria-label="Open Message Actions Menu"
+          className="str-chat__message-actions-box-button"
         >
           <svg
+            className="str-chat__message-action-icon"
             height="4"
             viewBox="0 0 11 4"
             width="11"
@@ -243,8 +248,10 @@ describe('<MessageActions /> component', () => {
           aria-expanded={false}
           aria-haspopup="true"
           aria-label="Open Message Actions Menu"
+          className="str-chat__message-actions-box-button"
         >
           <svg
+            className="str-chat__message-action-icon"
             height="4"
             viewBox="0 0 11 4"
             width="11"
@@ -269,7 +276,10 @@ describe('<MessageActions /> component', () => {
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <span
-        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options"
+        className="
+        str-chat__message-simple__actions__action
+        str-chat__message-simple__actions__action--options
+        str-chat__message-actions-container"
         data-testid="message-actions"
         onClick={[Function]}
       >
@@ -278,8 +288,10 @@ describe('<MessageActions /> component', () => {
           aria-expanded={false}
           aria-haspopup="true"
           aria-label="Open Message Actions Menu"
+          className="str-chat__message-actions-box-button"
         >
           <svg
+            className="str-chat__message-action-icon"
             height="4"
             viewBox="0 0 11 4"
             width="11"

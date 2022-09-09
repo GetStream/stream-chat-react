@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ResizeObserver as Polyfill } from '@juggle/resize-observer';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 
@@ -7,16 +6,12 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-const isBrowser = typeof window !== 'undefined';
-const ResizeObserver = (isBrowser && window.ResizeObserver) || Polyfill;
-
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   suppressAutoscroll: boolean;
-  ulElement: HTMLUListElement | null;
   currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
@@ -33,12 +28,12 @@ export const useScrollLocationLogic = <
     hasMoreNewer,
     suppressAutoscroll,
     listElement,
-    ulElement,
   } = params;
 
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [wrapperRect, setWrapperRect] = useState<DOMRect>();
 
+  const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
   const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
@@ -54,34 +49,6 @@ export const useScrollLocationLogic = <
     });
     setHasNewMessages(false);
   }, [listElement, hasMoreNewer, suppressAutoscroll]);
-
-  useEffect(() => {
-    if (!listElement) return;
-    const observer = new ResizeObserver(scrollToBottom);
-
-    const cancelObserverOnUserScroll = () => {
-      scrollCounter.current.scroll += 1;
-      const userScrolled = scrollCounter.current.autoScroll < scrollCounter.current.scroll;
-      if (ulElement && userScrolled) {
-        observer.unobserve(ulElement);
-        listElement?.removeEventListener('scroll', cancelObserverOnUserScroll);
-      }
-    };
-
-    if (ulElement) {
-      observer.observe(ulElement);
-    }
-
-    listElement.addEventListener('scroll', cancelObserverOnUserScroll);
-
-    return () => {
-      observer.disconnect();
-
-      if (listElement) {
-        listElement.removeEventListener('scroll', cancelObserverOnUserScroll);
-      }
-    };
-  }, [ulElement, scrollToBottom]);
 
   useLayoutEffect(() => {
     if (listElement) {
@@ -115,11 +82,17 @@ export const useScrollLocationLogic = <
       const offsetHeight = element.offsetHeight;
       const scrollHeight = element.scrollHeight;
 
+      const prevCloseToBottom = closeToBottom.current;
       closeToBottom.current = scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
 
       if (closeToBottom.current) {
         setHasNewMessages(false);
+      }
+      if (prevCloseToBottom && !closeToBottom.current) {
+        setIsMessageListScrolledToBottom(false);
+      } else if (!prevCloseToBottom && closeToBottom.current) {
+        setIsMessageListScrolledToBottom(true);
       }
     },
     [updateScrollTop, closeToTop, closeToBottom, scrolledUpThreshold],
@@ -130,14 +103,14 @@ export const useScrollLocationLogic = <
      * A load event (emitted by e.g. an <img>) was captured on a message.
      * In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
      */
-    if (closeToBottom.current && !closeToTop.current) {
+    if (closeToBottom.current) {
       scrollToBottom();
     }
   }, [closeToTop, closeToBottom, scrollToBottom]);
 
   return {
     hasNewMessages,
-    listElement,
+    isMessageListScrolledToBottom,
     onMessageLoadCaptured,
     onScroll,
     scrollToBottom,

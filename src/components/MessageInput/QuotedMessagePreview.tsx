@@ -1,37 +1,34 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import type { TranslationLanguages } from 'stream-chat';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { CloseIcon } from './icons';
 
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { TranslationLanguages } from 'stream-chat';
+import { useChatContext } from '../../context/ChatContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-const QuotedMessagePreviewHeader = <
+export const QuotedMessagePreviewHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('QuotedMessagePreview');
   const { t } = useTranslationContext('QuotedMessagePreview');
 
   return (
-    <div className='quoted-message-preview-header'>
-      <div>{t<string>('Reply to Message')}</div>
+    <div className='quoted-message-preview-header str-chat__quoted-message-preview-header'>
+      <div className='str-chat__quoted-message-reply-to-message'>
+        {t<string>('Reply to Message')}
+      </div>
       <button
         aria-label='Cancel Reply'
-        className='str-chat__square-button'
+        className='str-chat__square-button str-chat__quoted-message-remove'
         onClick={() => setQuotedMessage(undefined)}
       >
-        <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
-          <path
-            d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
-            fillRule='evenodd'
-          />
-        </svg>
+        <CloseIcon />
       </button>
     </div>
   );
@@ -45,32 +42,33 @@ export type QuotedMessagePreviewProps<
 
 export const QuotedMessagePreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: QuotedMessagePreviewProps<StreamChatGenerics>,
-) => {
-  const { quotedMessage } = props;
-
-  const { Attachment, Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>(
+>({
+  quotedMessage,
+}: QuotedMessagePreviewProps<StreamChatGenerics>) => {
+  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<StreamChatGenerics>(
     'QuotedMessagePreview',
   );
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
-
-  const Avatar = ContextAvatar || DefaultAvatar;
+  const { themeVersion } = useChatContext('QuotedMessagePreview');
 
   const quotedMessageText =
     quotedMessage.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     quotedMessage.text;
 
-  const quotedMessageAttachment = quotedMessage.attachments?.length
-    ? quotedMessage.attachments[0]
-    : null;
+  const quotedMessageAttachment = useMemo(() => {
+    const [attachment] = quotedMessage.attachments ?? [];
+    return attachment ? [attachment] : [];
+  }, [quotedMessage.attachments]);
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
+  // TODO: remove div.quoted-message-preview-content when deprecating V1 theming
+  // move str-chat__quoted-message-preview to main div
+
   return (
-    <div className='quoted-message-preview'>
-      <QuotedMessagePreviewHeader />
-      <div className='quoted-message-preview-content'>
+    <div className='quoted-message-preview' data-testid='quoted-message-preview'>
+      {themeVersion === '1' && <QuotedMessagePreviewHeader />}
+      <div className='quoted-message-preview-content str-chat__quoted-message-preview'>
         {quotedMessage.user && (
           <Avatar
             image={quotedMessage.user.image}
@@ -79,9 +77,12 @@ export const QuotedMessagePreview = <
             user={quotedMessage.user}
           />
         )}
-        <div className='quoted-message-preview-content-inner'>
-          {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
-          <div>{quotedMessageText}</div>
+        <div className='quoted-message-preview-content-inner str-chat__quoted-message-bubble'>
+          {!!quotedMessageAttachment.length && <Attachment attachments={quotedMessageAttachment} />}
+          <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
+            {themeVersion === '2' && <p>{quotedMessageText}</p>}
+            {themeVersion === '1' && <>{quotedMessageText}</>}
+          </div>
         </div>
       </div>
     </div>

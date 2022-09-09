@@ -2,56 +2,36 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-import type { ChannelOrUserResponse } from './utils';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export type ChannelSearchFunctionParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  setQuery: React.Dispatch<React.SetStateAction<string>>;
-  setResults: React.Dispatch<
-    React.SetStateAction<Array<ChannelOrUserResponse<StreamChatGenerics>>>
-  >;
-  setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setSearching: React.Dispatch<React.SetStateAction<boolean>>;
+export type SearchInputController = {
+  /** Clears the channel search state */
+  clearState: () => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+  /** Search input change handler */
+  onSearch: React.ChangeEventHandler<HTMLInputElement>;
+  /** Current search string */
+  query: string;
 };
 
-export type SearchInputProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  channelSearchParams: {
-    setQuery: React.Dispatch<React.SetStateAction<string>>;
-    setResults: React.Dispatch<React.SetStateAction<ChannelOrUserResponse<StreamChatGenerics>[]>>;
-    setResultsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setSearching: React.Dispatch<React.SetStateAction<boolean>>;
-  };
-  inputRef: React.RefObject<HTMLInputElement>;
-  onSearch: (event: React.BaseSyntheticEvent) => void;
-  query: string;
+export type AdditionalSearchInputProps = {
+  /** Sets the input element into disabled state */
+  disabled?: boolean;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
-  searchFunction?: (
-    params: ChannelSearchFunctionParams<StreamChatGenerics>,
-    event: React.BaseSyntheticEvent,
-  ) => Promise<void> | void;
 };
 
-export const SearchInput = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: SearchInputProps<StreamChatGenerics>,
-) => {
-  const { channelSearchParams, inputRef, onSearch, placeholder, query, searchFunction } = props;
+export type SearchInputProps = AdditionalSearchInputProps & SearchInputController;
+
+export const SearchInput = (props: SearchInputProps) => {
+  const { disabled, inputRef, onSearch, placeholder, query } = props;
 
   const { t } = useTranslationContext('SearchInput');
 
   return (
     <input
       className='str-chat__channel-search-input'
-      onChange={(event: React.BaseSyntheticEvent) =>
-        searchFunction ? searchFunction(channelSearchParams, event) : onSearch(event)
-      }
+      data-testid='search-input'
+      disabled={disabled}
+      onChange={onSearch}
       placeholder={placeholder ?? t('Search')}
       ref={inputRef}
       type='text'

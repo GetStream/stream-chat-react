@@ -1,5 +1,7 @@
 import React from 'react';
+import clsx from 'clsx';
 
+import { MessageErrorIcon } from './icons';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
@@ -18,6 +20,7 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
@@ -67,13 +70,10 @@ const MessageSimpleWithContext = <
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
+  const { themeVersion } = useChatContext('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
-
-  const messageClasses = isMyMessage()
-    ? 'str-chat__message str-chat__message--me str-chat__message-simple str-chat__message-simple--me'
-    : 'str-chat__message str-chat__message-simple';
 
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) {
     return null;
@@ -83,12 +83,39 @@ const MessageSimpleWithContext = <
     return <MessageDeleted message={message} />;
   }
 
+  const showMetadata = !groupedByUser || endOfGroup;
+  const showReplyCountButton = !threadList && !!message.reply_count;
+  const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+
+  const rootClassName = clsx(
+    'str-chat__message str-chat__message-simple',
+    `str-chat__message--${message.type}`,
+    `str-chat__message--${message.status}`,
+    isMyMessage()
+      ? 'str-chat__message--me str-chat__message-simple--me'
+      : 'str-chat__message--other',
+    message.text ? 'str-chat__message--has-text' : 'has-no-text',
+    {
+      'pinned-message': message.pinned,
+      'str-chat__message--has-attachment': hasAttachment,
+      'str-chat__message--highlighted': highlighted,
+      'str-chat__message--with-reactions str-chat__message-with-thread-link':
+        hasReactions && isReactionEnabled,
+      'str-chat__message-send-can-be-retried':
+        message?.status === 'failed' && message?.errorStatusCode !== 403,
+      'str-chat__virtual-message__wrapper--end': endOfGroup,
+      'str-chat__virtual-message__wrapper--first': firstOfGroup,
+      'str-chat__virtual-message__wrapper--group': groupedByUser,
+    },
+  );
+
   return (
     <>
       {editing && (
         <Modal onClose={clearEditingState} open={editing}>
           <MessageInput
             clearEditingState={clearEditingState}
+            grow
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}
@@ -96,23 +123,8 @@ const MessageSimpleWithContext = <
         </Modal>
       )}
       {
-        <div
-          className={`
-						${messageClasses}
-						str-chat__message--${message.type}
-						str-chat__message--${message.status}
-						${message.text ? 'str-chat__message--has-text' : 'has-no-text'}
-						${hasAttachment ? 'str-chat__message--has-attachment' : ''}
-            ${hasReactions && isReactionEnabled ? 'str-chat__message--with-reactions' : ''}
-            ${highlighted ? 'str-chat__message--highlighted' : ''}
-            ${message.pinned ? 'pinned-message' : ''}
-            ${groupedByUser ? 'str-chat__virtual-message__wrapper--group' : ''}
-            ${firstOfGroup ? 'str-chat__virtual-message__wrapper--first' : ''}
-            ${endOfGroup ? 'str-chat__virtual-message__wrapper--end' : ''}
-					`.trim()}
-          key={message.id}
-        >
-          <MessageStatus />
+        <div className={rootClassName} key={message.id}>
+          {themeVersion === '1' && <MessageStatus />}
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -123,49 +135,42 @@ const MessageSimpleWithContext = <
             />
           )}
           <div
-            className='str-chat__message-inner'
+            className={clsx('str-chat__message-inner', {
+              'str-chat__simple-message--error-failed': allowRetry,
+            })}
             data-testid='message-inner'
-            onClick={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
-            onKeyPress={
-              message.status === 'failed' && message.errorStatusCode !== 403
-                ? () => handleRetry(message)
-                : undefined
-            }
+            onClick={allowRetry ? () => handleRetry(message) : undefined}
+            onKeyUp={allowRetry ? () => handleRetry(message) : undefined}
           >
-            <>
-              <MessageOptions />
-              {hasReactions && !showDetailedReactions && isReactionEnabled && (
-                <ReactionsList reverse />
-              )}
+            <MessageOptions />
+            <div className='str-chat__message-reactions-host'>
+              {hasReactions && isReactionEnabled && <ReactionsList reverse />}
               {showDetailedReactions && isReactionEnabled && (
                 <ReactionSelector ref={reactionSelectorRef} />
               )}
-            </>
-            {message.attachments?.length && !message.quoted_message ? (
-              <Attachment actionHandler={handleAction} attachments={message.attachments} />
-            ) : null}
-            <MessageText message={message} />
-            {message.mml && (
-              <MML
-                actionHandler={handleAction}
-                align={isMyMessage() ? 'right' : 'left'}
-                source={message.mml}
+            </div>
+            <div className='str-chat__message-bubble'>
+              {message.attachments?.length && !message.quoted_message ? (
+                <Attachment actionHandler={handleAction} attachments={message.attachments} />
+              ) : null}
+              <MessageText message={message} />
+              {message.mml && (
+                <MML
+                  actionHandler={handleAction}
+                  align={isMyMessage() ? 'right' : 'left'}
+                  source={message.mml}
+                />
+              )}
+              {themeVersion === '2' && <MessageErrorIcon />}
+            </div>
+            {showReplyCountButton && themeVersion === '1' && (
+              <MessageRepliesCountButton
+                onClick={handleOpenThread}
+                reply_count={message.reply_count}
               />
             )}
-            {!threadList && !!message.reply_count && (
-              <div className='str-chat__message-simple-reply-button'>
-                <MessageRepliesCountButton
-                  onClick={handleOpenThread}
-                  reply_count={message.reply_count}
-                />
-              </div>
-            )}
-            {(!groupedByUser || endOfGroup) && (
-              <div className={`str-chat__message-data str-chat__message-simple-data`}>
+            {showMetadata && themeVersion === '1' && (
+              <div className='str-chat__message-data str-chat__message-simple-data'>
                 {!isMyMessage() && message.user ? (
                   <span className='str-chat__message-simple-name'>
                     {message.user.name || message.user.id}
@@ -175,6 +180,23 @@ const MessageSimpleWithContext = <
               </div>
             )}
           </div>
+          {showReplyCountButton && themeVersion === '2' && (
+            <MessageRepliesCountButton
+              onClick={handleOpenThread}
+              reply_count={message.reply_count}
+            />
+          )}
+          {showMetadata && themeVersion === '2' && (
+            <div className='str-chat__message-data str-chat__message-simple-data str-chat__message-metadata'>
+              <MessageStatus />
+              {!isMyMessage() && !!message.user && (
+                <span className='str-chat__message-simple-name'>
+                  {message.user.name || message.user.id}
+                </span>
+              )}
+              <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
+            </div>
+          )}
         </div>
       }
     </>

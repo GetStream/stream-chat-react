@@ -62,7 +62,7 @@ export const usePaginatedChannels = <
       }
     } catch (err) {
       console.warn(err);
-      setError(err);
+      setError(err as Error);
     }
 
     setQueryInProgress(null);

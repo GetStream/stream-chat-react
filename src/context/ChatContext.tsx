@@ -21,6 +21,10 @@ type CSSClasses =
 
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
+type ChannelCID = string; // e.g.: "messaging:general"
+
+export type ThemeVersion = '1' | '2';
+
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -28,7 +32,7 @@ export type ChatContextValue<
   client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
-  latestMessageDatesByChannels: { [key: string]: Date };
+  latestMessageDatesByChannels: Record<ChannelCID, Date>;
   mutes: Array<Mute<StreamChatGenerics>>;
   openMobileNav: () => void;
   setActiveChannel: (
@@ -38,6 +42,7 @@ export type ChatContextValue<
   ) => void;
   /** @deprecated */
   theme: Theme;
+  themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<StreamChatGenerics>;
   customClasses?: CustomClasses;
