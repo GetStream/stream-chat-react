@@ -1,6 +1,10 @@
 /* eslint-disable no-continue */
 import { nanoid } from 'nanoid';
 
+import {
+  DEFAULT_MAIN_MSG_LIST_CONTAINER_ID,
+  DEFAULT_THREAD_MSG_LIST_CONTAINER_ID,
+} from '../../constants/elements';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import { isDate } from '../../context/TranslationContext';
@@ -320,3 +324,6 @@ export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: nu
 
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages < limit;
+
+export const getMsgListContainerId = (threadList?: boolean) =>
+  threadList ? DEFAULT_THREAD_MSG_LIST_CONTAINER_ID : DEFAULT_MAIN_MSG_LIST_CONTAINER_ID;

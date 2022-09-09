@@ -22,7 +22,7 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
-import { MessageListMainPanel } from './MessageListMainPanel';
+import { getMsgListContainerId } from './utils';
 
 import type { GroupStyle } from './utils';
 
@@ -59,6 +59,7 @@ const MessageListWithContext = <
     headerPosition,
     read,
     messageLimit = 100,
+    messageListContainerId = getMsgListContainerId(props.threadList),
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
@@ -122,6 +123,8 @@ const MessageListWithContext = <
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
       Message: props.Message,
       messageActions,
+      messageListContainer: listElement,
+      messageListContainerId,
       messageListRect: wrapperRect,
       onlySenderCanEdit: props.onlySenderCanEdit,
       onMentionsClick: props.onMentionsClick,
@@ -177,9 +180,10 @@ const MessageListWithContext = <
 
   return (
     <>
-      <MessageListMainPanel>
+      <div className='str-chat__main-panel-inner'>
         <div
           className={`${messageListClass} ${threadListClass}`}
+          id={messageListContainerId}
           onScroll={onScroll}
           ref={setListElement}
           tabIndex={0}
@@ -215,7 +219,7 @@ const MessageListWithContext = <
             </InfiniteScroll>
           )}
         </div>
-      </MessageListMainPanel>
+      </div>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}
@@ -290,6 +294,8 @@ export type MessageListProps<
   loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
   /** The limit to use when paginating messages */
   messageLimit?: number;
+  /** Custom wrapping message list element id */
+  messageListContainerId?: string;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
   messages?: StreamMessage<StreamChatGenerics>[];
   /** If true, turns off message UI grouping by user */

@@ -16,8 +16,7 @@ import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
 import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
-import { MessageListMainPanel } from './MessageListMainPanel';
-import { getGroupStyles, GroupStyle, processMessages } from './utils';
+import { getGroupStyles, getMsgListContainerId, GroupStyle, processMessages } from './utils';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
@@ -121,6 +120,7 @@ const VirtualizedMessageListWithContext = <
     loadMoreNewer,
     Message: propMessage,
     messageLimit = 100,
+    messageListContainerId = getMsgListContainerId(props.threadList),
     messages,
     notifications,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
@@ -151,6 +151,8 @@ const VirtualizedMessageListWithContext = <
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
 
   const { client, customClasses } = useChatContext<StreamChatGenerics>('VirtualizedMessageList');
+
+  const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
@@ -346,10 +348,18 @@ const VirtualizedMessageListWithContext = <
           message={message}
           Message={MessageUIComponent}
           messageActions={props.messageActions}
+          messageListContainer={listElement}
+          messageListContainerId={messageListContainerId}
         />
       );
     },
-    [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
+    [
+      messageListContainerId,
+      customMessageRenderer,
+      listElement,
+      shouldGroupByUser,
+      numItemsPrepended,
+    ],
   );
 
   const Item = useMemo(() => {
@@ -442,8 +452,11 @@ const VirtualizedMessageListWithContext = <
 
   return (
     <>
-      <MessageListMainPanel>
-        <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
+      <div className='str-chat__main-panel-inner'>
+        <div
+          className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
+          ref={setListElement}
+        >
           <Virtuoso
             atBottomStateChange={atBottomStateChange}
             atBottomThreshold={200}
@@ -473,7 +486,7 @@ const VirtualizedMessageListWithContext = <
             {...(defaultItemHeight ? { defaultItemHeight } : {})}
           />
         </div>
-      </MessageListMainPanel>
+      </div>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
         isMessageListScrolledToBottom={isMessageListScrolledToBottom}
@@ -535,6 +548,8 @@ export type VirtualizedMessageListProps<
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** The limit to use when paginating messages */
   messageLimit?: number;
+  /** Custom wrapping message list element id */
+  messageListContainerId?: string;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
   messages?: StreamMessage<StreamChatGenerics>[];
   /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */

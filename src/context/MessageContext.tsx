@@ -100,6 +100,10 @@ export type MessageContextValue<
   initialMessage?: boolean;
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
+  /** Wrapping container element around the message list */
+  messageListContainer?: Element | null;
+  /** Wrapping message list element id */
+  messageListContainerId?: string;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */

@@ -1,4 +1,5 @@
-import React from 'react';
+import clsx from 'clsx';
+import React, { useState } from 'react';
 
 import {
   ActionsIcon as DefaultActionsIcon,
@@ -20,7 +21,6 @@ export type MessageOptionsProps<
   /** @deprecated: use CSS to style the order of the contents */
   displayLeft?: boolean;
   displayReplies?: boolean;
-  messageWrapperRef?: React.RefObject<HTMLDivElement>;
   ReactionIcon?: React.FunctionComponent;
   theme?: string;
   ThreadIcon?: React.FunctionComponent;
@@ -35,7 +35,6 @@ const UnMemoizedMessageOptions = <
     ActionsIcon = DefaultActionsIcon,
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
-    messageWrapperRef,
     ReactionIcon = DefaultReactionIcon,
     theme = 'simple',
     ThreadIcon = DefaultThreadIcon,
@@ -50,6 +49,8 @@ const UnMemoizedMessageOptions = <
     onReactionListClick,
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
+
+  const [visible, setVisible] = useState(false);
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
@@ -73,12 +74,14 @@ const UnMemoizedMessageOptions = <
     return null;
   }
 
-  const rootClassName = `str-chat__message-${theme}__actions str-chat__message-options`;
+  const rootClassName = clsx(`str-chat__message-${theme}__actions str-chat__message-options`, {
+    'str-chat__message-options--visible': visible,
+  });
 
   return (
     <div className={rootClassName} data-testid='message-options'>
       {showActionsBox && (
-        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+        <MessageActions ActionsIcon={ActionsIcon} setMessageOptionsVisible={setVisible} />
       )}
       {shouldShowReplies && (
         <button

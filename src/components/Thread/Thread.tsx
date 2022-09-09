@@ -15,6 +15,7 @@ import {
 } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
+import { DEFAULT_THREAD_MSG_LIST_CONTAINER_ID } from '../../constants/elements';
 
 import {
   useChannelActionContext,
@@ -52,6 +53,8 @@ export type ThreadProps<
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
+  /** Custom wrapping message list element id */
+  messageListContainerId?: string;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -90,6 +93,7 @@ const ThreadInner = <
     Input: PropInput,
     Message: PropMessage,
     messageActions = Object.keys(MESSAGE_ACTIONS),
+    messageListContainerId = DEFAULT_THREAD_MSG_LIST_CONTAINER_ID,
     virtualized,
   } = props;
 
@@ -136,6 +140,7 @@ const ThreadInner = <
       key={thread.id}
       message={thread}
       Message={MessageUIComponent}
+      messageListContainerId={messageListContainerId}
       {...additionalParentMessageProps}
     />
   );
