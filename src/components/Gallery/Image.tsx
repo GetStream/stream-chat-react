@@ -1,30 +1,43 @@
 import React, { useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-import { ModalComponent as ModalWrapper } from './ModalWrapper';
+import { Modal } from '../Modal';
+import { ModalGallery as DefaultModalGallery } from './ModalGallery';
+import { useComponentContext } from '../../context';
 
-export type ImageProps = {
-  /** The text fallback for the image */
-  fallback?: string;
-  /** The full size image url */
-  image_url?: string;
-  /** The thumb url */
-  thumb_url?: string;
-};
+import type { Attachment } from 'stream-chat';
+import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';
+
+export type ImageProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = { dimensions?: Dimensions } & (
+  | {
+      /** The text fallback for the image */
+      fallback?: string;
+      /** The full size image url */
+      image_url?: string;
+      /** The thumb url */
+      thumb_url?: string;
+    }
+  | Attachment<StreamChatGenerics>
+);
 
 /**
  * A simple component that displays an image.
  */
-export const ImageComponent = (props: ImageProps) => {
+export const ImageComponent = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  props: ImageProps<StreamChatGenerics>,
+) => {
+  const { dimensions = {}, fallback, image_url, thumb_url } = props;
+
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const { ModalGallery = DefaultModalGallery } = useComponentContext('ImageComponent');
 
-  const { fallback, image_url, thumb_url } = props;
   const imageSrc = sanitizeUrl(image_url || thumb_url);
-  const formattedArray = [
-    { original: imageSrc, originalAlt: 'User uploaded content', source: imageSrc },
-  ];
 
-  const toggleModal = () => setModalIsOpen(!modalIsOpen);
+  const toggleModal = () => setModalIsOpen((modalIsOpen) => !modalIsOpen);
 
   return (
     <>
@@ -33,17 +46,13 @@ export const ImageComponent = (props: ImageProps) => {
         className='str-chat__message-attachment--img'
         data-testid='image-test'
         onClick={toggleModal}
-        onKeyPress={toggleModal}
         src={imageSrc}
         tabIndex={0}
+        {...dimensions}
       />
-
-      <ModalWrapper
-        images={formattedArray}
-        index={0}
-        modalIsOpen={modalIsOpen}
-        toggleModal={toggleModal}
-      />
+      <Modal onClose={toggleModal} open={modalIsOpen}>
+        <ModalGallery images={[props]} index={0} />
+      </Modal>
     </>
   );
 };

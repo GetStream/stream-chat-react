@@ -91,8 +91,10 @@ const basePlugins = ({ useBrowserResolve = false }) => [
   copy({
     targets: [
       { dest: 'dist/assets', src: './node_modules/@stream-io/stream-chat-css/dist/assets/*' },
-      { dest: 'dist/css', src: './node_modules/@stream-io/stream-chat-css/dist/css/index.css' },
+      { dest: 'dist/css', src: './node_modules/@stream-io/stream-chat-css/dist/css/*' },
       { dest: 'dist/scss', src: './node_modules/@stream-io/stream-chat-css/dist/scss/*' },
+      { dest: 'dist/css/v2', src: './node_modules/@stream-io/stream-chat-css/dist/v2/css/*' },
+      { dest: 'dist/scss/v2', src: './node_modules/@stream-io/stream-chat-css/dist/v2/scss/*' },
     ],
     verbose: process.env.VERBOSE,
     watch: process.env.ROLLUP_WATCH,

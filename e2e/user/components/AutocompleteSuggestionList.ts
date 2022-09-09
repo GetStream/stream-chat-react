@@ -1,7 +1,9 @@
 import type { Page } from '@playwright/test';
 
 export const getAutocompleteSuggestionItem = (page: Page, num: number) =>
-  page.locator(`button.rta__entity >> :nth-match(span.str-chat__user-item--name, ${num})`);
+  page.locator(
+    `.str-chat__suggestion-list-item >> :nth-match(span.str-chat__user-item--name, ${num})`,
+  );
 
 export default (page: Page) => ({
   click: {

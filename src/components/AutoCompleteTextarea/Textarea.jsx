@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Textarea from 'react-textarea-autosize';
 import getCaretCoordinates from 'textarea-caret';
 import { isValidElementType } from 'react-is';
+import clsx from 'clsx';
 
 import { List as DefaultSuggestionList } from './List';
 import {
@@ -40,6 +41,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     if (!trigger) {
       throw new Error('RTA: trigger is not defined');
     }
+
     this.state = {
       actualToken: '',
       component: null,
@@ -630,6 +632,10 @@ export class ReactTextareaAutocomplete extends React.Component {
     return triggerProps;
   };
 
+  setDropdownRef = (element) => {
+    this.dropdownRef = element;
+  };
+
   renderSuggestionListContainer() {
     const {
       disableMentions,
@@ -651,16 +657,18 @@ export class ReactTextareaAutocomplete extends React.Component {
     ) {
       return (
         <div
-          className={`rta__autocomplete ${dropdownClassName || ''}`}
-          ref={(ref) => {
-            this.dropdownRef = ref;
-          }}
+          className={clsx(
+            'rta__autocomplete',
+            'str-chat__suggestion-list-container',
+            dropdownClassName,
+          )}
+          ref={this.setDropdownRef}
           style={dropdownStyle}
         >
           <SuggestionList
-            className={listClassName}
+            className={clsx('str-chat__suggestion-list', listClassName)}
             dropdownScroll={this._dropdownScroll}
-            itemClassName={itemClassName}
+            itemClassName={clsx('str-chat__suggestion-list-item', itemClassName)}
             itemStyle={itemStyle}
             onSelect={this._onSelect}
             SuggestionItem={SuggestionItem}
@@ -688,14 +696,16 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     return (
       <div
-        className={`rta ${dataLoading === true ? 'rta--loading' : ''} ${containerClassName || ''}`}
+        className={clsx('rta', containerClassName, {
+          'rta--loading': dataLoading,
+        })}
         style={containerStyle}
       >
         {this.renderSuggestionListContainer()}
         <Textarea
           data-testid='message-input'
           {...this._cleanUpProps()}
-          className={`rta__textarea ${className || ''}`}
+          className={clsx('rta__textarea', className)}
           maxRows={maxRows}
           onBlur={this._onClickAndBlurHandler}
           onChange={this._changeHandler}
@@ -705,7 +715,7 @@ export class ReactTextareaAutocomplete extends React.Component {
           onScroll={this._onScrollHandler}
           onSelect={this._selectHandler}
           ref={(ref) => {
-            if (this.props.innerRef) this.props.innerRef(ref);
+            this.props?.innerRef(ref);
             this.textareaRef = ref;
           }}
           style={style}

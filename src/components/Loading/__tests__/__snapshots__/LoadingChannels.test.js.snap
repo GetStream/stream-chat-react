@@ -5,13 +5,13 @@ exports[`LoadingChannels should render component with default props 1`] = `
   className="str-chat__loading-channels"
 >
   <div
-    className="str-chat__loading-channels-item"
+    className="str-chat__loading-channels-item str-chat__channel-preview-loading"
   >
     <div
       className="str-chat__loading-channels-avatar"
     />
     <div
-      className="str-chat__loading-channels-meta"
+      className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
     >
       <div
         className="str-chat__loading-channels-username"
@@ -22,13 +22,13 @@ exports[`LoadingChannels should render component with default props 1`] = `
     </div>
   </div>
   <div
-    className="str-chat__loading-channels-item"
+    className="str-chat__loading-channels-item str-chat__channel-preview-loading"
   >
     <div
       className="str-chat__loading-channels-avatar"
     />
     <div
-      className="str-chat__loading-channels-meta"
+      className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
     >
       <div
         className="str-chat__loading-channels-username"
@@ -39,13 +39,13 @@ exports[`LoadingChannels should render component with default props 1`] = `
     </div>
   </div>
   <div
-    className="str-chat__loading-channels-item"
+    className="str-chat__loading-channels-item str-chat__channel-preview-loading"
   >
     <div
       className="str-chat__loading-channels-avatar"
     />
     <div
-      className="str-chat__loading-channels-meta"
+      className="str-chat__loading-channels-meta str-chat__channel-preview-end-loading"
     >
       <div
         className="str-chat__loading-channels-username"

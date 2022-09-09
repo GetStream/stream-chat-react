@@ -18,7 +18,7 @@ describe('LoadMoreButton', () => {
       >
         <button
           aria-label="Load More Channels"
-          className="str-chat__load-more-button__button"
+          className="str-chat__load-more-button__button str-chat__cta-button"
           data-testid="load-more-button"
           disabled={false}
           onClick={[Function]}
@@ -44,7 +44,7 @@ describe('LoadMoreButton', () => {
     fireEvent.click(getByTestId('load-more-button'));
     expect(onClickMock).not.toHaveBeenCalledTimes(1);
     const loadingIndicator = getByTestId('load-more-button').querySelector(
-      '.rfu-loading-indicator__spinner',
+      '.str-chat__loading-indicator',
     );
     expect(loadingIndicator).toBeInTheDocument();
   });

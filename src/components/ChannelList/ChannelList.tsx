@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
 
 import { ChannelListMessenger, ChannelListMessengerProps } from './ChannelListMessenger';
 import { useChannelDeletedListener } from './hooks/useChannelDeletedListener';
@@ -43,8 +44,8 @@ const DEFAULT_SORT = {};
 export type ChannelListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Additional props for underlying ChannelSearch component, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
-  additionalChannelSearchProps?: ChannelSearchProps<StreamChatGenerics>;
+  /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
+  additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
   /**
    * When the client receives `message.new`, `notification.message_new`, and `notification.added_to_channel` events, we automatically
    * push that channel to the top of the list. If the channel doesn't currently exist in the list, we grab the channel from
@@ -188,7 +189,7 @@ const UnMemoizedChannelList = <
 
   const channelListRef = useRef<HTMLDivElement>(null);
   const [channelUpdateCount, setChannelUpdateCount] = useState(0);
-
+  const [searchActive, setSearchActive] = useState(false);
   /**
    * Set a channel with id {customActiveChannel} as active and move it to the top of the list.
    * If customActiveChannel prop is absent, then set the first channel in list as active channel.
@@ -234,6 +235,20 @@ const UnMemoizedChannelList = <
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
   const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
+
+  const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.value) {
+      setSearchActive(false);
+    } else {
+      setSearchActive(true);
+    }
+    additionalChannelSearchProps?.onSearch?.(event);
+  }, []);
+
+  const onSearchExit = useCallback(() => {
+    setSearchActive(false);
+    additionalChannelSearchProps?.onSearchExit?.();
+  }, []);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
     client,
@@ -299,43 +314,53 @@ const UnMemoizedChannelList = <
     return <ChannelPreview {...previewProps} />;
   };
 
-  const chatClass = customClasses?.chat || 'str-chat';
-  const channelListClass = customClasses?.channelList || 'str-chat-channel-list';
-  const navigationClass = navOpen ? 'str-chat-channel-list--open' : '';
-  const windowsEmojiClass =
-    useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
-      ? 'str-chat--windows-flags'
-      : '';
+  const className = clsx(
+    'str-chat__channel-list',
+    theme,
+    customClasses?.chat || 'str-chat',
+    customClasses?.channelList || 'str-chat-channel-list',
+    {
+      'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
+      'str-chat-channel-list--open': navOpen,
+    },
+  );
 
+  const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
   return (
     <>
-      <div
-        className={`${chatClass} ${channelListClass} ${theme} ${navigationClass} ${windowsEmojiClass}`}
-        ref={channelListRef}
-      >
-        {showChannelSearch && <ChannelSearch {...additionalChannelSearchProps} />}
-        <List
-          error={channelsQueryState.error}
-          loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-          loading={channelsQueryState.queryInProgress === 'reload'}
-          LoadingErrorIndicator={LoadingErrorIndicator}
-          LoadingIndicator={LoadingIndicator}
-          setChannels={setChannels}
-        >
-          {!loadedChannels?.length ? (
-            <EmptyStateIndicator listType='channel' />
-          ) : (
-            <Paginator
-              hasNextPage={hasNextPage}
-              loadNextPage={loadNextPage}
-              refreshing={channelsQueryState.queryInProgress === 'load-more'}
-            >
-              {renderChannels
-                ? renderChannels(loadedChannels, renderChannel)
-                : loadedChannels.map(renderChannel)}
-            </Paginator>
-          )}
-        </List>
+      <div className={className} ref={channelListRef}>
+        {showChannelSearch && (
+          <ChannelSearch
+            onSearch={onSearch}
+            onSearchExit={onSearchExit}
+            setChannels={setChannels}
+            {...additionalChannelSearchProps}
+          />
+        )}
+        {showChannelList && (
+          <List
+            error={channelsQueryState.error}
+            loadedChannels={sendChannelsToList ? loadedChannels : undefined}
+            loading={channelsQueryState.queryInProgress === 'reload'}
+            LoadingErrorIndicator={LoadingErrorIndicator}
+            LoadingIndicator={LoadingIndicator}
+            setChannels={setChannels}
+          >
+            {!loadedChannels?.length ? (
+              <EmptyStateIndicator listType='channel' />
+            ) : (
+              <Paginator
+                hasNextPage={hasNextPage}
+                loadNextPage={loadNextPage}
+                refreshing={channelsQueryState.queryInProgress === 'load-more'}
+              >
+                {renderChannels
+                  ? renderChannels(loadedChannels, renderChannel)
+                  : loadedChannels.map((channel) => renderChannel(channel))}
+              </Paginator>
+            )}
+          </List>
+        )}
       </div>
     </>
   );

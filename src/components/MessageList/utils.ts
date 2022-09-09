@@ -281,7 +281,8 @@ export const getGroupStyles = <
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
-    previousMessage.deleted_at;
+    previousMessage.deleted_at ||
+    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0);
 
   const isBottomMessage =
     !nextMessage ||
@@ -291,7 +292,8 @@ export const getGroupStyles = <
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
-    nextMessage.deleted_at;
+    nextMessage.deleted_at ||
+    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';
@@ -307,3 +309,14 @@ export const getGroupStyles = <
 
   return '';
 };
+
+// "Probably" included, because it may happen that the last page was returned and it has exactly the size of the limit
+// but the back-end cannot provide us with information on whether it has still more messages in the DB
+// FIXME: once the pagination state is moved from Channel to MessageList, these should be moved as well.
+//  The MessageList should have configurable the limit for performing the requests.
+//  This parameter would then be used within these functions
+export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
+  returnedCountMessages === limit;
+
+export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
+  returnedCountMessages < limit;

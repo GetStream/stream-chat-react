@@ -1,8 +1,17 @@
 .ladle-main {
   padding: 0 1rem 3rem;
 }
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
 .str-chat {
   height: 700px !important;
+}
+.str-chat-channel {
+  flex-grow: 1;
 }
 
 .str-chat-channel-list {

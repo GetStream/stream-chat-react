@@ -94,3 +94,9 @@ export type PaginatorProps = {
   /** Offset from when to start the loadNextPage call */
   threshold?: number;
 };
+
+export interface IconProps {
+  className?: string;
+}
+
+export type Dimensions = { height?: string; width?: string };

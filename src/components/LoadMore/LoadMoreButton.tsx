@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { LoadingIndicator } from 'react-file-utils';
+import { LoadingIndicator } from '../Loading';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
@@ -15,7 +15,7 @@ const UnMemoizedLoadMoreButton = (props: PropsWithChildren<LoadMoreButtonProps>)
     <div className='str-chat__load-more-button'>
       <button
         aria-label='Load More Channels'
-        className='str-chat__load-more-button__button'
+        className='str-chat__load-more-button__button str-chat__cta-button'
         data-testid='load-more-button'
         disabled={refreshing}
         onClick={onClick}

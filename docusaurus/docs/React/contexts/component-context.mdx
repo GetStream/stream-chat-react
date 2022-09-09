@@ -259,6 +259,14 @@ Custom UI component for send button.
 | --------- | -------------------------------------------------------------------------------------------------------------- |
 | component | [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) |
 
+### ThreadHead
+
+Custom UI component to be displayed at the beginning of a thread. By default it is the thread parent message. It is composed of [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) context provider component and [ThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/ThreadStart.tsx) component. The latter can be customized by passing custom component to `Channel` props. The `ThreadHead` component defaults to and accepts the same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx).
+
+| Type      | Default                                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| component | [ThreadHead](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/ThreadHead.tsx) |
+
 ### ThreadHeader
 
 Custom UI component to display the header of a `Thread`.

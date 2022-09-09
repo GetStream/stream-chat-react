@@ -195,6 +195,14 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 
 ## ReactionsList Props
 
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+| ------ |
+| object |
+
 ### onClick
 
 Custom on click handler for an individual reaction in the list (overrides the function stored in `MessageContext`).
@@ -202,6 +210,14 @@ Custom on click handler for an individual reaction in the list (overrides the fu
 | Type                                                        | Default                                                                                           |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](../contexts/message-context.mdx#onreactionlistclick) |
+
+### own_reactions
+
+An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
+
+| Type  |
+| ----- |
+| array |
 
 ### reaction_counts
 
@@ -252,6 +268,14 @@ Function that adds/removes a reaction on a message (overrides the function store
 | Type                                                                      | Default                                                                                 |
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleReaction']](../contexts/message-context.mdx#handlereaction) |
+
+### own_reactions
+
+An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
+
+| Type  |
+| ----- |
+| array |
 
 ### reaction_counts
 

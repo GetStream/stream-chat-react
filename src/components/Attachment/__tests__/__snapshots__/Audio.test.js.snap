@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Audio in v1 should render title and render the image with description as alt tag 1`] = `
+<div>
+  <div
+    class="str-chat__audio"
+  >
+    <div
+      class="str-chat__audio__wrapper"
+    >
+      <audio>
+        <source
+          data-testid="audio-source"
+          src="http://www.jackblack.com/tribute.mp3"
+          type="audio/mp3"
+        />
+      </audio>
+      <div
+        class="str-chat__audio__image"
+      >
+        <div
+          class="str-chat__audio__image--overlay"
+        >
+          <button
+            class="str-chat__audio__image--button"
+            data-testid="play-audio"
+          >
+            <svg
+              height="40"
+              viewBox="0 0 64 64"
+              width="40"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M32 58c14.36 0 26-11.64 26-26S46.36 6 32 6 6 17.64 6 32s11.64 26 26 26zm0 6C14.327 64 0 49.673 0 32 0 14.327 14.327 0 32 0c17.673 0 32 14.327 32 32 0 17.673-14.327 32-32 32zm13.237-28.412L26.135 45.625a3.27 3.27 0 0 1-4.426-1.4 3.319 3.319 0 0 1-.372-1.47L21 23.36c-.032-1.823 1.41-3.327 3.222-3.358a3.263 3.263 0 0 1 1.473.322l19.438 9.36a3.311 3.311 0 0 1 .103 5.905z"
+                fill-rule="nonzero"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        class="str-chat__audio__content"
+      >
+        <span
+          class="str-chat__audio__content--title"
+        >
+          <strong>
+            deterministic
+          </strong>
+        </span>
+        <span
+          class="str-chat__audio__content--subtitle"
+        />
+        <div
+          class="str-chat__audio__content--progress"
+        >
+          <div
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+            style="width: 0%;"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

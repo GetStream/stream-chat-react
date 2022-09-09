@@ -5,7 +5,7 @@ import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
-import { ChatProvider, CustomClasses } from '../../context/ChatContext';
+import { ChatProvider, CustomClasses, ThemeVersion } from '../../context/ChatContext';
 import { SupportedTranslations, TranslationProvider } from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
@@ -86,6 +86,9 @@ export const Chat = <
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
   const channelsQueryState = useChannelsQueryState();
+  const themeVersion = (getComputedStyle(document.documentElement)
+    .getPropertyValue('--str-chat__theme-version')
+    .replace(' ', '') || '1') as ThemeVersion;
 
   useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
@@ -102,6 +105,7 @@ export const Chat = <
     openMobileNav,
     setActiveChannel,
     theme,
+    themeVersion,
     useImageFlagEmojisOnWindows,
   });
 

@@ -1,31 +1,34 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
+import { useChatContext } from '../../context/ChatContext';
 import { escapeRegExp } from '../../utils';
 
 import { Item } from './Item';
 import { DefaultSuggestionListHeader } from './Header';
 
-export const List = (props) => {
-  const {
-    className,
-    component,
-    currentTrigger,
-    dropdownScroll,
-    getSelectedItem,
-    getTextToReplace,
-    Header: PropHeader,
-    itemClassName,
-    itemStyle,
-    onSelect,
-    selectionEnd,
-    style,
-    SuggestionItem: PropSuggestionItem,
-    value: propValue,
-    values,
-  } = props;
-
-  const { AutocompleteSuggestionHeader, AutocompleteSuggestionItem } = useComponentContext();
+export const List = ({
+  className,
+  component,
+  currentTrigger,
+  dropdownScroll,
+  getSelectedItem,
+  getTextToReplace,
+  Header: PropHeader,
+  itemClassName,
+  itemStyle,
+  onSelect,
+  selectionEnd,
+  style,
+  SuggestionItem: PropSuggestionItem,
+  value: propValue,
+  values,
+}) => {
+  const { AutocompleteSuggestionHeader, AutocompleteSuggestionItem } = useComponentContext(
+    'SuggestionList',
+  );
+  const { themeVersion } = useChatContext('SuggestionList');
   const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
   const SuggestionHeader =
     PropHeader || AutocompleteSuggestionHeader || DefaultSuggestionListHeader;
@@ -58,16 +61,19 @@ export const List = (props) => {
   };
 
   const handleClick = (e) => {
-    if (e) e.preventDefault?.();
+    e?.preventDefault();
     modifyText(values[selectedItem]);
   };
 
-  const selectItem = (item) => {
-    const index = values.findIndex((value) =>
-      value.id ? value.id === item.id : value.name === item.name,
-    );
-    setSelectedItem(index);
-  };
+  const selectItem = useCallback(
+    (item) => {
+      const index = values.findIndex((value) =>
+        value.id ? value.id === item.id : value.name === item.name,
+      );
+      setSelectedItem(index);
+    },
+    [values],
+  );
 
   const handleKeyDown = useCallback(
     (event) => {
@@ -107,30 +113,37 @@ export const List = (props) => {
     if (values?.length) selectItem(values[0]);
   }, [values]); // eslint-disable-line
 
-  const restructureItem = (item) => {
-    const matched = item.name || item.id;
+  const restructureItem = useCallback(
+    (item) => {
+      const matched = item.name || item.id;
 
-    const textBeforeCursor = propValue.slice(0, selectionEnd);
-    const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
-    const editedPropValue = escapeRegExp(textBeforeCursor.slice(triggerIndex + 1));
+      const textBeforeCursor = propValue.slice(0, selectionEnd);
+      const triggerIndex = textBeforeCursor.lastIndexOf(currentTrigger);
+      const editedPropValue = escapeRegExp(textBeforeCursor.slice(triggerIndex + 1));
 
-    const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
+      const parts = matched.split(new RegExp(`(${editedPropValue})`, 'gi'));
 
-    const itemNameParts = { match: editedPropValue, parts };
+      const itemNameParts = { match: editedPropValue, parts };
 
-    return { ...item, itemNameParts };
-  };
+      return { ...item, itemNameParts };
+    },
+    [propValue, selectionEnd, currentTrigger],
+  );
+
+  const restructuredValues = useMemo(() => values.map(restructureItem), [values, restructureItem]);
 
   return (
-    <ul className={`rta__list ${className || ''}`} style={style}>
-      <li className='rta__list-header'>
-        <SuggestionHeader currentTrigger={currentTrigger} value={propValue} />
-      </li>
-      {values.map((item, i) => (
+    <ul className={clsx('rta__list', className)} style={style}>
+      {themeVersion === '1' && (
+        <li className='rta__list-header'>
+          <SuggestionHeader currentTrigger={currentTrigger} value={propValue} />
+        </li>
+      )}
+      {restructuredValues.map((item, i) => (
         <SuggestionItem
           className={itemClassName}
           component={component}
-          item={restructureItem(item)}
+          item={item}
           key={getId(item)}
           onClickHandler={handleClick}
           onSelectHandler={selectItem}

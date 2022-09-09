@@ -56,7 +56,7 @@ test.describe('edit text message', () => {
 
     user.sees(Attachment.Card).count(2);
     user.sees(Attachment.Gallery).count(0);
-    user.sees(Attachment.Image).count(1);
+    user.sees(Attachment.Image).count(3);
   });
 
   test('message has only 1 attachment after removing all of the links from the message', async ({

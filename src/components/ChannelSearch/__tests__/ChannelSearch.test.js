@@ -43,6 +43,7 @@ describe('ChannelSearch', () => {
       >
         <input
           class="str-chat__channel-search-input"
+          data-testid="search-input"
           placeholder="Search"
           type="text"
           value=""
@@ -61,6 +62,7 @@ describe('ChannelSearch', () => {
       >
         <input
           class="str-chat__channel-search-input"
+          data-testid="search-input"
           placeholder="Custom placeholder"
           type="text"
           value=""
