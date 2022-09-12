@@ -1,4 +1,5 @@
-import React, { useId } from 'react';
+import React, { useMemo } from 'react';
+import { nanoid } from 'nanoid';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -76,7 +77,7 @@ export const FileUploadIconFlat = () => {
 };
 
 export const LoadingIndicatorIcon = ({ size = 20 }: { size?: number }) => {
-  const id = useId();
+  const id = useMemo(() => nanoid(), []);
 
   return (
     <div className='str-chat__loading-indicator'>
