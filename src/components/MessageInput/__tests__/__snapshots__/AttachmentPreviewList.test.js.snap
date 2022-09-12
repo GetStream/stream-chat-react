@@ -374,7 +374,7 @@ exports[`AttachmentPreviewList renders with one image and one file with state "u
           >
             <defs>
               <linearGradient
-                id=":r0:-linear-gradient"
+                id="<randomNanoId>-linear-gradient"
                 x1="50%"
                 x2="50%"
                 y1="0%"
@@ -394,7 +394,7 @@ exports[`AttachmentPreviewList renders with one image and one file with state "u
             </defs>
             <path
               d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-              fill="url(#:r0:-linear-gradient)"
+              fill="url(#<randomNanoId>-linear-gradient)"
               fillRule="evenodd"
             />
           </svg>
@@ -508,7 +508,7 @@ exports[`AttachmentPreviewList renders with one image and one file with state "u
           >
             <defs>
               <linearGradient
-                id=":r1:-linear-gradient"
+                id="<randomNanoId>-linear-gradient"
                 x1="50%"
                 x2="50%"
                 y1="0%"
@@ -528,7 +528,7 @@ exports[`AttachmentPreviewList renders with one image and one file with state "u
             </defs>
             <path
               d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
-              fill="url(#:r1:-linear-gradient)"
+              fill="url(#<randomNanoId>-linear-gradient)"
               fillRule="evenodd"
             />
           </svg>

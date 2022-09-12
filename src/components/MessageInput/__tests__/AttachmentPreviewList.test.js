@@ -43,6 +43,10 @@ const renderComponent = (value = {}, renderFunction = render) =>
     </MessageInputContextProvider>,
   );
 
+jest.mock('nanoid', () => ({
+  nanoid: () => '<randomNanoId>',
+}));
+
 describe('AttachmentPreviewList', () => {
   it('renders without any attachments', () => {
     const { getByTestId } = renderComponent();
