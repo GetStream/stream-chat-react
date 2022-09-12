@@ -14,6 +14,9 @@ import type { Streami18n } from '../../i18n/Streami18n';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
+/**
+ * @deprecated will be removed with the complete transition to the theming V2 (next major release - `v11.0.0`)
+ */
 export type Theme<T extends string = string> =
   | 'commerce dark'
   | 'commerce light'
@@ -32,9 +35,15 @@ export type ChatProps<
   client: StreamChat<StreamChatGenerics>;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
-  /** Object containing custom styles to override the default CSS variables */
+  /**
+   * @desc object containing custom styles to override the default CSS variables
+   * @deprecated will be removed with the complete transition to the theming v2 (next major release - `v11.0.0`)
+   */
   customStyles?: CustomStyles;
-  /** If true, toggles the CSS variables to the default dark mode color palette */
+  /**
+   * @desc if true, toggles the CSS variables to the default dark mode color palette
+   * @deprecated will be removed with the complete transition to the theming v2 (next major release - `v11.0.0`)
+   */
   darkMode?: boolean;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
   defaultLanguage?: SupportedTranslations;
@@ -42,8 +51,8 @@ export type ChatProps<
   i18nInstance?: Streami18n;
   /** Initial status of mobile navigation */
   initialNavOpen?: boolean;
-  /** @deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#css-variables) of your app  */
-  theme?: Theme;
+  /** Used for injecting className/s to the Channel and ChannelList components */
+  theme?: string;
   /** Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
    * Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending on the platform).
    * Set this prop to true if you want to use these custom emojis for Windows users.
