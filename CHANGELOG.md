@@ -1,3 +1,10 @@
+## [10.0.1](https://github.com/GetStream/stream-chat-react/compare/v10.0.0...v10.0.1) (2022-09-12)
+
+
+### Bug Fixes
+
+* remove useId from LoadingIndicatorIcon ([#1744](https://github.com/GetStream/stream-chat-react/issues/1744)) ([14bfeb6](https://github.com/GetStream/stream-chat-react/commit/14bfeb6c5f5c90f8fea1cb1f3e1bb67dce11ecf6))
+
 # [10.0.0](https://github.com/GetStream/stream-chat-react/compare/v9.5.1...v10.0.0) (2022-09-09)
 
 
