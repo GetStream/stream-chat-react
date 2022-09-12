@@ -315,10 +315,9 @@ const UnMemoizedChannelList = <
   };
 
   const className = clsx(
-    'str-chat__channel-list',
+    customClasses?.chat ?? 'str-chat',
     theme,
-    customClasses?.chat || 'str-chat',
-    customClasses?.channelList || 'str-chat-channel-list',
+    customClasses?.channelList ?? 'str-chat-channel-list str-chat__channel-list',
     {
       'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
       'str-chat-channel-list--open': navOpen,
