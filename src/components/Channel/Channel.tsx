@@ -24,6 +24,7 @@ import {
   UserResponse,
 } from 'stream-chat';
 import { nanoid } from 'nanoid';
+import clsx from 'clsx';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
 import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
@@ -229,9 +230,11 @@ const UnMemoizedChannel = <
 
   const channel = propsChannel || contextChannel;
 
+  const className = clsx(chatClass, theme, channelClass);
+
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
     return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+      <div className={className}>
         <LoadingIndicator />
       </div>
     );
@@ -239,18 +242,14 @@ const UnMemoizedChannel = <
 
   if (channelsQueryState.error && LoadingErrorIndicator) {
     return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+      <div className={className}>
         <LoadingErrorIndicator error={channelsQueryState.error} />
       </div>
     );
   }
 
   if (!channel?.cid) {
-    return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
-        {EmptyPlaceholder}
-      </div>
-    );
+    return <div className={className}>{EmptyPlaceholder}</div>;
   }
 
   // @ts-ignore
@@ -903,9 +902,11 @@ const ChannelInner = <
     [dragAndDropWindow],
   );
 
+  const className = clsx(chatClass, theme, channelClass);
+
   if (state.error) {
     return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+      <div className={className}>
         <LoadingErrorIndicator error={state.error} />
       </div>
     );
@@ -913,7 +914,7 @@ const ChannelInner = <
 
   if (state.loading) {
     return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+      <div className={className}>
         <LoadingIndicator />
       </div>
     );
@@ -921,14 +922,14 @@ const ChannelInner = <
 
   if (!channel.watch) {
     return (
-      <div className={`${chatClass} ${channelClass} str-chat__channel ${theme}`}>
+      <div className={className}>
         <div>{t<string>('Channel Missing')}</div>
       </div>
     );
   }
 
   return (
-    <div className={`${chatClass} ${channelClass} str-chat__channel ${theme} ${windowsEmojiClass}`}>
+    <div className={clsx(className, windowsEmojiClass)}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>
