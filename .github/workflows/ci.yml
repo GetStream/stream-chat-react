@@ -56,6 +56,7 @@ jobs:
           E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
           E2E_ADDITIONAL_CHANNELS: mr-channel-1, mr-channel-2, edit-message-channel
           E2E_LONG_MESSAGE_LISTS_CHANNEL: navigate-long-message-lists
+          E2E_ATTACHMENT_SIZING_CHANNEL: attachment-sizing
 
       - name: 🎥 Upload Artifacts
         uses: actions/upload-artifact@v3

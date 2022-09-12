@@ -83,7 +83,6 @@ const MessageListWithContext = <
   const {
     hasNewMessages,
     isMessageListScrolledToBottom,
-    onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
     wrapperRect,
@@ -135,7 +134,6 @@ const MessageListWithContext = <
       unsafeHTML,
     },
     messageGroupStyles,
-    onMessageLoadCaptured,
     read,
     returnAllReadData,
     threadList,

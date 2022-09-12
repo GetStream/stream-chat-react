@@ -300,8 +300,16 @@ Custom UI component to render a Giphy preview in the `VirtualizedMessageList`.
 The Giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values.
 
 | Type   | Default        |
-|--------|----------------|
+| ------ | -------------- |
 | string | 'fixed_height' |
+
+### imageAttachmentSizeHandler
+
+A custom function to provide size configuration for image attachments
+
+| Type                                                             |
+| ---------------------------------------------------------------- |
+| `(a: Attachment, e: HTMLElement) => ImageAttachmentConfigration` |
 
 ### HeaderComponent
 
@@ -503,6 +511,14 @@ Custom UI component for send button.
 |-----------|---------------------------------------------------------------------|
 | component | <GHComponentLink text='SendButton' path='/MessageInput/icons.tsx'/> |
 
+### shouldGenerateVideoThumbnail
+
+You can turn on/off thumbnail generation for video attachments
+
+| Type     |
+| -------- |
+| `boolean` |
+
 ### skipMessageDataMemoization
 
 If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages).
@@ -559,6 +575,14 @@ Custom UI component for the typing indicator.
 | Type      | Default                                                                               |
 |-----------|---------------------------------------------------------------------------------------|
 | component | <GHComponentLink text='TypingIndicator' path='/TypingIndicator/TypingIndicator.tsx'/> |
+
+### videoAttachmentSizeHandler
+
+A custom function to provide size configuration for video attachments
+
+| Type                                                              |
+| ----------------------------------------------------------------- |
+| `(a: Attachment, e: HTMLElement) => VideoAttachmentConfiguration` |
 
 ### VirtualMessage
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { Modal } from '../Modal';
@@ -10,7 +10,11 @@ import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';
 
 export type ImageProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = { dimensions?: Dimensions } & (
+> = {
+  dimensions?: Dimensions;
+  innerRef?: MutableRefObject<HTMLImageElement | null>;
+  previewUrl?: string;
+} & (
   | {
       /** The text fallback for the image */
       fallback?: string;
@@ -30,12 +34,12 @@ export const ImageComponent = <
 >(
   props: ImageProps<StreamChatGenerics>,
 ) => {
-  const { dimensions = {}, fallback, image_url, thumb_url } = props;
+  const { dimensions = {}, fallback, image_url, thumb_url, innerRef, previewUrl } = props;
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const { ModalGallery = DefaultModalGallery } = useComponentContext('ImageComponent');
 
-  const imageSrc = sanitizeUrl(image_url || thumb_url);
+  const imageSrc = sanitizeUrl(previewUrl || image_url || thumb_url);
 
   const toggleModal = () => setModalIsOpen((modalIsOpen) => !modalIsOpen);
 
@@ -49,6 +53,7 @@ export const ImageComponent = <
         src={imageSrc}
         tabIndex={0}
         {...dimensions}
+        {...(innerRef && { ref: innerRef })}
       />
       <Modal onClose={toggleModal} open={modalIsOpen}>
         <ModalGallery images={[props]} index={0} />
