@@ -36,7 +36,6 @@ type UseMessageListElementsProps<
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
   internalMessageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
   messageGroupStyles: Record<string, GroupStyle>;
-  onMessageLoadCaptured: (event: React.SyntheticEvent<HTMLLIElement, Event>) => void;
   returnAllReadData: boolean;
   threadList: boolean;
   read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
@@ -51,7 +50,6 @@ export const useMessageListElements = <
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
-    onMessageLoadCaptured,
     read,
     returnAllReadData,
     threadList,
@@ -124,7 +122,6 @@ export const useMessageListElements = <
             data-message-id={message.id}
             data-testid={messageClass}
             key={message.id || (message.created_at as string)}
-            onLoadCapture={onMessageLoadCaptured}
           >
             <Message
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
@@ -142,7 +139,6 @@ export const useMessageListElements = <
       internalMessageProps,
       lastReceivedId,
       messageGroupStyles,
-      onMessageLoadCaptured,
       readData,
       threadList,
     ],

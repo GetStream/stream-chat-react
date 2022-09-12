@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { MutableRefObject, useState } from 'react';
 import clsx from 'clsx';
 
 import { Modal } from '../Modal';
@@ -14,12 +14,14 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type GalleryProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  images:
+  images: ((
     | {
         image_url?: string | undefined;
         thumb_url?: string | undefined;
-      }[]
-    | Attachment<StreamChatGenerics>[];
+      }
+    | Attachment<StreamChatGenerics>
+  ) & { previewUrl?: string })[];
+  innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
 };
 
 const UnMemoizedGallery = <
@@ -27,7 +29,7 @@ const UnMemoizedGallery = <
 >(
   props: GalleryProps<StreamChatGenerics>,
 ) => {
-  const { images } = props;
+  const { images, innerRefs } = props;
 
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -51,11 +53,17 @@ const UnMemoizedGallery = <
     i === lastImageIndexInPreview && images.length > countImagesDisplayedInPreview ? (
       <button
         className='str-chat__gallery-placeholder'
+        data-testid='gallery-image-last'
         key={`gallery-image-${i}`}
         onClick={() => toggleModal(i)}
         style={{
-          backgroundImage: `url(${images[lastImageIndexInPreview].image_url})`,
+          backgroundImage: `url(${
+            images[lastImageIndexInPreview].previewUrl ||
+            images[lastImageIndexInPreview].image_url ||
+            images[lastImageIndexInPreview].thumb_url
+          })`,
         }}
+        {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
       >
         <p>
           {t<string>('{{ imageCount }} more', {
@@ -70,7 +78,11 @@ const UnMemoizedGallery = <
         key={`gallery-image-${i}`}
         onClick={() => toggleModal(i)}
       >
-        <img alt='User uploaded content' src={image.image_url || image.thumb_url} />
+        <img
+          alt='User uploaded content'
+          src={image.previewUrl || image.image_url || image.thumb_url}
+          {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
+        />
       </button>
     ),
   );

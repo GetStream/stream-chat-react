@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 
@@ -15,7 +15,13 @@ import {
   RenderGalleryProps,
 } from './utils';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type {
+  DefaultStreamChatGenerics,
+  ImageAttachmentConfigration,
+  VideoAttachmentConfiguration,
+} from '../../types/types';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useState } from 'react';
 
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -36,13 +42,16 @@ export const AttachmentWithinContainer = <
         : '';
   }
 
-  const classNames = clsx('str-chat__message-attachment', {
-    [`str-chat__message-attachment--${componentType}`]: componentType,
-    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
-    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
-    'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
-    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
-  });
+  const classNames = clsx(
+    'str-chat__message-attachment str-chat__message-attachment-dynamic-size',
+    {
+      [`str-chat__message-attachment--${componentType}`]: componentType,
+      [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+      [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+      'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
+      'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+    },
+  );
 
   return <div className={classNames}>{children}</div>;
 };
@@ -72,11 +81,41 @@ export const GalleryContainer = <
 >({
   attachment,
   Gallery = DefaultGallery,
-}: RenderGalleryProps<StreamChatGenerics>) => (
-  <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-    <Gallery images={attachment.images || []} key='gallery' />
-  </AttachmentWithinContainer>
-);
+}: RenderGalleryProps<StreamChatGenerics>) => {
+  const imageElements = useRef<HTMLElement[]>([]);
+  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const [attachmentConfigurations, setAttachmentConfigurations] = useState<
+    ImageAttachmentConfigration[]
+  >([]);
+
+  useEffect(() => {
+    if (
+      imageElements.current &&
+      imageElements.current.every((element) => !!element) &&
+      imageAttachmentSizeHandler
+    ) {
+      const newConfigurations: ImageAttachmentConfigration[] = [];
+      imageElements.current.forEach((element, i) => {
+        const config = imageAttachmentSizeHandler(attachment.images[i], element);
+        newConfigurations.push(config);
+        // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
+        element.style.height = config.height;
+      });
+      setAttachmentConfigurations(newConfigurations);
+    }
+  }, [imageElements, imageAttachmentSizeHandler]);
+
+  const configurations = attachment.images.map((image, i) => ({
+    ...image,
+    previewUrl: attachmentConfigurations[i]?.url,
+  }));
+
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
+      <Gallery images={configurations || []} innerRefs={imageElements} key='gallery' />
+    </AttachmentWithinContainer>
+  );
+};
 
 export const ImageContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -85,12 +124,31 @@ export const ImageContainer = <
 ) => {
   const { attachment, Image = DefaultImage } = props;
   const componentType = 'image';
+  const imageElement = useRef<HTMLImageElement>(null);
+  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const [attachmentConfiguration, setAttachmentConfiguration] = useState<
+    ImageAttachmentConfigration | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (imageElement.current && imageAttachmentSizeHandler) {
+      const config = imageAttachmentSizeHandler(attachment, imageElement.current);
+      setAttachmentConfiguration(config);
+      // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
+      imageElement.current.style.height = config.height;
+    }
+  }, [imageElement, imageAttachmentSizeHandler]);
+
+  const imageConfig = {
+    ...attachment,
+    previewUrl: attachmentConfiguration?.url,
+  };
 
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment'>
-          <Image {...attachment} />
+          <Image {...imageConfig} innerRef={imageElement} />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -99,7 +157,7 @@ export const ImageContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Image {...attachment} />
+      <Image {...imageConfig} innerRef={imageElement} />
     </AttachmentWithinContainer>
   );
 };
@@ -164,18 +222,36 @@ export const MediaContainer = <
 ) => {
   const { attachment, Media = ReactPlayer } = props;
   const componentType = 'media';
+  const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } = useChannelStateContext();
+  const videoElement = useRef<HTMLDivElement>(null);
+  const [attachmentConfiguration, setAttachmentConfiguration] = useState<
+    VideoAttachmentConfiguration | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (videoElement.current && videoAttachmentSizeHandler) {
+      const config = videoAttachmentSizeHandler(
+        attachment,
+        videoElement.current,
+        shouldGenerateVideoThumbnail,
+      );
+      setAttachmentConfiguration(config);
+      // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
+      videoElement.current.style.height = config.height;
+    }
+  }, [videoElement, videoAttachmentSizeHandler]);
 
   if (attachment.actions?.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment str-chat__attachment-media'>
-          <div className='str-chat__player-wrapper'>
+          <div className='str-chat__player-wrapper' ref={videoElement}>
             <Media
               className='react-player'
+              config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
               controls
-              height='100%'
-              url={attachment.asset_url}
-              config={{ file: { attributes: { poster: attachment.thumb_url } } }}
+              height='inherit'
+              url={attachmentConfiguration?.url}
               width='100%'
             />
           </div>
@@ -187,13 +263,13 @@ export const MediaContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <div className='str-chat__player-wrapper'>
+      <div className='str-chat__player-wrapper' data-testid='video-wrapper' ref={videoElement}>
         <Media
           className='react-player'
-          config={{ file: { attributes: { poster: attachment.thumb_url } } }}
+          config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
           controls
-          height='100%'
-          url={attachment.asset_url}
+          height='inherit'
+          url={attachmentConfiguration?.url}
           width='100%'
         />
       </div>

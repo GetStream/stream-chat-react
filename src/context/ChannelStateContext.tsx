@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
 import type {
+  Attachment,
   Channel,
   ChannelConfigWithInfo,
   MessageResponse,
@@ -8,7 +9,13 @@ import type {
   ChannelState as StreamChannelState,
 } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics, GiphyVersions, UnknownType } from '../types/types';
+import type {
+  DefaultStreamChatGenerics,
+  GiphyVersions,
+  ImageAttachmentConfigration,
+  UnknownType,
+  VideoAttachmentConfiguration,
+} from '../types/types';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -54,8 +61,18 @@ export type ChannelStateContextValue<
   channel: Channel<StreamChatGenerics>;
   channelCapabilities: Record<string, boolean>;
   channelConfig: ChannelConfigWithInfo<StreamChatGenerics> | undefined;
+  imageAttachmentSizeHandler: (
+    attachment: Attachment,
+    element: HTMLElement,
+  ) => ImageAttachmentConfigration;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
+  shouldGenerateVideoThumbnail: boolean;
+  videoAttachmentSizeHandler: (
+    attachment: Attachment,
+    element: HTMLElement,
+    shouldGenerateVideoThumbnail: boolean,
+  ) => VideoAttachmentConfiguration;
   acceptedFiles?: string[];
   dragAndDropWindow?: boolean;
   giphyVersion?: GiphyVersions;
