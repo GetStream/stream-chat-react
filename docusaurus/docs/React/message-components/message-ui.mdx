@@ -239,7 +239,7 @@ Overrides the default date formatting logic, has access to the original date obj
 Function that returns an array of the allowed actions on a message by the currently connected user (overrides the function stored in `MessageContext`).
 
 | Type                      |
-| ------------------------- |
+|---------------------------|
 | () => MessageActionsArray |
 
 ### groupByUser
@@ -247,7 +247,7 @@ Function that returns an array of the allowed actions on a message by the curren
 If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### groupStyles
@@ -335,15 +335,15 @@ Function that retries sending a message after a failed request (overrides the fu
 When true, signifies the message is the parent message in a thread list (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### isMyMessage
 
-Function that returns whether or not a message belongs to the current user (overrides the function stored in `MessageContext`).
+Function that returns whether a message belongs to the current user (overrides the function stored in `MessageContext`).
 
 | Type          |
-| ------------- |
+|---------------|
 | () => boolean |
 
 ### isReactionEnabled
@@ -351,7 +351,7 @@ Function that returns whether or not a message belongs to the current user (over
 If true, reactions are enabled in the currently active channel (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | true    |
 
 ### lastReceivedId
@@ -359,7 +359,7 @@ If true, reactions are enabled in the currently active channel (overrides the va
 The latest message ID in the current channel (overrides the value stored in `MessageContext`).
 
 | Type   |
-| ------ |
+|--------|
 | string |
 
 ### message
@@ -367,7 +367,7 @@ The latest message ID in the current channel (overrides the value stored in `Mes
 The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`).
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### messageListRect
@@ -375,7 +375,7 @@ The `StreamChat` message object, which provides necessary data to the underlying
 DOMRect object linked to the parent `MessageList` component (overrides the value stored in `MessageContext`).
 
 | Type    |
-| ------- |
+|---------|
 | DOMRect |
 
 ### mutes
@@ -383,7 +383,7 @@ DOMRect object linked to the parent `MessageList` component (overrides the value
 An array of users that have been muted by the connected user (overrides the value stored in `MessageContext`).
 
 | Type   | Default                                                               |
-| ------ | --------------------------------------------------------------------- |
+|--------|-----------------------------------------------------------------------|
 | Mute[] | [ChannelStateContext['mutes']](../contexts/channel-state-context.mdx) |
 
 ### onMentionsClickMessage
@@ -431,7 +431,7 @@ Function that runs on hover of a user avatar (overrides the function stored in `
 The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
 
 | Type   | Default                                                                                                              |
-| ------ | -------------------------------------------------------------------------------------------------------------------- |
+|--------|----------------------------------------------------------------------------------------------------------------------|
 | object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
 
 ### reactionSelectorRef
@@ -439,7 +439,7 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 Ref to be placed on the reaction selector component (overrides the ref stored in `MessageContext`).
 
 | Type                                    |
-| --------------------------------------- |
+|-----------------------------------------|
 | React.MutableRefObject<HTMLDivElement\> |
 
 ### readBy
@@ -447,7 +447,7 @@ Ref to be placed on the reaction selector component (overrides the ref stored in
 An array of users that have read the current message (overrides the value stored in `MessageContext`).
 
 | Type  |
-| ----- |
+|-------|
 | array |
 
 ### renderText
@@ -455,7 +455,7 @@ An array of users that have read the current message (overrides the value stored
 Custom function to render message text content (overrides the function stored in `MessageContext`).
 
 | Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+|----------|----------------------------------------------------------------------------------------|
 | function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
 
 ### setEditingState
@@ -471,7 +471,7 @@ Function to toggle the editing state on a message (overrides the function stored
 When true, show the reactions list component (overrides the value stored in `MessageContext`).
 
 | Type    |
-| ------- |
+|---------|
 | boolean |
 
 ### threadList
@@ -479,7 +479,7 @@ When true, show the reactions list component (overrides the value stored in `Mes
 If true, indicates that the current `MessageList` component is part of a `Thread` (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### unsafeHTML
@@ -487,5 +487,5 @@ If true, indicates that the current `MessageList` component is part of a `Thread
 If true, renders HTML instead of markdown. Posting HTML is only supported server-side (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
