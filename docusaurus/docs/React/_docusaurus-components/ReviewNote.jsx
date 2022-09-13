@@ -22,7 +22,7 @@ const popupStyle = {
   padding: '10px 10px',
 }
 
-const ReviewNote = ({children, id}) => {
+const ReviewNote = ({author, children, id}) => {
   const [display, setDisplay] = React.useState('none');
   const [keepDisplayed, setKeepDisplayed] = React.useState(false);
   const [root, setRoot] = React.useState(null);
@@ -63,7 +63,7 @@ const ReviewNote = ({children, id}) => {
             <div style={{ width: '100%'}}>{children}</div>
           </div>
           <div style={{display: 'flex', justifyContent: 'space-between', width: '100%'}}>
-            <div>Review note</div>< div style={{fontSize: '10px'}}>[{id}]</div>
+            <div>Review note {author && <span style={{fontSize: '10px'}}>[author: {author}]</span>}</div>< div style={{fontSize: '10px'}}>[{id}]</div>
 
           </div>
 
