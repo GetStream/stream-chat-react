@@ -13,9 +13,13 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type MessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  /* Replaces the CSS class name placed on the component's inner `div` container */
   customInnerClass?: string;
+  /* Adds a CSS class name to the component's outer `div` container */
   customWrapperClass?: string;
+  /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`) */
   message?: StreamMessage<StreamChatGenerics>;
+  /* Theme string to be added to CSS class names */
   theme?: string;
 };
 
