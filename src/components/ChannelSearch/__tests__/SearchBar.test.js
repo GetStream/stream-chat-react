@@ -22,7 +22,12 @@ jest.spyOn(window, 'getComputedStyle').mockReturnValue({
 let client;
 const inputText = new Date().getTime().toString();
 
-const AppMenu = () => <div>AppMenu</div>;
+const AppMenu = ({ onSelect }) => (
+  <div>
+    AppMenu
+    <div data-testid='menu-item' onClick={onSelect} />
+  </div>
+);
 const ClearInputIcon = () => <div>CustomClearInputIcon</div>;
 const MenuIcon = () => <div>CustomMenuIcon</div>;
 const SearchInputIcon = () => <div>CustomSearchInputIcon</div>;
@@ -296,6 +301,30 @@ describe('SearchBar', () => {
     await act(() => {
       fireEvent.click(menuIcon);
     });
+    await waitFor(() => {
+      expect(screen.queryByText('AppMenu')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should close the app menu on menu item click', async () => {
+    await act(() => {
+      renderComponent({
+        client,
+        props: { AppMenu },
+        searchParams: { disabled: false },
+      });
+    });
+    const menuIcon = screen.queryByTestId('menu-icon');
+    await act(() => {
+      fireEvent.click(menuIcon);
+    });
+
+    const menuItem = screen.queryByTestId('menu-item');
+
+    await act(() => {
+      fireEvent.click(menuItem);
+    });
+
     await waitFor(() => {
       expect(screen.queryByText('AppMenu')).not.toBeInTheDocument();
     });
