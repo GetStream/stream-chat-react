@@ -12,8 +12,8 @@ Using pre-built UI components from the library, the following guide walks you th
 [Message UI](../message-components/message-ui.mdx) component that looks great and comes packed with functionality. This
 component must be added to either the `Channel` or `MessageList` component via the `Message` prop.
 
-All of the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext`
-custom hook. The return value from this hook contains all of the values and functions needed to build a Message UI component.
+All the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext`
+custom hook. The return value from this hook contains all the values and functions needed to build a Message UI component.
 
 ### UI Component Overview
 
@@ -53,8 +53,8 @@ The custom Message UI component built below imports and uses the following UI co
 ### How it Fits Together
 
 The sample code below assembles the above UI building blocks into a fully featured Message UI component. The UI components allow you to
-pick the features you wish to employ in your message and orient them in a manner that meets your design specifications. All of the
-components consume the `MessageContext` and from pull the necessary data by using the `useMessageContext` hook.
+pick the features you wish to employ in your message and orient them in a manner that meets your design specifications. All the
+components consume the `MessageContext` by pulling the necessary through `useMessageContext` hook.
 
 :::tip
 In advanced use cases, the pre-built, UI components may not provide enough design customization potential. In these situations, we
@@ -92,12 +92,13 @@ export const CustomMessage = () => {
   const messageWrapperRef = useRef(null);
 
   const hasReactions = messageHasReactions(message);
+  const hasAttachments = message.attachments && message.attachments.length > 0;
 
   return (
     <div className='message-wrapper'>
       <Avatar image={message.user?.image} />
       <div className='message-wrapper-content'>
-        <MessageOptions displayLeft={false} messageWrapperRef={messageWrapperRef} />
+        <MessageOptions messageWrapperRef={messageWrapperRef} />
         <div className='message-header'>
           <div className='message-header-name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>
@@ -109,7 +110,7 @@ export const CustomMessage = () => {
         )}
         <MessageText />
         <MessageStatus />
-        {message.attachments && <Attachment attachments={message.attachments} />}
+        {hasAttachments && <Attachment attachments={message.attachments} />}
         {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
         <MessageRepliesCountButton reply_count={message.reply_count} />
       </div>
@@ -120,9 +121,9 @@ export const CustomMessage = () => {
 
 CustomMessage.scss:
 
-```css
+```scss
 .str-chat__li {
-  margin: 0px;
+  margin: 0;
   padding: 15px;
   position: relative;
 
@@ -216,7 +217,7 @@ CustomMessage.scss:
   font-size: 15px;
   color: black;
   border-radius: 0;
-  border: 0px;
+  border: 0;
   margin-left: 0;
 
   p {
@@ -246,7 +247,7 @@ CustomMessage.scss:
   right: 20px;
   border-radius: 20px;
   background: white;
-  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
   border: 1px solid #bed5e4;
 }
 
