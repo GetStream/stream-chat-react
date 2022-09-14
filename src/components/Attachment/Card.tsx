@@ -43,6 +43,7 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
 };
 
 interface CardV1Props {
+  asset_url?: Attachment['asset_url'];
   giphy?: Attachment['giphy'];
   /** The url of the full sized image */
   image_url?: string;
@@ -61,7 +62,17 @@ interface CardV1Props {
 }
 
 const CardV1 = (props: CardV1Props) => {
-  const { giphy, image_url, og_scrape_url, text, thumb_url, title, title_link, type } = props;
+  const {
+    asset_url,
+    giphy,
+    image_url,
+    og_scrape_url,
+    text,
+    thumb_url,
+    title,
+    title_link,
+    type,
+  } = props;
   const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
 
   let image = thumb_url || image_url;
@@ -74,7 +85,7 @@ const CardV1 = (props: CardV1Props) => {
     dimensions.width = giphyVersion.width;
   }
 
-  if (!title && !title_link && !image) {
+  if (!title && !title_link && !asset_url && !image) {
     return <UnableToRenderCard type={type} />;
   }
 
@@ -84,27 +95,25 @@ const CardV1 = (props: CardV1Props) => {
 
   return (
     <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
-      {image && (
-        <div className='str-chat__message-attachment-card--header'>
-          <img alt={image} src={image} {...dimensions} />
+      <CardHeader {...props} dimensions={dimensions} image={image} />
+      {type !== 'video' && (
+        <div className='str-chat__message-attachment-card--content'>
+          <div className='str-chat__message-attachment-card--flex'>
+            {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
+            {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
+            {(title_link || og_scrape_url) && (
+              <SafeAnchor
+                className='str-chat__message-attachment-card--url'
+                href={title_link || og_scrape_url}
+                rel='noopener noreferrer'
+                target='_blank'
+              >
+                {getHostFromURL(title_link || og_scrape_url)}
+              </SafeAnchor>
+            )}
+          </div>
         </div>
       )}
-      <div className='str-chat__message-attachment-card--content'>
-        <div className='str-chat__message-attachment-card--flex'>
-          {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
-          {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
-          {(title_link || og_scrape_url) && (
-            <SafeAnchor
-              className='str-chat__message-attachment-card--url'
-              href={title_link || og_scrape_url}
-              rel='noopener noreferrer'
-              target='_blank'
-            >
-              {getHostFromURL(title_link || og_scrape_url)}
-            </SafeAnchor>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
