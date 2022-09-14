@@ -26,20 +26,18 @@ default container CSS.
 To override pre-defined library styles, follow this simple process:
 
 - Import our bundled CSS into the file where you instantiate your chat application. We maintain a separate repository, `@stream-io/stream-chat-css`,
-  which houses all of the SCSS files for the components.
+  which houses all the SCSS files for the components. This CSS is bundled with the `stream-chat-react` SDK.
+
+```jsx
+import 'stream-chat-react/dist/css/index.css';
+import './App.css';
+```
 
 - Use the browser inspector or view the library code and locate default styles you wish to override
 
 - Add selectors to your local CSS file to override our defaults
 
 - Import your local CSS file after Stream's bundled CSS
-
-For example:
-
-```jsx
-import '@stream-io/@stream-io/stream-chat-css/dist/css/index.css';
-import './App.css';
-```
 
 ## Importing scss Files
 
