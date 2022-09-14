@@ -54,7 +54,7 @@ Any contributions to the library should follow Stream's coding rules.
 All the code submitted should be covered by unit tests. Mocking utilities are provided in `src/mock-builders`. Optimally a suite of E2E tests should be included as well.
 
 #### 2. API Changes should be documented
-Changes to components interface exposed to the library integrators should be documented. We keep the documentation `docusaurus/docs/React` folder.
+Changes to components interface exposed to the library integrators should be documented. We keep the documentation `docusaurus/docs/React` folder. Please see the [dedicated documentation guide](./developers/DOCUMENTATION.md) for more information on how to maintain our documentation.
 
 #### 3. Code should be DRY & correctly formatted
 If you find yourself copying source code from one place to another, please extract it into a separate component or function.

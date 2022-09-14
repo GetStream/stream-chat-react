@@ -8,7 +8,7 @@ import { isUserMuted } from '../Message/utils';
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -21,10 +21,15 @@ type MessageContextPropsToPick =
 export type MessageActionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageContextValue<StreamChatGenerics>, MessageContextPropsToPick>> & {
-  ActionsIcon?: React.FunctionComponent;
+  /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
+  ActionsIcon?: React.ComponentType<IconProps>;
+  /* Custom CSS class to be added to the `div` wrapping the component */
   customWrapperClass?: string;
+  /* If true, renders the wrapper component as a `span`, not a `div` */
   inline?: boolean;
+  /* React mutable ref that can be placed on the message root `div` of MessageActions component */
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
+  /* Function that returns whether the message was sent by the connected user */
   mine?: () => boolean;
 };
 

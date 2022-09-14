@@ -5,7 +5,7 @@ title: UI Components
 ---
 
 As described in the [Input UI](./input-ui.mdx) section, our default [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
-component is a combination of various UI sub-components. We export all of the building blocks of `MessageInputFlat`, so a custom Input UI
+component is a combination of various UI subcomponents. We export all the building blocks of `MessageInputFlat`, so a custom Input UI
 component can be built in a similar way. Check out the [Input UI Customization](../customization/input-ui.mdx) section for an example.
 
 The following UI components are available for use:
@@ -35,7 +35,7 @@ The following UI components are available for use:
 Function to override the default submit handler on the underlying `textarea` component.
 
 | Type                                      | Default                                                                                        |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------------- |
+|-------------------------------------------|------------------------------------------------------------------------------------------------|
 | (event: React.BaseSyntheticEvent) => void | [MessageInputContextValue['handleSubmit']](../contexts/message-input-context.mdx#handlesubmit) |
 
 ### onBlur
@@ -43,7 +43,7 @@ Function to override the default submit handler on the underlying `textarea` com
 Function to run on blur of the underlying `textarea` component.
 
 | Type                                          |
-| --------------------------------------------- |
+|-----------------------------------------------|
 | React.FocusEventHandler<HTMLTextAreaElement\> |
 
 ### onChange
@@ -51,7 +51,7 @@ Function to run on blur of the underlying `textarea` component.
 Function to override the default onChange behavior on the underlying `textarea` component.
 
 | Type                                           | Default                                                                                |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+|------------------------------------------------|----------------------------------------------------------------------------------------|
 | React.ChangeEventHandler<HTMLTextAreaElement\> | [MessageInputContextValue['onChange']](../contexts/message-input-context.mdx#onchange) |
 
 ### onFocus
@@ -59,7 +59,7 @@ Function to override the default onChange behavior on the underlying `textarea` 
 Function to run on focus of the underlying `textarea` component.
 
 | Type                                          |
-| --------------------------------------------- |
+|-----------------------------------------------|
 | React.FocusEventHandler<HTMLTextAreaElement\> |
 
 ### onPaste
@@ -67,15 +67,15 @@ Function to run on focus of the underlying `textarea` component.
 Function to override the default onPaste behavior on the underlying `textarea` component.
 
 | Type                                                        | Default                                                                              |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------|
 | (event: React.ClipboardEvent<HTMLTextAreaElement\>) => void | [MessageInputContextValue['onPaste']](../contexts/message-input-context.mdx#onpaste) |
 
 ### placeholder
 
-Placeholder for the the underlying `textarea` component.
+Placeholder for the underlying `textarea` component.
 
 | Type   | Default             |
-| ------ | ------------------- |
+|--------|---------------------|
 | string | 'Type your message' |
 
 ### rows
@@ -83,7 +83,7 @@ Placeholder for the the underlying `textarea` component.
 The initial number of rows for the underlying `textarea` component.
 
 | Type   | Default |
-| ------ | ------- |
+|--------|---------|
 | number | 1       |
 
 ### value
@@ -91,8 +91,16 @@ The initial number of rows for the underlying `textarea` component.
 The text value of the underlying `textarea` component.
 
 | Type   | Default                                                                        |
-| ------ | ------------------------------------------------------------------------------ |
+|--------|--------------------------------------------------------------------------------|
 | string | [MessageInputContextValue['text']](../contexts/message-input-context.mdx#text) |
+
+### wordReplace
+
+Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component.
+
+| Type                                                     |
+|----------------------------------------------------------|
+| (word: string, emojiIndex?: NimbleEmojiIndex) =\> string |
 
 ## DefaultTriggerProvider
 
@@ -113,17 +121,17 @@ provider component to the `Channel` component via the `TriggerProvider` prop. An
 If true, updates the CSS class name of the `div` container and renders a smaller version of the picker.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ## QuotedMessagePreview Props
 
-### <div class="label required basic">Required</div> message
+### <div class="label required basic">Required</div> quotedMessage
 
 The existing message to be quoted by the next sent message.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ## SendButton Props
@@ -133,7 +141,7 @@ The existing message to be quoted by the next sent message.
 Function to send a message to the currently active channel.
 
 | Type                                      |
-| ----------------------------------------- |
+|-------------------------------------------|
 | (event: React.BaseSyntheticEvent) => void |
 
 ## UploadsPreview
