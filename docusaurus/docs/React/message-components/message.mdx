@@ -4,9 +4,13 @@ sidebar_position: 1
 title: Message
 ---
 
-The `Message` component is a React Context provider that wraps all of the logic, functionality, and UI for the individual messages
-displayed in a message list. It provides the [`MessageContext`](../contexts/message-context.mdx) to its children. All of
-the message UI components consume the `MessageContext` and rely on the stored data for their display and interaction.
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+import ReviewNote from '../_docusaurus-components/ReviewNote';
+
+import MessageActionsBoxWithCustomAction from '../assets/message-actions-box-custom-actions.png';
+
+The `Message` component is a React Context provider that wraps all the logic, functionality, and UI for the individual messages
+displayed in a message list. It provides the [`MessageContext`](../contexts/message-context.mdx) to its children. All the message UI components consume the `MessageContext` and rely on the stored data for their display and interaction.
 
 :::note
 The majority of Stream Chat use cases will not need to use the `Message` component directly. We've documented it here for reference,
@@ -32,23 +36,23 @@ component. The Message UI component is passed as the `Message` prop into either 
 The `StreamChat` message object, which provides necessary data to the underlying UI components.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### additionalMessageInputProps
 
-Additional props to be passed to the underlying `MessageInput` component, [available props](../message-input-components/message-input.mdx/#props).
+Additional props to be passed to the underlying `MessageInput` component, [available props](../message-input-components/message-input.mdx/#props). It is rendered when editing a message.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### autoscrollToBottom
 
-Call this function to keep message list scrolled to the bottom when the message list container scroll height increases (only available in the `VirtualizedMessageList`). An example use case is that upon user's interaction with the application, a new element appears below the last message. In order to keep the newly rendered content visible, the `autoscrollToBottom` function can be called. The container, however, is not scrolled to the bottom, if already scrolled up more than 4px from the bottom.
+Call this function to keep message list scrolled to the bottom when the message list container scroll height increases (only available in the `VirtualizedMessageList`). An example use case is that upon user's interaction with the application, a new element appears below the last message. In order to keep the newly rendered content visible, the `autoscrollToBottom` function can be called. The container, however, is not scrolled to the bottom, if already scrolled up more than 4px from the bottom. The function is provided by the SDK and is not inteded for customization.
 
 | Type       |
-| ---------- |
+|------------|
 | () => void |
 
 ### closeReactionSelectorOnClick
@@ -56,23 +60,42 @@ Call this function to keep message list scrolled to the bottom when the message 
 If true, picking a reaction from the `ReactionSelector` component will close the selector.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### customMessageActions
 
-An object containing custom message actions (key) and function handlers (value).
+An object containing custom message actions (key) and function handlers (value). For each custom action a dedicated item (button) in [`MessageActionsBox`](../../message-components/message_ui/#message-actions-box) is rendered. The key is used as a display text inside the button. Therefore, it should not be cryptic but rather bear the end user in mind when formulating it.
 
 ```jsx
-const customAction = {
-  log: (message, event) => console.log(message, event),
+const customActions = {
+  'Copy text': (message) => {
+    navigator.clipboard.writeText(message.text || '')
+  },
 };
 
-<MessageList customMessageActions={customAction} />;
+<MessageList customMessageActions={customActions} />;
 ```
 
+Custom action item "Copy text" in the message actions box:
+<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+```jsx
+const customActions = {
+  'Copy text': (message) => {
+    navigator.clipboard.writeText(message.text || '')
+  },
+};
+
+<MessageList customMessageActions={customActions} />;
+```
+
+Custom action item "Copy text" in the message actions box:
+<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### disableQuotedMessages
@@ -80,7 +103,7 @@ const customAction = {
 If true, disables the ability for users to quote messages.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### endOfGroup
@@ -88,7 +111,7 @@ If true, disables the ability for users to quote messages.
 When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
 
 | Type    |
-| ------- |
+|---------|
 | boolean |
 
 ### firstOfGroup
@@ -96,7 +119,7 @@ When true, the message is the last one in a group sent by a specific user (only 
 When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
 
 | Type    |
-| ------- |
+|---------|
 | boolean |
 
 ### formatDate
@@ -104,7 +127,7 @@ When true, the message is the first one in a group sent by a specific user (only
 Overrides the default date formatting logic, has access to the original date object.
 
 | Type                   |
-| ---------------------- |
+|------------------------|
 | (date: Date) => string |
 
 ### getDeleteMessageErrorNotification
@@ -113,7 +136,7 @@ Function that returns the notification text to be displayed when a delete messag
 deleted [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
 
 | Type                               |
-| ---------------------------------- |
+|------------------------------------|
 | (message: StreamMessage) => string |
 
 ### getFlagMessageErrorNotification
@@ -122,7 +145,7 @@ Function that returns the notification text to be displayed when a flag message 
 flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
 
 | Type                               |
-| ---------------------------------- |
+|------------------------------------|
 | (message: StreamMessage) => string |
 
 ### getFlagMessageSuccessNotification
@@ -131,7 +154,7 @@ Function that returns the notification text to be displayed when a flag message 
 flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
 
 | Type                               |
-| ---------------------------------- |
+|------------------------------------|
 | (message: StreamMessage) => string |
 
 ### getMuteUserErrorNotification
@@ -140,7 +163,7 @@ Function that returns the notification text to be displayed when a mute user req
 muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
 
 | Type                           |
-| ------------------------------ |
+|--------------------------------|
 | (user: UserResponse) => string |
 
 ### getMuteUserSuccessNotification
@@ -149,7 +172,7 @@ Function that returns the notification text to be displayed when a mute user req
 muted [user object](https://getstream.io/chat/docs/javascript/update_users/?language=javascript) as its argument.
 
 | Type                           |
-| ------------------------------ |
+|--------------------------------|
 | (user: UserResponse) => string |
 
 ### getPinMessageErrorNotification
@@ -158,7 +181,7 @@ Function that returns the notification text to be displayed when a pin message r
 pinned [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
 
 | Type                               |
-| ---------------------------------- |
+|------------------------------------|
 | (message: StreamMessage) => string |
 
 ### groupedByUser
@@ -166,7 +189,7 @@ pinned [message object](https://getstream.io/chat/docs/javascript/message_format
 If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### groupStyles
@@ -177,12 +200,20 @@ An array of potential styles to apply to a grouped message (ex: top, bottom, sin
 | -------- | ----------------------------------------------- |
 | string[] | '' \| 'middle' \| 'top' \| 'bottom' \| 'single' |
 
+### highlighted
+
+Whether to highlight and focus the message on load. Used internally in the process of [jumping to a message](../contexts/channel-action-context.mdx/#jumptomessage).
+
+| Type    |
+|---------|
+| boolean |
+
 ### initialMessage
 
 When true, signifies the message is the parent message in a thread list.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### lastReceivedId
@@ -190,17 +221,16 @@ When true, signifies the message is the parent message in a thread list.
 The latest message ID in the current channel.
 
 | Type   |
-| ------ |
+|--------|
 | string |
 
 ### Message
 
 Custom UI component to display a message.
 
-| Type      | Default                                                                                                                                                     |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| component | [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) for `MessageList`                      |
-|           | [FixedHeightMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/FixedHeightMessage.tsx) for `VirtualizedMessageList` |
+| Type      | Default                                                                   |
+|-----------|---------------------------------------------------------------------------|
+| component | <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> |
 
 ### messageActions
 
@@ -212,34 +242,34 @@ Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all
 
 ### messageListRect
 
-DOMRect object linked to the parent `MessageList` component.
+DOMRect object linked to the parent wrapper div around the `InfiniteScroll` component.
 
 | Type    |
-| ------- |
+|---------|
 | DOMRect |
 
 ### onlySenderCanEdit
 
-If true, only the sender of the message has editing privileges.
+If true, only the sender of the message has editing privileges. If `false` also channel capability `update-any-message` has to be enabled in order a user can edit other users' messages.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### onMentionsClick
 
-Custom action handler function to run on click of an @mention in a message.
+Custom action handler function to run on click of a @mention in a message.
 
 | Type     | Default                                                                                                |
-| -------- | ------------------------------------------------------------------------------------------------------ |
+|----------|--------------------------------------------------------------------------------------------------------|
 | function | [ChannelActionContextValue['onMentionsClick']](../contexts/channel-action-context.mdx#onmentionsclick) |
 
 ### onMentionsHover
 
-Custom action handler function to run on hover of an @mention in a message.
+Custom action handler function to run on hover over a @mention in a message.
 
 | Type     | Default                                                                                                |
-| -------- | ------------------------------------------------------------------------------------------------------ |
+|----------|--------------------------------------------------------------------------------------------------------|
 | function | [ChannelActionContextValue['onMentionsHover']](../contexts/channel-action-context.mdx#onmentionshover) |
 
 ### onUserClick
@@ -247,7 +277,7 @@ Custom action handler function to run on hover of an @mention in a message.
 Custom action handler function to run on click of user avatar.
 
 | Type                                                  |
-| ----------------------------------------------------- |
+|-------------------------------------------------------|
 | (event: React.BaseSyntheticEvent, user: User) => void |
 
 ### onUserHover
@@ -255,7 +285,7 @@ Custom action handler function to run on click of user avatar.
 Custom action handler function to run on hover of user avatar.
 
 | Type                                                  |
-| ----------------------------------------------------- |
+|-------------------------------------------------------|
 | (event: React.BaseSyntheticEvent, user: User) => void |
 
 ### openThread
@@ -263,7 +293,7 @@ Custom action handler function to run on hover of user avatar.
 Custom action handler to open a [`Thread`](../core-components/thread.mdx) component.
 
 | Type     | Default                                                                                      |
-| -------- | -------------------------------------------------------------------------------------------- |
+|----------|----------------------------------------------------------------------------------------------|
 | function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
 
 ### pinPermissions
@@ -271,7 +301,7 @@ Custom action handler to open a [`Thread`](../core-components/thread.mdx) compon
 The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
 
 | Type   | Default                                                                                                              |
-| ------ | -------------------------------------------------------------------------------------------------------------------- |
+|--------|----------------------------------------------------------------------------------------------------------------------|
 | object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
 
 ### readBy
@@ -279,15 +309,21 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 An array of users that have read the current message.
 
 | Type  |
-| ----- |
+|-------|
 | array |
+
+<ReviewNote
+  id='00cc72a8-2874-11ed-a080-a4bb6d26ac2f'
+>
+  The text rendering in the SDK may need a bit more user friendly documentation with examples, recommendations.
+</ReviewNote>
 
 ### renderText
 
 Custom function to render message text content.
 
 | Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+|----------|----------------------------------------------------------------------------------------|
 | function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
 
 ### retrySendMessage
@@ -295,7 +331,7 @@ Custom function to render message text content.
 Custom action handler to retry sending a message after a failed request.
 
 | Type     | Default                                                                                                  |
-| -------- | -------------------------------------------------------------------------------------------------------- |
+|----------|----------------------------------------------------------------------------------------------------------|
 | function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
 ### threadList
@@ -303,7 +339,7 @@ Custom action handler to retry sending a message after a failed request.
 If true, indicates that the current `MessageList` component is part of a `Thread`.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### unsafeHTML
@@ -311,5 +347,5 @@ If true, indicates that the current `MessageList` component is part of a `Thread
 If true, renders HTML instead of markdown. Posting HTML is only supported server-side.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |

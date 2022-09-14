@@ -6,9 +6,13 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type MessageRepliesCountButtonProps = {
+  /* If supplied, adds custom text to the end of a multiple replies message */
   labelPlural?: string;
+  /* If supplied, adds custom text to the end of a single reply message */
   labelSingle?: string;
+  /* Function to navigate into an existing thread on a message */
   onClick?: MouseEventHandler;
+  /* The amount of replies (i.e., threaded messages) on a message */
   reply_count?: number;
 };
 

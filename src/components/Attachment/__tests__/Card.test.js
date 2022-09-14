@@ -155,41 +155,45 @@ describe('Card', () => {
         chatContext: { chatClient },
       });
       expect(container.firstChild).toMatchInlineSnapshot(`
+        <div
+          class="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
+        >
+          <div
+            class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+            data-testid="card-header"
+          >
+            <img
+              alt="test"
+              class="str-chat__message-attachment--img"
+              data-testid="image-test"
+              src="test.jpg"
+              tabindex="0"
+            />
+          </div>
+          <div
+            class="str-chat__message-attachment-card--content"
+          >
+            <div
+              class="str-chat__message-attachment-card--flex"
+            >
               <div
-                class="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
+                class="str-chat__message-attachment-card--title"
               >
-                <div
-                  class="str-chat__message-attachment-card--header"
-                >
-                  <img
-                    alt="test.jpg"
-                    src="test.jpg"
-                  />
-                </div>
-                <div
-                  class="str-chat__message-attachment-card--content"
-                >
-                  <div
-                    class="str-chat__message-attachment-card--flex"
-                  >
-                    <div
-                      class="str-chat__message-attachment-card--title"
-                    >
-                      test
-                    </div>
-                    <a
-                      aria-label="Attachment"
-                      class="str-chat__message-attachment-card--url"
-                      href="https://google.com"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      google.com
-                    </a>
-                  </div>
-                </div>
+                test
               </div>
-          `);
+              <a
+                aria-label="Attachment"
+                class="str-chat__message-attachment-card--url"
+                href="https://google.com"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                google.com
+              </a>
+            </div>
+          </div>
+        </div>
+      `);
     });
 
     it('should render Card with default props and title, og_scrape_url, image_url, text', async () => {
@@ -204,46 +208,50 @@ describe('Card', () => {
       });
 
       expect(container.firstChild).toMatchInlineSnapshot(`
+        <div
+          class="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
+        >
+          <div
+            class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+            data-testid="card-header"
+          >
+            <img
+              alt="test"
+              class="str-chat__message-attachment--img"
+              data-testid="image-test"
+              src="test.jpg"
+              tabindex="0"
+            />
+          </div>
+          <div
+            class="str-chat__message-attachment-card--content"
+          >
+            <div
+              class="str-chat__message-attachment-card--flex"
+            >
               <div
-                class="str-chat__message-attachment-card str-chat__message-attachment-card--undefined"
+                class="str-chat__message-attachment-card--title"
               >
-                <div
-                  class="str-chat__message-attachment-card--header"
-                >
-                  <img
-                    alt="test.jpg"
-                    src="test.jpg"
-                  />
-                </div>
-                <div
-                  class="str-chat__message-attachment-card--content"
-                >
-                  <div
-                    class="str-chat__message-attachment-card--flex"
-                  >
-                    <div
-                      class="str-chat__message-attachment-card--title"
-                    >
-                      test
-                    </div>
-                    <div
-                      class="str-chat__message-attachment-card--text"
-                    >
-                      test text
-                    </div>
-                    <a
-                      aria-label="Attachment"
-                      class="str-chat__message-attachment-card--url"
-                      href="https://google.com"
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      google.com
-                    </a>
-                  </div>
-                </div>
+                test
               </div>
-          `);
+              <div
+                class="str-chat__message-attachment-card--text"
+              >
+                test text
+              </div>
+              <a
+                aria-label="Attachment"
+                class="str-chat__message-attachment-card--url"
+                href="https://google.com"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                google.com
+              </a>
+            </div>
+          </div>
+        </div>
+      `);
     });
 
     it('should render trimmed url', async () => {
@@ -264,6 +272,68 @@ describe('Card', () => {
         chatContext: { chatClient },
       });
       expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should fall back to render image for video card if no asset_url', async () => {
+      const { container } = await renderCard({
+        cardProps: {
+          image_url: 'test.jpg',
+          og_scrape_url: 'https://google.com',
+          text: 'test text',
+          title: 'test',
+          type: 'video',
+        },
+        chatContext: { chatClient },
+      });
+
+      expect(container.firstChild).toMatchInlineSnapshot(`
+        <div
+          class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+        >
+          <div
+            class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+            data-testid="card-header"
+          >
+            <img
+              alt="test"
+              class="str-chat__message-attachment--img"
+              data-testid="image-test"
+              src="test.jpg"
+              tabindex="0"
+            />
+          </div>
+        </div>
+      `);
+    });
+
+    it('should render card with video player', async () => {
+      const { container } = await renderCard({
+        cardProps: {
+          asset_url: 'https://example.com',
+          image_url: 'test.jpg',
+          og_scrape_url: 'https://google.com',
+          text: 'test text',
+          title: 'test',
+          type: 'video',
+        },
+        chatContext: { chatClient },
+      });
+
+      expect(container.firstChild).toMatchInlineSnapshot(`
+        <div
+          class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+        >
+          <div
+            class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+            data-testid="card-header"
+          >
+            <div
+              class="react-player"
+              style="width: 100%; height: 100%;"
+            />
+          </div>
+        </div>
+      `);
     });
   });
 

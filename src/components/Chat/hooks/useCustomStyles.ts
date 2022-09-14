@@ -117,6 +117,13 @@ export const darkModeTheme: CustomStyles = {
 
 export type CustomStyles = Partial<Record<CSSVariables, string>>;
 
+/**
+ * @deprecated This hook has been deprecated in favor of the new
+ * theming (V2) setup which sets its variables through CSS files.
+ * Refer to the [documentation](https://getstream.io/chat/docs/sdk/react/theming/themingv2/) of the new theming for the upgrade.
+ *
+ * **Will be removed with the complete transition to the theming V2.**
+ */
 export const useCustomStyles = (customStyles?: CustomStyles) => {
   if (!customStyles) return;
 

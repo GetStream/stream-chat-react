@@ -124,14 +124,6 @@ Custom UI component handling how the message input is rendered.
 | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | component | [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) |
 
-### shouldSubmit
-
-Currently, `Enter` is the default submission key and `Shift`+`Enter` is the default combination for the new line.
-If specified, this function overrides the default behavior specified previously.
-
-| Type                              |
-| --------------------------------- |
-| (event: KeyboardEvent) => boolean |
 
 ### maxRows
 
@@ -196,6 +188,39 @@ If true, triggers typing events on text input keystroke.
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+### shouldSubmit
+
+Currently, `Enter` is the default submission key and `Shift`+`Enter` is the default combination for the new line.
+If specified, this function overrides the default behavior specified previously.
+
+| Type                              |
+| --------------------------------- |
+| (event: KeyboardEvent) => boolean |
+
+:::note
+
+### Migration from versions older than `9.0.0`
+
+Property **keycodeSubmitKeys** has been replaced by **shouldSubmit** and thus is no longer supported.
+If you had custom key codes specified like so:
+
+```ts
+keyCodeSubmitKeys={[[16,13], [57], [48]]} // submission keys are Shift+Enter, 9, and 0
+```
+
+then that would newly translate to:
+
+```ts
+const shouldSubmit = (event) =>
+  (event.key === 'Enter' && event.shiftKey) || event.key === '9' || event.key === '0';
+
+...
+
+shouldSubmit={shouldSubmit}
+```
+
+:::
 
 ### useMentionsTransliteration
 

@@ -11,7 +11,7 @@ export const useChannelContainerClasses = <
   const { useImageFlagEmojisOnWindows } = useChatContext<StreamChatGenerics>('Channel');
 
   return {
-    channelClass: customClasses?.channel ?? 'str-chat-channel',
+    channelClass: customClasses?.channel ?? 'str-chat-channel str-chat__channel',
     chatClass: customClasses?.chat ?? 'str-chat',
     chatContainerClass: customClasses?.chatContainer ?? 'str-chat__container',
     windowsEmojiClass:
