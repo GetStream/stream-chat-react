@@ -10,7 +10,7 @@ the use of [generics](https://www.typescriptlang.org/docs/handbook/2/generics.ht
 
 In many cases, TypeScript uses [inference](https://www.typescriptlang.org/docs/handbook/type-inference.html) from provided props to establish a component or
 value's type. It is therefore important that the proper generics be applied to the `stream-chat` client instance during construction. The
-[documentation on `stream-chat` TypeScript](https://github.com/GetStream/stream-chat-js#typescript-v2xx) has detailed examples of how this can be accomplished.
+[documentation on `stream-chat` TypeScript](https://github.com/GetStream/stream-chat-js/blob/master/docs/typescript.md) has detailed examples of how this can be accomplished.
 The Stream Chat client takes a type with seven customizable fields that currently exist in `stream-chat`.
 
 ```tsx
@@ -104,81 +104,27 @@ Through this client instantiation, we have added type support for the following 
 
 - `channel.image`
 - `message.isAdminMessage`
+- `user.image`
 - `user.nickName`
 
 :::note
 `DefaultCommandType` extends `string & {}` to maintain intellisense for the included commands. This allows you to extend a string union.
 :::
 
-The below snippet shows the current default types in the `stream-chat-react` component library. Any additional custom types
-will extend these defaults. Core to understanding this pattern is how generics can be
-[applied to JSX elements](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-9.html#generic-type-arguments-in-jsx-elements).
-
-```tsx
-export type DefaultAttachmentType = UnknownType & {
-  asset_url?: string;
-  file_size?: number;
-  id?: string;
-  images?: Array<{
-    image_url?: string;
-    thumb_url?: string;
-  }>;
-};
-
-export type DefaultChannelType = UnknownType & {
-  frozen?: boolean;
-  image?: string;
-  member_count?: number;
-  subtitle?: string;
-};
-
-type DefaultCommandType = string & {};
-
-type DefaultEventType = Record<string, unknown>;
-
-export type CustomMessageType = 'channel.intro' | 'message.date';
-
-export type DefaultMessageType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = UnknownType & {
-  customType?: CustomMessageType;
-  date?: string | Date;
-  errorStatusCode?: number;
-  event?: Event<StreamChatGenerics>;
-  unread?: boolean;
-};
-
-type DefaultReactionType = Record<string, unknown>;
-
-export type DefaultUserTypeInternal = {
-  image?: string;
-  status?: string;
-};
-
-export type DefaultUserType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = UnknownType &
-  DefaultUserTypeInternal & {
-    mutes?: Array<Mute<StreamChatGenerics>>;
-  };
-```
-
 The exported custom context hooks also require generics be applied to correctly type custom returns. For example, the
 `useChannelStateContext` hook needs all generics to get a correctly typed return for `channel`.
 
 ```tsx
-const { channel } = useChannelStateContext<
-  DefaultAttachmentType,
-  { image?: string },
-  DefaultCommandType,
-  DefaultEventType,
-  { isAdminMessage?: boolean },
-  DefaultReactionType,
-  { nickName?: string }
->();
+const { channel } = useChannelStateContext<StreamChatGenerics>();
 ```
 
 :::tip
 To see an example of extending the default `Attachment` type, see the [Geolocation Attachment](../custom-code-examples/geolocation-attachment.mdx#custom-map-attachment)
 custom code example.
 :::
+
+The current default types can be seen in the [`stream-chat-react` component library](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts). Any additional custom types
+will extend these defaults. Core to understanding this pattern is how generics can be
+[applied to JSX elements](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-9.html#generic-type-arguments-in-jsx-elements).
+
+

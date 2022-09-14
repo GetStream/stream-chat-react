@@ -53,7 +53,7 @@ export type MessageProps<
   getPinMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** If true, group messages sent by each user (only used in the `VirtualizedMessageList`) */
   groupedByUser?: boolean;
-  /** A list of styles to apply to this message, ie. top, bottom, single */
+  /** A list of styles to apply to this message, i.e. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether to highlight and focus the message on load */
   highlighted?: boolean;
@@ -91,7 +91,7 @@ export type MessageProps<
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /** Whether or not the Message is in a Thread */
+  /** Whether the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;

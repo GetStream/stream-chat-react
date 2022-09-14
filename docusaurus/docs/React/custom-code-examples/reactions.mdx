@@ -172,7 +172,7 @@ export const CustomMessage = () => {
     <div className='message-wrapper'>
       <Avatar image={message.user?.image} />
       <div className='message-wrapper-content'>
-        <MessageOptions displayLeft={false} messageWrapperRef={messageWrapperRef} />
+        <MessageOptions messageWrapperRef={messageWrapperRef} />
         <div className='message-header'>
           <div className='message-header-name'>{message.user?.name}</div>
           <div className='message-header-timestamp'>

@@ -17,8 +17,11 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageStatusProps = {
+  /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
   Avatar?: React.ComponentType<AvatarProps>;
+  /* Message type string to be added to CSS class names. */
   messageType?: string;
+  /* Allows to customize the username(s) that appear on the message status tooltip */
   tooltipUserNameMapper?: TooltipUsernameMapper;
 };
 

@@ -4,10 +4,14 @@ sidebar_position: 3
 title: Attachments
 ---
 
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+import ReviewNote from '../_docusaurus-components/ReviewNote';
+
+
 The `Attachment` component takes a list of message attachments and conditionally renders the UI of each individual attachment based
 upon its type. The following table shows the attachment UI components that will be rendered for various attachment types:
 
-| Attachment Type | UI Component                                                                                                    |  File type(s) (non-exhaustive)                         |
+| Attachment Type | UI Component                                                                                                    | File type(s) (non-exhaustive)                          |
 | --------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `audio`         | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)         | MP3, WAV, M4A, FLAC, AAC                               |
 | `file`          | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) | DOC, DOCX, PDF, PPT, PPTX, TXT, XLS, XLSX              |
@@ -15,8 +19,7 @@ upon its type. The following table shows the attachment UI components that will 
 | `image`         | [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)            | HEIC, GIF, JPEG, JPG, PNG, TIFF, BMP                   |
 | `video`         | [ReactPlayer](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js)                          | MP4, OGG, WEBM, Quicktime(QTFF, QT, or MOV)            |
 
-Message attachments that do not conform to one of the above types are rendered with the
-[Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) component.
+Message attachment objects that do not conform to one of the above types are considered to contain scraped content and should contain at least `og_scrape_url` or `title_link` to be rendered with the <GHComponentLink text='Card' path='/Attachment/Card.tsx'/> component. Otherwise, the attachment is not rendered.
 
 ## Basic Usage
 
@@ -29,9 +32,11 @@ const CustomMessage = () => {
   // consume `MessageContext`
   const { message } = useMessageContext();
 
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
   return (
     <div>
-      {message.attachments && <Attachment attachments={message.attachments} />}
+      { hasAttachments && <Attachment attachments={message.attachments} />}
       // render remaining custom Message UI
     </div>
   );
@@ -48,7 +53,7 @@ const CustomMessage = () => {
 ## UI Customization
 
 `Attachment` accepts component override props for each attachment UI component. Building upon the previous example, the below
-snippet shows how to customize one of the individual attachment UI components.
+snippets show how to customize one of the individual attachment UI components with either custom Message UI component:
 
 ```jsx
 const CustomImage = (props) => {
@@ -59,16 +64,39 @@ const CustomMessage = () => {
   // consume `MessageContext`
   const { message } = useMessageContext();
 
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
   return (
     <div>
-      {message.attachments && <Attachment attachments={message.attachments} Image={CustomImage} />}
-      // render remaining custom Message UI
+      {hasAttachments && <Attachment attachments={message.attachments} Image={CustomImage} />}
+      {/* render remaining custom Message UI */}
     </div>
   );
 };
 
 <Chat client={client}>
   <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+or using wrapped `Attachment` component:
+
+```jsx
+const CustomAudioAttachment = (props) => {
+  // you can add any custom data (such as "customType" in this case)
+  if (props.og?.customType === 'voice-memo') return <div>my custom voice-memo component</div>;
+  return <Audio {...props} />;
+};
+
+const CustomAttachment = (props) => {
+  return <Attachment {...props} Audio={CustomAudioAttachment} />;
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Attachment={CustomAttachment}>
     <MessageList />
     <MessageInput />
   </Channel>
@@ -94,53 +122,62 @@ The handler function to call when an action is performed on an attachment, examp
 | ----------------------------------------------------------------------------------------------------- |
 | (dataOrName?: string \| FormData, value?: string, event?: React.BaseSyntheticEvent) => Promise<void\> |
 
+
+
+<ReviewNote
+  author='Martin Cupela'
+  id='04803878-3362-11ed-8912-a4bb6d26ac2f'
+>
+  What are attachment actions, what is their use case / recipes? Missing concept explanation. It would be nice to have a link to a doc explaining these.
+</ReviewNote>
+
 ### AttachmentActions
 
 Custom UI component for displaying attachment actions.
 
-| Type      | Default                                                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| component | [AttachmentActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AttachmentActions.tsx) |
+| Type      | Default                                                                              |
+|-----------|--------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='AttachmentActions' path='/Attachment/AttachmentActions.tsx'/> |
 
 ### Audio
 
 Custom UI component for displaying an audio type attachment.
 
-| Type      | Default                                                                                                 |
-| --------- | ------------------------------------------------------------------------------------------------------- |
-| component | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) |
+| Type      | Default                                                      |
+|-----------|--------------------------------------------------------------|
+| component | <GHComponentLink text='Audio' path='/Attachment/Audio.tsx'/> |
 
 ### Card
 
 Custom UI component for displaying a card type attachment.
 
-| Type      | Default                                                                                               |
-| --------- | ----------------------------------------------------------------------------------------------------- |
-| component | [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) |
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Card' path='/Attachment/Card.tsx'/> |
 
 ### File
 
 Custom UI component for displaying a file type attachment.
 
-| Type      | Default                                                                                                         |
-| --------- | --------------------------------------------------------------------------------------------------------------- |
-| component | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) |
+| Type      | Default                                                              |
+|-----------|----------------------------------------------------------------------|
+| component | <GHComponentLink text='File' path='/Attachment/FileAttachment.tsx'/> |
 
 ### Gallery
 
 Custom UI component for displaying a gallery of image type attachments.
 
-| Type      | Default                                                                                                  |
-| --------- | -------------------------------------------------------------------------------------------------------- |
-| component | [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx) |
+| Type      | Default                                                       |
+|-----------|---------------------------------------------------------------|
+| component | <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx'/> |
 
 ### Image
 
 Custom UI component for displaying an image type attachment.
 
-| Type      | Default                                                                                              |
-| --------- | ---------------------------------------------------------------------------------------------------- |
-| component | [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) |
+| Type      | Default                                                   |
+|-----------|-----------------------------------------------------------|
+| component | <GHComponentLink text='Image' path='/Gallery/Image.tsx'/> |
 
 ### Media
 

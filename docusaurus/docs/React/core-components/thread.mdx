@@ -4,6 +4,8 @@ sidebar_position: 6
 title: Thread
 ---
 
+import ReviewNote from '../_docusaurus-components/ReviewNote';
+
 The `Thread` component renders a list of replies tied to a single parent message in a channel's main message list.
 A `Thread` maintains its own state and renders its own `MessageList` and `MessageInput` components. Each piece of
 rendered UI can be overridden with custom components either drawn from the `ComponentContext` or supplied via props.
@@ -100,6 +102,25 @@ const CustomThreadStart = (props) => {
 </Chat>;
 ```
 
+**Example 3** - To customize the combo of the thread's parent message and the `ThreadStart` separator, you can create a custom `ThreadHead` component and pass it to the `Channel` props. It then will be stored in the [`ComponentContext['ThreadHead']`](../contexts/component-context.mdx/#threadhead)
+
+```jsx
+const CustomThreadHead = (props) => {
+  // render thread header UI component here
+};
+
+<Chat client={client}>
+  <ChannelList />
+  <Channel ThreadHead={CustomThreadHead} ThreadStart={CustomThreadStart}>
+    <Window>
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </Channel>
+</Chat>;
+```
+
 ## Props
 
 ### additionalMessageInputProps
@@ -107,7 +128,7 @@ const CustomThreadStart = (props) => {
 Additional props to be passed to the underlying [`MessageInput`](../message-input-components/message-input.mdx) component.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### additionalMessageListProps
@@ -115,7 +136,7 @@ Additional props to be passed to the underlying [`MessageInput`](../message-inpu
 Additional props to be passed to the underlying [`MessageList`](./message-list.mdx) component.
 
 | Type   |
-| ------ |
+|--------|
 | object |
 
 ### additionalParentMessageProps
@@ -124,7 +145,15 @@ Additional props to be passed to the underlying [`Message`](../message-component
 thread's parent message.
 
 | Type   |
-| ------ |
+|--------|
+| object |
+
+### additionalVirtualizedMessageListProps
+
+Additional [props for `VirtualizedMessageList`](../virtualized_list/#props) component.
+
+| Type   |
+|--------|
 | object |
 
 ### autoFocus
@@ -132,40 +161,45 @@ thread's parent message.
 If true, focuses the `MessageInput` component on opening a thread.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | true    |
 
 ### enableDateSeparator
 
-Controls injection of [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator/DateSeparator.tsx) UI component into underlying `MessageList` or `VirtualizedMessageList`.
+Controls injection of <GHComponentLink text='DateSeparator' path='/DateSeparator/DateSeparator.tsx'/> UI component into underlying `MessageList` or `VirtualizedMessageList`.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
+
+<ReviewNote
+  id='787aad50-2866-11ed-88c5-a4bb6d26ac2f'
+>
+  Proposing the <pre>fullWidth</pre> prop to be deprecated / removed. The container width should be handled by CSS.
+</ReviewNote>
 
 ### fullWidth
 
 If true, displays the thread at 100% width of its parent container, useful for mobile styling.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### Input
 
-Custom thread input UI component used to override the optional `Input` value stored in `ComponentContext` or the
-[MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) default.
+Custom thread input UI component used to override the optional `Input` value stored in `ComponentContext` or the default. For  the applications using [theme version](../theming/introduction.mdx) 1, the default is `MessageInputSmall`. Applications using theme version 2 will use `MessageInputFlat` by default.
 
-| Type      | Default                                                                                                                           |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| component | [MessageInputSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputSmall.tsx) |
+| Type      | Default                                                                                                                                                                                               |
+|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/>  /  <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
 
 ### Message
 
 Custom thread message UI component used to override the default `Message` value stored in `ComponentContext`.
 
 | Type      | Default                                                                  |
-| --------- | ------------------------------------------------------------------------ |
+|-----------|--------------------------------------------------------------------------|
 | component | [ComponentContext['Message']](../contexts/component-context.mdx#message) |
 
 ### messageActions
@@ -175,3 +209,11 @@ Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all
 | Type  | Default                                                              |
 |-------|----------------------------------------------------------------------|
 | array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
+
+### virtualized
+
+If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component.
+
+| Type    |
+|---------|
+| boolean |
