@@ -1,9 +1,9 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { AppSettingsAPIResponse, Channel, Mute, StreamChat } from 'stream-chat';
+import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
 
 import { getDisplayName } from './utils/getDisplayName';
-import type { Theme } from '../components/Chat/Chat';
+import type { ChatProps } from '../components/Chat/Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
 
@@ -29,7 +29,6 @@ export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   channelsQueryState: ChannelsQueryState;
-  client: StreamChat<StreamChatGenerics>;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
   latestMessageDatesByChannels: Record<ChannelCID, Date>;
@@ -40,14 +39,12 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
-  /** @deprecated */
-  theme: Theme;
   themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<StreamChatGenerics>;
   customClasses?: CustomClasses;
   navOpen?: boolean;
-};
+} & Required<Pick<ChatProps<StreamChatGenerics>, 'theme' | 'client'>>;
 
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 
