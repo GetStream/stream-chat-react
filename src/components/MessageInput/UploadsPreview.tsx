@@ -12,7 +12,7 @@ import { useChatContext } from '../../context';
  * utilises outdated components from the package [`react-file-utils`](https://github.com/GetStream/react-file-utils)
  * which will no longer receive updates for aforementioned components.
  *
- * **Will be removed with the complete transition to the theming V2.**
+ * **Will be removed with the complete transition to the theming V2 (next major release - `v11.0.0`).**
  */
 export const UploadsPreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

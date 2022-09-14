@@ -32,7 +32,7 @@ import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
  * In case you need to change styling in places where `MessageInputSmall` has been used previously ([`Thread`](../Thread/Thread.tsx))
  * please do so by updating the CSS or by overriding the component itself.
  *
- * **Will be removed with the complete transition to the theming V2.**
+ * **Will be removed with the complete transition to the theming V2 (next major release - `v11.0.0`).**
  */
 export const MessageInputSmall = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

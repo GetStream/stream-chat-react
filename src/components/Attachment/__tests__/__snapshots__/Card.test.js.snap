@@ -97,7 +97,14 @@ exports[`Card theme V2 (2) should render card without caption if attachment type
       <div
         class="react-player"
         style="width: 100%; height: 100%;"
-      />
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
     </div>
     <div
       class="str-chat__message-attachment-card--content"
