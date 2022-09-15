@@ -342,7 +342,7 @@ const customSearchFunction = async (props: ChannelSearchFunctionParams, event: {
 
 ### Adding menu
 
-As of the version 10.0.0, users can add app menu into the `SearchBar`. In case you would like to display menu button next to the search input, you can do that by adding [`AppMenu` component](../utility-components/channel-search.mdx#appmenu) to the `ChannelSearch` props. The display of `AppMenu` is then toggled by clicking on the menu button. `AppMenu` can be rendered as a drop-down or even a modal. In our example we will render a drop-down menu.
+As of the version 10.0.0, users can add app menu into the `SearchBar`. In case you would like to display menu button next to the search input, you can do that by adding [`AppMenu` component](../utility-components/channel-search.mdx/#appmenu) to the `ChannelSearch` props. The display of `AppMenu` is then toggled by clicking on the menu button. `AppMenu` can be rendered as a drop-down or even a modal. In our example we will render a drop-down menu.
 
 :::caution
 The SDK does not provide any default `AppMenu` component and so you will have to write your CSS for it to be styled correctly.
@@ -354,12 +354,12 @@ import type { AppMenuProps } from 'stream-chat-react';
 
 import './AppMenu.scss';
 
-export const AppMenu = ({onSelect}: AppMenuProps) => {
+export const AppMenu = ({close}: AppMenuProps) => {
 
   const handleSelect = useCallback(() => {
     // custom logic...
-    onSelect?.();
-  }, [onSelect]);
+    close?.();
+  }, [close]);
 
   return (
     <div className='app-menu__container'>
@@ -413,6 +413,7 @@ import { AppMenu } from './components/AppMenu';
 const App = () => (
     <Chat client={chatClient}>
       <ChannelList
+        // highlight-next-line
         additionalChannelSearchProps={{AppMenu}}
         showChannelSearch
       />
