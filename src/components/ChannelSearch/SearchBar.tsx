@@ -17,7 +17,7 @@ import {
 import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
 
 export type AppMenuProps = {
-  onSelect?: () => void;
+  close?: () => void;
 };
 
 type SearchBarButtonProps = {
@@ -137,7 +137,7 @@ export const SearchBar = (props: SearchBarProps) => {
     inputProps.inputRef.current?.focus();
   }, []);
 
-  const onAppMenuItemSelect = useCallback(() => setMenuIsOpen(false), []);
+  const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);
 
   return (
     <div className='str-chat__channel-search-bar' data-testid='search-bar' ref={searchBarRef}>
@@ -178,7 +178,7 @@ export const SearchBar = (props: SearchBarProps) => {
       </div>
       {menuIsOpen && AppMenu && (
         <div ref={appMenuRef}>
-          <AppMenu onSelect={onAppMenuItemSelect} />
+          <AppMenu close={closeAppMenu} />
         </div>
       )}
     </div>
