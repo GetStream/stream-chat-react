@@ -22,10 +22,10 @@ jest.spyOn(window, 'getComputedStyle').mockReturnValue({
 let client;
 const inputText = new Date().getTime().toString();
 
-const AppMenu = ({ onSelect }) => (
+const AppMenu = ({ close }) => (
   <div>
     AppMenu
-    <div data-testid='menu-item' onClick={onSelect} />
+    <div data-testid='menu-item' onClick={close} />
   </div>
 );
 const ClearInputIcon = () => <div>CustomClearInputIcon</div>;
