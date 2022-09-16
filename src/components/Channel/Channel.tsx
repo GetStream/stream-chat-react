@@ -79,7 +79,7 @@ import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
   GiphyVersions,
-  ImageAttachmentConfigration,
+  ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
@@ -153,7 +153,7 @@ export type ChannelProps<
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** A custom function to provide size configuration for image attachments */
-  imageAttachmentSizeHandler?: (a: Attachment, e: HTMLElement) => ImageAttachmentConfigration;
+  imageAttachmentSizeHandler?: (a: Attachment, e: HTMLElement) => ImageAttachmentConfiguration;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */

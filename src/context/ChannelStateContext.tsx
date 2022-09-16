@@ -12,7 +12,7 @@ import type {
 import type {
   DefaultStreamChatGenerics,
   GiphyVersions,
-  ImageAttachmentConfigration,
+  ImageAttachmentConfiguration,
   UnknownType,
   VideoAttachmentConfiguration,
 } from '../types/types';
@@ -64,7 +64,7 @@ export type ChannelStateContextValue<
   imageAttachmentSizeHandler: (
     attachment: Attachment,
     element: HTMLElement,
-  ) => ImageAttachmentConfigration;
+  ) => ImageAttachmentConfiguration;
   multipleUploads: boolean;
   notifications: ChannelNotifications;
   shouldGenerateVideoThumbnail: boolean;

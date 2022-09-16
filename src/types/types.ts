@@ -101,11 +101,11 @@ export interface IconProps {
 
 export type Dimensions = { height?: string; width?: string };
 
-export type ImageAttachmentConfigration = {
+export type ImageAttachmentConfiguration = {
   height: string;
   url: string;
 };
 
-export type VideoAttachmentConfiguration = ImageAttachmentConfigration & {
+export type VideoAttachmentConfiguration = ImageAttachmentConfiguration & {
   thumbUrl?: string;
 };
