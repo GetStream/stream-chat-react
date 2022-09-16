@@ -17,7 +17,7 @@ import {
 
 import type {
   DefaultStreamChatGenerics,
-  ImageAttachmentConfigration,
+  ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -85,7 +85,7 @@ export const GalleryContainer = <
   const imageElements = useRef<HTMLElement[]>([]);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
   const [attachmentConfigurations, setAttachmentConfigurations] = useState<
-    ImageAttachmentConfigration[]
+    ImageAttachmentConfiguration[]
   >([]);
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export const GalleryContainer = <
       imageElements.current.every((element) => !!element) &&
       imageAttachmentSizeHandler
     ) {
-      const newConfigurations: ImageAttachmentConfigration[] = [];
+      const newConfigurations: ImageAttachmentConfiguration[] = [];
       imageElements.current.forEach((element, i) => {
         const config = imageAttachmentSizeHandler(attachment.images[i], element);
         newConfigurations.push(config);
@@ -127,7 +127,7 @@ export const ImageContainer = <
   const imageElement = useRef<HTMLImageElement>(null);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
   const [attachmentConfiguration, setAttachmentConfiguration] = useState<
-    ImageAttachmentConfigration | undefined
+    ImageAttachmentConfiguration | undefined
   >(undefined);
 
   useEffect(() => {
