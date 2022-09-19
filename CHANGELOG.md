@@ -1,3 +1,12 @@
+## [10.0.2](https://github.com/GetStream/stream-chat-react/compare/v10.0.1...v10.0.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* **ChannelList:** update class names order for theming variables ([#1747](https://github.com/GetStream/stream-chat-react/issues/1747)) ([80ec36e](https://github.com/GetStream/stream-chat-react/commit/80ec36e44e2f383c7eea46ce70aaf719e4d5c43a))
+* play video in attachment card theme v1 ([#1748](https://github.com/GetStream/stream-chat-react/issues/1748)) ([cd31d19](https://github.com/GetStream/stream-chat-react/commit/cd31d19ec90b784942821301a4164c0bac40a7f2))
+* **Textarea:** prevent caret movement on suggestion list item select ([#1732](https://github.com/GetStream/stream-chat-react/issues/1732)) ([be44762](https://github.com/GetStream/stream-chat-react/commit/be447621cfb118dcefa6d27a6d6ff2b26977e177))
+
 ## [10.0.1](https://github.com/GetStream/stream-chat-react/compare/v10.0.0...v10.0.1) (2022-09-12)
 
 
