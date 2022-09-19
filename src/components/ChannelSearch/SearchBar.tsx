@@ -16,6 +16,10 @@ import {
 } from './icons';
 import { SearchInput as DefaultSearchInput, SearchInputProps } from './SearchInput';
 
+export type AppMenuProps = {
+  close?: () => void;
+};
+
 type SearchBarButtonProps = {
   className?: string;
   onClick?: MouseEventHandler<HTMLButtonElement>;
@@ -48,7 +52,7 @@ export type SearchBarController = {
 
 export type AdditionalSearchBarProps = {
   /** Application menu to be displayed  when clicked on MenuIcon */
-  AppMenu?: React.ComponentType;
+  AppMenu?: React.ComponentType<AppMenuProps>;
   /** Custom icon component used to clear the input value on click. Displayed within the search input wrapper. */
   ClearInputIcon?: React.ComponentType;
   /** Custom icon component used to terminate the search UI session on click. */
@@ -133,6 +137,8 @@ export const SearchBar = (props: SearchBarProps) => {
     inputProps.inputRef.current?.focus();
   }, []);
 
+  const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);
+
   return (
     <div className='str-chat__channel-search-bar' data-testid='search-bar' ref={searchBarRef}>
       {inputIsFocused ? (
@@ -172,7 +178,7 @@ export const SearchBar = (props: SearchBarProps) => {
       </div>
       {menuIsOpen && AppMenu && (
         <div ref={appMenuRef}>
-          <AppMenu />
+          <AppMenu close={closeAppMenu} />
         </div>
       )}
     </div>
