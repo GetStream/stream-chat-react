@@ -196,7 +196,7 @@ const VirtualizedMessageListWithContext = <
   const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
-      processedMessages.reduce((acc, message, i) => {
+      processedMessages.reduce<Record<string, GroupStyle>>((acc, message, i) => {
         const style = groupStylesFn(
           message,
           processedMessages[i - 1],
@@ -205,7 +205,8 @@ const VirtualizedMessageListWithContext = <
         );
         if (style) acc[message.id] = style;
         return acc;
-      }, {} as Record<string, GroupStyle>),
+      }, {}),
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     [processedMessages.length, shouldGroupByUser],
   );
 
@@ -234,6 +235,7 @@ const VirtualizedMessageListWithContext = <
     virtuoso,
     processedMessages,
     setNewMessagesNotification,
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     processedMessages.length,
     hasMoreNewer,
     jumpToLatestMessage,
@@ -375,8 +377,9 @@ const VirtualizedMessageListWithContext = <
     return Item;
   }, [
     customClasses?.virtualMessage,
-    Object.keys(messageGroupStyles),
+    messageGroupStyles,
     numItemsPrepended,
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     processedMessages.length,
   ]);
 

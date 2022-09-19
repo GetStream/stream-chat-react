@@ -26,6 +26,7 @@ export const usePaginatedChannels = <
   const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
 
+  // memoize props
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
