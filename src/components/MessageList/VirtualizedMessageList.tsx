@@ -206,6 +206,7 @@ const VirtualizedMessageListWithContext = <
         if (style) acc[message.id] = style;
         return acc;
       }, {} as Record<string, GroupStyle>),
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     [processedMessages.length, shouldGroupByUser],
   );
 
@@ -234,6 +235,7 @@ const VirtualizedMessageListWithContext = <
     virtuoso,
     processedMessages,
     setNewMessagesNotification,
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     processedMessages.length,
     hasMoreNewer,
     jumpToLatestMessage,
@@ -377,6 +379,7 @@ const VirtualizedMessageListWithContext = <
     customClasses?.virtualMessage,
     messageGroupStyles,
     numItemsPrepended,
+    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     processedMessages.length,
   ]);
 
