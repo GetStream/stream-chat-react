@@ -375,7 +375,7 @@ const VirtualizedMessageListWithContext = <
     return Item;
   }, [
     customClasses?.virtualMessage,
-    Object.keys(messageGroupStyles),
+    messageGroupStyles,
     numItemsPrepended,
     processedMessages.length,
   ]);
