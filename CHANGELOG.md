@@ -1,3 +1,10 @@
+## [10.1.1](https://github.com/GetStream/stream-chat-react/compare/v10.1.0...v10.1.1) (2022-09-20)
+
+
+### Bug Fixes
+
+* edge case of prepend count not being reset when jumping ([#1765](https://github.com/GetStream/stream-chat-react/issues/1765)) ([18ba8f8](https://github.com/GetStream/stream-chat-react/commit/18ba8f83261ec8157651721404906e0f00c92fd4))
+
 # [10.1.0](https://github.com/GetStream/stream-chat-react/compare/v10.0.2...v10.1.0) (2022-09-19)
 
 
