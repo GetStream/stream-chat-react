@@ -71,15 +71,21 @@ The other change (fix) brought with the release is that the thread is scrolled t
 
 The default component used to represent empty state in message list or channel list as been enriched with an SVG image:
 
-
 <ImageShowcase
   border
   items={[
-    { image: EmptyChannelList, caption: <span>Empty channel list</span>, alt: 'Image of empty channel list' },
-    { image: EmptyMessageList, caption: <span>Empty message list</span>, alt: 'Image of empty message list' },
+    {
+      image: EmptyChannelList,
+      caption: <span>Empty channel list</span>,
+      alt: 'Image of empty channel list',
+    },
+    {
+      image: EmptyMessageList,
+      caption: <span>Empty message list</span>,
+      alt: 'Image of empty message list',
+    },
   ]}
 />
-
 
 #### MessageNotifications
 
@@ -88,7 +94,11 @@ We have added a new component <GHComponentLink text='ScrollToBottomButton' path=
 <ImageShowcase
   border
   items={[
-    { image: ScrollToBottomButton, caption: <span>New component ScrollToBottomButton</span>, alt: 'Image of a new component ScrollToBottomButton' },
+    {
+      image: ScrollToBottomButton,
+      caption: <span>New component ScrollToBottomButton</span>,
+      alt: 'Image of a new component ScrollToBottomButton',
+    },
   ]}
 />
 
@@ -165,7 +175,6 @@ The `ChannelSearch` component has been revamped and upgraded. It now provides ri
 
 We started to use component `ChannelPreview` to display search results. That is why the new prop `onSelect` has been added to its API. You can customize what happens, when the search result is selected.
 
-
 ### Changes in the channel pane
 
 #### MessageList
@@ -187,22 +196,30 @@ The file attachment component used for theming V2 has changed markup compared to
 <ImageShowcase
   border
   items={[
-    { image: IconSetStandard, caption: <span>Standard (default) icon set</span>, alt: 'Image of standard file attachment icon set' },
-    { image: IconSetAlt, caption: <span>Alternative icon set</span>, alt: 'Image of alternative file attachment icon set' },
+    {
+      image: IconSetStandard,
+      caption: <span>Standard (default) icon set</span>,
+      alt: 'Image of standard file attachment icon set',
+    },
+    {
+      image: IconSetAlt,
+      caption: <span>Alternative icon set</span>,
+      alt: 'Image of alternative file attachment icon set',
+    },
   ]}
 />
 
 Our `FileAttachment` component for theming V2 uses the standard icon set. You can however use the alternative set in your custom components:
 
 So instead of:
+
 ```tsx
-<FileIcon className='str-chat__file-icon' mimeType={attachment.mime_type} version={'2'}  />
+<FileIcon className='str-chat__file-icon' mimeType={attachment.mime_type} version={'2'} />
 ```
 
 You can do:
 
 ```tsx
-
 <FileIcon
   className='str-chat__file-icon'
   mimeType={attachment.mime_type}
@@ -218,21 +235,39 @@ Besides that, the file attachment widgets newly display a download button (a dow
 
 Audio attachments are rendered with a new component (with different markup) adapted to the theming V2 styles.
 
-
 **Scraped attachments (Card)**
 
 Cards now display scraped audio, video or image content:
 
-
 <ImageShowcase
   border
   items={[
-    { image: AudioCard, caption: <span>Audio card</span>, alt: 'Image of audio card with theme V2' },
-    { image: AudioVideo, caption: <span>Video card</span>, alt: 'Image of the video attachment card for the theme V2' },
-    { image: AudioImage, caption: <span>Default card (no audio neither video content)</span>, alt: 'Image of the default attachment card for theme V2' },
+    {
+      image: AudioCard,
+      caption: <span>Audio card</span>,
+      alt: 'Image of audio card with theme V2',
+    },
+    {
+      image: AudioVideo,
+      caption: <span>Video card</span>,
+      alt: 'Image of the video attachment card for the theme V2',
+    },
+    {
+      image: AudioImage,
+      caption: <span>Default card (no audio neither video content)</span>,
+      alt: 'Image of the default attachment card for theme V2',
+    },
   ]}
 />
 
-#### MessageInput
+#### MessageInputFlat
 
-When opting to theme V2, the integrator gets revamped message input component. The markup differs completely from the original.
+When opting to theme V2, the integrator gets revamped message input UI component where the markup differs completely from the original.
+
+`QuotedMessagePreviewHeader` has been extracted from the `QuotedMessagePreview` component and moved directly to the `MessageInputFlat` due to positioning reasons. Users will have the ability to replace this component with custom component in the future (see [#1764](https://github.com/GetStream/stream-chat-react/issues/1764)).
+
+`EmojiPicker` is now being rendered with the help of the [`PopperJS`](https://popper.js.org/) to keep the picker in the viewport longer when the picker origin (button) is scrolled out of the viewport bounds.
+
+`SendButton` is now disabled by default if there isn't any content to be submitted, i.e. there are no attachments or no text content.
+
+Default `UploadsPreview` has been renamed to <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx' /> and is no longer imported from the package `react-file-utils` but instead now lives within `stream-chat-react` code-base. Users will have the ability to replace this component with custom component in the future (see [#1299](https://github.com/GetStream/stream-chat-react/issues/1299)).
