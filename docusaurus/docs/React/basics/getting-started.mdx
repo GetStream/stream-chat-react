@@ -4,6 +4,8 @@ sidebar_position: 2
 title: Getting Started
 ---
 
+import ReviewNote from '../_docusaurus-components/ReviewNote';
+
 This section provides a high level overview of the library setup, core components, and how they fit together. It's a great
 starting point and you can follow along in your code editor. For a complete, step-by-step guide in terms setting up a React
 project or instructions on creating specific files, see our [React Chat tutorial](https://getstream.io/chat/react-chat/tutorial/).
@@ -82,6 +84,17 @@ The defaults include:
 - `gaming`
 - `commerce`
 
+<ReviewNote
+  id='ab86a784-22f9-11ed-936e-a4bb6d26ac2f'
+>
+  Failing to provide explanation why in the first place should user of the SDK interact with the channel object
+  directly.
+  Provide examples of scenarios when a channel object would be needed.
+  Missing the mention, that ChannelList - if used - loads channel data from the API and thus it integrator does not need
+  to create channels
+  Proposing to add recommendation to create channels from the backend
+</ReviewNote>
+
 :::note
 You can also create [custom channel types](https://getstream.io/chat/docs/react/channel_features/#creating-a-channel-type)
 and define your own permission sets.
@@ -107,13 +120,19 @@ const channel = client.channel('messaging', {
 Now that we have a client instance, a connected user, and a channel, it's time to look at the core components involved in building
 a fully functioning chat application.
 
+<ReviewNote
+  id='dcfe3c22-2304-11ed-83ef-a4bb6d26ac2f'
+>
+  Add visualisation - wireframe - to demonstrate the main components in the UI
+</ReviewNote>
+
 ### Chat
 
 The [`Chat`](../core-components/chat.mdx) component is a React Context provider that wraps the entire Stream Chat application. It provides the [`ChatContext`](../contexts/chat-context.mdx)
 to its children, which includes the `StreamChat` client instance. All other components within the library must be nested as children
 of `Chat` to maintain proper functionality.
 
-The client instance can be accesses with our custom context hook:
+The client instance can be accessed with our custom context hook:
 
 ```jsx
 const { client } = useChatContext();
@@ -176,6 +195,15 @@ The [`Thread`](../core-components/thread.mdx) component renders a list of replie
 
 In addition to the above referenced UI components, client instantiation, and user connection, you need little other code to get a fully functioning chat application up and running. See below for an example of the complete code.
 
+<ReviewNote
+  id='179e58f8-22fb-11ed-909b-a4bb6d26ac2f'
+>
+  The filters variable should actually include members key:
+  <CodeBlock>{'const filters = {type: "messaging", members: {$in: [userId]}};'}</CodeBlock>
+  That means that we should explain how the userId gets there in a real life application. For a real-life example too
+  soon here?
+</ReviewNote>
+
 ```tsx
 import React, { useEffect, useState } from 'react';
 import { StreamChat } from 'stream-chat';
@@ -196,10 +224,10 @@ const options = { state: true, presence: true, limit: 10 };
 const sort = { last_message_at: -1 };
 
 const App = () => {
-  const [client, setClient] = useState(null);
+const [client, setClient] = useState(null);
 
-  useEffect(() => {
-    const newClient = new StreamChat('your_api_key');
+useEffect(() => {
+const newClient = new StreamChat('your_api_key');
 
     const handleConnectionChange = ({ online = false }) => {
       if (!online) return console.log('connection lost');
@@ -220,23 +248,23 @@ const App = () => {
       newClient.off('connection.changed', handleConnectionChange);
       newClient.disconnectUser().then(() => console.log('connection closed'));
     };
-  }, []);
+}, []);
 
-  if (!client) return null;
+if (!client) return null;
 
-  return (
-    <Chat client={client}>
-      <ChannelList filters={filters} sort={sort} options={options} />
-      <Channel>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
-  );
+return (
+<Chat client={client}>
+<ChannelList filters={filters} sort={sort} options={options} />
+<Channel>
+<Window>
+<ChannelHeader />
+<MessageList />
+<MessageInput />
+</Window>
+<Thread />
+</Channel>
+</Chat>
+);
 };
 
 export default App;

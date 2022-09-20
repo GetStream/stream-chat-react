@@ -1,0 +1,1593 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Card theme V2 (1) should render card without caption if attachment type is audio and og_scrape_url neither title_link is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (2) should render card without caption if attachment type is video and og_scrape_url neither title_link is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (3) should render card without caption if attachment type is image and og_scrape_url neither title_link is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (4) should render unable-to-display card if attachment type is audio and neither image and asset urls nor title_link are available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        this content could not be displayed
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (5) should render unable-to-display card if attachment type is video and neither image and asset urls nor title_link are available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        this content could not be displayed
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (6) should render unable-to-display card if attachment type is image and neither image and asset urls nor title_link are available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        this content could not be displayed
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (7) should render audio with caption using og_scrape_url and with asset in header if attachment type is audio and title_link is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_og_scrape_url"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (8) should render video with caption using og_scrape_url and with asset in header if attachment type is video and title_link is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_og_scrape_url"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (9) should render image with caption using og_scrape_url and with asset in header if attachment type is image and title_link is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_og_scrape_url"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (10) should render audio without title if attachment type is audio and title is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (11) should render video without title if attachment type is video and title is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (12) should render image without title if attachment type is image and title is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (13) should render audio without title and with caption using og_scrape_url and with image in header if attachment type is audio and title_link neither title is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_og_scrape_url"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (14) should render video without title and with caption using og_scrape_url and with image in header if attachment type is video and title_link neither title is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_og_scrape_url"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (15) should render image without title and with caption using og_scrape_url and with image in header if attachment type is image and title_link neither title is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_thumb_url"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_og_scrape_url"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (16) should render audio widget with title & text in Card content and without Card header if attachment type is audio and og image URLs are not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (17) should render video widget in header and title & text in Card content if attachment type is video and og image URLs are not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (18) should render card with title and text only and without the image in the header part of the Card if attachment type is image and og image URLs are not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (19) should render image loaded from thumb_url not audio widget if attachment type is audio and thumb_url is available, but not asset_url, image_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (20) should render image loaded from thumb_url not video widget if attachment type is video and thumb_url is available, but not asset_url, image_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (21) should render image loaded from thumb_url if attachment type is image and thumb_url is available, but not image_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_thumb_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (22) should render image loaded from image_url not audio widget if attachment type is audio and image_url is available, but not asset_url, thumb_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (23) should render image loaded from image_url not video widget if attachment type is video and image_url is available, but not asset_url, thumb_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (24) should render image loaded from image_url if attachment type is image and image_url is available, but not thumb_url 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (25) should render audio widget with image loaded from thumb_url and title & text in Card content if attachment type is audio and all props are available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <img
+        alt="dummyAttachment_title"
+        class="str-chat__message-attachment--img"
+        data-testid="image-test"
+        src="dummyAttachment_image_url"
+        tabindex="0"
+      />
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <audio>
+          <source
+            data-testid="audio-source"
+            src="dummyAttachment_asset_url"
+            type="audio/mp3"
+          />
+        </audio>
+        <div
+          class="str-chat__message-attachment-card-audio-widget--first-row"
+        >
+          <div
+            class="str-chat__message-attachment-audio-widget--play-controls"
+          >
+            <button
+              class="str-chat__message-attachment-audio-widget--play-button"
+              data-testid="play-audio"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 12 14"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0.5 0V14L11.5 7L0.5 0Z"
+                  fill="#080707"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--progress-track"
+            data-progress="0"
+            data-testid="audio-progress"
+            role="progressbar"
+          >
+            <div
+              class="str-chat__message-attachment-audio-widget--progress-slider"
+              style="left: 0px;"
+            />
+          </div>
+        </div>
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (26) should render video widget in header and title & text in Card content if attachment type is video and all props are available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--header str-chat__message-attachment-card-react--header"
+      data-testid="card-header"
+    >
+      <div
+        class="react-player"
+        style="width: 100%; height: 100%;"
+      >
+        <video
+          controls=""
+          preload="auto"
+          src="dummyAttachment_asset_url"
+          style="width: 100%; height: 100%;"
+        />
+      </div>
+    </div>
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (27) should render content part with title and text only and without the header part of the Card if attachment type is audio and asset and neither og image URL is available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card-audio-widget"
+        data-testid="card-audio-widget"
+      >
+        <div
+          class="str-chat__message-attachment-audio-widget--second-row"
+        >
+          <div
+            class="str-chat__message-attachment-card--source-link"
+            data-testid="card-source-link"
+          >
+            <a
+              aria-label="Attachment"
+              class="str-chat__message-attachment-card--url"
+              href="dummyAttachment_title_link"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              dummyAttachment_author_name
+            </a>
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--title"
+          >
+            dummyAttachment_title
+          </div>
+          <div
+            class="str-chat__message-attachment-audio-widget--description"
+          >
+            dummyAttachment_text
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 (28) should render content part with title and text only and without the header part of the Card if attachment type is video and scraped media URL is not available 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--flex"
+      >
+        <div
+          class="str-chat__message-attachment-card--source-link"
+          data-testid="card-source-link"
+        >
+          <a
+            aria-label="Attachment"
+            class="str-chat__message-attachment-card--url"
+            href="dummyAttachment_title_link"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            dummyAttachment_author_name
+          </a>
+        </div>
+        <div
+          class="str-chat__message-attachment-card--title"
+        >
+          dummyAttachment_title
+        </div>
+        <div
+          class="str-chat__message-attachment-card--text"
+        >
+          dummyAttachment_text
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Card theme V2 should render giphy image if type is giphy 1`] = `
+<div>
+  <div
+    class="str-chat__message-attachment-card"
+  >
+    <div
+      class="str-chat__message-attachment-card--content"
+    >
+      <div
+        class="str-chat__message-attachment-card--text"
+      >
+        this content could not be displayed
+      </div>
+    </div>
+  </div>
+</div>
+`;

@@ -97,7 +97,7 @@ export type ChatAutoCompleteProps = {
   onFocus?: React.FocusEventHandler<HTMLTextAreaElement>;
   /** Function to override the default onPaste behavior on the underlying `textarea` component */
   onPaste?: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  /** Placeholder for the the underlying `textarea` component */
+  /** Placeholder for the underlying `textarea` component */
   placeholder?: string;
   /** The initial number of rows for the underlying `textarea` component */
   rows?: number;
@@ -149,10 +149,10 @@ const UnMemoizedChatAutoComplete = <
     <AutoCompleteTextarea
       additionalTextareaProps={messageInput.additionalTextareaProps}
       aria-label={cooldownRemaining ? t('Slow Mode ON') : placeholder}
-      className='str-chat__textarea__textarea'
+      className='str-chat__textarea__textarea str-chat__message-textarea'
       closeCommandsList={messageInput.closeCommandsList}
       closeMentionsList={messageInput.closeMentionsList}
-      containerClassName='str-chat__textarea'
+      containerClassName='str-chat__textarea str-chat__message-textarea-react-host'
       disabled={disabled || !!cooldownRemaining}
       disableMentions={messageInput.disableMentions}
       dropdownClassName='str-chat__emojisearch'

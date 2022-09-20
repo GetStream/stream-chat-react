@@ -4,6 +4,8 @@ sidebar_position: 1
 title: Chat
 ---
 
+import ReviewNote from '../_docusaurus-components/ReviewNote';
+
 The `Chat` component is a React Context provider that wraps the entire Stream Chat application. It provides the [`ChatContext`](../contexts/chat-context.mdx)
 to its children, which includes the `StreamChat` client instance. All other components within the library must be nested as children
 of `Chat` to maintain proper functionality.
@@ -23,7 +25,7 @@ has been created, you pass the client object as a prop to add it to the `ChatCon
 ```
 
 Any child of the `Chat` component has access to the `ChatContext`. Each React Context in the component library can be accessed with
-one of our custom hooks, which must be imported individually.
+one of our custom hooks, which must be imported individually. The `ChatContext` values are accessed with `useChatContext` hook.
 
 ```jsx
 const { client } = useChatContext();
@@ -54,6 +56,12 @@ for implementation assistance.
 | ------ |
 | object |
 
+<ReviewNote
+  id='d24641be-2302-11ed-a4fd-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
 ### customStyles
 
 Object containing custom styles to override the default CSS variables. See [CSS and Theming](../customization/css-and-theming.mdx)
@@ -63,12 +71,18 @@ for implementation assistance.
 | ------ |
 | object |
 
+<ReviewNote
+  id='045d0e58-2303-11ed-add3-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
 ### darkMode
 
 If true, toggles the CSS variables to the default dark mode color palette.
 
 | Type    | Default |
-| ------- | ------- |
+|---------|---------|
 | boolean | false   |
 
 ### defaultLanguage
@@ -76,7 +90,7 @@ If true, toggles the CSS variables to the default dark mode color palette.
 Sets the default fallback language for UI component translation, defaults to 'en' for English.
 
 | Type   | Default |
-| ------ | ------- |
+|--------|---------|
 | string | 'en'    |
 
 ### i18nInstance
@@ -101,6 +115,12 @@ const i18nInstance = new Streami18n({
 | ------ |
 | object |
 
+<ReviewNote
+  id='1183a05a-2304-11ed-b48a-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
 ### initialNavOpen
 
 When the screen width is at a mobile breakpoint, whether or not the mobile navigation menu is open.
@@ -108,6 +128,12 @@ When the screen width is at a mobile breakpoint, whether or not the mobile navig
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+<ReviewNote
+  id='4ee6062c-2304-11ed-aee7-a4bb6d26ac2f'
+>
+  Should we remove this prop?
+</ReviewNote>
 
 ### theme
 

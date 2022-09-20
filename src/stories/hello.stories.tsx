@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import '@stream-io/stream-chat-css/dist/css/index.css';
 import React from 'react';
 import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {

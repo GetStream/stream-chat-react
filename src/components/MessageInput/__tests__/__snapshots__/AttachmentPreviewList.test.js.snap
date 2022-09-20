@@ -1,0 +1,540 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AttachmentPreviewList renders with one image and one file with state "failed" 1`] = `
+<div
+  className="str-chat__attachment-preview-list"
+>
+  <div
+    className="str-chat__attachment-list-scroll-container"
+    data-testid="attachment-list-scroll-container"
+  >
+    <div
+      className="str-chat__attachment-preview-image"
+      data-testid="attachment-preview-image"
+    >
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="image-preview-item-delete-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <button
+        className="str-chat__attachment-preview-error str-chat__attachment-preview-error-image"
+        data-testid="image-preview-item-retry-button"
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="retry"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M17.6449 6.35C16.1949 4.9 14.2049 4 11.9949 4C7.57488 4 4.00488 7.58 4.00488 12C4.00488 16.42 7.57488 20 11.9949 20C15.7249 20 18.8349 17.45 19.7249 14H17.6449C16.8249 16.33 14.6049 18 11.9949 18C8.68488 18 5.99488 15.31 5.99488 12C5.99488 8.69 8.68488 6 11.9949 6C13.6549 6 15.1349 6.69 16.2149 7.78L12.9949 11H19.9949V4L17.6449 6.35Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <img
+        alt="image-upload"
+        className="str-chat__attachment-preview-thumbnail"
+        src="url"
+      />
+    </div>
+    <div
+      className="str-chat__attachment-preview-file"
+      data-testid="attachment-preview-file"
+    >
+      <div
+        className="str-chat__attachment-preview-file-icon"
+      >
+        <svg
+          className="rfu-file-fallback"
+          filename="file-upload"
+          fill="none"
+          height={20}
+          viewBox="0 0 34 40"
+          width={20}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 3C0 1.34315 1.34315 0 3 0H23L34 11V37C34 38.6569 32.6569 40 31 40H3C1.34315 40 0 38.6569 0 37V3Z"
+            fill="url(#paint0_linear)"
+          />
+          <path
+            d="M34 11L26 11C24.3431 11 23 9.65685 23 8V0L34 11Z"
+            fill="#DBDBDB"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 13H23V15H8V13Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 17H18V19H8V17Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 21H23V23H8V21Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <defs>
+            <linearGradient
+              gradientUnits="userSpaceOnUse"
+              id="paint0_linear"
+              x1="0"
+              x2="0"
+              y1="0"
+              y2="40"
+            >
+              <stop
+                stopColor="white"
+              />
+              <stop
+                offset="1"
+                stopColor="#DBDBDB"
+              />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="file-preview-item-delete-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <button
+        className="str-chat__attachment-preview-error str-chat__attachment-preview-error-file"
+        data-testid="file-preview-item-retry-button"
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="retry"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M17.6449 6.35C16.1949 4.9 14.2049 4 11.9949 4C7.57488 4 4.00488 7.58 4.00488 12C4.00488 16.42 7.57488 20 11.9949 20C15.7249 20 18.8349 17.45 19.7249 14H17.6449C16.8249 16.33 14.6049 18 11.9949 18C8.68488 18 5.99488 15.31 5.99488 12C5.99488 8.69 8.68488 6 11.9949 6C13.6549 6 15.1349 6.69 16.2149 7.78L12.9949 11H19.9949V4L17.6449 6.35Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <div
+        className="str-chat__attachment-preview-file-end"
+      >
+        <div
+          className="str-chat__attachment-preview-file-name"
+        >
+          file-upload
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`AttachmentPreviewList renders with one image and one file with state "finished" 1`] = `
+<div
+  className="str-chat__attachment-preview-list"
+>
+  <div
+    className="str-chat__attachment-list-scroll-container"
+    data-testid="attachment-list-scroll-container"
+  >
+    <div
+      className="str-chat__attachment-preview-image"
+      data-testid="attachment-preview-image"
+    >
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="image-preview-item-delete-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <img
+        alt="image-upload"
+        className="str-chat__attachment-preview-thumbnail"
+        src="url"
+      />
+    </div>
+    <div
+      className="str-chat__attachment-preview-file"
+      data-testid="attachment-preview-file"
+    >
+      <div
+        className="str-chat__attachment-preview-file-icon"
+      >
+        <svg
+          className="rfu-file-fallback"
+          filename="file-upload"
+          fill="none"
+          height={20}
+          viewBox="0 0 34 40"
+          width={20}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 3C0 1.34315 1.34315 0 3 0H23L34 11V37C34 38.6569 32.6569 40 31 40H3C1.34315 40 0 38.6569 0 37V3Z"
+            fill="url(#paint0_linear)"
+          />
+          <path
+            d="M34 11L26 11C24.3431 11 23 9.65685 23 8V0L34 11Z"
+            fill="#DBDBDB"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 13H23V15H8V13Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 17H18V19H8V17Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 21H23V23H8V21Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <defs>
+            <linearGradient
+              gradientUnits="userSpaceOnUse"
+              id="paint0_linear"
+              x1="0"
+              x2="0"
+              y1="0"
+              y2="40"
+            >
+              <stop
+                stopColor="white"
+              />
+              <stop
+                offset="1"
+                stopColor="#DBDBDB"
+              />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="file-preview-item-delete-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <div
+        className="str-chat__attachment-preview-file-end"
+      >
+        <div
+          className="str-chat__attachment-preview-file-name"
+        >
+          file-upload
+        </div>
+        <a
+          className="str-chat__attachment-preview-file-download"
+          download={true}
+          href="url"
+          rel="noreferrer"
+          target="_blank"
+        >
+          <svg
+            data-testid="download"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04ZM19 18H6C3.79 18 2 16.21 2 14C2 11.95 3.53 10.24 5.56 10.03L6.63 9.92L7.13 8.97C8.08 7.14 9.94 6 12 6C14.62 6 16.88 7.86 17.39 10.43L17.69 11.93L19.22 12.04C20.78 12.14 22 13.45 22 15C22 16.65 20.65 18 19 18ZM13.45 10H10.55V13H8L12 17L16 13H13.45V10Z"
+              fill="black"
+            />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`AttachmentPreviewList renders with one image and one file with state "uploading" 1`] = `
+<div
+  className="str-chat__attachment-preview-list"
+>
+  <div
+    className="str-chat__attachment-list-scroll-container"
+    data-testid="attachment-list-scroll-container"
+  >
+    <div
+      className="str-chat__attachment-preview-image"
+      data-testid="attachment-preview-image"
+    >
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="image-preview-item-delete-button"
+        disabled={true}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <div
+        className="str-chat__attachment-preview-image-loading"
+      >
+        <div
+          className="str-chat__loading-indicator"
+        >
+          <svg
+            data-testid="loading-indicator"
+            height={17}
+            viewBox="0 0 30 30"
+            width={17}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient
+                id="<randomNanoId>-linear-gradient"
+                x1="50%"
+                x2="50%"
+                y1="0%"
+                y2="100%"
+              >
+                <stop
+                  offset="0%"
+                  stopColor="#FFF"
+                  stopOpacity="0"
+                />
+                <stop
+                  data-testid="stop-color"
+                  offset="100%"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+            </defs>
+            <path
+              d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+              fill="url(#<randomNanoId>-linear-gradient)"
+              fillRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+      <img
+        alt="image-upload"
+        className="str-chat__attachment-preview-thumbnail"
+        src="url"
+      />
+    </div>
+    <div
+      className="str-chat__attachment-preview-file"
+      data-testid="attachment-preview-file"
+    >
+      <div
+        className="str-chat__attachment-preview-file-icon"
+      >
+        <svg
+          className="rfu-file-fallback"
+          filename="file-upload"
+          fill="none"
+          height={20}
+          viewBox="0 0 34 40"
+          width={20}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M0 3C0 1.34315 1.34315 0 3 0H23L34 11V37C34 38.6569 32.6569 40 31 40H3C1.34315 40 0 38.6569 0 37V3Z"
+            fill="url(#paint0_linear)"
+          />
+          <path
+            d="M34 11L26 11C24.3431 11 23 9.65685 23 8V0L34 11Z"
+            fill="#DBDBDB"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 13H23V15H8V13Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 17H18V19H8V17Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <path
+            clipRule="evenodd"
+            d="M8 21H23V23H8V21Z"
+            fill="#CFCFCF"
+            fillRule="evenodd"
+          />
+          <defs>
+            <linearGradient
+              gradientUnits="userSpaceOnUse"
+              id="paint0_linear"
+              x1="0"
+              x2="0"
+              y1="0"
+              y2="40"
+            >
+              <stop
+                stopColor="white"
+              />
+              <stop
+                offset="1"
+                stopColor="#DBDBDB"
+              />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <button
+        className="str-chat__attachment-preview-delete"
+        data-testid="file-preview-item-delete-button"
+        disabled={true}
+        onClick={[Function]}
+      >
+        <svg
+          data-testid="close-no-outline"
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+            fill="black"
+          />
+        </svg>
+      </button>
+      <div
+        className="str-chat__attachment-preview-file-end"
+      >
+        <div
+          className="str-chat__attachment-preview-file-name"
+        >
+          file-upload
+        </div>
+        <div
+          className="str-chat__loading-indicator"
+        >
+          <svg
+            data-testid="loading-indicator"
+            height={17}
+            viewBox="0 0 30 30"
+            width={17}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient
+                id="<randomNanoId>-linear-gradient"
+                x1="50%"
+                x2="50%"
+                y1="0%"
+                y2="100%"
+              >
+                <stop
+                  offset="0%"
+                  stopColor="#FFF"
+                  stopOpacity="0"
+                />
+                <stop
+                  data-testid="stop-color"
+                  offset="100%"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+            </defs>
+            <path
+              d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+              fill="url(#<randomNanoId>-linear-gradient)"
+              fillRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

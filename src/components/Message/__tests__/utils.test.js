@@ -88,8 +88,7 @@ describe('Message utils', () => {
     it.each([
       ['empty', []],
       ['false', false],
-    ])('should return no message actions if message actions are %s', (_, actionsValue) => {
-      const messageActions = actionsValue;
+    ])('should return no message actions if message actions are %s', (_, messageActions) => {
       const result = getMessageActions(messageActions, defaultCapabilities);
       expect(result).toStrictEqual([]);
     });

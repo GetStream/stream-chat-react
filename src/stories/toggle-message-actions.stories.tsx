@@ -10,7 +10,6 @@ import {
   Thread,
   Window,
 } from '../components';
-import '@stream-io/stream-chat-css/dist/css/index.css';
 
 const allActions = Object.keys(MESSAGE_ACTIONS);
 const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => {

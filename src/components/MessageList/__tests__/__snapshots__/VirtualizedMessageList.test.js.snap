@@ -2,7 +2,7 @@
 
 exports[`VirtualizedMessageList should render the list without any message 1`] = `
 <div
-  className="str-chat str-chat-channel messaging light "
+  className="str-chat messaging light str-chat-channel str-chat__channel"
 >
   <div
     className="str-chat__container"
@@ -11,6 +11,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
       className="str-chat__virtual-list"
     >
       <div
+        className="str-chat__message-list-scroll"
         data-test-id="virtuoso-scroller"
         data-virtuoso-scroller={true}
         style={
@@ -37,6 +38,29 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           }
         >
           <div />
+          <div
+            className="str-chat__empty-channel"
+          >
+            <svg
+              data-testid="chat-bubble"
+              fill="none"
+              height="96"
+              viewBox="0 0 136 136"
+              width="96"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M106 24.5H30C24.775 24.5 20.5 28.775 20.5 34V119.5L39.5 100.5H106C111.225 100.5 115.5 96.225 115.5 91V34C115.5 28.775 111.225 24.5 106 24.5ZM106 91H39.5L30 100.5V34H106V91Z"
+                fill="#B4B7BB"
+              />
+            </svg>
+            <p
+              className="str-chat__empty-channel-text"
+              role="listitem"
+            >
+              No chats here yet…
+            </p>
+          </div>
           <div />
         </div>
       </div>

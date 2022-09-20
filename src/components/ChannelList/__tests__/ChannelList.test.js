@@ -1,10 +1,9 @@
 import React from 'react';
-import { getNodeText } from '@testing-library/dom';
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { nanoid } from 'nanoid';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
 
 import {
   dispatchChannelDeletedEvent,
@@ -19,24 +18,27 @@ import {
   dispatchNotificationRemovedFromChannel,
   erroredPostApi,
   generateChannel,
+  generateMember,
   generateMessage,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
   queryChannelsApi,
+  queryUsersApi,
   useMockedApis,
 } from 'mock-builders';
-import { nanoid } from 'nanoid';
 
-import { ChatContext } from '../../../context';
 import { Chat } from '../../Chat';
-
 import { ChannelList } from '../ChannelList';
 import {
   ChannelPreviewCompact,
   ChannelPreviewLastMessage,
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
+
+import { ChatContext } from '../../../context/ChatContext';
+
+expect.extend(toHaveNoViolations);
 
 const channelsQueryStateMock = {
   error: null,
@@ -72,6 +74,8 @@ const ChannelListComponent = (props) => {
   return <div role='list'>{props.children}</div>;
 };
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
+const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
+const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
 
 describe('ChannelList', () => {
   let chatClientUthred;
@@ -102,20 +106,23 @@ describe('ChannelList', () => {
       useMockedApis(chatClientUthred, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
-            closeMobileNav,
-            navOpen: true,
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
-      );
-
+      let result;
+      await act(() => {
+        result = render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              closeMobileNav,
+              navOpen: true,
+            }}
+          >
+            <ChannelList {...props} />
+            <div data-testid='outside-channellist' />
+          </ChatContext.Provider>,
+        );
+      });
+      const { container, getByRole, getByTestId } = result;
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
@@ -130,19 +137,23 @@ describe('ChannelList', () => {
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      const { container, getByRole, getByTestId } = render(
-        <ChatContext.Provider
-          value={{
-            channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
-            closeMobileNav,
-            navOpen: false,
-          }}
-        >
-          <ChannelList {...props} />
-          <div data-testid='outside-channellist' />
-        </ChatContext.Provider>,
-      );
+      let result;
+      await act(() => {
+        result = render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClientUthred,
+              closeMobileNav,
+              navOpen: false,
+            }}
+          >
+            <ChannelList {...props} />
+            <div data-testid='outside-channellist' />
+          </ChatContext.Provider>,
+        );
+      });
+      const { container, getByRole, getByTestId } = result;
 
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
@@ -424,6 +435,266 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+    });
+
+    describe('channel search', () => {
+      const inputText = 'xxxxxxxxxx';
+      const user1 = generateUser();
+      const user2 = generateUser();
+      const mockedChannels = Array.from({ length: 3 }, (_, i) =>
+        generateChannel({
+          channel: { image: `image-xxx-${i}`, name: `channel-xxx-${i}` },
+          members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
+          messages: ' '
+            .repeat(20)
+            .split(' ')
+            .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
+        }),
+      );
+
+      let client;
+      let channel;
+      beforeEach(async () => {
+        client = await getTestClientWithUser({ id: user1.id });
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
+        channel = client.channel('messaging', mockedChannels[0].id);
+        await channel.watch();
+        useMockedApis(client, [
+          queryChannelsApi(mockedChannels), // first API call goes to /channels endpoint
+          queryUsersApi([user1, user2]), // onSearch starts searching users first
+        ]);
+      });
+
+      const renderComponents = (chatContext = {}, channeListProps) =>
+        render(
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              setActiveChannel,
+              ...chatContext,
+            }}
+          >
+            <ChannelList
+              filters={{}}
+              options={{ presence: true, state: true }}
+              showChannelSearch
+              {...channeListProps}
+            />
+          </ChatContext.Provider>,
+        );
+
+      it.each([['1'], ['2']])(
+        "theme v%s should not render search results on input focus if user haven't started to type",
+        async (themeVersion) => {
+          const { container } = await renderComponents({ channel, client, themeVersion });
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.focus(input);
+          });
+
+          await waitFor(() => {
+            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+          });
+        },
+      );
+      it.each([['1'], ['2']])(
+        'theme v%s should not render inline search results if popupResults is true',
+        async (themeVersion) => {
+          const { container } = await renderComponents(
+            { channel, client, themeVersion },
+            { additionalChannelSearchProps: { popupResults: true } },
+          );
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+          await waitFor(() => {
+            expect(
+              container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
+            ).toBeInTheDocument();
+            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+          });
+        },
+      );
+      it('theme v2 should render inline search results if popupResults is false', async () => {
+        const { container } = await renderComponents(
+          { channel, client, themeVersion: '2' },
+          { additionalChannelSearchProps: { popupResults: false } },
+        );
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.inline`),
+          ).toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+        });
+      });
+
+      it.each([
+        ['1', 'should not', false],
+        ['2', 'should not', false],
+        ['1', 'should', true],
+        ['2', 'should', true],
+      ])(
+        'theme v%s %s unmount search results on result click, if configured',
+        async (themeVersion, _, clearSearchOnClickOutside) => {
+          const { container } = await renderComponents(
+            { channel, client, themeVersion },
+            { additionalChannelSearchProps: { clearSearchOnClickOutside } },
+          );
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+
+          const searchResults = screen.queryAllByRole('option');
+          useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
+          await act(() => {
+            fireEvent.click(searchResults[0]);
+          });
+
+          await waitFor(() => {
+            if (clearSearchOnClickOutside) {
+              expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            } else {
+              expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).toBeInTheDocument();
+            }
+          });
+        },
+      );
+
+      it.each([['1'], ['2']])(
+        'theme v%s should unmount search results if user cleared the input',
+        async (themeVersion) => {
+          const { container } = await renderComponents({ channel, client, themeVersion });
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            input.focus();
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+
+          await act(() => {
+            if (themeVersion === '2') {
+              const clearButton = screen.queryByTestId('clear-input-button');
+              fireEvent.click(clearButton);
+            } else {
+              fireEvent.change(input, {
+                target: {
+                  value: '',
+                },
+              });
+            }
+          });
+          await waitFor(() => {
+            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+            expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
+            expect(input).toHaveValue('');
+            expect(input).toHaveFocus();
+            if (themeVersion === '2') {
+              expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+            }
+          });
+        },
+      );
+
+      it('theme v2 should unmount search results if user clicked the return button', async () => {
+        const { container } = await renderComponents({ channel, client, themeVersion: '2' });
+        const input = screen.queryByTestId('search-input');
+
+        await act(() => {
+          input.focus();
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+
+        const returnIcon = screen.queryByTestId('return-icon');
+        await act(() => {
+          fireEvent.click(returnIcon);
+        });
+        await waitFor(() => {
+          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+          expect(input).not.toHaveFocus();
+          expect(input).toHaveValue('');
+          expect(returnIcon).not.toBeInTheDocument();
+        });
+      });
+      it.each([['1'], ['2']])(
+        'theme v%s should add the selected result to the top of the channel list',
+        async (themeVersion) => {
+          const getComputedStyleMock = jest.spyOn(window, 'getComputedStyle');
+          getComputedStyleMock.mockReturnValue({
+            getPropertyValue: jest.fn().mockReturnValue(themeVersion),
+          });
+          await render(
+            <Chat client={client}>
+              <ChannelList
+                additionalChannelSearchProps={{ searchForChannels: true }}
+                filters={{}}
+                options={{ presence: true, state: true }}
+                showChannelSearch
+              />
+            </Chat>,
+          );
+
+          const channelNotInTheList = generateChannel({
+            channel: { name: 'channel-not-loaded-yet' },
+          });
+
+          await waitFor(() => {
+            expect(screen.queryAllByRole('option')).toHaveLength(3);
+            expect(screen.queryByText(channelNotInTheList.channel.name)).not.toBeInTheDocument();
+          });
+
+          useMockedApis(client, [queryChannelsApi([channelNotInTheList, ...mockedChannels])]);
+          const input = screen.queryByTestId('search-input');
+          await act(() => {
+            input.focus();
+            fireEvent.change(input, {
+              target: {
+                value: inputText,
+              },
+            });
+          });
+
+          const targetChannelPreview = screen.queryByText(channelNotInTheList.channel.name);
+          expect(targetChannelPreview).toBeInTheDocument();
+          await act(() => {
+            fireEvent.click(targetChannelPreview);
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByText(channelNotInTheList.channel.name)).toBeInTheDocument();
+            if (themeVersion === '2') {
+              expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
+            }
+          });
+          getComputedStyleMock.mockClear();
+        },
+      );
     });
   });
 
@@ -1032,15 +1303,13 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const updateCount = parseInt(getNodeText(getByTestId('channelUpdateCount')), 10);
+        const updateCount = parseInt(getByTestId('channelUpdateCount').textContent, 10);
 
         useMockedApis(chatClientUthred, [queryChannelsApi([channel2])]);
         act(() => dispatchConnectionRecoveredEvent(chatClientUthred));
 
         await waitFor(() => {
-          expect(parseInt(getNodeText(getByTestId('channelUpdateCount')), 10)).toBe(
-            updateCount + 1,
-          );
+          expect(parseInt(getByTestId('channelUpdateCount').textContent, 10)).toBe(updateCount + 1);
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();

@@ -18,12 +18,19 @@ export default (page: Page) => ({
         .locator(`${selectors.messageRepliesButton} >> nth=${nth} `, { hasText: text })
         .click();
     },
+    async openFor(messageText: string, nth = 0) {
+      await page
+        .locator(selectors.message, { hasText: messageText })
+        .locator(selectors.messageRepliesButton)
+        .nth(nth)
+        .click();
+    },
   },
   get: (prependSelectors?: string) => page.locator(composeThreadSelector(prependSelectors)),
   see: {
     empty() {
-      const replies = page.locator(`${selectors.threadReplyList}`);
-      return expect(replies).toBeEmpty();
+      const replies = page.locator(`${selectors.threadReplyList} ${selectors.message}`);
+      return expect(replies).toHaveCount(1);
     },
     inViewport: {
       async nthMessage(text: string, nth?: number) {
@@ -38,6 +45,8 @@ export default (page: Page) => ({
       },
     },
     async isScrolledToBottom(selector: string) {
+      await page.waitForTimeout(500);
+
       expect(
         await page.evaluate(
           ([selector]) => {

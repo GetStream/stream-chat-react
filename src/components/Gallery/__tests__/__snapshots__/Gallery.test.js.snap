@@ -2,7 +2,7 @@
 
 exports[`Gallery should render component with 3 images 1`] = `
 <div
-  className="str-chat__gallery "
+  className="str-chat__gallery str-chat__gallery-two-rows"
 >
   <button
     className="str-chat__gallery-image"
@@ -36,7 +36,7 @@ exports[`Gallery should render component with 3 images 1`] = `
 
 exports[`Gallery should render component with 4 images 1`] = `
 <div
-  className="str-chat__gallery str-chat__gallery--square"
+  className="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
 >
   <button
     className="str-chat__gallery-image"
@@ -79,7 +79,7 @@ exports[`Gallery should render component with 4 images 1`] = `
 
 exports[`Gallery should render component with 5 images 1`] = `
 <div
-  className="str-chat__gallery str-chat__gallery--square"
+  className="str-chat__gallery str-chat__gallery--square str-chat__gallery-two-rows"
 >
   <button
     className="str-chat__gallery-image"
@@ -126,7 +126,7 @@ exports[`Gallery should render component with 5 images 1`] = `
 
 exports[`Gallery should render component with default props 1`] = `
 <div
-  className="str-chat__gallery "
+  className="str-chat__gallery"
 >
   <button
     className="str-chat__gallery-image"

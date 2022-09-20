@@ -1,4 +1,5 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import clsx from 'clsx';
 
 import { isMutableRef } from './utils/utils';
 
@@ -27,6 +28,8 @@ export type ReactionSelectorProps<
   handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** An array of the reaction objects to display in the list */
   latest_reactions?: ReactionResponse<StreamChatGenerics>[];
+  /** An array of the own reaction objects to distinguish own reactions visually */
+  own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
   reaction_counts?: { [key: string]: number };
   /** A list of the currently supported reactions on a message */
@@ -46,6 +49,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
       detailedView = true,
       handleReaction: propHandleReaction,
       latest_reactions: propLatestReactions,
+      own_reactions: propOwnReactions,
       reaction_counts: propReactionCounts,
       reactionOptions: propReactionOptions,
       reverse = false,
@@ -63,6 +67,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const handleReaction = propHandleReaction || contextHandleReaction;
     const latestReactions = propLatestReactions || message?.latest_reactions || [];
+    const ownReactions = propOwnReactions || message?.own_reactions || [];
     const reactionCounts = propReactionCounts || message?.reaction_counts || {};
     const reactionOptions = propReactionOptions || defaultMinimalEmojis;
     const reactionsAreCustom = !!propReactionOptions?.length;
@@ -127,15 +132,18 @@ const UnMemoizedReactionSelector = React.forwardRef(
         })
         .filter(Boolean);
 
+    const iHaveReactedWithReaction = (reactionType: string) =>
+      ownReactions.find((reaction) => reaction.type === reactionType);
+
     const getLatestUserForReactionType = (type: string | null) =>
       latestReactions.find((reaction) => reaction.type === type && !!reaction.user)?.user ||
       undefined;
 
     return (
       <div
-        className={`str-chat__reaction-selector ${
-          reverse ? 'str-chat__reaction-selector--reverse' : ''
-        }`}
+        className={clsx('str-chat__reaction-selector str-chat__message-reaction-selector', {
+          'str-chat__reaction-selector--reverse': reverse,
+        })}
         data-testid='reaction-selector'
         ref={ref}
       >
@@ -156,48 +164,54 @@ const UnMemoizedReactionSelector = React.forwardRef(
             ))}
           </div>
         )}
-        <ul className='str-chat__message-reactions-list'>
+        <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
           {reactionOptions.map((reactionOption: ReactionEmoji) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
             const count = reactionCounts && reactionCounts[reactionOption.id];
-
             return (
               <li key={`item-${reactionOption.id}`}>
                 <button
                   aria-label={`Select Reaction: ${reactionOption.name}`}
-                  className='str-chat__message-reactions-list-item'
+                  className={clsx(
+                    'str-chat__message-reactions-list-item str-chat__message-reactions-option',
+                    {
+                      'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
+                        reactionOption.id,
+                      ),
+                    },
+                  )}
                   data-text={reactionOption.id}
                   onClick={(event) => handleReaction(reactionOption.id, event)}
                 >
                   {!!count && detailedView && (
-                    <>
-                      <div
-                        className='latest-user'
-                        onClick={hideTooltip}
-                        onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
-                        onMouseLeave={hideTooltip}
-                      >
-                        {latestUser ? (
-                          <Avatar
-                            image={latestUser.image}
-                            name={latestUser.name}
-                            size={20}
-                            user={latestUser}
-                          />
-                        ) : (
-                          <div className='latest-user-not-found' />
-                        )}
-                      </div>
-                    </>
+                    <div
+                      className='latest-user str-chat__message-reactions-last-user'
+                      onClick={hideTooltip}
+                      onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
+                      onMouseLeave={hideTooltip}
+                    >
+                      {latestUser ? (
+                        <Avatar
+                          image={latestUser.image}
+                          name={latestUser.name}
+                          size={20}
+                          user={latestUser}
+                        />
+                      ) : (
+                        <div className='latest-user-not-found' />
+                      )}
+                    </div>
                   )}
                   {
                     <Suspense fallback={null}>
-                      <Emoji
-                        data={emojiData}
-                        emoji={reactionOption}
-                        size={20}
-                        {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                      />
+                      <span className='str-chat__message-reaction-emoji'>
+                        <Emoji
+                          data={emojiData}
+                          emoji={reactionOption}
+                          size={20}
+                          {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                        />
+                      </span>
                     </Suspense>
                   }
                   {Boolean(count) && detailedView && (

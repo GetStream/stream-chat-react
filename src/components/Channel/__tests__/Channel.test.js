@@ -30,9 +30,9 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
 
-const MockAvatar = ({ user }) => (
+const MockAvatar = ({ name }) => (
   <div className='avatar' data-testid='custom-avatar'>
-    {user.custom}
+    {name}
   </div>
 );
 
@@ -158,9 +158,9 @@ describe('Channel', () => {
     await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
   });
 
-  it('should render nothing if channels query is in progress', async () => {
+  it('should render default loading indicator if channels query is in progress', async () => {
     const childrenContent = 'Channel children';
-    const { container } = render(
+    const { asFragment } = render(
       <ChatProvider
         value={{
           channelsQueryState: {
@@ -174,19 +174,19 @@ describe('Channel', () => {
         <Channel>{childrenContent}</Channel>
       </ChatProvider>,
     );
-    await waitFor(() => expect(container.childElementCount).toBe(0));
+    await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
-  it('should render nothing if channel does not have cid', async () => {
+  it('should render empty channel container if channel does not have cid', async () => {
     const childrenContent = 'Channel children';
     const { cid, ...channelWithoutCID } = channel;
-    const { container } = render(
+    const { asFragment } = render(
       <ChatProvider
         value={{
           channel: channelWithoutCID,
           channelsQueryState: {
             error: null,
-            queryInProgress: 'reload',
+            queryInProgress: null,
             setError: jest.fn(),
             setQueryInProgress: jest.fn(),
           },
@@ -195,12 +195,12 @@ describe('Channel', () => {
         <Channel>{childrenContent}</Channel>
       </ChatProvider>,
     );
-    await waitFor(() => expect(container.childElementCount).toBe(0));
+    await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
-  it('should render nothing if channels query failed', async () => {
+  it('should render empty channel container if channels query failed', async () => {
     const childrenContent = 'Channel children';
-    const { container } = render(
+    const { asFragment } = render(
       <ChatProvider
         value={{
           channelsQueryState: {
@@ -214,7 +214,7 @@ describe('Channel', () => {
         <Channel>{childrenContent}</Channel>
       </ChatProvider>,
     );
-    await waitFor(() => expect(container.childElementCount).toBe(0));
+    await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
   it('should render provided loading indicator if channels query is in progress', async () => {
@@ -297,12 +297,12 @@ describe('Channel', () => {
   it('should render a LoadingIndicator if it is loading', async () => {
     const watchPromise = new Promise(() => {});
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
-
+    let result;
     await act(() => {
-      renderComponent();
+      result = renderComponent();
     });
 
-    await waitFor(() => expect(screen.getByText('loading')).toBeInTheDocument());
+    await waitFor(() => expect(result.asFragment()).toMatchSnapshot());
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
@@ -907,26 +907,38 @@ describe('Channel', () => {
       });
 
       [
-        { component: MessageList, name: 'MessageList' },
+        {
+          component: MessageList,
+          getFirstMessageAvatar: () => {
+            const [avatar] = screen.queryAllByTestId('custom-avatar') || [];
+            return avatar;
+          },
+          name: 'MessageList',
+        },
         {
           callback: (message) => ({ openThread, thread }) => {
             if (!thread) openThread(message, { preventDefault: () => null });
           },
           component: Thread,
+          getFirstMessageAvatar: () => {
+            // the first avatar is that of the ThreadHeader
+            const avatars = screen.queryAllByTestId('custom-avatar') || [];
+            return avatars[0];
+          },
           name: 'Thread',
         },
-      ].forEach(({ callback, component: Component, name }) => {
+      ].forEach(({ callback, component: Component, getFirstMessageAvatar, name }) => {
         const [threadMessage] = messages;
 
         it(`should update user data in ${name} based on updated_at`, async () => {
-          const updatedAttribute = { custom: 'newCustomValue' };
+          const updatedAttribute = { name: 'newName' };
           const dispatchUserUpdatedEvent = createChannelEventDispatcher(
             {
               user: { ...user, ...updatedAttribute, updated_at: new Date().toISOString() },
             },
             'user.updated',
           );
-          const { getAllByTestId } = renderComponent(
+          renderComponent(
             {
               Avatar: MockAvatar,
               children: <Component />,
@@ -935,9 +947,7 @@ describe('Channel', () => {
           );
 
           await waitFor(() => {
-            const [element] = getAllByTestId('custom-avatar');
-
-            expect(element).toHaveTextContent(user.custom);
+            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
           });
 
           act(() => {
@@ -945,21 +955,19 @@ describe('Channel', () => {
           });
 
           await waitFor(() => {
-            const [element] = getAllByTestId('custom-avatar');
-
-            expect(element).toHaveTextContent(updatedAttribute.custom);
+            expect(getFirstMessageAvatar()).toHaveTextContent(updatedAttribute.name);
           });
         });
 
         it(`should not update user data in ${name} if updated_at has not changed`, async () => {
-          const updatedAttribute = { custom: 'newCustomValue' };
+          const updatedAttribute = { name: 'newName' };
           const dispatchUserUpdatedEvent = createChannelEventDispatcher(
             {
               user: { ...user, ...updatedAttribute },
             },
             'user.updated',
           );
-          const { getAllByTestId } = renderComponent(
+          renderComponent(
             {
               Avatar: MockAvatar,
               children: <Component />,
@@ -968,9 +976,7 @@ describe('Channel', () => {
           );
 
           await waitFor(() => {
-            const [element] = getAllByTestId('custom-avatar');
-
-            expect(element).toHaveTextContent(user.custom);
+            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
           });
 
           act(() => {
@@ -978,9 +984,7 @@ describe('Channel', () => {
           });
 
           await waitFor(() => {
-            const [element] = getAllByTestId('custom-avatar');
-
-            expect(element).toHaveTextContent(user.custom);
+            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
           });
         });
       });

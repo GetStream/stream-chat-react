@@ -12,17 +12,21 @@ You will not need to use the `ChannelPreview` component directly. If creating a 
 This prop from the parent component ultimately sets the `Preview` prop in `ChannelPreview`. If this optional prop is not provided the default UI component is
 [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
 
-**Example 1**
+**Example**
 
 ```tsx
-const YourCustomChannelPreview = (props) => {
-  // render custom preview info here
+const YourCustomChannelPreview = ({ latestMessage, lastMessage }) => {
+  // "lastMessage" property is for for the last 
+  // message that has been interacted with (pinned/edited/deleted)
+  
+  // to display last message of the channel use "latestMessage"
+  return <span>{latestMessage}</span>
 };
 
 <ChannelList
   options={options}
   sort={sort}
-  Preview={(previewProps) => <YourCustomChannelPreview {...previewProps} />}
+  Preview={YourCustomChannelPreview} />}
 />;
 ```
 

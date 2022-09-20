@@ -10,11 +10,15 @@ import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { MessageInputFlat } from './MessageInputFlat';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useTranslationContext } from '../../context/TranslationContext';
-import { useMessageInputContext } from '../../context/MessageInputContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import {
+  useChannelStateContext,
+  useChatContext,
+  useComponentContext,
+  useMessageInputContext,
+  useTranslationContext,
+} from '../../context';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
@@ -43,6 +47,8 @@ export const EditMessageForm = <
     FileUploadIcon = DefaultFileUploadIcon,
   } = useComponentContext<StreamChatGenerics>('EditMessageForm');
 
+  const { themeVersion } = useChatContext('EditMessageForm');
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') clearEditingState?.();
@@ -51,6 +57,25 @@ export const EditMessageForm = <
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [clearEditingState]);
+
+  if (themeVersion === '2')
+    return (
+      <form className='str-chat__edit-message-form' onSubmit={handleSubmit}>
+        <MessageInputFlat />
+        <div className='str-chat__edit-message-form-options'>
+          <button
+            className='str-chat__edit-message-cancel'
+            data-testid='cancel-button'
+            onClick={clearEditingState}
+          >
+            {t<string>('Cancel')}
+          </button>
+          <button className='str-chat__edit-message-send' data-testid='send-button' type='submit'>
+            {t<string>('Send')}
+          </button>
+        </div>
+      </form>
+    );
 
   return (
     <div className='str-chat__edit-message-form'>
@@ -95,8 +120,12 @@ export const EditMessageForm = <
               )}
             </div>
             <div>
-              <button onClick={clearEditingState}>{t<string>('Cancel')}</button>
-              <button type='submit'>{t<string>('Send')}</button>
+              <button className='str-chat__edit-message-cancel' onClick={clearEditingState}>
+                {t<string>('Cancel')}
+              </button>
+              <button className='str-chat__edit-message-send' type='submit'>
+                {t<string>('Send')}
+              </button>
             </div>
           </div>
         </form>

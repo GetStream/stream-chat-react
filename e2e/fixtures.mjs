@@ -16,25 +16,29 @@ dotenv.config({ path: `.env.local` });
     E2E_TEST_USER_2,
   } = process.env;
 
-  async function generateMessages(start, stop, channel, parent_id) {
+  async function generateMessages({start, stop, channel, parent_id, quoteMap = {}}) {
     const count = stop - start;
-    let messageToQuote;
+    const messagesToQuote = {};
     const messageResponses = [];
     for (let i = start; i < stop; i++) {
       if (process.stdout.clearLine && process.stdout.cursorTo) {
         printProgress((i - start) / count);
       }
-
+      const indexString = i.toString();
+      const messageToQuote = messagesToQuote[indexString];
       const res = await channel.sendMessage({
         text: `Message ${i}`,
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
-        ...(i === start + 140 ? { quoted_message_id: messageToQuote.message.id } : {}),
+        ...(messageToQuote ? { quoted_message_id: messageToQuote.message.id } : {}),
         ...(parent_id ? { parent_id } : {}),
       });
 
-      if (i === start + 20) {
-        messageToQuote = res;
+      if (Object.keys(quoteMap).includes(indexString)) {
+        const quotingMessageText = quoteMap[indexString];
+        messagesToQuote[quotingMessageText] = res;
       }
+
+
       messageResponses.push(res);
     }
     return messageResponses;
@@ -58,7 +62,12 @@ dotenv.config({ path: `.env.local` });
     await channel.create();
     await channel.truncate();
 
-    await generateMessages(0, MESSAGES_COUNT, channel);
+    await generateMessages({
+      channel,
+      quoteMap: {'20': '140'},
+      start: 0,
+      stop: MESSAGES_COUNT
+    });
 
     process.stdout.write('\n');
   }
@@ -74,8 +83,42 @@ dotenv.config({ path: `.env.local` });
     await channel.create();
     await channel.truncate();
 
-    const messages = await generateMessages(0, 150, channel);
-    await generateMessages(150, 300, channel, messages.slice(-1)[0].message.id);
+    const messages = await generateMessages({
+      channel,
+      quoteMap: {'99': '149', '137': '148'},
+      start:0,
+      stop: 150
+    });
+
+    await generateMessages({
+      channel,
+      parent_id:messages.slice(-51)[0].message.id,
+      start: 150,
+      stop: 300,
+    });
+
+    await generateMessages({
+      channel,
+      parent_id:messages.slice(-26)[0].message.id,
+      start: 150,
+      stop: 300,
+    });
+
+    await generateMessages({
+      channel,
+      parent_id:messages.slice(-13)[0].message.id,
+      start: 150,
+      stop: 300,
+    });
+
+    await generateMessages({
+      channel,
+      parent_id:messages.slice(-1)[0].message.id,
+      start: 150,
+      stop: 300,
+    });
+
+
 
     process.stdout.write('\n');
   }

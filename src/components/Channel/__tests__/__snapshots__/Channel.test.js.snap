@@ -1,0 +1,249 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Channel should render a LoadingIndicator if it is loading 1`] = `
+<DocumentFragment>
+  <div
+    class="str-chat messaging light str-chat-channel str-chat__channel"
+  >
+    <div
+      class="str-chat__loading-channel"
+    >
+      <div
+        class="str-chat__loading-channel-header"
+      >
+        <div
+          class="str-chat__loading-channel-header-avatar"
+        />
+        <div
+          class="str-chat__loading-channel-header-end"
+        >
+          <div
+            class="str-chat__loading-channel-header-name"
+          />
+          <div
+            class="str-chat__loading-channel-header-info"
+          />
+        </div>
+      </div>
+      <div
+        class="str-chat__loading-channel-message-list"
+      >
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="str-chat__loading-channel-message-input-row"
+      >
+        <div
+          class="str-chat__loading-channel-message-input"
+        />
+        <div
+          class="str-chat__loading-channel-message-send"
+        />
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Channel should render default loading indicator if channels query is in progress 1`] = `
+<DocumentFragment>
+  <div
+    class="str-chat str-chat-channel str-chat__channel"
+  >
+    <div
+      class="str-chat__loading-channel"
+    >
+      <div
+        class="str-chat__loading-channel-header"
+      >
+        <div
+          class="str-chat__loading-channel-header-avatar"
+        />
+        <div
+          class="str-chat__loading-channel-header-end"
+        >
+          <div
+            class="str-chat__loading-channel-header-name"
+          />
+          <div
+            class="str-chat__loading-channel-header-info"
+          />
+        </div>
+      </div>
+      <div
+        class="str-chat__loading-channel-message-list"
+      >
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="str-chat__loading-channel-message"
+        >
+          <div
+            class="str-chat__loading-channel-message-avatar"
+          />
+          <div
+            class="str-chat__loading-channel-message-end"
+          >
+            <div
+              class="str-chat__loading-channel-message-sender"
+            />
+            <div
+              class="str-chat__loading-channel-message-last-row"
+            >
+              <div
+                class="str-chat__loading-channel-message-text"
+              />
+              <div
+                class="str-chat__loading-channel-message-date"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="str-chat__loading-channel-message-input-row"
+      >
+        <div
+          class="str-chat__loading-channel-message-input"
+        />
+        <div
+          class="str-chat__loading-channel-message-send"
+        />
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Channel should render empty channel container if channel does not have cid 1`] = `
+<DocumentFragment>
+  <div
+    class="str-chat str-chat-channel str-chat__channel"
+  />
+</DocumentFragment>
+`;
+
+exports[`Channel should render empty channel container if channels query failed 1`] = `
+<DocumentFragment>
+  <div
+    class="str-chat str-chat-channel str-chat__channel"
+  />
+</DocumentFragment>
+`;

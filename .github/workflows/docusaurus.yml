@@ -6,14 +6,22 @@ on:
       - develop
     paths:
       - docusaurus/**
+      - .github/workflows/docusaurus.yml
 env:
   branch_map: '{"refs/heads/master": "production", "refs/heads/develop": "staging"}'
 
 jobs:
   push_docusaurus:
     runs-on: ubuntu-latest
+    outputs:
+      target-version: $${{steps.target-version.outputs}}
     steps:
-      - uses: actions/checkout@v3
+      - name: Pull stream-chat-react
+        uses: actions/checkout@v3
+      - name: 🔨 Install Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+      - name: Merge docs stream-chat-css
+        run: bash scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs
       - name: Push to stream-chat-docusaurus
         uses: GetStream/push-stream-chat-docusaurus-action@main
         with:

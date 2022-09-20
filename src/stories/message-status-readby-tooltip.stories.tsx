@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import '@stream-io/stream-chat-css/dist/css/index.css';
 import React, { useCallback } from 'react';
 import type { ChannelSort } from 'stream-chat';
 import {

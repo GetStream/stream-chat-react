@@ -59,8 +59,9 @@ export function useMessageListScrollManager<
         // messages added to the top
         if (lastPrevMessage?.id === lastNewMessage.id) {
           const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
-
-          onScrollBy(listHeightDelta);
+          if (scrollTop.current === 0) {
+            onScrollBy(listHeightDelta);
+          }
         }
         // messages added to the bottom
         else {

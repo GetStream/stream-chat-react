@@ -11,18 +11,23 @@ import { MessageActions } from '../MessageActions';
 
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Partial<Pick<MessageContextValue<StreamChatGenerics>, 'handleOpenThread'>> & {
-  ActionsIcon?: React.FunctionComponent;
-  displayLeft?: boolean;
+  /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
+  ActionsIcon?: React.ComponentType<IconProps>;
+  /* If true, show the `ThreadIcon` and enable navigation into a `Thread` component. */
   displayReplies?: boolean;
+  /* React mutable ref that can be placed on the message root `div` of MessageActions component */
   messageWrapperRef?: React.RefObject<HTMLDivElement>;
-  ReactionIcon?: React.FunctionComponent;
+  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
+  ReactionIcon?: React.ComponentType<IconProps>;
+  /* Theme string to be added to CSS class names. */
   theme?: string;
-  ThreadIcon?: React.FunctionComponent;
+  /* Custom component rendering the icon used in a message options button opening thread */
+  ThreadIcon?: React.ComponentType<IconProps>;
 };
 
 const UnMemoizedMessageOptions = <
@@ -32,7 +37,6 @@ const UnMemoizedMessageOptions = <
 ) => {
   const {
     ActionsIcon = DefaultActionsIcon,
-    displayLeft = true,
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
     messageWrapperRef,
@@ -46,7 +50,6 @@ const UnMemoizedMessageOptions = <
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
-    isMyMessage,
     message,
     onReactionListClick,
     threadList,
@@ -74,60 +77,32 @@ const UnMemoizedMessageOptions = <
     return null;
   }
 
-  if (isMyMessage() && displayLeft) {
-    return (
-      <div className={`str-chat__message-${theme}__actions`} data-testid='message-options-left'>
-        {showActionsBox && (
-          <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
-        )}
-        {shouldShowReplies && (
-          <button
-            aria-label='Open Thread'
-            className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
-            data-testid='thread-action'
-            onClick={handleOpenThread}
-          >
-            <ThreadIcon />
-          </button>
-        )}
-        {shouldShowReactions && (
-          <button
-            aria-label='Open Reaction Selector'
-            className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
-            data-testid='message-reaction-action'
-            onClick={onReactionListClick}
-          >
-            <ReactionIcon />
-          </button>
-        )}
-      </div>
-    );
-  }
+  const rootClassName = `str-chat__message-${theme}__actions str-chat__message-options`;
 
   return (
-    <div className={`str-chat__message-${theme}__actions`} data-testid='message-options'>
-      {shouldShowReactions && (
-        <button
-          aria-label='Open Reaction Selector'
-          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions`}
-          data-testid='message-reaction-action'
-          onClick={onReactionListClick}
-        >
-          <ReactionIcon />
-        </button>
+    <div className={rootClassName} data-testid='message-options'>
+      {showActionsBox && (
+        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
       )}
       {shouldShowReplies && (
         <button
           aria-label='Open Thread'
-          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread`}
+          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread str-chat__message-reply-in-thread-button`}
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
-          <ThreadIcon />
+          <ThreadIcon className='str-chat__message-action-icon' />
         </button>
       )}
-      {showActionsBox && (
-        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+      {shouldShowReactions && (
+        <button
+          aria-label='Open Reaction Selector'
+          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
+          data-testid='message-reaction-action'
+          onClick={onReactionListClick}
+        >
+          <ReactionIcon className='str-chat__message-action-icon' />
+        </button>
       )}
     </div>
   );
