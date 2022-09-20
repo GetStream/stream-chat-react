@@ -5,6 +5,10 @@
     {
       "name": "beta",
       "prerelease": true
+    },
+    {
+      "name": "release-v9",
+      "channel": "v9"
     }
   ],
   "plugins": [

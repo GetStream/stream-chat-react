@@ -1,6 +1,5 @@
 import React, { PropsWithChildren } from 'react';
 import ReactPlayer from 'react-player';
-import { nanoid } from 'nanoid';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
@@ -100,9 +99,6 @@ export const renderAttachmentWithinContainer = <
       className={`str-chat__message-attachment str-chat__message-attachment--${componentType} str-chat__message-attachment--${
         attachment?.type || ''
       } str-chat__message-attachment--${componentType}--${extra}`}
-      key={`${isGalleryAttachmentType(attachment) ? '' : attachment?.id || nanoid()}-${
-        attachment?.type || 'none'
-      } `}
     >
       {children}
     </div>
@@ -124,7 +120,6 @@ export const renderAttachmentActions = <
       actionHandler={(event, name, value) => actionHandler?.(event, name, value)}
       actions={attachment.actions}
       id={attachment.id || ''}
-      key={`key-actions-${attachment.id}`}
       text={attachment.text || ''}
     />
   );
@@ -139,7 +134,7 @@ export const renderGallery = <
 
   return renderAttachmentWithinContainer({
     attachment,
-    children: <Gallery images={attachment.images || []} key='gallery' />,
+    children: <Gallery images={attachment.images || []} />,
     componentType: 'gallery',
   });
 };
@@ -155,7 +150,7 @@ export const renderImage = <
     return renderAttachmentWithinContainer({
       attachment,
       children: (
-        <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
+        <div className='str-chat__attachment'>
           {<Image {...attachment} />}
           {renderAttachmentActions(props)}
         </div>
@@ -166,7 +161,7 @@ export const renderImage = <
 
   return renderAttachmentWithinContainer({
     attachment,
-    children: <Image {...attachment} key={`key-image-${attachment.id}`} />,
+    children: <Image {...attachment} />,
     componentType: 'image',
   });
 };
@@ -182,8 +177,8 @@ export const renderCard = <
     return renderAttachmentWithinContainer({
       attachment,
       children: (
-        <div className='str-chat__attachment' key={`key-image-${attachment.id}`}>
-          <Card {...attachment} key={`key-card-${attachment.id}`} />
+        <div className='str-chat__attachment'>
+          <Card {...attachment} />
           {renderAttachmentActions(props)}
         </div>
       ),
@@ -193,7 +188,7 @@ export const renderCard = <
 
   return renderAttachmentWithinContainer({
     attachment,
-    children: <Card {...attachment} key={`key-card-${attachment.id}`} />,
+    children: <Card {...attachment} />,
     componentType: 'card',
   });
 };
@@ -209,7 +204,7 @@ export const renderFile = <
 
   return renderAttachmentWithinContainer({
     attachment,
-    children: <File attachment={attachment} key={`key-file-${attachment.id}`} />,
+    children: <File attachment={attachment} />,
     componentType: 'file',
   });
 };
@@ -224,7 +219,7 @@ export const renderAudio = <
   return renderAttachmentWithinContainer({
     attachment,
     children: (
-      <div className='str-chat__attachment' key={`key-video-${attachment.id}`}>
+      <div className='str-chat__attachment'>
         <Audio og={attachment} />
       </div>
     ),
@@ -243,10 +238,7 @@ export const renderMedia = <
     return renderAttachmentWithinContainer({
       attachment,
       children: (
-        <div
-          className='str-chat__attachment str-chat__attachment-media'
-          key={`key-video-${attachment.id}`}
-        >
+        <div className='str-chat__attachment str-chat__attachment-media'>
           <div className='str-chat__player-wrapper'>
             <Media
               className='react-player'
@@ -266,7 +258,7 @@ export const renderMedia = <
   return renderAttachmentWithinContainer({
     attachment,
     children: (
-      <div className='str-chat__player-wrapper' key={`key-video-${attachment.id}`}>
+      <div className='str-chat__player-wrapper'>
         <Media
           className='react-player'
           controls
