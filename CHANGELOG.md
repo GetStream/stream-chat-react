@@ -1,3 +1,12 @@
+## [9.5.2](https://github.com/GetStream/stream-chat-react/compare/v9.5.1...v9.5.2) (2022-09-20)
+
+
+### Bug Fixes
+
+* **Attachment:** reduce the number of re-renders ([#1766](https://github.com/GetStream/stream-chat-react/issues/1766)) ([e6e126a](https://github.com/GetStream/stream-chat-react/commit/e6e126af57fc3d53017df545e559195182cd7dae))
+* edge case of prepend count not being reset when jumping ([#1765](https://github.com/GetStream/stream-chat-react/issues/1765)) ([#1768](https://github.com/GetStream/stream-chat-react/issues/1768)) ([b67a456](https://github.com/GetStream/stream-chat-react/commit/b67a456589f3d6638c64b85394f2b6da6c2ca283))
+* include range configuration for v9 ([7e803a2](https://github.com/GetStream/stream-chat-react/commit/7e803a2cd71b9b69592065586a0deb4db6dae244)), closes [#1770](https://github.com/GetStream/stream-chat-react/issues/1770)
+
 ## [9.5.1](https://github.com/GetStream/stream-chat-react/compare/v9.5.0...v9.5.1) (2022-09-08)
 
 
