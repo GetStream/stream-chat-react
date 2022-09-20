@@ -80,31 +80,35 @@ export const Attachment = <
         ]
       : attachments;
 
+  const getContent = (attachment: StreamAttachment<StreamChatGenerics>) => {
+    if (isGalleryAttachmentType(attachment)) {
+      return renderGallery({ ...rest, attachment });
+    }
+
+    if (isImageAttachment(attachment)) {
+      return renderImage({ ...rest, attachment });
+    }
+
+    if (isAudioAttachment(attachment)) {
+      return renderAudio({ ...rest, attachment });
+    }
+
+    if (isFileAttachment(attachment)) {
+      return renderFile({ ...rest, attachment });
+    }
+
+    if (isMediaAttachment(attachment)) {
+      return renderMedia({ ...rest, attachment });
+    }
+
+    return renderCard({ ...rest, attachment });
+  };
+
   return (
     <>
-      {newAttachments.map((attachment) => {
-        if (isGalleryAttachmentType(attachment)) {
-          return renderGallery({ ...rest, attachment });
-        }
-
-        if (isImageAttachment(attachment)) {
-          return renderImage({ ...rest, attachment });
-        }
-
-        if (isAudioAttachment(attachment)) {
-          return renderAudio({ ...rest, attachment });
-        }
-
-        if (isFileAttachment(attachment)) {
-          return renderFile({ ...rest, attachment });
-        }
-
-        if (isMediaAttachment(attachment)) {
-          return renderMedia({ ...rest, attachment });
-        }
-
-        return renderCard({ ...rest, attachment });
-      })}
+      {newAttachments.map((attachment, i) => (
+        <React.Fragment key={i}>{getContent(attachment)}</React.Fragment>
+      ))}
     </>
   );
 };
