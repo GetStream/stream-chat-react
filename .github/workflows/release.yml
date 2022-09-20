@@ -5,6 +5,7 @@ on:
       - master
       - main
       - beta
+      - release-v9
 
 jobs:
   release:
@@ -18,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*'
+          node-version: 16
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Validate CommonJS bundle
