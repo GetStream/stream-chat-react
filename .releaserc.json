@@ -8,7 +8,8 @@
     },
     {
       "name": "release-v9",
-      "channel": "v9"
+      "channel": "v9",
+      "range": "9.x"
     }
   ],
   "plugins": [
