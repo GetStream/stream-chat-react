@@ -4,10 +4,11 @@ sidebar_position: 7
 title: Indicators
 ---
 
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+
 The Stream Chat React component library provides a variety components that show the status of items loading, queries from the API, network issues, and also a typing indicator:
 
 - [`ChatDown`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) - established in the `ChannelList`, the default indicator that shows when chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
-  This component also displays the [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) indicator which is a fancy loading indicator for the `ChannelList`.
 
 - [`EmptyStateIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) - this component is established in the `MessageList`, `VirtualizedList`, and `ChannelList`
   components and is rendered when there are no items to display.
@@ -54,14 +55,6 @@ Override this component via the `TypingIndicator` prop on `Channel`, which injec
 
 ## ChatDownProps
 
-### type
-
-The type of error.
-
-| Type   |
-| ------ |
-| string |
-
 ### image
 
 The image url for this error or a ReactElement.
@@ -78,6 +71,14 @@ The error message to show.
 | ------ |
 | string |
 
+### type
+
+The type of error.
+
+| Type   |
+| ------ |
+| string |
+
 ## EmptyStateIndicatorProps
 
 ### listType
@@ -86,7 +87,7 @@ The type of list that will display this indicator, and this type will conditiona
 
 | Type                   |
 | ---------------------- |
-| 'channel' \| 'message' |
+| 'channel' \| 'message' \| 'thread' |
 
 ## LoadingErrorIndicatorProps
 
@@ -156,9 +157,9 @@ Boolean for if there is a next page to load.
 
 A UI button component that handles pagination logic.
 
-| Type      | Default                                                                                                                 |
-| --------- | ----------------------------------------------------------------------------------------------------------------------- |
-| component | [LoadMoreButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMoreButton.tsx) |
+| Type      | Default                                                                      |
+|-----------|------------------------------------------------------------------------------|
+| component | <GHComponentLink text='LoadMoreButton' path='/LoadMore/LoadMoreButton.tsx'/> |
 
 ### refreshing
 
@@ -182,9 +183,9 @@ A boolean that indicates if the `LoadMoreButton` should be displayed at the top 
 
 Custom UI component to display user's avatar.
 
-| Type      | Default                                                                                               |
-| --------- | ----------------------------------------------------------------------------------------------------- |
-| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
 ### avatarSize
 
@@ -196,7 +197,7 @@ The size in pixels of the avatar image.
 
 ### threadList
 
-Boolean for whether or not the typing indicator is in a `Thread`.
+Boolean that signals whether the typing indicator is in a `Thread`.
 
 | Type    |
 | ------- |
