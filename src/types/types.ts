@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
 import type {
   APIErrorResponse,
+  Attachment,
   ErrorFromResponse,
   Event,
   ExtendableGenerics,
@@ -109,3 +110,14 @@ export type ImageAttachmentConfiguration = {
 export type VideoAttachmentConfiguration = ImageAttachmentConfiguration & {
   thumbUrl?: string;
 };
+
+export type ImageAttachmentSizeHandler = (
+  attachment: Attachment,
+  element: HTMLElement,
+) => ImageAttachmentConfiguration;
+
+export type VideoAttachmentSizeHandler = (
+  attachment: Attachment,
+  element: HTMLElement,
+  shouldGenerateVideoThumbnail: boolean,
+) => VideoAttachmentConfiguration;
