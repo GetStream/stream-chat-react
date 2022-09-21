@@ -11,7 +11,6 @@ import React, {
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import {
-  Attachment,
   ChannelAPIResponse,
   ChannelState,
   Event,
@@ -79,8 +78,8 @@ import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
   GiphyVersions,
-  ImageAttachmentConfiguration,
-  VideoAttachmentConfiguration,
+  ImageAttachmentSizeHandler,
+  VideoAttachmentSizeHandler,
 } from '../../types/types';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import {
@@ -153,7 +152,7 @@ export type ChannelProps<
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** A custom function to provide size configuration for image attachments */
-  imageAttachmentSizeHandler?: (a: Attachment, e: HTMLElement) => ImageAttachmentConfiguration;
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
@@ -217,7 +216,7 @@ export type ChannelProps<
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
   /** A custom function to provide size configuration for video attachments */
-  videoAttachmentSizeHandler?: (a: Attachment, e: HTMLElement) => VideoAttachmentConfiguration;
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
