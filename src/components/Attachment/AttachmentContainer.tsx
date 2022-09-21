@@ -103,7 +103,7 @@ export const GalleryContainer = <
       });
       setAttachmentConfigurations(newConfigurations);
     }
-  }, [imageElements, imageAttachmentSizeHandler]);
+  }, [imageElements, imageAttachmentSizeHandler, attachment]);
 
   const images = attachment.images.map((image, i) => ({
     ...image,
@@ -137,7 +137,7 @@ export const ImageContainer = <
       // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
       imageElement.current.style.height = config.height;
     }
-  }, [imageElement, imageAttachmentSizeHandler]);
+  }, [imageElement, imageAttachmentSizeHandler, attachment]);
 
   const imageConfig = {
     ...attachment,
@@ -240,7 +240,7 @@ export const MediaContainer = <
       // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
       videoElement.current.style.height = config.height;
     }
-  }, [videoElement, videoAttachmentSizeHandler]);
+  }, [videoElement, videoAttachmentSizeHandler, attachment]);
 
   const content = (
     <div className='str-chat__player-wrapper' data-testid='video-wrapper' ref={videoElement}>
