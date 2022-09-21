@@ -242,38 +242,29 @@ export const MediaContainer = <
     }
   }, [videoElement, videoAttachmentSizeHandler]);
 
-  if (attachment.actions?.length) {
-    return (
-      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-        <div className='str-chat__attachment str-chat__attachment-media'>
-          <div className='str-chat__player-wrapper' ref={videoElement}>
-            <Media
-              className='react-player'
-              config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
-              controls
-              height='inherit'
-              url={attachmentConfiguration?.url}
-              width='100%'
-            />
-          </div>
-          <AttachmentActionsContainer {...props} />
-        </div>
-      </AttachmentWithinContainer>
-    );
-  }
+  const content = (
+    <div className='str-chat__player-wrapper' data-testid='video-wrapper' ref={videoElement}>
+      <Media
+        className='react-player'
+        config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
+        controls
+        height='inherit'
+        url={attachmentConfiguration?.url}
+        width='100%'
+      />
+    </div>
+  );
 
-  return (
+  return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <div className='str-chat__player-wrapper' data-testid='video-wrapper' ref={videoElement}>
-        <Media
-          className='react-player'
-          config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
-          controls
-          height='inherit'
-          url={attachmentConfiguration?.url}
-          width='100%'
-        />
+      <div className='str-chat__attachment str-chat__attachment-media'>
+        {content}
+        <AttachmentActionsContainer {...props} />
       </div>
+    </AttachmentWithinContainer>
+  ) : (
+    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+      {content}
     </AttachmentWithinContainer>
   );
 };
