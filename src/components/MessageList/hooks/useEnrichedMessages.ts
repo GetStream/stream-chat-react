@@ -65,7 +65,7 @@ export const useEnrichedMessages = <
   const groupStylesFn = groupStyles || getGroupStyles;
   const messageGroupStyles = useMemo(
     () =>
-      messagesWithDates.reduce((acc, message, i) => {
+      messagesWithDates.reduce<Record<string, GroupStyle>>((acc, message, i) => {
         const style = groupStylesFn(
           message,
           messagesWithDates[i - 1],
@@ -74,7 +74,7 @@ export const useEnrichedMessages = <
         );
         if (style) acc[message.id] = style;
         return acc;
-      }, {} as Record<string, GroupStyle>),
+      }, {}),
     [messagesWithDates, noGroupByUser],
   );
 
