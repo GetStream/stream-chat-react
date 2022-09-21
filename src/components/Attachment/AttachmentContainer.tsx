@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 
@@ -15,13 +15,13 @@ import {
   RenderGalleryProps,
 } from './utils';
 
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+
 import type {
   DefaultStreamChatGenerics,
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useState } from 'react';
 
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -88,7 +88,7 @@ export const GalleryContainer = <
     ImageAttachmentConfiguration[]
   >([]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       imageElements.current &&
       imageElements.current.every((element) => !!element) &&
@@ -105,14 +105,14 @@ export const GalleryContainer = <
     }
   }, [imageElements, imageAttachmentSizeHandler]);
 
-  const configurations = attachment.images.map((image, i) => ({
+  const images = attachment.images.map((image, i) => ({
     ...image,
     previewUrl: attachmentConfigurations[i]?.url,
   }));
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-      <Gallery images={configurations || []} innerRefs={imageElements} key='gallery' />
+      <Gallery images={images || []} innerRefs={imageElements} key='gallery' />
     </AttachmentWithinContainer>
   );
 };
@@ -130,7 +130,7 @@ export const ImageContainer = <
     ImageAttachmentConfiguration | undefined
   >(undefined);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (imageElement.current && imageAttachmentSizeHandler) {
       const config = imageAttachmentSizeHandler(attachment, imageElement.current);
       setAttachmentConfiguration(config);
@@ -224,11 +224,12 @@ export const MediaContainer = <
   const componentType = 'media';
   const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } = useChannelStateContext();
   const videoElement = useRef<HTMLDivElement>(null);
-  const [attachmentConfiguration, setAttachmentConfiguration] = useState<
-    VideoAttachmentConfiguration | undefined
-  >(undefined);
+  const [
+    attachmentConfiguration,
+    setAttachmentConfiguration,
+  ] = useState<VideoAttachmentConfiguration>();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (videoElement.current && videoAttachmentSizeHandler) {
       const config = videoAttachmentSizeHandler(
         attachment,
