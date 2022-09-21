@@ -144,6 +144,7 @@ export const useCreateChannelStateContext = <
       quotedMessage,
       readUsersLength,
       readUsersLastReads,
+      shouldGenerateVideoThumbnail,
       skipMessageDataMemoization,
       suppressAutoscroll,
       thread,
