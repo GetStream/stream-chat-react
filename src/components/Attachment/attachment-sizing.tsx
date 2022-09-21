@@ -65,7 +65,9 @@ const getSizingRestrictions = (url: URL, htmlElement: HTMLElement) => {
       cssSizeRestriction.maxHeight || cssSizeRestriction.height!,
       cssSizeRestriction.maxWidth,
     );
-    if (cssSizeRestriction.maxHeight) {
+    if (cssSizeRestriction.height) {
+      height = `${cssSizeRestriction.height}px`;
+    } else if (cssSizeRestriction.maxHeight) {
       // Calculate height because only max-height is provided
       const heightNum =
         originalHeight > 1 && originalWidth > 1
