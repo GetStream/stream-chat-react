@@ -29,8 +29,6 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
-  /** Custom ChannelPreview click handler function */
-  onSelect?: (event: React.MouseEvent) => void;
   /** Number of unread Messages */
   unread?: number;
 };

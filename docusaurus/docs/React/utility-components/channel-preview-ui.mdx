@@ -4,9 +4,11 @@ sidebar_position: 4
 title: ChannelPreview UI
 ---
 
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+
 The ChannelPreview UI component receives props via the [`ChannelPreview`](./channel-preview.mdx) wrapper, and
 these props are a combination of the `ChannelPreview` props with additional UI specific items. The wrapper also handles the required logic
-while the UI component is responsible for the UI display and the click functionality for channel selection. 
+while the UI component is responsible for the UI display and the click functionality for channel selection.
 
 This UI component is set via the `Preview` prop on `ChannelList`, and if nothing is provided then the default is used, [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
 
@@ -54,11 +56,11 @@ The currently selected channel object.
 
 ### Avatar
 
-The custom UI component to display the an avatar for the channel.
+The custom UI component to display the avatar for the channel.
 
-| Type      | Default                                                                                               |
-| --------- | ----------------------------------------------------------------------------------------------------- |
-| component | [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) |
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
 ### channelUpdateCount
 
@@ -68,6 +70,13 @@ A number that forces the update of the preview component on channel update.
 | ------ |
 | number |
 
+### className
+
+Custom class for the channel preview root
+
+| Type   |
+|--------|
+| string |
 
 ### displayImage
 
@@ -99,13 +108,21 @@ Latest message preview to display. Will be either a string or a JSX.Element rend
 | --------------------- |
 | string \| JSX.Element |
 
+### onSelect
+
+Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `ChannelPreview` to display items of channel search results. There, behind the scenes, the new active channel is set.
+
+| Type                              |
+|-----------------------------------|
+| (event: React.MouseEvent) => void |
+
 ### Preview
 
 The UI component to use for display.
 
-| Type      | Default                                                                                                                                         |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| component | [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) |
+| Type      | Default                                                                                              |
+|-----------|------------------------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='ChannelPreviewMessenger' path='/ChannelPreview/ChannelPreviewMessenger.tsx'/> |
 
 ### setActiveChannel
 
