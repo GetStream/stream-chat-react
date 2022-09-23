@@ -76,6 +76,24 @@ export const AttachmentActionsContainer = <
   );
 };
 
+function getCssDimensionsVariables(url: string) {
+  const cssVars = {
+    ['--original-height']: Infinity,
+    ['--original-width']: Infinity,
+  } as Record<string, number>;
+
+  if (url) {
+    const urlParams = new URL(url).searchParams;
+    const oh = Number(urlParams.get('oh'));
+    const ow = Number(urlParams.get('ow'));
+    const originalHeight = oh > 1 ? oh : Infinity;
+    const originalWidth = ow > 1 ? ow : Infinity;
+    cssVars['--original-width'] = originalWidth;
+    cssVars['--original-height'] = originalHeight;
+  }
+  return cssVars;
+}
+
 export const GalleryContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
@@ -98,8 +116,6 @@ export const GalleryContainer = <
       imageElements.current.forEach((element, i) => {
         const config = imageAttachmentSizeHandler(attachment.images[i], element);
         newConfigurations.push(config);
-        // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
-        element.style.height = config.height;
       });
       setAttachmentConfigurations(newConfigurations);
     }
@@ -107,7 +123,10 @@ export const GalleryContainer = <
 
   const images = attachment.images.map((image, i) => ({
     ...image,
-    previewUrl: attachmentConfigurations[i]?.url,
+    previewUrl: attachmentConfigurations[i]?.url || 'about:blank',
+    style: getCssDimensionsVariables(
+      attachment.images[i]?.image_url || attachment.images[i]?.thumb_url || '',
+    ),
   }));
 
   return (
@@ -134,14 +153,13 @@ export const ImageContainer = <
     if (imageElement.current && imageAttachmentSizeHandler) {
       const config = imageAttachmentSizeHandler(attachment, imageElement.current);
       setAttachmentConfiguration(config);
-      // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
-      imageElement.current.style.height = config.height;
     }
   }, [imageElement, imageAttachmentSizeHandler, attachment]);
 
   const imageConfig = {
     ...attachment,
-    previewUrl: attachmentConfiguration?.url,
+    previewUrl: attachmentConfiguration?.url || 'about:blank',
+    style: getCssDimensionsVariables(attachment.image_url || attachment.thumb_url || ''),
   };
 
   if (attachment.actions && attachment.actions.length) {
@@ -237,18 +255,21 @@ export const MediaContainer = <
         shouldGenerateVideoThumbnail,
       );
       setAttachmentConfiguration(config);
-      // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
-      videoElement.current.style.height = config.height;
     }
   }, [videoElement, videoAttachmentSizeHandler, attachment]);
 
   const content = (
-    <div className='str-chat__player-wrapper' data-testid='video-wrapper' ref={videoElement}>
+    <div
+      className='str-chat__player-wrapper'
+      data-testid='video-wrapper'
+      ref={videoElement}
+      style={getCssDimensionsVariables(attachment.thumb_url || '')}
+    >
       <Media
         className='react-player'
         config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
         controls
-        height='inherit'
+        height='100%'
         url={attachmentConfiguration?.url}
         width='100%'
       />

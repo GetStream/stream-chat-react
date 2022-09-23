@@ -1,10 +1,8 @@
 import type { Attachment } from 'stream-chat';
 
 export const getImageAttachmentConfiguration = (attachment: Attachment, element: HTMLElement) => {
-  const url = new URL(
-    (attachment.img_url || attachment.image_url || attachment.thumb_url || '') as string,
-  );
-  const { height, resizeDimensions } = getSizingRestrictions(url, element);
+  const url = new URL((attachment.image_url || attachment.thumb_url || '') as string);
+  const resizeDimensions = getSizingRestrictions(url, element);
 
   if (resizeDimensions) {
     // Apply 2x for retina displays
@@ -14,7 +12,6 @@ export const getImageAttachmentConfiguration = (attachment: Attachment, element:
   }
 
   return {
-    height,
     url: url.href,
   };
 };
@@ -24,11 +21,10 @@ export const getVideoAttachmentConfiguration = (
   element: HTMLElement,
   shouldGenerateVideoThumbnail: boolean,
 ) => {
-  let attachmentHeight = ``;
   let thumbUrl = undefined;
   if (attachment.thumb_url && shouldGenerateVideoThumbnail) {
     const url = new URL(attachment.thumb_url);
-    const { height, resizeDimensions } = getSizingRestrictions(url, element);
+    const resizeDimensions = getSizingRestrictions(url, element);
 
     if (resizeDimensions) {
       // Apply 2x for retina displays
@@ -37,13 +33,9 @@ export const getVideoAttachmentConfiguration = (
       addResizingParamsToUrl(resizeDimensions, url);
     }
     thumbUrl = url.href;
-    attachmentHeight = height;
-  } else {
-    const cssSizeRestriction = getCSSSizeRestrictions(element);
-    attachmentHeight = `${cssSizeRestriction.maxHeight || cssSizeRestriction.height || ''}px`;
   }
+
   return {
-    height: attachmentHeight,
     thumbUrl,
     url: attachment.asset_url || '',
   };
@@ -55,7 +47,6 @@ const getSizingRestrictions = (url: URL, htmlElement: HTMLElement) => {
   const originalWidth = Number(urlParams.get('ow')) || 1;
   const cssSizeRestriction = getCSSSizeRestrictions(htmlElement);
   let resizeDimensions: { height: number; width: number } | undefined;
-  let height = '';
 
   if ((cssSizeRestriction.maxHeight || cssSizeRestriction.height) && cssSizeRestriction.maxWidth) {
     resizeDimensions = getResizeDimensions(
@@ -65,29 +56,11 @@ const getSizingRestrictions = (url: URL, htmlElement: HTMLElement) => {
       cssSizeRestriction.maxHeight || cssSizeRestriction.height!,
       cssSizeRestriction.maxWidth,
     );
-    if (cssSizeRestriction.height) {
-      height = `${cssSizeRestriction.height}px`;
-    } else if (cssSizeRestriction.maxHeight) {
-      // Calculate height because only max-height is provided
-      const heightNum =
-        originalHeight > 1 && originalWidth > 1
-          ? originalHeight <= cssSizeRestriction.maxHeight &&
-            originalWidth <= cssSizeRestriction.maxWidth
-            ? originalHeight
-            : Math.round(
-                Math.min(
-                  cssSizeRestriction.maxHeight,
-                  (cssSizeRestriction.maxWidth / originalWidth) * originalHeight,
-                ),
-              )
-          : cssSizeRestriction.maxHeight;
-      height = `${heightNum}px`;
-    }
   } else {
     resizeDimensions = undefined;
   }
 
-  return { height, resizeDimensions };
+  return resizeDimensions;
 };
 
 const getResizeDimensions = (

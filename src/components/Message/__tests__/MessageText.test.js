@@ -120,7 +120,7 @@ describe('<MessageText />', () => {
 
   it('should set attachments css class modifier when message has text and is focused', async () => {
     const attachment = {
-      image_url: 'image.jpg',
+      image_url: 'http://image.jpg',
       type: 'image',
     };
     const message = generateAliceMessage({

@@ -103,7 +103,6 @@ export interface IconProps {
 export type Dimensions = { height?: string; width?: string };
 
 export type ImageAttachmentConfiguration = {
-  height: string;
   url: string;
 };
 

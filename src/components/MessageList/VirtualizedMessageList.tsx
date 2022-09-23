@@ -373,12 +373,7 @@ const VirtualizedMessageListWithContext = <
       );
     };
     return Item;
-  }, [
-    customClasses?.virtualMessage,
-    Object.keys(messageGroupStyles),
-    numItemsPrepended,
-    processedMessages.length,
-  ]);
+  }, [customClasses?.virtualMessage, numItemsPrepended, processedMessages.length]);
 
   const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
