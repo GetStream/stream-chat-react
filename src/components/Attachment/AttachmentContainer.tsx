@@ -22,6 +22,7 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
+import { useMessageContext } from '../../context/MessageContext';
 
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -84,6 +85,7 @@ export const GalleryContainer = <
 }: RenderGalleryProps<StreamChatGenerics>) => {
   const imageElements = useRef<HTMLElement[]>([]);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const { autoscrollToBottom } = useMessageContext();
   const [attachmentConfigurations, setAttachmentConfigurations] = useState<
     ImageAttachmentConfiguration[]
   >([]);
@@ -100,6 +102,7 @@ export const GalleryContainer = <
         newConfigurations.push(config);
         // Setting height on the element after rerender is too late, so setting it directly on the DOM element before render
         element.style.height = config.height;
+        autoscrollToBottom?.();
       });
       setAttachmentConfigurations(newConfigurations);
     }
