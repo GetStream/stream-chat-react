@@ -14,7 +14,7 @@ export type PopperTooltipProps<T extends HTMLElement> = React.PropsWithChildren<
   offset?: [number, number];
   /** Popper's placement property defining default position of the tooltip, default 'top' */
   placement?: PopperProps<unknown>['placement'];
-  /** Tells component whether to render it's contents */
+  /** Tells component whether to render its contents */
   visible?: boolean;
 }>;
 
