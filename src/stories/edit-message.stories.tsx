@@ -11,11 +11,6 @@ import {
 } from '../index';
 import { ConnectedUser, ConnectedUserProps } from './utils';
 
-const channelId = import.meta.env.E2E_ADD_MESSAGE_CHANNEL;
-if (!channelId || typeof channelId !== 'string') {
-  throw new Error('expected ADD_MESSAGE_CHANNEL');
-}
-
 const Controls = () => {
   const { channel } = useChannelStateContext();
 

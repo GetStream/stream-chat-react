@@ -1,4 +1,5 @@
 /* eslint-env node */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import dotenv from 'dotenv';
 import { StreamChat } from 'stream-chat';
 dotenv.config();
@@ -16,7 +17,14 @@ dotenv.config({ path: `.env.local` });
     E2E_TEST_USER_2,
   } = process.env;
 
-  async function generateMessages({start, stop, channel, parent_id, quoteMap = {}}) {
+  async function generateMessages({
+    start,
+    stop,
+    channel,
+    parent_id,
+    quoteMap = {},
+    processMessageText = (index) => `Message ${index}`,
+  }) {
     const count = stop - start;
     const messagesToQuote = {};
     const messageResponses = [];
@@ -27,7 +35,7 @@ dotenv.config({ path: `.env.local` });
       const indexString = i.toString();
       const messageToQuote = messagesToQuote[indexString];
       const res = await channel.sendMessage({
-        text: `Message ${i}`,
+        text: processMessageText(i),
         user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
         ...(messageToQuote ? { quoted_message_id: messageToQuote.message.id } : {}),
         ...(parent_id ? { parent_id } : {}),
@@ -37,7 +45,6 @@ dotenv.config({ path: `.env.local` });
         const quotingMessageText = quoteMap[indexString];
         messagesToQuote[quotingMessageText] = res;
       }
-
 
       messageResponses.push(res);
     }
@@ -64,9 +71,9 @@ dotenv.config({ path: `.env.local` });
 
     await generateMessages({
       channel,
-      quoteMap: {'20': '140'},
+      quoteMap: { 20: '140' },
       start: 0,
-      stop: MESSAGES_COUNT
+      stop: MESSAGES_COUNT,
     });
 
     process.stdout.write('\n');
@@ -85,40 +92,38 @@ dotenv.config({ path: `.env.local` });
 
     const messages = await generateMessages({
       channel,
-      quoteMap: {'99': '149', '137': '148'},
-      start:0,
-      stop: 150
+      quoteMap: { 137: '148', 99: '149' },
+      start: 0,
+      stop: 150,
     });
 
     await generateMessages({
       channel,
-      parent_id:messages.slice(-51)[0].message.id,
+      parent_id: messages.slice(-51)[0].message.id,
       start: 150,
       stop: 300,
     });
 
     await generateMessages({
       channel,
-      parent_id:messages.slice(-26)[0].message.id,
+      parent_id: messages.slice(-26)[0].message.id,
       start: 150,
       stop: 300,
     });
 
     await generateMessages({
       channel,
-      parent_id:messages.slice(-13)[0].message.id,
+      parent_id: messages.slice(-13)[0].message.id,
       start: 150,
       stop: 300,
     });
 
     await generateMessages({
       channel,
-      parent_id:messages.slice(-1)[0].message.id,
+      parent_id: messages.slice(-1)[0].message.id,
       start: 150,
       stop: 300,
     });
-
-
 
     process.stdout.write('\n');
   }
