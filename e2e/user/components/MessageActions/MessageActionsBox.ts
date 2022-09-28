@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { getMessage } from '../Message/MessageSimple';
 import selectors from '../../selectors';
 
-type MessageBoxAction = 'Reply' | 'Pin' | 'Edit Message' | 'Delete';
+type MessageBoxAction = 'Reply' | 'Pin' | 'Unpin' | 'Edit Message' | 'Delete';
 
 export default (page: Page) => {
   const open = async (
@@ -45,6 +45,9 @@ export default (page: Page) => {
       },
       async reply(repliedMessageText: string, nthMessageWithText?: number) {
         return (await open(repliedMessageText, 'Reply', nthMessageWithText)).click();
+      },
+      async unpin(repliedMessageText: string, nthMessageWithText?: number) {
+        return (await open(repliedMessageText, 'Unpin', nthMessageWithText)).click();
       },
     },
   };
