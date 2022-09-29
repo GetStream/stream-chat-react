@@ -18,6 +18,7 @@ exports[`attachment combines scraped & uploaded content should render all upload
       <div
         class="str-chat__player-wrapper"
         data-testid="video-wrapper"
+        style="--original-height: Infinity; --original-width: Infinity;"
       >
         <div
           data-testid="media-attachment"
@@ -30,6 +31,7 @@ exports[`attachment combines scraped & uploaded content should render all upload
       <div
         class="str-chat__player-wrapper"
         data-testid="video-wrapper"
+        style="--original-height: Infinity; --original-width: Infinity;"
       >
         <div
           data-testid="media-attachment"
@@ -101,6 +103,7 @@ exports[`attachment combines scraped & uploaded content should render attachment
       <div
         class="str-chat__player-wrapper"
         data-testid="video-wrapper"
+        style="--original-height: Infinity; --original-width: Infinity;"
       >
         <div
           data-testid="media-attachment"

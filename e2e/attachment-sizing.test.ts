@@ -21,7 +21,7 @@ test.describe('add height to video and image attachments', () => {
   });
 
   test('should add height for video attachments', async ({ page }) => {
-    const videoElementsLocator = page.locator('[data-testid="video-wrapper"] .react-player');
+    const videoElementsLocator = page.locator('[data-testid="video-wrapper"]');
     const result = await videoElementsLocator.evaluateAll<boolean>((videoElements => videoElements.length > 0 && videoElements.every(element =>
       getComputedStyle(element).height.includes('px')
     )));

@@ -448,7 +448,7 @@ describe('<MessageSimple />', () => {
 
   it('should display image attachments in gallery when message has image attachments', async () => {
     const attachment = {
-      image_url: 'image.jpg',
+      image_url: 'http://image.jpg',
       type: 'image',
     };
     const message = generateAliceMessage({

@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useState } from 'react';
+import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import clsx from 'clsx';
 
 import { Modal } from '../Modal';
@@ -20,7 +20,7 @@ export type GalleryProps<
         thumb_url?: string | undefined;
       }
     | Attachment<StreamChatGenerics>
-  ) & { previewUrl?: string })[];
+  ) & { previewUrl?: string; style?: CSSProperties })[];
   innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
 };
 
@@ -62,6 +62,7 @@ const UnMemoizedGallery = <
             images[lastImageIndexInPreview].image_url ||
             images[lastImageIndexInPreview].thumb_url
           })`,
+          ...image.style,
         }}
         {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
       >
@@ -81,6 +82,7 @@ const UnMemoizedGallery = <
         <img
           alt='User uploaded content'
           src={image.previewUrl || image.image_url || image.thumb_url}
+          style={image.style}
           {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
         />
       </button>
