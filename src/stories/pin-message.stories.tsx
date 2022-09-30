@@ -55,7 +55,7 @@ const Controls = () => {
   );
 };
 
-const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
+const App = ({ token, userId }: Omit<ConnectedUserProps, 'children'>) => (
   <>
     <ConnectedUser token={token} userId={userId}>
       <ChannelList
@@ -84,5 +84,5 @@ export const User1 = () => {
   if (!token || typeof token !== 'string') {
     throw new Error('expected TEST_USER_1_TOKEN');
   }
-  return <WrappedConnectedUser token={token} userId={userId} />;
+  return <App token={token} userId={userId} />;
 };
