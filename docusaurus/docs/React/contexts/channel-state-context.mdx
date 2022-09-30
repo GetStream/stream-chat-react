@@ -5,7 +5,7 @@ title: ChannelStateContext
 ---
 
 The `ChannelStateContext` is a one of the context providers exposed in the [`Channel`](../core-components/channel.mdx) component and is consumable by all of the `Channel` children components.
-The context provides all of the state properties and logic for a `channel`, and you can access these by calling the `useChannelStateContext` custom hook.
+The context provides all the state properties and logic for a `channel`, and you can access these by calling the `useChannelStateContext` custom hook.
 
 ## Basic Usage
 
@@ -67,7 +67,7 @@ Error object (if any) in loading the `channel`, otherwise null.
 
 ### giphyVersion
 
-The giphy version to use when displaying giphies. 
+The giphy version to use when displaying giphies.
 
 | Type                                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -75,11 +75,28 @@ The giphy version to use when displaying giphies.
 
 ### hasMore
 
-If the channel has more messages to paginate through.
+If the channel has more, older, messages to paginate through.
 
 | Type    |
 | ------- |
 | boolean |
+
+
+### hasMoreNewer
+
+If the channel has more, newer, messages to paginate through.
+
+| Type    |
+| ------- |
+| boolean |
+
+#### highlightedMessageId
+
+Value is used internally for jump-to-message logic. Once the user "jumped" to the message, the message with the given ID is highlighted by manipulating its styles attribute.
+
+| Type   |
+|--------|
+| string |
 
 ### loading
 
@@ -95,6 +112,14 @@ Boolean for the `channel` loading more messages.
 
 | Type    |
 | ------- |
+| boolean |
+
+### loadingMoreNewer?
+
+Flag signalling whether newer messages are being loaded as the user scrolls down in the message list. Used internally by `VirtualizedMessageList`.
+
+| Type    |
+|---------|
 | boolean |
 
 ### maxNumberOfFiles
@@ -169,6 +194,15 @@ The read state for each `channel` member.
 | ------ |
 | object |
 
+
+### suppressAutoscroll
+
+Flag signalling whether the scroll to the bottom is prevented. Used internally by `MessageList` and `VirtualizedMessageList` components.
+
+| Type    |
+|---------|
+| boolean |
+
 ### thread
 
 The parent message for a `thread`, if there is one, otherwise null.
@@ -200,6 +234,14 @@ Array of messages within a `thread`.
 | Type     |
 | -------- |
 | object[] |
+
+### threadSuppressAutoscroll
+
+Flag signalling whether the scroll to the bottom is prevented in thread. Used internally by `MessageList` and `VirtualizedMessageList` components.
+
+| Type    |
+|---------|
+| boolean |
 
 ### watcherCount
 

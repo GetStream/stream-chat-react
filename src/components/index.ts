@@ -1,6 +1,6 @@
 export * from './Attachment';
 export * from './AutoCompleteTextarea';
-export * from './Avatar/Avatar';
+export * from './Avatar';
 export * from './Channel';
 export * from './ChannelHeader';
 export * from './ChannelList';
@@ -8,7 +8,7 @@ export * from './ChannelPreview';
 export * from './ChannelSearch';
 export * from './Chat';
 export * from './ChatAutoComplete';
-export * from './ChatDown/ChatDown';
+export * from './ChatDown';
 export * from './CommandItem';
 export * from './DateSeparator';
 export * from './EmoticonItem';
