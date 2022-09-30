@@ -318,12 +318,17 @@ export const VideoContextProvider = ({
 }: { children: ReactNode } => {
   const [connectionState, setConnectionState] = useState(ConnectionState.NoCall);
 
+  const createCall = useCallback(async () => {}, []);
+  const joinCall = useCallback(async () => {}, []);
+  const leaveCall = useCallback(async () => {}, []);
+  const endCall = useCallback(async () => {}, []);
+
   const store = {
     connectionState: connectionState,
-    createCall: () => {},
-    joinCall: () => {},
-    leaveCall: () => {},
-    endCall: () => {},
+    createCall: createCall,
+    joinCall: joinCall,
+    leaveCall: leaveCall,
+    endCall: endCall,
   };
 
   return (
@@ -331,6 +336,8 @@ export const VideoContextProvider = ({
   );
 };
 ```
+
+We're wrapping the functions in `useCallback` hooks because we want to prevent React from triggering unwanted rebuilds.
 
 The last thing to prepare is to make this `VideoContext` easily accessible for all the components where we need it. We create an object for using it like this:
 
@@ -400,11 +407,11 @@ With that, we can add a `useEffect` hook to register for `channel.updated` event
 
 ```tsx
 useEffect(() => {
-  const handleChannelUpdate = (event: any) => {
+  const handleChannelUpdate = (event: Event) => {
     if (event.channel.data?.callActive) {
-      if (connectionState == ConnectionState.NoCall) {
+      if (connectionState === ConnectionState.NoCall) {
         setConnectionState(ConnectionState.CallAvailable);
-      } else if (connectionState == ConnectionState.Connecting) {
+      } else if (connectionState === ConnectionState.Connecting) {
         setConnectionState(ConnectionState.InCall);
       }
     } else {
@@ -457,64 +464,58 @@ Great, with that we are prepared to implement the `createCall` function. We will
 3. Join the call using the `hmsActions`
 4. Update the channel data (which will trigger an update of our UI due to the `channel.updated` event being called)
 
-Inside of the `store` object replace the empty `createCall` implementation with this:
+Inside of the `useCallback` object replace the empty `createCall` implementation with this:
 
 ```tsx
-createCall: async () => {
-  // 1.
-  setConnectionState(ConnectionState.Connecting);
+// 1.
+setConnectionState(ConnectionState.Connecting);
 
-  // 2.
-  const response = await channel.createCall({
-    id: `call-${channel.cid}`,
-    type: 'video',
-  });
+// 2.
+const response = await channel.createCall({
+  id: `call-${channel.cid}`,
+  type: 'video',
+});
 
-  // 3.
-  await hmsActions.join({
-    authToken: `${response.token}`,
-    userName: client.user?.name ?? 'Unkown',
-  });
+// 3.
+await hmsActions.join({
+  authToken: `${response.token}`,
+  userName: client.user?.name || 'Unkown',
+});
 
-  // 4.
-  await channel.updatePartial({
-    set: {
-      data: {
-        callActive: true,
-        callId: response.call.id,
-      },
+// 4.
+await channel.updatePartial({
+  set: {
+    data: {
+      callActive: true,
+      callId: response.call.id,
     },
-  });
-},
+  },
+});
 ```
 
-The `joinCall` function is pretty similar to the `createCall` function only that we’re now taking the `callId` we save in the channel `data` object and using it to call the `getCallToken` function on the `client` object. Then we join the call as before. Here is the code to replace the current (empty) `joinCall` function with:
+The `joinCall` function is pretty similar to the `createCall` function only that we’re now taking the `callId` we save in the channel `data` object and using it to call the `getCallToken` function on the `client` object. Then we join the call as before. Here is the code to replace the current (empty) `joinCall` function (inside the `useCallback` hook) with:
 
 ```tsx
-joinCall: async () => {
-  setConnectionState(ConnectionState.Connecting);
+setConnectionState(ConnectionState.Connecting);
 
-  const response = await client.getCallToken(channel.data?.data?.callId);
+const response = await client.getCallToken(channel.data?.data?.callId);
 
-  await hmsActions.join({
-    authToken: `${response.token}`,
-    userName: client.user?.name ?? 'Unkown',
-  });
+await hmsActions.join({
+  authToken: `${response.token}`,
+  userName: client.user?.name || 'Unkown',
+});
 
-  setConnectionState(ConnectionState.InCall);
-},
+setConnectionState(ConnectionState.InCall);
 ```
 
 When leaving a call the logic is quite straightforward. We’ll set the state to `ConnectionState.Disconnecting`, then calling the `leave` function of the `hmsActions` SDK, and then updating the state to `ConnectionState.CallAvailable`. Here is the code:
 
 ```tsx
-leaveCall: async () => {
-  setConnectionState(ConnectionState.Disconnecting);
+setConnectionState(ConnectionState.Disconnecting);
 
-  await hmsActions.leave();
+await hmsActions.leave();
 
-  setConnectionState(ConnectionState.CallAvailable);
-},
+setConnectionState(ConnectionState.CallAvailable);
 ```
 
 The last function is the `endCall` which is similar to the `leaveCall` but in addition, we also need to update the channel `data` object. With that, we don’t need to manually update the connection state because this will be again handled by our subscription to the `channel.updated` event.
@@ -522,29 +523,28 @@ The last function is the `endCall` which is similar to the `leaveCall` but in ad
 Replace the current `endCall` function with this one:
 
 ```tsx
-endCall: async () => {
-  setConnectionState(ConnectionState.Disconnecting);
+setConnectionState(ConnectionState.Disconnecting);
 
-  await hmsActions.leave();
+await hmsActions.leave();
 
-  await channel.updatePartial({
-    set: {
-      data: {
-        callActive: false,
-      },
+await channel.updatePartial({
+  set: {
+    data: {
+      callActive: false,
     },
-  });
-};
+  },
+});
 ```
 
-With that we have all the logic available, there is just one more thing we’ll add. In order for us to not be stuck in a call when the window is closed, we’ll also leave the call when the `window.onunload` event is happening:
+With that we have all the logic available, there is just one more thing we’ll add. In order for us to not be stuck in a call when the window is closed, we’ll also add this code that returns the function to leave a call whenever the component is unmounted:
 
 ```tsx
-useEffect(() => {
-  window.onunload = () => {
+useEffect(
+  () => () => {
     hmsActions.leave();
-  };
-}, []);
+  },
+  [],
+);
 ```
 
 With that, all the logic is done. We have to do one more thing, though.
@@ -600,17 +600,13 @@ import { useChannelStateContext } from 'stream-chat-react';
 const MyChannelHeader = ({ channelName }: MyChannelHeaderProps) => {
   const { channel } = useChannelStateContext();
 
-  return <h2>{channel?.data?.name ?? 'Unknown'}</h2>;
+  return <h2>{channel?.data?.name || 'Unknown'}</h2>;
 };
 
 export default MyChannelHeader;
 ```
 
-Next, we’ll use the `VideoContext` to import the necessary functions we need and create three helper functions:
-
-1. `onVideoButtonClick`: When the user clicks on the video button there should be different actions called depending on the current state of video from the context
-2. `callArea`: to show the correct button(s) or state indicators depending on the current `connectionState`
-3. `buttonText`: depending on the state of connection we will re-use the button to show different text
+Next, we’ll use the `VideoContext` to import the necessary functions we need and create a helper function to know which function to call when clicking the button depending on the `connectionState`:
 
 Here is the code for the three functions, please add this inside of your `MyChannelHeader` component:
 
@@ -630,34 +626,29 @@ const onVideoButtonClick = () => {
       break;
   }
 };
+```
 
-const callArea = (): ReactNode => {
-  switch (connectionState) {
-    case ConnectionState.NoCall:
-    case ConnectionState.CallAvailable:
-      return (
-        <button className='call-button start-call-button' onClick={onVideoButtonClick}>
-          {buttonText()}
-        </button>
-      );
-    case ConnectionState.Connecting:
-    case ConnectionState.Disconnecting:
-      return <p className='call-button'>{buttonText()}</p>;
-    case ConnectionState.InCall:
-      return (
-        <>
-          <button className='call-button leave-call-button' onClick={onVideoButtonClick}>
-            <p>{buttonText()}</p>
-          </button>
-          <button className='call-button end-call-button' onClick={endCall}>
-            <p>End call</p>
-          </button>
-        </>
-      );
-  }
-};
+With that, we can add the rest of our layout code, so let’s replace that lonely `<h2>` element and make use of the functions that we just created:
 
-const buttonText = (): string => {
+```tsx
+<div className='custom-header'>
+  <h2>{channel?.data?.name || 'Unknown'}</h2>
+  <div className='button-area'>
+    <CallArea
+      connectionState={connectionState}
+      onVideoButtonClick={onVideoButtonClick}
+      endCall={endCall}
+    />
+  </div>
+</div>
+```
+
+We are using a `CallArea` component here, that we have not yet defined, so let's do this by adding a file inside of the `MyChannelHeader` folder called `CallArea.tsx`.
+
+The first thing we'll add to it is a function that helps us to determine which text to show on a button depending on the `connectionState`:
+
+```tsx
+const buttonText = (connectionState: ConnectionState): string => {
   switch (connectionState) {
     case ConnectionState.NoCall:
       return 'Create call';
@@ -673,13 +664,42 @@ const buttonText = (): string => {
 };
 ```
 
-With that, we can add the rest of our layout code, so let’s replace that lonely `<h2>` element and make use of the functions that we just created:
+Next, we can add the code for the component that takes the necessary parameter to do the calls and adapts the UI depending on the current `connectionState` with a `switch` statement:
 
 ```tsx
-<div className='custom-header'>
-  <h2>{channel?.data?.name ?? 'Unknown'}</h2>
-  <div className='button-area'>{callArea()}</div>
-</div>
+interface CallAreaProps {
+  connectionState: ConnectionState;
+  onVideoButtonClick: () => void;
+  endCall: () => void;
+}
+
+const CallArea = ({ connectionState, onVideoButtonClick, endCall }: CallAreaProps) => {
+  switch (connectionState) {
+    case ConnectionState.NoCall:
+    case ConnectionState.CallAvailable:
+      return (
+        <button className='call-button start-call-button' onClick={onVideoButtonClick}>
+          {buttonText(connectionState)}
+        </button>
+      );
+    case ConnectionState.Connecting:
+    case ConnectionState.Disconnecting:
+      return <p className='call-button'>{buttonText(connectionState)}</p>;
+    case ConnectionState.InCall:
+      return (
+        <>
+          <button className='call-button leave-call-button' onClick={onVideoButtonClick}>
+            <p>{buttonText(connectionState)}</p>
+          </button>
+          <button className='call-button end-call-button' onClick={endCall}>
+            <p>End call</p>
+          </button>
+        </>
+      );
+  }
+};
+
+export default CallArea;
 ```
 
 Now this will not look great, so let’s also fill in some code for styling in `MyChannelHeader.css`:
@@ -747,7 +767,7 @@ Then, find the current channel header, which is the default by the Stream chat S
 Replace that with our newly created one:
 
 ```tsx
-<MyChannelHeader channelName={channel.data?.name ?? 'Unknown'} />
+<MyChannelHeader channelName={channel.data?.name || 'Unknown'} />
 ```
 
 With that, we have our channel header integrated into our application. This will look like this (red rectangle marks our newly created channel header):
@@ -811,7 +831,7 @@ const VideoGrid = () => {
   const peers = useHMSStore(selectPeers);
   return (
     <>
-      {connectionState == ConnectionState.InCall && (
+      {connectionState === ConnectionState.InCall && (
         <div className='video-grid'>
           {peers.map((peer) => (
             <Peer key={peer.id} peer={peer} />
