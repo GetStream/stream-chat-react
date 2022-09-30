@@ -12,9 +12,9 @@ test.describe('pin message', () => {
     await controller.sendMessage('text="pin-message-2"');
   });
 
-  test('pin message list loads with one pinned message', ({ page }) => {
+  test('pin message list loads with one pinned message', async ({ page }) => {
     const locator = page.locator(`${selectors.pinnedMessagesList} >> li`);
-    expect(locator).toHaveCount(1);
+    await expect(locator).toHaveCount(1);
   });
 
   test('pin message list updates on pin', async ({ page, user }) => {
@@ -24,7 +24,7 @@ test.describe('pin message', () => {
     ]);
 
     const locator = page.locator(`${selectors.pinnedMessagesList} >> li`);
-    expect(locator).toHaveCount(2);
+    await expect(locator).toHaveCount(2);
   });
 
   test('pin message list updates on unpin', async ({ page, user }) => {
@@ -34,6 +34,6 @@ test.describe('pin message', () => {
     ]);
 
     const locator = page.locator(selectors.pinnedMessagesList);
-    expect(locator).toBeHidden();
+    await expect(locator).toBeHidden();
   });
 });
