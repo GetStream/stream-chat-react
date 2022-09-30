@@ -73,9 +73,7 @@ export const usePinHandler = <
 
         updateMessage(optimisticMessage);
 
-        const messageResponse = await client.pinMessage(message);
-
-        updateMessage(messageResponse.message);
+        await client.pinMessage(message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
@@ -95,9 +93,7 @@ export const usePinHandler = <
 
         updateMessage(optimisticMessage);
 
-        const messageResponse = await client.unpinMessage(message);
-
-        updateMessage(messageResponse.message);
+        await client.unpinMessage(message);
       } catch (e) {
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);

@@ -22,13 +22,15 @@ export class Controller {
   async clearChannel() {
     await Promise.all([
       this.page.waitForResponse((r) => r.url().includes('/truncate') && r.ok()),
+      this.page.waitForSelector('.str-chat__empty-channel'),
       this.page.click(selectors.truncateChannelButton),
     ]);
   }
 
-  async sendMessage() {
+  async sendMessage(waitForSelector?: string) {
     await Promise.all([
       this.page.waitForResponse((r) => r.url().includes('/message') && r.ok()),
+      waitForSelector ? this.page.waitForSelector(waitForSelector) : Promise.resolve(),
       this.page.click(selectors.buttonAddMessage),
     ]);
   }
