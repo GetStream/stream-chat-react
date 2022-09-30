@@ -1,3 +1,11 @@
+## [10.1.2](https://github.com/GetStream/stream-chat-react/compare/v10.1.1...v10.1.2) (2022-09-30)
+
+
+### Bug Fixes
+
+* export all necessary components ([#1785](https://github.com/GetStream/stream-chat-react/issues/1785)) ([075f703](https://github.com/GetStream/stream-chat-react/commit/075f70389feb62f8638dbed0d1fd244f86829eb1))
+* update pinnedMessages context property on pin/unpin message ([#1784](https://github.com/GetStream/stream-chat-react/issues/1784)) ([15128ab](https://github.com/GetStream/stream-chat-react/commit/15128ab5f74e4f068bf6443c34eec8baf18f8453))
+
 ## [10.1.1](https://github.com/GetStream/stream-chat-react/compare/v10.1.0...v10.1.1) (2022-09-20)
 
 
