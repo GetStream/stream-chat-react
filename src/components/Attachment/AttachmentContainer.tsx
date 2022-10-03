@@ -78,16 +78,16 @@ export const AttachmentActionsContainer = <
 
 function getCssDimensionsVariables(url: string) {
   const cssVars = {
-    ['--original-height']: Infinity,
-    ['--original-width']: Infinity,
+    ['--original-height']: 1000000,
+    ['--original-width']: 1000000,
   } as Record<string, number>;
 
   if (url) {
     const urlParams = new URL(url).searchParams;
     const oh = Number(urlParams.get('oh'));
     const ow = Number(urlParams.get('ow'));
-    const originalHeight = oh > 1 ? oh : Infinity;
-    const originalWidth = ow > 1 ? ow : Infinity;
+    const originalHeight = oh > 1 ? oh : 1000000;
+    const originalWidth = ow > 1 ? ow : 1000000;
     cssVars['--original-width'] = originalWidth;
     cssVars['--original-height'] = originalHeight;
   }
