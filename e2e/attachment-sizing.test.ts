@@ -16,19 +16,17 @@ const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
 
 test.describe('add height to video and image attachments', () => {
   test.beforeEach(async ({ controller, user }) => {
-    await controller.openStory(
-      'attachment-sizing--user1',
-      selectors.channelPreviewButton,
-    );
+    await controller.openStory('attachment-sizing--user1', selectors.channelPreviewButton);
     await user.clicks(ChannelPreview).text(CHANNEL_NAME);
   });
 
   test('should add height for video attachments', async ({ page, user }) => {
     const videoElementsLocator = page.locator('[data-testid="video-wrapper"]');
-    const result = await videoElementsLocator.evaluateAll<boolean>((videoElements => videoElements.length > 0 && videoElements.every(element =>
-      getComputedStyle(element).height.includes('px')
-    )));
-
+    const result = await videoElementsLocator.evaluateAll<boolean>(
+      (videoElements) =>
+        videoElements.length > 0 &&
+        videoElements.every((element) => getComputedStyle(element).height.includes('px')),
+    );
 
     expect(result).toBeTruthy();
     await user
@@ -36,9 +34,13 @@ test.describe('add height to video and image attachments', () => {
       .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
   });
 
-  test('should add height for single image attachments', async ({page, user}) => {
+  test('should add height for single image attachments', async ({ page, user }) => {
     const imageElementsLocator = page.locator('[data-testid="image-test"]');
-    const result = await imageElementsLocator.evaluateAll((imageElements => imageElements.length > 0 && imageElements.every(element => getComputedStyle(element).height.includes('px'))));
+    const result = await imageElementsLocator.evaluateAll(
+      (imageElements) =>
+        imageElements.length > 0 &&
+        imageElements.every((element) => getComputedStyle(element).height.includes('px')),
+    );
 
     expect(result).toBe(true);
     await user
@@ -46,9 +48,15 @@ test.describe('add height to video and image attachments', () => {
       .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
   });
 
-  test('should add height for gallery image attachments', async ({page, user}) => {
-    const imageElementsLocator = page.locator('[data-testid="gallery-image-last"],[data-testid="gallery-image"]');
-    const result = await imageElementsLocator.evaluateAll((imageElements => imageElements.length > 0 && imageElements.every(element => getComputedStyle(element).height.includes('px'))));
+  test('should add height for gallery image attachments', async ({ page, user }) => {
+    const imageElementsLocator = page.locator(
+      '[data-testid="gallery-image-last"],[data-testid="gallery-image"]',
+    );
+    const result = await imageElementsLocator.evaluateAll(
+      (imageElements) =>
+        imageElements.length > 0 &&
+        imageElements.every((element) => getComputedStyle(element).height.includes('px')),
+    );
 
     expect(result).toBe(true);
     await user

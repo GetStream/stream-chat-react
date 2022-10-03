@@ -47,7 +47,7 @@ dotenv.config({ path: `.env.local` });
 
     const messages = await generateMessages({
       channel,
-      quoteMap: { '99': '149', '137': '148' },
+      quoteMap: { 99: '149', 137: '148' },
       start: 0,
       stop: 150,
     });

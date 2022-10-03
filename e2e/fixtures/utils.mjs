@@ -37,12 +37,13 @@ export const printProgress = (progress) => {
 };
 
 export const generateMessages = async ({
-  start,
-  stop,
+  attachments = [],
   channel,
   parent_id,
+  processMessageText = (index) => `Message ${index}`,
   quoteMap = {},
-  attachments = [],
+  start,
+  stop,
 }) => {
   const count = stop - start;
   const messagesToQuote = {};
@@ -55,7 +56,7 @@ export const generateMessages = async ({
     const messageToQuote = messagesToQuote[indexString];
     const res = await channel.sendMessage({
       attachments: attachments[i % sampleAttachments.length] || [],
-      text: `Message ${i}`,
+      text: processMessageText(i),
       user: { id: i % 2 ? E2E_TEST_USER_1 : E2E_TEST_USER_2 },
       ...(messageToQuote ? { quoted_message_id: messageToQuote.message.id } : {}),
       ...(parent_id ? { parent_id } : {}),
