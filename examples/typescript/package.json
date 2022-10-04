@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@stream-io/stream-chat-css": "link:../../node_modules/stream-io/stream-chat-css",
+    "@stream-io/stream-chat-css": "link:../../node_modules/@stream-io/stream-chat-css",
     "react": "link:../../node_modules/react",
     "react-dom": "link:../../node_modules/react-dom",
     "react-scripts": "3.4.1",

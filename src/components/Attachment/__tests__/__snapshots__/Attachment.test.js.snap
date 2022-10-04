@@ -6,17 +6,19 @@ exports[`attachment combines scraped & uploaded content should render all upload
     class="str-chat__attachment-list"
   >
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--gallery"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--gallery"
     >
       <div
         data-testid="gallery-attachment"
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
     >
       <div
         class="str-chat__player-wrapper"
+        data-testid="video-wrapper"
+        style="--original-height: 1000000; --original-width: 1000000;"
       >
         <div
           data-testid="media-attachment"
@@ -24,10 +26,12 @@ exports[`attachment combines scraped & uploaded content should render all upload
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
     >
       <div
         class="str-chat__player-wrapper"
+        data-testid="video-wrapper"
+        style="--original-height: 1000000; --original-width: 1000000;"
       >
         <div
           data-testid="media-attachment"
@@ -35,7 +39,7 @@ exports[`attachment combines scraped & uploaded content should render all upload
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--audio"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--audio"
     >
       <div
         class="str-chat__attachment"
@@ -46,7 +50,7 @@ exports[`attachment combines scraped & uploaded content should render all upload
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--audio"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--audio"
     >
       <div
         class="str-chat__attachment"
@@ -57,14 +61,14 @@ exports[`attachment combines scraped & uploaded content should render all upload
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--file"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
     >
       <div
         data-testid="file-attachment"
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--file"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
     >
       <div
         data-testid="file-attachment"
@@ -80,24 +84,26 @@ exports[`attachment combines scraped & uploaded content should render attachment
     class="str-chat__attachment-list"
   >
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--card str-chat__message-attachment--audio"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--card str-chat__message-attachment--audio"
     >
       <div
         data-testid="card-attachment"
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--gallery"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--gallery"
     >
       <div
         data-testid="gallery-attachment"
       />
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--media str-chat__message-attachment--video"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--media str-chat__message-attachment--video"
     >
       <div
         class="str-chat__player-wrapper"
+        data-testid="video-wrapper"
+        style="--original-height: 1000000; --original-width: 1000000;"
       >
         <div
           data-testid="media-attachment"
@@ -105,7 +111,7 @@ exports[`attachment combines scraped & uploaded content should render attachment
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--audio"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--audio"
     >
       <div
         class="str-chat__attachment"
@@ -116,7 +122,7 @@ exports[`attachment combines scraped & uploaded content should render attachment
       </div>
     </div>
     <div
-      class="str-chat__message-attachment str-chat__message-attachment--file"
+      class="str-chat__message-attachment str-chat__message-attachment-dynamic-size str-chat__message-attachment--file"
     >
       <div
         data-testid="file-attachment"
