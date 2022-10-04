@@ -1,12 +1,19 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import { Chat } from '../';
-import { DefaultGenerics, Event, StreamChat } from 'stream-chat';
+import {
+  DefaultGenerics,
+  ExtendableGenerics,
+  OwnUserResponse,
+  StreamChat,
+  TokenOrProvider,
+  UserResponse,
+} from 'stream-chat';
 
 const appKey = import.meta.env.E2E_APP_KEY;
 if (!appKey || typeof appKey !== 'string') {
   throw new Error('expected APP_KEY');
 }
-export const apiKey = appKey;
+export const streamAPIKey = appKey;
 
 type LocalAttachmentType = Record<string, unknown>;
 type LocalChannelType = Record<string, unknown>;
@@ -31,34 +38,52 @@ export type ConnectedUserProps = PropsWithChildren<{
   userId: string;
 }>;
 
+const useClient = <SCG extends ExtendableGenerics = DefaultGenerics>({
+  apiKey,
+  tokenOrProvider,
+  userData,
+}: {
+  apiKey: string;
+  tokenOrProvider: TokenOrProvider;
+  userData: OwnUserResponse<SCG> | UserResponse<SCG>;
+}) => {
+  const [chatClient, setChatClient] = useState<StreamChat<SCG> | null>(null);
+
+  useEffect(() => {
+    const client = new StreamChat<SCG>(apiKey);
+
+    let didUserConnectInterrupt = false;
+    const connectionPromise = client.connectUser(userData, tokenOrProvider).then(() => {
+      if (!didUserConnectInterrupt) setChatClient(client);
+    });
+
+    return () => {
+      didUserConnectInterrupt = true;
+      setChatClient(null);
+      connectionPromise
+        .then(() => client.disconnectUser())
+        .then(() => {
+          console.log('connection closed');
+        });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiKey, userData.id, tokenOrProvider]);
+
+  return chatClient;
+};
+
 export const ConnectedUser = <SCG extends DefaultGenerics = StreamChatGenerics>({
   children,
   token,
   userId,
 }: ConnectedUserProps) => {
-  const [client, setClient] = useState<StreamChat<SCG> | null>(null);
+  const client = useClient<SCG>({
+    apiKey: streamAPIKey,
+    tokenOrProvider: token,
+    userData: { id: userId },
+  });
 
-  useEffect(() => {
-    const c = new StreamChat<SCG>(apiKey);
-
-    const handleConnectionChange = ({ online = false }: Event) => {
-      if (!online) console.log('connection lost');
-      setClient(c);
-    };
-
-    c.on('connection.changed', handleConnectionChange);
-
-    c.connectUser({ id: userId }, token);
-
-    return () => {
-      c.off('connection.changed', handleConnectionChange);
-      c.disconnectUser().then(() => console.log('connection closed'));
-    };
-  }, [userId, token]);
-
-  if (!client) {
-    return <p>Waiting for connection to be established with user: {userId}...</p>;
-  }
+  if (!client) return <p>Waiting for connection to be established with user: {userId}...</p>;
 
   return (
     <>

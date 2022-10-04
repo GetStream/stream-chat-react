@@ -1,3 +1,31 @@
+## [10.1.1](https://github.com/GetStream/stream-chat-react/compare/v10.1.0...v10.1.1) (2022-09-20)
+
+
+### Bug Fixes
+
+* edge case of prepend count not being reset when jumping ([#1765](https://github.com/GetStream/stream-chat-react/issues/1765)) ([18ba8f8](https://github.com/GetStream/stream-chat-react/commit/18ba8f83261ec8157651721404906e0f00c92fd4))
+
+# [10.1.0](https://github.com/GetStream/stream-chat-react/compare/v10.0.2...v10.1.0) (2022-09-19)
+
+
+### Bug Fixes
+
+* **VirtualizedMessageList:** use memoized values as hook dependencies directly ([#1761](https://github.com/GetStream/stream-chat-react/issues/1761)) ([41d1d67](https://github.com/GetStream/stream-chat-react/commit/41d1d67e00dbbf7bd94a8bfa384df400aa0d62c4))
+
+
+### Features
+
+* provide close callback to app menu ([#1754](https://github.com/GetStream/stream-chat-react/issues/1754)) ([5202a5f](https://github.com/GetStream/stream-chat-react/commit/5202a5f5512ad72cd0dbcb974092d15bb675f826))
+
+## [10.0.2](https://github.com/GetStream/stream-chat-react/compare/v10.0.1...v10.0.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* **ChannelList:** update class names order for theming variables ([#1747](https://github.com/GetStream/stream-chat-react/issues/1747)) ([80ec36e](https://github.com/GetStream/stream-chat-react/commit/80ec36e44e2f383c7eea46ce70aaf719e4d5c43a))
+* play video in attachment card theme v1 ([#1748](https://github.com/GetStream/stream-chat-react/issues/1748)) ([cd31d19](https://github.com/GetStream/stream-chat-react/commit/cd31d19ec90b784942821301a4164c0bac40a7f2))
+* **Textarea:** prevent caret movement on suggestion list item select ([#1732](https://github.com/GetStream/stream-chat-react/issues/1732)) ([be44762](https://github.com/GetStream/stream-chat-react/commit/be447621cfb118dcefa6d27a6d6ff2b26977e177))
+
 ## [10.0.1](https://github.com/GetStream/stream-chat-react/compare/v10.0.0...v10.0.1) (2022-09-12)
 
 

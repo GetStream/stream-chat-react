@@ -18,7 +18,7 @@ export type TypingIndicatorProps<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   /** Avatar size in pixels, @default 32px */
   avatarSize?: number;
-  /** Whether or not the typing indicator is in a thread */
+  /** Whether the typing indicator is in a thread */
   threadList?: boolean;
 };
 

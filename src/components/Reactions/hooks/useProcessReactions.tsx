@@ -55,21 +55,21 @@ export const useProcessReactions = <
 
   const latestReactionTypes = useMemo(
     () =>
-      latestReactions.reduce((reactionTypes, { type }) => {
+      latestReactions.reduce<string[]>((reactionTypes, { type }) => {
         if (reactionTypes.indexOf(type) === -1) {
           reactionTypes.push(type);
         }
         return reactionTypes;
-      }, [] as string[]),
+      }, []),
     [latestReactions],
   );
 
   const supportedReactionMap = useMemo(
     () =>
-      reactionOptions.reduce((acc, { id }) => {
+      reactionOptions.reduce<Record<string, boolean>>((acc, { id }) => {
         acc[id] = true;
         return acc;
-      }, {} as Record<string, boolean>),
+      }, {}),
     [reactionOptions],
   );
 
