@@ -35,6 +35,9 @@ jest.mock('../../Message/Message', () => ({
 jest.mock('../../MessageList/MessageList', () => ({
   MessageList: jest.fn(() => <div />),
 }));
+jest.mock('../../MessageList/VirtualizedMessageList', () => ({
+  VirtualizedMessageList: jest.fn(() => <div />),
+}));
 jest.mock('../../MessageInput/MessageInputSmall', () => ({
   MessageInputSmall: jest.fn(() => <div />),
 }));
@@ -264,6 +267,22 @@ describe('Thread', () => {
   it('should not assign the str-chat__thread--full modifier class if the fullWidth prop is set to false', () => {
     const { container } = renderComponent({ chatClient });
     expect(container.querySelector('.str-chat__thread--full')).not.toBeInTheDocument();
+  });
+
+  it('should assign str-chat__thread--virtualized class to the root in virtualized mode', () => {
+    const { container } = renderComponent({
+      chatClient,
+      threadProps: { virtualized: true },
+    });
+    expect(container.querySelector('.str-chat__thread--virtualized')).toBeInTheDocument();
+  });
+
+  it('should not assign str-chat__thread--virtualized class to the root in non-virtualized mode', () => {
+    const { container } = renderComponent({
+      chatClient,
+      threadProps: { virtualized: false },
+    });
+    expect(container.querySelector('.str-chat__thread--virtualized')).not.toBeInTheDocument();
   });
 
   it('should not render anything if the thread in context is falsy', () => {
