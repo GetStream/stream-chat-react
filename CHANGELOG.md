@@ -1,3 +1,25 @@
+# [10.2.0](https://github.com/GetStream/stream-chat-react/compare/v10.1.2...v10.2.0) (2022-10-04)
+
+
+### Bug Fixes
+
+* add image attachment height from CSS ([f5a9729](https://github.com/GetStream/stream-chat-react/commit/f5a9729292e6d42042e02f5b3ca46efa98e5615e))
+* display messages in virtualized thread (theme v2) ([#1799](https://github.com/GetStream/stream-chat-react/issues/1799)) ([9c1a16f](https://github.com/GetStream/stream-chat-react/commit/9c1a16f196bafb7da858edf48370e5240e635108))
+* example app build error ([5430213](https://github.com/GetStream/stream-chat-react/commit/54302138791ea4d98c7d480be39fb778a207230e))
+* keep configuration parameter shouldGenerateVideoThumbnail in hook dep array ([50edd8b](https://github.com/GetStream/stream-chat-react/commit/50edd8b9abc562f51cf341397007a6d1ebf2f753))
+* refresh virtualizedmessagelist after sizing has been set ([afea3d7](https://github.com/GetStream/stream-chat-react/commit/afea3d712b1d90684c780c37996ecbc5d2211407))
+* replace Infinity in calc statements as browser support isn't great ([ebf89da](https://github.com/GetStream/stream-chat-react/commit/ebf89da53924461a5ac24acf603b65837ae5924d))
+* update attachment configuration if attachment changed ([a6295dd](https://github.com/GetStream/stream-chat-react/commit/a6295dd47eaabfa62275f17b9c7985aa4e0f8d56))
+* use useLayoutEffect for image and video height setting ([386fae7](https://github.com/GetStream/stream-chat-react/commit/386fae707e20c97db00f480776df83d2326aaa1a))
+
+
+### Features
+
+* check that attachment height style is available before using max-height ([79f6f1a](https://github.com/GetStream/stream-chat-react/commit/79f6f1a0e010215b9f0ea2072641c12f7222892a))
+* integrate new CDN capabilities ([1520a34](https://github.com/GetStream/stream-chat-react/commit/1520a34f27f6a3a3cf81e4ec3a7074f52f86053e))
+* update stream-chat-css version ([03166a9](https://github.com/GetStream/stream-chat-react/commit/03166a969960b81fe3d61b1a9e8d126df4e8a1dd))
+* use video thumbnails returned by backend ([f68c8b1](https://github.com/GetStream/stream-chat-react/commit/f68c8b195c66708b8fc28686477bbfb61b7556ec))
+
 ## [10.1.2](https://github.com/GetStream/stream-chat-react/compare/v10.1.1...v10.1.2) (2022-09-30)
 
 
