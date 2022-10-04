@@ -29,6 +29,7 @@ export type FileUpload = {
   };
   id: string;
   state: 'finished' | 'failed' | 'uploading';
+  thumb_url?: string;
   url?: string;
 };
 
@@ -96,6 +97,7 @@ type SetFileUploadAction = {
   type: 'setFileUpload';
   file?: File;
   state?: string;
+  thumb_url?: string;
   url?: string;
 };
 
@@ -214,7 +216,7 @@ const initState = <
     message.attachments
       ?.filter(({ type }) => type === 'file')
       .reduce<Record<string, FileUpload>>(
-        (acc, { asset_url, file_size, mime_type, title = '' }) => {
+        (acc, { asset_url, file_size, mime_type, thumb_url, title = '' }) => {
           const id = nanoid();
           acc[id] = {
             file: {
@@ -224,6 +226,7 @@ const initState = <
             },
             id,
             state: 'finished',
+            thumb_url,
             url: asset_url,
           };
           return acc;

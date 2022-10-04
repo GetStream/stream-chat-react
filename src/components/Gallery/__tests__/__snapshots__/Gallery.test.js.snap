@@ -110,6 +110,7 @@ exports[`Gallery should render component with 5 images 1`] = `
   </button>
   <button
     className="str-chat__gallery-placeholder"
+    data-testid="gallery-image-last"
     onClick={[Function]}
     style={
       Object {

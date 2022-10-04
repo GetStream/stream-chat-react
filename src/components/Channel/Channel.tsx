@@ -74,8 +74,18 @@ import type { Data as EmojiMartData } from 'emoji-mart';
 import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
 
-import type { CustomTrigger, DefaultStreamChatGenerics, GiphyVersions } from '../../types/types';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  GiphyVersions,
+  ImageAttachmentSizeHandler,
+  VideoAttachmentSizeHandler,
+} from '../../types/types';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
+import {
+  getImageAttachmentConfiguration,
+  getVideoAttachmentConfiguration,
+} from '../Attachment/attachment-sizing';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -141,6 +151,8 @@ export type ChannelProps<
   giphyVersion?: GiphyVersions;
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
+  /** A custom function to provide size configuration for image attachments */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
@@ -189,6 +201,8 @@ export type ChannelProps<
   ReactionsList?: ComponentContextValue<StreamChatGenerics>['ReactionsList'];
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: ComponentContextValue<StreamChatGenerics>['SendButton'];
+  /** You can turn on/off thumbnail generation for video attachments */
+  shouldGenerateVideoThumbnail?: boolean;
   /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
   skipMessageDataMemoization?: boolean;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
@@ -201,6 +215,8 @@ export type ChannelProps<
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
+  /** A custom function to provide size configuration for video attachments */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
@@ -808,11 +824,14 @@ const ChannelInner = <
     channelConfig,
     dragAndDropWindow,
     giphyVersion: props.giphyVersion || 'fixed_height',
+    imageAttachmentSizeHandler: props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
     notifications,
     quotedMessage,
+    shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
+    videoAttachmentSizeHandler: props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
     watcher_count: state.watcherCount,
   });
 

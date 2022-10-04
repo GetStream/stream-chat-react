@@ -79,7 +79,7 @@ describe('<FixedHeightMessage />', () => {
   });
 
   it('should render message images', async () => {
-    const image = { image_url: 'image.jpg', type: 'image' };
+    const image = { image_url: 'http://image.jpg', type: 'image' };
     const attachments = [image, image, image];
     const message = generateMessage({ attachments, user: alice });
     await renderMsg(message);

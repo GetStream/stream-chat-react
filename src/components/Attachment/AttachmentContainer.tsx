@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 
@@ -15,7 +15,13 @@ import {
   RenderGalleryProps,
 } from './utils';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+
+import type {
+  DefaultStreamChatGenerics,
+  ImageAttachmentConfiguration,
+  VideoAttachmentConfiguration,
+} from '../../types/types';
 
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -36,13 +42,16 @@ export const AttachmentWithinContainer = <
         : '';
   }
 
-  const classNames = clsx('str-chat__message-attachment', {
-    [`str-chat__message-attachment--${componentType}`]: componentType,
-    [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
-    [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
-    'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
-    'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
-  });
+  const classNames = clsx(
+    'str-chat__message-attachment str-chat__message-attachment-dynamic-size',
+    {
+      [`str-chat__message-attachment--${componentType}`]: componentType,
+      [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
+      [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
+      'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
+      'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+    },
+  );
 
   return <div className={classNames}>{children}</div>;
 };
@@ -67,16 +76,65 @@ export const AttachmentActionsContainer = <
   );
 };
 
+function getCssDimensionsVariables(url: string) {
+  const cssVars = {
+    ['--original-height']: 1000000,
+    ['--original-width']: 1000000,
+  } as Record<string, number>;
+
+  if (url) {
+    const urlParams = new URL(url).searchParams;
+    const oh = Number(urlParams.get('oh'));
+    const ow = Number(urlParams.get('ow'));
+    const originalHeight = oh > 1 ? oh : 1000000;
+    const originalWidth = ow > 1 ? ow : 1000000;
+    cssVars['--original-width'] = originalWidth;
+    cssVars['--original-height'] = originalHeight;
+  }
+  return cssVars;
+}
+
 export const GalleryContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   attachment,
   Gallery = DefaultGallery,
-}: RenderGalleryProps<StreamChatGenerics>) => (
-  <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-    <Gallery images={attachment.images || []} key='gallery' />
-  </AttachmentWithinContainer>
-);
+}: RenderGalleryProps<StreamChatGenerics>) => {
+  const imageElements = useRef<HTMLElement[]>([]);
+  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const [attachmentConfigurations, setAttachmentConfigurations] = useState<
+    ImageAttachmentConfiguration[]
+  >([]);
+
+  useLayoutEffect(() => {
+    if (
+      imageElements.current &&
+      imageElements.current.every((element) => !!element) &&
+      imageAttachmentSizeHandler
+    ) {
+      const newConfigurations: ImageAttachmentConfiguration[] = [];
+      imageElements.current.forEach((element, i) => {
+        const config = imageAttachmentSizeHandler(attachment.images[i], element);
+        newConfigurations.push(config);
+      });
+      setAttachmentConfigurations(newConfigurations);
+    }
+  }, [imageElements, imageAttachmentSizeHandler, attachment]);
+
+  const images = attachment.images.map((image, i) => ({
+    ...image,
+    previewUrl: attachmentConfigurations[i]?.url || 'about:blank',
+    style: getCssDimensionsVariables(
+      attachment.images[i]?.image_url || attachment.images[i]?.thumb_url || '',
+    ),
+  }));
+
+  return (
+    <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
+      <Gallery images={images || []} innerRefs={imageElements} key='gallery' />
+    </AttachmentWithinContainer>
+  );
+};
 
 export const ImageContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -85,12 +143,30 @@ export const ImageContainer = <
 ) => {
   const { attachment, Image = DefaultImage } = props;
   const componentType = 'image';
+  const imageElement = useRef<HTMLImageElement>(null);
+  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const [attachmentConfiguration, setAttachmentConfiguration] = useState<
+    ImageAttachmentConfiguration | undefined
+  >(undefined);
+
+  useLayoutEffect(() => {
+    if (imageElement.current && imageAttachmentSizeHandler) {
+      const config = imageAttachmentSizeHandler(attachment, imageElement.current);
+      setAttachmentConfiguration(config);
+    }
+  }, [imageElement, imageAttachmentSizeHandler, attachment]);
+
+  const imageConfig = {
+    ...attachment,
+    previewUrl: attachmentConfiguration?.url || 'about:blank',
+    style: getCssDimensionsVariables(attachment.image_url || attachment.thumb_url || ''),
+  };
 
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment'>
-          <Image {...attachment} />
+          <Image {...imageConfig} innerRef={imageElement} />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -99,7 +175,7 @@ export const ImageContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Image {...attachment} />
+      <Image {...imageConfig} innerRef={imageElement} />
     </AttachmentWithinContainer>
   );
 };
@@ -164,37 +240,52 @@ export const MediaContainer = <
 ) => {
   const { attachment, Media = ReactPlayer } = props;
   const componentType = 'media';
+  const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } = useChannelStateContext();
+  const videoElement = useRef<HTMLDivElement>(null);
+  const [
+    attachmentConfiguration,
+    setAttachmentConfiguration,
+  ] = useState<VideoAttachmentConfiguration>();
 
-  if (attachment.actions?.length) {
-    return (
-      <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-        <div className='str-chat__attachment str-chat__attachment-media'>
-          <div className='str-chat__player-wrapper'>
-            <Media
-              className='react-player'
-              controls
-              height='100%'
-              url={attachment.asset_url}
-              width='100%'
-            />
-          </div>
-          <AttachmentActionsContainer {...props} />
-        </div>
-      </AttachmentWithinContainer>
-    );
-  }
+  useLayoutEffect(() => {
+    if (videoElement.current && videoAttachmentSizeHandler) {
+      const config = videoAttachmentSizeHandler(
+        attachment,
+        videoElement.current,
+        shouldGenerateVideoThumbnail,
+      );
+      setAttachmentConfiguration(config);
+    }
+  }, [videoElement, videoAttachmentSizeHandler, attachment]);
 
-  return (
+  const content = (
+    <div
+      className='str-chat__player-wrapper'
+      data-testid='video-wrapper'
+      ref={videoElement}
+      style={getCssDimensionsVariables(attachment.thumb_url || '')}
+    >
+      <Media
+        className='react-player'
+        config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
+        controls
+        height='100%'
+        url={attachmentConfiguration?.url}
+        width='100%'
+      />
+    </div>
+  );
+
+  return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <div className='str-chat__player-wrapper'>
-        <Media
-          className='react-player'
-          controls
-          height='100%'
-          url={attachment.asset_url}
-          width='100%'
-        />
+      <div className='str-chat__attachment str-chat__attachment-media'>
+        {content}
+        <AttachmentActionsContainer {...props} />
       </div>
+    </AttachmentWithinContainer>
+  ) : (
+    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+      {content}
     </AttachmentWithinContainer>
   );
 };
