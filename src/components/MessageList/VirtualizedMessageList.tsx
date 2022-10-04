@@ -377,7 +377,6 @@ const VirtualizedMessageListWithContext = <
     return Item;
   }, [
     customClasses?.virtualMessage,
-    messageGroupStyles,
     numItemsPrepended,
     // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
     processedMessages.length,

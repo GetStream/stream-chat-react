@@ -30,7 +30,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
     "@popperjs/core": "^2.11.5",
-    "@stream-io/stream-chat-css": "3.1.2",
+    "@stream-io/stream-chat-css": "^3.5.4",
     "clsx": "^1.1.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
@@ -207,7 +207,7 @@
     "semantic-release": "semantic-release",
     "browse-examples": "ladle serve",
     "e2e": "playwright test",
-    "e2e-fixtures": "node e2e/fixtures.mjs",
+    "e2e-fixtures": "node e2e/fixtures/fixtures.mjs",
     "e2e-container": "./e2e/scripts/run_in_container.sh",
     "docs-copy-css-docs": "scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs",
     "docs-run": "yarn docs-copy-css-docs && npx stream-chat-docusaurus -s"

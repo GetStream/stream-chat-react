@@ -18,7 +18,7 @@ export const generateFileAttachment = (a) => ({
 
 export const generateImageAttachment = (a) => ({
   fallback: nanoid(),
-  image_url: nanoid(),
+  image_url: 'http://' + nanoid(),
   type: 'image',
   ...a,
 });
@@ -50,9 +50,9 @@ export const generateScrapedDataAttachment = (a) => ({
 export const generateScrapedImageAttachment = (a) => ({
   ...generateScrapedDataAttachment({
     author_name: nanoid(),
-    image_url: nanoid(),
+    image_url: 'http://' + nanoid(),
     text: nanoid(),
-    thumb_url: nanoid(),
+    thumb_url: 'http://' + nanoid(),
     title: nanoid(),
     type: 'image',
   }),

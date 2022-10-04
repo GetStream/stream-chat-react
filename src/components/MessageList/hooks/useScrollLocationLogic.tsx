@@ -98,20 +98,9 @@ export const useScrollLocationLogic = <
     [updateScrollTop, closeToTop, closeToBottom, scrolledUpThreshold],
   );
 
-  const onMessageLoadCaptured = useCallback(() => {
-    /**
-     * A load event (emitted by e.g. an <img>) was captured on a message.
-     * In some cases, the loaded asset is larger than the placeholder, which means we have to scroll down.
-     */
-    if (closeToBottom.current) {
-      scrollToBottom();
-    }
-  }, [closeToTop, closeToBottom, scrollToBottom]);
-
   return {
     hasNewMessages,
     isMessageListScrolledToBottom,
-    onMessageLoadCaptured,
     onScroll,
     scrollToBottom,
     wrapperRect,

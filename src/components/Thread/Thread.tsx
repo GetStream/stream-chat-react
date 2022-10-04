@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
 import {
@@ -130,7 +131,13 @@ const ThreadInner = <
 
   if (!thread) return null;
 
-  const threadClass = customClasses?.thread || 'str-chat__thread-container str-chat__thread';
+  const threadClass =
+    customClasses?.thread ||
+    clsx('str-chat__thread-container str-chat__thread', {
+      'str-chat__thread--full': fullWidth,
+      'str-chat__thread--virtualized': virtualized,
+    });
+
   const head = (
     <ThreadHead
       key={thread.id}
@@ -141,7 +148,7 @@ const ThreadInner = <
   );
 
   return (
-    <div className={`${threadClass} ${fullWidth ? 'str-chat__thread--full' : ''}`}>
+    <div className={threadClass}>
       <ThreadHeader closeThread={closeThread} thread={thread} />
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}

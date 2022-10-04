@@ -302,7 +302,7 @@ describe('Message utils', () => {
 
     it('should return empty if message has only image attachments', () => {
       const img = {
-        asset_url: 'image.jpg',
+        asset_url: 'http://image.jpg',
         type: 'image',
       };
       const message = generateMessage({
