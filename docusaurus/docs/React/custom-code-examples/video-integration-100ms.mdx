@@ -22,7 +22,7 @@ You must complete quite a few steps to create the final product. We will cover a
 
 First, let’s take a look at the end result of this project:
 
-// TODO: insert video of end result
+// TODO: insert video 700 x 394
 
 In order to create this, follow these six steps:
 
@@ -152,7 +152,7 @@ const userName = 'Testuser';
 const imagePath = 'https://getstream.io/random_png/?id=lucky-snowflake-1&name=lucky-snowflake-1';
 // -----------
 
-const chatClient = new StreamChat(chatClientId);
+const chatClient = new StreamChat<StreamChatGenerics>(chatClientId);
 
 chatClient.connectUser(
   {
@@ -323,13 +323,13 @@ export const VideoContextProvider = ({
   const leaveCall = useCallback(async () => {}, []);
   const endCall = useCallback(async () => {}, []);
 
-  const store = {
-    connectionState: connectionState,
-    createCall: createCall,
-    joinCall: joinCall,
-    leaveCall: leaveCall,
-    endCall: endCall,
-  };
+  const store = useMemo(() => ({
+    connectionState,
+    createCall,
+    joinCall,
+    leaveCall,
+    endCall,
+  }), [connectionState, createCall, joinCall, leaveCall, endCall];
 
   return (
     <VideoContext.Provider value={store}>{children}</VideoContext.Provider>
@@ -365,7 +365,7 @@ With that, our basic `VideoContext` is ready to be injected into our component t
 Make sure the import is added to the top:
 
 ```tsx
-import { VideoContextProvider } from './context/VideoContext';
+import { VideoContextProvider, StreamChatGenerics } from './context/VideoContext';
 ```
 
 With that we have the object ready for use everywhere we need it. Next up is the real implementation of the functionality around calls.
@@ -378,6 +378,19 @@ Every channel has a `data` object where we can freely write additional informati
 
 In addition to that, we’ll add a `callId` to the `data` object when a call is active so that new participants know where to connect to the call. The SDK allows for the creation of calls and tokens with a simple API call, which makes the entire process much easier.
 
+In order to easily work with the object containing the info we will define an `StreamChatGenerics` type at the top of the `VideoContext`:
+
+```tsx
+export type StreamChatGenerics = {
+  channelType: {
+    data?: {
+      callActive?: boolean;
+      callId?: string;
+    };
+  };
+} & Omit<DefaultGenerics, 'channelType'>;
+```
+
 We’ll subscribe to channel events, specifically the `channel.updated` one to get notified when the state of a call changes and we can act accordingly in our UI.
 
 All of this will happen inside of the `VideoContextProvider` object, so let’s get started.
@@ -385,8 +398,8 @@ All of this will happen inside of the `VideoContextProvider` object, so let’s 
 The first thing we do is subscribe to channel events. We need to add two objects for that. Add the following two lines at the beginning of the `VideoContextProvider` (before the creation of the `connectionState`):
 
 ```tsx
-const { channel } = useChannelStateContext();
-const { client } = useChatContext();
+const { channel } = useChannelStateContext<StreamChatGenerics>();
+const { client } = useChatContext<StreamChatGenerics>();
 ```
 
 Make sure to also have the imports at the top:
@@ -407,7 +420,7 @@ With that, we can add a `useEffect` hook to register for `channel.updated` event
 
 ```tsx
 useEffect(() => {
-  const handleChannelUpdate = (event: Event) => {
+  const handleChannelUpdate = (event: Event<StreamChatGenerics>) => {
     if (event.channel.data?.callActive) {
       if (connectionState === ConnectionState.NoCall) {
         setConnectionState(ConnectionState.CallAvailable);
@@ -478,7 +491,7 @@ const response = await channel.createCall({
 
 // 3.
 await hmsActions.join({
-  authToken: `${response.token}`,
+  authToken: response.token as string,
   userName: client.user?.name || 'Unkown',
 });
 
@@ -487,11 +500,13 @@ await channel.updatePartial({
   set: {
     data: {
       callActive: true,
-      callId: response.call.id,
+      callId: response.call.id as string,
     },
   },
 });
 ```
+
+Make sure to add the dependency to `[channel.cid]` to the `useCallback` of `createCall`. This is necessary to get notified when the user changes channels. We also need to add this to the other `useCallback` functions.
 
 The `joinCall` function is pretty similar to the `createCall` function only that we’re now taking the `callId` we save in the channel `data` object and using it to call the `getCallToken` function on the `client` object. Then we join the call as before. Here is the code to replace the current (empty) `joinCall` function (inside the `useCallback` hook) with:
 
@@ -501,7 +516,7 @@ setConnectionState(ConnectionState.Connecting);
 const response = await client.getCallToken(channel.data?.data?.callId);
 
 await hmsActions.join({
-  authToken: `${response.token}`,
+  authToken: response.token as string,
   userName: client.user?.name || 'Unkown',
 });
 
