@@ -22,7 +22,29 @@ You must complete quite a few steps to create the final product. We will cover a
 
 First, let’s take a look at the end result of this project:
 
-// TODO: insert video 700 x 394
+export const OurVideo = () => (
+  <div
+    style={{
+      width: '100%',
+      aspectRatio: '16 / 9',
+    }}
+  >
+    <iframe
+      src='https://player.vimeo.com/video/757168791?h=9f0d0837b3'
+      width='100%'
+      height='100%'
+      frameborder='0'
+      allow='autoplay; fullscreen; picture-in-picture'
+      allowfullscreen
+    ></iframe>
+  </div>
+);
+
+<OurVideo />
+<p>
+  <a href='https://vimeo.com/757168791'>react-100ms-demo.mov</a> from{' '}
+  <a href='https://vimeo.com/user172884078'>Stream</a> on <a href='https://vimeo.com'>Vimeo</a>.
+</p>
 
 In order to create this, follow these six steps:
 
