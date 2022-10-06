@@ -1,4 +1,6 @@
 import React, { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
+import type { PaginatorProps } from '../../types/types';
+import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
 /**
  * Prevents Chrome hangups
@@ -10,22 +12,36 @@ const mousewheelListener = (event: Event) => {
   }
 };
 
-export type InfiniteScrollProps = {
+export type InfiniteScrollProps = PaginatorProps & {
   className?: string;
   element?: React.ElementType;
+  /**
+   * @desc Flag signalling whether more pages with older items can be loaded
+   * @deprecated Use hasPreviousPage prop instead. Will be removed with v11.0.0.
+   */
   hasMore?: boolean;
+  /**
+   * @desc Flag signalling whether more pages with newer items can be loaded
+   * @deprecated Use hasNextPage prop instead. Will be removed with v11.0.0.
+   */
   hasMoreNewer?: boolean;
-  /** Element to be rendered at the top of the thread message list. By default Message and ThreadStart components */
+  /** Element to be rendered at the top of the thread message list. By default, Message and ThreadStart components */
   head?: React.ReactNode;
   initialLoad?: boolean;
   isLoading?: boolean;
   listenToScroll?: (offset: number, reverseOffset: number, threshold: number) => void;
   loader?: React.ReactNode;
-  loading?: React.ReactNode;
+  /**
+   * @desc Function that loads previous page with older items
+   * @deprecated Use loadPreviousPage prop instead. Will be removed with v11.0.0.
+   */
   loadMore?: () => void;
+  /**
+   * @desc Function that loads next page with newer items
+   * @deprecated Use loadNextPage prop instead. Will be removed with v11.0.0.
+   */
   loadMoreNewer?: () => void;
   pageStart?: number;
-  threshold?: number;
   useCapture?: boolean;
 };
 
@@ -33,19 +49,40 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   const {
     children,
     element = 'div',
-    hasMore = false,
-    hasMoreNewer = false,
+    hasMore,
+    hasMoreNewer,
+    hasNextPage,
+    hasPreviousPage,
     head,
     initialLoad = true,
-    isLoading = false,
+    isLoading,
     listenToScroll,
     loader,
+    LoadingIndicator,
     loadMore,
     loadMoreNewer,
+    loadNextPage,
+    loadPreviousPage,
     threshold = 250,
     useCapture = false,
     ...elementProps
   } = props;
+
+  deprecationAndReplacementWarning(
+    [
+      [{ hasMoreNewer }, { hasNextPage }],
+      [{ loadMoreNewer }, { loadNextPage }],
+      [{ hasMore }, { hasPreviousPage }],
+      [{ loadMore }, { loadPreviousPage }],
+      [{ loader }, { LoadingIndicator }],
+    ],
+    'InfiniteScroll',
+  );
+
+  const loadNextPageFn = loadNextPage || loadMoreNewer;
+  const loadPreviousPageFn = loadPreviousPage || loadMore;
+  const hasNextPageFlag = hasNextPage || hasMoreNewer;
+  const hasPreviousPageFlag = hasPreviousPage || hasMore;
 
   const scrollComponent = useRef<HTMLElement>();
 
@@ -66,14 +103,25 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       listenToScroll(offset, reverseOffset, threshold);
     }
 
-    if (reverseOffset < Number(threshold) && typeof loadMore === 'function' && hasMore) {
-      loadMore();
+    if (
+      reverseOffset < Number(threshold) &&
+      typeof loadPreviousPageFn === 'function' &&
+      hasPreviousPageFlag
+    ) {
+      loadPreviousPageFn();
     }
 
-    if (offset < Number(threshold) && typeof loadMoreNewer === 'function' && hasMoreNewer) {
-      loadMoreNewer();
+    if (offset < Number(threshold) && typeof loadNextPageFn === 'function' && hasNextPageFlag) {
+      loadNextPageFn();
     }
-  }, [hasMore, hasMoreNewer, threshold, listenToScroll, loadMore, loadMoreNewer]);
+  }, [
+    hasPreviousPageFlag,
+    hasNextPageFlag,
+    threshold,
+    listenToScroll,
+    loadPreviousPageFn,
+    loadNextPageFn,
+  ]);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;

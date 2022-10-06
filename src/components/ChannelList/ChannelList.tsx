@@ -317,7 +317,8 @@ const UnMemoizedChannelList = <
   const className = clsx(
     customClasses?.chat ?? 'str-chat',
     theme,
-    customClasses?.channelList ?? 'str-chat-channel-list str-chat__channel-list',
+    customClasses?.channelList ??
+      'str-chat-channel-list str-chat__channel-list str-chat__channel-list-react',
     {
       'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
       'str-chat-channel-list--open': navOpen,
@@ -350,8 +351,8 @@ const UnMemoizedChannelList = <
             ) : (
               <Paginator
                 hasNextPage={hasNextPage}
+                isLoading={channelsQueryState.queryInProgress === 'load-more'}
                 loadNextPage={loadNextPage}
-                refreshing={channelsQueryState.queryInProgress === 'load-more'}
               >
                 {renderChannels
                   ? renderChannels(loadedChannels, renderChannel)
