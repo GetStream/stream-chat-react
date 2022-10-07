@@ -68,17 +68,6 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     ...elementProps
   } = props;
 
-  deprecationAndReplacementWarning(
-    [
-      [{ hasMoreNewer }, { hasNextPage }],
-      [{ loadMoreNewer }, { loadNextPage }],
-      [{ hasMore }, { hasPreviousPage }],
-      [{ loadMore }, { loadPreviousPage }],
-      [{ loader }, { LoadingIndicator }],
-    ],
-    'InfiniteScroll',
-  );
-
   const loadNextPageFn = loadNextPage || loadMoreNewer;
   const loadPreviousPageFn = loadPreviousPage || loadMore;
   const hasNextPageFlag = hasNextPage || hasMoreNewer;
@@ -122,6 +111,19 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     loadPreviousPageFn,
     loadNextPageFn,
   ]);
+
+  useEffect(() => {
+    deprecationAndReplacementWarning(
+      [
+        [{ hasMoreNewer }, { hasNextPage }],
+        [{ loadMoreNewer }, { loadNextPage }],
+        [{ hasMore }, { hasPreviousPage }],
+        [{ loadMore }, { loadPreviousPage }],
+        [{ loader }, { LoadingIndicator }],
+      ],
+      'InfiniteScroll',
+    );
+  }, []);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;

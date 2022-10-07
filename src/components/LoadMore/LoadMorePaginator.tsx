@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 
 import { LoadMoreButton as DefaultLoadMoreButton, LoadMoreButtonProps } from './LoadMoreButton';
 import type { PaginatorProps } from '../../types/types';
@@ -21,8 +21,11 @@ export const UnMemoizedLoadMorePaginator = (props: PropsWithChildren<LoadMorePag
     refreshing,
     reverse,
   } = props;
-  deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMorePaginator');
   const loadingState = typeof isLoading !== 'undefined' ? isLoading : refreshing;
+
+  useEffect(() => {
+    deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMorePaginator');
+  }, []);
 
   return (
     <>

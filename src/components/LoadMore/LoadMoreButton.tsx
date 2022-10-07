@@ -1,4 +1,4 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
@@ -20,8 +20,11 @@ const UnMemoizedLoadMoreButton = ({
   onClick,
   refreshing,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
-  deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMoreButton');
   const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
+
+  useEffect(() => {
+    deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMoreButton');
+  }, []);
 
   return (
     <div className='str-chat__load-more-button'>
