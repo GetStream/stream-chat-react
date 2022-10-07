@@ -96,7 +96,7 @@ export type PaginatorProps = {
   loadPreviousPage?: () => void;
   /**
    * @desc indicates if there's currently any refreshing taking place
-   * @deprecated Use loading prop instead of refreshing. Will be removed with v11.0.0.
+   * @deprecated Use loading prop instead of refreshing. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
   refreshing?: boolean;
   /** display the items in opposite order */
