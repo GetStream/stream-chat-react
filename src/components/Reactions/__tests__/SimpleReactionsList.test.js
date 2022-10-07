@@ -8,6 +8,7 @@ expect.extend(toHaveNoViolations);
 
 import { SimpleReactionsList } from '../SimpleReactionsList';
 
+import { ChatProvider } from '../../../context/ChatContext';
 import { EmojiProvider } from '../../../context/EmojiContext';
 import { MessageProvider } from '../../../context/MessageContext';
 
@@ -20,7 +21,7 @@ jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
 const handleReactionMock = jest.fn();
 const loveEmojiTestId = 'emoji-love';
 
-const renderComponent = ({ reaction_counts = {}, ...props }) => {
+const renderComponent = ({ reaction_counts = {}, themeVersion = '1', ...props }) => {
   const reactions = Object.entries(reaction_counts)
     .map(([type, count]) =>
       Array(count)
@@ -31,23 +32,25 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
 
   return {
     ...render(
-      <MessageProvider value={{}}>
-        <EmojiProvider
-          value={{
-            Emoji: emojiComponentMock.Emoji,
-            emojiConfig: emojiDataMock,
-            EmojiIndex: emojiComponentMock.EmojiIndex,
-            EmojiPicker: emojiComponentMock.EmojiPicker,
-          }}
-        >
-          <SimpleReactionsList
-            handleReaction={handleReactionMock}
-            reaction_counts={reaction_counts}
-            reactions={reactions}
-            {...props}
-          />
-        </EmojiProvider>
-      </MessageProvider>,
+      <ChatProvider value={{ themeVersion }}>
+        <MessageProvider value={{}}>
+          <EmojiProvider
+            value={{
+              Emoji: emojiComponentMock.Emoji,
+              emojiConfig: emojiDataMock,
+              EmojiIndex: emojiComponentMock.EmojiIndex,
+              EmojiPicker: emojiComponentMock.EmojiPicker,
+            }}
+          >
+            <SimpleReactionsList
+              handleReaction={handleReactionMock}
+              reaction_counts={reaction_counts}
+              reactions={reactions}
+              {...props}
+            />
+          </EmojiProvider>
+        </MessageProvider>
+      </ChatProvider>,
     ),
     reactions,
   };
@@ -62,12 +65,13 @@ const expectEmojiToHaveBeenRendered = (id) => {
   );
 };
 
-describe('SimpleReactionsList', () => {
+describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
   afterEach(jest.clearAllMocks);
 
   it('should not render anything if there are no reactions', async () => {
     const { container } = renderComponent({
       reaction_counts: {},
+      themeVersion,
     });
     expect(container).toBeEmptyDOMElement();
     const results = await axe(container);
@@ -80,6 +84,7 @@ describe('SimpleReactionsList', () => {
         angry: 2,
         love: 5,
       },
+      themeVersion,
     });
     const count = getByText('7');
     expect(count).toBeInTheDocument();
@@ -93,7 +98,7 @@ describe('SimpleReactionsList', () => {
       angry: 2,
       love: 5,
     };
-    const { container } = renderComponent({ reaction_counts });
+    const { container } = renderComponent({ reaction_counts, themeVersion });
 
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
 
@@ -114,6 +119,7 @@ describe('SimpleReactionsList', () => {
         { emoji: '🍌', id: 'banana' },
         { emoji: '🤠', id: 'cowboy' },
       ],
+      themeVersion,
     });
 
     expect(EmojiComponentMock).toHaveBeenCalledTimes(Object.keys(reaction_counts).length);
@@ -128,7 +134,7 @@ describe('SimpleReactionsList', () => {
       love: 1,
     };
 
-    const { container, getByTestId } = renderComponent({ reaction_counts });
+    const { container, getByTestId } = renderComponent({ reaction_counts, themeVersion });
 
     fireEvent.click(getByTestId(loveEmojiTestId));
 
@@ -144,6 +150,7 @@ describe('SimpleReactionsList', () => {
 
     const { container, getByTestId, queryByText, reactions } = renderComponent({
       reaction_counts,
+      themeVersion,
     });
 
     fireEvent.mouseEnter(getByTestId(loveEmojiTestId));
