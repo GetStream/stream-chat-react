@@ -58,7 +58,6 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     isLoading,
     listenToScroll,
     loader,
-    LoadingIndicator,
     loadMore,
     loadMoreNewer,
     loadNextPage,
@@ -119,7 +118,6 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
         [{ loadMoreNewer }, { loadNextPage }],
         [{ hasMore }, { hasPreviousPage }],
         [{ loadMore }, { loadPreviousPage }],
-        [{ loader }, { LoadingIndicator }],
       ],
       'InfiniteScroll',
     );
