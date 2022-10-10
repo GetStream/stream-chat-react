@@ -55,7 +55,7 @@ For the infinite scroll to work, the element containing the `ChannelPreview` lis
 Set a reasonable number of channels to be initially loaded. If loading 10 channels leads to them being visible without having to scroll, then increase the number to e.g. 15:
 
 ```tsx
-import { ChannelOptions, } from 'stream-chat';
+import type { ChannelOptions } from 'stream-chat';
 const options: ChannelOptions = { state: true, presence: true, limit: 15 };
 ```
 
