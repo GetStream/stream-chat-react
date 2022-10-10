@@ -1,15 +1,30 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
+import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
   onClick: React.MouseEventHandler<HTMLButtonElement>;
-  /** If true, LoadingIndicator is displayed instead of button */
+  /** indicates whether a loading request is in progress */
+  isLoading?: boolean;
+  /**
+   * @desc If true, LoadingIndicator is displayed instead of button
+   * @deprecated Use loading prop instead of refreshing. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
+   */
   refreshing?: boolean;
 };
 
-const UnMemoizedLoadMoreButton = (props: PropsWithChildren<LoadMoreButtonProps>) => {
-  const { children = 'Load more', onClick, refreshing } = props;
+const UnMemoizedLoadMoreButton = ({
+  children = 'Load more',
+  isLoading,
+  onClick,
+  refreshing,
+}: PropsWithChildren<LoadMoreButtonProps>) => {
+  const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
+
+  useEffect(() => {
+    deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMoreButton');
+  }, []);
 
   return (
     <div className='str-chat__load-more-button'>
@@ -17,10 +32,10 @@ const UnMemoizedLoadMoreButton = (props: PropsWithChildren<LoadMoreButtonProps>)
         aria-label='Load More Channels'
         className='str-chat__load-more-button__button str-chat__cta-button'
         data-testid='load-more-button'
-        disabled={refreshing}
+        disabled={loading}
         onClick={onClick}
       >
-        {refreshing ? <LoadingIndicator /> : children}
+        {loading ? <LoadingIndicator /> : children}
       </button>
     </div>
   );
