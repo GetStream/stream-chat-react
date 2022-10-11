@@ -1,11 +1,11 @@
 import React from 'react';
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
 import { InfiniteScroll } from '../';
 
-const loadMore = jest.fn().mockImplementation(() => Promise.resolve());
+const loadPreviousPage = jest.fn().mockImplementation(() => Promise.resolve());
 
 // Note: testing actual infinite scroll behavior is very tricky / pointless because Jest does not
 // really implement offsetHeight / offsetTop / offsetParent etc. This means we'd have to mock basically everything,
@@ -24,7 +24,7 @@ describe('InfiniteScroll', () => {
   const renderComponent = (props) => {
     const renderResult = render(
       <div data-testid='scroll-parent'>
-        <InfiniteScroll loadMore={loadMore} {...props} />
+        <InfiniteScroll loadPreviousPage={loadPreviousPage} {...props} />
       </div>,
     );
     const scrollParent = renderResult.getByTestId('scroll-parent');
@@ -35,7 +35,7 @@ describe('InfiniteScroll', () => {
     'should bind scroll, mousewheel and resize events to the right target with useCapture as %s',
     (useCapture) => {
       renderComponent({
-        hasMore: true,
+        hasPreviousPage: true,
         useCapture,
       });
 
@@ -53,7 +53,7 @@ describe('InfiniteScroll', () => {
     'should unbind scroll, mousewheel and resize events from the right target with useCapture as %s',
     (useCapture) => {
       const { unmount } = renderComponent({
-        hasMore: true,
+        hasPreviousPage: true,
         useCapture,
       });
 
@@ -77,11 +77,48 @@ describe('InfiniteScroll', () => {
     },
   );
 
+  it.each([
+    ['hasMoreNewer', 'loadMoreNewer', 'hasNextPage', 'loadNextPage'],
+    ['hasMore', 'loadMore', 'hasPreviousPage', 'loadPreviousPage'],
+  ])(
+    'deprecates %s and %s in favor of %s and %s',
+    (deprecatedFlag, deprecatedLoader, newFlag, newLoader) => {
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
+      const oldLoaderSpy = jest.fn();
+      const newLoaderSpy = jest.fn();
+
+      const { scrollParent } = renderComponent({
+        [deprecatedFlag]: false,
+        [deprecatedLoader]: oldLoaderSpy,
+        [newFlag]: true,
+        [newLoader]: newLoaderSpy,
+        threshold: Infinity,
+      });
+
+      Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+        get() {
+          return this.parentNode;
+        },
+      });
+      fireEvent.scroll(scrollParent);
+
+      consoleWarnSpy.mockRestore();
+
+      expect(oldLoaderSpy).not.toHaveBeenCalled();
+      // eslint-disable-next-line jest/prefer-called-with
+      expect(newLoaderSpy).toHaveBeenCalled();
+    },
+  );
+
   describe('Rendering loader', () => {
     const getRenderResult = () =>
       renderer
         .create(
-          <InfiniteScroll isLoading loader={<div key='loader'>loader</div>} loadMore={loadMore}>
+          <InfiniteScroll
+            isLoading
+            loader={<div key='loader'>loader</div>}
+            loadPreviousPage={loadPreviousPage}
+          >
             Content
           </InfiniteScroll>,
         )

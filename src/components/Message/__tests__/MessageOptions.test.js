@@ -46,12 +46,12 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageOptions(
-  customMessageProps = {},
+async function renderMessageOptions({
   channelConfig,
-  customOptionsProps = {},
   channelStateOpts = {},
-) {
+  customMessageProps = {},
+  customOptionsProps = {},
+}) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({ getConfig: () => channelConfig, state: { membership: {} } });
 
@@ -94,7 +94,9 @@ describe('<MessageOptions />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render message options when there is no message set', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      message: {},
+      customMessageProps: {
+        message: {},
+      },
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
@@ -109,47 +111,54 @@ describe('<MessageOptions />', () => {
     'should not render message options when message is of %s %s and is from current user.',
     async (key, value) => {
       const message = generateAliceMessage({ [key]: value });
-      const { queryByTestId } = await renderMessageOptions({ message });
+      const { queryByTestId } = await renderMessageOptions({ customMessageProps: { message } });
       expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
     },
   );
 
   it('should not render message options when it is parent message in a thread', async () => {
     const { queryByTestId } = await renderMessageOptions({
-      initialMessage: true,
+      customMessageProps: {
+        initialMessage: true,
+      },
     });
     expect(queryByTestId(/message-options/)).not.toBeInTheDocument();
   });
 
   it('should display thread actions when message is not displayed in a thread list and channel has replies configured', async () => {
-    const { getByTestId } = await renderMessageOptions(
-      defaultMessageProps,
-      {},
-      {},
-      { channelCapabilities: { 'send-reply': true }, channelConfig: { replies: true } },
-    );
+    const { getByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reply': true },
+        channelConfig: { replies: true },
+      },
+      customMessageProps: defaultMessageProps,
+    });
     expect(getByTestId(threadActionTestId)).toBeInTheDocument();
   });
 
   it('should not display thread actions when message is in a thread list', async () => {
-    const { queryByTestId } = await renderMessageOptions({ threadList: true }, { replies: true });
+    const { queryByTestId } = await renderMessageOptions({
+      channelConfig: { replies: true },
+      customMessageProps: { threadList: true },
+    });
     expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should not display thread actions when channel does not have replies enabled', async () => {
-    const { queryByTestId } = await renderMessageOptions({}, { replies: false });
+    const { queryByTestId } = await renderMessageOptions({ channelConfig: { replies: false } });
     expect(queryByTestId(threadActionTestId)).not.toBeInTheDocument();
   });
 
   it('should trigger open thread handler when custom thread action is set and thread action is clicked', async () => {
     const handleOpenThread = jest.fn(() => {});
     const message = generateMessage();
-    const { getByTestId } = await renderMessageOptions(
-      { message, openThread: handleOpenThread, threadList: false },
-      {},
-      {},
-      { channelCapabilities: { 'send-reply': true }, channelConfig: { replies: true } },
-    );
+    const { getByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reply': true },
+        channelConfig: { replies: true },
+      },
+      customMessageProps: { message, openThread: handleOpenThread, threadList: false },
+    });
     expect(handleOpenThread).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(threadActionTestId));
     // eslint-disable-next-line jest/prefer-called-with
@@ -157,22 +166,25 @@ describe('<MessageOptions />', () => {
   });
 
   it('should display reactions action when channel has reactions enabled', async () => {
-    const { getByTestId } = await renderMessageOptions(
-      {},
-      {},
-      {},
-      { channelCapabilities: { 'send-reaction': true }, channelConfig: { reactions: true } },
-    );
+    const { getByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+        channelConfig: { reactions: true },
+      },
+    });
     expect(getByTestId(reactionActionTestId)).toBeInTheDocument();
   });
 
   it('should not display reactions action when channel has reactions disabled', async () => {
-    const { queryByTestId } = await renderMessageOptions({}, { reactions: false });
+    const { queryByTestId } = await renderMessageOptions({ channelConfig: { reactions: false } });
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 
   it('should render message actions', async () => {
-    await renderMessageOptions();
+    const minimumCapabilitiesToRenderMessageActions = { 'delete-any-message': true };
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+    });
     // eslint-disable-next-line jest/prefer-called-with
     expect(MessageActionsMock).toHaveBeenCalled();
   });

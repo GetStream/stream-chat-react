@@ -2,11 +2,11 @@
 
 exports[`ChannelListMessenger by default, children should be rendered 1`] = `
 <div
-  className="str-chat__channel-list-messenger"
+  className="str-chat__channel-list-messenger str-chat__channel-list-messenger-react"
 >
   <div
     aria-label="Channel list"
-    className="str-chat__channel-list-messenger__main"
+    className="str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main"
     role="listbox"
   >
     <div>

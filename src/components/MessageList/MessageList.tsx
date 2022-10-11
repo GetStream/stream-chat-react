@@ -191,8 +191,8 @@ const MessageListWithContext = <
             <InfiniteScroll
               className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
               data-testid='reverse-infinite-scroll'
-              hasMore={props.hasMore}
-              hasMoreNewer={props.hasMoreNewer}
+              hasNextPage={props.hasMoreNewer}
+              hasPreviousPage={props.hasMore}
               head={props.head}
               isLoading={props.loadingMore}
               loader={
@@ -200,8 +200,8 @@ const MessageListWithContext = <
                   {props.loadingMore && <LoadingIndicator size={20} />}
                 </div>
               }
-              loadMore={loadMore}
-              loadMoreNewer={loadMoreNewer}
+              loadNextPage={loadMoreNewer}
+              loadPreviousPage={loadMore}
               {...props.internalInfiniteScrollProps}
             >
               <ul className='str-chat__ul' ref={setUlElement}>

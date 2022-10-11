@@ -1,0 +1,72 @@
+---
+id: channel-list-infinite-scroll
+sidebar_position: 24
+title: Channel List Infinite Scroll
+keywords: [channel list, infinite scroll]
+---
+
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+
+This example demonstrates how to implement infinite scroll with existing SDK components. By default, the SDK's `ChannelList` component uses `LoadMorePaginator` to load more channels into the list. More channels are loaded every time the `LoadMoreButton` is clicked. The infinite scroll instead loads more channels based on the channel list container's scroll position. The request to load more channels is automatically triggered, once the scroller approaches the bottom scroll threshold of the container.
+
+## How to plug in the infinite scroll
+
+The SDK provides own [`InfiniteScroll`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) component. This component implements the [`PaginatorProps`](https://github.com/GetStream/stream-chat-react/blob/master/src/types/types.ts) interface. As this interface is implemented by the [`LoadMorePaginator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.ts) too, we can just pass the `InfiniteScroll` into the `ChannelList` prop `Paginator`.
+
+```tsx
+import {
+  ChannelList,
+  InfiniteScroll,
+} from 'stream-chat-react';
+
+<ChannelList filters={filters} sort={sort} options={options}
+             Paginator={InfiniteScroll}
+             showChannelSearch
+/>
+```
+
+If you would like to adjust the configuration parameters like `threshold`, `reverse` (`PaginatorProps`) or `useCapture`, etc. (`InfiniteScrollProps`), you can create a wrapper component where these props can be set:
+
+```tsx
+import {
+  ChannelList,
+  InfiniteScroll,
+  InfiniteScrollProps
+} from 'stream-chat-react';
+
+
+const Paginator = (props: InfiniteScrollProps) => <InfiniteScroll {...props} threshold={50} />;
+
+...
+<ChannelList filters={filters} sort={sort} options={options}
+             Paginator={Paginator}
+             showChannelSearch
+/>
+```
+
+Especially the `threshold` prop may need to be set as the default is 250px. That may be too soon to load more channels.
+
+## What to take into consideration
+
+For the infinite scroll to work, the element containing the `ChannelPreview` list has to be forced to display the scroll bar with the initial channel list load. This is achieved by:
+
+**1. adjusting the initial number of loaded channels**
+
+Set a reasonable number of channels to be initially loaded. If loading 10 channels leads to them being visible without having to scroll, then increase the number to e.g. 15:
+
+```tsx
+import type { ChannelOptions } from 'stream-chat';
+const options: ChannelOptions = { state: true, presence: true, limit: 15 };
+```
+
+**2. adjusting the container height**
+
+You can change the container height so that not all channels are visible at once. You should target the container with class `.str-chat__channel-list-messenger-react__main`
+
+```css
+.str-chat__channel-list-messenger-react__main {
+    max-height: 50%;
+}
+```
+
+

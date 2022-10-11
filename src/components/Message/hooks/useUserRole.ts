@@ -10,11 +10,9 @@ export const useUserRole = <
   onlySenderCanEdit?: boolean,
   disableQuotedMessages?: boolean,
 ) => {
-  const {
-    channel,
-    channelCapabilities = {},
-    channelConfig,
-  } = useChannelStateContext<StreamChatGenerics>('useUserRole');
+  const { channel, channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
+    'useUserRole',
+  );
   const { client } = useChatContext<StreamChatGenerics>('useUserRole');
 
   /**
@@ -41,6 +39,7 @@ export const useUserRole = <
     channel.state.membership.channel_role === 'channel_moderator';
 
   const isMyMessage = client.userID === message.user?.id;
+
   const canEdit =
     (!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
     (isMyMessage && channelCapabilities['update-own-message']);
@@ -49,11 +48,11 @@ export const useUserRole = <
     channelCapabilities['delete-any-message'] ||
     (isMyMessage && channelCapabilities['delete-own-message']);
 
-  const canFlag = !isMyMessage;
-  const canMute = !isMyMessage && channelConfig?.mutes;
+  const canFlag = !isMyMessage && channelCapabilities['flag-message'];
+  const canMute = !isMyMessage && channelCapabilities['mute-channel'];
   const canQuote = !disableQuotedMessages && channelCapabilities['quote-message'];
-  const canReact = channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
-  const canReply = channelConfig?.replies !== false && channelCapabilities['send-reply'];
+  const canReact = channelCapabilities['send-reaction'];
+  const canReply = channelCapabilities['send-reply'];
 
   return {
     canDelete,

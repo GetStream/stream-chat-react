@@ -677,6 +677,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
+      channelStateOpts: { channelCapabilities: { 'flag-message': true } },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -691,7 +692,7 @@ describe('<Message /> component', () => {
     let context;
 
     await renderComponent({
-      channelStateOpts: { channelConfig: { mutes: true } },
+      channelStateOpts: { channelCapabilities: { 'mute-channel': true } },
       contextCallback: (ctx) => {
         context = ctx;
       },
