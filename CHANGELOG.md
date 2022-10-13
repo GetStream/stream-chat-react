@@ -1,3 +1,10 @@
+## [10.3.1](https://github.com/GetStream/stream-chat-react/compare/v10.3.0...v10.3.1) (2022-10-13)
+
+
+### Bug Fixes
+
+* add stream-chat@8.x.x to peerDependencies ([#1814](https://github.com/GetStream/stream-chat-react/issues/1814)) ([04bff7d](https://github.com/GetStream/stream-chat-react/commit/04bff7d28ae31ba2d4ba33937f132c92ca777671))
+
 # [10.3.0](https://github.com/GetStream/stream-chat-react/compare/v10.2.0...v10.3.0) (2022-10-11)
 
 
