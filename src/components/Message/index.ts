@@ -9,5 +9,6 @@ export * from './MessageSimple';
 export * from './MessageStatus';
 export * from './MessageText';
 export * from './MessageTimestamp';
+export * from './QuotedMessage';
 export * from './types';
 export * from './utils';
