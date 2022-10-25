@@ -5,6 +5,9 @@ import { nanoid } from 'nanoid';
 import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
 import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
 import { u } from 'unist-builder';
+import { visit } from 'unist-util-visit';
+
+import remarkGfm from 'remark-gfm';
 import uniqBy from 'lodash.uniqby';
 import clsx from 'clsx';
 
@@ -171,10 +174,39 @@ export const mentionsMarkdownPlugin = <
     return u('element', { mentionedUser: user, tagName: 'mention' }, [u('text', match)]);
   };
 
-  const transform = (node: HNode): HNode => {
-    if (!mentioned_usernames.length) return node;
+  const transform = (tree: HNode): HNode => {
+    if (!mentioned_usernames.length) return tree;
 
-    return findAndReplace(node, mentionedUsersRegex, replace);
+    // handles special cases of mentions where user.name is an e-mail
+    // Remark GFM translates all e-mail-like text nodes to links creating
+    // two separate child nodes "@" and "your.name@as.email" instead of
+    // keeping it as one text node with value "@your.name@as.email"
+    // this piece finds these two separated nodes and merges them together
+    // before "replace" function takes over
+    visit(tree, (node, index, parent) => {
+      if (index === null) return;
+      if (!parent) return;
+
+      const nextChild = parent.children.at(index + 1) as Element;
+      const nextChildHref = nextChild?.properties?.href as string;
+
+      if (
+        node.type === 'text' &&
+        // text value has to have @ sign at the end of the string
+        // and no other characters except whitespace can precede it
+        // valid cases:   "text @", "@", " @"
+        // invalid cases: "text@", "@text",
+        /.?\s?@$|^@$/.test(node.value) &&
+        nextChildHref.startsWith('mailto:')
+      ) {
+        const newTextValue = node.value.replace(/@$/, '');
+        const username = nextChildHref.replace('mailto:', '');
+        parent.children[index] = u('text', newTextValue);
+        parent.children[index + 1] = u('text', `@${username}`);
+      }
+    });
+
+    return findAndReplace(tree, mentionedUsersRegex, replace);
   };
 
   return transform;
@@ -278,7 +310,7 @@ export const renderText = <
 
   const rehypeComponents = {
     ...markDownRenderers,
-    ...options.customMarkDownRenderers,
+    ...customMarkDownRenderers,
   };
 
   return (
@@ -286,7 +318,7 @@ export const renderText = <
       allowedElements={allowedMarkups}
       components={rehypeComponents}
       rehypePlugins={rehypePlugins}
-      remarkPlugins={[]}
+      remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
       skipHtml
       transformLinkUri={(uri) => (uri.startsWith('app://') ? uri : uriTransformer(uri))}
       unwrapDisallowed

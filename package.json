@@ -56,8 +56,10 @@
     "react-popper": "^2.3.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "^2.16.5",
+    "remark-gfm": "^3.0.1",
     "textarea-caret": "^3.1.0",
-    "unist-builder": "^3.0.0"
+    "unist-builder": "^3.0.0",
+    "unist-util-visit": "^4.1.1"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5",
