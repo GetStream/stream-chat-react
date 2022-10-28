@@ -178,7 +178,10 @@ const makeEmptyMessageInputState = <
 const initState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  message?: Pick<StreamMessage<StreamChatGenerics>, 'attachments' | 'mentioned_users' | 'text'>,
+  message?: Pick<
+    StreamMessage<StreamChatGenerics>,
+    'attachments' | 'mentioned_users' | 'text' | 'error'
+  >,
 ): MessageInputState<StreamChatGenerics> => {
   if (!message) {
     return makeEmptyMessageInputState();

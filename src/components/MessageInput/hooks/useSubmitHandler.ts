@@ -38,9 +38,12 @@ export const useSubmitHandler = <
   } = state;
 
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
-  const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
-    'useSubmitHandler',
-  );
+  const {
+    addNotification,
+    editMessage,
+    removeMessage,
+    sendMessage,
+  } = useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
 
   const textReference = useRef({ hasChanged: false, initialText: text });
@@ -146,7 +149,49 @@ export const useSubmitHandler = <
       text,
     };
 
-    if (message) {
+    // @ts-ignore
+    if (message && message.error?.[0]?.code === 1) {
+      try {
+        removeMessage(message);
+        dispatch({ type: 'clear' });
+
+        if (overrideSubmitHandler) {
+          await overrideSubmitHandler(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            channel.cid,
+            customMessageData,
+          );
+        } else {
+          await sendMessage(
+            {
+              ...updatedMessage,
+              parent,
+            },
+            customMessageData,
+          );
+        }
+
+        if (publishTypingEvent) await channel.stopTyping();
+      } catch (err) {
+        dispatch({
+          getNewText: () => text,
+          type: 'setText',
+        });
+
+        if (actualMentionedUsers.length) {
+          actualMentionedUsers.forEach((user) => {
+            dispatch({ type: 'addMentionedUser', user });
+          });
+        }
+
+        addNotification(t('Send message request failed'), 'error');
+      } finally {
+        if (clearEditingState) clearEditingState();
+      }
+    } else if (message) {
       delete message.i18n;
 
       try {

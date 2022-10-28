@@ -23,6 +23,7 @@ import {
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 
 import type { MessageUIComponentProps } from './types';
 
@@ -55,6 +56,7 @@ const MessageSimpleWithContext = <
     onUserHover,
     reactionSelectorRef,
     renderText,
+    setEditingState,
     showDetailedReactions,
     threadList,
   } = props;
@@ -71,6 +73,9 @@ const MessageSimpleWithContext = <
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
+
+  const { removeMessage } = useChannelActionContext<StreamChatGenerics>('useSubmitHandler');
+
   const { themeVersion } = useChatContext('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
@@ -194,6 +199,21 @@ const MessageSimpleWithContext = <
                 <span className='str-chat__message-simple-name'>
                   {message.user.name || message.user.id}
                 </span>
+              )}
+              {/* @ts-ignore */}
+              {message.error instanceof Array && message.error[0]?.code === 1 && (
+                <div className='str-chat__message-moderation-error-actions-box'>
+                  <button onClick={() => removeMessage(message)}>{'Remove'}</button>
+
+                  <button onClick={() => handleRetry(message)}>{'Send anyway'}</button>
+
+                  <button
+                    className='str-chat__message-moderation-error-actions-box--primary'
+                    onClick={(e) => setEditingState(e)}
+                  >
+                    {'Edit'}
+                  </button>
+                </div>
               )}
               <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
             </div>

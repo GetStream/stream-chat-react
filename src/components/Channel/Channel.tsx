@@ -625,6 +625,12 @@ const ChannelInner = <
   const updateMessage = (
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
+    //@ts-ignore
+    if (updatedMessage.error?.[0]?.code === 1) {
+      //@ts-ignore
+      updatedMessage.text = updatedMessage.original_text;
+    }
+
     // add the message to the local channel state
     channel.state.addMessageSorted(updatedMessage as MessageResponse<StreamChatGenerics>, true);
 

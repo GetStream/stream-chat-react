@@ -89,7 +89,8 @@ const UnMemoizedMessageTextComponent = <
           <div
             className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
           >
-            {t<string>('Error · Unsent')}
+            {/*@ts-ignore*/}
+            {message.error?.[0]?.code === 1 ? 'Error - moderated' : t<string>('Error · Unsent')}
           </div>
         )}
         {message.status === 'failed' && (
