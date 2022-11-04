@@ -916,11 +916,6 @@ const ChannelInner = <
     typing,
   });
 
-  const OptionalMessageInputProvider = useMemo(
-    () => (dragAndDropWindow ? DropzoneProvider : React.Fragment),
-    [dragAndDropWindow],
-  );
-
   const className = clsx(chatClass, theme, channelClass);
 
   if (state.error) {
@@ -955,9 +950,10 @@ const ChannelInner = <
             <EmojiProvider value={emojiContextValue}>
               <TypingProvider value={typingContextValue}>
                 <div className={`${chatContainerClass}`}>
-                  <OptionalMessageInputProvider {...optionalMessageInputProps}>
-                    {children}
-                  </OptionalMessageInputProvider>
+                  {dragAndDropWindow && (
+                    <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
+                  )}
+                  {!dragAndDropWindow && <>{children}</>}
                 </div>
               </TypingProvider>
             </EmojiProvider>

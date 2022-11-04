@@ -54,6 +54,7 @@ const MessageSimpleWithContext = <
     onUserClick,
     onUserHover,
     reactionSelectorRef,
+    renderText,
     showDetailedReactions,
     threadList,
   } = props;
@@ -153,7 +154,7 @@ const MessageSimpleWithContext = <
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
-              <MessageText message={message} />
+              <MessageText message={message} renderText={renderText} />
               {message.mml && (
                 <MML
                   actionHandler={handleAction}

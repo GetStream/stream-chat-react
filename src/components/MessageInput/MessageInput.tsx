@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useMemo } from 'react';
+import React, { PropsWithChildren } from 'react';
 import type { Message } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
@@ -126,17 +126,22 @@ const UnMemoizedMessageInput = <
   >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
-  const OptionalMessageInputProvider = useMemo(
-    () => (dragAndDropWindow ? React.Fragment : MessageInputProvider),
-    [dragAndDropWindow],
-  );
+
+  if (dragAndDropWindow)
+    return (
+      <>
+        <TriggerProvider>
+          <Input />
+        </TriggerProvider>
+      </>
+    );
 
   return (
-    <OptionalMessageInputProvider {...props}>
+    <MessageInputProvider {...props}>
       <TriggerProvider>
         <Input />
       </TriggerProvider>
-    </OptionalMessageInputProvider>
+    </MessageInputProvider>
   );
 };
 
