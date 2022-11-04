@@ -1,6 +1,8 @@
 name: Test
 
 on: [push]
+env:
+  NODE_OPTIONS: --max_old_space_size=4096
 
 jobs:
   tsc:
@@ -67,8 +69,6 @@ jobs:
           retention-days: 1
 
   test:
-    env:
-      NODE_OPTIONS: --max_old_space_size=4096
     runs-on: ubuntu-latest
     strategy:
       matrix:
