@@ -1,14 +1,20 @@
-import React, { PropsWithChildren } from 'react';
+import React, { ComponentProps, ComponentType } from 'react';
 import emojiRegex from 'emoji-regex';
 import * as linkify from 'linkifyjs';
 import { nanoid } from 'nanoid';
-import { findAndReplace, ReplaceFunction } from 'mdast-util-find-and-replace';
-import RootReactMarkdown, { NodeType } from 'react-markdown';
-import ReactMarkdown from 'react-markdown/with-html';
-import uniqBy from 'lodash.uniqby';
+import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
+import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
+import { u } from 'unist-builder';
+import { visit } from 'unist-util-visit';
 
+import remarkGfm from 'remark-gfm';
+import uniqBy from 'lodash.uniqby';
+import clsx from 'clsx';
+
+import type { Element } from 'react-markdown/lib/ast-to-react';
+import type { ReactMarkdownProps } from 'react-markdown/lib/complex-types';
+import type { Content, Root } from 'hast';
 import type { UserResponse } from 'stream-chat';
-import type { Root } from 'mdast';
 import type { DefaultStreamChatGenerics } from './types/types';
 
 export const isOnlyEmojis = (text?: string) => {
@@ -20,23 +26,27 @@ export const isOnlyEmojis = (text?: string) => {
   return !noSpace;
 };
 
-const allowedMarkups: NodeType[] = [
+const allowedMarkups: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention'> = [
   'html',
-  // @ts-expect-error
-  'root',
   'text',
-  'break',
-  'paragraph',
-  'emphasis',
+  'br',
+  'p',
+  'em',
   'strong',
-  'link',
-  'list',
-  'listItem',
+  'a',
+  'ol',
+  'ul',
+  'li',
   'code',
-  'inlineCode',
+  'pre',
   'blockquote',
-  'delete',
+  'del',
+  // custom types (tagNames)
+  'emoji',
+  'mention',
 ];
+
+type HNode = Content | Root;
 
 export const matchMarkdownLinks = (message: string) => {
   const regexMdLinks = /\[([^[]+)\](\(.*\))/gm;
@@ -59,11 +69,6 @@ export const messageCodeBlocks = (message: string) => {
   return matches || [];
 };
 
-type MarkDownRenderers = {
-  children: React.ReactElement;
-  href?: string;
-};
-
 const detectHttp = /(http(s?):\/\/)?(www\.)?/;
 
 function formatUrlForDisplay(url: string) {
@@ -82,45 +87,66 @@ function encodeDecode(url: string) {
   }
 }
 
-export const markDownRenderers: { [nodeType: string]: React.ElementType } = {
-  // eslint-disable-next-line react/display-name
-  link: (props: MarkDownRenderers) => {
-    const { children, href } = props;
+const Anchor = ({ children, href }: ComponentProps<'a'> & ReactMarkdownProps) => {
+  const isEmail = href?.startsWith('mailto:');
+  const isUrl = href?.startsWith('http');
 
-    const isEmail = href?.startsWith('mailto:');
-    const isUrl = href?.startsWith('http');
+  if (!href || (!isEmail && !isUrl)) return <>{children}</>;
 
-    if (!href || (!isEmail && !isUrl)) {
-      return children;
-    }
+  return (
+    <a
+      className={clsx({ 'str-chat__message-url-link': isUrl })}
+      href={href}
+      rel='nofollow noreferrer noopener'
+      target='_blank'
+    >
+      {children}
+    </a>
+  );
+};
 
-    return (
-      <a
-        className={`${isUrl ? 'str-chat__message-url-link' : ''}`}
-        href={href}
-        rel='nofollow noreferrer noopener'
-        target='_blank'
-      >
-        {children}
-      </a>
-    );
-  },
-  span: 'span',
+const Emoji = ({ children }: ReactMarkdownProps) => (
+  <span className='inline-text-emoji' data-testid='inline-text-emoji'>
+    {children}
+  </span>
+);
+
+export type MentionProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = ReactMarkdownProps & {
+  /**
+   * @deprecated will be removed in the next major release, transition to using `node.mentionedUser` instead
+   */
+  mentioned_user: UserResponse<StreamChatGenerics>;
+  node: {
+    /**
+     * @deprecated will be removed in the next major release, transition to using `node.mentionedUser` instead
+     */
+    mentioned_user: UserResponse<StreamChatGenerics>;
+    mentionedUser: UserResponse<StreamChatGenerics>;
+  };
+};
+
+const Mention = <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>({
+  children,
+  node: { mentionedUser },
+}: MentionProps<StreamChatGenerics>) => (
+  <span className='str-chat__message-mention' data-user-id={mentionedUser.id}>
+    {children}
+  </span>
+);
+
+export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
+  a: Anchor,
+  emoji: Emoji,
+  mention: Mention,
 };
 
 export const emojiMarkdownPlugin = () => {
-  function replace(match: RegExpMatchArray | null) {
-    return {
-      children: [{ type: 'text', value: match }],
-      className: 'inline-text-emoji',
-      type: 'span',
-    };
-  }
+  const replace: ReplaceFunction = (match) =>
+    u('element', { tagName: 'emoji' }, [u('text', match)]);
 
-  const transform = <T extends unknown>(markdownAST: T) => {
-    findAndReplace(markdownAST as Root, emojiRegex(), replace as ReplaceFunction);
-    return markdownAST;
-  };
+  const transform = (node: HNode) => findAndReplace(node, emojiRegex(), replace);
 
   return transform;
 };
@@ -135,59 +161,78 @@ export const mentionsMarkdownPlugin = <
     .filter(Boolean)
     .map(escapeRegExp);
 
-  function replace(match: string) {
+  const mentionedUsersRegex = new RegExp(
+    mentioned_usernames.map((username) => `@${username}`).join('|'),
+    'g',
+  );
+
+  const replace: ReplaceFunction = (match) => {
     const usernameOrId = match.replace('@', '');
     const user = mentioned_users.find(
       ({ id, name }) => name === usernameOrId || id === usernameOrId,
     );
-    return {
-      children: [{ type: 'text', value: match }],
-      mentioned_user: user,
-      type: 'mention',
-    };
-  }
+    return u('element', { mentionedUser: user, tagName: 'mention' }, [u('text', match)]);
+  };
 
-  const transform = <T extends unknown>(markdownAST: T) => {
-    if (!mentioned_usernames.length) {
-      return markdownAST;
-    }
-    const mentionedUsersRegex = new RegExp(
-      mentioned_usernames.map((username) => `@${username}`).join('|'),
-      'g',
-    );
-    findAndReplace(markdownAST as Root, mentionedUsersRegex, replace as ReplaceFunction);
-    return markdownAST;
+  const transform = (tree: HNode): HNode => {
+    if (!mentioned_usernames.length) return tree;
+
+    // handles special cases of mentions where user.name is an e-mail
+    // Remark GFM translates all e-mail-like text nodes to links creating
+    // two separate child nodes "@" and "your.name@as.email" instead of
+    // keeping it as one text node with value "@your.name@as.email"
+    // this piece finds these two separated nodes and merges them together
+    // before "replace" function takes over
+    visit(tree, (node, index, parent) => {
+      if (index === null) return;
+      if (!parent) return;
+
+      const nextChild = parent.children.at(index + 1) as Element;
+      const nextChildHref = nextChild?.properties?.href as string;
+
+      if (
+        node.type === 'text' &&
+        // text value has to have @ sign at the end of the string
+        // and no other characters except whitespace can precede it
+        // valid cases:   "text @", "@", " @"
+        // invalid cases: "text@", "@text",
+        /.?\s?@$|^@$/.test(node.value) &&
+        nextChildHref.startsWith('mailto:')
+      ) {
+        const newTextValue = node.value.replace(/@$/, '');
+        const username = nextChildHref.replace('mailto:', '');
+        parent.children[index] = u('text', newTextValue);
+        parent.children[index + 1] = u('text', `@${username}`);
+      }
+    });
+
+    return findAndReplace(tree, mentionedUsersRegex, replace);
   };
 
   return transform;
 };
 
-export type MentionProps<
+export type RenderTextOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  mentioned_user: UserResponse<StreamChatGenerics>;
-};
-
-const Mention = <StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics>(
-  props: PropsWithChildren<StreamChatGenerics>,
-) => <span className='str-chat__message-mention'>{props.children}</span>;
-
-export type RenderTextOptions = {
-  customMarkDownRenderers?: {
-    [nodeType: string]: React.ElementType;
-  };
+  customMarkDownRenderers?: Options['components'] &
+    Partial<{
+      emoji: ComponentType<ReactMarkdownProps>;
+      mention: ComponentType<MentionProps<StreamChatGenerics>>;
+    }>;
 };
 
 export const renderText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   text?: string,
-  mentioned_users?: UserResponse<StreamChatGenerics>[],
-  options: RenderTextOptions = {},
+  mentionedUsers?: UserResponse<StreamChatGenerics>[],
+  { customMarkDownRenderers }: RenderTextOptions = {},
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
   if (!text) return null;
+  if (text.trim().length === 1) return <>{text}</>;
 
   let newText = text;
   const markdownLinks = matchMarkdownLinks(newText);
@@ -216,8 +261,8 @@ export const renderText = <
       // it could happen that a user's name matches with an e-mail format pattern.
       // in that case, we check whether the found e-mail is actually a mention
       // by naively checking for an existence of @ sign in front of it.
-      if (type === 'email' && mentioned_users) {
-        const emailMatchesWithName = mentioned_users.some((u) => u.name === value);
+      if (type === 'email' && mentionedUsers) {
+        const emailMatchesWithName = mentionedUsers.some((u) => u.name === value);
         if (emailMatchesWithName) {
           newText = newText.replace(new RegExp(escapeRegExp(value), 'g'), (match, position) => {
             const isMention = newText.charAt(position - 1) === '@';
@@ -241,30 +286,45 @@ export const renderText = <
     }
   });
 
-  const plugins = [emojiMarkdownPlugin];
+  const rehypePlugins = [emojiMarkdownPlugin];
 
-  if (mentioned_users?.length) {
-    plugins.push(mentionsMarkdownPlugin(mentioned_users));
+  if (mentionedUsers?.length) {
+    rehypePlugins.push(mentionsMarkdownPlugin(mentionedUsers));
   }
 
-  const renderers = {
-    mention: Mention,
+  // TODO: remove in the next major release
+  if (customMarkDownRenderers?.mention) {
+    const MentionComponent = customMarkDownRenderers['mention'];
+
+    // eslint-disable-next-line react/display-name
+    customMarkDownRenderers['mention'] = ({ node, ...rest }) => (
+      <MentionComponent
+        // @ts-ignore
+        mentioned_user={node.mentionedUser}
+        // @ts-ignore
+        node={{ mentioned_user: node.mentionedUser, ...node }}
+        {...rest}
+      />
+    );
+  }
+
+  const rehypeComponents = {
     ...markDownRenderers,
-    ...options.customMarkDownRenderers,
+    ...customMarkDownRenderers,
   };
 
   return (
     <ReactMarkdown
-      allowedTypes={allowedMarkups}
-      escapeHtml={true}
-      plugins={plugins}
-      renderers={renderers}
-      source={newText}
-      transformLinkUri={(uri) =>
-        uri.startsWith('app://') ? uri : RootReactMarkdown.uriTransformer(uri)
-      }
-      unwrapDisallowed={true}
-    />
+      allowedElements={allowedMarkups}
+      components={rehypeComponents}
+      rehypePlugins={rehypePlugins}
+      remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+      skipHtml
+      transformLinkUri={(uri) => (uri.startsWith('app://') ? uri : uriTransformer(uri))}
+      unwrapDisallowed
+    >
+      {newText}
+    </ReactMarkdown>
   );
 };
 
