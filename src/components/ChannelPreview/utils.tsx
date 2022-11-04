@@ -1,6 +1,6 @@
 import React from 'react';
 
-import ReactMarkdown from 'react-markdown/with-html';
+import ReactMarkdown from 'react-markdown';
 
 import type { Channel, TranslationLanguages, UserResponse } from 'stream-chat';
 
@@ -8,7 +8,7 @@ import type { TranslationContextValue } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export const renderPreviewText = (text: string) => <ReactMarkdown source={text} />;
+export const renderPreviewText = (text: string) => <ReactMarkdown skipHtml>{text}</ReactMarkdown>;
 
 export const getLatestMessagePreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

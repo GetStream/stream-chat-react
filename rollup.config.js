@@ -1,5 +1,5 @@
 import babel from '@rollup/plugin-babel';
-import commonjs from 'rollup-plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
@@ -13,7 +13,6 @@ import replace from '@rollup/plugin-replace';
 import builtins from '@stream-io/rollup-plugin-node-builtins';
 import { terser } from 'rollup-plugin-terser';
 import { prepend } from 'rollup-plugin-insert';
-import PropTypes from 'prop-types';
 import process from 'process';
 import pkg from './package.json';
 
@@ -55,7 +54,6 @@ const externalDependencies = [
   'react-images',
   'react-image-gallery',
   'react-is',
-  /react-markdown/,
   'react-player',
   'react-textarea-autosize',
   'react-virtuoso',
@@ -79,13 +77,7 @@ const basePlugins = ({ useBrowserResolve = false }) => [
     babelHelpers: 'runtime',
     exclude: 'node_modules/**',
   }),
-  commonjs({
-    namedExports: {
-      'node_modules/linkifyjs/index.js': ['find'],
-      'node_modules/react-is/index.js': ['isValidElementType'],
-      'prop-types': Object.keys(PropTypes),
-    },
-  }),
+  commonjs(),
   // import files as data-uris or es modules
   url(),
   copy({

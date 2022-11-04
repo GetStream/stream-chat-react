@@ -46,7 +46,18 @@ describe(`renderText`, () => {
       {
         customMarkDownRenderers: {
           mention: function MyMention(props) {
-            return <span className='my-mention'>{props.children}</span>;
+            return (
+              <span
+                className='my-mention'
+                // TODO: remove in the next major release
+                data-mentioned-user-id={props.mentioned_user.id}
+                // TODO: remove in the next major release
+                data-node-mentioned-user-id={props.node.mentioned_user.id}
+                data-node-mentionedUser-id={props.node.mentionedUser.id}
+              >
+                {props.children}
+              </span>
+            );
           },
         },
       },
@@ -57,6 +68,15 @@ describe(`renderText`, () => {
 
   it('renders standard markdown text', () => {
     const Markdown = renderText('Hi, shall we meet on **Tuesday**?', []);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('renders remark-gfm list and strikethrough correctly', () => {
+    const Markdown = renderText(
+      'Pick a time to meet:\n- Wednesday\n- Thursday\n- ~~Sunday~~\n- ~Monday~\n',
+      [],
+    );
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchSnapshot();
   });
