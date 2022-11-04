@@ -1,3 +1,23 @@
+## [10.3.1](https://github.com/GetStream/stream-chat-react/compare/v10.3.0...v10.3.1) (2022-10-13)
+
+
+### Bug Fixes
+
+* add stream-chat@8.x.x to peerDependencies ([#1814](https://github.com/GetStream/stream-chat-react/issues/1814)) ([04bff7d](https://github.com/GetStream/stream-chat-react/commit/04bff7d28ae31ba2d4ba33937f132c92ca777671))
+
+# [10.3.0](https://github.com/GetStream/stream-chat-react/compare/v10.2.0...v10.3.0) (2022-10-11)
+
+
+### Bug Fixes
+
+* replace use of channel config with channelCapabilities to derive permission flags ([#1807](https://github.com/GetStream/stream-chat-react/issues/1807)) ([1143117](https://github.com/GetStream/stream-chat-react/commit/11431176f042dbf3438162770127b085183c613f))
+* unify paginator interface ([#1803](https://github.com/GetStream/stream-chat-react/issues/1803)) ([d65b7b9](https://github.com/GetStream/stream-chat-react/commit/d65b7b9c27bf41313390c18e4ddb155e080c463c)), closes [#1801](https://github.com/GetStream/stream-chat-react/issues/1801)
+
+
+### Features
+
+* add popper tooltip to SimpleReactionList items ([#1801](https://github.com/GetStream/stream-chat-react/issues/1801)) ([478f0f2](https://github.com/GetStream/stream-chat-react/commit/478f0f209a1e17db6ee1f61a945b22f763d02fb3))
+
 # [10.2.0](https://github.com/GetStream/stream-chat-react/compare/v10.1.2...v10.2.0) (2022-10-04)
 
 
