@@ -2,6 +2,8 @@ import React, { PropsWithChildren, useLayoutEffect, useRef, useState } from 'rea
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 
+import * as linkify from 'linkifyjs';
+
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
@@ -78,11 +80,11 @@ export const AttachmentActionsContainer = <
 
 function getCssDimensionsVariables(url: string) {
   const cssVars = {
-    ['--original-height']: 1000000,
-    ['--original-width']: 1000000,
+    '--original-height': 1000000,
+    '--original-width': 1000000,
   } as Record<string, number>;
 
-  if (url) {
+  if (linkify.test(url, 'url')) {
     const urlParams = new URL(url).searchParams;
     const oh = Number(urlParams.get('oh'));
     const ow = Number(urlParams.get('ow'));
@@ -91,6 +93,7 @@ function getCssDimensionsVariables(url: string) {
     cssVars['--original-width'] = originalWidth;
     cssVars['--original-height'] = originalHeight;
   }
+
   return cssVars;
 }
 
