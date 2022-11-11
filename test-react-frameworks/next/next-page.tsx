@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { NextPage } from 'next';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { StreamChat } from 'stream-chat';
 import {
@@ -15,33 +15,44 @@ import {
   Window,
 } from 'stream-chat-react';
 
-const apiKey = process.env.STREAM_API_KEY;
-const userId = process.env.USER_ID;
-const userToken = process.env.USER_TOKEN;
+const Home: NextPage = ({ apiKey, userId, userToken }) => {
+  const [client, setClient] = useState<StreamChat | null>(null);
 
-if (!apiKey || !userId || !userToken)
-  throw new Error('Missing either STREAM_API_KEY, USER_ID or USER_TOKEN');
+  const filters: ChannelFilters = { members: { $in: [userId] }, type: 'messaging' };
+  const options: ChannelOptions = { limit: 10, presence: true, state: true };
+  const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
-const options = { limit: 10, presence: true, state: true };
+  useEffect(() => {
+    const chatClient = StreamChat.getInstance(apiKey);
 
-const chatClient = StreamChat.getInstance(apiKey);
+    chatClient.connectUser({ id: userId }, userToken).then(() => setClient(chatClient));
+  }, []);
 
-if (typeof window !== 'undefined') {
-  chatClient.connectUser({ id: userId }, userToken);
-}
+  if (client === null) {
+    return <div>Loading</div>;
+  }
 
-const Home: NextPage = () => (
-  <Chat client={chatClient}>
-    <ChannelList options={options} />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput focus />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
+  return (
+    <Chat client={client}>
+      <ChannelList filters={filters} options={options} sort={sort} />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  );
+};
+
+Home.getInitialProps = () => {
+  const apiKey = process.env.NEXT_STREAM_API_KEY;
+  const userId = process.env.NEXT_USER_ID;
+  const userToken = process.env.NEXT_USER_TOKEN;
+
+  return { apiKey, userId, userToken };
+};
 
 export default Home;
