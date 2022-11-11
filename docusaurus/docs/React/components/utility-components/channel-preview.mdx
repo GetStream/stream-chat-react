@@ -1,0 +1,109 @@
+---
+id: channel_preview
+sidebar_position: 3
+title: ChannelPreview
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+
+The `ChannelPreview` component is a wrapper component that handles the logic and functionality for a provided (or the default) channel preview and ultimately dictates the display via the component's `Preview` prop.
+
+## Basic Usage
+
+You will not need to use the `ChannelPreview` component directly. If creating a custom preview component, you can take advantage of this component's logic while dictating the design and display by utilizing the `Preview` prop on `ChannelList`.
+This prop from the parent component ultimately sets the `Preview` prop in `ChannelPreview`. If this optional prop is not provided the default UI component is
+[`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
+
+**Example**
+
+```tsx
+const YourCustomChannelPreview = ({ latestMessage, lastMessage }) => {
+  // "lastMessage" property is for the last
+  // message that has been interacted with (pinned/edited/deleted)
+
+  // to display last message of the channel use "latestMessage"
+  return <span>{latestMessage}</span>
+};
+
+<ChannelList
+  options={options}
+  sort={sort}
+  Preview={YourCustomChannelPreview} />}
+/>;
+```
+
+## Props
+
+### <div class="label required basic">Required</div> channel
+
+This required prop is the `channel` to be previewed; comes from either the `channelRenderFilterFn` or `usePaginatedChannels` call from
+[ChannelList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelList.tsx) and does not need to be set manually.
+
+| Type    |
+| ------- |
+| Channel |
+
+### activeChannel
+
+The currently selected channel object.
+
+| Type    |
+| ------- |
+| Channel |
+
+### Avatar
+
+The custom UI component to display the avatar for the `channel`.
+
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
+
+### channelUpdateCount
+
+A number that forces the update of the preview component on channel update.
+
+| Type   |
+| ------ |
+| number |
+
+### className
+
+Custom class for the channel preview root
+
+| Type   |
+|--------|
+| string |
+
+
+### onSelect
+
+Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `ChannelPreview` to display items of channel search results. There, behind the scenes, the new active channel is set.
+
+| Type                              |
+|-----------------------------------|
+| (event: React.MouseEvent) => void |
+
+### Preview
+
+The UI component to use for display.
+
+| Type      | Default                                                                                              |
+|-----------|------------------------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='ChannelPreviewMessenger' path='/ChannelPreview/ChannelPreviewMessenger.tsx'/> |
+
+### setActiveChannel
+
+The setter function for a selected `channel`.
+
+| Type                                 |
+| ------------------------------------ |
+| ChatContextValue['setActiveChannel'] |
+
+### watchers
+
+The object containing watcher parameters. See the [Pagination documentation](https://getstream.io/chat/docs/react/channel_pagination/?language=js) for a list of available fields for sort.
+
+| Type                                |
+| ----------------------------------- |
+| { limit?: number; offset?: number } |

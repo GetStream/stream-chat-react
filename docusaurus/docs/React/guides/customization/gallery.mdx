@@ -1,0 +1,115 @@
+---
+id: image_gallery
+sidebar_position: 11
+title: Image Gallery
+---
+
+import Gallery from '../../assets/Gallery.png';
+
+In this example, we demonstrate how to replace our default image [`Gallery`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)
+component with a custom implementation. The `Gallery` component is a child of `Attachment`, so we'll need
+to create a custom `Attachment` component as well.
+
+## React Image Gallery
+
+In this example, we are going to use the [`react-image-gallery`](https://www.npmjs.com/package/react-image-gallery)
+dependency. Many pre-built React image galleries exists, so this demo just shows one possible way to replace the
+library's default `Gallery` component.
+
+We'll need to import a few additional modules into our app to access the main component, an item type, and the
+distributed CSS:
+
+```tsx
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import 'react-image-gallery/styles/css/image-gallery.css';
+```
+
+## Custom Gallery
+
+A custom component will always receive the same props as the library's default. In the case of `Gallery`, the custom component
+receives an array of image objects to be loaded. Each image object contains an `image_url` key, which references the CDN-hosted
+URL of the image.
+
+The `ImageGallery` component we've imported requires an `items` prop. The `items` prop accepts a similar array of image objects,
+with the `original` key as the only required type. The `original` key references the image URL, similar to the `image_url`
+key coming into the component via props.
+
+To make the types line up, we manipulate the props array of images slightly, and pass into the `ImageGallery` component.
+
+```tsx
+const CustomGallery: React.FC<GalleryProps> = (props) => {
+  const { images } = props;
+
+  const updatedImages: ReactImageGalleryItem[] = [];
+
+  Object.values(images).forEach((image) => {
+    if (image.image_url) {
+      updatedImages.push({ original: image.image_url });
+    }
+  });
+
+  return <ImageGallery items={updatedImages} />;
+};
+```
+
+## Custom Attachment
+
+In order to render our `CustomGallery` component, we need to supply it as a prop to the
+[`Attachment`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx)
+component. The resulting `CustomAttachment` component is then added to `Channel`, so it can be injected into the
+`ComponentContext` and consumed within the [Message UI](../../components/message-components/message-ui.mdx) component.
+
+```tsx
+const CustomAttachment: React.FC<AttachmentProps> = (props) => (
+  <Attachment {...props} Gallery={CustomGallery} />
+);
+
+<Channel Attachment={CustomAttachment}>{/* children of Channel component */}</Channel>;
+```
+
+## Implementation
+
+Now that each individual piece has been constructed, we can assemble all of the snippets into the final code example.
+
+### The Code
+
+```tsx
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import 'react-image-gallery/styles/css/image-gallery.css';
+
+const CustomGallery: React.FC<GalleryProps> = (props) => {
+  const { images } = props;
+
+  const updatedImages: ReactImageGalleryItem[] = [];
+
+  Object.values(images).forEach((image) => {
+    if (image.image_url) {
+      updatedImages.push({ original: image.image_url });
+    }
+  });
+
+  return <ImageGallery items={updatedImages} />;
+};
+
+const CustomAttachment: React.FC<AttachmentProps> = (props) => {
+  return <Attachment {...props} Gallery={CustomGallery} />;
+};
+
+const App = () => (
+  <Chat client={client}>
+    <ChannelList />
+    <Channel Attachment={CustomAttachment}>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+### The Result
+
+<img src={Gallery} alt='Gallery' width='700' />

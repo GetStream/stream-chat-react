@@ -1,0 +1,130 @@
+---
+id: typescript_and_generics
+sidebar_position: 3
+title: TypeScript and Generics
+---
+
+As of version `5.0.0`, `stream-chat-react` has been converted to TypeScript. The `stream-chat` library was converted to TypeScript in version `2.0.0`.
+These upgrades not only improve type safety, but also allow user provided typings to be passed to server requests and custom components through
+the use of [generics](https://www.typescriptlang.org/docs/handbook/2/generics.html).
+
+In many cases, TypeScript uses [inference](https://www.typescriptlang.org/docs/handbook/type-inference.html) from provided props to establish a component or
+value's type. It is therefore important that the proper generics be applied to the `stream-chat` client instance during construction. The
+[documentation on `stream-chat` TypeScript](https://github.com/GetStream/stream-chat-js/blob/master/docs/typescript.md) has detailed examples of how this can be accomplished.
+The Stream Chat client takes a type with seven customizable fields that currently exist in `stream-chat`.
+
+```tsx
+const client = new StreamChat<StreamChatGenerics>('YOUR_API_KEY');
+```
+
+`StreamChatGenerics` can be defined as a type with the seven generics that correspond to the seven customizable fields as follows:
+
+```tsx
+type StreamChatGenerics = {
+  attachmentType: LocalAttachmentType;
+  channelType: LocalChannelType;
+  commandType: LocalCommandType;
+  eventType: LocalEventType;
+  messageType: LocalMessageType;
+  reactionType: LocalReactionType;
+  userType: LocalUserType;
+};
+```
+
+:::note
+`LocalAttachmentType`, `LocalChannelType` etc. are type definitions for their respective key as per your application types necessities.
+
+```tsx
+type LocalAttachmentType = {
+  file_size?: number;
+};
+type LocalChannelType = Record<string, unknown>;
+type LocalCommandType = string;
+type LocalEventType = Record<string, unknown>;
+type LocalMessageType = Record<string, unknown>;
+type LocalReactionType = Record<string, unknown>;
+type LocalUserType = {
+  image?: string;
+};
+```
+
+:::
+
+The seven customizable fields these generics extend are provided via `stream-chat`:
+
+1. [`Attachment`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+2. [`ChannelResponse`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+3. [`CommandVariants`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+4. [`Event`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+5. [`MessageBase`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+6. [`Reaction`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+7. [`User`](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts)
+
+All seven generics contain defaults in the component library that can be extended for custom types for Channel, Messages, etc.
+
+```tsx
+type DefaultAttachmentType = Record<string, unknown>;
+type DefaultChannelType = Record<string, unknown> & {
+  image?: string;
+};
+type DefaultCommandType = string & {};
+type DefaultEventType = Record<string, unknown>;
+type DefaultMessageType = Record<string, unknown> & {
+  isAdminMessage?: boolean;
+};
+type DefaultReactionType = Record<string, unknown>;
+type DefaultUserType = Record<string, unknown> & {
+  image?: string;
+  nickName?: string;
+};
+```
+
+Additional fields on the defaults (eg: `file_size`, and `image`) are added by `stream-chat-react` within the SDK. When adding to the subset of generics,
+the preceding and interceding generics must also be set in order for the TypeScript compiler to correctly understand intent.
+
+The below example shows how to extend `ChannelType`, `MessageType`, and `UserType` during client instantiation:
+
+```tsx
+type StreamChatGenerics = {
+  attachmentType: DefaultAttachmentType;
+  channelType: DefaultChannelType;
+  commandType: DefaultCommandType;
+  eventType: DefaultEventType;
+  messageType: DefaultMessageType;
+  reactionType: DefaultReactionType;
+  userType: DefaultUserType;
+};
+```
+
+```tsx
+const client = new StreamChat<StreamChatGenerics>('YOUR_API_KEY');
+```
+
+Through this client instantiation, we have added type support for the following values:
+
+- `channel.image`
+- `message.isAdminMessage`
+- `user.image`
+- `user.nickName`
+
+:::note
+`DefaultCommandType` extends `string & {}` to maintain intellisense for the included commands. This allows you to extend a string union.
+:::
+
+The exported custom context hooks also require generics be applied to correctly type custom returns. For example, the
+`useChannelStateContext` hook needs all generics to get a correctly typed return for `channel`.
+
+```tsx
+const { channel } = useChannelStateContext<StreamChatGenerics>();
+```
+
+:::tip
+To see an example of extending the default `Attachment` type, see the [Geolocation Attachment](./theming/actions/geolocation-attachment.mdx#custom-map-attachment)
+custom code example.
+:::
+
+The current default types can be seen in the [`stream-chat-react` component library](https://github.com/GetStream/stream-chat-js/blob/master/src/types.ts). Any additional custom types
+will extend these defaults. Core to understanding this pattern is how generics can be
+[applied to JSX elements](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-9.html#generic-type-arguments-in-jsx-elements).
+
+

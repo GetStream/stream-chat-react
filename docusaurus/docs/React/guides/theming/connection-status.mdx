@@ -1,0 +1,39 @@
+---
+id: connection_status
+sidebar_position: 16
+title: Connection Status
+---
+
+import ConnectionStatus from '../../assets/ConnectionStatus.png';
+
+This example will show you how to change the message text in the `ConnectionStatus` component. This status appears when there is a connection issue with the Stream Chat API.
+
+This component is established within the `MessageList` via the `DefaultMessageListNotifications` component in the same file. For a complete override of all of these notifications, see this [detailed example](../adding-notification.mdx), but in this smaller guide
+we will replace just the text of one of the components using the Stream [`i18n instance`](./translations.mdx).
+
+## Implementation
+
+The first step is to create an instance of `Streami18n` and pass it into the `Chat` component.
+
+```tsx
+const i18nInstance = new Streami18n();
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  ...
+</Chat>;
+```
+
+Next, we can define what text appears during connection issues by overriding the default message via the key value pairing. Check out the full list of [values you can override](https://github.com/GetStream/stream-chat-react/blob/master/src/i18n/en.json).
+
+```tsx
+const i18nInstance = new Streami18n({
+  language: 'en',
+  translationsForLanguage: {
+    'Connection failure, reconnecting now...': 'Alert, connection issue happening',
+  },
+});
+```
+
+## The Result
+
+<img src={ConnectionStatus} alt='Custom Connection Status Message for Chat' width='700' />

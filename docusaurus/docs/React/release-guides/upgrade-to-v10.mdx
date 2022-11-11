@@ -18,7 +18,7 @@ import EmptyChannelList from '../assets/theme-v2-empty-channel-list.png';
 import EmptyMessageList from '../assets/theme-v2-empty-message-list.png';
 import ScrollToBottomButton from '../assets/theme-v2-scroll-to-bottom-button-theme-v1.png';
 
-The release v10 brings some new features as well as some breaking changes to the users. The main focus was to support [the next version of theming V2](../theming/introduction.mdx) brought with `@stream-io/stream-chat-css@3.0.0`. It lead to addition resp. removal of some HTML elements in few components. This may invalidate some of your CSS selectors. Also, some components marked as deprecated for a longer period of time have been removed.
+The release v10 brings some new features as well as some breaking changes to the users. The main focus was to support [the next version of theming V2](../guides/theming/css-and-theming.mdx) brought with `@stream-io/stream-chat-css@3.0.0`. It lead to addition resp. removal of some HTML elements in few components. This may invalidate some of your CSS selectors. Also, some components marked as deprecated for a longer period of time have been removed.
 
 We have tried to introduce as few breaking changes as possible. We have not removed classes but rather added new ones that are exclusively used with the theming V2 stylesheet. Also, where possible, V1 and V2 components have been introduced for backwards compatibility (the V1 components are used unless opted into theme version 2).
 
@@ -58,7 +58,7 @@ There is a new prop `head` that allows you to render a custom React Element at t
 
 The default message component in virtualized Thread is now `MessageSimple` and not `FixedHeightMessage`. The `FixedHeightMessage` component has been deprecated and will be removed in the next release v11.
 
-Moreover, we have added a new prop `groupStyles` with the same purpose as in [non-virtualized `MessageList`](../core-components/message-list.mdx/#groupstyles).
+Moreover, we have added a new prop `groupStyles` with the same purpose as in [non-virtualized `MessageList`](../components/core-components/message-list.mdx/#groupstyles).
 
 #### Thread
 
@@ -170,7 +170,7 @@ The new theming V2 provides default styles if no theme class is set. These style
 
 #### ChannelSearch
 
-The `ChannelSearch` component has been revamped and upgraded. It now provides richer functionality and wider possibilities of customization for those, who opt into use of theme V2. The component capabilities are described in [ChannelSearch documentation](../utility-components/channel-search.mdx) in more depth
+The `ChannelSearch` component has been revamped and upgraded. It now provides richer functionality and wider possibilities of customization for those, who opt into use of theme V2. The component capabilities are described in [ChannelSearch documentation](../components/utility-components/channel-search.mdx) in more depth
 
 #### ChannelPreview
 

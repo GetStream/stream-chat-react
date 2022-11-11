@@ -1,0 +1,159 @@
+---
+id: chat_context
+sidebar_position: 1
+title: ChatContext
+---
+
+import ReviewNote from '../../_docusaurus-components/ReviewNote';
+
+The `ChatContext` is exposed by the [`Chat`](../core-components/chat.mdx) component. Since `Chat` wraps the entire chat application, all other components in the library
+have access to the values stored in this context. You can access the context values by calling the `useChatContext` custom hook.
+
+## Basic Usage
+
+Pull values from context with our custom hook:
+
+```jsx
+const { client, setActiveChannel } = useChatContext();
+```
+
+## Values
+
+### client
+
+The `StreamChat` client instance. Any methods from the `stream-chat-js` API interface can be run off this object.
+
+| Type   |
+| ------ |
+| object |
+
+### channel
+
+The currently active channel, which populates the [`Channel`](../core-components/channel.mdx) component.
+
+| Type    |
+| ------- |
+| Channel |
+
+
+<ReviewNote
+  id='8f87022a-2305-11ed-9971-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
+### closeMobileNav
+
+The function to close mobile navigation.
+
+| Type     |
+|----------|
+| function |
+
+### customClasses
+
+Object containing custom CSS classnames to override the library's default container CSS. See [CSS and Theming](../../guides/theming/css-and-theming.mdx)
+for implementation assistance.
+
+| Type   |
+| ------ |
+| object |
+
+### getAppSettings
+
+The callback function used to get available client-side app settings, includes image and file upload config.
+
+| Type     |
+|----------|
+| function |
+
+### latestMessageDatesByChannel
+
+Object containing the date of the latest message sent by the current user by channels (this is used to detect if slow mode countdown should be started)
+
+| Type                    |
+| ----------------------- |
+| { [key: string]: Date } |
+
+### mutes
+
+An array of users that have been muted by the connected user.
+
+| Type   |
+| ------ |
+| Mute[] |
+
+<ReviewNote
+  id='db6b3990-2305-11ed-bcfc-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
+### navOpen
+
+When the screen width is at a mobile breakpoint, whether the mobile navigation menu is open.
+
+| Type    | Default |
+|---------|---------|
+| boolean | true    |
+
+<ReviewNote
+  id='eeaf7eb2-2305-11ed-9285-a4bb6d26ac2f'
+>
+  This applies only to theme V1. We should include deprecation notice.
+</ReviewNote>
+
+### openMobileNav
+
+The function to open mobile navigation.
+
+| Type     |
+|----------|
+| function |
+
+### setActiveChannel
+
+A function to set the currently active channel. This is used in the `ChannelList` component to navigate between channels.
+You can override the default behavior by pulling it from context and then utilizing the function.
+
+| Type     |
+|----------|
+| function |
+
+<ReviewNote
+  id='57bc33a6-2369-11ed-aefd-a4bb6d26ac2f'
+>
+  Should we remove this value from the chat context?
+</ReviewNote>
+
+### theme
+
+Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../../guides/theming/css-and-theming.mdx#css-variables) of your app.
+
+| Type  |
+| ----- |
+| Theme |
+
+<ReviewNote
+  id='df7331b2-243d-11ed-8076-a4bb6d26ac2f'
+>
+  Proposing to add information about which release has introduced a given prop/value
+</ReviewNote>
+
+### themeVersion
+
+Stream chat theme version 2 has been introduced with the release of stream-chat-react v10.0.0. This flag is used internally by some UI components of the SDK and the integrators shouldn't need to use it. The value is extracted from a CSS variable `--str-chat__theme-version`. You can set it to values `'1'` or `'2'` in your stylesheets and import the corresponding v2 stylesheet from `stream-chat-react/dist`. Find out more about benefits that the theme version 2 brings to the integrators with [the theming guide](../../guides/theming/css-and-theming.mdx).
+
+|   Type         |  Default  |
+| -------------- | --------- |
+| `'1'` \| `'2'` |   `'1'`   |
+
+### useImageFlagEmojisOnWindow
+
+Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead.
+Stream Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending
+on the platform). Set this prop to true if you want to use these custom emojis for Windows users.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
