@@ -565,14 +565,14 @@ Both `listener.js` and usage of key codes were outdated and caused unnecessary i
 * onBlur prop for ChatAutoComplete ([c9897f4](https://github.com/GetStream/stream-chat-react/commit/c9897f422d0d04d606f149965b510bee749e0151)), closes [#1345](https://github.com/GetStream/stream-chat-react/issues/1345)
 * support choosing a giphy version ([0d97fc6](https://github.com/GetStream/stream-chat-react/commit/0d97fc62d4e5f166162e1d375689196305fad420))
 
-### ⚠️ BREAKING CHANGES ⚠️  
+### ⚠️ BREAKING CHANGES ⚠️
 
 * All types now accept a single generic ([help article](https://getstream.io/chat/docs/sdk/react/customization/typescript_and_generics/))
 
 
 ## [7.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-02-10
 
-### ⚠️ BREAKING CHANGES ⚠️  
+### ⚠️ BREAKING CHANGES ⚠️
 
 - Replace stale `react-images` dependency with `react-image-gallery`, removed `ModalImage` [#1318](https://github.com/GetStream/stream-chat-react/pull/1318)
 - Add support for accessibility through the use of semantic HTML, ARIA attributes. Updates include changing HTML elements to different types as necessary [#1314](https://github.com/GetStream/stream-chat-react/pull/1314) and [#1294](https://github.com/GetStream/stream-chat-react/pull/1294)

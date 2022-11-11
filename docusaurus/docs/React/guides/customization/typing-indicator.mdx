@@ -1,0 +1,115 @@
+---
+id: typing_indicator
+sidebar_position: 15
+title: Typing Indicator
+---
+
+import TypingIndicator from '../../assets/TypingIndicator.png';
+
+In this example, we will demonstrate how to build a custom `TypingIndicator` using the default component as a guide.
+
+## Create the Component
+
+Using the `typing` object provided by the `TypingContext`, we can access the `name` and `role` of users currently typing
+in a channel. The `threadList` prop will allow us to conditionally render the typing indicator in the main message
+list, or at the bottom of a thread.
+
+```tsx
+export const CustomTypingIndicator = (props: TypingIndicatorProps) => {
+  const { threadList } = props;
+
+  const { channelConfig, thread } = useChannelStateContext();
+  const { client } = useChatContext();
+  const { typing = {} } = useTypingContext();
+
+  if (channelConfig?.typing_events === false) {
+    return null;
+  }
+
+  const typingInChannel = !threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+      )
+    : [];
+
+  const typingInThread = threadList
+    ? Object.values(typing).filter(
+        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === thread?.id,
+      )
+    : [];
+
+  return (
+    <div
+      className={`str-chat__typing-indicator ${
+        (threadList && typingInThread.length) || (!threadList && typingInChannel.length)
+          ? 'str-chat__typing-indicator--typing'
+          : ''
+      }`}
+    >
+      <div className='str-chat__typing-indicator__avatars'>
+        {(threadList ? typingInThread : typingInChannel).map(({ user }, i) => (
+          <div className='username'>
+            <div className='typing-indicator-name'>{user?.name}</div>
+            <div className='typing-indicator-role '>{user?.role}</div>
+          </div>
+        ))}
+      </div>
+      <div className='str-chat__typing-indicator__dots'>
+        <div className='str-chat__typing-indicator__dot' />
+        <div className='str-chat__typing-indicator__dot' />
+        <div className='str-chat__typing-indicator__dot' />
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.str-chat__typing-indicator__dots {
+  border: none;
+  display: flex;
+  margin-left: 0;
+  width: fit-content;
+}
+
+.str-chat__typing-indicator__dot {
+  background: var(--grey);
+  opacity: 1;
+  height: 4px;
+  width: 4px;
+  border-radius: var(--border-radius-round);
+  display: flex;
+}
+
+.str-chat__typing-indicator__dot:nth-child(3) {
+  opacity: 1;
+}
+
+.str-chat__typing-indicator__dot:nth-child(2) {
+  opacity: 1;
+}
+
+.typing-indicator-name {
+  font-weight: var(--font-weight-bold);
+  color: var(--grey);
+}
+.typing-indicator-role {
+  font-weight: var(--font-weight-regular);
+  color: var(--grey-whisper);
+  margin-left: var(--xxs-m);
+}
+
+.username {
+  display: flex;
+}
+```
+
+From here, all we need to do is override the default component in `Channel`:
+
+```tsx
+<Channel TypingIndicator={CustomTypingIndicator}>{/* children of Channel component */}</Channel>
+```
+
+## The Result
+
+<img src={TypingIndicator} alt='Custom Typing Indicator UI Component for Chat' width='700' />
