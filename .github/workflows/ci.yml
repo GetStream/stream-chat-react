@@ -140,7 +140,7 @@ jobs:
           key: ${{ runner.os }}${{ runner.arch }}-playwright-browsers
 
       - name: Install Playwright browsers if not cached
-        if: steps.playwright-cache.outputs.cache-hit != 'true' && matrix.framework == 'vite'
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium webkit firefox
 
       - name: Install Playwright system dependencies (always)
