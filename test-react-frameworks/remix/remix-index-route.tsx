@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-import { LinksFunction } from '@remix-run/node';
+import { json, LinksFunction } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
 import React from 'react';
 
 import { StreamChat } from 'stream-chat';
@@ -15,20 +16,26 @@ import {
   Window,
 } from 'stream-chat-react';
 
-const apiKey = process.env.STREAM_API_KEY;
-const userId = process.env.USER_ID;
-const userToken = process.env.USER_TOKEN;
-
-if (!apiKey || !userId || !userToken)
-  throw new Error('Missing either STREAM_API_KEY, USER_ID or USER_TOKEN');
-
-const options = { limit: 10, presence: true, state: true };
+// eslint-disable-next-line require-await
+export async function loader() {
+  return json({
+    apiKey: process.env.REMIX_STREAM_API_KEY,
+    userId: process.env.REMIX_USER_ID,
+    userToken: process.env.REMIX_USER_TOKEN,
+  });
+}
 
 import stream from 'stream-chat-react/dist/css/index.css';
 
 export const links: LinksFunction = () => [{ href: stream, rel: 'stylesheet' }];
 
 export default function Index() {
+  const { apiKey, userId, userToken } = useLoaderData();
+
+  const filters: ChannelFilters = { members: { $in: [userId] }, type: 'messaging' };
+  const options: ChannelOptions = { limit: 10, presence: true, state: true };
+  const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+
   const [client, setClient] = React.useState<StreamChat | null>(null);
 
   React.useEffect(() => {
@@ -43,7 +50,7 @@ export default function Index() {
 
   return (
     <Chat client={client}>
-      <ChannelList options={options} />
+      <ChannelList filters={filters} options={options} sort={sort} />
       <Channel>
         <Window>
           <ChannelHeader />
