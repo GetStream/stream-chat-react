@@ -214,7 +214,7 @@ const initState = <
 
   const fileUploads =
     message.attachments
-      ?.filter(({ type }) => type === 'file')
+      ?.filter(({ type }) => type === 'file' || type === 'audio' || type === 'video')
       .reduce<Record<string, FileUpload>>(
         (acc, { asset_url, file_size, mime_type, thumb_url, title = '' }) => {
           const id = nanoid();
