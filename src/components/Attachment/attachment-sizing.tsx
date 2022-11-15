@@ -1,18 +1,26 @@
 import type { Attachment } from 'stream-chat';
+import * as linkify from 'linkifyjs';
 
 export const getImageAttachmentConfiguration = (attachment: Attachment, element: HTMLElement) => {
-  const url = new URL((attachment.image_url || attachment.thumb_url || '') as string);
-  const resizeDimensions = getSizingRestrictions(url, element);
+  let newUrl = undefined;
 
-  if (resizeDimensions) {
-    // Apply 2x for retina displays
-    resizeDimensions.height *= 2;
-    resizeDimensions.width *= 2;
-    addResizingParamsToUrl(resizeDimensions, url);
+  const urlToTest = attachment.image_url || attachment.thumb_url || '';
+
+  if (linkify.test(urlToTest, 'url')) {
+    const url = new URL(urlToTest);
+    const resizeDimensions = getSizingRestrictions(url, element);
+
+    if (resizeDimensions) {
+      // Apply 2x for retina displays
+      resizeDimensions.height *= 2;
+      resizeDimensions.width *= 2;
+      addResizingParamsToUrl(resizeDimensions, url);
+    }
+    newUrl = url.href;
   }
 
   return {
-    url: url.href,
+    url: newUrl || '',
   };
 };
 
@@ -22,7 +30,11 @@ export const getVideoAttachmentConfiguration = (
   shouldGenerateVideoThumbnail: boolean,
 ) => {
   let thumbUrl = undefined;
-  if (attachment.thumb_url && shouldGenerateVideoThumbnail) {
+  if (
+    attachment.thumb_url &&
+    shouldGenerateVideoThumbnail &&
+    linkify.test(attachment.thumb_url, 'url')
+  ) {
     const url = new URL(attachment.thumb_url);
     const resizeDimensions = getSizingRestrictions(url, element);
 
