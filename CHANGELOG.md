@@ -747,7 +747,7 @@ Both `listener.js` and usage of key codes were outdated and caused unnecessary i
 
 ### Feature
 
-- Add ability to override high-level, CSS container classes via the `customClasses` prop on `Chat` [#1159](https://github.com/GetStream/stream-chat-react/pull/1159). See the [docs](https://getstream.io/chat/docs/sdk/react/customization/06-css_and_theming/#custom-container-classes) for more information.
+- Add ability to override high-level, CSS container classes via the `customClasses` prop on `Chat` [#1159](https://github.com/GetStream/stream-chat-react/pull/1159). See the [docs](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/#custom-container-classes) for more information.
 - Allow custom message actions in the `VirtualizedMessageList` [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
 - While using the `MessageSimple` UI component, allow message grouping in the `VirtualizedMessageList` via the `shouldGroupByUser` prop [#1166](https://github.com/GetStream/stream-chat-react/pull/1166)
 - Add ability to customize the svg icons in the `MessageOptions` component [#1159](https://github.com/GetStream/stream-chat-react/pull/1159)
@@ -960,7 +960,7 @@ Both `listener.js` and usage of key codes were outdated and caused unnecessary i
 - We've replaced much of the library's hardcoded CSS with customizable variables [#927](https://github.com/GetStream/stream-chat-react/pull/927)
 - Variable support has been added for fonts, colors, border radius, padding, and margin
 - The `Chat` component now accepts a `customStyles` prop, an object type of CSS variables and value overrides
-- See the [CSS and Theming](https://getstream.io/chat/docs/sdk/react/customization/06-css_and_theming/) section of our docs
+- See the [CSS and Theming](https://getstream.io/chat/docs/sdk/react/customization/css_and_theming/) section of our docs
 for an example of how to implement
 
 ### Feature
