@@ -1,0 +1,372 @@
+---
+id: message_context
+sidebar_position: 6
+title: MessageContext
+---
+
+import MessageActionsBoxWithCustomAction from '../../assets/message-actions-box-custom-actions.png';
+
+The `MessageContext` is established within the [`Message`](../message-components/message.mdx) component. It provides data to the
+[Message UI](../message-components/message-ui.mdx) component and its children. Use the values stored within this context to build
+a custom Message UI component. You can access the context values by calling the `useMessageContext` custom hook.
+
+## Basic Usage
+
+Pull values from context with our custom hook:
+
+```jsx
+const { message, threadList } = useMessageContext();
+```
+
+## Values
+
+### actionsEnabled
+
+If true, actions such as edit, delete, flag, etc. are enabled on the message.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### additionalMessageInputProps
+
+Additional props to be passed to the underlying [`MessageInput`](../message-input-components/message-input.mdx) component that's rendered
+while editing.
+
+| Type   |
+| ------ |
+| object |
+
+### autoscrollToBottom
+
+Call this function to keep message list scrolled to the bottom when the message list container scroll height increases (only available in the `VirtualizedMessageList`). An example use case is that upon user's interaction with the application, a new element appears below the last message. In order to keep the newly rendered content visible, the `autoscrollToBottom` function can be called. The container, however, is not scrolled to the bottom, if already scrolled up more than 4px from the bottom.
+
+| Type       |
+| ---------- |
+| () => void |
+
+### clearEditingState
+
+When called, this function will exit the editing state on the message.
+
+| Type                                       |
+|--------------------------------------------|
+| (event?: React.BaseSyntheticEvent) => void |
+
+### customMessageActions
+
+An object containing custom message actions (key) and function handlers (value). The key is used as a display text inside the button. Therefore, it should not be cryptic but rather bear the end user in mind when formulating it.
+
+```jsx
+const customActions = {
+  'Copy text': (message) => {
+    navigator.clipboard.writeText(message.text || '')
+  },
+};
+
+<MessageList customMessageActions={customActions} />;
+```
+
+Custom action item "Copy text" in the message actions box:
+<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+| Type   |
+| ------ |
+| object |
+
+### editing
+
+If true, the message toggles to an editing state.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### endOfGroup
+
+When true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
+
+### firstOfGroup
+
+When true, the message is the first one in a group sent by a specific user (only used in the `VirtualizedMessageList`).
+
+| Type    |
+| ------- |
+| boolean |
+
+### formatDate
+
+Overrides the default date formatting logic, has access to the original date object.
+
+| Type                   |
+| ---------------------- |
+| (date: Date) => string |
+
+### getMessageActions
+
+Function that returns an array of the allowed actions on a message by the currently connected user.
+
+| Type                      |
+| ------------------------- |
+| () => MessageActionsArray |
+
+### groupedByUser
+
+If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### groupStyles
+
+An array of potential styles to apply to a grouped message (ex: top, bottom, single).
+
+| Type     | Options                                         |
+| -------- | ----------------------------------------------- |
+| string[] | '' \| 'middle' \| 'top' \| 'bottom' \| 'single' |
+
+### handleAction
+
+Function that calls an action on a message.
+
+| Type                                                                                                  |
+| ----------------------------------------------------------------------------------------------------- |
+| (dataOrName?: string \| FormData, value?: string, event?: React.BaseSyntheticEvent) => Promise<void\> |
+
+### handleDelete
+
+Function that removes a message from the current channel.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleEdit
+
+Function that edits a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleFlag
+
+Function that flags a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleMute
+
+Function that mutes the sender of a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleOpenThread
+
+Function that opens a [`Thread`](../core-components/thread.mdx) on a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handlePin
+
+Function that pins a message in the current channel.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### handleReaction
+
+Function that adds/removes a reaction on a message.
+
+| Type                                                                      |
+| ------------------------------------------------------------------------- |
+| (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> |
+
+### handleRetry
+
+Function that retries sending a message after a failed request (overrides the function stored in `ChannelActionContext`).
+
+| Type                                       |
+| ------------------------------------------ |
+| (message: StreamMessage) => Promise<void\> |
+
+
+### highlighted
+
+Whether to highlight and focus the message on load.
+
+| Type    |
+|---------|
+| boolean |
+
+### initialMessage
+
+When true, signifies the message is the parent message in a thread list.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### isMyMessage
+
+Function that returns whether or not a message belongs to the current user.
+
+| Type          |
+| ------------- |
+| () => boolean |
+
+### isReactionEnabled
+
+If true, reactions are enabled in the currently active channel.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
+
+### lastReceivedId
+
+The latest message ID in the current channel.
+
+| Type   |
+| ------ |
+| string |
+
+### message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components.
+
+| Type   |
+| ------ |
+| object |
+
+### messageListRect
+
+DOMRect object linked to the parent `MessageList` component.
+
+| Type    |
+| ------- |
+| DOMRect |
+
+### mutes
+
+An array of users that have been muted by the connected user.
+
+| Type   | Default                                                               |
+| ------ | --------------------------------------------------------------------- |
+| Mute[] | [ChannelStateContext['mutes']](./channel-state-context.mdx) |
+
+### onMentionsClickMessage
+
+Function that runs on click of an @mention in a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### onMentionsHoverMessage
+
+Function that runs on hover of an @mention in a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### onReactionListClick
+
+Function that runs on click of the reactions list component.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### onUserClick
+
+Function that runs on click of a user avatar.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### onUserHover
+
+Function that runs on hover of a user avatar.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### pinPermissions
+
+The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
+
+| Type   | Default                                                                   |
+|--------|---------------------------------------------------------------------------|
+| object | <GHComponentLink text='defaultPinPermissions' path='/Message/utils.tsx'/> |
+
+### reactionSelectorRef
+
+Ref to be placed on the reaction selector component.
+
+| Type                                    |
+| --------------------------------------- |
+| React.MutableRefObject<HTMLDivElement\> |
+
+### readBy
+
+An array of users that have read the current message.
+
+| Type  |
+| ----- |
+| array |
+
+### renderText
+
+Custom function to render message text content.
+
+| Type     | Default                                                                                |
+| -------- | -------------------------------------------------------------------------------------- |
+| function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
+
+### setEditingState
+
+Function to toggle the editing state on a message.
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### showDetailedReactions
+
+When true, show the reactions list component.
+
+| Type    |
+| ------- |
+| boolean |
+
+### threadList
+
+If true, indicates that the current `MessageList` component is part of a `Thread`.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### unsafeHTML
+
+If true, renders HTML instead of markdown. Posting HTML is only supported server-side.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |

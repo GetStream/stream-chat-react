@@ -1,0 +1,151 @@
+---
+id: ui_components
+sidebar_position: 3
+title: UI Components
+---
+
+As described in the [Input UI](./input-ui.mdx) section, our default [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
+component is a combination of various UI subcomponents. We export all the building blocks of `MessageInputFlat`, so a custom Input UI
+component can be built in a similar way. Check out the [Input UI Customization](../../guides/theming/input-ui.mdx) section for an example.
+
+The following UI components are available for use:
+
+- [`ChatAutoComplete`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatAutoComplete/ChatAutoComplete.tsx) - wrapper
+  component that provides data and functionality to the underlying `textarea` component imported from [react-textarea-autosize](https://www.npmjs.com/package/react-textarea-autosize)
+
+- [`DefaultTriggerProvider`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) - provides
+  the default autocomplete triggers (i.e., `/`, `@`, and `:`) to the `MessageInput` children
+
+- [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx) - picker
+  component for selecting an emoji
+
+- [`QuotedMessagePreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) - displays
+  a UI wrapper around the `MessageInput` when an existing message is being quoted
+
+- [`SendButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) - on click, sends a
+  message to the currently active channel
+
+- [`UploadsPreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/UploadsPreview.tsx) - displays
+  a list of uploaded files prior to sending the message
+
+## ChatAutoComplete Props
+
+### handleSubmit
+
+Function to override the default submit handler on the underlying `textarea` component.
+
+| Type                                      | Default                                                                                        |
+|-------------------------------------------|------------------------------------------------------------------------------------------------|
+| (event: React.BaseSyntheticEvent) => void | [MessageInputContextValue['handleSubmit']](../contexts/message-input-context.mdx#handlesubmit) |
+
+### onBlur
+
+Function to run on blur of the underlying `textarea` component.
+
+| Type                                          |
+|-----------------------------------------------|
+| React.FocusEventHandler<HTMLTextAreaElement\> |
+
+### onChange
+
+Function to override the default onChange behavior on the underlying `textarea` component.
+
+| Type                                           | Default                                                                                |
+|------------------------------------------------|----------------------------------------------------------------------------------------|
+| React.ChangeEventHandler<HTMLTextAreaElement\> | [MessageInputContextValue['onChange']](../contexts/message-input-context.mdx#onchange) |
+
+### onFocus
+
+Function to run on focus of the underlying `textarea` component.
+
+| Type                                          |
+|-----------------------------------------------|
+| React.FocusEventHandler<HTMLTextAreaElement\> |
+
+### onPaste
+
+Function to override the default onPaste behavior on the underlying `textarea` component.
+
+| Type                                                        | Default                                                                              |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| (event: React.ClipboardEvent<HTMLTextAreaElement\>) => void | [MessageInputContextValue['onPaste']](../contexts/message-input-context.mdx#onpaste) |
+
+### placeholder
+
+Placeholder for the underlying `textarea` component.
+
+| Type   | Default             |
+|--------|---------------------|
+| string | 'Type your message' |
+
+### rows
+
+The initial number of rows for the underlying `textarea` component.
+
+| Type   | Default |
+|--------|---------|
+| number | 1       |
+
+### value
+
+The text value of the underlying `textarea` component.
+
+| Type   | Default                                                                        |
+|--------|--------------------------------------------------------------------------------|
+| string | [MessageInputContextValue['text']](../contexts/message-input-context.mdx#text) |
+
+### wordReplace
+
+Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component.
+
+| Type                                                     |
+|----------------------------------------------------------|
+| (word: string, emojiIndex?: NimbleEmojiIndex) =\> string |
+
+## DefaultTriggerProvider
+
+:::note
+The `DefaultTriggerProvider` component does not take any props and by default sets the `autocompleteTriggers` in `MessageInputContext` as
+`/` (commands), `@` (mentions), and `:` (emojis).
+
+`DefaultTriggerProvider` wraps the [Input UI](./input-ui.mdx) component and doesn't
+need to be explicitly added to your app unless you wish to change trigger settings. To change trigger settings, provide a custom trigger
+provider component to the `Channel` component via the `TriggerProvider` prop. An example can be found in the
+[Message Input UI](../../guides/theming/input-ui.mdx) customization section.
+:::
+
+## EmojiPicker Props
+
+### small
+
+If true, updates the CSS class name of the `div` container and renders a smaller version of the picker.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+## QuotedMessagePreview Props
+
+### <div class="label required basic">Required</div> quotedMessage
+
+The existing message to be quoted by the next sent message.
+
+| Type   |
+|--------|
+| object |
+
+## SendButton Props
+
+### <div class="label required basic">Required</div> sendMessage
+
+Function to send a message to the currently active channel.
+
+| Type                                      |
+|-------------------------------------------|
+| (event: React.BaseSyntheticEvent) => void |
+
+## UploadsPreview
+
+:::note
+`UploadsPreview` only consumes context and does not accept any optional props.
+:::

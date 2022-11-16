@@ -1,0 +1,312 @@
+---
+id: reactions
+sidebar_position: 4
+title: Reactions
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+
+The Stream Chat API provides built-in support for adding reactions to messages. The component library provides three default
+components to enable reaction selection and display:
+
+- [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows
+  the connected user to select a reaction on a message
+
+- [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) - displays
+  the reactions added to a message
+
+- [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
+  a minimal list of the reactions added to a message
+
+## Basic Usage
+
+By default, the `ReactionSelector` and `ReactionsList` components are included within `MessageSimple`. To render reaction UI within a
+custom [Message UI](./message-ui.mdx) component, import both components (or `SimpleReactionsList` for a lightweight view) and render
+conditionally.
+
+```jsx
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message, showDetailedReactions } = useMessageContext();
+
+  return (
+    <div>
+      {showDetailedReactions && <ReactionSelector />}
+      // render remaining custom Message UI
+      {message.latest_reactions && <ReactionsList reactions={message.latest_reactions} />}
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## UI Customization
+
+Be default, the `ReactionSelector` component provides the following reaction options and corresponding emojis:
+
+- `like`
+- `love`
+- `haha`
+- `wow`
+- `sad`
+- `angry`
+
+The `defaultMinimalEmojis` data set that populates the default reaction options can be found in the
+[emojiData](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/emojiData.ts) file in the
+component library.
+
+To override the default selection set, provide your own array of `MinimalEmoji` type objects and pass into the `reactionOptions`
+prop on the `ReactionSelector` component. You can also override the default [handleReaction](./components/contexts/message-context.mdx#handlereaction)
+function by adding the `handleReaction` prop.
+
+:::caution
+If custom `reactionOptions` are supplied to the `ReactionSelector` component, then the same data set needs to be delivered to the
+`ReactionsList` component so the display for processed reactions has the same emoji objects.
+:::
+
+```jsx
+const customReactions = [
+  // add array of custom `ReactionEmoji` type objects here
+];
+
+const customReactionHandler = (reactionType, event) => {
+  // add custom handler logic here
+};
+
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message, showDetailedReactions } = useMessageContext();
+
+  return (
+    <div>
+      {showDetailedReactions && (
+        <ReactionSelector
+          handleReaction={customReactionHandler}
+          reactionOptions={customReactions}
+        />
+      )}
+      // render remaining custom Message UI
+      {message.latest_reactions && <ReactionsList reactionOptions={customReactions} />}
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+To completely override the `ReactionSelector` and `ReactionsList` components in `MessageSimple`, pass your own custom components as props
+to the [`Channel`](./components/core-components/channel.mdx).
+
+```jsx
+const CustomReactionSelector = (props) => {
+  // add custom reaction selector component here
+};
+
+const CustomReactionsList = (props) => {
+  // add custom reactions list component here
+};
+
+<Chat client={client}>
+  <Channel
+    channel={channel}
+    ReactionSelector={CustomReactionSelector}
+    ReactionsList={CustomReactionsList}
+  >
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## ReactionSelector Props
+
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+|--------|
+| object |
+
+### Avatar
+
+Custom UI component to display a user's avatar.
+
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
+
+### detailedView
+
+If true, shows the user's avatar with the reaction.
+
+| Type    | Default |
+|---------|---------|
+| boolean | true    |
+
+### handleReaction
+
+Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                                      | Default                                                                                 |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
+| (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleReaction']](./components/contexts/message-context.mdx#handlereaction) |
+
+### latest_reactions
+
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
+
+| Type  |
+|-------|
+| array |
+
+### own_reactions
+
+An array of own reaction objects to display in the list (overrides `message.own_reactions` from `MessageContext`).
+
+| Type  |
+|-------|
+| array |
+
+### reaction_counts
+
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+
+| Type                            |
+|---------------------------------|
+| { [key: reactionType]: number } |
+
+### reactionOptions
+
+A list of the currently supported reactions on a message.
+
+| Type  | Default                                                                     |
+|-------|-----------------------------------------------------------------------------|
+| array | <GHComponentLink text='defaultMinimalEmojis' path='/Channel/emojiData.ts'/> |
+
+### reverse
+
+If true, adds a CSS class that reverses the horizontal positioning of the selector.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+## ReactionsList Props
+
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+|--------|
+| object |
+
+### onClick
+
+Custom on click handler for an individual reaction in the list (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                           |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](./components/contexts/message-context.mdx#onreactionlistclick) |
+
+### own_reactions
+
+An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
+
+| Type  |
+| ----- |
+| array |
+
+### reaction_counts
+
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+
+| Type                            |
+|---------------------------------|
+| { [key: reactionType]: number } |
+
+### reactionOptions
+
+A list of the currently supported reactions on a message.
+
+| Type  | Default                                                                     |
+|-------|-----------------------------------------------------------------------------|
+| array | <GHComponentLink text='defaultMinimalEmojis' path='/Channel/emojiData.ts'/> |
+
+### reactions
+
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
+
+| Type  |
+|-------|
+| array |
+
+### reverse
+
+If true, adds a CSS class that reverses the horizontal positioning of the selector.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+## SimpleReactionsList Props
+
+### additionalEmojiProps
+
+Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart`.
+
+| Type   |
+|--------|
+| object |
+
+### handleReaction
+
+Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                                      | Default                                                                                 |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleReaction']](./components/contexts/message-context.mdx#handlereaction) |
+
+### own_reactions
+
+An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
+
+| Type  |
+|-------|
+| array |
+
+### reaction_counts
+
+An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+
+| Type                            |
+|---------------------------------|
+| { [key: reactionType]: number } |
+
+### reactionOptions
+
+A list of the currently supported reactions on a message.
+
+| Type  | Default                                                                     |
+|-------|-----------------------------------------------------------------------------|
+| array | <GHComponentLink text='defaultMinimalEmojis' path='/Channel/emojiData.ts'/> |
+
+### reactions
+
+An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
+
+| Type  |
+|-------|
+| array |
