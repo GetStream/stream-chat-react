@@ -1,0 +1,138 @@
+---
+id: channel_header
+sidebar_position: 9
+title: Channel Header
+---
+
+import CustomChannelHeader from '../../assets/CustomChannelHeader.png';
+
+In this example, we will demonstrate how to use a custom `ChannelHeader` component instead of the default. Unlike most of the other library components where a prop on a parent component will override the default, for this component all you need to do is use
+your custom component in place of the library's header option.
+
+### Implementation
+
+The default header displays the name of the channel, the number of members, and the number of members online. In our example, we will display the name and add the typing indicator below. We need to pull the `channel` information from context. Pulling from this context is possible in our
+custom component because it's a child of `Channel`.
+
+```jsx
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+  const { title } = props;
+
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
+
+  return <div>{title || name}</div>;
+};
+```
+
+Let's add the typing indicator to our header component and remove the indicator where it appears by default in the `MessageList`. We can accomplish the removal by overriding the default with a null value.
+
+```tsx
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+    const { title } = props;
+
+    const { channel } = useChannelStateContext();
+    const { name } = channel.data || {};
+
+    return (
+        <>
+            <div>{title || name}</div>
+            <TypingIndicator />
+        </>
+    )
+}
+
+<Channel TypingIndicator={() => null}>
+```
+
+The options are endless for displaying additional items in the header since so much more information is available to us if we were to continue destructuring from the `channel` object. For this demo, though, let's add both library styling and local CSS and call it a day.
+
+```css
+.header-title {
+  padding: 5px 7px;
+}
+
+.header-pound {
+  color: #006cff;
+  font-weight: 800;
+  padding-right: 2px;
+}
+```
+
+```tsx
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+  const { title } = props;
+
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
+
+  return (
+    <div className='str-chat__header-livestream'>
+      <div>
+        <div className='header-item'>
+          <span className='header-pound'>#</span>
+          {title || name}
+        </div>
+        <TypingIndicator />
+      </div>
+    </div>
+  );
+};
+```
+
+### The Final Code
+
+Finally and most importantly, let's add in our custom component in the place where the default would have been.
+
+```css
+.header-title {
+  padding: 5px 7px;
+}
+
+.header-pound {
+  color: #006cff;
+  font-weight: 800;
+  padding-right: 2px;
+}
+```
+
+```tsx
+const CustomChannelHeader = (props: ChannelHeaderProps) => {
+  const { title } = props;
+
+  const { channel } = useChannelStateContext();
+  const { name } = channel.data || {};
+
+  return (
+    <div className='str-chat__header-livestream'>
+      <div>
+        <div className='header-item'>
+          <span className='header-pound'>#</span>
+          {title || name}
+        </div>
+        <TypingIndicator />
+      </div>
+    </div>
+  );
+};
+```
+
+```tsx
+const App = () => (
+  <Chat client={chatClient}>
+    <ChannelList />
+    <Channel TypingIndicator={() => null}>
+      <Window>
+        <CustomChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+## The Result:
+
+<img src={CustomChannelHeader} alt='Custom ChannelHeader in Chat' width='700' />

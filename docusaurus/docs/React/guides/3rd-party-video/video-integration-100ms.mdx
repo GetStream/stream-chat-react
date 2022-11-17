@@ -1,0 +1,938 @@
+---
+id: video-integration-100ms
+sidebar_position: 23
+title: 100ms Video Integration
+---
+
+import HMSGuideAfter from '../../assets/HMSGuideAfter.png';
+import HMSGuideBefore from '../../assets/HMSGuideBefore.png';
+import CleanSetup from '../../assets/CleanSetup.png';
+import BasicStreamSetup from '../../assets/BasicStreamSetup.png';
+import ChannelHeaderVideo from '../../assets/ChannelHeaderVideo.png';
+import AgoraDashboardRoles from '../../assets/AgoraDashboardRoles.png';
+import AgoraDashboardSetPermission from '../../assets/AgoraDashboardSetPermission.png';
+
+## Introduction
+
+Video calls have become immensely popular since the onset of the pandemic. Today, we take a look at how you can use the service of [100ms](https://www.100ms.live) to integrate video calls into the Stream Chat SDK.
+
+100ms is an infrastructure provider for services like video, audio, and live streaming. They offer native SDKs for mobile platforms and the web that allow for simple integration with very few lines of code. They cover a wide range of use-cases such as video conferencing, Telehealth, classrooms, and many more.
+
+You must complete quite a few steps to create the final product. We will cover all of them to help you create a well-integrated, fully functional, and reusable solution.
+
+First, let’s take a look at the end result of this project:
+
+export const OurVideo = () => (
+  <div
+    style={{
+      width: '100%',
+      aspectRatio: '16 / 9',
+    }}
+  >
+    <iframe
+      src='https://player.vimeo.com/video/757168791?h=9f0d0837b3'
+      width='100%'
+      height='100%'
+      frameborder='0'
+      allow='autoplay; fullscreen; picture-in-picture'
+      allowfullscreen
+    ></iframe>
+  </div>
+);
+
+<OurVideo />
+<p>
+  <a href='https://vimeo.com/757168791'>react-100ms-demo.mov</a> from{' '}
+  <a href='https://vimeo.com/user172884078'>Stream</a> on <a href='https://vimeo.com'>Vimeo</a>.
+</p>
+
+In order to create this, follow these six steps:
+
+1. Set up an Agora account
+2. Stream Dashboard integration
+3. Set up the project and base architecture
+4. Layout UI
+5. Update the channel information to indicate an active call
+6. Hook up the agora SDK to the UI
+
+We will start from scratch but all the code can also be found [in this repository](https://github.com/GetStream/react-video-integration-100ms), so if you want to dive right in, this is the place for you.
+
+## 1. Setting Up an Account for 100ms
+
+First, let’s go over a quick introduction to [100ms](https://www.100ms.live/). It is a service that allows you to do video conferencing, audio, and more. Their aim is to provide you with a wide range of extensible features, all while allowing you to get started quickly with minimum effort.
+
+To get started, you must [set up an account](https://dashboard.100ms.live/register) on the 100ms platform – click the **Try For Free** button for a trial to use for this tutorial. You can sign up with either a Google or Github account, or you can use any other email address. You will receive an email asking you to confirm your credentials.
+
+Next, you’ll get a quick tour of how to create your own video conference. Here is an outline of the steps you must take:
+
+1. **Choose a template:** Select **Video Conferencing** and hit **Next**
+2. **Add a few more details:** Enter everything that is valid for you
+3. **Choose a subdomain:** Create a subdomain that is suitable for your use case and select the closest region (e.g. in our case, “integrationguide” and “EU” make the most sense, resulting in the domain: **integrationguide.app.100ms.live**)
+4. **Your app is ready:** You can join the room if you want to see a sample (not necessary)
+
+From here, click the **Go to Dashboard** button at the bottom. After completing the quick introductory tour, your account and app will be ready to continue. Nice job!
+
+You will come back to the Dashboard later, but we will move on to other steps next.
+
+## **2. Stream Dashboard integration**
+
+In order for the integration of 100ms to work there needs to be a server component handling token generation and more. Usually, this would require a custom server implementation but Stream offers first-class integration for 100ms relieving you of these duties.
+
+There are only a few setup steps to go through in the Stream dashboard and this guide details all of them:
+
+1. Head over to the [Dashboard](https://dashboard.getstream.io) and log in
+
+2. Create a new app or select your app by name
+
+3. In the sidebar on the left, select **Ext. Video Integration**
+
+4. Make sure the **100ms** tab is selected
+
+This is the screen that you navigated to:
+
+<img
+  src={HMSGuideBefore}
+  alt='The Stream Dashboard should look like this before you setup 100ms.'
+  width='700'
+/>
+
+First, it is necessary to enable the integration through the toggle in the top right (red arrow in the image below). Make sure that you can see the green **HMS Enabled** badge at the top.
+
+Next, it is necessary to enter the credentials from the 100ms console. This is the place you need to enter the following values (in brackets are the place you can find them in the 100ms dashboard):
+
+- `App Access Key` (100ms Dashboard: `Developer` -> `App Access Key`)
+- `App Secret` (100ms Dashboard: `Developer` -> `App Secret`)
+- `Default Role` (can be `guest`)
+- `Default Room Template` (100ms Dashboard: `Templates` -> `Name`)
+
+<img
+  src={HMSGuideAfter}
+  alt='The Stream Dashboard should look like this after you setup 100ms.'
+  width='700'
+/>
+
+With these steps being taken, the Stream Chat SDK will use these credentials internally to initiate calls without you needing to take additional steps.
+
+So, let's focus on the React implementation.
+
+## 3. Set up the project and base architecture
+
+First up is the creation of a new project. We’ll go over the steps a little more quickly, if you want to have a more exhaustive explanation of the setup, we have [an excellent tutorial](https://getstream.io/chat/react-chat/tutorial/) (it includes the necessary steps to install `yarn` which we’ll use here).
+
+In order to set up the project we’ll use [vite](https://vitejs.dev) and run the following command:
+
+```bash
+yarn create vite react-video-integration-100ms
+```
+
+Make sure to select `React` as the framework and `Typescript` as the language.
+
+:::info
+We use the name `react-video-integration-100ms` but you can use whatever you like.
+:::
+
+Next, we’ll add dependencies for the Stream libraries:
+
+```bash
+yarn add stream-chat stream-chat-react
+```
+
+With that, the setup is done and we are ready to dive into code. To check we can run `yarn dev` to see if everything builds as expected and the template should greet you (which we’re about to change).
+
+<img
+  src={CleanSetup}
+  alt='A screenshot of what the running application should look like in the browser at that point.'
+  width='700'
+/>
+
+We’re about to set up the base skeleton of a Stream Chat application. We will not cover the details, but again, feel free to take an exhaustive look at [our tutorial](https://getstream.io/chat/react-chat/tutorial/) to better understand this.
+
+With that said, replace the content in `App.tsx` with the following code:
+
+```tsx
+import { StreamChat } from 'stream-chat';
+import {
+  Chat,
+  Channel,
+  ChannelHeader,
+  MessageInput,
+  MessageList,
+  Thread,
+  Window,
+  ChannelList,
+} from 'stream-chat-react';
+
+import 'stream-chat-react/dist/css/v2/index.css';
+import './App.css';
+
+// -- Constants
+const chatClientId = 'bwyj74v5hxzk';
+const userToken =
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiVGVzdHVzZXIifQ.6P8dNLeAmJKvv4pwcohtNekdW_c7uregc5bv2pNJe-M';
+const userId = 'Testuser';
+const userName = 'Testuser';
+const imagePath = 'https://getstream.io/random_png/?id=lucky-snowflake-1&name=lucky-snowflake-1';
+// -----------
+
+const chatClient = new StreamChat<StreamChatGenerics>(chatClientId);
+
+chatClient.connectUser(
+  {
+    id: userId,
+    name: userName,
+    image: imagePath,
+  },
+  userToken,
+);
+
+const filters = { type: 'messaging', members: { $in: [userId] } };
+
+const App = () => (
+  <Chat client={chatClient} theme='str-chat__theme-light'>
+    <ChannelList filters={filters} />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+
+export default App;
+```
+
+This will not include any styling, so we’ll replace the content in the `App.css` file with this:
+
+```css
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  display: flex;
+}
+
+#root .str-chat__channel-list {
+  width: 30%;
+}
+
+#root .str-chat__channel {
+  width: 100%;
+}
+
+#root .str-chat__thread {
+  width: 45%;
+}
+```
+
+:::info
+We have [a tutorial](https://getstream.io/blog/new-chat-theming-api-for-angular-and-react/) on how to customize theming in Angular and React applications that goes into way more detail on how to do it.
+:::
+
+Because the template for `react` from `vite` comes with some boilerplate we also have to remove parts of the code that is located in `index.css` to have a clean setup. So lastly, make sure your `index.css` file looks like this:
+
+```css
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+```
+
+With that we can run the app with `yarn dev` and will be greeted with this:
+
+<img
+  src={BasicStreamSetup}
+  alt='When the chat setup is done correctly, the screen will show the channel list and a channel selected.'
+  width='700'
+/>
+
+We have the skeleton ready and can start with the video implementation.
+
+## 4. Create a video context object
+
+In order to have easy access to all functionality in our little application, we’ll create a `Context` object for all things related to video. In this context (no pun intended) this is a reasonable approach to doing state management ([more info here](https://reactjs.org/docs/context.html)) but this might vary depending on the complexity of your application.
+
+We’ll first create a new folder for all context objects (although we only have one, we want to have a clean structure) called `contexts` and create a file inside named `VideoContext.tsx`.
+
+Before implementing the functionality, we have to think about the functionality that we need. Our channel can have 5 different states (it can have more, but we want to keep it simple):
+
+1. There’s no call going on right now
+2. There is a call happening but the current user is not participating
+3. The user is connecting to the call
+4. The user is disconnecting from the call
+5. The user is in the call
+
+We can use an `enum` to model these different states, so let’s add this code to the `VideoContext.tsx` file:
+
+```tsx
+export enum ConnectionState {
+  NoCall,
+  CallAvailable,
+  Connecting,
+  Disconnecting,
+  InCall,
+}
+```
+
+Aside from a state variable (that is of type `ConnectionState`), we need to have multiple functions that our `VideoContext` exposes. These are:
+
+1. Creating a call
+2. Joining a call
+3. Leaving a call
+4. Ending a call
+
+None of these require parameters as we can handle all functionality inside of the `VideoContext` object itself. So let’s define an `interface` for the state of our `VideoContext` object (below the definition of the `ConnectionState`:
+
+```tsx
+interface VideoState {
+  connectionState: ConnectionState;
+  createCall: () => void;
+  joinCall: () => void;
+  leaveCall: () => void;
+  endCall: () => void;
+}
+```
+
+While we’re at it, let’s define a `defaultState` (with empty function declarations) so that we can initially create the `VideoContext` object. We’ll fill it with real code in a bit. First, add this below the `VideoState` definition:
+
+```tsx
+const defaultState: VideoState = {
+  connectionState: ConnectionState.NoCall,
+  createCall: () => {},
+  joinCall: () => {},
+  leaveCall: () => {},
+  endCall: () => {},
+};
+
+export const VideoContext = createContext<VideoState>(defaultState);
+```
+
+In order to inject the `VideoContext` into our application, we will now create a `VideoContextProvider` that takes the `VideoContext.Provider` object and allows to inject `children` (which are `ReactNode` elements).
+
+For this to work, we’ll have an internal state (using React’s `useState`) that handles the `ConnectionState` inside of our provider. We also need to create a `store` object that has implementations for all the functions we defined in our `VideoState` (that will be filled in the next chapter).
+
+Here’s the code:
+
+```tsx
+export const VideoContextProvider = ({
+  children,
+}: { children: ReactNode } => {
+  const [connectionState, setConnectionState] = useState(ConnectionState.NoCall);
+
+  const createCall = useCallback(async () => {}, []);
+  const joinCall = useCallback(async () => {}, []);
+  const leaveCall = useCallback(async () => {}, []);
+  const endCall = useCallback(async () => {}, []);
+
+  const store = useMemo(() => ({
+    connectionState,
+    createCall,
+    joinCall,
+    leaveCall,
+    endCall,
+  }), [connectionState, createCall, joinCall, leaveCall, endCall];
+
+  return (
+    <VideoContext.Provider value={store}>{children}</VideoContext.Provider>
+  );
+};
+```
+
+We're wrapping the functions in `useCallback` hooks because we want to prevent React from triggering unwanted rebuilds.
+
+The last thing to prepare is to make this `VideoContext` easily accessible for all the components where we need it. We create an object for using it like this:
+
+```tsx
+export const useVideoContext = () => useContext(VideoContext);
+```
+
+With that, our basic `VideoContext` is ready to be injected into our component tree. Open up `App.tsx` and inject it inside of the `<Channel>` object so that the code will look like this:
+
+```tsx
+/* ... */
+<Channel>
+  <VideoContextProvider>
+    <Window>
+      <ChannelHeader />
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </VideoContextProvider>
+</Channel>
+/* ... */
+```
+
+Make sure the import is added to the top:
+
+```tsx
+import { VideoContextProvider, StreamChatGenerics } from './context/VideoContext';
+```
+
+With that we have the object ready for use everywhere we need it. Next up is the real implementation of the functionality around calls.
+
+## 5. Add logic for calls
+
+Before we start with the implementation, let’s go through the process of creating calls for the Stream Chat SDK first.
+
+Every channel has a `data` object where we can freely write additional information inside. We’ll use that to add a key called `callActive` that is set to `true` when a call is active and `false` (or simply not present) otherwise.
+
+In addition to that, we’ll add a `callId` to the `data` object when a call is active so that new participants know where to connect to the call. The SDK allows for the creation of calls and tokens with a simple API call, which makes the entire process much easier.
+
+In order to easily work with the object containing the info we will define an `StreamChatGenerics` type at the top of the `VideoContext`:
+
+```tsx
+export type StreamChatGenerics = {
+  channelType: {
+    data?: {
+      callActive?: boolean;
+      callId?: string;
+    };
+  };
+} & Omit<DefaultGenerics, 'channelType'>;
+```
+
+We’ll subscribe to channel events, specifically the `channel.updated` one to get notified when the state of a call changes and we can act accordingly in our UI.
+
+All of this will happen inside of the `VideoContextProvider` object, so let’s get started.
+
+The first thing we do is subscribe to channel events. We need to add two objects for that. Add the following two lines at the beginning of the `VideoContextProvider` (before the creation of the `connectionState`):
+
+```tsx
+const { channel } = useChannelStateContext<StreamChatGenerics>();
+const { client } = useChatContext<StreamChatGenerics>();
+```
+
+Make sure to also have the imports at the top:
+
+```tsx
+import { useChannelStateContext, useChatContext } from 'stream-chat-react';
+```
+
+The good thing when we have the `channel` object available is that we can directly check whether there is an active call going on and set our initial state accordingly. So, let’s change the `connectionState` creation to this:
+
+```tsx
+const [connectionState, setConnectionState] = useState(
+  channel.data?.data?.callActive ? ConnectionState.CallAvailable : ConnectionState.NoCall,
+);
+```
+
+With that, we can add a `useEffect` hook to register for `channel.updated` events. Add the code below the `connectionState` creation:
+
+```tsx
+useEffect(() => {
+  const handleChannelUpdate = (event: Event<StreamChatGenerics>) => {
+    if (event.channel.data?.callActive) {
+      if (connectionState === ConnectionState.NoCall) {
+        setConnectionState(ConnectionState.CallAvailable);
+      } else if (connectionState === ConnectionState.Connecting) {
+        setConnectionState(ConnectionState.InCall);
+      }
+    } else {
+      setConnectionState(ConnectionState.NoCall);
+    }
+  };
+
+  client.on('channel.updated', handleChannelUpdate);
+
+  return () => {
+    client.off('channel.updated', handleChannelUpdate);
+  };
+}, [connectionState]);
+```
+
+The dependency makes sure the closure gets an updated version of the `connectionState` object every time it changes and by returning a function we make sure that the subscription to the `channel.updated` events will be terminated on the destruction of the component.
+
+In order to handle the implementation of our first function (`createCall`), we need to import the `100ms` SDK because we want to join a call in this case.
+
+So let’s install this from the terminal:
+
+```tsx
+yarn add @100mslive/react-sdk@latest
+```
+
+We need to inject the `HMSRoomProvider` into our application. Open up `App.tsx` and wrap the `<Chat>` element with the `<HMSRoomProvider>` element:
+
+```tsx
+<HMSRoomProvider>
+  <Chat>/* ... */</Chat>
+</HMSRoomProvider>
+```
+
+Now, we can add the import of the `useHMSActions` at the top of the `VideoContext.tsx`:
+
+```tsx
+import { useHMSActions } from '@100mslive/react-sdk';
+```
+
+And below the imports of the `channel` and the `client` add another line:
+
+```tsx
+const hmsActions = useHMSActions();
+```
+
+Great, with that we are prepared to implement the `createCall` function. We will do four things:
+
+1. Set the state to `ConnectionState.Connecting`
+2. Create a call from the `channel` object
+3. Join the call using the `hmsActions`
+4. Update the channel data (which will trigger an update of our UI due to the `channel.updated` event being called)
+
+Inside of the `useCallback` object replace the empty `createCall` implementation with this:
+
+```tsx
+// 1.
+setConnectionState(ConnectionState.Connecting);
+
+// 2.
+const response = await channel.createCall({
+  id: `call-${channel.cid}`,
+  type: 'video',
+});
+
+// 3.
+await hmsActions.join({
+  authToken: response.token as string,
+  userName: client.user?.name || 'Unkown',
+});
+
+// 4.
+await channel.updatePartial({
+  set: {
+    data: {
+      callActive: true,
+      callId: response.call.id as string,
+    },
+  },
+});
+```
+
+Make sure to add the dependency to `[channel.cid]` to the `useCallback` of `createCall`. This is necessary to get notified when the user changes channels. We also need to add this to the other `useCallback` functions.
+
+The `joinCall` function is pretty similar to the `createCall` function only that we’re now taking the `callId` we save in the channel `data` object and using it to call the `getCallToken` function on the `client` object. Then we join the call as before. Here is the code to replace the current (empty) `joinCall` function (inside the `useCallback` hook) with:
+
+```tsx
+setConnectionState(ConnectionState.Connecting);
+
+const response = await client.getCallToken(channel.data?.data?.callId);
+
+await hmsActions.join({
+  authToken: response.token as string,
+  userName: client.user?.name || 'Unkown',
+});
+
+setConnectionState(ConnectionState.InCall);
+```
+
+When leaving a call the logic is quite straightforward. We’ll set the state to `ConnectionState.Disconnecting`, then calling the `leave` function of the `hmsActions` SDK, and then updating the state to `ConnectionState.CallAvailable`. Here is the code:
+
+```tsx
+setConnectionState(ConnectionState.Disconnecting);
+
+await hmsActions.leave();
+
+setConnectionState(ConnectionState.CallAvailable);
+```
+
+The last function is the `endCall` which is similar to the `leaveCall` but in addition, we also need to update the channel `data` object. With that, we don’t need to manually update the connection state because this will be again handled by our subscription to the `channel.updated` event.
+
+Replace the current `endCall` function with this one:
+
+```tsx
+setConnectionState(ConnectionState.Disconnecting);
+
+await hmsActions.leave();
+
+await channel.updatePartial({
+  set: {
+    data: {
+      callActive: false,
+    },
+  },
+});
+```
+
+With that we have all the logic available, there is just one more thing we’ll add. In order for us to not be stuck in a call when the window is closed, we’ll also add this code that returns the function to leave a call whenever the component is unmounted:
+
+```tsx
+useEffect(
+  () => () => {
+    hmsActions.leave();
+  },
+  [],
+);
+```
+
+With that, all the logic is done. We have to do one more thing, though.
+
+### Allowing regular users to update the channel state
+
+Executing the code above now would not do anything. It will return an error that the user is not allowed to perform this task.
+And that makes sense, as regular channel members are not allowed to update channel data by default.
+
+The Stream Chat SDK offers a fine-grained [roles and permissions system](https://getstream.io/chat/docs/other-rest/user_permissions/) that
+allows you to finetune which member is allowed to perform which actions. This is a safety measure to only give allowance to execute the tasks
+necessary for the respective user.
+
+It is easy to update those however and allow our users to perform the update channel action that the code above does.
+Head over to the [Stream Dashboard](https://dashboard.getstream.io/) and select your app.
+
+:::note
+If you follow the sample code in the repository the project that is setup already has these changes done, so you can skip to the next part if you are not using a custom project on your own.
+:::
+
+Now, head over to the **Roles & Permissions** tab and click the **Edit Button** (red arrow in the image below) for the **channel_member** role.
+
+<img
+  src={AgoraDashboardRoles}
+  alt='View of the Stream Dashboard in the Roles & Permissions tab with the edit button of the channel_member role marked with a red arrow.'
+  width='700'
+/>
+
+Next, for the **Current Scope** select `messaging` and in the **Available Permissions** search for `Update Channel`.
+Mark the option as checked and click on the blue arrow pointing towards the left. Make sure it shows up under **Grants** and hit **Save Changes** (red arrow in the image below).
+
+<img
+  src={AgoraDashboardSetPermission}
+  alt='View of the Stream Dashboard with the Update Channel permission selected to be moved to the Grants are.'
+  width='700'
+/>
+
+This is all the preparation you need. The updating of the call state will happen when calls are started and when the initiator of a call ends it.
+
+We can now go on to implement the UI.
+
+## 6. Create a custom Channel Header
+
+Next, we’ll add the UI for initializing and ending calls. This should always be visible and a good place for that is the channel header. The SDK makes it easy to replace this and we can make use of this to inject a header that adds the functionality we need.
+
+Inside of the channel header we use the video context to take care of the logic. Let’s first create a folder for it in the `src` directory called `MyChannelHeader`. Inside of it, we’ll create two files, one called `MyChannelHeader.tsx` and one for styling called `MyChannelHeader.css`.
+
+First, take a look at the `tsx` file. We want it to be a component that shows the `channelName` so we need to get the current `channel` object from `useChannelStateContext()`. For that, we’ll use an import and then fetch it. Let’s first create a small dummy `<h2>` element that will show the channel name if available and `Unknown` otherwise:
+
+```tsx
+import { useChannelStateContext } from 'stream-chat-react';
+
+const MyChannelHeader = ({ channelName }: MyChannelHeaderProps) => {
+  const { channel } = useChannelStateContext();
+
+  return <h2>{channel?.data?.name || 'Unknown'}</h2>;
+};
+
+export default MyChannelHeader;
+```
+
+Next, we’ll use the `VideoContext` to import the necessary functions we need and create a helper function to know which function to call when clicking the button depending on the `connectionState`:
+
+Here is the code for the three functions, please add this inside of your `MyChannelHeader` component:
+
+```tsx
+const { connectionState, createCall, joinCall, leaveCall, endCall } = useVideoContext();
+
+const onVideoButtonClick = () => {
+  switch (connectionState) {
+    case ConnectionState.NoCall:
+      createCall();
+      break;
+    case ConnectionState.CallAvailable:
+      joinCall();
+      break;
+    case ConnectionState.InCall:
+      leaveCall();
+      break;
+  }
+};
+```
+
+With that, we can add the rest of our layout code, so let’s replace that lonely `<h2>` element and make use of the functions that we just created:
+
+```tsx
+<div className='custom-header'>
+  <h2>{channel?.data?.name || 'Unknown'}</h2>
+  <div className='button-area'>
+    <CallArea
+      connectionState={connectionState}
+      onVideoButtonClick={onVideoButtonClick}
+      endCall={endCall}
+    />
+  </div>
+</div>
+```
+
+We are using a `CallArea` component here, that we have not yet defined, so let's do this by adding a file inside of the `MyChannelHeader` folder called `CallArea.tsx`.
+
+The first thing we'll add to it is a function that helps us to determine which text to show on a button depending on the `connectionState`:
+
+```tsx
+const buttonText = (connectionState: ConnectionState): string => {
+  switch (connectionState) {
+    case ConnectionState.NoCall:
+      return 'Create call';
+    case ConnectionState.CallAvailable:
+      return 'Join call';
+    case ConnectionState.Connecting:
+      return 'Connecting';
+    case ConnectionState.Disconnecting:
+      return 'Disconnecting';
+    case ConnectionState.InCall:
+      return 'Leave Call';
+  }
+};
+```
+
+Next, we can add the code for the component that takes the necessary parameter to do the calls and adapts the UI depending on the current `connectionState` with a `switch` statement:
+
+```tsx
+interface CallAreaProps {
+  connectionState: ConnectionState;
+  onVideoButtonClick: () => void;
+  endCall: () => void;
+}
+
+const CallArea = ({ connectionState, onVideoButtonClick, endCall }: CallAreaProps) => {
+  switch (connectionState) {
+    case ConnectionState.NoCall:
+    case ConnectionState.CallAvailable:
+      return (
+        <button className='call-button start-call-button' onClick={onVideoButtonClick}>
+          {buttonText(connectionState)}
+        </button>
+      );
+    case ConnectionState.Connecting:
+    case ConnectionState.Disconnecting:
+      return <p className='call-button'>{buttonText(connectionState)}</p>;
+    case ConnectionState.InCall:
+      return (
+        <>
+          <button className='call-button leave-call-button' onClick={onVideoButtonClick}>
+            <p>{buttonText(connectionState)}</p>
+          </button>
+          <button className='call-button end-call-button' onClick={endCall}>
+            <p>End call</p>
+          </button>
+        </>
+      );
+  }
+};
+
+export default CallArea;
+```
+
+Now this will not look great, so let’s also fill in some code for styling in `MyChannelHeader.css`:
+
+```css
+.custom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px #d3d3d3 solid;
+}
+
+.custom-header h2 {
+  font-size: x-large;
+}
+
+.button-area {
+  display: flex;
+}
+
+.call-button {
+  --border-color: #d3d3d3;
+  --border-width: 1px;
+  background: white;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  padding: 0 1rem;
+  height: 2rem;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: 1rem;
+  transition: all 300ms;
+}
+
+.end-call-button {
+  margin-left: 1rem;
+  color: red;
+  --border-color: red;
+}
+
+.start-call-button:hover {
+  color: blue;
+  --border-color: blue;
+}
+
+.leave-call-button:hover {
+  --border-color: red;
+}
+```
+
+With that, our custom channel header is ready to be injected into our application. Switch over to the `App.tsx` file and first, add an import to the component at the top:
+
+```tsx
+/* Other imports */
+import MyChannelHeader from './MyChannelHeader/MyChannelHeader';
+```
+
+Then, find the current channel header, which is the default by the Stream chat SDK:
+
+```tsx
+<ChannelHeader />
+```
+
+Replace that with our newly created one:
+
+```tsx
+<MyChannelHeader channelName={channel.data?.name || 'Unknown'} />
+```
+
+With that, we have our channel header integrated into our application. This will look like this (red rectangle marks our newly created channel header):
+
+<img
+  src={ChannelHeaderVideo}
+  alt='The chat setup with the changed channel header marked as a red rectangle at the top.'
+  width='700'
+/>
+
+Now we only need to show a call once it is active.
+
+## 7. Create a grid for video calls
+
+In order to show the currently active video for the call, we’ll create a grid that shows each participant of the call in one tile.
+
+Let’s create a folder called `VideoGrid` and two files inside called `VideoGrid.tsx` and `VideoGrid.css`.
+
+Before we touch this, we’ll create a new file called `Peer.tsx` inside of the `VideoGrid` folder that will take care of showing the UI of a particular call participant.
+
+The only thing we’ll show here is a `video` element, where we inject the `videoRef` object that the 100ms SDK gives us and show the name of the call participant. It gets handed down a peer to determine which video track and name to show.
+
+This is the entire code for the `Peer` component:
+
+```tsx
+import { HMSPeer, useVideo } from '@100mslive/react-sdk';
+
+const Peer = ({ peer }: { peer: HMSPeer }) => {
+  const { videoRef } = useVideo({ trackId: peer.videoTrack });
+  return (
+    <div className='peer-container'>
+      <video
+        ref={videoRef}
+        className={`peer-video ${peer.isLocal ? 'local' : ''}`}
+        autoPlay
+        playsInline
+      />
+      <p>
+        {peer.name} {peer.isLocal ? '(You)' : ''}
+      </p>
+    </div>
+  );
+};
+
+export default Peer;
+```
+
+The styling will be handled in a bit, but let’s first fill our `VideoGrid.tsx` element with the necessary code. It checks the `connectionState` of the `VideoContext` and if it says that we’re currently `InCall` then we’ll render out a grid of all the `peers` (taken from the `useHMSStore`) object of the 100ms SDK. We’re mapping out all peers and showing a `Peer` component for each of them.
+
+Here is the code:
+
+```tsx
+import { selectPeers, useHMSStore } from '@100mslive/react-sdk';
+import { ConnectionState, useVideoContext } from '../context/VideoContext';
+import Peer from './Peer';
+
+import './VideoGrid.css';
+
+const VideoGrid = () => {
+  const { connectionState } = useVideoContext();
+  const peers = useHMSStore(selectPeers);
+  return (
+    <>
+      {connectionState === ConnectionState.InCall && (
+        <div className='video-grid'>
+          {peers.map((peer) => (
+            <Peer key={peer.id} peer={peer} />
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
+export default VideoGrid;
+```
+
+The next step is to add styling to our elements. We already created the `VideoGrid.css` file, so let’s put the following code inside:
+
+```css
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 1rem;
+}
+
+.peer-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid gray;
+}
+
+.peer-container video {
+  width: 100%;
+  height: 100%;
+}
+
+.peer-container p {
+  width: 100%;
+  font-weight: bold;
+  margin: 0.5rem;
+}
+```
+
+Lastly, we need to import the `VideoGrid` and add it to the `App.tsx` component. We can do this right below the `MyChannelHeader` (make sure to import it at the top of the file):
+
+```css
+/* ... */
+<MyChannelHeader />
+<VideoGrid />
+/* ... */
+```
+
+With that, the implementation is now finished and we have built a fully functional video calling experience inside of a Stream Chat project.
+
+## 8. Summary
+
+In this guide, we completed the entire integration of a video service into a chat app created with the *StreamChat* SDK. All this happened with a clean architectural approach that makes it straightforward to also use other video services in case you want to experiment with that.
+
+For the purpose of simplification, we have not offered audio calls in this guide. But the principle is applicable with very few changes as well.
+
+The 100ms SDK works really well in this case and allows you to quickly set up and use a video call service in your apps without complicated processes and manual work that needs to be done.
+
+In case you have any more questions about this video integration or the work with other SDKs, feel free to [reach out to the team](https://getstream.io/contact/). We are happy to help and support you!
+
+Thank you for following along with this article!

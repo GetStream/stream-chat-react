@@ -1,0 +1,491 @@
+---
+id: message_ui
+sidebar_position: 2
+title: Message UI
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+
+import MessageActionsBoxWithCustomAction from '../../assets/message-actions-box-custom-actions.png';
+
+The Message UI component consumes the [`MessageContext`](../contexts/message-context.mdx) and handles the display and functionality
+for an individual message in a message list. The Message UI component is typically a combination of subcomponents that each consume
+context and are responsible for one aspect of a message (ex: text or reactions).
+
+Each message list component renders with a default Message UI component. If you don't supply a custom component, component <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> will be used by default.
+
+## Basic Usage
+
+**Example 1** - Add Message UI component to `MessageList`.
+
+To use your own Message UI component in the standard `MessageList`, utilize the `Message` prop on either the `Channel`, `MessageList` or `Thread`
+component. Adding the prop to `Channel` will inject your component into the `ComponentContext` and adding to `MessageList` or `Thread` will override
+any value stored in context. So if both props are added, the value delivered to `MessageList` will take precedence.
+
+```jsx
+const CustomMessage = () => {
+  // consume `MessageContext` and render custom component here
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+**Example 2** - Add Message UI component to `VirtualizedMessageList`.
+
+To use your own Message UI component in the `VirtualizedMessageList`, utilize either the `VirtualMessage` prop on `Channel` or the
+`Message` prop on `VirtualizedMessageList`. Up to the SDK version v10.0.0, `FixedHeightMessage` was the default message component in `Thread`. The component is still available in the SDK, but is not used as a default anymore. Adding the prop to `Channel` will inject your component into the `ComponentContext`
+and adding to `VirtualizedMessageList` will override any value stored in context. So if both props are added, the value
+delivered to `VirtualizedMessageList` will take precedence.
+
+```jsx
+const CustomMessage = () => {
+  // consume `MessageContext` and render custom component here
+};
+
+<Chat client={client}>
+  <Channel channel={channel} VirtualMessage={CustomMessage}>
+    <VirtualizedMessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## UI Customization
+
+`MessageSimple` and `FixedHeightMessage` are both designed to be guides to help build a custom Message UI component. At a high level,
+these pre-built, default components wrap a subset of composable components that each serve specific logic and design-based purposes.
+
+There is a different order in which components are stacked inside the `MessageSimple` component depending on the [`themeVersion`](../contexts/chat-context.mdx/#themeversion).
+
+For example, if we strip `MessageSimple` down to its core pieces, the component resembles the following snippet with the `themeVersion` `'1'`:
+
+```jsx
+<div>
+  <MessageStatus />
+  <Avatar />
+  <div>
+    <MessageOptions />
+    <div>
+      <ReactionsList />
+      <ReactionSelector />
+    </div>
+    <div>
+      <Attachment />
+      <MessageText />
+      <MML />
+    </div>
+    <MessageRepliesCountButton />
+    <div>
+      <MessageTimestamp />
+    </div>
+  </div>
+</div>
+```
+
+The `themeVersion` `'2'` markup is a bit different:
+
+```jsx
+<div>
+  <MessageStatus />
+  <Avatar />
+  <div>
+    <MessageOptions />
+    <div>
+      <ReactionsList />
+      <ReactionSelector />
+    </div>
+    <div>
+      <Attachment />
+      <MessageText />
+      <MML />
+      // highlight-next-line
+      <MessageErrorIcon/>
+    </div>
+// highlight-start
+  </div>
+  <MessageRepliesCountButton />
+  <div>
+    <MessageTimestamp />
+  </div>
+// highlight-end
+</div>
+```
+
+We recommend building a Message UI component in a similar way. You can mix and match any of the UI subcomponents and arrange
+in a layout that meets your design specifications. All of these UI subcomponents are exported by the library and may be used within
+your custom Message UI component. Each subcomponent consumes the `MessageContext` and requires no/minimal props to run.
+
+For a detailed example, review the [Message UI Customization](../../guides/theming/message-ui.mdx) example.
+
+### Message options
+
+The default message UI component renders 3 option buttons next to the message content in the main message list:
+
+1. button to open message actions drop-down menu - message actions box
+2. button to open thread
+3. button to open reaction selector
+
+In thread button opening thread is omitted.
+
+#### Message actions box
+
+The drop-down menu contains a default list of actions that are enabled for a message. These are determined by the permissions the user has.
+On the other hand, it is also possible to specify [own custom actions](./#custommessageactions). This will lead to adding more items into the drop-down menu.
+
+
+## Props
+
+:::note
+All Message UI props are optional overrides of the values stored in the [`MessageContext`](../contexts/message-context.mdx). As you
+build your own custom component, we recommend pulling the necessary data from context using the `useMessageContext` custom hook.
+However, if you choose to develop upon our pre-built, default `MessageSimple` component, you may encounter a situation where
+you wish to override a single prop, so all options are detailed below.
+:::
+
+### actionsEnabled
+
+If true, actions such as edit, delete, flag, etc. are enabled on the message (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | true    |
+
+### additionalMessageInputProps
+
+Additional props to be passed to the underlying [`MessageInput`](../message-input-components/message-input.mdx) component that's rendered
+while editing (overrides the value stored in `MessageContext`).
+
+| Type   |
+|--------|
+| object |
+
+### autoscrollToBottom
+
+Call this function to keep message list scrolled to the bottom when the message list container scroll height increases (only available in the `VirtualizedMessageList`). An example use case: upon user's interaction with the application, a new element appears below the last message. In order to keep the newly rendered content visible, the `autoscrollToBottom` function can be called. The container, however, is not scrolled to the bottom, if already scrolled up more than 4px from the bottom.
+
+You can even use the function to keep the container scrolled to the bottom while images are loading:
+
+```tsx
+const Image = (props: ImageProps) => {
+    ...
+    const { autoscrollToBottom } = useMessageContext();
+    ...
+
+    return (
+        <img
+            ...
+            onLoad={autoscrollToBottom}
+            ...
+        />
+}
+```
+
+| Type       |
+|------------|
+| () => void |
+
+### clearEditingState
+
+When called, this function will exit the editing state on the message (overrides the function stored in `MessageContext`).
+
+| Type                                       |
+|--------------------------------------------|
+| (event?: React.BaseSyntheticEvent) => void |
+
+### customMessageActions
+
+An object containing custom message actions (key) and function handlers (value) (overrides the value stored in `MessageContext`). The key is used as a display text inside the button. Therefore, it should not be cryptic but rather bear the end user in mind when formulating it.
+
+```jsx
+const customActions = {
+  'Copy text': (message) => {
+    navigator.clipboard.writeText(message.text || '')
+  },
+};
+
+<MessageList customMessageActions={customActions} />;
+```
+
+Custom action item "Copy text" in the message actions box:
+<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+| Type   |
+|--------|
+| object |
+
+### editing
+
+If true, the message toggles to an editing state (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+### formatDate
+
+Overrides the default date formatting logic, has access to the original date object (overrides the function stored in `MessageContext`).
+
+| Type                   |
+|------------------------|
+| (date: Date) => string |
+
+### getMessageActions
+
+Function that returns an array of the allowed actions on a message by the currently connected user (overrides the function stored in `MessageContext`).
+
+| Type                      |
+|---------------------------|
+| () => MessageActionsArray |
+
+### groupByUser
+
+If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+### groupStyles
+
+An array of potential styles to apply to a grouped message (ex: top, bottom, single) (overrides the value stored in `MessageContext`).
+
+| Type     | Options                                         |
+| -------- | ----------------------------------------------- |
+| string[] | '' \| 'middle' \| 'top' \| 'bottom' \| 'single' |
+
+### handleAction
+
+Function that calls an action on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                                                                  | Default                                                                             |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| (dataOrName?: string \| FormData, value?: string, event?: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleAction']](../contexts/message-context.mdx#handleaction) |
+
+### handleDelete
+
+Function that removes a message from the current channel (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                             |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleDelete']](../contexts/message-context.mdx#handledelete) |
+
+### handleEdit
+
+Function that edits a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleEdit']](../contexts/message-context.mdx#handleedit) |
+
+### handleFlag
+
+Function that flags a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleFlag']](../contexts/message-context.mdx#handleflag) |
+
+### handleMute
+
+Function that mutes the sender of a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleMute']](../contexts/message-context.mdx#handlemute) |
+
+### handleOpenThread
+
+Function that opens a [`Thread`](../core-components/thread.mdx) on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleOpenThread']](../contexts/message-context.mdx#handleopenthread) |
+
+### handlePin
+
+Function that pins a message in the current channel (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                       |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handlePin']](../contexts/message-context.mdx#handlepin) |
+
+### handleReaction
+
+Function that adds a reaction on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                 |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleReaction']](../contexts/message-context.mdx#handlereaction) |
+
+### handleRetry
+
+Function that retries sending a message after a failed request (overrides the function stored in `ChannelActionContext`).
+
+| Type                                       | Default                                                                                                  |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| (message: StreamMessage) => Promise<void\> | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
+
+### initialMessage
+
+When true, signifies the message is the parent message in a thread list (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+### isMyMessage
+
+Function that returns whether a message belongs to the current user (overrides the function stored in `MessageContext`).
+
+| Type          |
+|---------------|
+| () => boolean |
+
+### isReactionEnabled
+
+If true, reactions are enabled in the currently active channel (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | true    |
+
+### lastReceivedId
+
+The latest message ID in the current channel (overrides the value stored in `MessageContext`).
+
+| Type   |
+|--------|
+| string |
+
+### message
+
+The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`).
+
+| Type   |
+|--------|
+| object |
+
+### messageListRect
+
+DOMRect object linked to the parent `MessageList` component (overrides the value stored in `MessageContext`).
+
+| Type    |
+|---------|
+| DOMRect |
+
+### mutes
+
+An array of users that have been muted by the connected user (overrides the value stored in `MessageContext`).
+
+| Type   | Default                                                               |
+|--------|-----------------------------------------------------------------------|
+| Mute[] | [ChannelStateContext['mutes']](../contexts/channel-state-context.mdx) |
+
+### onMentionsClickMessage
+
+Function that runs on click of an @mention in a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onMentionsClickMessage']](../contexts/channel-action-context.mdx#onmentionsclickmessage) |
+
+### onMentionsHoverMessage
+
+Function that runs on hover of an @mention in a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onMentionsHoverMessage']](../contexts/channel-action-context.mdx#onmentionshovermessage) |
+
+### onReactionListClick
+
+Function that runs on click of the reactions list component (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                                  |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](../contexts/channel-action-context.mdx#onreactionlistclick) |
+
+### onUserClick
+
+Function that runs on click of a user avatar (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onUserClick']](../contexts/channel-action-context.mdx#onuserclick) |
+
+### onUserHover
+
+Function that runs on hover of a user avatar (overrides the function stored in `MessageContext`).
+
+| Type                                                        | Default                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onUserHover']](../contexts/channel-action-context.mdx#onuserhover) |
+
+### pinPermissions
+
+The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
+
+| Type   | Default                                                                                                              |
+|--------|----------------------------------------------------------------------------------------------------------------------|
+| object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
+
+### reactionSelectorRef
+
+Ref to be placed on the reaction selector component (overrides the ref stored in `MessageContext`).
+
+| Type                                    |
+|-----------------------------------------|
+| React.MutableRefObject<HTMLDivElement\> |
+
+### readBy
+
+An array of users that have read the current message (overrides the value stored in `MessageContext`).
+
+| Type  |
+|-------|
+| array |
+
+### renderText
+
+Custom function to render message text content (overrides the function stored in `MessageContext`).
+
+| Type     | Default                                                                                |
+|----------|----------------------------------------------------------------------------------------|
+| function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
+
+### setEditingState
+
+Function to toggle the editing state on a message (overrides the function stored in `MessageContext`).
+
+| Type                                                        |
+| ----------------------------------------------------------- |
+| (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
+
+### showDetailedReactions
+
+When true, show the reactions list component (overrides the value stored in `MessageContext`).
+
+| Type    |
+|---------|
+| boolean |
+
+### threadList
+
+If true, indicates that the current `MessageList` component is part of a `Thread` (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
+### unsafeHTML
+
+If true, renders HTML instead of markdown. Posting HTML is only supported server-side (overrides the value stored in `MessageContext`).
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
