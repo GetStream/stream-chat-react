@@ -5,6 +5,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
   Hello 
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -34,6 +35,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -45,24 +47,28 @@ exports[`renderText handles the special case where user name matches to an e-mai
 <p>
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -73,12 +79,14 @@ exports[`renderText handles the special case where user name matches to an e-mai
 <p>
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -94,6 +102,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
    
   <span
     className="str-chat__message-mention"
+    data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -104,12 +113,18 @@ exports[`renderText renders custom mention 1`] = `
 <p>
   <span
     className="my-mention"
+    data-mentioned-user-id="id-username@email.com"
+    data-node-mentioned-user-id="id-username@email.com"
+    data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com
   </span>
    
   <span
     className="my-mention"
+    data-mentioned-user-id="id-username@email.com"
+    data-node-mentioned-user-id="id-username@email.com"
+    data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com
   </span>
@@ -125,10 +140,49 @@ exports[`renderText renders custom mention 1`] = `
    
   <span
     className="my-mention"
+    data-mentioned-user-id="id-username@email.com"
+    data-node-mentioned-user-id="id-username@email.com"
+    data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com
   </span>
 </p>
+`;
+
+exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
+Array [
+  <p>
+    Pick a time to meet:
+  </p>,
+  "
+",
+  <ul>
+    
+
+    <li>
+      Wednesday
+    </li>
+    
+
+    <li>
+      Thursday
+    </li>
+    
+
+    <li>
+      <del>
+        Sunday
+      </del>
+    </li>
+    
+
+    <li>
+      ~Monday~
+    </li>
+    
+
+  </ul>,
+]
 `;
 
 exports[`renderText renders standard markdown text 1`] = `

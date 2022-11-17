@@ -1,0 +1,225 @@
+---
+id: suggestion_list
+sidebar_position: 14
+title: Suggestion List
+---
+
+import Suggestion1 from '../../assets/Suggestions1.png';
+import Suggestion2 from '../../assets/Suggestions2.png';
+import Suggestion3 from '../../assets/Suggestions3.png';
+
+In this example, we will demonstrate how to customize the autocomplete suggestion list items that
+appear above the `MessageInput` component when one of the supported [`autocompleteTriggers`](../../components/contexts/message-input-context.mdx#autocompletetriggers)
+is entered into the text input.
+
+The [`Channel`](../../components/core-components/channel.mdx) component accepts three props that adjust the look and feel of the autocomplete
+suggestion list:
+
+- [`AutocompleteSuggestionHeader`](../../components/core-components/channel.mdx#autocompletesuggestionheader)
+- [`AutocompleteSuggestionItem`](../../components/core-components/channel.mdx#autocompletesuggestionitem)
+- [`AutocompleteSuggestionList`](../../components/core-components/channel.mdx#autocompletesuggestionlist)
+
+Below we show how to create custom header and list items, while leaving the list container unchanged.
+
+## Suggestion Header
+
+By default, the component library handles autocomplete suggestions for user mentions `@`, commands `/`,
+and emojis `:`. The header component receives the text `value` of the `MessageInput` via props. The current trigger
+is the first character in the value string, so we condition the UI of our header component based on the
+currently entered trigger.
+
+```tsx
+const SuggestionHeader: React.FC<SuggestionListHeaderProps> = (props) => {
+  const { value } = props;
+  const initialCharacter = value[0];
+
+  switch (initialCharacter) {
+    case '@':
+      return <div className='suggestion-header'>Mention someone...</div>;
+
+    case '/':
+      return <div className='suggestion-header'>Available commands...</div>;
+
+    case ':':
+      return <div className='suggestion-header'>Choose an emoji...</div>;
+
+    default:
+      return null;
+  }
+};
+```
+
+:::tip
+To customize `autocompleteTriggers`, pass your own [`TriggerProvider`](../../components/core-components/channel.mdx#triggerprovider)
+component to `Channel`.
+:::
+
+## Suggestion List Items
+
+Similar to our header component, we will conditionally render the list items based on the `item` type
+received by our custom component. The `SuggestionItem` type represents a union of type options
+for the various `autocompleteTriggers`.
+
+Since our component can receive three potential item types, we must construct a few type guards to
+ensure proper typing and prevent TypeScript errors. We check if the received `item` is an emoji, a mention,
+or both. Each case will trigger slightly different UI in our component.
+
+```tsx
+type SuggestionItem = BaseEmoji | SuggestionUser | SuggestionCommand;
+
+const isEmoji = (output: SuggestionItem): output is BaseEmoji =>
+  (output as BaseEmoji).native != null;
+
+const isMention = (output: SuggestionItem): output is SuggestionUser =>
+  (output as SuggestionUser).id != null && (output as SuggestionUser).native == null;
+
+const isEmojiOrMention = (output: SuggestionItem): output is BaseEmoji | SuggestionUser =>
+  (output as BaseEmoji | SuggestionUser).id != null;
+```
+
+Once we've aligned our types, we pull necessary data off props and assemble a component that
+on click interacts with the `MessageInput` and properly selects data. The type guards are necessary
+since the received items do not conform to a common type with shared object keys.
+
+```tsx
+const SuggestionItem = React.forwardRef(
+  (props: SuggestionItemProps, ref: React.Ref<HTMLDivElement>) => {
+    const { item, onClickHandler, onSelectHandler, selected } = props;
+
+    const selectItem = () => onSelectHandler(item);
+
+    const itemName = isEmojiOrMention(item) ? item.name || item.id : item.name;
+    const displayText = isEmoji(item) ? `${item.native} - ${itemName}` : itemName;
+
+    return (
+      <div
+        className={`suggestion-item ${selected ? 'selected' : ''}`}
+        onClick={onClickHandler}
+        onMouseEnter={selectItem}
+        ref={ref}
+        role='button'
+        tabIndex={0}
+      >
+        {isMention(item) && <Avatar image={item.image} size={20} />}
+        {displayText}
+      </div>
+    );
+  },
+);
+```
+
+## Implementation
+
+Now that each individual piece has been constructed, we can assemble all of the snippets into the final code example.
+
+### The Code
+
+```css
+.suggestion-header {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  font-size: 18px;
+  padding-left: 16px;
+}
+
+.suggestion-item.selected {
+  background: var(--white-smoke);
+  color: var(--primary-color);
+  font-weight: 700;
+  cursor: pointer;
+}
+```
+
+```tsx
+const SuggestionHeader: React.FC<SuggestionListHeaderProps> = (props) => {
+  const { value } = props;
+  const initialCharacter = value[0];
+
+  switch (initialCharacter) {
+    case '@':
+      return <div className='suggestion-header'>Mention someone...</div>;
+
+    case '/':
+      return <div className='suggestion-header'>Available commands...</div>;
+
+    case ':':
+      return <div className='suggestion-header'>Choose an emoji...</div>;
+
+    default:
+      return null;
+  }
+};
+
+type SuggestionItem = BaseEmoji | SuggestionUser | SuggestionCommand;
+
+const isEmoji = (output: SuggestionItem): output is BaseEmoji =>
+  (output as BaseEmoji).native != null;
+
+const isMention = (output: SuggestionItem): output is SuggestionUser =>
+  (output as SuggestionUser).id != null && (output as SuggestionUser).native == null;
+
+const isEmojiOrMention = (output: SuggestionItem): output is BaseEmoji | SuggestionUser =>
+  (output as BaseEmoji | SuggestionUser).id != null;
+
+const SuggestionItem = React.forwardRef(
+  (props: SuggestionItemProps, ref: React.Ref<HTMLDivElement>) => {
+    const { item, onClickHandler, onSelectHandler, selected } = props;
+
+    const selectItem = () => onSelectHandler(item);
+
+    const itemName = isEmojiOrMention(item) ? item.name || item.id : item.name;
+    const displayText = isEmoji(item) ? `${item.native} - ${itemName}` : itemName;
+
+    return (
+      <div
+        className={`suggestion-item ${selected ? 'selected' : ''}`}
+        onClick={onClickHandler}
+        onMouseEnter={selectItem}
+        ref={ref}
+        role='button'
+        tabIndex={0}
+      >
+        {isMention(item) && <Avatar image={item.image} size={20} />}
+        {displayText}
+      </div>
+    );
+  },
+);
+
+const App = () => (
+  <Chat client={client}>
+    <ChannelList />
+    <Channel
+      AutocompleteSuggestionHeader={SuggestionHeader}
+      AutocompleteSuggestionItem={SuggestionItem}
+    >
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
+```
+
+### The Result
+
+**Mentions UI:**
+
+<img src={Suggestion1} alt='Suggestions 1' width='700' />
+
+**Commands UI:**
+
+<img src={Suggestion2} alt='Suggestions 2' width='700' />
+
+**Emojis UI:**
+
+<img src={Suggestion3} alt='Suggestions 2' width='700' />

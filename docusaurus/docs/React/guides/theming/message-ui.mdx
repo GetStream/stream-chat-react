@@ -1,0 +1,274 @@
+---
+id: message_ui
+sidebar_position: 4
+title: Message UI
+---
+
+import CustomMessage from '../../assets/CustomMessage.png';
+
+## How-to Guide for Building a Custom Message
+
+Using pre-built UI components from the library, the following guide walks you through the process of building a custom
+[Message UI](../../components/message-components/message-ui.mdx) component that looks great and comes packed with functionality. This
+component must be added to either the `Channel` or `MessageList` component via the `Message` prop.
+
+All the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext`
+custom hook. The return value from this hook contains all the values and functions needed to build a Message UI component.
+
+### UI Component Overview
+
+The custom Message UI component built below imports and uses the following UI components:
+
+- [`Attachment`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) - displays the
+  attachments included with a message. See the [Attachments section](../../components/message-components/attachment.mdx) for information on types
+  and props.
+
+- [`Avatar`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) - displays the image of the
+  user that sent the message. If the user does not have an image, it will default to the initials of the user's name.
+
+- [`MessageOptions`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) - on hover,
+  shows the available options on a message (i.e., react, reply, actions). This component internally renders the `MessageActions`
+  component, which displays the available actions on a message (ex: edit, flag, pin).
+
+- [`MessageRepliesCountButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) - displays
+  the number of threaded replies on a message. Clicking the button will call the `handleOpenThread` function and navigate into a `Thread`
+  component that lists the replies.
+
+- [`MessageStatus`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) - displays message
+  delivery status and shows the users who have read the message.
+
+- [`MessageText`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageText.tsx) - formats and renders
+  the message text in markdown using [react-markdown](https://www.npmjs.com/package/react-markdown). This component also renders
+  `QuotedMessage`, which provides an additional UI wrapper if the sent message has quoted a previous message.
+
+- [`MessageTimestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) - shows the
+  sent time of a message. The default format can be overridden with props.
+
+- [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows
+  the connected user to select a reaction on a message. The list of emojis can be customized, but this tutorial uses the default set.
+
+- [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
+  a minimal list of the reactions added to a message (alternate option to [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)).
+
+### How it Fits Together
+
+The sample code below assembles the above UI building blocks into a fully featured Message UI component. The UI components allow you to
+pick the features you wish to employ in your message and orient them in a manner that meets your design specifications. All the
+components consume the `MessageContext` by pulling the necessary through `useMessageContext` hook.
+
+:::tip
+In advanced use cases, the pre-built, UI components may not provide enough design customization potential. In these situations, we
+recommend copying the component's functionality and adding your own design and layout.
+:::
+
+#### The Code:
+
+```jsx
+import React, { useRef } from 'react';
+import {
+  Attachment,
+  Avatar,
+  messageHasReactions,
+  MessageOptions,
+  MessageRepliesCountButton,
+  MessageStatus,
+  MessageText,
+  MessageTimestamp,
+  ReactionSelector,
+  SimpleReactionsList,
+  useMessageContext,
+} from 'stream-chat-react';
+
+import './CustomMessage.scss';
+
+export const CustomMessage = () => {
+  const {
+    isReactionEnabled,
+    message,
+    reactionSelectorRef,
+    showDetailedReactions,
+  } = useMessageContext();
+
+  const messageWrapperRef = useRef(null);
+
+  const hasReactions = messageHasReactions(message);
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
+  return (
+    <div className='message-wrapper'>
+      <Avatar image={message.user?.image} />
+      <div className='message-wrapper-content'>
+        <MessageOptions messageWrapperRef={messageWrapperRef} />
+        <div className='message-header'>
+          <div className='message-header-name'>{message.user?.name}</div>
+          <div className='message-header-timestamp'>
+            <MessageTimestamp />
+          </div>
+        </div>
+        {showDetailedReactions && isReactionEnabled && (
+          <ReactionSelector ref={reactionSelectorRef} />
+        )}
+        <MessageText />
+        <MessageStatus />
+        {hasAttachments && <Attachment attachments={message.attachments} />}
+        {hasReactions && !showDetailedReactions && isReactionEnabled && <SimpleReactionsList />}
+        <MessageRepliesCountButton reply_count={message.reply_count} />
+      </div>
+    </div>
+  );
+};
+```
+
+CustomMessage.scss:
+
+```scss
+.str-chat__li {
+  margin: 0;
+  padding: 15px;
+  position: relative;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+    .str-chat__message-text-inner {
+      background: rgba(0, 0, 0, 0);
+    }
+  }
+}
+
+.message-wrapper {
+  display: flex;
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+.message-header {
+  display: flex;
+
+  &-name {
+    font-family: Helvetica Neue, sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 120%;
+    color: #858688;
+  }
+
+  &-timestamp {
+    font-family: Helvetica Neue, sans-serif;
+    font-size: 11px;
+    line-height: 120%;
+    color: #858688;
+    margin-left: 6px;
+  }
+}
+
+.str-chat__li:hover .str-chat__message-simple__actions {
+  position: absolute;
+  top: -14px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  border-radius: 100px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+  z-index: 1;
+  padding: 0 4px 0;
+
+  &__action--reactions {
+    display: flex;
+  }
+
+  &__action--options {
+    display: flex;
+  }
+
+  &__action--thread {
+    display: flex;
+  }
+}
+
+.str-chat__message-simple__actions {
+  margin-top: 0;
+}
+
+.str-chat__message-actions-box {
+  top: initial;
+  left: -100px;
+  border-radius: 16px 16px 0 16px;
+}
+
+.str-chat__message-text {
+  display: flex;
+  width: 100%;
+}
+
+.str-chat__message-text-inner {
+  position: relative;
+  flex: 1;
+  display: block;
+  min-height: 32px;
+  font-size: 15px;
+  color: black;
+  border-radius: 0;
+  border: 0;
+  margin-left: 0;
+
+  p {
+    font-family: Helvetica Neue, sans-serif;
+    font-size: 15px;
+    line-height: 18px;
+    color: #000000;
+    margin-bottom: 0;
+  }
+}
+
+.str-chat__message-replies-count-button {
+  font-family: Helvetica Neue, sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: right;
+  color: #4e1d9d;
+}
+
+.str-chat__simple-reactions-list {
+  border-radius: 10px;
+}
+
+.str-chat__reaction-selector {
+  max-height: 40px;
+  top: -58px;
+  right: 20px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid #bed5e4;
+}
+
+.str-chat__message-reactions-list-item__count {
+  color: #000000;
+}
+
+.str-chat__message-simple-status {
+  right: 22px;
+}
+
+.quoted-message-inner {
+  margin-top: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.str-chat__li .quoted-message.mine .quoted-message-inner {
+  background: #ebebeb;
+}
+```
+
+#### The Result:
+
+<img src={CustomMessage} alt='Custom Message UI Component for Chat' width='700' />

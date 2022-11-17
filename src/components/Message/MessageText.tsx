@@ -7,7 +7,7 @@ import { useComponentContext, useMessageContext, useTranslationContext } from '.
 import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
 
 import type { TranslationLanguages } from 'stream-chat';
-import type { StreamMessage } from '../../context';
+import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type MessageTextProps<
@@ -21,7 +21,7 @@ export type MessageTextProps<
   message?: StreamMessage<StreamChatGenerics>;
   /* Theme string to be added to CSS class names */
   theme?: string;
-};
+} & Pick<MessageContextValue<StreamChatGenerics>, 'renderText'>;
 
 const UnMemoizedMessageTextComponent = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -32,6 +32,7 @@ const UnMemoizedMessageTextComponent = <
     customInnerClass,
     customWrapperClass = '',
     message: propMessage,
+    renderText: propsRenderText,
     theme = 'simple',
   } = props;
 
@@ -43,9 +44,11 @@ const UnMemoizedMessageTextComponent = <
     message: contextMessage,
     onMentionsClickMessage,
     onMentionsHoverMessage,
-    renderText = defaultRenderText,
+    renderText: contextRenderText,
     unsafeHTML,
   } = useMessageContext<StreamChatGenerics>('MessageText');
+
+  const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
   const { t, userLanguage } = useTranslationContext('MessageText');
   const message = propMessage || contextMessage;
