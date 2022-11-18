@@ -4,11 +4,18 @@
 ### Bug Fixes
 
 * remove props spreading on React.Fragment (dragAndDropWindow) ([#1835](https://github.com/GetStream/stream-chat-react/issues/1835)) ([40c799a](https://github.com/GetStream/stream-chat-react/commit/40c799a9ed863dba9da1207b32966fe16b00349b))
+* MessageSimple to apply renderText function from properties (#1824) ([7133b33](https://github.com/GetStream/stream-chat-react/pull/1824/commits/7133b331a336a1fd258038fe0de8b1bf7edc8ff6))
 
 
 ### Features
 
 * export QuotedMessage component ([#1823](https://github.com/GetStream/stream-chat-react/issues/1823)) ([1850d30](https://github.com/GetStream/stream-chat-react/commit/1850d30306789b7cf220da373d5bea50697c5f3f))
+* added remark-gfm plugin (#1824) ([69a64c2](https://github.com/GetStream/stream-chat-react/pull/1824/commits/69a64c2fbc6935d69adb644167d50decf95faf11))
+
+
+### Performance Updates
+
+* upgrade react-markdown, update renderText function, adjust types (#1824) ([6afe663](https://github.com/GetStream/stream-chat-react/pull/1824/commits/6afe663e3c2d59de2c7d364fd5d89d0d65521e87))
 
 ## [10.3.1](https://github.com/GetStream/stream-chat-react/compare/v10.3.0...v10.3.1) (2022-10-13)
 
