@@ -1,0 +1,204 @@
+---
+id: indicators
+sidebar_position: 7
+title: Indicators
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+
+The Stream Chat React component library provides a variety components that show the status of items loading, queries from the API, network issues, and also a typing indicator:
+
+- [`ChatDown`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) - established in the `ChannelList`, the default indicator that shows when chat functionality isn't available, triggered when the Chat API is unavailable or your network isn't working.
+
+- [`EmptyStateIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) - this component is established in the `MessageList`, `VirtualizedList`, and `ChannelList`
+  components and is rendered when there are no items to display.
+
+- [`LoadingChannels`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) - a fancy loading placeholder for the `ChannelList` that looks like a nice outline of a few preview components.
+
+- [`LoadingErrorIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) - the default UI component that displays an error message when the channel query fails in `Channel`.
+
+- [`LoadingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) - a simple loading spinner component. This component is used in various places in the SDK library when waiting for a response from the Stream Chat API. It can also
+  be imported individually into a project for use in custom components.
+
+- [`LoadMoreButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMoreButton.tsx) - a simple button component that handles pagination logic when loading more items after querying the API.
+  Established via the `LoadMorePaginator` component and can be used standalone in a custom component.
+
+- [`LoadMorePaginator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) - a paginator component that renders channels in the `ChannelList`.
+
+- [`TypingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) - a UI component that lists users currently typing and rendered via the `MessageList` and `VirtualizedList` components
+
+## UI Customization
+
+### ChatDown
+
+You can override this indicator by utilizing the `LoadingErrorIndicator` prop on `ChannelList`.
+
+### EmptyStateIndicator
+
+You can override this indicator in the `ChannelList` via the `EmptyStateIndicator` prop. Use the `EmptyStateIndicator` prop on `Channel` to override in the `MessageList` and `VirtualizedList` components.
+
+### LoadingErrorIndicator
+
+Override this component to display an error message in a way that fits your requirements via the `LoadingErrorIndicator` prop on `Channel`.
+
+### LoadingIndicator
+
+Override this component in the `MessageList` and `VirtualizedList` components by using the `LoadingIndicator` prop on `Channel`. This injects the new value into the `ComponentContext` which is then pulled for use in the lists.
+
+### LoadMorePaginator and LoadMoreButton
+
+Override this component in the `ChannelList` by using the `Paginator` prop on `ChannelList`. This is also the place where you can customize the `LoadMoreButton` by taking advantage of the prop of the same name on your new paginator component.
+
+### TypingIndicator
+
+Override this component via the `TypingIndicator` prop on `Channel`, which injects the new value into the `ComponentContext` which is then pulled for use in the lists.
+
+## ChatDownProps
+
+### image
+
+The image url for this error or a ReactElement.
+
+| Type                         |
+| ---------------------------- |
+| string \| React.ReactElement |
+
+### text
+
+The error message to show.
+
+| Type   |
+| ------ |
+| string |
+
+### type
+
+The type of error.
+
+| Type   |
+| ------ |
+| string |
+
+## EmptyStateIndicatorProps
+
+### listType
+
+The type of list that will display this indicator, and this type will conditionally render a message.
+
+| Type                   |
+| ---------------------- |
+| 'channel' \| 'message' \| 'thread' |
+
+## LoadingErrorIndicatorProps
+
+### error
+
+The error object that is displayed.
+
+| Type  |
+| ----- |
+| Error |
+
+## LoadingIndicatorProps
+
+### color
+
+Set the color of the loading icon.
+
+| Type   | Default |
+| ------ | ------- |
+| string | #006CFF |
+
+### size
+
+The size of the loading icon.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 15px    |
+
+## LoadMoreButtonProps
+
+### onClick
+
+The onClick handler. Pagination logic should be executed in this handler.
+
+| Type                                         |
+| -------------------------------------------- |
+| React.MouseEventHandler\<HTMLButtonElement\> |
+
+### refreshing
+
+If true, the `LoadingIndicator` is displayed instead of button.
+
+| Type    |
+| ------- |
+| boolean |
+
+## LoadMorePaginatorProps
+
+### <div class="label required basic">Required</div> loadNextPage
+
+Callback to load the next page, required.
+
+| Type       |
+| ---------- |
+| () => void |
+
+### hasNextPage
+
+Boolean for if there is a next page to load.
+
+| Type    |
+| ------- |
+| boolean |
+
+### LoadMoreButton
+
+A UI button component that handles pagination logic.
+
+| Type      | Default                                                                      |
+|-----------|------------------------------------------------------------------------------|
+| component | <GHComponentLink text='LoadMoreButton' path='/LoadMore/LoadMoreButton.tsx'/> |
+
+### refreshing
+
+A boolean to indicate if there is currently any refreshing taking place.
+
+| Type    |
+| ------- |
+| boolean |
+
+### reverse
+
+A boolean that indicates if the `LoadMoreButton` should be displayed at the top of the list of channels instead of the bottom of the list (the default).
+
+| Type    |
+| ------- |
+| boolean |
+
+## TypingIndicatorProps
+
+### Avatar
+
+Custom UI component to display user's avatar.
+
+| Type      | Default                                                    |
+|-----------|------------------------------------------------------------|
+| component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
+
+### avatarSize
+
+The size in pixels of the avatar image.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 32px    |
+
+### threadList
+
+Boolean that signals whether the typing indicator is in a `Thread`.
+
+| Type    |
+| ------- |
+| boolean |

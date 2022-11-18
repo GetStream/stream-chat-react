@@ -4,11 +4,18 @@
 ### Bug Fixes
 
 * remove props spreading on React.Fragment (dragAndDropWindow) ([#1835](https://github.com/GetStream/stream-chat-react/issues/1835)) ([40c799a](https://github.com/GetStream/stream-chat-react/commit/40c799a9ed863dba9da1207b32966fe16b00349b))
+* MessageSimple to apply renderText function from properties (#1824) ([7133b33](https://github.com/GetStream/stream-chat-react/pull/1824/commits/7133b331a336a1fd258038fe0de8b1bf7edc8ff6))
 
 
 ### Features
 
 * export QuotedMessage component ([#1823](https://github.com/GetStream/stream-chat-react/issues/1823)) ([1850d30](https://github.com/GetStream/stream-chat-react/commit/1850d30306789b7cf220da373d5bea50697c5f3f))
+* added remark-gfm plugin (#1824) ([69a64c2](https://github.com/GetStream/stream-chat-react/pull/1824/commits/69a64c2fbc6935d69adb644167d50decf95faf11))
+
+
+### Performance Updates
+
+* upgrade react-markdown, update renderText function, adjust types (#1824) ([6afe663](https://github.com/GetStream/stream-chat-react/pull/1824/commits/6afe663e3c2d59de2c7d364fd5d89d0d65521e87))
 
 ## [10.3.1](https://github.com/GetStream/stream-chat-react/compare/v10.3.0...v10.3.1) (2022-10-13)
 
@@ -577,14 +584,14 @@ Both `listener.js` and usage of key codes were outdated and caused unnecessary i
 * onBlur prop for ChatAutoComplete ([c9897f4](https://github.com/GetStream/stream-chat-react/commit/c9897f422d0d04d606f149965b510bee749e0151)), closes [#1345](https://github.com/GetStream/stream-chat-react/issues/1345)
 * support choosing a giphy version ([0d97fc6](https://github.com/GetStream/stream-chat-react/commit/0d97fc62d4e5f166162e1d375689196305fad420))
 
-### ⚠️ BREAKING CHANGES ⚠️  
+### ⚠️ BREAKING CHANGES ⚠️
 
 * All types now accept a single generic ([help article](https://getstream.io/chat/docs/sdk/react/customization/typescript_and_generics/))
 
 
 ## [7.0.0](https://github.com/GetStream/stream-chat-react/releases/tag/v7.0.0) 2022-02-10
 
-### ⚠️ BREAKING CHANGES ⚠️  
+### ⚠️ BREAKING CHANGES ⚠️
 
 - Replace stale `react-images` dependency with `react-image-gallery`, removed `ModalImage` [#1318](https://github.com/GetStream/stream-chat-react/pull/1318)
 - Add support for accessibility through the use of semantic HTML, ARIA attributes. Updates include changing HTML elements to different types as necessary [#1314](https://github.com/GetStream/stream-chat-react/pull/1314) and [#1294](https://github.com/GetStream/stream-chat-react/pull/1294)
