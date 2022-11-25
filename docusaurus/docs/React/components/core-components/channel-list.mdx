@@ -6,7 +6,6 @@ title: ChannelList
 import CodeBlock from '@theme/CodeBlock';
 
 import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
-import ReviewNote from '../../_docusaurus-components/ReviewNote';
 
 
 The `ChannelList` component queries an array of `channel` objects from the Stream Chat API and displays as a customizable list
@@ -22,14 +21,6 @@ The `ChannelList` component also comes pre-built with navigation functionality. 
 `channel` object and loads the [`Channel`](./channel.mdx) component.
 
 ## Basic Usage
-
-<ReviewNote
-  id='a0523cee-2375-11ed-8530-a4bb6d26ac2f'
->
-  Proposing to make filters mandatory as per the JS docs requirement: At a minimum, the filter should include:
-  <CodeBlock>{`{members: { $in: [userID] }}`}</CodeBlock>
-  It is confusing to newcomers that the channels query fails due to this missing param
-</ReviewNote>
 
 The `ChannelList` does not have any required props, but in order to refine channel query results we recommend providing
 values for [`filters`](#filters), [`sort`](#sort) and [`options`](#options).
@@ -372,13 +363,6 @@ Function to override the default behavior when rendering channels, so this funct
 | Type     |
 |----------|
 | function |
-
-<ReviewNote
-  id='6bd7d78e-2542-11ed-a44c-a4bb6d26ac2f'
->
-  Missing example use case to better understand the purpose. The default `List` component does not make use of the
-  loadedChannels prop
-</ReviewNote>
 
 ### sendChannelsToList
 

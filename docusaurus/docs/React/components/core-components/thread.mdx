@@ -4,8 +4,6 @@ sidebar_position: 7
 title: Thread
 ---
 
-import ReviewNote from '../../_docusaurus-components/ReviewNote';
-
 The `Thread` component renders a list of replies tied to a single parent message in a channel's main message list.
 A `Thread` maintains its own state and renders its own `MessageList` and `MessageInput` components. Each piece of
 rendered UI can be overridden with custom components either drawn from the `ComponentContext` or supplied via props.
@@ -171,12 +169,6 @@ Controls injection of <GHComponentLink text='DateSeparator' path='/DateSeparator
 | Type    | Default |
 |---------|---------|
 | boolean | false   |
-
-<ReviewNote
-  id='787aad50-2866-11ed-88c5-a4bb6d26ac2f'
->
-  Proposing the <pre>fullWidth</pre> prop to be deprecated / removed. The container width should be handled by CSS.
-</ReviewNote>
 
 ### fullWidth
 

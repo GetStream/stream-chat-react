@@ -4,8 +4,6 @@ sidebar_position: 1
 title: ChatContext
 ---
 
-import ReviewNote from '../../_docusaurus-components/ReviewNote';
-
 The `ChatContext` is exposed by the [`Chat`](../core-components/chat.mdx) component. Since `Chat` wraps the entire chat application, all other components in the library
 have access to the values stored in this context. You can access the context values by calling the `useChatContext` custom hook.
 
@@ -34,13 +32,6 @@ The currently active channel, which populates the [`Channel`](../core-components
 | Type    |
 | ------- |
 | Channel |
-
-
-<ReviewNote
-  id='8f87022a-2305-11ed-9971-a4bb6d26ac2f'
->
-  This applies only to theme V1. We should include deprecation notice.
-</ReviewNote>
 
 ### closeMobileNav
 
@@ -83,12 +74,6 @@ An array of users that have been muted by the connected user.
 | ------ |
 | Mute[] |
 
-<ReviewNote
-  id='db6b3990-2305-11ed-bcfc-a4bb6d26ac2f'
->
-  This applies only to theme V1. We should include deprecation notice.
-</ReviewNote>
-
 ### navOpen
 
 When the screen width is at a mobile breakpoint, whether the mobile navigation menu is open.
@@ -96,12 +81,6 @@ When the screen width is at a mobile breakpoint, whether the mobile navigation m
 | Type    | Default |
 |---------|---------|
 | boolean | true    |
-
-<ReviewNote
-  id='eeaf7eb2-2305-11ed-9285-a4bb6d26ac2f'
->
-  This applies only to theme V1. We should include deprecation notice.
-</ReviewNote>
 
 ### openMobileNav
 
@@ -120,12 +99,6 @@ You can override the default behavior by pulling it from context and then utiliz
 |----------|
 | function |
 
-<ReviewNote
-  id='57bc33a6-2369-11ed-aefd-a4bb6d26ac2f'
->
-  Should we remove this value from the chat context?
-</ReviewNote>
-
 ### theme
 
 Deprecated and to be removed in a future major release. Use the `customStyles` prop to adjust CSS variables and [customize the theme](../../guides/theming/css-and-theming.mdx#css-variables) of your app.
@@ -133,12 +106,6 @@ Deprecated and to be removed in a future major release. Use the `customStyles` p
 | Type  |
 | ----- |
 | Theme |
-
-<ReviewNote
-  id='df7331b2-243d-11ed-8076-a4bb6d26ac2f'
->
-  Proposing to add information about which release has introduced a given prop/value
-</ReviewNote>
 
 ### themeVersion
 
