@@ -200,8 +200,7 @@ const MessageSimpleWithContext = <
                   {message.user.name || message.user.id}
                 </span>
               )}
-              {/* @ts-ignore */}
-              {message.error instanceof Array && message.error[0]?.code === 1 && (
+              {message.moderation_details && (
                 <div className='str-chat__message-moderation-error-actions-box'>
                   <button onClick={() => removeMessage(message)}>{'Remove'}</button>
 

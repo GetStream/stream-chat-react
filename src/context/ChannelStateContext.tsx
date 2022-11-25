@@ -22,11 +22,25 @@ export type ChannelNotifications = Array<{
   type: 'success' | 'error';
 }>;
 
+export type ACTION_UNDEFINED = 0;
+export type ACTION_FLAG = 1;
+export type ACTION_BLOCK = 2;
+export type ACTION_BOUNCE = 3;
+
+export interface ModerationDetails {
+  action: ACTION_UNDEFINED | ACTION_FLAG | ACTION_BLOCK | ACTION_BOUNCE;
+  harms: Array<{ name: string }>;
+  original_text: string;
+}
+
 export type StreamMessage<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> =
+> = (
   | ReturnType<StreamChannelState<StreamChatGenerics>['formatMessage']>
-  | MessageResponse<StreamChatGenerics>;
+  | MessageResponse<StreamChatGenerics>
+) & {
+  moderation_details?: ModerationDetails;
+};
 
 export type ChannelState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

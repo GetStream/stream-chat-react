@@ -180,7 +180,7 @@ const initState = <
 >(
   message?: Pick<
     StreamMessage<StreamChatGenerics>,
-    'attachments' | 'mentioned_users' | 'text' | 'error'
+    'attachments' | 'mentioned_users' | 'text' | 'moderation_details'
   >,
 ): MessageInputState<StreamChatGenerics> => {
   if (!message) {

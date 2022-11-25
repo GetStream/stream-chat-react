@@ -10,7 +10,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 
-import type { StreamMessage } from './ChannelStateContext';
+import type { ModerationDetails, StreamMessage } from './ChannelStateContext';
 
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
@@ -29,6 +29,7 @@ export type MessageToSend<
   errorStatusCode?: number;
   id?: string;
   mentioned_users?: UserResponse<StreamChatGenerics>[];
+  moderation_details?: ModerationDetails;
   parent?: StreamMessage<StreamChatGenerics>;
   parent_id?: string;
   status?: string;

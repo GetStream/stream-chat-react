@@ -47,6 +47,7 @@ import {
   ChannelActionContextValue,
   ChannelActionProvider,
   MessageToSend,
+  ModerationDetails,
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
@@ -625,10 +626,8 @@ const ChannelInner = <
   const updateMessage = (
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
-    //@ts-ignore
-    if (updatedMessage.error?.[0]?.code === 1) {
-      //@ts-ignore
-      updatedMessage.text = updatedMessage.original_text;
+    if (updatedMessage.moderation_details) {
+      updatedMessage.text = (updatedMessage.moderation_details as ModerationDetails)?.original_text;
     }
 
     // add the message to the local channel state

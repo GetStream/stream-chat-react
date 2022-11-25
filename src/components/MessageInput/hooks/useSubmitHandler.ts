@@ -149,8 +149,7 @@ export const useSubmitHandler = <
       text,
     };
 
-    // @ts-ignore
-    if (message && message.error?.[0]?.code === 1) {
+    if (message && message.moderation_details) {
       try {
         removeMessage(message);
         dispatch({ type: 'clear' });
