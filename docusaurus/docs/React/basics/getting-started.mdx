@@ -4,8 +4,6 @@ sidebar_position: 2
 title: Getting Started
 ---
 
-import ReviewNote from '../_docusaurus-components/ReviewNote';
-
 This section provides a high level overview of the library setup, core components, and how they fit together. It's a great
 starting point and you can follow along in your code editor. For a complete, step-by-step guide in terms setting up a React
 project or instructions on creating specific files, see our [React Chat tutorial](https://getstream.io/chat/react-chat/tutorial/).
@@ -84,17 +82,6 @@ The defaults include:
 - `gaming`
 - `commerce`
 
-<ReviewNote
-  id='ab86a784-22f9-11ed-936e-a4bb6d26ac2f'
->
-  Failing to provide explanation why in the first place should user of the SDK interact with the channel object
-  directly.
-  Provide examples of scenarios when a channel object would be needed.
-  Missing the mention, that ChannelList - if used - loads channel data from the API and thus it integrator does not need
-  to create channels
-  Proposing to add recommendation to create channels from the backend
-</ReviewNote>
-
 :::note
 You can also create [custom channel types](https://getstream.io/chat/docs/react/channel_features/#creating-a-channel-type)
 and define your own permission sets.
@@ -119,12 +106,6 @@ const channel = client.channel('messaging', {
 
 Now that we have a client instance, a connected user, and a channel, it's time to look at the core components involved in building
 a fully functioning chat application.
-
-<ReviewNote
-  id='dcfe3c22-2304-11ed-83ef-a4bb6d26ac2f'
->
-  Add visualisation - wireframe - to demonstrate the main components in the UI
-</ReviewNote>
 
 ### Chat
 
@@ -198,15 +179,6 @@ In addition to the above referenced UI components, client instantiation, and use
 :::note
 Remember our [Theming](../guides/theming/overview.mdx) and [Customizing Components](../guides/customization/overview.mdx) sections in our guides. They offer you a lot of flexibility when adopting our SDK.
 :::
-
-<ReviewNote
-  id='179e58f8-22fb-11ed-909b-a4bb6d26ac2f'
->
-  The filters variable should actually include members key:
-  <CodeBlock>{'const filters = {type: "messaging", members: {$in: [userId]}};'}</CodeBlock>
-  That means that we should explain how the userId gets there in a real life application. For a real-life example too
-  soon here?
-</ReviewNote>
 
 ```tsx
 import React, { useEffect, useState } from 'react';
