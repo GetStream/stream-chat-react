@@ -47,11 +47,11 @@ import {
   ChannelActionContextValue,
   ChannelActionProvider,
   MessageToSend,
-  ModerationDetails,
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
   ChannelStateProvider,
+  ModerationDetails,
   StreamMessage,
 } from '../../context/ChannelStateContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
