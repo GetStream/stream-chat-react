@@ -105,7 +105,9 @@ export const useUserTrigger = <
           id: { $ne: client.userID },
           ...mentionQueryParams.filters,
         },
-        { id: 1, ...mentionQueryParams.sort },
+        Array.isArray(mentionQueryParams.sort)
+          ? [{ id: 1 }, ...mentionQueryParams.sort]
+          : { id: 1, ...mentionQueryParams.sort },
         { limit: 10, ...mentionQueryParams.options },
       );
 
