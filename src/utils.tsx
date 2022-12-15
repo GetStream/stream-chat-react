@@ -188,7 +188,7 @@ export const mentionsMarkdownPlugin = <
       if (!parent) return;
 
       const nextChild = parent.children.at(index + 1) as Element;
-      const nextChildHref = nextChild?.properties?.href as string;
+      const nextChildHref = nextChild?.properties?.href as string | undefined;
 
       if (
         node.type === 'text' &&
@@ -197,7 +197,7 @@ export const mentionsMarkdownPlugin = <
         // valid cases:   "text @", "@", " @"
         // invalid cases: "text@", "@text",
         /.?\s?@$|^@$/.test(node.value) &&
-        nextChildHref.startsWith('mailto:')
+        nextChildHref?.startsWith('mailto:')
       ) {
         const newTextValue = node.value.replace(/@$/, '');
         const username = nextChildHref.replace('mailto:', '');
