@@ -2099,10 +2099,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^3.6.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.6.0.tgz#ed8e28b3e745ad3335c0a3120ecfa4f22900727f"
-  integrity sha512-LYUXW031EaQoBN1DfrqJ2iZNUPyd+3oXCczbj4C8Jt36USW9eUipaLpSU1e4XoJbA5RH81WY7/ix2NT0dHq9ng==
+"@stream-io/stream-chat-css@^3.7.1":
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.7.1.tgz#425391953064cc825be34a20ff9bee0a8cf3b76e"
+  integrity sha512-6l6uqog+5hIKU7ARE2n8rOOEoFGKtPqVSBWdDjFv2bMuN70I3kvAcmFrd+k6J0K0dyMbK/E0h1im0q0iADiaww==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
