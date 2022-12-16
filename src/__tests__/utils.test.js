@@ -80,4 +80,12 @@ describe(`renderText`, () => {
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchSnapshot();
   });
+
+  it("handles the special case where there's at least one mention and @ symbol at the end", () => {
+    const Markdown = renderText('@username@email.com @', [
+      { id: 'id-username@email.com', name: 'username@email.com' },
+    ]);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
 });
