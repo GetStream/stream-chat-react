@@ -1,3 +1,12 @@
+## [10.4.2](https://github.com/GetStream/stream-chat-react/compare/v10.4.1...v10.4.2) (2022-12-16)
+
+
+### Bug Fixes
+
+* merge mentionQueryParams.sort configuration correctly ([#1869](https://github.com/GetStream/stream-chat-react/issues/1869)) ([6ec31af](https://github.com/GetStream/stream-chat-react/commit/6ec31af24e7a45e70c8f47f0e6ce9d475d1d004a))
+* **renderText:** special case @ symbol at the end of the message ([#1873](https://github.com/GetStream/stream-chat-react/issues/1873)) ([7dced57](https://github.com/GetStream/stream-chat-react/commit/7dced5729bed273282359886af078128c50ff35e))
+* **useCooldownTimer:** derive cooldown from last message ([#1879](https://github.com/GetStream/stream-chat-react/issues/1879)) ([8e63653](https://github.com/GetStream/stream-chat-react/commit/8e6365320b10b3f52b8ccbe9a55c330de9c672b9))
+
 ## [10.4.1](https://github.com/GetStream/stream-chat-react/compare/v10.4.0...v10.4.1) (2022-11-18)
 
 
