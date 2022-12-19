@@ -12,7 +12,6 @@ export type UseScrollLocationLogicParams<
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
   suppressAutoscroll: boolean;
-  currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
 };
