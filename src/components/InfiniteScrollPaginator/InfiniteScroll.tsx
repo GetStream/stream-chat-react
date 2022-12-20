@@ -35,12 +35,13 @@ export type InfiniteScrollProps = PaginatorProps & {
    * @desc Function that loads previous page with older items
    * @deprecated Use loadPreviousPage prop instead. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
-  loadMore?: () => void;
+  loadMore?: () => Promise<void>;
   /**
    * @desc Function that loads next page with newer items
    * @deprecated Use loadNextPage prop instead. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
-  loadMoreNewer?: () => void;
+  loadMoreNewer?: () => Promise<void>;
+  // FIXME: remove unused prop
   pageStart?: number;
   useCapture?: boolean;
 };
@@ -73,6 +74,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   const hasPreviousPageFlag = hasPreviousPage || hasMore;
 
   const scrollComponent = useRef<HTMLElement>();
+  const isLoadingRef = useRef(isLoading);
 
   const scrollListener = useCallback(() => {
     const element = scrollComponent.current;
@@ -91,16 +93,27 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       listenToScroll(offset, reverseOffset, threshold);
     }
 
+    if (isLoadingRef.current) return;
+
+    let loadMoreFn;
+
     if (
       reverseOffset < Number(threshold) &&
       typeof loadPreviousPageFn === 'function' &&
       hasPreviousPageFlag
     ) {
-      loadPreviousPageFn();
+      loadMoreFn = loadPreviousPageFn;
     }
 
     if (offset < Number(threshold) && typeof loadNextPageFn === 'function' && hasNextPageFlag) {
-      loadNextPageFn();
+      loadMoreFn = loadNextPageFn;
+    }
+
+    if (loadMoreFn) {
+      isLoadingRef.current = true;
+      loadMoreFn().finally(() => {
+        isLoadingRef.current = false;
+      });
     }
   }, [
     hasPreviousPageFlag,
@@ -109,6 +122,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     listenToScroll,
     loadPreviousPageFn,
     loadNextPageFn,
+    isLoadingRef,
   ]);
 
   useEffect(() => {
@@ -125,7 +139,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
-    if (isLoading || !scrollElement) {
+    if (!scrollElement) {
       return () => undefined;
     }
 
@@ -136,7 +150,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       scrollElement.removeEventListener('scroll', scrollListener, useCapture);
       scrollElement.removeEventListener('resize', scrollListener, useCapture);
     };
-  }, [initialLoad, isLoading, scrollListener, useCapture]);
+  }, [initialLoad, scrollListener, useCapture]);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
