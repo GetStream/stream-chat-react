@@ -83,7 +83,7 @@ export type GiphyVersions =
 
 export type PaginatorProps = {
   /** callback to load the next page */
-  loadNextPage: () => void;
+  loadNextPage: () => Promise<void>;
   /** indicates if there is a next page to load */
   hasNextPage?: boolean;
   /** indicates if there is a previous page to load */
@@ -93,7 +93,7 @@ export type PaginatorProps = {
   /** The loading indicator to use */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** callback to load the previous page */
-  loadPreviousPage?: () => void;
+  loadPreviousPage?: () => Promise<void>;
   /**
    * @desc indicates if there's currently any refreshing taking place
    * @deprecated Use loading prop instead of refreshing. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
