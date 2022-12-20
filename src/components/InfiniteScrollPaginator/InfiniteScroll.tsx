@@ -41,8 +41,6 @@ export type InfiniteScrollProps = PaginatorProps & {
    * @deprecated Use loadNextPage prop instead. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
   loadMoreNewer?: () => Promise<void>;
-  // FIXME: remove unused prop
-  pageStart?: number;
   useCapture?: boolean;
 };
 
