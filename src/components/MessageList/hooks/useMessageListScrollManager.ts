@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 import { useChatContext } from '../../../context/ChatContext';
 
@@ -14,6 +14,7 @@ export type ContainerMeasures = {
 export type UseMessageListScrollManagerParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  loadMoreScrollThreshold: number;
   messages: StreamMessage<StreamChatGenerics>[];
   onScrollBy: (scrollBy: number) => void;
   scrollContainerMeasures: () => ContainerMeasures;
@@ -26,6 +27,7 @@ export function useMessageListScrollManager<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
   const {
+    loadMoreScrollThreshold,
     onScrollBy,
     scrollContainerMeasures,
     scrolledUpThreshold,
@@ -42,7 +44,7 @@ export function useMessageListScrollManager<
   const messages = useRef<StreamMessage<StreamChatGenerics>[]>();
   const scrollTop = useRef(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const prevMeasures = measures.current;
     const prevMessages = messages.current;
     const newMessages = params.messages;
@@ -58,8 +60,8 @@ export function useMessageListScrollManager<
       if (prevMessages.length < newMessages.length) {
         // messages added to the top
         if (lastPrevMessage?.id === lastNewMessage.id) {
-          const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
-          if (scrollTop.current === 0) {
+          if (scrollTop.current < loadMoreScrollThreshold) {
+            const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
             onScrollBy(listHeightDelta);
           }
         }
