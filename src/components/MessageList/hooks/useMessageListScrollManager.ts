@@ -65,7 +65,7 @@ export function useMessageListScrollManager<
         if (lastPrevMessage?.id === lastNewMessage.id) {
           if (listElement.scrollTop < loadMoreScrollThreshold) {
             const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
-            listElement?.scrollBy({ top: listHeightDelta });
+            listElement.scrollBy({ top: listHeightDelta });
           }
         }
         // messages added to the bottom
