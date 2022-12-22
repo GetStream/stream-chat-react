@@ -1,3 +1,10 @@
+## [10.4.1](https://github.com/GetStream/stream-chat-react/compare/v10.4.0...v10.4.1) (2022-11-18)
+
+
+### Bug Fixes
+
+* add linkify.test check before any URL instantiation ([#1838](https://github.com/GetStream/stream-chat-react/issues/1838)) ([ef1dd0a](https://github.com/GetStream/stream-chat-react/commit/ef1dd0ae5df511d0796c04808a08ee3ebfc00bc6))
+
 # [10.4.0](https://github.com/GetStream/stream-chat-react/compare/v10.3.1...v10.4.0) (2022-11-04)
 
 
