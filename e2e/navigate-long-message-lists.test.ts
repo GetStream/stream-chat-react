@@ -1,5 +1,5 @@
 /* eslint-disable jest/expect-expect */
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
 import selectors from './user/selectors';
@@ -29,7 +29,7 @@ const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
 const NEW_MESSAGE_NOTIFICATION_TEXT = 'New Messages!' as const;
 const LAST_REPLY_TEXT = 'Message 299';
 const MESSAGES_WITH_REPLIES = ['Message 149', 'Message 137', 'Message 124', 'Message 99'];
-
+const FIRST_MESSAGE_FIRST_PAGE = 'Message 125';
 const QUOTED_MESSAGES = ['Message 99', 'Message 137'];
 
 const scrollInSteps = async (user: TestingUser, msgNumbers = ['142', '135', '128'], cycles = 3) => {
@@ -157,7 +157,7 @@ test.describe('scroll to the bottom', () => {
   test.afterEach(async ({ controller, page }) => {
     const lastMessage = await page
       .locator(
-        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList} li:last-of-type ${selectors.messageText}`,
+        `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer} li:last-of-type ${selectors.messageText}`,
       )
       .textContent();
     if (!lastMessage) return;
@@ -183,7 +183,7 @@ test.describe('scroll to the bottom', () => {
     // check that you are at the bottom
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
   });
 
   test('after loading more messages on new message notification click', async ({
@@ -196,7 +196,7 @@ test.describe('scroll to the bottom', () => {
 
     // trigger load more messages
     const firstLoadedMessage = await page.locator(
-      `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList} li:first-of-type`,
+      `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer} li:first-of-type`,
     );
     await firstLoadedMessage.scrollIntoViewIfNeeded();
     await controller.sendOtherUserMessage();
@@ -208,6 +208,48 @@ test.describe('scroll to the bottom', () => {
     // check that you are at the bottom
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
+  });
+});
+
+test.describe('pagination', () => {
+  test.beforeEach(async ({ controller, user }) => {
+    await controller.openStory(
+      'navigate-long-message-lists--user1',
+      selectors.channelPreviewButton,
+    );
+    await user.clicks(ChannelPreview).text(CHANNEL_NAME);
+  });
+
+  test('does not lead to the viewport content change', async ({ page, user }) => {
+    const messageList = await page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+
+    const firstMessageFirstPage = await user.get(Message)(FIRST_MESSAGE_FIRST_PAGE);
+
+    let firstLoadedMessageBoxBeforePagination;
+    const msgListBoxBeforePagination = await messageList.boundingBox();
+
+    // get message position before the next page of messages is received
+    page.once('request', async () => {
+      firstLoadedMessageBoxBeforePagination = await firstMessageFirstPage.boundingBox();
+    });
+
+    await Promise.all([
+      page.waitForResponse((r) => r.url().includes('/query') && r.ok()),
+      firstMessageFirstPage.scrollIntoViewIfNeeded(),
+    ]);
+
+    const msgListBoxAfterPagination = await messageList.boundingBox();
+    const firstLoadedMessageBoxAfterPagination = await firstMessageFirstPage.boundingBox();
+
+    const firstMessageShiftDistanceYToViewport =
+      firstLoadedMessageBoxBeforePagination.y - firstLoadedMessageBoxAfterPagination.y;
+    expect(firstMessageShiftDistanceYToViewport).toBeLessThanOrEqual(
+      firstLoadedMessageBoxBeforePagination.height,
+    );
+    expect(firstMessageShiftDistanceYToViewport).toBeGreaterThanOrEqual(
+      -firstLoadedMessageBoxBeforePagination.height,
+    );
+    expect(msgListBoxBeforePagination.height).not.toStrictEqual(msgListBoxAfterPagination.height);
   });
 });
