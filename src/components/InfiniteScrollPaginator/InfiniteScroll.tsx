@@ -27,6 +27,7 @@ export type InfiniteScrollProps = PaginatorProps & {
   hasMoreNewer?: boolean;
   /** Element to be rendered at the top of the thread message list. By default, Message and ThreadStart components */
   head?: React.ReactNode;
+  initialLoad?: boolean;
   isLoading?: boolean;
   listenToScroll?: (offset: number, reverseOffset: number, threshold: number) => void;
   loader?: React.ReactNode;
@@ -52,6 +53,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     hasNextPage,
     hasPreviousPage,
     head,
+    initialLoad = true,
     isLoading,
     listenToScroll,
     loader,
@@ -134,7 +136,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       scrollElement.removeEventListener('scroll', scrollListener, useCapture);
       scrollElement.removeEventListener('resize', scrollListener, useCapture);
     };
-  }, [scrollListener, useCapture]);
+  }, [initialLoad, scrollListener, useCapture]);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
