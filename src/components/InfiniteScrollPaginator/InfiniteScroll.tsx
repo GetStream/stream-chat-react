@@ -35,12 +35,12 @@ export type InfiniteScrollProps = PaginatorProps & {
    * @desc Function that loads previous page with older items
    * @deprecated Use loadPreviousPage prop instead. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
-  loadMore?: () => Promise<void>;
+  loadMore?: () => void;
   /**
    * @desc Function that loads next page with newer items
    * @deprecated Use loadNextPage prop instead. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
    */
-  loadMoreNewer?: () => Promise<void>;
+  loadMoreNewer?: () => void;
   useCapture?: boolean;
 };
 
