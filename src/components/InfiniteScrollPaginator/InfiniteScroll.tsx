@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useEffect, useRef } from 'react';
+import React, { PropsWithChildren, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
@@ -70,7 +70,6 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   const hasPreviousPageFlag = hasPreviousPage || hasMore;
 
   const scrollComponent = useRef<HTMLElement>();
-  const isLoadingRef = useRef(isLoading);
 
   const scrollListener = useCallback(() => {
     const element = scrollComponent.current;
@@ -89,36 +88,27 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       listenToScroll(offset, reverseOffset, threshold);
     }
 
-    if (isLoadingRef.current) return;
-
-    let loadMoreFn;
+    if (isLoading) return;
 
     if (
       reverseOffset < Number(threshold) &&
       typeof loadPreviousPageFn === 'function' &&
       hasPreviousPageFlag
     ) {
-      loadMoreFn = loadPreviousPageFn;
+      loadPreviousPageFn();
     }
 
     if (offset < Number(threshold) && typeof loadNextPageFn === 'function' && hasNextPageFlag) {
-      loadMoreFn = loadNextPageFn;
-    }
-
-    if (loadMoreFn) {
-      isLoadingRef.current = true;
-      loadMoreFn().finally(() => {
-        isLoadingRef.current = false;
-      });
+      loadNextPageFn();
     }
   }, [
     hasPreviousPageFlag,
     hasNextPageFlag,
-    threshold,
+    isLoading,
     listenToScroll,
     loadPreviousPageFn,
     loadNextPageFn,
-    isLoadingRef,
+    threshold,
   ]);
 
   useEffect(() => {
@@ -133,11 +123,9 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     );
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
-    if (!scrollElement) {
-      return () => undefined;
-    }
+    if (!scrollElement) return;
 
     scrollElement.addEventListener('scroll', scrollListener, useCapture);
     scrollElement.addEventListener('resize', scrollListener, useCapture);
