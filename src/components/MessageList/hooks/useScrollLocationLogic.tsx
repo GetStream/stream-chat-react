@@ -58,10 +58,17 @@ export const useScrollLocationLogic = <
     }
   }, [listElement, hasMoreNewer]);
 
-  useMessageListScrollManager({
-    listElement,
+  const updateScrollTop = useMessageListScrollManager({
     loadMoreScrollThreshold,
     messages,
+    onScrollBy: (scrollBy) => {
+      listElement?.scrollBy({ top: scrollBy });
+    },
+
+    scrollContainerMeasures: () => ({
+      offsetHeight: listElement?.offsetHeight || 0,
+      scrollHeight: listElement?.scrollHeight || 0,
+    }),
     scrolledUpThreshold,
     scrollToBottom,
     showNewMessages: () => setHasNewMessages(true),
@@ -71,6 +78,8 @@ export const useScrollLocationLogic = <
     (event: React.UIEvent<HTMLDivElement>) => {
       const element = event.target as HTMLDivElement;
       const scrollTop = element.scrollTop;
+
+      updateScrollTop(scrollTop);
 
       const offsetHeight = element.offsetHeight;
       const scrollHeight = element.scrollHeight;
@@ -88,7 +97,7 @@ export const useScrollLocationLogic = <
         setIsMessageListScrolledToBottom(true);
       }
     },
-    [closeToTop, closeToBottom, scrolledUpThreshold],
+    [updateScrollTop, closeToTop, closeToBottom, scrolledUpThreshold],
   );
 
   return {

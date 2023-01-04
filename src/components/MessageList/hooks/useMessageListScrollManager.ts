@@ -14,9 +14,10 @@ export type ContainerMeasures = {
 export type UseMessageListScrollManagerParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  listElement: HTMLDivElement | null;
   loadMoreScrollThreshold: number;
   messages: StreamMessage<StreamChatGenerics>[];
+  onScrollBy: (scrollBy: number) => void;
+  scrollContainerMeasures: () => ContainerMeasures;
   scrolledUpThreshold: number;
   scrollToBottom: () => void;
   showNewMessages: () => void;
@@ -27,8 +28,9 @@ export function useMessageListScrollManager<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(params: UseMessageListScrollManagerParams<StreamChatGenerics>) {
   const {
-    listElement,
     loadMoreScrollThreshold,
+    onScrollBy,
+    scrollContainerMeasures,
     scrolledUpThreshold,
     scrollToBottom,
     showNewMessages,
@@ -41,31 +43,27 @@ export function useMessageListScrollManager<
     scrollHeight: 0,
   });
   const messages = useRef<StreamMessage<StreamChatGenerics>[]>();
+  const scrollTop = useRef(0);
 
   useLayoutEffect(() => {
-    if (!listElement) return;
-
     const prevMeasures = measures.current;
-    const newMeasures = {
-      offsetHeight: listElement.offsetHeight || 0,
-      scrollHeight: listElement.scrollHeight || 0,
-    };
     const prevMessages = messages.current;
     const newMessages = params.messages;
     const lastNewMessage = newMessages[newMessages.length - 1] || {};
     const lastPrevMessage = prevMessages?.[prevMessages.length - 1];
+    const newMeasures = scrollContainerMeasures();
 
     const wasAtBottom =
-      prevMeasures.scrollHeight - prevMeasures.offsetHeight - listElement.scrollTop <
+      prevMeasures.scrollHeight - prevMeasures.offsetHeight - scrollTop.current <
       scrolledUpThreshold;
 
     if (typeof prevMessages !== 'undefined') {
       if (prevMessages.length < newMessages.length) {
         // messages added to the top
         if (lastPrevMessage?.id === lastNewMessage.id) {
-          if (listElement.scrollTop < loadMoreScrollThreshold) {
+          if (scrollTop.current < loadMoreScrollThreshold) {
             const listHeightDelta = newMeasures.scrollHeight - prevMeasures.scrollHeight;
-            listElement.scrollBy({ top: listHeightDelta });
+            onScrollBy(listHeightDelta);
           }
         }
         // messages added to the bottom
@@ -93,5 +91,9 @@ export function useMessageListScrollManager<
 
     messages.current = newMessages;
     measures.current = newMeasures;
-  }, [measures, messages, params.messages, listElement]);
+  }, [measures, messages, params.messages]);
+
+  return (scrollTopValue: number) => {
+    scrollTop.current = scrollTopValue;
+  };
 }
