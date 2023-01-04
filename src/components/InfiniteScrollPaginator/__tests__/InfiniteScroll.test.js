@@ -6,7 +6,6 @@ import renderer from 'react-test-renderer';
 import { InfiniteScroll } from '../';
 
 const loadPreviousPage = jest.fn().mockImplementation(() => Promise.resolve());
-const loadNextPage = jest.fn().mockImplementation(() => Promise.resolve());
 
 // Note: testing actual infinite scroll behavior is very tricky / pointless because Jest does not
 // really implement offsetHeight / offsetTop / offsetParent etc. This means we'd have to mock basically everything,
@@ -85,8 +84,8 @@ describe('InfiniteScroll', () => {
     'deprecates %s and %s in favor of %s and %s',
     (deprecatedFlag, deprecatedLoader, newFlag, newLoader) => {
       const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null);
-      const oldLoaderSpy = jest.fn().mockImplementation(() => Promise.resolve());
-      const newLoaderSpy = jest.fn().mockImplementation(() => Promise.resolve());
+      const oldLoaderSpy = jest.fn();
+      const newLoaderSpy = jest.fn();
 
       const { scrollParent } = renderComponent({
         [deprecatedFlag]: false,
@@ -118,7 +117,6 @@ describe('InfiniteScroll', () => {
           <InfiniteScroll
             isLoading
             loader={<div key='loader'>loader</div>}
-            loadNextPage={loadNextPage}
             loadPreviousPage={loadPreviousPage}
           >
             Content
