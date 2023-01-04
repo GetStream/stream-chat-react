@@ -13,6 +13,7 @@ const generateMessages = (length, userId = myUserId) =>
   Array.from({ length }, (_, index) => ({ id: index.toString(), userId }));
 
 const defaultInputs = {
+  loadMoreScrollThreshold: 100,
   messages: [],
   scrollContainerMeasures: () => ({
     offsetHeight: 200,
