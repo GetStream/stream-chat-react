@@ -148,15 +148,15 @@ const MessageListWithContext = <
     ? customClasses?.threadList || 'str-chat__list--thread str-chat__thread-list'
     : '';
 
-  const loadMore = React.useCallback(async () => {
+  const loadMore = React.useCallback(() => {
     if (loadMoreCallback) {
-      await loadMoreCallback(messageLimit);
+      loadMoreCallback(messageLimit);
     }
   }, [loadMoreCallback, messageLimit]);
 
-  const loadMoreNewer = React.useCallback(async () => {
+  const loadMoreNewer = React.useCallback(() => {
     if (loadMoreNewerCallback) {
-      await loadMoreNewerCallback(messageLimit);
+      loadMoreNewerCallback(messageLimit);
     }
   }, [loadMoreNewerCallback, messageLimit]);
 
