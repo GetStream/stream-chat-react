@@ -31,7 +31,7 @@ test.describe('add height to video and image attachments', () => {
     expect(result).toBeTruthy();
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
   });
 
   test('should add height for single image attachments', async ({ page, user }) => {
@@ -45,7 +45,7 @@ test.describe('add height to video and image attachments', () => {
     expect(result).toBe(true);
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
   });
 
   test('should add height for gallery image attachments', async ({ page, user }) => {
@@ -61,6 +61,6 @@ test.describe('add height to video and image attachments', () => {
     expect(result).toBe(true);
     await user
       .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
+      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
   });
 });
