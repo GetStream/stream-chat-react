@@ -1856,12 +1856,13 @@
   dependencies:
     "@octokit/openapi-types" "^11.2.0"
 
-"@playwright/test@^1.22.0":
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.22.0.tgz#c120d673508291ee63095d727b6f998ea0c6a03f"
-  integrity sha512-ExcAjiECo3uTG5Sl5H4a7rKp/5TEHTI87dv9NHYEoUFuOHPhSVxB7QsuM70ktO+wTTZ9KzhwzcegxAGRmUFKEA==
+"@playwright/test@^1.29.1":
+  version "1.29.1"
+  resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.29.1.tgz#f2ed4dc143b9c7825a7ad2703b2f1ac4354e1145"
+  integrity sha512-iQxk2DX5U9wOGV3+/Jh9OHPsw5H3mleUL2S4BgQuwtlAfK3PnKvn38m4Rg9zIViGHVW24opSm99HQm/UFLEy6w==
   dependencies:
-    playwright-core "1.22.0"
+    "@types/node" "*"
+    playwright-core "1.29.1"
 
 "@popperjs/core@^2.11.5":
   version "2.11.5"
@@ -12915,10 +12916,10 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-playwright-core@1.22.0:
-  version "1.22.0"
-  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.22.0.tgz#e738a0c83f4be0984c953ab25d2bc77545187ecc"
-  integrity sha512-XnDPiV4NCzTtXWxQdyJ6Wg8xhST3ciUjt5mITaxoqOoYggmRtofKm0PXLehfbetXh2ppPYj5U8UhtUpdIE4wag==
+playwright-core@1.29.1:
+  version "1.29.1"
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.29.1.tgz#9ec15d61c4bd2f386ddf6ce010db53a030345a47"
+  integrity sha512-20Ai3d+lMkWpI9YZYlxk8gxatfgax5STW8GaMozAHwigLiyiKQrdkt7gaoT9UQR8FIVDg6qVXs9IoZUQrDjIIg==
 
 please-upgrade-node@^3.2.0:
   version "3.2.0"
