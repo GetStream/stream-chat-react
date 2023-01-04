@@ -69,7 +69,9 @@ export const usePaginatedChannels = <
     setQueryInProgress(null);
   };
 
-  const loadNextPage = () => queryChannels();
+  const loadNextPage = () => {
+    queryChannels();
+  };
 
   useEffect(() => {
     queryChannels('reload');
