@@ -30,7 +30,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "6.0.0",
     "@popperjs/core": "^2.11.5",
-    "@stream-io/stream-chat-css": "^3.7.1",
+    "@stream-io/stream-chat-css": "^3.7.2",
     "clsx": "^1.1.1",
     "dayjs": "^1.10.4",
     "emoji-mart": "3.0.1",
