@@ -55,7 +55,7 @@ export const usePaginatedChannels = <
         queryType === 'reload' ? channelQueryResponse : [...channels, ...channelQueryResponse];
 
       setChannels(newChannels);
-      setHasNextPage(channelQueryResponse.length >= newOptions.limit);
+      setHasNextPage(channelQueryResponse.length > newOptions.limit);
 
       // Set active channel only on load of first page
       if (!offset && activeChannelHandler) {
