@@ -1,3 +1,11 @@
+## [10.4.3](https://github.com/GetStream/stream-chat-react/compare/v10.4.2...v10.4.3) (2023-01-05)
+
+
+### Bug Fixes
+
+* check for window with getComputedStyle ([#1888](https://github.com/GetStream/stream-chat-react/issues/1888)) ([bb7f38d](https://github.com/GetStream/stream-chat-react/commit/bb7f38d293e29325b2486f4e8dd766db6b67ad9d))
+* prevent duplicate pagination requests in InfiniteScroll ([#1885](https://github.com/GetStream/stream-chat-react/issues/1885)) ([cf5ec80](https://github.com/GetStream/stream-chat-react/commit/cf5ec804c0effbfc0f56308ef4effa837b6a82b3))
+
 ## [10.4.2](https://github.com/GetStream/stream-chat-react/compare/v10.4.1...v10.4.2) (2022-12-16)
 
 
