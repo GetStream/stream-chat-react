@@ -48,6 +48,7 @@ const MessageListWithContext = <
     groupStyles,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
+    internalInfiniteScrollProps,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     messages = [],
     notifications,
@@ -80,6 +81,8 @@ const MessageListWithContext = <
     TypingIndicator = DefaultTypingIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
+  const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
+
   const {
     hasNewMessages,
     isMessageListScrolledToBottom,
@@ -89,6 +92,7 @@ const MessageListWithContext = <
   } = useScrollLocationLogic({
     hasMoreNewer,
     listElement,
+    loadMoreScrollThreshold,
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
@@ -203,6 +207,7 @@ const MessageListWithContext = <
               loadNextPage={loadMoreNewer}
               loadPreviousPage={loadMore}
               {...props.internalInfiniteScrollProps}
+              threshold={loadMoreScrollThreshold}
             >
               <ul className='str-chat__ul' ref={setUlElement}>
                 {elements}
@@ -294,7 +299,11 @@ export type MessageListProps<
   noGroupByUser?: boolean;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
   returnAllReadData?: boolean;
-  /** The pixel threshold to determine whether or not the user is scrolled up in the list, defaults to 200px */
+  /**
+   * The pixel threshold under which the message list is considered to be so near to the bottom,
+   * so that if a new message is delivered, the list will be scrolled to the absolute bottom.
+   * Defaults to 200px
+   */
   scrolledUpThreshold?: number;
   /** If true, indicates the message list is a thread  */
   threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread

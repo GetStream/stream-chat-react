@@ -4,7 +4,7 @@ import selectors from '../../selectors';
 import { getMessage } from '../Message/MessageSimple';
 
 export function getMessageList(page: Page) {
-  return page.locator(selectors.messageList);
+  return page.locator(selectors.messageListContainer);
 }
 
 export default (page: Page) => ({

@@ -11,8 +11,8 @@ export type UseScrollLocationLogicParams<
 > = {
   hasMoreNewer: boolean;
   listElement: HTMLDivElement | null;
+  loadMoreScrollThreshold: number;
   suppressAutoscroll: boolean;
-  currentUserId?: string;
   messages?: StreamMessage<StreamChatGenerics>[];
   scrolledUpThreshold?: number;
 };
@@ -23,6 +23,7 @@ export const useScrollLocationLogic = <
   params: UseScrollLocationLogicParams<StreamChatGenerics>,
 ) => {
   const {
+    loadMoreScrollThreshold,
     messages = [],
     scrolledUpThreshold = 200,
     hasMoreNewer,
@@ -58,6 +59,7 @@ export const useScrollLocationLogic = <
   }, [listElement, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({
+    loadMoreScrollThreshold,
     messages,
     onScrollBy: (scrollBy) => {
       listElement?.scrollBy({ top: scrollBy });
