@@ -313,6 +313,8 @@ Custom UI component to display the search loading state. Rendered within the `Se
 
 Object containing filters/sort/options overrides for user / channel search.
 
+The `filters` attribute (`SearchQueryParams.userFilters.filters`) can be either `UserFilters` object describing the filter query or a function with a single argument of the search / filter (query) string. The function is then expected to derive and return the `UserFilters` from the provided query string.
+
 | Type                                    |
 |-----------------------------------------|
 | `SearchQueryParams<StreamChatGenerics>` |
