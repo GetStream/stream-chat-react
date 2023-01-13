@@ -103,7 +103,9 @@ export const useUserTrigger = <
         {
           $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
           id: { $ne: client.userID },
-          ...mentionQueryParams.filters,
+          ...(typeof mentionQueryParams.filters === 'function'
+            ? mentionQueryParams.filters(query)
+            : mentionQueryParams.filters),
         },
         Array.isArray(mentionQueryParams.sort)
           ? [{ id: 1 }, ...mentionQueryParams.sort]

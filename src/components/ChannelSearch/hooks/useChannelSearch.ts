@@ -42,7 +42,9 @@ export type SearchQueryParams<
     sort?: ChannelSort<StreamChatGenerics>;
   };
   userFilters?: {
-    filters?: UserFilters<StreamChatGenerics>;
+    filters?:
+      | UserFilters<StreamChatGenerics>
+      | ((query: string) => UserFilters<StreamChatGenerics>);
     options?: UserOptions;
     sort?: UserSort<StreamChatGenerics>;
   };
