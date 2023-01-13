@@ -1,6 +1,6 @@
 import React, { ComponentProps, ComponentType } from 'react';
 import emojiRegex from 'emoji-regex';
-import * as linkify from 'linkifyjs';
+import { find } from 'linkifyjs';
 import { nanoid } from 'nanoid';
 import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
 import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
@@ -239,52 +239,54 @@ export const renderText = <
   const codeBlocks = messageCodeBlocks(newText);
 
   // extract all valid links/emails within text and replace it with proper markup
-  uniqBy(linkify.find(newText), 'value').forEach(({ href, type, value }) => {
-    const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
+  uniqBy([...find(newText, 'email'), ...find(newText, 'url')], 'value').forEach(
+    ({ href, type, value }) => {
+      const linkIsInBlock = codeBlocks.some((block) => block?.includes(value));
 
-    // check if message is already  markdown
-    const noParsingNeeded =
-      markdownLinks &&
-      markdownLinks.filter((text) => {
-        const strippedHref = href?.replace(detectHttp, '');
-        const strippedText = text?.replace(detectHttp, '');
+      // check if message is already  markdown
+      const noParsingNeeded =
+        markdownLinks &&
+        markdownLinks.filter((text) => {
+          const strippedHref = href?.replace(detectHttp, '');
+          const strippedText = text?.replace(detectHttp, '');
 
-        if (!strippedHref || !strippedText) return false;
+          if (!strippedHref || !strippedText) return false;
 
-        return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
-      });
+          return strippedHref.includes(strippedText) || strippedText.includes(strippedHref);
+        });
 
-    if (noParsingNeeded.length > 0 || linkIsInBlock) return;
+      if (noParsingNeeded.length > 0 || linkIsInBlock) return;
 
-    try {
-      // special case for mentions:
-      // it could happen that a user's name matches with an e-mail format pattern.
-      // in that case, we check whether the found e-mail is actually a mention
-      // by naively checking for an existence of @ sign in front of it.
-      if (type === 'email' && mentionedUsers) {
-        const emailMatchesWithName = mentionedUsers.some((u) => u.name === value);
-        if (emailMatchesWithName) {
-          newText = newText.replace(new RegExp(escapeRegExp(value), 'g'), (match, position) => {
-            const isMention = newText.charAt(position - 1) === '@';
-            // in case of mention, we leave the match in its original form,
-            // and we let `mentionsMarkdownPlugin` to do its job
-            return isMention ? match : `[${match}](${encodeDecode(href)})`;
-          });
+      try {
+        // special case for mentions:
+        // it could happen that a user's name matches with an e-mail format pattern.
+        // in that case, we check whether the found e-mail is actually a mention
+        // by naively checking for an existence of @ sign in front of it.
+        if (type === 'email' && mentionedUsers) {
+          const emailMatchesWithName = mentionedUsers.some((u) => u.name === value);
+          if (emailMatchesWithName) {
+            newText = newText.replace(new RegExp(escapeRegExp(value), 'g'), (match, position) => {
+              const isMention = newText.charAt(position - 1) === '@';
+              // in case of mention, we leave the match in its original form,
+              // and we let `mentionsMarkdownPlugin` to do its job
+              return isMention ? match : `[${match}](${encodeDecode(href)})`;
+            });
 
-          return;
+            return;
+          }
         }
+
+        const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
+
+        newText = newText.replace(
+          new RegExp(escapeRegExp(value), 'g'),
+          `[${displayLink}](${encodeDecode(href)})`,
+        );
+      } catch (e) {
+        void e;
       }
-
-      const displayLink = type === 'email' ? value : formatUrlForDisplay(href);
-
-      newText = newText.replace(
-        new RegExp(escapeRegExp(value), 'g'),
-        `[${displayLink}](${encodeDecode(href)})`,
-      );
-    } catch (e) {
-      void e;
-    }
-  });
+    },
+  );
 
   const rehypePlugins = [emojiMarkdownPlugin];
 
