@@ -1,3 +1,15 @@
+# [10.5.0](https://github.com/GetStream/stream-chat-react/compare/v10.4.3...v10.5.0) (2023-01-13)
+
+
+### Bug Fixes
+
+* **renderText:** specify linkifyjs types to look for (`email` and `url`) ([#1902](https://github.com/GetStream/stream-chat-react/issues/1902)) ([b5e100e](https://github.com/GetStream/stream-chat-react/commit/b5e100ef0c2b6b3dd280f7a2943576c23148988f))
+
+
+### Features
+
+* **MessageInput:** extend mentionQueryParams to accept `filters` function  ([#1900](https://github.com/GetStream/stream-chat-react/issues/1900)) ([9c979f9](https://github.com/GetStream/stream-chat-react/commit/9c979f9e81c7be8b1aafce837a37f2f70d1907d9))
+
 ## [10.4.3](https://github.com/GetStream/stream-chat-react/compare/v10.4.2...v10.4.3) (2023-01-05)
 
 
