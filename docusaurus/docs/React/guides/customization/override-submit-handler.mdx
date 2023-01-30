@@ -5,6 +5,7 @@ title: Input Submit Handler
 ---
 
 import SubmitHandler from '../../assets/SubmitHandler.png';
+import MessageCustomPayload from '../../assets/message-payload-custom-fields.png';
 
 In this example, we demonstrate how to provide custom logic and override the [`MessageInput`](../../components/message-input-components/message-input.mdx)
 component's default submit handler function. Our custom handler function will bold any message text.
@@ -107,3 +108,44 @@ const App = () => (
 ### The Result
 
 <img src={SubmitHandler} alt='Override Submit Handler' width='700' />
+
+
+## Adding custom message data
+
+In case you would like to store custom data on your message objects, you can do it passing additional parameter to the [`sendMessage`](../../components/contexts/channel-action-context.mdx#sendmessage) function you retrieve from `ChannelActionContext`.
+
+And so now the `overrideSubmitHandler` implementation may change as follows:
+
+```tsx
+import React from 'react';
+import {
+  ChannelHeader,
+  MessageList,
+  MessageInput,
+  Window,
+  MessageToSend,
+useChannelActionContext,
+} from 'stream-chat-react';
+
+const ChannelInner = () => {
+  const { sendMessage } = useChannelActionContext();
+
+  const overrideSubmitHandler = (message: MessageToSend, cid: string) => {
+
+
+    sendMessage(message, {important: true});
+  };
+
+  return (
+    <Window>
+      <ChannelHeader />
+      <MessageList />
+      <MessageInput focus overrideSubmitHandler={overrideSubmitHandler}/>
+    </Window>
+  )
+}
+```
+
+In your browser's Developer tools Network tab you can now observe, that the message payload includes the custom field:
+
+<img src={MessageCustomPayload} alt={'Custome message payload'}/>
