@@ -131,9 +131,7 @@ const ChannelInner = () => {
   const { sendMessage } = useChannelActionContext();
 
   const overrideSubmitHandler = (message: MessageToSend, cid: string) => {
-
-
-    sendMessage(message, {important: true});
+    sendMessage(message, { important: true });
   };
 
   return (
