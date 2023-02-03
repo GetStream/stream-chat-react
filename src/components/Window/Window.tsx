@@ -1,4 +1,5 @@
 import React, { PropsWithChildren } from 'react';
+import clsx from 'clsx';
 
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 
@@ -9,7 +10,7 @@ export type WindowProps<
 > = {
   /** show or hide the window when a thread is active */
   hideOnThread?: boolean;
-  /** optional prop to manually trigger the opening of a thread*/
+  /** optional prop to force addition of class str-chat__main-panel--hideOnThread to the Window root element */
   thread?: StreamMessage<StreamChatGenerics>;
 };
 
@@ -18,15 +19,15 @@ const UnMemoizedWindow = <
 >(
   props: PropsWithChildren<WindowProps<StreamChatGenerics>>,
 ) => {
-  const { children, hideOnThread = false } = props;
+  const { children, hideOnThread = false, thread: propThread } = props;
 
-  const { thread } = useChannelStateContext<StreamChatGenerics>('Window');
+  const { thread: contextThread } = useChannelStateContext<StreamChatGenerics>('Window');
 
   return (
     <div
-      className={`str-chat__main-panel   ${
-        hideOnThread && thread ? 'str-chat__main-panel--hideOnThread' : ''
-      }`}
+      className={clsx('str-chat__main-panel', {
+        'str-chat__main-panel--hideOnThread': hideOnThread && (contextThread || propThread),
+      })}
     >
       {children}
     </div>
