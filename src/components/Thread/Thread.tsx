@@ -38,7 +38,7 @@ export type ThreadProps<
   /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
   additionalMessageListProps?: MessageListProps<StreamChatGenerics>;
   /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: MessageProps<StreamChatGenerics>;
+  additionalParentMessageProps?: Partial<MessageProps<StreamChatGenerics>>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
   additionalVirtualizedMessageListProps?: VirtualizedMessageListProps<StreamChatGenerics>;
   /** If true, focuses the `MessageInput` component on opening a thread */
