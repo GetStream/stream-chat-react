@@ -42,4 +42,16 @@ describe('CustomNotification', () => {
 
     expect(getByTestId('custom-notification').className).toContain(`notification-${type}`);
   });
+
+  it('should add custom class to className', () => {
+    const className = 'custom-classname-xxx';
+
+    const { getByTestId } = render(
+      <CustomNotification active={true} className={className}>
+        x
+      </CustomNotification>,
+    );
+
+    expect(getByTestId('custom-notification').className).toContain(className);
+  });
 });
