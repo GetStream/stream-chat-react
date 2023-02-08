@@ -43,7 +43,7 @@ export type ChannelActionContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
-  closeThread: (event: React.BaseSyntheticEvent) => void;
+  closeThread: (event?: React.BaseSyntheticEvent) => void;
   dispatch: React.Dispatch<ChannelStateReducerAction<StreamChatGenerics>>;
   editMessage: (
     message: UpdatedMessage<StreamChatGenerics>,

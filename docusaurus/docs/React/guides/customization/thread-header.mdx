@@ -27,7 +27,7 @@ export const CustomThreadHeader = ({ closeThread, thread }) => {
         ))}
         <div className='reply-count'>{replyCount} Replies</div>
       </div>
-      <div onClick={(event) => closeThread(event)} className='close-button'>
+      <div onClick={closeThread} className='close-button'>
         <div className='left'>
           <div className='right'></div>
         </div>
