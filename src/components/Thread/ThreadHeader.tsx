@@ -15,7 +15,7 @@ export type ThreadHeaderProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** Callback for closing the thread */
-  closeThread: (event: React.BaseSyntheticEvent) => void;
+  closeThread: (event?: React.BaseSyntheticEvent) => void;
   /** The thread parent message */
   thread: StreamMessage<StreamChatGenerics>;
 };
@@ -46,7 +46,7 @@ export const ThreadHeader = <
         aria-label='Close thread'
         className='str-chat__square-button str-chat__close-thread-button'
         data-testid='close-button'
-        onClick={(event) => closeThread(event)}
+        onClick={closeThread}
       >
         <CloseIcon />
       </button>

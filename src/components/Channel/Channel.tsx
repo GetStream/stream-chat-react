@@ -748,9 +748,9 @@ const ChannelInner = <
 
   const openThread = (
     message: StreamMessage<StreamChatGenerics>,
-    event: React.BaseSyntheticEvent,
+    event?: React.BaseSyntheticEvent,
   ) => {
-    event.preventDefault();
+    event?.preventDefault();
     setQuotedMessage((current) => {
       if (current?.parent_id !== message?.parent_id) {
         return undefined;
@@ -761,8 +761,8 @@ const ChannelInner = <
     dispatch({ channel, message, type: 'openThread' });
   };
 
-  const closeThread = (event: React.BaseSyntheticEvent) => {
-    event.preventDefault();
+  const closeThread = (event?: React.BaseSyntheticEvent) => {
+    event?.preventDefault();
     dispatch({ type: 'closeThread' });
   };
 
