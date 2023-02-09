@@ -8,7 +8,7 @@ export type CustomNotificationProps = {
 };
 
 const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificationProps>) => {
-  const { active, children, className = '', type } = props;
+  const { active, children, className, type } = props;
 
   if (!active) return null;
 
@@ -18,7 +18,7 @@ const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificatio
       className={clsx(
         `str-chat__custom-notification notification-${type}`,
         `str-chat__notification`,
-        { [className]: className },
+        className,
       )}
       data-testid='custom-notification'
     >
