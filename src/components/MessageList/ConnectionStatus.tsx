@@ -26,7 +26,11 @@ const UnMemoizedConnectionStatus = <
   }, [client, online]);
 
   return (
-    <CustomNotification active={!online} type='error'>
+    <CustomNotification
+      active={!online}
+      className='str-chat__connection-status-notification'
+      type='error'
+    >
       {t<string>('Connection failure, reconnecting now...')}
     </CustomNotification>
   );
