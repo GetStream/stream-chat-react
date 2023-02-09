@@ -55,7 +55,10 @@ export type ChannelActionContextValue<
   loadMoreThread: () => Promise<void>;
   onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
   onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
-  openThread: (message: StreamMessage<StreamChatGenerics>, event: React.BaseSyntheticEvent) => void;
+  openThread: (
+    message: StreamMessage<StreamChatGenerics>,
+    event?: React.BaseSyntheticEvent,
+  ) => void;
   removeMessage: (message: StreamMessage<StreamChatGenerics>) => void;
   retrySendMessage: RetrySendMessage<StreamChatGenerics>;
   sendMessage: (
