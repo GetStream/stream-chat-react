@@ -1,3 +1,17 @@
+# [10.6.0](https://github.com/GetStream/stream-chat-react/compare/v10.5.0...v10.6.0) (2023-02-10)
+
+
+### Bug Fixes
+
+* make all ThreadProps.additionalParentMessageProps keys optional ([#1920](https://github.com/GetStream/stream-chat-react/issues/1920)) ([62de38f](https://github.com/GetStream/stream-chat-react/commit/62de38f0947a28b16adec435dc9d823bbdec7743))
+* make event optional for openThread in ChannelActionContext ([#1928](https://github.com/GetStream/stream-chat-react/issues/1928)) ([f144e9a](https://github.com/GetStream/stream-chat-react/commit/f144e9a130dad90093bf6425087e833503b5ead6))
+* reflect thread prop in Window component ([#1919](https://github.com/GetStream/stream-chat-react/issues/1919)) ([689514c](https://github.com/GetStream/stream-chat-react/commit/689514c2f9bcf36a2af8d9950518c0f3d4441d28))
+
+
+### Features
+
+* add custom class to ConnectionStatus component ([#1924](https://github.com/GetStream/stream-chat-react/issues/1924)) ([d008b96](https://github.com/GetStream/stream-chat-react/commit/d008b96e8c95a4c3537c98141ee3302a5c2a0c8f))
+
 # [10.5.0](https://github.com/GetStream/stream-chat-react/compare/v10.4.3...v10.5.0) (2023-01-13)
 
 
