@@ -1,10 +1,10 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { isMutableRef } from './utils/utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji, STREAM_SPRITE_URL } from '../Channel/emojiData';
 
 import { useComponentContext } from '../../context/ComponentContext';
 import { useEmojiContext } from '../../context/EmojiContext';
@@ -70,12 +70,6 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const ownReactions = propOwnReactions || message?.own_reactions || [];
     const reactionCounts = propReactionCounts || message?.reaction_counts || {};
     const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-    const reactionsAreCustom = !!propReactionOptions?.length;
-
-    const emojiData = useMemo(
-      () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-      [fullEmojiData, reactionsAreCustom],
-    );
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
     const [tooltipPositions, setTooltipPositions] = useState<{
@@ -165,9 +159,13 @@ const UnMemoizedReactionSelector = React.forwardRef(
           </div>
         )}
         <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
-          {reactionOptions.map((reactionOption: ReactionEmoji) => {
+          {reactionOptions.map((reactionOption) => {
             const latestUser = getLatestUserForReactionType(reactionOption.id);
             const count = reactionCounts && reactionCounts[reactionOption.id];
+
+            // @ts-ignore
+            const isStreamHosted = reactionOption?.spriteUrl === STREAM_SPRITE_URL;
+
             return (
               <li key={`item-${reactionOption.id}`}>
                 <button
@@ -206,10 +204,12 @@ const UnMemoizedReactionSelector = React.forwardRef(
                     <Suspense fallback={null}>
                       <span className='str-chat__message-reaction-emoji'>
                         <Emoji
-                          data={emojiData}
+                          data={
+                            isStreamHosted ? getStrippedEmojiData(fullEmojiData) : fullEmojiData
+                          }
                           emoji={reactionOption}
                           size={20}
-                          {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
+                          {...(isStreamHosted ? emojiSetDef : additionalEmojiProps)}
                         />
                       </span>
                     </Suspense>

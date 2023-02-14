@@ -12,7 +12,7 @@ import type { ReactionResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../Message/types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { ReactionEmoji } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji, STREAM_SPRITE_URL } from '../Channel/emojiData';
 
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
@@ -72,18 +72,17 @@ const ButtonWithTooltip = ({
 
 const UnMemoizedReactionsList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: ReactionsListProps<StreamChatGenerics>,
-) => {
-  const { onClick, reverse = false, ...rest } = props;
-
+>({
+  additionalEmojiProps,
+  onClick,
+  reverse = false,
+  ...rest
+}: ReactionsListProps<StreamChatGenerics>) => {
   const { Emoji, emojiConfig } = useEmojiContext('ReactionsList');
   const { onReactionListClick } = useMessageContext<StreamChatGenerics>('ReactionsList');
 
   const {
-    additionalEmojiProps,
     aggregatedUserNamesByType,
-    emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
     latestReactions,
@@ -92,6 +91,8 @@ const UnMemoizedReactionsList = <
     supportedReactionsArePresent,
     totalReactionCount,
   } = useProcessReactions({ emojiConfig, ...rest });
+
+  const { emojiData: fullEmojiData, emojiSetDef } = emojiConfig ?? {};
 
   if (!latestReactions.length) return null;
 
@@ -112,6 +113,10 @@ const UnMemoizedReactionsList = <
         {latestReactionTypes.map((reactionType) => {
           const emojiObject = getEmojiByReactionType(reactionType);
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
+
+          // @ts-ignore
+          const isStreamHosted = emojiObject?.spriteUrl === STREAM_SPRITE_URL;
+
           return emojiObject ? (
             <li
               className={clsx('str-chat__message-reaction', {
@@ -128,10 +133,10 @@ const UnMemoizedReactionsList = <
                   <Suspense fallback={null}>
                     <span className='str-chat__message-reaction-emoji'>
                       <Emoji
-                        data={emojiData}
+                        data={isStreamHosted ? getStrippedEmojiData(fullEmojiData) : fullEmojiData}
                         emoji={emojiObject}
                         size={16}
-                        {...additionalEmojiProps}
+                        {...(isStreamHosted ? emojiSetDef : additionalEmojiProps)}
                       />
                     </span>
                   </Suspense>

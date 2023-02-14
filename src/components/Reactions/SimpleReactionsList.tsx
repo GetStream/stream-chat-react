@@ -14,7 +14,7 @@ import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { ReactionEmoji } from '../Channel/emojiData';
+import { getStrippedEmojiData, ReactionEmoji, STREAM_SPRITE_URL } from '../Channel/emojiData';
 
 type WithTooltipProps = {
   onMouseEnter: React.MouseEventHandler;
@@ -71,19 +71,17 @@ export type SimpleReactionsListProps<
 
 const UnMemoizedSimpleReactionsList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: SimpleReactionsListProps<StreamChatGenerics>,
-) => {
-  const { handleReaction: propHandleReaction, ...rest } = props;
-
+>({
+  additionalEmojiProps,
+  handleReaction: propHandleReaction,
+  ...rest
+}: SimpleReactionsListProps<StreamChatGenerics>) => {
   const { Emoji, emojiConfig } = useEmojiContext('SimpleReactionsList');
   const { handleReaction: contextHandleReaction } = useMessageContext<StreamChatGenerics>(
     'SimpleReactionsList',
   );
 
   const {
-    additionalEmojiProps,
-    emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
     latestReactions,
@@ -91,6 +89,8 @@ const UnMemoizedSimpleReactionsList = <
     supportedReactionsArePresent,
     totalReactionCount,
   } = useProcessReactions({ emojiConfig, ...rest });
+
+  const { emojiData: fullEmojiData, emojiSetDef } = emojiConfig ?? {};
 
   const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
   const { themeVersion } = useChatContext('SimpleReactionsList');
@@ -124,6 +124,9 @@ const UnMemoizedSimpleReactionsList = <
           const tooltipVisible = emojiObject && tooltipReactionType === emojiObject?.id;
           const tooltipContent = getUsersPerReactionType(tooltipReactionType)?.join(', ');
 
+          // @ts-ignore
+          const isStreamHosted = emojiObject?.spriteUrl === STREAM_SPRITE_URL;
+
           return emojiObject ? (
             <li
               className={clsx('str-chat__simple-reactions-list-item', {
@@ -141,10 +144,10 @@ const UnMemoizedSimpleReactionsList = <
                 {
                   <Suspense fallback={null}>
                     <Emoji
-                      data={emojiData}
+                      data={isStreamHosted ? getStrippedEmojiData(fullEmojiData) : fullEmojiData}
                       emoji={emojiObject}
                       size={13}
-                      {...additionalEmojiProps}
+                      {...(isStreamHosted ? emojiSetDef : additionalEmojiProps)}
                     />
                   </Suspense>
                 }

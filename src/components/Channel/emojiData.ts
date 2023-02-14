@@ -10,12 +10,14 @@ export const commonEmoji: CommonEmoji = {
   short_names: [],
 };
 
+export const STREAM_SPRITE_URL = 'https://getstream.imgix.net/images/emoji-sprite.png';
+
 export const emojiSetDef: EmojiSetDef = {
   imageUrl: '',
   sheetColumns: 2,
   sheetRows: 3,
   sheetSize: 64,
-  spriteUrl: 'https://getstream.imgix.net/images/emoji-sprite.png',
+  spriteUrl: STREAM_SPRITE_URL,
 };
 
 export const defaultMinimalEmojis: MinimalEmoji[] = [
