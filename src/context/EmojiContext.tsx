@@ -10,7 +10,7 @@ import type {
   NimblePickerProps,
 } from 'emoji-mart';
 
-import type { UnknownType } from '../types/types';
+import type { Readable, UnknownType } from '../types/types';
 
 export type CommonEmoji = {
   custom: boolean;
@@ -26,14 +26,16 @@ export type EmojiSetDef = {
   spriteUrl: string;
 };
 
-export type MinimalEmoji = CommonEmoji &
-  EmojiSetDef & {
-    colons: string;
-    id: string;
-    name: string;
-    sheet_x: number;
-    sheet_y: number;
-  };
+export type MinimalEmoji = Readable<
+  CommonEmoji &
+    EmojiSetDef & {
+      colons: string;
+      id: string;
+      name: string;
+      sheet_x: number;
+      sheet_y: number;
+    }
+>;
 
 export type EmojiConfig = {
   commonEmoji: CommonEmoji;
