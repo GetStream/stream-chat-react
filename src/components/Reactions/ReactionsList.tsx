@@ -1,35 +1,29 @@
-import React, { ComponentProps, Suspense, useState } from 'react';
+import React, { ComponentProps, useState } from 'react';
 import clsx from 'clsx';
 
-import { useEmojiContext } from '../../context/EmojiContext';
+import type { ReactionResponse } from 'stream-chat';
+
 import { useMessageContext } from '../../context/MessageContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
-
-import type { NimbleEmojiProps } from 'emoji-mart';
-import type { ReactionResponse } from 'stream-chat';
-
-import type { ReactEventHandler } from '../Message/types';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { ReactionEmoji } from '../Channel/emojiData';
-
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
+
+import type { ReactEventHandler } from '../Message/types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { ReactionOptions } from './reactionOptions';
 
 export type ReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
-  additionalEmojiProps?: Partial<NimbleEmojiProps>;
   /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
-  reaction_counts?: { [key: string]: number };
+  reaction_counts?: Record<string, number>;
   /** A list of the currently supported reactions on a message */
-  reactionOptions?: ReactionEmoji[];
+  reactionOptions?: ReactionOptions;
   /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse<StreamChatGenerics>[];
   /** Display the reactions in the list in reverse order, defaults to false */
@@ -77,13 +71,10 @@ const UnMemoizedReactionsList = <
 ) => {
   const { onClick, reverse = false, ...rest } = props;
 
-  const { Emoji, emojiConfig } = useEmojiContext('ReactionsList');
   const { onReactionListClick } = useMessageContext<StreamChatGenerics>('ReactionsList');
 
   const {
-    additionalEmojiProps,
     aggregatedUserNamesByType,
-    emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
     latestReactions,
@@ -91,7 +82,7 @@ const UnMemoizedReactionsList = <
     reactionCounts,
     supportedReactionsArePresent,
     totalReactionCount,
-  } = useProcessReactions({ emojiConfig, ...rest });
+  } = useProcessReactions(rest);
 
   if (!latestReactions.length) return null;
 
@@ -110,42 +101,37 @@ const UnMemoizedReactionsList = <
     >
       <ul className='str-chat__message-reactions'>
         {latestReactionTypes.map((reactionType) => {
-          const emojiObject = getEmojiByReactionType(reactionType);
+          const [, Reaction] = getEmojiByReactionType(reactionType) ?? [];
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
-          return emojiObject ? (
-            <li
-              className={clsx('str-chat__message-reaction', {
-                'str-chat__message-reaction-own': isOwnReaction,
-              })}
-              key={emojiObject.id}
-            >
-              <ButtonWithTooltip
-                aria-label={`Reactions: ${reactionType}`}
-                title={aggregatedUserNamesByType[reactionType].join(', ')}
-                type='button'
+          return (
+            Reaction && (
+              <li
+                className={clsx('str-chat__message-reaction', {
+                  'str-chat__message-reaction-own': isOwnReaction,
+                })}
+                key={reactionType}
               >
-                {
-                  <Suspense fallback={null}>
-                    <span className='str-chat__message-reaction-emoji'>
-                      <Emoji
-                        data={emojiData}
-                        emoji={emojiObject}
-                        size={16}
-                        {...additionalEmojiProps}
-                      />
-                    </span>
-                  </Suspense>
-                }
-                &nbsp;
-                <span
-                  className='str-chat__message-reaction-count'
-                  data-testclass='reaction-list-reaction-count'
+                <ButtonWithTooltip
+                  aria-label={`Reactions: ${reactionType}`}
+                  title={aggregatedUserNamesByType[reactionType].join(', ')}
+                  type='button'
                 >
-                  {reactionCounts[reactionType]}
-                </span>
-              </ButtonWithTooltip>
-            </li>
-          ) : null;
+                  {
+                    <span className='str-chat__message-reaction-emoji'>
+                      <Reaction.Component />
+                    </span>
+                  }
+                  &nbsp;
+                  <span
+                    className='str-chat__message-reaction-count'
+                    data-testclass='reaction-list-reaction-count'
+                  >
+                    {reactionCounts[reactionType]}
+                  </span>
+                </ButtonWithTooltip>
+              </li>
+            )
+          );
         })}
         <li>
           <span className='str-chat__reaction-list--counter'>{totalReactionCount}</span>
