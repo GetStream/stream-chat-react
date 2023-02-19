@@ -1,19 +1,18 @@
 import { useCallback, useMemo } from 'react';
-import { getStrippedEmojiData, ReactionEmoji } from '../../Channel/emojiData';
-import type { EmojiContextValue } from '../../../context/EmojiContext';
-import type { ReactionsListProps } from '../ReactionsList';
+
 import { useMessageContext } from '../../../context';
+import { defaultReactionOptions } from '../reactionOptions';
+
+import type { ReactionsListProps } from '../ReactionsList';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type SharedReactionListProps =
-  | 'additionalEmojiProps'
   | 'own_reactions'
   | 'reaction_counts'
   | 'reactionOptions'
   | 'reactions';
 
-type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> &
-  Pick<EmojiContextValue, 'emojiConfig'>;
+type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps>;
 
 export const useProcessReactions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -21,21 +20,16 @@ export const useProcessReactions = <
   params: UseProcessReactionsParams,
 ) => {
   const {
-    additionalEmojiProps = {},
-    emojiConfig,
     own_reactions: propOwnReactions,
     reaction_counts: propReactionCounts,
-    reactionOptions: propReactionOptions,
+    reactionOptions = defaultReactionOptions,
     reactions: propReactions,
   } = params;
   const { message } = useMessageContext<StreamChatGenerics>('ReactionsList');
-  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
   const latestReactions = propReactions || message.latest_reactions || [];
   const ownReactions = propOwnReactions || message?.own_reactions || [];
   const reactionCounts = propReactionCounts || message.reaction_counts || {};
-  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-  const reactionsAreCustom = !!propReactionOptions?.length;
 
   const iHaveReactedWithReaction = useCallback(
     (reactionType: string) => ownReactions.find((reaction) => reaction.type === reactionType),
@@ -43,14 +37,8 @@ export const useProcessReactions = <
   );
 
   const getEmojiByReactionType = useCallback(
-    (type: string): ReactionEmoji | undefined =>
-      reactionOptions.find((option: ReactionEmoji) => option.id === type),
+    (reactionType: string) => Object.entries(reactionOptions).find(([rt]) => rt === reactionType),
     [reactionOptions],
-  );
-
-  const emojiData = useMemo(
-    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-    [fullEmojiData, reactionsAreCustom],
   );
 
   const latestReactionTypes = useMemo(
@@ -66,9 +54,9 @@ export const useProcessReactions = <
 
   const supportedReactionMap = useMemo(
     () =>
-      reactionOptions.reduce<Record<string, boolean>>((acc, { id }) => {
-        acc[id] = true;
-        return acc;
+      Object.keys(reactionOptions).reduce<Record<string, boolean>>((map, reactionType) => {
+        map[reactionType] = true;
+        return map;
       }, {}),
     [reactionOptions],
   );
@@ -99,9 +87,7 @@ export const useProcessReactions = <
   );
 
   return {
-    additionalEmojiProps: reactionsAreCustom ? additionalEmojiProps : emojiSetDef,
     aggregatedUserNamesByType,
-    emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
     latestReactions,

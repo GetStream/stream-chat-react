@@ -1,25 +1,21 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { isMutableRef } from './utils/utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-import { getStrippedEmojiData, ReactionEmoji } from '../Channel/emojiData';
 
 import { useComponentContext } from '../../context/ComponentContext';
-import { useEmojiContext } from '../../context/EmojiContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import type { NimbleEmojiProps } from 'emoji-mart';
 import type { ReactionResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { defaultReactionOptions, ReactionOptions } from './reactionOptions';
 
 export type ReactionSelectorProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Additional props to be passed to the [NimbleEmoji](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component from `emoji-mart` */
-  additionalEmojiProps?: Partial<NimbleEmojiProps>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ElementType<AvatarProps>;
   /** If true, shows the user's avatar with the reaction */
@@ -31,9 +27,9 @@ export type ReactionSelectorProps<
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
-  reaction_counts?: { [key: string]: number };
+  reaction_counts?: Record<string, number>;
   /** A list of the currently supported reactions on a message */
-  reactionOptions?: ReactionEmoji[];
+  reactionOptions?: ReactionOptions;
   /** If true, adds a CSS class that reverses the horizontal positioning of the selector */
   reverse?: boolean;
 };
@@ -44,38 +40,27 @@ const UnMemoizedReactionSelector = React.forwardRef(
     ref: React.ForwardedRef<HTMLDivElement | null>,
   ) => {
     const {
-      additionalEmojiProps = {},
       Avatar: propAvatar,
       detailedView = true,
       handleReaction: propHandleReaction,
       latest_reactions: propLatestReactions,
       own_reactions: propOwnReactions,
       reaction_counts: propReactionCounts,
-      reactionOptions: propReactionOptions,
+      reactionOptions = defaultReactionOptions,
       reverse = false,
     } = props;
 
     const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('ReactionSelector');
-    const { Emoji, emojiConfig } = useEmojiContext('ReactionSelector');
     const {
       handleReaction: contextHandleReaction,
       message,
     } = useMessageContext<StreamChatGenerics>('ReactionSelector');
-
-    const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
 
     const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const handleReaction = propHandleReaction || contextHandleReaction;
     const latestReactions = propLatestReactions || message?.latest_reactions || [];
     const ownReactions = propOwnReactions || message?.own_reactions || [];
     const reactionCounts = propReactionCounts || message?.reaction_counts || {};
-    const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-    const reactionsAreCustom = !!propReactionOptions?.length;
-
-    const emojiData = useMemo(
-      () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-      [fullEmojiData, reactionsAreCustom],
-    );
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
     const [tooltipPositions, setTooltipPositions] = useState<{
@@ -165,64 +150,57 @@ const UnMemoizedReactionSelector = React.forwardRef(
           </div>
         )}
         <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
-          {reactionOptions.map((reactionOption: ReactionEmoji) => {
-            const latestUser = getLatestUserForReactionType(reactionOption.id);
-            const count = reactionCounts && reactionCounts[reactionOption.id];
-            return (
-              <li key={`item-${reactionOption.id}`}>
-                <button
-                  aria-label={`Select Reaction: ${reactionOption.name}`}
-                  className={clsx(
-                    'str-chat__message-reactions-list-item str-chat__message-reactions-option',
-                    {
-                      'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
-                        reactionOption.id,
-                      ),
-                    },
-                  )}
-                  data-text={reactionOption.id}
-                  onClick={(event) => handleReaction(reactionOption.id, event)}
-                >
-                  {!!count && detailedView && (
-                    <div
-                      className='latest-user str-chat__message-reactions-last-user'
-                      onClick={hideTooltip}
-                      onMouseEnter={(e) => showTooltip(e, reactionOption.id)}
-                      onMouseLeave={hideTooltip}
-                    >
-                      {latestUser ? (
-                        <Avatar
-                          image={latestUser.image}
-                          name={latestUser.name}
-                          size={20}
-                          user={latestUser}
-                        />
-                      ) : (
-                        <div className='latest-user-not-found' />
-                      )}
-                    </div>
-                  )}
-                  {
-                    <Suspense fallback={null}>
-                      <span className='str-chat__message-reaction-emoji'>
-                        <Emoji
-                          data={emojiData}
-                          emoji={reactionOption}
-                          size={20}
-                          {...(reactionsAreCustom ? additionalEmojiProps : emojiSetDef)}
-                        />
-                      </span>
-                    </Suspense>
-                  }
-                  {Boolean(count) && detailedView && (
-                    <span className='str-chat__message-reactions-list-item__count'>
-                      {count || ''}
+          {Object.entries(reactionOptions).map(
+            ([reactionType, { Component, name: reactionName }]) => {
+              const latestUser = getLatestUserForReactionType(reactionType);
+              const count = reactionCounts && reactionCounts[reactionType];
+              return (
+                <li key={`item-${reactionType}`}>
+                  <button
+                    aria-label={`Select Reaction: ${reactionName || reactionType}`}
+                    className={clsx(
+                      'str-chat__message-reactions-list-item str-chat__message-reactions-option',
+                      {
+                        'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
+                          reactionType,
+                        ),
+                      },
+                    )}
+                    data-text={reactionType}
+                    onClick={(event) => handleReaction(reactionType, event)}
+                  >
+                    {!!count && detailedView && (
+                      <div
+                        className='latest-user str-chat__message-reactions-last-user'
+                        onClick={hideTooltip}
+                        onMouseEnter={(e) => showTooltip(e, reactionType)}
+                        onMouseLeave={hideTooltip}
+                      >
+                        {latestUser ? (
+                          <Avatar
+                            image={latestUser.image}
+                            name={latestUser.name}
+                            size={20}
+                            user={latestUser}
+                          />
+                        ) : (
+                          <div className='latest-user-not-found' />
+                        )}
+                      </div>
+                    )}
+                    <span className='str-chat__message-reaction-emoji'>
+                      <Component />
                     </span>
-                  )}
-                </button>
-              </li>
-            );
-          })}
+                    {Boolean(count) && detailedView && (
+                      <span className='str-chat__message-reactions-list-item__count'>
+                        {count || ''}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            },
+          )}
         </ul>
       </div>
     );
