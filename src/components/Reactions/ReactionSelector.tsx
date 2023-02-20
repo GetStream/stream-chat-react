@@ -11,7 +11,7 @@ import { useMessageContext } from '../../context/MessageContext';
 import type { ReactionResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { defaultReactionOptions, ReactionOptions } from './reactionOptions';
+import type { ReactionOptions } from './reactionOptions';
 
 export type ReactionSelectorProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -46,15 +46,20 @@ const UnMemoizedReactionSelector = React.forwardRef(
       latest_reactions: propLatestReactions,
       own_reactions: propOwnReactions,
       reaction_counts: propReactionCounts,
-      reactionOptions = defaultReactionOptions,
+      reactionOptions: propReactionOptions,
       reverse = false,
     } = props;
 
-    const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('ReactionSelector');
+    const {
+      Avatar: contextAvatar,
+      reactionOptions: contextReactionOptions,
+    } = useComponentContext<StreamChatGenerics>('ReactionSelector');
     const {
       handleReaction: contextHandleReaction,
       message,
     } = useMessageContext<StreamChatGenerics>('ReactionSelector');
+
+    const reactionOptions = propReactionOptions ?? contextReactionOptions;
 
     const Avatar = propAvatar || contextAvatar || DefaultAvatar;
     const handleReaction = propHandleReaction || contextHandleReaction;
