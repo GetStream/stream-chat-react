@@ -92,6 +92,10 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
+import {
+  defaultReactionOptions,
+  ReactionOptions,
+} from '../../components/Reactions/reactionOptions';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -225,6 +229,8 @@ export type ChannelProps<
   QuotedMessage?: ComponentContextValue<StreamChatGenerics>['QuotedMessage'];
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
   QuotedMessagePreview?: ComponentContextValue<StreamChatGenerics>['QuotedMessagePreview'];
+  /** Custom reaction options to be applied to ReactionSelector, ReactionList and SimpleReactionList components */
+  reactionOptions?: ReactionOptions;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
   ReactionSelector?: ComponentContextValue<StreamChatGenerics>['ReactionSelector'];
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [ReactionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) */
@@ -1014,6 +1020,7 @@ const ChannelInner = <
       PinIndicator: props.PinIndicator,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
+      reactionOptions: props.reactionOptions ?? defaultReactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
@@ -1024,7 +1031,7 @@ const ChannelInner = <
       TypingIndicator: props.TypingIndicator,
       VirtualMessage: props.VirtualMessage,
     }),
-    [],
+    [props.reactionOptions],
   );
 
   const emojiContextValue: EmojiContextValue = useMemo(

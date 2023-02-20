@@ -34,6 +34,7 @@ import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingI
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { CooldownTimerProps } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
+import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -41,6 +42,7 @@ export type ComponentContextValue<
 > = {
   Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  reactionOptions: ReactionOptions;
   AttachmentPreviewList?: React.ComponentType;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;

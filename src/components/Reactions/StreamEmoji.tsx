@@ -15,7 +15,7 @@ const StreamSpriteEmojiPositions = {
 
 type StreamEmojiType = keyof typeof StreamSpriteEmojiPositions;
 
-export const STREAM_SPRITE_URL = 'https://getstream.imgix.net/images/emoji-sprite.png';
+const STREAM_SPRITE_URL = 'https://getstream.imgix.net/images/emoji-sprite.png';
 
 export const StreamEmoji = ({
   fallback,
