@@ -1,0 +1,244 @@
+---
+id: new-reactions
+sidebar_position: 2
+title: New reactions (11.0.0)
+keywords: [migration guide, upgrade, reactions, breaking changes, v11]
+---
+
+import GHComponentLink from '../_docusaurus-components/GHComponentLink';
+
+## Introducing new reactions (with breaking changes)
+
+When it came to developer experience regarding customization of the reaction components our team noticed that our integrators generally strugled to make more advanced adjustments to reactions without having to rebuild the whole [component set](../components/message-components/reactions.mdx). The whole process has been quite unintuitive and that's why this update aims at making adjusting your reactions much easier.
+
+### Main reasons for a revamp
+
+- inability to reuse default (Stream supplied reactions) with your custom ones
+- strong reliance on [`EmojiMart`](https://github.com/missive/emoji-mart) and inability to use completely custom reactions out of the box
+- certain `additionalEmojiProps` did not work with Stream-supplied reactions
+
+```tsx
+// not exported directly (hidden, leading to poor DX)
+import { defaultMinimalEmojis } from 'stream-chat-react/dist/components/Channel/emojiData';
+
+export const customReactions = [
+  {
+    // relies on EmojiMart-supplied sprite sheet, "native" option does not work for Stream-supplied reactions
+    // you'd need to look up supported id's in stream-emoji.json under "emojis" key
+    id: 'bulb',
+  },
+  // unsupported
+  {
+    id: 'rick_roll',
+  },
+  // this wouldn't work
+  ...defaultMinimalEmojis,
+];
+```
+
+## New default setup and how it works
+
+SDK by default comes with five pre-defined reaction types (`haha`, `like`, `love`, `sad` and `wow`) which are newly rendered by <GHComponentLink text='StreamEmoji' branch="feat/reactions" path='/Reactions/StreamEmoji.tsx'/> component which utilises sprite sheet system and renders images for each reaction to make sure it works flawlessly on every system. Default reaction options are defined in <GHComponentLink text='defaultReactionOptions' branch="feat/reactions" path='/Reactions/reactionOptions.tsx'/> and these options are reused for both [`ReactionSelector`](../components/message-components/reactions.mdx) and [`ReactionsList`](../components/message-components/reactions.mdx) (as well as [`SimpleReactionsList`](../components/message-components/reactions.mdx)). These options come by default from the ComponentContext but local component property will be prioritised if defined. This is how it works under the hood:
+
+```ts
+contextReactionOptions = defaultReactionOptions;
+// ...
+const reactionOptions = propsReactionOptions ?? contextReactionOptions;
+```
+
+:::note
+Beware that sixth reaction type `angry` has been removed in this update, if you need to re-enable it, follow [this guide](#re-enabling-angry-reaction).
+:::
+
+## Custom reaction types and components
+
+It's possible to supply your own reaction types and components to represent such reactions - let's implement reaction of type `rick_roll` to render a Rick Roll GIF and define override for default type `love`:
+
+```tsx
+import { Channel } from 'stream-chat-react';
+
+const RickRollReaction = () => (
+  <img src='https://media.tenor.com/x8v1oNUOmg4AAAAM/rickroll-roll.gif' style={{ height: 20 }} />
+);
+
+const customReactionOptions = [
+  {
+    Component: RickRollReaction,
+    type: 'rick_roll',
+    name: 'Rick Roll',
+  },
+  {
+    Component: () => <>❤️</>
+    type: 'love',
+    name: "Heart"
+  }
+];
+```
+
+And then you can pass these newly created options to [`Channel`](../components/core-components/channel) component which will be then propagated to `ReactionSelector` and `ReactionsList`:
+
+```tsx
+<Channel reactionOptions={customReactionOptions}>{/*...*/}</Channel>
+```
+
+## EmojiMart integration
+
+If you're used to work with EmojiMart then integrating with new reaction system shouldn't be a big trouble as you can define how your components look and reach for context if you need to:
+
+```tsx
+// arbitrary EmojiMartContext (does not come with the SDK)
+import { useEmojiMartContext } from '../contexts';
+
+const CustomLikeComponent = () => {
+  const { selectedSkinTones, selectedSet } = useEmojiMartContext();
+
+  return <em-emoji id='+1' set={selectedSet} skin={selectedSkinTones['+1']} />;
+};
+
+const reactionOptions = [
+  {
+    type: 'like',
+    component: CustomLikeComponent,
+    name: 'EmojiMart like',
+  },
+];
+
+// pass reaction options to component context (Channel) or to ReactionSelector and ReactionsList
+```
+
+## Use of different reaction components for the same reaction types for `ReactionSelector` and `ReactionsList` components
+
+If you need more fine-grain tuning and want to - for example - enable only a certain subset of clickable reactions but want to display the full set then you'd do something like this:
+
+```tsx
+const JoyReaction = () => <>😂</>;
+const CatReaction = () => <>🐈</>;
+const ThumbsUpReaction = () => <>👍</>;
+const SmileReaction = () => <>🙂</>;
+
+// subset of clickable options available to the user
+const selectedReactionOptions = [
+  { type: 'haha', Component: JoyReaction },
+  { type: 'cat', Component: CatReaction },
+];
+
+// set of all available options to be rendered
+const completeReactionOptions = [
+  { type: 'haha', Component: JoyReaction },
+  { type: 'cat', Component: CatReaction },
+  { type: '+1', Component: ThumbsUpReaction },
+  { type: 'smile', Component: SmileReaction },
+];
+```
+
+Or if you just want bigger icons for `ReactionsList` while `ReactionSelector` uses regular:
+
+```tsx
+// arbitrary import (does not come with the SDK)
+import { ReactionComponent } from './CustomReactions';
+
+const selectorReactionOptions = [
+  {
+    type: 'like',
+    component: ReactionComponent.Like,
+    name: 'Like',
+  },
+];
+
+const listReactionOptions = [
+  {
+    type: 'like',
+    // in this example it's just different size of the emoji
+    component: ReactionComponent.LikeMedium,
+    name: 'Like medium',
+  },
+];
+```
+
+You can then apply these new options to `ReactionSelector` and `ReactionsList` directly:
+
+```tsx
+import { ReactionSelector, ReactionsList, Channel } from 'stream-chat-react';
+
+// ReactionSelector component requires forwarded reference
+const CustomReactionSelector = forwardRef((props, ref) => (
+  <ReactionSelector {...props} ref={ref} reactionOptions={selectorReactionOptions} />
+));
+
+const CustomReactionsList = (props) => (
+  <ReactionsList {...props} reactionOptions={listReactionOptions} />
+);
+```
+
+And then pass them down to component context (`Channel`) component:
+
+```tsx
+<Channel ReactionSelector={CustomReactionSelector} ReactionsList={CustomReactionsList}>
+  {/*...*/}
+</Channel>
+```
+
+## Use of `SpriteImage` component
+
+:::note
+We suggest using individual images per reaction type as multiple smaller requests is more bandwidth-friendly. Use this component only if you have no other choice.
+:::
+
+If you have a sprite sheet of emojis and there's no other way for you to implement your reactions, you can utilise <GHComponentLink text='SpriteImage' branch="feat/reactions" path='/Reactions/SpriteImage.tsx'/> utility component which comes with the SDK:
+
+```tsx
+import { SpriteImage } from 'stream-chat-react';
+
+const SPRITE_URL = 'https://getstream.imgix.net/images/emoji-sprite.png';
+
+const reactionOptions = [
+  {
+    type: 'joy',
+    component: () => (
+      <SpriteImage columns={2} rows={3} spriteUrl={SPRITE_URL} position={[0, 1]} fallback='😂' />
+    ), // renders fallback initially and then image when it successfully loads
+    name: 'ROFL',
+  },
+];
+
+// pass reaction options to component context (Channel) or to ReactionSelector and ReactionsList
+```
+
+## Transition from previous version of custom reactions
+
+### Default setup
+
+The transition is super easy:
+
+```tsx
+import { defaultReactionOptions } from 'stream-chat-react';
+
+// old custom options
+const reactionOptions = [{ id: 'bulb' /* ...extra properties... */ }, { id: '+1' }, { id: 'joy' }];
+
+// would newly become
+const newReactionOptions = [
+  { type: 'bulb', Component: () => <>💡</>, name: 'Bulb reaction' },
+  { type: '+1', Component: () => <>👍</> },
+  { type: 'joy', Component: () => <>🤣</>, name: 'ROFL' },
+  // reuse default ones if you want to
+  ...defaultReactionOptions,
+];
+```
+
+All of the extra options previously applied to `EmojiMart` emojis can now be directly applied to your custom components either manually or through your custom context. For more information see [EmojiMart integration](#emojimart-integration).
+
+### Re-enabling `angry` reaction
+
+For better compatibility with other SDKs we decided to consolidate default available types and remove `angry` type which was previously available only in the React SDK. Here's how you'd go about re-enabling it:
+
+```tsx
+import { StreamEmoji, defaultReactionOptions } from 'stream-chat-react';
+
+const reactionOptions = [
+  ...defaultReactionOptions,
+  { type: 'angry', Component: () => <StreamEmoji fallback='😠' type='angry' />, name: 'Angry' },
+];
+
+// pass reaction options to component context (Channel) or to ReactionSelector and ReactionsList
+```
