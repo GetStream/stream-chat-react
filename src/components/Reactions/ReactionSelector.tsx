@@ -150,57 +150,55 @@ const UnMemoizedReactionSelector = React.forwardRef(
           </div>
         )}
         <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
-          {Object.entries(reactionOptions).map(
-            ([reactionType, { Component, name: reactionName }]) => {
-              const latestUser = getLatestUserForReactionType(reactionType);
-              const count = reactionCounts && reactionCounts[reactionType];
-              return (
-                <li key={`item-${reactionType}`}>
-                  <button
-                    aria-label={`Select Reaction: ${reactionName || reactionType}`}
-                    className={clsx(
-                      'str-chat__message-reactions-list-item str-chat__message-reactions-option',
-                      {
-                        'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
-                          reactionType,
-                        ),
-                      },
-                    )}
-                    data-text={reactionType}
-                    onClick={(event) => handleReaction(reactionType, event)}
-                  >
-                    {!!count && detailedView && (
-                      <div
-                        className='latest-user str-chat__message-reactions-last-user'
-                        onClick={hideTooltip}
-                        onMouseEnter={(e) => showTooltip(e, reactionType)}
-                        onMouseLeave={hideTooltip}
-                      >
-                        {latestUser ? (
-                          <Avatar
-                            image={latestUser.image}
-                            name={latestUser.name}
-                            size={20}
-                            user={latestUser}
-                          />
-                        ) : (
-                          <div className='latest-user-not-found' />
-                        )}
-                      </div>
-                    )}
-                    <span className='str-chat__message-reaction-emoji'>
-                      <Component />
+          {reactionOptions.map(({ Component, name: reactionName, type: reactionType }) => {
+            const latestUser = getLatestUserForReactionType(reactionType);
+            const count = reactionCounts && reactionCounts[reactionType];
+            return (
+              <li key={reactionType}>
+                <button
+                  aria-label={`Select Reaction: ${reactionName || reactionType}`}
+                  className={clsx(
+                    'str-chat__message-reactions-list-item str-chat__message-reactions-option',
+                    {
+                      'str-chat__message-reactions-option-selected': iHaveReactedWithReaction(
+                        reactionType,
+                      ),
+                    },
+                  )}
+                  data-text={reactionType}
+                  onClick={(event) => handleReaction(reactionType, event)}
+                >
+                  {!!count && detailedView && (
+                    <div
+                      className='latest-user str-chat__message-reactions-last-user'
+                      onClick={hideTooltip}
+                      onMouseEnter={(e) => showTooltip(e, reactionType)}
+                      onMouseLeave={hideTooltip}
+                    >
+                      {latestUser ? (
+                        <Avatar
+                          image={latestUser.image}
+                          name={latestUser.name}
+                          size={20}
+                          user={latestUser}
+                        />
+                      ) : (
+                        <div className='latest-user-not-found' />
+                      )}
+                    </div>
+                  )}
+                  <span className='str-chat__message-reaction-emoji'>
+                    <Component />
+                  </span>
+                  {Boolean(count) && detailedView && (
+                    <span className='str-chat__message-reactions-list-item__count'>
+                      {count || ''}
                     </span>
-                    {Boolean(count) && detailedView && (
-                      <span className='str-chat__message-reactions-list-item__count'>
-                        {count || ''}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              );
-            },
-          )}
+                  )}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );

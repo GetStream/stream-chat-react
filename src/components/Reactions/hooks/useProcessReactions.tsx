@@ -37,7 +37,7 @@ export const useProcessReactions = <
   );
 
   const getEmojiByReactionType = useCallback(
-    (reactionType: string) => Object.entries(reactionOptions).find(([rt]) => rt === reactionType),
+    (reactionType: string) => reactionOptions.find(({ type }) => type === reactionType),
     [reactionOptions],
   );
 
@@ -54,7 +54,7 @@ export const useProcessReactions = <
 
   const supportedReactionMap = useMemo(
     () =>
-      Object.keys(reactionOptions).reduce<Record<string, boolean>>((map, reactionType) => {
+      reactionOptions.reduce<Record<string, boolean>>((map, { type: reactionType }) => {
         map[reactionType] = true;
         return map;
       }, {}),
@@ -62,7 +62,7 @@ export const useProcessReactions = <
   );
 
   const supportedReactionsArePresent = useMemo(
-    () => latestReactionTypes.some((type) => supportedReactionMap[type]),
+    () => latestReactionTypes.some((reactionType) => supportedReactionMap[reactionType]),
     [latestReactionTypes, supportedReactionMap],
   );
 
