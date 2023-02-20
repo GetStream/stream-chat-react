@@ -101,10 +101,10 @@ const UnMemoizedReactionsList = <
     >
       <ul className='str-chat__message-reactions'>
         {latestReactionTypes.map((reactionType) => {
-          const [, Reaction] = getEmojiByReactionType(reactionType) ?? [];
+          const ReactionOption = getEmojiByReactionType(reactionType);
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
           return (
-            Reaction && (
+            ReactionOption && (
               <li
                 className={clsx('str-chat__message-reaction', {
                   'str-chat__message-reaction-own': isOwnReaction,
@@ -118,7 +118,7 @@ const UnMemoizedReactionsList = <
                 >
                   {
                     <span className='str-chat__message-reaction-emoji'>
-                      <Reaction.Component />
+                      <ReactionOption.Component />
                     </span>
                   }
                   &nbsp;

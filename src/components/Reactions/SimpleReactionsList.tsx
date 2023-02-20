@@ -110,13 +110,13 @@ const UnMemoizedSimpleReactionsList = <
         onMouseLeave={() => setTooltipReactionType(undefined)}
       >
         {latestReactionTypes.map((reactionType, i) => {
-          const [, Reaction] = getEmojiByReactionType(reactionType) ?? [];
+          const ReactionOption = getEmojiByReactionType(reactionType);
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
           const tooltipVisible = tooltipReactionType === reactionType;
           const tooltipContent = getUsersPerReactionType(tooltipReactionType)?.join(', ');
 
           return (
-            Reaction && (
+            ReactionOption && (
               <li
                 className={clsx('str-chat__simple-reactions-list-item', {
                   'str-chat__message-reaction-own': isOwnReaction,
@@ -130,7 +130,7 @@ const UnMemoizedSimpleReactionsList = <
                   onMouseLeave={() => setTooltipReactionType(undefined)}
                   title={tooltipContent}
                 >
-                  <Reaction.Component />
+                  <ReactionOption.Component />
                   &nbsp;
                   {tooltipVisible && themeVersion === '1' && (
                     <div className='str-chat__simple-reactions-list-tooltip'>
