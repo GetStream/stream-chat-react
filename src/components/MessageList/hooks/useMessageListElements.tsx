@@ -101,13 +101,7 @@ export const useMessageListElements = <
 
         if (message.type === 'system') {
           return (
-            <li
-              key={
-                (message.event as { created_at: string })?.created_at ||
-                (message.created_at as string) ||
-                ''
-              }
-            >
+            <li key={message.id || (message.created_at as string)}>
               <MessageSystem message={message} />
             </li>
           );
