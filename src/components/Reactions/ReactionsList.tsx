@@ -113,14 +113,13 @@ const UnMemoizedReactionsList = <
               >
                 <ButtonWithTooltip
                   aria-label={`Reactions: ${reactionType}`}
+                  data-testid={`reactions-list-button-${reactionType}`}
                   title={aggregatedUserNamesByType[reactionType].join(', ')}
                   type='button'
                 >
-                  {
-                    <span className='str-chat__message-reaction-emoji'>
-                      <ReactionOption.Component />
-                    </span>
-                  }
+                  <span className='str-chat__message-reaction-emoji'>
+                    <ReactionOption.Component />
+                  </span>
                   &nbsp;
                   <span
                     className='str-chat__message-reaction-count'

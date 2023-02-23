@@ -109,7 +109,7 @@ const UnMemoizedSimpleReactionsList = <
         data-testid='simple-reaction-list'
         onMouseLeave={() => setTooltipReactionType(undefined)}
       >
-        {latestReactionTypes.map((reactionType, i) => {
+        {latestReactionTypes.map((reactionType) => {
           const ReactionOption = getEmojiByReactionType(reactionType);
           const isOwnReaction = iHaveReactedWithReaction(reactionType);
           const tooltipVisible = tooltipReactionType === reactionType;
@@ -121,7 +121,7 @@ const UnMemoizedSimpleReactionsList = <
                 className={clsx('str-chat__simple-reactions-list-item', {
                   'str-chat__message-reaction-own': isOwnReaction,
                 })}
-                key={`${reactionType}-${i}`}
+                key={reactionType}
                 onClick={(event) => handleReaction(reactionType, event)}
                 onKeyUp={(event) => handleReaction(reactionType, event)}
               >
