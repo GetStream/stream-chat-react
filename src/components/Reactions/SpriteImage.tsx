@@ -24,7 +24,7 @@ export const SpriteImage = ({
   const [[spriteWidth, spriteHeight], setSpriteDimensions] = useState([0, 0]);
 
   useEffect(() => {
-    getImageDimensions(spriteUrl).then(setSpriteDimensions);
+    getImageDimensions(spriteUrl).then(setSpriteDimensions).catch(console.error);
   }, [spriteUrl]);
 
   const [x, y] = position;
@@ -42,6 +42,7 @@ export const SpriteImage = ({
 
   return (
     <div
+      data-testid='sprite-image'
       style={{
         backgroundImage: `url('${spriteUrl}')`,
         backgroundPosition: `${x * (100 / (columns - 1))}% ${y * (100 / (rows - 1))}%`,

@@ -19,7 +19,9 @@ export const getImageDimensions = (source: string) =>
       { once: true },
     );
 
-    image.addEventListener('error', reject, { once: true });
+    image.addEventListener('error', () => reject(`Couldn't load image from ${source}`), {
+      once: true,
+    });
 
     image.src = source;
   });
