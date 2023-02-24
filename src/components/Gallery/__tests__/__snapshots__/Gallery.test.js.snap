@@ -11,6 +11,7 @@ exports[`Gallery should render component with 3 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -20,6 +21,7 @@ exports[`Gallery should render component with 3 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -29,6 +31,7 @@ exports[`Gallery should render component with 3 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
 </div>
@@ -45,6 +48,7 @@ exports[`Gallery should render component with 4 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -54,6 +58,7 @@ exports[`Gallery should render component with 4 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -63,6 +68,7 @@ exports[`Gallery should render component with 4 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -72,6 +78,7 @@ exports[`Gallery should render component with 4 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
 </div>
@@ -88,6 +95,7 @@ exports[`Gallery should render component with 5 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -97,6 +105,7 @@ exports[`Gallery should render component with 5 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -106,6 +115,7 @@ exports[`Gallery should render component with 5 images 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -136,6 +146,7 @@ exports[`Gallery should render component with default props 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
   <button
@@ -145,6 +156,7 @@ exports[`Gallery should render component with default props 1`] = `
   >
     <img
       alt="User uploaded content"
+      src="about:blank"
     />
   </button>
 </div>

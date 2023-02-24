@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
@@ -19,6 +18,7 @@ import {
   GalleryContainer,
   ImageContainer,
   MediaContainer,
+  UnsupportedAttachmentContainer,
 } from './AttachmentContainer';
 
 import type { AttachmentActionsProps } from './AttachmentActions';
@@ -26,6 +26,7 @@ import type { AudioProps } from './Audio';
 import type { CardProps } from './Card';
 import type { FileAttachmentProps } from './FileAttachment';
 import type { GalleryProps, ImageProps } from '../Gallery';
+import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -35,6 +36,7 @@ const CONTAINER_MAP = {
   card: CardContainer,
   file: FileContainer,
   media: MediaContainer,
+  unsupported: UnsupportedAttachmentContainer,
 } as const;
 
 export const ATTACHMENT_GROUPS_ORDER = [
@@ -44,6 +46,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'media',
   'audio',
   'file',
+  'unsupported',
 ] as const;
 
 export type AttachmentProps<
@@ -67,6 +70,8 @@ export type AttachmentProps<
   Image?: React.ComponentType<ImageProps>;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
+  /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
+  UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
 };
 
 /**
@@ -97,41 +102,40 @@ const renderGroupedAttachments = <
   attachments,
   ...rest
 }: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
-  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = [];
+  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments.filter((attachment) =>
+    isUploadedImage(attachment),
+  );
 
-  const containers = attachments.reduce<GroupedRenderedAttachment>(
-    (acc, attachment) => {
-      if (isUploadedImage(attachment)) {
-        uploadedImages.push({
-          ...attachment,
-          image_url: sanitizeUrl(attachment.image_url),
-          thumb_url: sanitizeUrl(attachment.thumb_url),
-        });
-      } else {
+  const containers = attachments
+    .filter((attachment) => !isUploadedImage(attachment))
+    .reduce<GroupedRenderedAttachment>(
+      (typeMap, attachment) => {
         const attachmentType = getAttachmentType(attachment);
 
-        if (attachmentType) {
-          const Container = CONTAINER_MAP[attachmentType];
-          acc[attachmentType].push(
-            <Container
-              key={`${attachmentType}-${acc[attachmentType].length}`}
-              {...rest}
-              attachment={attachment}
-            />,
-          );
-        }
-      }
-      return acc;
-    },
-    {
-      audio: [],
-      card: [],
-      file: [],
-      gallery: [],
-      image: [],
-      media: [],
-    },
-  );
+        const Container = CONTAINER_MAP[attachmentType];
+        typeMap[attachmentType].push(
+          <Container
+            key={`${attachmentType}-${typeMap[attachmentType].length}`}
+            {...rest}
+            attachment={attachment}
+          />,
+        );
+
+        return typeMap;
+      },
+      {
+        audio: [],
+        card: [],
+        file: [],
+        media: [],
+        unsupported: [],
+        // not used in reduce
+        // eslint-disable-next-line sort-keys
+        image: [],
+        // eslint-disable-next-line sort-keys
+        gallery: [],
+      },
+    );
 
   if (uploadedImages.length > 1) {
     containers['gallery'] = [
@@ -149,6 +153,7 @@ const renderGroupedAttachments = <
       <ImageContainer key='image-container' {...rest} attachment={uploadedImages[0]} />,
     ];
   }
+
   return containers;
 };
 
@@ -156,7 +161,7 @@ const getAttachmentType = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: AttachmentProps<StreamChatGenerics>['attachments'][number],
-): keyof typeof CONTAINER_MAP | null => {
+): keyof typeof CONTAINER_MAP => {
   if (isScrapedContent(attachment)) {
     return 'card';
   } else if (isMediaAttachment(attachment)) {
@@ -167,5 +172,5 @@ const getAttachmentType = <
     return 'file';
   }
 
-  return null;
+  return 'unsupported';
 };

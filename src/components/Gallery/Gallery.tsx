@@ -1,4 +1,5 @@
 import React, { CSSProperties, MutableRefObject, useState } from 'react';
+import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
 import { Modal } from '../Modal';
@@ -81,7 +82,7 @@ const UnMemoizedGallery = <
       >
         <img
           alt='User uploaded content'
-          src={image.previewUrl || image.image_url || image.thumb_url}
+          src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
           {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
         />
