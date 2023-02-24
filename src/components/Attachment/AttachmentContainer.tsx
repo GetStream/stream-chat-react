@@ -9,6 +9,7 @@ import { Audio as DefaultAudio } from './Audio';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
+import { NullComponent as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
   AttachmentContainerProps,
   isGalleryAttachmentType,
@@ -292,3 +293,14 @@ export const MediaContainer = <
     </AttachmentWithinContainer>
   );
 };
+
+export const UnsupportedAttachmentContainer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  attachment,
+  UnsupportedAttachment = DefaultUnsupportedAttachment,
+}: RenderAttachmentProps<StreamChatGenerics>) => (
+  <>
+    <UnsupportedAttachment attachment={attachment} />
+  </>
+);
