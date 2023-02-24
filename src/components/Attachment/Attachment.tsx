@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { sanitizeUrl } from '@braintree/sanitize-url';
 import type { ReactPlayerProps } from 'react-player';
 import type { Attachment as StreamAttachment } from 'stream-chat';
 
@@ -103,13 +102,9 @@ const renderGroupedAttachments = <
   attachments,
   ...rest
 }: AttachmentProps<StreamChatGenerics>): GroupedRenderedAttachment => {
-  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments
-    .filter((attachment) => isUploadedImage(attachment))
-    .map((attachment) => ({
-      ...attachment,
-      image_url: sanitizeUrl(attachment.image_url),
-      thumb_url: sanitizeUrl(attachment.thumb_url),
-    }));
+  const uploadedImages: StreamAttachment<StreamChatGenerics>[] = attachments.filter((attachment) =>
+    isUploadedImage(attachment),
+  );
 
   const containers = attachments
     .filter((attachment) => !isUploadedImage(attachment))
