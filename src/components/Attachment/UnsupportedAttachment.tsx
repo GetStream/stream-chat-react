@@ -17,7 +17,9 @@ export const UnsupportedAttachment = <
     <div>
       Unsupported attachment type <strong>{attachment.type ?? 'unknown'}</strong>
     </div>
-    <code>{JSON.stringify(attachment, null, 4)}</code>;
+    <pre>
+      <code>{JSON.stringify(attachment, null, 4)}</code>
+    </pre>
   </div>
 );
 
