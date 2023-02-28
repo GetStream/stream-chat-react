@@ -11,7 +11,6 @@ export type ReactionOptions = Array<{
 }>;
 
 export const defaultReactionOptions: ReactionOptions = [
-  { type: 'angry', Component: () => <StreamEmoji fallback='😠' type='angry' />, name: 'Angry' },
   { type: 'haha', Component: () => <StreamEmoji fallback='😂' type='haha' />, name: 'Joy' },
   { type: 'like', Component: () => <StreamEmoji fallback='👍' type='like' />, name: 'Thumbs up' },
   { type: 'love', Component: () => <StreamEmoji fallback='❤️' type='love' />, name: 'Heart' },
