@@ -57,7 +57,7 @@ describe('ReactionSelector', () => {
     const { container, queryAllByTestId } = renderComponent();
 
     await waitFor(() => {
-      expect(queryAllByTestId('sprite-image')).toHaveLength(6);
+      expect(queryAllByTestId('sprite-image')).toHaveLength(5);
     });
 
     const results = await axe(container);
@@ -112,21 +112,21 @@ describe('ReactionSelector', () => {
 
   it('should render the count of reactions for each reaction', async () => {
     const love = 1;
-    const angry = 2;
+    const haha = 2;
     const { container, getByText } = renderComponent({
       reaction_counts: {
-        angry,
+        haha,
         love,
       },
     });
 
     const loveCount = getByText(`${love}`);
-    const angryCount = getByText(`${angry}`);
+    const hahaCount = getByText(`${haha}`);
 
     expect(loveCount).toBeInTheDocument();
-    expect(angryCount).toBeInTheDocument();
+    expect(hahaCount).toBeInTheDocument();
     expect(loveCount.parentElement).toHaveAttribute('data-text', 'love');
-    expect(angryCount.parentElement).toHaveAttribute('data-text', 'angry');
+    expect(hahaCount.parentElement).toHaveAttribute('data-text', 'haha');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
