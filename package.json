@@ -169,7 +169,7 @@
     "rollup-plugin-url": "^3.0.1",
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "^8.2.1",
+    "stream-chat": "^8.4.1",
     "style-loader": "^2.0.0",
     "ts-jest": "^26.5.1",
     "tslib": "2.3.0",
