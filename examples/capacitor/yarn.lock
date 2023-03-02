@@ -1201,10 +1201,10 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@braintree/sanitize-url@6.0.0", "@braintree/sanitize-url@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.0.tgz#fe364f025ba74f6de6c837a84ef44bdb1d61e68f"
-  integrity sha512-mgmE7XBYY/21erpzhexk4Cj1cyTQ9LzvnTxtzM17BJ7ERMNE6W72mQRo0I1Ud8eFJ+RVVIcBNhLFZ3GX4XFz5w==
+"@braintree/sanitize-url@^6.0.0", "@braintree/sanitize-url@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@braintree/sanitize-url/-/sanitize-url-6.0.2.tgz#6110f918d273fe2af8ea1c4398a88774bb9fc12f"
+  integrity sha512-Tbsj02wXCbqGmzdnXNk0SOF19ChhRU70BsroIi4Pm6Ehp56in6vch94mfbdQ17DozxkL3BAVjbZ4Qc1a0HFRAg==
 
 "@capacitor/android@^3.2.2":
   version "3.4.3"
@@ -1586,10 +1586,10 @@
   resolved "https://registry.yarnpkg.com/@stream-io/escape-string-regexp/-/escape-string-regexp-5.0.1.tgz#362505c92799fea6afe4e369993fbbda8690cc37"
   integrity sha512-qIaSrzJXieZqo2fZSYTdzwSbZgHHsT3tkd646vvZhh4fr+9nO4NlvqGmPF43Y+OfZiWf+zYDFgNiPGG5+iZulQ==
 
-"@stream-io/stream-chat-css@^3.7.1":
-  version "3.7.1"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.7.1.tgz#425391953064cc825be34a20ff9bee0a8cf3b76e"
-  integrity sha512-6l6uqog+5hIKU7ARE2n8rOOEoFGKtPqVSBWdDjFv2bMuN70I3kvAcmFrd+k6J0K0dyMbK/E0h1im0q0iADiaww==
+"@stream-io/stream-chat-css@^3.7.2":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.9.0.tgz#1bb0ce1c3235cf8749ac1e1c00d97f9c5e5ec0f2"
+  integrity sha512-qBQXSNLrprFbLRG8mfaZDpYTTLZfoNCEB29qe+eSSmsYRiM0Zk8guWnjb3OYQllNgAP5t+b3IpovrIlQq1RcYg==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -7303,6 +7303,11 @@ linkifyjs@^2.1.9:
   resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-2.1.9.tgz#af06e45a2866ff06c4766582590d098a4d584702"
   integrity sha512-74ivurkK6WHvHFozVaGtQWV38FzBwSTGNmJolEgFp7QgR2bl6ArUWlvT4GcHKbPe1z3nWYi+VUdDZk16zDOVug==
 
+linkifyjs@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/linkifyjs/-/linkifyjs-4.1.0.tgz#0460bfcc37d3348fa80e078d92e7bbc82588db15"
+  integrity sha512-Ffv8VoY3+ixI1b3aZ3O+jM6x17cOsgwfB1Wq7pkytbo1WlyRp6ZO0YDMqiWT/gQPY/CmtiGuKfzDIVqxh1aCTA==
+
 load-json-file@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/load-json-file/-/load-json-file-2.0.0.tgz#7947e42149af80d696cbf797bcaabcfe1fe29ca8"
@@ -10170,10 +10175,10 @@ react-markdown@^8.0.3:
     unist-util-visit "^4.0.0"
     vfile "^5.0.0"
 
-react-player@^2.10.1:
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.11.0.tgz#9afc75314eb915238e8d6615b2891fbe7170aeaa"
-  integrity sha512-fIrwpuXOBXdEg1FiyV9isKevZOaaIsAAtZy5fcjkQK9Nhmk1I2NXzY/hkPos8V0zb/ZX416LFy8gv7l/1k3a5w==
+react-player@2.10.1:
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/react-player/-/react-player-2.10.1.tgz#f2ee3ec31393d7042f727737545414b951ffc7e4"
+  integrity sha512-ova0jY1Y1lqLYxOehkzbNEju4rFXYVkr5rdGD71nsiG4UKPzRXQPTd3xjoDssheoMNjZ51mjT5ysTrdQ2tEvsg==
   dependencies:
     deepmerge "^4.0.0"
     load-script "^1.0.0"
@@ -11301,9 +11306,9 @@ stream-browserify@^2.0.1:
 "stream-chat-react@link:../..":
   version "0.0.0-development"
   dependencies:
-    "@braintree/sanitize-url" "6.0.0"
+    "@braintree/sanitize-url" "^6.0.2"
     "@popperjs/core" "^2.11.5"
-    "@stream-io/stream-chat-css" "^3.7.1"
+    "@stream-io/stream-chat-css" "^3.7.2"
     clsx "^1.1.1"
     dayjs "^1.10.4"
     emoji-mart "3.0.1"
@@ -11311,7 +11316,7 @@ stream-browserify@^2.0.1:
     hast-util-find-and-replace "^4.1.2"
     i18next "^21.6.14"
     isomorphic-ws "^4.0.1"
-    linkifyjs "^2.1.9"
+    linkifyjs "^4.1.0"
     lodash.debounce "^4.0.8"
     lodash.throttle "^4.1.1"
     lodash.uniqby "^4.7.0"
@@ -11324,7 +11329,7 @@ stream-browserify@^2.0.1:
     react-image-gallery "^1.2.7"
     react-is "^18.1.0"
     react-markdown "^8.0.3"
-    react-player "^2.10.1"
+    react-player "2.10.1"
     react-popper "^2.3.0"
     react-textarea-autosize "^8.3.0"
     react-virtuoso "^2.16.5"
