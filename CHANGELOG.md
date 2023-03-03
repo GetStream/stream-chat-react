@@ -1,3 +1,16 @@
+# [10.7.0](https://github.com/GetStream/stream-chat-react/compare/v10.6.0...v10.7.0) (2023-02-24)
+
+
+### Bug Fixes
+
+* **Attachment:** sanitization of image sources ([#1953](https://github.com/GetStream/stream-chat-react/issues/1953)) ([1c5e640](https://github.com/GetStream/stream-chat-react/commit/1c5e640f23f9522225e15ca3553dac8dc9168206))
+* **MessageSystem:** duplicate element keys ([#1950](https://github.com/GetStream/stream-chat-react/issues/1950)) ([2f1df15](https://github.com/GetStream/stream-chat-react/commit/2f1df158d149a0991cc6d3b6dcc39a35263a6f16))
+
+
+### Features
+
+* **Attachments:** introduce UnsupportedAttachment component ([#1952](https://github.com/GetStream/stream-chat-react/issues/1952)) ([330b622](https://github.com/GetStream/stream-chat-react/commit/330b622ad7cd53f359ee7908990299332e3104ab))
+
 # [10.6.0](https://github.com/GetStream/stream-chat-react/compare/v10.5.0...v10.6.0) (2023-02-10)
 
 
