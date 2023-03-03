@@ -1,3 +1,10 @@
+## [10.7.1](https://github.com/GetStream/stream-chat-react/compare/v10.7.0...v10.7.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* audit and upgrade packages with vulnerabilities ([#1959](https://github.com/GetStream/stream-chat-react/issues/1959)) ([a31a0bb](https://github.com/GetStream/stream-chat-react/commit/a31a0bb204f1c916ae7d4c3774241d39b0493ac8))
+
 # [10.7.0](https://github.com/GetStream/stream-chat-react/compare/v10.6.0...v10.7.0) (2023-02-24)
 
 
