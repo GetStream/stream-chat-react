@@ -4,6 +4,8 @@ import type { StreamMessage } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+const STATUSES_EXCLUDED_FROM_PREPEND = ['sending', 'failed'];
+
 export function usePrependedMessagesCount<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(messages: StreamMessage<StreamChatGenerics>[], hasDateSeparator: boolean) {
@@ -30,7 +32,7 @@ export function usePrependedMessagesCount<
     earliestMessageId.current = currentFirstMessageId;
     // if new messages were prepended, find out how many
     // start with this number because there cannot be fewer prepended items than before
-    let countPrependedSendingMessages = 0;
+    let adjustPrependedMessageCount = 0;
     for (let i = previousNumItemsPrepended.current; i < messages.length; i += 1) {
       // Optimistic UI update, when sending messages, can lead to a situation, when
       // the order of the messages changes for a moment. This can happen, when a user
@@ -40,18 +42,23 @@ export function usePrependedMessagesCount<
       // this leads to rearrangement of 1.B ("sending"), 2.A ("received"). Still firstMessageId.current
       // points to message A, but now this message has index 1 => previousNumItemsPrepended.current === 1
       // That in turn leads to incorrect index calculation in VirtualizedMessageList trying to access a message
-      // at non-existent index. Therefore, we ignore messages of status "sending" in order they are
+      // at non-existent index. Therefore, we ignore messages of status "sending" / "failed" in order they are
       // not considered as prepended messages.
-      if (messages[i].status === 'sending' && messages[i].id !== firstMessageId.current) {
-        countPrependedSendingMessages++;
+      if (
+        !messages[i].status ||
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        (STATUSES_EXCLUDED_FROM_PREPEND.includes(messages[i].status!) &&
+          messages[i].id !== firstMessageId.current)
+      ) {
+        adjustPrependedMessageCount++;
       }
       if (messages[i].id === firstMessageId.current) {
-        previousNumItemsPrepended.current = i - countPrependedSendingMessages;
+        previousNumItemsPrepended.current = i - adjustPrependedMessageCount;
         return i;
       }
     }
 
-    // if no match has found, we have jumped - reset the prepend item count.
+    // if no match has found, we have jumped - reset the prepended item count.
     firstMessageId.current = currentFirstMessageId;
     previousNumItemsPrepended.current = 0;
     return 0;
