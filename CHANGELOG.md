@@ -1,3 +1,10 @@
+## [10.7.3](https://github.com/GetStream/stream-chat-react/compare/v10.7.2...v10.7.3) (2023-03-16)
+
+
+### Bug Fixes
+
+* do not increase count of prepended VirtualizedMessageList messages of status "sending" or "failed" ([#1972](https://github.com/GetStream/stream-chat-react/issues/1972)) ([f1bf6fa](https://github.com/GetStream/stream-chat-react/commit/f1bf6fa8b21523e968b8eb9bb30ce5beb6eca9da))
+
 ## [10.7.2](https://github.com/GetStream/stream-chat-react/compare/v10.7.1...v10.7.2) (2023-03-08)
 
 
