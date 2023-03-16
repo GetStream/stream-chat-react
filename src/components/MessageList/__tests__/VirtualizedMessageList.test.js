@@ -110,29 +110,59 @@ describe('usePrependedMessagesCount', () => {
     return <div>{prependCount}</div>;
   };
 
-  it('calculates the prepended messages using the id prop', async () => {
-    const render = await renderer.create(<TestCase messages={[]} />);
-    const expectPrependCount = (count) => {
-      expect(render.root.findByType('div').props.children).toStrictEqual(count);
-    };
+  const expectPrependCount = (count, root) => {
+    expect(root.findByType('div').props.children).toStrictEqual(count);
+  };
 
-    expectPrependCount(0);
+  it('determines 0 prepended messages for empty message list', async () => {
+    const render = await renderer.create(<TestCase messages={[]} />);
+
+    expectPrependCount(0, render.root);
+  });
+
+  const messageBatch = (ids, status) => ids.map((id) => ({ id, status }));
+  const firstBatch = (status) => messageBatch(['a'], status);
+  const secondBatch = (status) => messageBatch(['c', 'b'], status);
+  const thirdBatch = (status) => messageBatch(['e', 'd'], status);
+
+  const testPrependCount = async (status, first, second, third) => {
+    const firstMessage = firstBatch(status);
+    const secondMsgBatch = secondBatch(status);
+    const thirdMsgBatch = thirdBatch(status);
+
+    const render = await renderer.create(<TestCase messages={[]} />);
 
     await renderer.act(async () => {
-      await render.update(<TestCase messages={[{ id: 'a' }]} />);
-      expectPrependCount(0);
+      await render.update(<TestCase messages={[...firstMessage]} />);
+      expectPrependCount(first, render.root);
     });
 
     await renderer.act(async () => {
-      await render.update(<TestCase messages={[{ id: 'c' }, { id: 'b' }, { id: 'a' }]} />);
-      expectPrependCount(2);
+      await render.update(<TestCase messages={[...secondMsgBatch, ...firstMessage]} />);
+      expectPrependCount(second, render.root);
     });
 
     await renderer.act(async () => {
       await render.update(
-        <TestCase messages={[{ id: 'e' }, { id: 'd' }, { id: 'c' }, { id: 'b' }, { id: 'a' }]} />,
+        <TestCase messages={[...thirdMsgBatch, ...secondMsgBatch, ...firstMessage]} />,
       );
-      expectPrependCount(4);
+      expectPrependCount(third, render.root);
     });
+  };
+
+  it('calculates the prepended count for messages of status "received"', async () => {
+    await testPrependCount('received', 0, 2, 4);
+  });
+
+  it('ignores the messages of status "sending" from the prepended messages count', async () => {
+    await testPrependCount('sending', 0, 0, 0);
+  });
+
+  it('ignores the messages of status "failed" from the prepended messages count', async () => {
+    await testPrependCount('failed', 0, 0, 0);
+  });
+
+  it('calculates the prepended messages count for the messages of status undefined', async () => {
+    await testPrependCount(undefined, 0, 2, 4);
   });
 });
