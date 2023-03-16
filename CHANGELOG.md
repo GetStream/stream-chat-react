@@ -1,3 +1,10 @@
+## [10.7.2](https://github.com/GetStream/stream-chat-react/compare/v10.7.1...v10.7.2) (2023-03-08)
+
+
+### Bug Fixes
+
+* update event handler upon channel config update ([#1969](https://github.com/GetStream/stream-chat-react/issues/1969)) ([bec1f14](https://github.com/GetStream/stream-chat-react/commit/bec1f146ba57047ccad3ca223fd73a65aeceb26c))
+
 ## [10.7.1](https://github.com/GetStream/stream-chat-react/compare/v10.7.0...v10.7.1) (2023-03-03)
 
 
