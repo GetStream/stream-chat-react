@@ -45,16 +45,16 @@ export function usePrependedMessagesCount<
       // at non-existent index. Therefore, we ignore messages of status "sending" / "failed" in order they are
       // not considered as prepended messages.
       if (
-        !messages[i].status ||
+        messages[i]?.status &&
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        (STATUSES_EXCLUDED_FROM_PREPEND.includes(messages[i].status!) &&
-          messages[i].id !== firstMessageId.current)
+        STATUSES_EXCLUDED_FROM_PREPEND.includes(messages[i].status!) &&
+        messages[i].id !== firstMessageId.current
       ) {
         adjustPrependedMessageCount++;
       }
       if (messages[i].id === firstMessageId.current) {
         previousNumItemsPrepended.current = i - adjustPrependedMessageCount;
-        return i;
+        return previousNumItemsPrepended.current;
       }
     }
 
