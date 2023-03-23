@@ -249,7 +249,10 @@ export const CardAudio = ({
   );
 };
 
-export type CardProps = RenderAttachmentProps['attachment'];
+export type CardProps = RenderAttachmentProps['attachment'] & {
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  isQuoted?: boolean;
+};
 
 const UnMemoizedCard = (props: CardProps) => {
   const { themeVersion } = useChatContext('Card');

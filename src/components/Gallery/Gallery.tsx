@@ -23,6 +23,8 @@ export type GalleryProps<
     | Attachment<StreamChatGenerics>
   ) & { previewUrl?: string; style?: CSSProperties })[];
   innerRefs?: MutableRefObject<(HTMLElement | null)[]>;
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  isQuoted?: boolean;
 };
 
 const UnMemoizedGallery = <

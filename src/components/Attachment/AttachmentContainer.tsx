@@ -103,6 +103,7 @@ export const GalleryContainer = <
 >({
   attachment,
   Gallery = DefaultGallery,
+  isQuoted,
 }: RenderGalleryProps<StreamChatGenerics>) => {
   const imageElements = useRef<HTMLElement[]>([]);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
@@ -135,7 +136,7 @@ export const GalleryContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
-      <Gallery images={images || []} innerRefs={imageElements} key='gallery' />
+      <Gallery images={images || []} innerRefs={imageElements} isQuoted={isQuoted} key='gallery' />
     </AttachmentWithinContainer>
   );
 };
@@ -145,7 +146,7 @@ export const ImageContainer = <
 >(
   props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
-  const { attachment, Image = DefaultImage } = props;
+  const { attachment, Image = DefaultImage, isQuoted } = props;
   const componentType = 'image';
   const imageElement = useRef<HTMLImageElement>(null);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
@@ -162,6 +163,7 @@ export const ImageContainer = <
 
   const imageConfig = {
     ...attachment,
+    isQuoted,
     previewUrl: attachmentConfiguration?.url || 'about:blank',
     style: getCssDimensionsVariables(attachment.image_url || attachment.thumb_url || ''),
   };
@@ -189,14 +191,14 @@ export const CardContainer = <
 >(
   props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
-  const { attachment, Card = DefaultCard } = props;
+  const { attachment, Card = DefaultCard, isQuoted } = props;
   const componentType = 'card';
 
   if (attachment.actions && attachment.actions.length) {
     return (
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment'>
-          <Card {...attachment} />
+          <Card {...attachment} isQuoted={isQuoted} />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -205,7 +207,7 @@ export const CardContainer = <
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Card {...attachment} />
+      <Card {...attachment} isQuoted={isQuoted} />
     </AttachmentWithinContainer>
   );
 };
@@ -215,12 +217,13 @@ export const FileContainer = <
 >({
   attachment,
   File = DefaultFile,
+  isQuoted,
 }: RenderAttachmentProps<StreamChatGenerics>) => {
   if (!attachment.asset_url) return null;
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='file'>
-      <File attachment={attachment} />
+      <File attachment={attachment} isQuoted={isQuoted} />
     </AttachmentWithinContainer>
   );
 };
@@ -229,10 +232,11 @@ export const AudioContainer = <
 >({
   attachment,
   Audio = DefaultAudio,
+  isQuoted,
 }: RenderAttachmentProps<StreamChatGenerics>) => (
   <AttachmentWithinContainer attachment={attachment} componentType='audio'>
     <div className='str-chat__attachment'>
-      <Audio og={attachment} />
+      <Audio isQuoted={isQuoted} og={attachment} />
     </div>
   </AttachmentWithinContainer>
 );
@@ -299,8 +303,9 @@ export const UnsupportedAttachmentContainer = <
 >({
   attachment,
   UnsupportedAttachment = DefaultUnsupportedAttachment,
+  isQuoted,
 }: RenderAttachmentProps<StreamChatGenerics>) => (
   <>
-    <UnsupportedAttachment attachment={attachment} />
+    <UnsupportedAttachment attachment={attachment} isQuoted={isQuoted} />
   </>
 );

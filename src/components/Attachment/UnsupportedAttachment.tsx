@@ -6,6 +6,8 @@ export type UnsupportedAttachmentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachment: Attachment<StreamChatGenerics>;
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  isQuoted?: boolean;
 };
 
 export const UnsupportedAttachment = <

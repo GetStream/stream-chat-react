@@ -68,6 +68,8 @@ export type AttachmentProps<
   Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
+  /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
+  isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */

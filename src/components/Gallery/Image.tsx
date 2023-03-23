@@ -13,6 +13,8 @@ export type ImageProps<
 > = {
   dimensions?: Dimensions;
   innerRef?: MutableRefObject<HTMLImageElement | null>;
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  isQuoted?: boolean;
   previewUrl?: string;
   style?: CSSProperties;
 } & (

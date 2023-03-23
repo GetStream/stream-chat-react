@@ -14,6 +14,8 @@ export type FileAttachmentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachment: Attachment<StreamChatGenerics>;
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
+  isQuoted?: boolean;
 };
 
 const UnMemoizedFileAttachmentV1 = <
@@ -53,15 +55,15 @@ const UnMemoizedFileAttachmentV2 = <
 
 const UnMemoizedFileAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  attachment,
-}: FileAttachmentProps<StreamChatGenerics>) => {
+>(
+  props: FileAttachmentProps<StreamChatGenerics>,
+) => {
   const { themeVersion } = useChatContext('FileAttachment');
 
   return themeVersion === '2' ? (
-    <UnMemoizedFileAttachmentV2 attachment={attachment} />
+    <UnMemoizedFileAttachmentV2 {...props} />
   ) : (
-    <UnMemoizedFileAttachmentV1 attachment={attachment} />
+    <UnMemoizedFileAttachmentV1 {...props} />
   );
 };
 
