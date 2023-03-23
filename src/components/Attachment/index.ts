@@ -6,3 +6,4 @@ export * from './Card';
 export * from './UnsupportedAttachment';
 export * from './FileAttachment';
 export * from './utils';
+export * from './Video';

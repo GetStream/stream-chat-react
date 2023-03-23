@@ -30,6 +30,7 @@ import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { VideoProps } from './Video';
 
 const CONTAINER_MAP = {
   audio: AudioContainer,
@@ -74,6 +75,8 @@ export type AttachmentProps<
   Media?: React.ComponentType<ReactPlayerProps>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
+  /** Custom UI component for displaying video attachments. The default implementation is a wrapper around the default Media attachment component. Defaults to and accepts same props as: [Video](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Video.tsx) */
+  Video?: React.ComponentType<VideoProps>;
 };
 
 /**

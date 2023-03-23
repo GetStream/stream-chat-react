@@ -115,7 +115,7 @@ export type ImageAttachmentConfiguration = {
   url: string;
 };
 
-export type VideoAttachmentConfiguration = ImageAttachmentConfiguration & {
+export type VideoAttachmentConfiguration = Partial<ImageAttachmentConfiguration> & {
   thumbUrl?: string;
 };
 

@@ -17,14 +17,11 @@ import {
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
+import { Video } from './Video';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
-import type {
-  DefaultStreamChatGenerics,
-  ImageAttachmentConfiguration,
-  VideoAttachmentConfiguration,
-} from '../../types/types';
+import type { DefaultStreamChatGenerics, ImageAttachmentConfiguration } from '../../types/types';
 
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -79,7 +76,7 @@ export const AttachmentActionsContainer = <
   );
 };
 
-function getCssDimensionsVariables(url: string) {
+export function getCssDimensionsVariables(url: string) {
   const cssVars = {
     '--original-height': 1000000,
     '--original-width': 1000000,
@@ -246,54 +243,19 @@ export const MediaContainer = <
 >(
   props: RenderAttachmentProps<StreamChatGenerics>,
 ) => {
-  const { attachment, Media = ReactPlayer } = props;
+  const { attachment, Media = ReactPlayer, isQuoted } = props;
   const componentType = 'media';
-  const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } = useChannelStateContext();
-  const videoElement = useRef<HTMLDivElement>(null);
-  const [
-    attachmentConfiguration,
-    setAttachmentConfiguration,
-  ] = useState<VideoAttachmentConfiguration>();
-
-  useLayoutEffect(() => {
-    if (videoElement.current && videoAttachmentSizeHandler) {
-      const config = videoAttachmentSizeHandler(
-        attachment,
-        videoElement.current,
-        shouldGenerateVideoThumbnail,
-      );
-      setAttachmentConfiguration(config);
-    }
-  }, [videoElement, videoAttachmentSizeHandler, attachment]);
-
-  const content = (
-    <div
-      className='str-chat__player-wrapper'
-      data-testid='video-wrapper'
-      ref={videoElement}
-      style={getCssDimensionsVariables(attachment.thumb_url || '')}
-    >
-      <Media
-        className='react-player'
-        config={{ file: { attributes: { poster: attachmentConfiguration?.thumbUrl } } }}
-        controls
-        height='100%'
-        url={attachmentConfiguration?.url}
-        width='100%'
-      />
-    </div>
-  );
 
   return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <div className='str-chat__attachment str-chat__attachment-media'>
-        {content}
+        <Video attachment={attachment} isQuoted={isQuoted} VideoPlayer={Media} />
         <AttachmentActionsContainer {...props} />
       </div>
     </AttachmentWithinContainer>
   ) : (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      {content}
+      <Video attachment={attachment} isQuoted={isQuoted} VideoPlayer={Media} />
     </AttachmentWithinContainer>
   );
 };
