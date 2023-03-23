@@ -157,6 +157,37 @@ The SDK will try to display images and videos with their original aspect ratio, 
 The sizing logic for images and videos (the [`imageAttachmentSizeHandler`](../core-components/channel.mdx/#imageattachmentsizehandler) and [`videoAttachmentSizeHandler`](../core-components/channel.mdx/#videoattachmentsizehandler)) requires that host elements of images and videos (ususally `img` and `video` elements) have `max-height`/`height` and `max-width` properties defined and that these values can be computed to a valid pixel value using the [`getComputedStyle`](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) (for more information refer to the [Maximum size](#maximum-size) section).
 :::
 
+
+### Rendering customized attachment components in quoted reply
+
+The `Attachment` component accepts prop [`isQuoted`](./#isQuoted). This prop is then propagated to the following underlying widget components:
+
+- `Audio`
+- `Card`
+- `File`
+- `Gallery`
+- `Image`
+
+That allows you to customize, how the attachment will be displayed in quoted reply and in the original message's attachment list.
+
+Example:
+
+```typescript jsx
+const CustomCard = ({isQuoted, ...attachment}: CardProps) => {
+  return isQuoted ? <CardContent attachment={attachment}  /> : <Card {...attachment} />
+}
+
+const CustomAttachment = (props: AttachmentProps) => (
+  <Attachment {...props}  Card={CustomCard}/>
+);
+
+const App = () => (
+...
+    <Channel Attachment={CustomAttachment}>
+...
+);
+```
+
 ## Props
 
 ### <div class="label required basic">Required</div> attachments
@@ -223,6 +254,14 @@ Custom UI component for displaying an image type attachment.
 | Type      | Default                                                   |
 | --------- | --------------------------------------------------------- |
 | component | <GHComponentLink text='Image' path='/Gallery/Image.tsx'/> |
+
+### isQuoted
+
+Optional flag that allows to signal rendering of an attachment component with customized markup if rendered as a part of a quoted message. The flag is passed to all the underlying attachment component types.
+
+|   Type    |
+| --------- |
+|  boolean  |
 
 ### Media
 
