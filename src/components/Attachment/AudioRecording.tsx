@@ -122,7 +122,7 @@ export type AudioRecordingProps<
 > = {
   /** The attachment object from the message's attachment list. */
   attachment: Attachment<StreamChatGenerics>;
-  /** A boolean flag to signal whether the audio recording will be rendered inside the quoted reply. */
+  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
   isQuoted?: boolean;
 };
 
