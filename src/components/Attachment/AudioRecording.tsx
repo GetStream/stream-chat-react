@@ -12,6 +12,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 type AudioRecordingPlayerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Pick<AudioRecordingProps<StreamChatGenerics>, 'attachment'> & {
+  /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
 
@@ -119,7 +120,9 @@ export const QuotedAudioRecording = ({ attachment }: QuotedAudioRecordingProps) 
 export type AudioRecordingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  /** The attachment object of the message's attachment list. */
   attachment: Attachment<StreamChatGenerics>;
+  /** A boolean flag to signal whether the audio recording will be rendered inside the quoted reply. */
   isQuoted?: boolean;
 };
 

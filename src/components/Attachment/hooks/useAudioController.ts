@@ -5,7 +5,9 @@ export const PROGRESS_UPDATE_INTERVAL = 100;
 const DEFAULT_PLAYBACK_RATES = [1.0, 1.5, 2.0];
 
 type AudioControllerParams = {
+  /** Audio duration in seconds. */
   durationSeconds?: number;
+  /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
 

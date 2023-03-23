@@ -4,7 +4,9 @@ import type { ProgressBarProps } from './ProgressBar';
 import { divMode } from '../utils';
 
 type WaveProgressBarProps = ProgressBarProps & {
+  /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveList: number[];
+  /** Allows to specify the number of bars into which the original waveList array should be resampled */
   countBars?: number;
 };
 export const WaveProgressBar = ({
