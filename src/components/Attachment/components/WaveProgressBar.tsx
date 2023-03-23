@@ -7,22 +7,22 @@ type WaveProgressBarProps = ProgressBarProps & {
   /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveList: number[];
   /** Allows to specify the number of bars into which the original waveList array should be resampled */
-  countBars?: number;
+  amplitudesCount?: number;
 };
 export const WaveProgressBar = ({
-  countBars = 40,
+  amplitudesCount = 40,
   onClick,
   progress = 0,
   waveList,
 }: WaveProgressBarProps) => {
   const resampledWaveList = useMemo(
     () =>
-      waveList.length === countBars
+      waveList.length === amplitudesCount
         ? waveList
-        : waveList.length > countBars
-        ? downSample(waveList, countBars)
-        : upSample(waveList, countBars),
-    [countBars, waveList],
+        : waveList.length > amplitudesCount
+        ? downSample(waveList, amplitudesCount)
+        : upSample(waveList, amplitudesCount),
+    [amplitudesCount, waveList],
   );
 
   if (!waveList.length) return null;

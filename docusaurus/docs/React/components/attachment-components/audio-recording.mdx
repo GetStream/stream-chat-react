@@ -252,3 +252,85 @@ We recommend you to assemble your own components, that serve to display audio re
 The reason is, that `AudioRecordingPlayer` and `QuotedAudioRecording` are considerably small components. Addition of props for file icon components and progress bars, etc. would lead problems with their maintainability.
 
 You can always take an inspiration from the default implementation.
+
+## Props reference
+
+### AudioRecording
+
+#### attachment
+
+The attachment object from the message's attachment list.
+
+| Type       |
+|------------|
+| Attachment |
+
+#### isQuoted
+
+A boolean flag to signal whether the audio recording will be rendered inside the quoted reply.
+
+| Type    |
+|---------|
+| boolean |
+
+### AudioRecordingPlayer
+
+#### attachment
+
+The attachment object from the message's attachment list.
+
+| Type       |
+|------------|
+| Attachment |
+
+### playbackRates
+
+An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0).
+
+| Type     |
+|----------|
+| number[] |
+
+### WaveProgressBar
+
+#### amplitudesCount
+
+Allows to specify the number of bars into which the original waveList array should be resampled.
+
+| Type   |
+|--------|
+| number |
+
+#### onClick
+
+Click event handler, that by default sets the new audio progress value.
+
+| Type     |
+|----------|
+| function |
+
+#### progress
+
+Audio reproduction progress expressed in fractional number value btw 0 and 100.
+
+| Type   |
+|--------|
+| number |
+
+#### waveList
+
+The array of fractional number values between 0 and 1 representing the height of amplitudes.
+
+| Type     |
+|----------|
+| number[] |
+
+### QuotedAudioRecording
+
+#### attachment
+
+The attachment object from the message's attachment list.
+
+| Type       |
+|------------|
+| Attachment |

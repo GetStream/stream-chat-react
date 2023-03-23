@@ -120,7 +120,7 @@ export const QuotedAudioRecording = ({ attachment }: QuotedAudioRecordingProps) 
 export type AudioRecordingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** The attachment object of the message's attachment list. */
+  /** The attachment object from the message's attachment list. */
   attachment: Attachment<StreamChatGenerics>;
   /** A boolean flag to signal whether the audio recording will be rendered inside the quoted reply. */
   isQuoted?: boolean;
