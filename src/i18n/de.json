@@ -58,6 +58,7 @@
   "Unmute": "Stummschaltung aufheben",
   "Unpin": "Pin entfernen",
   "Upload type: \"{{ type }}\" is not allowed": "Upload-Typ: \"{{ type }}\" ist nicht erlaubt",
+  "Voice message": "Sprachnachricht",
   "Wait until all attachments have uploaded": "Bitte warten, bis alle Anhänge hochgeladen wurden",
   "You have no channels currently": "Du hast momentan noch keinen Channels",
   "You've reached the maximum number of files": "Die maximale Dateianzahl ist erreicht",
