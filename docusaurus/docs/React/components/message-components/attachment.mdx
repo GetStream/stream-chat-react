@@ -13,13 +13,14 @@ import AttachmentSizeWarning from '../../assets/AttachmentSizeWarning.png';
 The `Attachment` component takes a list of message attachments and conditionally renders the UI of each individual attachment based
 upon its type. The following table shows the attachment UI components that will be rendered for various attachment types:
 
-| Attachment Type | UI Component                                                                                                    | File type(s) (non-exhaustive)                          |
-| --------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `audio`         | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)         | MP3, WAV, M4A, FLAC, AAC                               |
-| `file`          | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) | DOC, DOCX, PDF, PPT, PPTX, TXT, XLS, XLSX              |
-| `gallery`       | [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)        | when a message has more than 1 'image' type attachment |
-| `image`         | [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)            | HEIC, GIF, JPEG, JPG, PNG, TIFF, BMP                   |
-| `video`         | [ReactPlayer](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js)                          | MP4, OGG, WEBM, Quicktime(QTFF, QT, or MOV)            |
+| Attachment Type  | UI Component                                                                                                              | File type(s) (non-exhaustive)                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `audio`          | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)                   | MP3, WAV, M4A, FLAC, AAC                               |
+| `audio_recording`| [AudioRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AudioRecording.tsx) | MP3, WAV, M4A, FLAC, AAC                               |
+| `file`           | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx)           | DOC, DOCX, PDF, PPT, PPTX, TXT, XLS, XLSX              |
+| `gallery`        | [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)                  | when a message has more than 1 'image' type attachment |
+| `image`          | [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)                      | HEIC, GIF, JPEG, JPG, PNG, TIFF, BMP                   |
+| `video`          | [ReactPlayer](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js)                                    | MP4, OGG, WEBM, Quicktime(QTFF, QT, or MOV)            |
 
 Message attachment objects that do not conform to one of the above types are considered to contain scraped content and should contain at least `og_scrape_url` or `title_link` to be rendered with the <GHComponentLink text='Card' path='/Attachment/Card.tsx'/> component. Otherwise, the attachment is not rendered.
 
@@ -192,6 +193,14 @@ Custom UI component for displaying an audio type attachment.
 | --------- | ------------------------------------------------------------ |
 | component | <GHComponentLink text='Audio' path='/Attachment/Audio.tsx'/> |
 
+### AudioRecording
+
+Custom UI component for displaying an audio_recording type attachment.
+
+| Type      | Default                                                      |
+| --------- | ------------------------------------------------------------ |
+| component | <GHComponentLink text='AudioRecording' path='/Attachment/AudioRecording.tsx'/> |
+
 ### Card
 
 Custom UI component for displaying a card type attachment.
@@ -224,11 +233,27 @@ Custom UI component for displaying an image type attachment.
 | --------- | --------------------------------------------------------- |
 | component | <GHComponentLink text='Image' path='/Gallery/Image.tsx'/> |
 
+### isQuoted
+
+Optional flag that allows to signal rendering of an attachment component with customized markup if rendered as a part of a quoted message. The flag is passed to all the underlying attachment component types.
+
+|   Type    |
+| --------- |
+|  boolean  |
+
 ### Media
 
 Custom UI component for displaying a video type attachment, defaults to use the [`react-player`](https://github.com/cookpete/react-player)
 dependency.
 
 | Type      | Default                                                                                  |
-| --------- | ---------------------------------------------------------------------------------------- |
+|-----------|------------------------------------------------------------------------------------------|
 | component | [`ReactPlayer`](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js) |
+
+### UnsupportedAttachment
+
+Custom UI component for displaying unrecognized type of attachment. The default implementation of the component (`NullComponent`) does not render any content.
+
+| Type      | Default                                                                                       |
+|-----------|-----------------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='UnsupportedAttachment' path='/Attachment/UnsupportedAttachment.tsx' /> |

@@ -1,0 +1,254 @@
+---
+id: audio-recording-attachment
+sidebar_position: 3
+title: Audio recording
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+import ImageShowcase from '@site/src/components/ImageShowcase';
+
+import AudioRecordingRequestPayload from "../../assets/audio-recording-response-payload.png";
+import AudioRecordingPlayer from "../../assets/audio-recording-player.png";
+import AudioRecordingPlayerInProgress from "../../assets/audio-recording-player-in-progress.png";
+import AudioRecordingPlayerStoppedRepro from "../../assets/audio-recording-player-stopped-repro.png";
+import AudioRecordingPlayerFileSizeFallback from "../../assets/audio-recording-player-file-size-fallback.png";
+import AudioRecordingPlayerFallbackTitle from "../../assets/audio-recording-fallback-title.png";
+import AudioRecordingPlayerMissingWaveList from "../../assets/audio-recording-empty-wave-list.png";
+
+import QuotedAudioRecording from "../../assets/audio-recording-quoted.png";
+import QuotedAudioRecordingFileSizeFallback from "../../assets/audio-recording-quoted-file-size-fallback.png";
+import QuotedAudioRecordingFallbackTitle from "../../assets/audio-recording-quoted-fallback-title.png";
+
+Audio attachments recorded directly from the chat UI are called audio recordings. The SDK provides a default implementation called <GHComponentLink text='AudioRecording' path='/Attachment/AudioRecording.tsx'/>. The default component renders or <GHComponentLink text='AudioRecordingPlayer component' path='/Attachment/AudioRecording.tsx'/> or <GHComponentLink text='QuotedAudioRecording' path='/Attachment/AudioRecording.tsx'/>.
+
+The `AudioRecordingPlayer` component is displayed in the message attachment list and is used to reproduce the audio.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayer,
+      caption: <span>AudioRecordingPlayer component</span>,
+      alt: 'Image of the AudioRecordingPlayer component',
+    },
+  ]}
+/>
+
+Whereas `QuotedAudioRecording` is used to display basic information about the audio recording in quoted message reply.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: QuotedAudioRecording,
+      caption: <span>QuotedAudioRecording component</span>,
+      alt: 'Image of the QuotedAudioRecording component',
+    },
+  ]}
+/>
+
+## Attachment payload
+
+The response payload for the audio recording attachment comes with the following properties:
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingRequestPayload,
+      caption: <span>Audio recording payload</span>,
+      alt: 'Image of the audio recording payload',
+    },
+  ]}
+/>
+
+These properties serve the following purpose:
+
+- **asset_url** - the where the audio recording is downloaded from
+- **duration** - the audio duration in ms
+- **file_size** - the size in bytes displayed as fallback if duration is not available
+- **mime_type** - the "file" type that is later reflected in the icon displayed in the audio recording attachment widget
+- **title** - the audio title
+- **type** - the value will always be `"audio_recording"`
+- **waveList** - the array of fractional number values between 0 and 1. These values represent the amplitudes later reflected in the <GHComponentLink text='WaveProgressBar' path='/Attachment/components/WaveProgressBar.tsx'/>
+
+## AudioRecordingPlayer
+
+### Navigation
+
+By clicking in the space of wave progress bar a user can navigate to a specific place in the audio track. The progress indicator is placed at point of the click and the preceding amplitude bars are highlighted to manifest the progress.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayerStoppedRepro,
+      caption: <span>AudioRecordingPlayer navigation</span>,
+      alt: 'Image of the AudioRecordingPlayer stopped in the middle of the reproduction',
+    },
+  ]}
+/>
+
+### Playback speed change
+
+The playback speed can be changed by clicking the  <GHComponentLink text='PlaybackRateButton' path='/Attachment/components/PlaybackRateButton.tsx'/>. The button is visible only during the audio reproduction. The rate is changed by repeatedly clicking the <GHComponentLink text='PlaybackRateButton' path='/Attachment/components/PlaybackRateButton.tsx'/>. Once the highest rate speed is achieved, the next click resets the speed to the initial value.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayerInProgress,
+      caption: <span>AudioRecordingPlayer playing the audio</span>,
+      alt: 'Image of the AudioRecordingPlayer playing the audio',
+    },
+  ]}
+/>
+
+## UI Fallbacks
+
+### Missing duration
+
+If the duration is not available in the [attachment object payload](./#attachment-payload), `AudioRecordingPlayer` as well as `QuotedAudioRecording` component will display the attachment size instead.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayerFileSizeFallback,
+      caption: <span>AudioRecordingPlayer displaying file size instead of audio duration</span>,
+      alt: 'Image of the AudioRecordingPlayer displaying file size instead of audio duration',
+    },
+    {
+      image: QuotedAudioRecordingFileSizeFallback,
+      caption: <span>QuotedAudioRecording displaying file size instead of audio duration</span>,
+      alt: 'Image of the QuotedAudioRecording displaying file size instead of audio duration',
+    },
+  ]}
+/>
+
+
+### Missing title
+
+If the audio recording does not come with title, a fallback title is provided.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayerFallbackTitle,
+      caption: <span>AudioRecordingPlayer displaying the fallback title</span>,
+      alt: 'Image of the AudioRecordingPlayer displaying the fallback title',
+    },
+    {
+      image: QuotedAudioRecordingFallbackTitle,
+      caption: <span>QuotedAudioRecording displaying the fallback title</span>,
+      alt: 'Image of the QuotedAudioRecording displaying the fallback title',
+    },
+  ]}
+/>
+
+### Missing waveList
+
+If the `waveList` is an empty array, then no progress bar is rendered.
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: AudioRecordingPlayerMissingWaveList,
+      caption: <span>AudioRecordingPlayer without progress bar</span>,
+      alt: 'Image of the AudioRecordingPlayer missing progress bar',
+    },
+  ]}
+/>
+
+
+## Audio player controller
+
+The API to control the audio recording player is provided by <GHComponentLink text='useAudioController' path='/Attachment/hooks/useAudioController.tsx'/>. The `AudioRecordingPlayer` makes use of the following memoized functions:
+
+1. `togglePlay` - to start and stop playing the record
+2. `seek` - to change audio progress
+3. `increasePlaybackRate` - to change the playback rate in the round-robin manner
+
+Besides the above actions, the controller maintains state in the following form:
+
+1. `isPlaying` - boolean flag informing the UI, whether the reproduction is in flight
+2. `progress` - numeric fractional value between 0 and 100 representing the progress of the audio reproduction
+3. `playbackRate` - currently selected playback rate value
+4. `secondsElapsed` - related to `progress`, but representing the amount of seconds elapsed since the audio beginning
+
+## Default components customization
+
+The pattern of customization applied to the default `AudioRecording` component will be the same:
+
+1. Create a custom audio recording component (e.g. `CustomAudioRecording`). It will serve as a wrapper component that renders `AudioRecordingPlayer` resp. `QuotedAudioRecording`. Pass props to these components.
+
+2. Create a custom attachment component (e.g. `CustomAttachment`), that will be again a wrapper around the SDK's `Attachment` component. Pass the custom audio recording component to the `Attachment` component via prop `AudioRecording`.
+
+### Provide custom list of playback speeds
+
+You can override the default list of playback rates by overriding the <GHComponentLink text='AudioRecording' path='/Attachment/AudioRecording.tsx'/> component.
+
+Example:
+
+```typescript jsx
+import {
+  Attachment,
+  AttachmentProps,
+  AudioRecordingPlayer,
+  AudioRecordingProps,
+  ...
+  Channel,
+  ...
+  QuotedAudioRecording,
+} from 'stream-chat-react';
+
+const CustomAudioRecording = ({ attachment, isQuoted }: AudioRecordingProps) =>
+  isQuoted ? (
+    <QuotedAudioRecording attachment={attachment} />
+  ) : (
+    <AudioRecordingPlayer attachment={attachment} playbackRates={[2.0, 3.0]}  />
+  );
+
+const CustomAttachment = (props: AttachmentProps) => (
+  <Attachment {...props} AudioRecording={CustomAudioRecording}/>
+);
+
+const App = () => (
+  ...
+    <Channel Attachment={CustomAttachment}>
+  ...
+);
+
+export default App;
+```
+
+### Remove title
+
+This could be solved by customizing the styles. You can stop displaying the recording title by tweaking the CSS:
+
+```css
+.str-chat__message-attachment__audio-recording-widget__title {
+    display: none;
+}
+```
+
+### Customize the fallback title
+
+If you do not like our fallback title, you can change it by changing the translation.
+
+// todo: add the translation customization guide
+
+### Other customizations
+
+If you would like to perform the following customizations:
+
+- change the progress bar
+- change the file icon SVG
+
+We recommend you to assemble your own components, that serve to display audio recording data and allow for reproduction. Then you can pass those components to the custom attachment component as described above.
+
+The reason is, that `AudioRecordingPlayer` and `QuotedAudioRecording` are considerably small components. Addition of props for file icon components and progress bars, etc. would lead problems with their maintainability.
+
+You can always take an inspiration from the default implementation.
