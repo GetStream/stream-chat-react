@@ -20,7 +20,7 @@ describe('WaveProgressBar', () => {
   it('should render given number of bars', () => {
     const countBars = 2;
     const { getAllByTestId } = render(
-      <WaveProgressBar countBars={countBars} progress={0} waveList={[0.5]} />,
+      <WaveProgressBar amplitudesCount={countBars} progress={0} waveList={[0.5]} />,
     );
     expect(getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(countBars);
   });
@@ -51,7 +51,7 @@ describe('WaveProgressBar', () => {
   it('should set correct bar height', () => {
     const waveList = [0.5, 0.3, 0];
     const { queryAllByTestId } = render(
-      <WaveProgressBar countBars={3} progress={1} waveList={waveList} />,
+      <WaveProgressBar amplitudesCount={3} progress={1} waveList={waveList} />,
     );
     const bars = queryAllByTestId(AMPLITUDE_BAR_TEST_ID);
     bars.forEach((bar, i) => {
