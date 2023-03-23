@@ -2,7 +2,7 @@ import React, { PropsWithChildren, ReactNode } from 'react';
 import ReactPlayer from 'react-player';
 import clsx from 'clsx';
 
-import type { ATTACHMENT_GROUPS_ORDER } from './Attachment';
+import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
 import { Card as DefaultCard } from './Card';
@@ -10,7 +10,6 @@ import { FileAttachment as DefaultFile } from './FileAttachment';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 
 import type { Attachment } from 'stream-chat';
-import type { AttachmentProps } from './Attachment';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
@@ -68,6 +67,12 @@ export const isAudioAttachment = <
 >(
   attachment: Attachment<StreamChatGenerics>,
 ) => attachment.type === 'audio';
+
+export const isAudioRecordingAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics>,
+) => attachment.type === 'audio_recording';
 
 export const isFileAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -322,4 +327,19 @@ export const renderMedia = <
     ),
     componentType: 'media',
   });
+};
+export const divMode = (num: number, divisor: number) => [Math.floor(num / divisor), num % divisor];
+export const secondsToTime = (totalSeconds?: number) => {
+  if (!totalSeconds || totalSeconds < 0) return '00:00';
+
+  const [hours, hoursLeftover] = divMode(totalSeconds, 3600);
+  const [minutes, seconds] = divMode(hoursLeftover, 60);
+  const roundedSeconds = Math.ceil(seconds);
+
+  const prependHrsZero = hours.toString().length === 1 ? '0' : '';
+  const prependMinZero = minutes.toString().length === 1 ? '0' : '';
+  const prependSecZero = roundedSeconds.toString().length === 1 ? '0' : '';
+  const minSec = `${prependMinZero}${minutes}:${prependSecZero}${roundedSeconds}`;
+
+  return hours ? `${prependHrsZero}${hours}:` + minSec : minSec;
 };

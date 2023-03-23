@@ -2,10 +2,7 @@ import React from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import { PauseIcon, PlayTriangleIcon } from './icons';
-
-import { FileSizeIndicator } from './FileSizeIndicator';
-import { DownloadButton } from './DownloadButton';
+import { DownloadButton, FileSizeIndicator, PlayButton, ProgressBar } from './components';
 import { useAudioController } from './hooks/useAudioController';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -78,49 +75,6 @@ const AudioV1 = ({ og }: AudioProps) => {
     </div>
   );
 };
-
-type PlayButtonProps = {
-  isPlaying: boolean;
-  onClick: () => void;
-};
-
-export const PlayButton = ({ isPlaying, onClick }: PlayButtonProps) => (
-  <button
-    className='str-chat__message-attachment-audio-widget--play-button'
-    data-testid={isPlaying ? 'pause-audio' : 'play-audio'}
-    onClick={onClick}
-  >
-    {isPlaying ? <PauseIcon /> : <PlayTriangleIcon />}
-  </button>
-);
-
-type ProgressBarProps = {
-  progress: number;
-} & Pick<React.ComponentProps<'div'>, 'onClick'>;
-
-export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
-  <div
-    className='str-chat__message-attachment-audio-widget--progress-track'
-    data-progress={progress}
-    data-testid='audio-progress'
-    onClick={onClick}
-    role='progressbar'
-    style={{
-      background: `linear-gradient(
-		 to right, 
-		 var(--str-chat__primary-color),
-		 var(--str-chat__primary-color) ${progress}%,
-		 var(--str-chat__disabled-color) ${progress}%,
-		 var(--str-chat__disabled-color)
-	  )`,
-    }}
-  >
-    <div
-      className='str-chat__message-attachment-audio-widget--progress-slider'
-      style={{ left: `${progress}px` }}
-    />
-  </div>
-);
 
 const AudioV2 = ({ og }: AudioProps) => {
   const { asset_url, file_size, title } = og;

@@ -2,9 +2,9 @@ import React from 'react';
 import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
-import { AudioProps, PlayButton, ProgressBar } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
+import { PlayButton, ProgressBar } from './components';
 import { useAudioController } from './hooks/useAudioController';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -14,6 +14,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from './utils';
 import type { Dimensions } from '../../types/types';
+import type { AudioProps } from './Audio';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {

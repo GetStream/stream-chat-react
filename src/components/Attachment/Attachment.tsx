@@ -5,6 +5,7 @@ import type { Attachment as StreamAttachment } from 'stream-chat';
 import {
   GroupedRenderedAttachment,
   isAudioAttachment,
+  isAudioRecordingAttachment,
   isFileAttachment,
   isMediaAttachment,
   isScrapedContent,
@@ -13,6 +14,7 @@ import {
 
 import {
   AudioContainer,
+  AudioRecordingContainer,
   CardContainer,
   FileContainer,
   GalleryContainer,
@@ -29,10 +31,12 @@ import type { GalleryProps, ImageProps } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 
+import type { AudioRecordingProps } from './AudioRecording';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const CONTAINER_MAP = {
   audio: AudioContainer,
+  audioRecording: AudioRecordingContainer,
   card: CardContainer,
   file: FileContainer,
   media: MediaContainer,
@@ -45,6 +49,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'image',
   'media',
   'audio',
+  'audioRecording',
   'file',
   'unsupported',
 ] as const;
@@ -60,6 +65,8 @@ export type AttachmentProps<
   AttachmentActions?: React.ComponentType<AttachmentActionsProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
   Audio?: React.ComponentType<AudioProps<StreamChatGenerics>>;
+  /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [AudioRecordingProps](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AudioRecording.tsx) */
+  AudioRecording?: React.ComponentType<AudioRecordingProps<StreamChatGenerics>>;
   /** Custom UI component for displaying a card type attachment, defaults to and accepts same props as: [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) */
   Card?: React.ComponentType<CardProps>;
   /** Custom UI component for displaying a file type attachment, defaults to and accepts same props as: [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) */
@@ -68,6 +75,8 @@ export type AttachmentProps<
   Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
+  /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
+  isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
@@ -125,6 +134,7 @@ const renderGroupedAttachments = <
       },
       {
         audio: [],
+        audioRecording: [],
         card: [],
         file: [],
         media: [],
@@ -168,6 +178,8 @@ const getAttachmentType = <
     return 'media';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
+  } else if (isAudioRecordingAttachment(attachment)) {
+    return 'audioRecording';
   } else if (isFileAttachment(attachment)) {
     return 'file';
   }
