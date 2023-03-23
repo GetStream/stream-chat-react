@@ -18,14 +18,48 @@ import {
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
 import { generateScrapedVideoAttachment } from '../../../mock-builders';
+import { ChannelStateProvider } from '../../../context';
 
-const Audio = (props) => <div data-testid='audio-attachment'>{props.customTestId}</div>;
-const Card = (props) => <div data-testid='card-attachment'>{props.customTestId}</div>;
-const Media = (props) => <div data-testid='media-attachment'>{props.customTestId}</div>;
+const TEST_IDS = {
+  audio: 'audio-attachment',
+  card: 'card-attachment',
+  file: 'file-attachment',
+  gallery: 'gallery-attachment',
+  image: 'image-attachment',
+  media: 'media-attachment',
+};
+
+const Audio = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.audio}>
+    {props.customTestId}
+  </div>
+);
+const Card = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.card}>
+    {props.customTestId}
+  </div>
+);
+const Media = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.media}>
+    {props.customTestId}
+  </div>
+);
 const AttachmentActions = () => <div data-testid='attachment-actions'></div>;
-const Image = (props) => <div data-testid='image-attachment'>{props.customTestId}</div>;
-const File = (props) => <div data-testid='file-attachment'>{props.customTestId}</div>;
-const Gallery = (props) => <div data-testid='gallery-attachment'>{props.customTestId}</div>;
+const Image = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.image}>
+    {props.customTestId}
+  </div>
+);
+const File = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.file}>
+    {props.customTestId}
+  </div>
+);
+const Gallery = (props) => (
+  <div data-isquoted={props.isQuoted} data-testid={TEST_IDS.gallery}>
+    {props.customTestId}
+  </div>
+);
 
 const ATTACHMENTS = {
   scraped: {
@@ -46,16 +80,18 @@ const ATTACHMENTS = {
 
 const renderComponent = (props) =>
   render(
-    <Attachment
-      AttachmentActions={AttachmentActions}
-      Audio={Audio}
-      Card={Card}
-      File={File}
-      Gallery={Gallery}
-      Image={Image}
-      Media={Media}
-      {...props}
-    />,
+    <ChannelStateProvider value={{}}>
+      <Attachment
+        AttachmentActions={AttachmentActions}
+        Audio={Audio}
+        Card={Card}
+        File={File}
+        Gallery={Gallery}
+        Image={Image}
+        Media={Media}
+        {...props}
+      />
+    </ChannelStateProvider>,
   );
 
 describe('attachment', () => {
@@ -236,6 +272,33 @@ describe('attachment', () => {
       await waitFor(() => {
         expect(container).toMatchSnapshot();
       });
+    });
+
+    it('should propagate isQuoted flag to all the attachment widgets', () => {
+      const { queryByTestId } = renderComponent({
+        attachments: [
+          ATTACHMENTS.uploaded.file,
+          ATTACHMENTS.uploaded.audio,
+          ATTACHMENTS.uploaded.video,
+          ATTACHMENTS.scraped.audio,
+          ATTACHMENTS.uploaded.image,
+        ],
+        isQuoted: true,
+      });
+
+      Object.entries(TEST_IDS).forEach(([attachmentType, testId]) => {
+        if (['gallery', 'media'].includes(attachmentType)) return;
+        expect(queryByTestId(testId)).toHaveAttribute('data-isquoted', 'true');
+      });
+    });
+
+    it('should propagate isQuoted flag to gallery the attachment widget', () => {
+      const { queryByTestId } = renderComponent({
+        attachments: [ATTACHMENTS.uploaded.image, ATTACHMENTS.uploaded.image],
+        isQuoted: true,
+      });
+
+      expect(queryByTestId(TEST_IDS.gallery)).toHaveAttribute('data-isquoted', 'true');
     });
   });
 
