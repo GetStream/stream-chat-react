@@ -3,27 +3,11 @@ import { act, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { generateAudioRecordingAttachment } from '../../../mock-builders';
-import { AudioRecording, AudioRecordingPlayer, QuotedAudioRecording } from '../AudioRecording';
-
-const AUDIO_RECORDING_PLAYER_TEST_ID = 'audio-recording-widget';
-const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-audio-recording-widget';
+import { AudioRecordingPlayer } from '../AudioRecording';
 
 const FALLBACK_TITLE = 'Voice message';
 
 const attachment = generateAudioRecordingAttachment();
-
-describe('AudioRecording', () => {
-  it('should render AudioRecordingPlayer if not quoted', () => {
-    const { queryByTestId } = render(<AudioRecording attachment={attachment} />);
-    expect(queryByTestId(AUDIO_RECORDING_PLAYER_TEST_ID)).toBeInTheDocument();
-    expect(queryByTestId(QUOTED_AUDIO_RECORDING_TEST_ID)).not.toBeInTheDocument();
-  });
-  it('should render QuotedAudioRecording if quoted', () => {
-    const { queryByTestId } = render(<AudioRecording attachment={attachment} isQuoted />);
-    expect(queryByTestId(QUOTED_AUDIO_RECORDING_TEST_ID)).toBeInTheDocument();
-    expect(queryByTestId(AUDIO_RECORDING_PLAYER_TEST_ID)).not.toBeInTheDocument();
-  });
-});
 
 describe('AudioRecordingPlayer', () => {
   beforeAll(() => {
@@ -96,28 +80,5 @@ describe('AudioRecordingPlayer', () => {
       fireEvent.click(playbackRateButton);
     });
     expect(playbackRateButton).toHaveTextContent('2.5x');
-  });
-});
-
-describe('QuotedAudioRecording', () => {
-  it('should render the component', () => {
-    const { container, queryByTestId, queryByText } = render(
-      <QuotedAudioRecording attachment={attachment} />,
-    );
-    expect(container).toMatchSnapshot();
-    expect(queryByText(FALLBACK_TITLE)).not.toBeInTheDocument();
-    expect(queryByTestId('file-size-indicator')).not.toBeInTheDocument();
-  });
-  it('should display fallback title, if title is not available', () => {
-    const { queryByText } = render(
-      <QuotedAudioRecording attachment={{ ...attachment, title: undefined }} />,
-    );
-    expect(queryByText(FALLBACK_TITLE)).toBeInTheDocument();
-  });
-  it('should fallback to file size, if duration is not available', () => {
-    const { queryByTestId } = render(
-      <QuotedAudioRecording attachment={{ ...attachment, duration: undefined }} />,
-    );
-    expect(queryByTestId('file-size-indicator')).toHaveTextContent('55 kB');
   });
 });

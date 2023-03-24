@@ -65,7 +65,7 @@ export type AttachmentProps<
   AttachmentActions?: React.ComponentType<AttachmentActionsProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an audio type attachment, defaults to and accepts same props as: [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx) */
   Audio?: React.ComponentType<AudioProps<StreamChatGenerics>>;
-  /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [AudioRecordingProps](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AudioRecording.tsx) */
+  /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [AudioRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/AudioRecording.tsx) */
   AudioRecording?: React.ComponentType<AudioRecordingProps<StreamChatGenerics>>;
   /** Custom UI component for displaying a card type attachment, defaults to and accepts same props as: [Card](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Card.tsx) */
   Card?: React.ComponentType<CardProps>;
@@ -75,8 +75,6 @@ export type AttachmentProps<
   Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
-  /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
-  isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */

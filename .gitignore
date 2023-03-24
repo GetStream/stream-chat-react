@@ -74,3 +74,5 @@ client/dist
 /.virtualgo
 .vscode/
 coverage.out
+
+docusaurus/shared

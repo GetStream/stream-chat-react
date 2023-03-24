@@ -9,14 +9,16 @@ import { useTranslationContext } from '../../context';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-type AudioRecordingPlayerProps<
+export type AudioRecordingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<AudioRecordingProps<StreamChatGenerics>, 'attachment'> & {
+> = {
+  /** The attachment object from the message's attachment list. */
+  attachment: Attachment<StreamChatGenerics>;
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
 
-export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordingPlayerProps) => {
+export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordingProps) => {
   const { t } = useTranslationContext('AudioRecording');
   const {
     asset_url,
@@ -85,54 +87,4 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
   );
 };
 
-export type QuotedAudioRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<AudioRecordingProps<StreamChatGenerics>, 'attachment'>;
-
-export const QuotedAudioRecording = ({ attachment }: QuotedAudioRecordingProps) => {
-  const { t } = useTranslationContext();
-  const title = attachment.title || t<string>('Voice message');
-  return (
-    <div
-      className='str-chat__message-attachment__quoted-audio-recording-widget'
-      data-testid='quoted-audio-recording-widget'
-    >
-      <div className='str-chat__message-attachment__quoted-audio-recording-widget__info'>
-        <div
-          className='str-chat__message-attachment__quoted-audio-recording-widget__title'
-          title={title}
-        >
-          {title}
-        </div>
-        <div className='str-chat__message-attachment__quoted-audio-recording-widget__timer'>
-          {attachment.duration ? (
-            secondsToTime(attachment.duration / 1000)
-          ) : (
-            <FileSizeIndicator fileSize={attachment.file_size} maximumFractionDigits={0} />
-          )}
-        </div>
-      </div>
-      <FileIcon big={true} mimeType={attachment.mime_type} size={34} version={'2'} />
-    </div>
-  );
-};
-
-export type AudioRecordingProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  /** The attachment object from the message's attachment list. */
-  attachment: Attachment<StreamChatGenerics>;
-  /** A boolean flag to signal whether the attachment will be rendered inside the quoted reply. */
-  isQuoted?: boolean;
-};
-
-const UnMemoizedAudioRecording = ({ attachment, isQuoted }: AudioRecordingProps) =>
-  isQuoted ? (
-    <QuotedAudioRecording attachment={attachment} />
-  ) : (
-    <AudioRecordingPlayer attachment={attachment} />
-  );
-
-export const AudioRecording = React.memo(
-  UnMemoizedAudioRecording,
-) as typeof UnMemoizedAudioRecording;
+export const AudioRecording = React.memo(AudioRecordingPlayer) as typeof AudioRecordingPlayer;

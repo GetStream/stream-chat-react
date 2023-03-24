@@ -243,11 +243,10 @@ export const AudioRecordingContainer = <
 >({
   attachment,
   AudioRecording = DefaultAudioRecording,
-  isQuoted,
 }: RenderAttachmentProps<StreamChatGenerics>) => (
   <AttachmentWithinContainer attachment={attachment} componentType='audioRecording'>
     <div className='str-chat__attachment'>
-      <AudioRecording attachment={attachment} isQuoted={isQuoted} />
+      <AudioRecording attachment={attachment} />
     </div>
   </AttachmentWithinContainer>
 );

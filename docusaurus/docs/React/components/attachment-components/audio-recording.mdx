@@ -19,33 +19,37 @@ import QuotedAudioRecording from "../../assets/audio-recording-quoted.png";
 import QuotedAudioRecordingFileSizeFallback from "../../assets/audio-recording-quoted-file-size-fallback.png";
 import QuotedAudioRecordingFallbackTitle from "../../assets/audio-recording-quoted-fallback-title.png";
 
-Audio attachments recorded directly from the chat UI are called audio recordings. The SDK provides a default implementation called <GHComponentLink text='AudioRecording' path='/Attachment/AudioRecording.tsx'/>. The default component renders or <GHComponentLink text='AudioRecordingPlayer component' path='/Attachment/AudioRecording.tsx'/> or <GHComponentLink text='QuotedAudioRecording' path='/Attachment/AudioRecording.tsx'/>.
+Audio attachments recorded directly from the chat UI are called audio recordings. The SDK provides a default implementation called <GHComponentLink text='AudioRecording' path='/Attachment/AudioRecording.tsx'/>.
 
-The `AudioRecordingPlayer` component is displayed in the message attachment list and is used to reproduce the audio.
+The `AudioRecording` component is displayed in the message attachment list and is used to reproduce the audio.
 
 <ImageShowcase
   border
   items={[
     {
       image: AudioRecordingPlayer,
-      caption: <span>AudioRecordingPlayer component</span>,
-      alt: 'Image of the AudioRecordingPlayer component',
+      caption: <span>AudioRecording playercomponent</span>,
+      alt: 'Image of the AudioRecording playercomponent',
     },
   ]}
 />
 
-Whereas `QuotedAudioRecording` is used to display basic information about the audio recording in quoted message reply.
+But it can be also rendered in a quoted message reply and display basic information about the audio recording .
 
 <ImageShowcase
   border
   items={[
     {
       image: QuotedAudioRecording,
-      caption: <span>QuotedAudioRecording component</span>,
-      alt: 'Image of the QuotedAudioRecording component',
+      caption: <span>Quoted AudioRecording component</span>,
+      alt: 'Image of the quoted AudioRecording component',
     },
   ]}
 />
+
+:::note
+The `stream-chat-react` does not currently support audio recording capability. The recording is supported by other our SDKs. The React SDK then displays the attachment.
+:::
 
 ## Attachment payload
 
@@ -72,7 +76,7 @@ These properties serve the following purpose:
 - **type** - the value will always be `"audio_recording"`
 - **waveList** - the array of fractional number values between 0 and 1. These values represent the amplitudes later reflected in the <GHComponentLink text='WaveProgressBar' path='/Attachment/components/WaveProgressBar.tsx'/>
 
-## AudioRecordingPlayer
+## AudioRecording player
 
 ### Navigation
 
@@ -83,8 +87,8 @@ By clicking in the space of wave progress bar a user can navigate to a specific 
   items={[
     {
       image: AudioRecordingPlayerStoppedRepro,
-      caption: <span>AudioRecordingPlayer navigation</span>,
-      alt: 'Image of the AudioRecordingPlayer stopped in the middle of the reproduction',
+      caption: <span>AudioRecording player navigation</span>,
+      alt: 'Image of the AudioRecording player stopped in the middle of the reproduction',
     },
   ]}
 />
@@ -98,8 +102,8 @@ The playback speed can be changed by clicking the  <GHComponentLink text='Playba
   items={[
     {
       image: AudioRecordingPlayerInProgress,
-      caption: <span>AudioRecordingPlayer playing the audio</span>,
-      alt: 'Image of the AudioRecordingPlayer playing the audio',
+      caption: <span>AudioRecording player playing the audio</span>,
+      alt: 'Image of the AudioRecording player playing the audio',
     },
   ]}
 />
@@ -108,20 +112,20 @@ The playback speed can be changed by clicking the  <GHComponentLink text='Playba
 
 ### Missing duration
 
-If the duration is not available in the [attachment object payload](./#attachment-payload), `AudioRecordingPlayer` as well as `QuotedAudioRecording` component will display the attachment size instead.
+If the duration is not available in the [attachment object payload](./#attachment-payload). The component will display the attachment size instead.
 
 <ImageShowcase
   border
   items={[
     {
       image: AudioRecordingPlayerFileSizeFallback,
-      caption: <span>AudioRecordingPlayer displaying file size instead of audio duration</span>,
-      alt: 'Image of the AudioRecordingPlayer displaying file size instead of audio duration',
+      caption: <span>AudioRecording player displaying file size instead of audio duration</span>,
+      alt: 'Image of the AudioRecording player displaying file size instead of audio duration',
     },
     {
       image: QuotedAudioRecordingFileSizeFallback,
-      caption: <span>QuotedAudioRecording displaying file size instead of audio duration</span>,
-      alt: 'Image of the QuotedAudioRecording displaying file size instead of audio duration',
+      caption: <span>Quoted AudioRecording displaying file size instead of audio duration</span>,
+      alt: 'Image of the AudioRecording in quoted reply displaying the file size instead of audio duration',
     },
   ]}
 />
@@ -136,13 +140,13 @@ If the audio recording does not come with title, a fallback title is provided.
   items={[
     {
       image: AudioRecordingPlayerFallbackTitle,
-      caption: <span>AudioRecordingPlayer displaying the fallback title</span>,
-      alt: 'Image of the AudioRecordingPlayer displaying the fallback title',
+      caption: <span>AudioRecording player displaying the fallback title</span>,
+      alt: 'Image of the AudioRecording player displaying the fallback title',
     },
     {
       image: QuotedAudioRecordingFallbackTitle,
-      caption: <span>QuotedAudioRecording displaying the fallback title</span>,
-      alt: 'Image of the QuotedAudioRecording displaying the fallback title',
+      caption: <span>Quoted AudioRecording displaying the fallback title</span>,
+      alt: 'Image of the AudioRecording in quoted reply displaying the fallback title',
     },
   ]}
 />
@@ -156,8 +160,8 @@ If the `waveList` is an empty array, then no progress bar is rendered.
   items={[
     {
       image: AudioRecordingPlayerMissingWaveList,
-      caption: <span>AudioRecordingPlayer without progress bar</span>,
-      alt: 'Image of the AudioRecordingPlayer missing progress bar',
+      caption: <span>AudioRecording player without progress bar</span>,
+      alt: 'Image of the AudioRecording player missing progress bar',
     },
   ]}
 />
@@ -165,13 +169,13 @@ If the `waveList` is an empty array, then no progress bar is rendered.
 
 ## Audio player controller
 
-The API to control the audio recording player is provided by <GHComponentLink text='useAudioController' path='/Attachment/hooks/useAudioController.tsx'/>. The `AudioRecordingPlayer` makes use of the following memoized functions:
+The API to control the audio recording player is provided by <GHComponentLink text='useAudioController' path='/Attachment/hooks/useAudioController.tsx'/>. The `AudioRecording` makes use of the following memoized functions:
 
 1. `togglePlay` - to start and stop playing the record
 2. `seek` - to change audio progress
 3. `increasePlaybackRate` - to change the playback rate in the round-robin manner
 
-Besides the above actions, the controller maintains state in the following form:
+Besides the above actions, the controller maintains the state in the following form:
 
 1. `isPlaying` - boolean flag informing the UI, whether the reproduction is in flight
 2. `progress` - numeric fractional value between 0 and 100 representing the progress of the audio reproduction
@@ -182,7 +186,7 @@ Besides the above actions, the controller maintains state in the following form:
 
 The pattern of customization applied to the default `AudioRecording` component will be the same:
 
-1. Create a custom audio recording component (e.g. `CustomAudioRecording`). It will serve as a wrapper component that renders `AudioRecordingPlayer` resp. `QuotedAudioRecording`. Pass props to these components.
+1. Create a custom audio recording component (e.g. `CustomAudioRecording`). It will serve as a wrapper component that renders `AudioRecording` and override the props.
 
 2. Create a custom attachment component (e.g. `CustomAttachment`), that will be again a wrapper around the SDK's `Attachment` component. Pass the custom audio recording component to the `Attachment` component via prop `AudioRecording`.
 
@@ -196,20 +200,16 @@ Example:
 import {
   Attachment,
   AttachmentProps,
-  AudioRecordingPlayer,
+  AudioRecording,
   AudioRecordingProps,
   ...
   Channel,
   ...
-  QuotedAudioRecording,
 } from 'stream-chat-react';
 
-const CustomAudioRecording = ({ attachment, isQuoted }: AudioRecordingProps) =>
-  isQuoted ? (
-    <QuotedAudioRecording attachment={attachment} />
-  ) : (
-    <AudioRecordingPlayer attachment={attachment} playbackRates={[2.0, 3.0]}  />
-  );
+const CustomAudioRecording = ({ attachment }: AudioRecordingProps) => (
+    <AudioRecording attachment={attachment} playbackRates={[2.0, 3.0]}  />
+);
 
 const CustomAttachment = (props: AttachmentProps) => (
   <Attachment {...props} AudioRecording={CustomAudioRecording}/>
@@ -236,9 +236,7 @@ This could be solved by customizing the styles. You can stop displaying the reco
 
 ### Customize the fallback title
 
-If you do not like our fallback title, you can change it by changing the translation.
-
-// todo: add the translation customization guide
+If you do not like our fallback title, you can change it by [overriding the default translation](../../../guides/theming/translations/#override-default-translations).
 
 ### Other customizations
 
@@ -249,31 +247,13 @@ If you would like to perform the following customizations:
 
 We recommend you to assemble your own components, that serve to display audio recording data and allow for reproduction. Then you can pass those components to the custom attachment component as described above.
 
-The reason is, that `AudioRecordingPlayer` and `QuotedAudioRecording` are considerably small components. Addition of props for file icon components and progress bars, etc. would lead problems with their maintainability.
+The reason is, that `AudioRecording` is quite a small component. Addition of props for file icon components and progress bars, etc. would lead problems with their maintainability.
 
-You can always take an inspiration from the default implementation.
+You can always take the inspiration from the default implementation.
 
 ## Props reference
 
 ### AudioRecording
-
-#### attachment
-
-The attachment object from the message's attachment list.
-
-| Type       |
-|------------|
-| Attachment |
-
-#### isQuoted
-
-A boolean flag to signal whether the audio recording will be rendered inside the quoted reply.
-
-| Type    |
-|---------|
-| boolean |
-
-### AudioRecordingPlayer
 
 #### attachment
 
@@ -324,13 +304,3 @@ The array of fractional number values between 0 and 1 representing the height of
 | Type     |
 |----------|
 | number[] |
-
-### QuotedAudioRecording
-
-#### attachment
-
-The attachment object from the message's attachment list.
-
-| Type       |
-|------------|
-| Attachment |
