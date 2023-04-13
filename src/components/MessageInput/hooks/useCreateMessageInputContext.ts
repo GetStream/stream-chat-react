@@ -157,6 +157,7 @@ export const useCreateMessageInputContext = <
       showCommandsList,
       showMentionsList,
       text,
+      handleSubmit,
     ],
   );
 
