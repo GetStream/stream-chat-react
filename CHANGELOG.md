@@ -1,3 +1,10 @@
+## [10.7.4](https://github.com/GetStream/stream-chat-react/compare/v10.7.3...v10.7.4) (2023-04-05)
+
+
+### Bug Fixes
+
+* update channel state on user.deleted event ([#1985](https://github.com/GetStream/stream-chat-react/issues/1985)) ([767d194](https://github.com/GetStream/stream-chat-react/commit/767d1949522e290d5f006e4ef7adcd9351dfc07b))
+
 ## [10.7.3](https://github.com/GetStream/stream-chat-react/compare/v10.7.2...v10.7.3) (2023-03-16)
 
 
