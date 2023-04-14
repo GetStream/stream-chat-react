@@ -1,3 +1,10 @@
+## [10.7.5](https://github.com/GetStream/stream-chat-react/compare/v10.7.4...v10.7.5) (2023-04-14)
+
+
+### Bug Fixes
+
+* prevent overwriting sent message on slow network ([#1993](https://github.com/GetStream/stream-chat-react/issues/1993)) ([5f5893a](https://github.com/GetStream/stream-chat-react/commit/5f5893ad829f6f716406b26dc4efc24d6a52f437))
+
 ## [10.7.4](https://github.com/GetStream/stream-chat-react/compare/v10.7.3...v10.7.4) (2023-04-05)
 
 
