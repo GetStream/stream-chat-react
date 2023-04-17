@@ -826,6 +826,87 @@ describe('Channel', () => {
         expect(await findByText(message.text)).toBeInTheDocument();
       });
 
+      it('should not overwrite the message with send response, if already updated by WS events', async () => {
+        let oldText;
+        const newText = 'new text';
+        const creationDate = new Date();
+        const created_at = creationDate.toISOString();
+        const updated_at = new Date(creationDate.getTime() + 1).toISOString();
+        let hasSent = false;
+
+        jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+          oldText = message.text;
+          const finalMessage = { ...message, created_at, updated_at: created_at };
+          useMockedApis(chatClient, [sendMessageApi(finalMessage)]);
+          // both effects have to be emitted, otherwise the original message in status "sending" will not be filtered out (done when message.new is emitted) => and the message.updated event would add the updated message as a new message.
+          createChannelEventDispatcher({
+            created_at,
+            message: {
+              ...finalMessage,
+              text: newText,
+            },
+            user,
+          })();
+          createChannelEventDispatcher({
+            created_at: updated_at,
+            message: {
+              ...finalMessage,
+              text: newText,
+              updated_at,
+              user,
+            },
+            type: 'message.updated',
+          })();
+          return channel.sendMessage(message);
+        });
+
+        const { queryByText } = renderComponent(
+          { children: <MockMessageList /> },
+          ({ sendMessage }) => {
+            if (!hasSent) {
+              sendMessage(generateMessage());
+              hasSent = true;
+            }
+          },
+        );
+
+        await waitFor(async () => {
+          expect(await queryByText(oldText, undefined, { timeout: 100 })).not.toBeInTheDocument();
+          expect(await queryByText(newText, undefined, { timeout: 100 })).toBeInTheDocument();
+        });
+      });
+
+      it('should overwrite the message of status "sending" regardless of updated_at timestamp', async () => {
+        let oldText;
+        const newText = 'new text';
+        const creationDate = new Date();
+        const created_at = creationDate.toISOString();
+        const updated_at = new Date(creationDate.getTime() - 1).toISOString();
+        let hasSent = false;
+
+        jest.spyOn(channel, 'sendMessage').mockImplementationOnce((message) => {
+          oldText = message.text;
+          const finalMessage = { ...message, created_at, text: newText, updated_at };
+          useMockedApis(chatClient, [sendMessageApi(finalMessage)]);
+          return channel.sendMessage(message);
+        });
+
+        const { queryByText } = renderComponent(
+          { children: <MockMessageList /> },
+          ({ sendMessage }) => {
+            if (!hasSent) {
+              sendMessage(generateMessage());
+              hasSent = true;
+            }
+          },
+        );
+
+        await waitFor(async () => {
+          expect(await queryByText(oldText, undefined, { timeout: 100 })).not.toBeInTheDocument();
+          expect(await queryByText(newText, undefined, { timeout: 100 })).toBeInTheDocument();
+        });
+      });
+
       it('should mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
         const markReadSpy = jest.spyOn(channel, 'markRead');
 
@@ -862,7 +943,7 @@ describe('Channel', () => {
         const updatedThreadMessage = { ...threadMessage, text: newText };
         const dispatchUpdateMessageEvent = createChannelEventDispatcher(
           { message: updatedThreadMessage },
-          'message.update',
+          'message.updated',
         );
         let threadStarterHasUpdatedText = false;
         renderComponent({}, ({ openThread, thread }) => {

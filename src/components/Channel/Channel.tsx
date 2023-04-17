@@ -611,8 +611,26 @@ const ChannelInner = <
         messageResponse = await channel.sendMessage(messageData);
       }
 
-      // replace it after send is completed
-      if (messageResponse?.message) {
+      let existingMessage;
+      for (let i = channel.state.messages.length - 1; i >= 0; i--) {
+        const msg = channel.state.messages[i];
+        if (msg.id === messageData.id) {
+          existingMessage = msg;
+          break;
+        }
+      }
+
+      const responseTimestamp = new Date(messageResponse?.message?.updated_at || 0).getTime();
+      const existingMessageTimestamp = existingMessage?.updated_at?.getTime() || 0;
+      const responseIsTheNewest = responseTimestamp > existingMessageTimestamp;
+
+      // Replace the message payload after send is completed
+      // We need to check for the newest message payload, because on slow network, the response can arrive later than WS events message.new, message.updated.
+      // Always override existing message in status "sending"
+      if (
+        messageResponse?.message &&
+        (responseIsTheNewest || existingMessage?.status === 'sending')
+      ) {
         updateMessage({
           ...messageResponse.message,
           status: 'received',
