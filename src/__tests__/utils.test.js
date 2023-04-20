@@ -88,4 +88,28 @@ describe(`renderText`, () => {
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchSnapshot();
   });
+
+  it('handles the special case where there are pronouns in the name', () => {
+    const Markdown = renderText('hey, @John (they/them), how are you?', [
+      { id: 'john', name: 'John (they/them)' },
+    ]);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('handles the special case where there is a forward slash in the name', () => {
+    const Markdown = renderText('hey, @John/Cena, how are you?', [
+      { id: 'john', name: 'John/Cena' },
+    ]);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('handles the special case where there is a backslash in the name', () => {
+    const Markdown = renderText('hey, @John\\Cena, how are you?', [
+      { id: 'john', name: 'John\\Cena' },
+    ]);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
 });
