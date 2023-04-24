@@ -1,3 +1,10 @@
+## [9.5.4](https://github.com/GetStream/stream-chat-react/compare/v9.5.3...v9.5.4) (2023-04-24)
+
+
+### Bug Fixes
+
+* **renderText:** handle forward slash in mentions ([#1997](https://github.com/GetStream/stream-chat-react/issues/1997)) ([903828c](https://github.com/GetStream/stream-chat-react/commit/903828c7c40ae796dc28b78efe900ff588742d56))
+
 ## [9.5.3](https://github.com/GetStream/stream-chat-react/compare/v9.5.2...v9.5.3) (2023-04-17)
 
 
