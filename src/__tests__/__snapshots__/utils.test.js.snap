@@ -1,5 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`renderText handles the special case where there are pronouns in the name 1`] = `
+<p>
+  hey, 
+  <span
+    className="str-chat__message-mention"
+  >
+    @John (they/them)
+  </span>
+  , how are you?
+</p>
+`;
+
+exports[`renderText handles the special case where there is a backslash in the name 1`] = `
+<p>
+  hey, 
+  <span
+    className="str-chat__message-mention"
+  >
+    @John\\Cena
+  </span>
+  , how are you?
+</p>
+`;
+
+exports[`renderText handles the special case where there is a forward slash in the name 1`] = `
+<p>
+  hey, 
+  <span
+    className="str-chat__message-mention"
+  >
+    @John/Cena
+  </span>
+  , how are you?
+</p>
+`;
+
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 1 1`] = `
 <p>
   Hello 
