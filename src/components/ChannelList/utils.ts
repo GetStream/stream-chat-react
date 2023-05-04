@@ -1,8 +1,23 @@
-import type { Channel, StreamChat } from 'stream-chat';
+import type { Channel, QueryChannelAPIResponse, StreamChat } from 'stream-chat';
 import uniqBy from 'lodash.uniqby';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
+/**
+ * prevent from duplicate invocation of channel.watch()
+ * when events 'notification.message_new' and 'notification.added_to_channel' arrive at the same time
+ */
+const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
+  string,
+  Promise<QueryChannelAPIResponse> | undefined
+> = {};
+
+/**
+ * Calls channel.watch() if it was not already recently called. Waits for watch promise to resolve even if it was invoked previously.
+ * @param client
+ * @param type
+ * @param id
+ */
 export const getChannel = async <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -11,7 +26,15 @@ export const getChannel = async <
   id: string,
 ) => {
   const channel = client.channel(type, id);
-  await channel.watch();
+  const queryPromise = WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[channel.cid];
+  if (queryPromise) {
+    await queryPromise;
+  } else {
+    WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[channel.cid] = channel.watch();
+    await WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[channel.cid];
+    WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[channel.cid] = undefined;
+  }
+
   return channel;
 };
 
