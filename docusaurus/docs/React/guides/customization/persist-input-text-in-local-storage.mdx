@@ -18,6 +18,7 @@ const getDrafts = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
 const removeDraft = (key: string) => {
   const drafts = getDrafts();
+
   if (drafts[key]) {
     delete drafts[key];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
@@ -26,11 +27,13 @@ const removeDraft = (key: string) => {
 
 const updateDraft = (key: string, value: string) => {
   const drafts = getDrafts();
+
   if (!value) {
     delete drafts[key];
   } else {
     drafts[key] = value
   }
+
   localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
 }
 ```
@@ -38,7 +41,7 @@ const updateDraft = (key: string, value: string) => {
 On top of this logic we build a hook that exposes the change handler functions for both thread and main `MessageInput` components as well as functions for `MessageInput`'s `getDefaultValue` prop. We also have to override the `MessageInput`'s default submit handler, because we want to remove the draft from storage when a message is sent.
 
 ```ts
-import {ChangeEvent, useCallback } from 'react';
+import { ChangeEvent, useCallback } from 'react';
 import {
     MessageToSend,
     useChannelActionContext,
@@ -54,6 +57,7 @@ const getDrafts = () => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 
 const removeDraft = (key: string) => {
   const drafts = getDrafts();
+
   if (drafts[key]) {
     delete drafts[key];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
@@ -62,17 +66,19 @@ const removeDraft = (key: string) => {
 
 const updateDraft = (key: string, value: string) => {
   const drafts = getDrafts();
+
   if (!value) {
     delete drafts[key];
   } else {
     drafts[key] = value
   }
+
   localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
 }
 
 // highlight-start
 const useDraftAPI = () => {
-  const {channel, thread} = useChannelStateContext();
+  const { channel, thread } = useChannelStateContext();
   const { sendMessage } = useChannelActionContext();
 
   const handleInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -85,14 +91,14 @@ const useDraftAPI = () => {
   }, [channel.cid, thread]);
 
   const getMainInputDraft = useCallback(() => {
-    const drafts = getDrafts()
-    return drafts[channel.cid] || ''
+    const drafts = getDrafts();
+    return drafts[channel.cid] || '';
   }, [channel.cid]);
 
   const getThreadInputDraft = useCallback(() => {
     if (!thread) return;
-    const drafts = getDrafts()
-    return drafts[`${channel.cid}:${thread.id}`] || ''
+    const drafts = getDrafts();
+    return drafts[`${channel.cid}:${thread.id}`] || '';
   }, [channel.cid, thread]);
 
   const overrideSubmitHandler = useCallback(
@@ -118,10 +124,9 @@ const useDraftAPI = () => {
 Now it is time to access the API in our React component. The component has to be a descendant of `Channel` component, because `useDraftAPI` accesses the `ChannelStateContext` and `ChannelActionContext` through corresponding consumers. In our example we call this component `ChannelWindow`.
 
 ```tsx
-
-import {ChannelFilters, ChannelOptions, ChannelSort, StreamChat} from 'stream-chat';
+import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 import { useDraftAPI } from './useDraftAPI';
-import type {StreamChatGenerics} from './types';
+import type { StreamChatGenerics } from './types';
 
 const ChannelWindow = () => {
   const {
@@ -162,9 +167,9 @@ const ChannelWindow = () => {
 const chatClient = StreamChat.getInstance<StreamChatGenerics>('<YOUR_API_KEY>');
 
 // User your own filters, options, sort if needed
-const filters: ChannelFilters = {type: 'messaging', members: {$in: ['<YOUR_USER_ID>']}};
-const options: ChannelOptions = {state: true, presence: true, limit: 10};
-const sort: ChannelSort = {last_message_at: -1, updated_at: -1};
+const filters: ChannelFilters = { type: 'messaging', members: { $in: ['<YOUR_USER_ID>'] } };
+const options: ChannelOptions = { state: true, presence: true, limit: 10 };
+const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 const App = () => {
   return (
