@@ -189,6 +189,22 @@ function axeNoViolations(container) {
       });
     });
 
+    it('should prefer value from getDefaultValue before additionalTextareaProps.defaultValue', async () => {
+      const defaultValue = nanoid();
+      const generatedDefaultValue = nanoid();
+      const getDefaultValue = () => generatedDefaultValue;
+      await renderComponent({
+        messageInputProps: {
+          additionalTextareaProps: { defaultValue },
+          getDefaultValue,
+        },
+      });
+      await waitFor(() => {
+        const textarea = screen.queryByDisplayValue(generatedDefaultValue);
+        expect(textarea).toBeInTheDocument();
+      });
+    });
+
     it('Should shift focus to the textarea if the `focus` prop is true', async () => {
       const { container } = await renderComponent({
         messageInputProps: {
