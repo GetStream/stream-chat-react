@@ -1,3 +1,16 @@
+# [10.8.0](https://github.com/GetStream/stream-chat-react/compare/v10.7.6...v10.8.0) (2023-05-05)
+
+
+### Bug Fixes
+
+* prevent duplicate simultaneous query channel quests ([#2004](https://github.com/GetStream/stream-chat-react/issues/2004)) ([33411b8](https://github.com/GetStream/stream-chat-react/commit/33411b8beae165475591ad6a03e22dc1be04eff7))
+* prevent overriding event handlers in MessageInput's Textarea component ([#2006](https://github.com/GetStream/stream-chat-react/issues/2006)) ([569c53d](https://github.com/GetStream/stream-chat-react/commit/569c53db9725cafa1058f3068712e13d38bc773c))
+
+
+### Features
+
+* allow to retrieve the default message input value dynamically ([#2007](https://github.com/GetStream/stream-chat-react/issues/2007)) ([9316bdf](https://github.com/GetStream/stream-chat-react/commit/9316bdfa59efefdd431b946f0c9b607531f1485c))
+
 ## [10.7.6](https://github.com/GetStream/stream-chat-react/compare/v10.7.5...v10.7.6) (2023-04-24)
 
 
