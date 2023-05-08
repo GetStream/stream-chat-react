@@ -18,6 +18,10 @@ jobs:
     steps:
       - name: Pull stream-chat-react
         uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
       - name: 🔨 Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
       - name: Merge docs stream-chat-css
