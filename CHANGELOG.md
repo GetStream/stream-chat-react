@@ -1,3 +1,10 @@
+## [10.8.1](https://github.com/GetStream/stream-chat-react/compare/v10.8.0...v10.8.1) (2023-05-22)
+
+
+### Bug Fixes
+
+* do not try close message input's autocomplete dropdown on textarea blur ([#2015](https://github.com/GetStream/stream-chat-react/issues/2015)) ([af4fb74](https://github.com/GetStream/stream-chat-react/commit/af4fb74dd7c1e7724e13cb88e41038434f680232))
+
 # [10.8.0](https://github.com/GetStream/stream-chat-react/compare/v10.7.6...v10.8.0) (2023-05-05)
 
 
