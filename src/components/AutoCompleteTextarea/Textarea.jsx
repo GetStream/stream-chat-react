@@ -15,6 +15,7 @@ import {
 
 import { CommandItem } from '../CommandItem';
 import { UserItem } from '../UserItem';
+import { isSafari } from '../../utils/browsers';
 
 export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
@@ -565,7 +566,16 @@ export class ReactTextareaAutocomplete extends React.Component {
     // that was actually clicked. If we clicked inside the auto-select dropdown, then
     // that's not a blur, from the auto-select point of view, so then do nothing.
     const el = e.relatedTarget;
-    if (this.dropdownRef && el instanceof Node && this.dropdownRef.contains(el)) {
+    // If this is a blur event in Safari, then relatedTarget is never a dropdown item, but a common parent
+    // of textarea and dropdown container. That means that dropdownRef will not contain its parent and the
+    // autocomplete will be closed before onclick handler can be invoked selecting an item.
+    // It seems that Safari has different implementation determining the relatedTarget node than Chrome and Firefox.
+    // Therefore, if focused away in Safari, the dropdown will be kept rendered until pressing Esc or selecting and item from it.
+    const focusedAwayInSafari = isSafari() && e.type === 'blur';
+    if (
+      (this.dropdownRef && el instanceof Node && this.dropdownRef.contains(el)) ||
+      focusedAwayInSafari
+    ) {
       return;
     }
 
