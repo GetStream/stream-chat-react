@@ -27,10 +27,25 @@ export type SupportedTranslations =
   | 'nl'
   | 'pt'
   | 'ru'
-  | 'tr';
+  | 'tr'
+  | 'pl';
 
 export const isLanguageSupported = (language: string): language is SupportedTranslations => {
-  const translations = ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'];
+  const translations = [
+    'de',
+    'en',
+    'es',
+    'fr',
+    'hi',
+    'it',
+    'ja',
+    'ko',
+    'nl',
+    'pt',
+    'ru',
+    'tr',
+    'pl',
+  ];
   return translations.some((translation) => language === translation);
 };
 

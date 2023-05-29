@@ -81,4 +81,4 @@
   "{{ users }} and {{ user }} are typing...": "{{ users }} i {{ user }} piszą...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
   "🏙 Attachment...": "🏙 Załącznik..."
-  }
+}

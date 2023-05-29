@@ -10,6 +10,7 @@ import nlTranslations from './nl.json';
 import ptTranslations from './pt.json';
 import ruTranslations from './ru.json';
 import trTranslations from './tr.json';
+import plTranslations from './pl.json';
 
 export {
   deTranslations,
@@ -24,4 +25,5 @@ export {
   ptTranslations,
   ruTranslations,
   trTranslations,
+  plTranslations,
 };

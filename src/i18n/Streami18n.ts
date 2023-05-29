@@ -23,6 +23,7 @@ import {
   jaTranslations,
   koTranslations,
   nlTranslations,
+  plTranslations,
   ptTranslations,
   ruTranslations,
   trTranslations,
@@ -42,6 +43,7 @@ import 'dayjs/locale/nl';
 import 'dayjs/locale/pt';
 import 'dayjs/locale/ru';
 import 'dayjs/locale/tr';
+import 'dayjs/locale/pl';
 // These locale imports also set these locale globally.
 // So As a last step I am going to import english locale
 // to make sure I don't mess up language at other places in app.
@@ -198,6 +200,17 @@ Dayjs.updateLocale('tr', {
   },
 });
 
+Dayjs.updateLocale('pl', {
+  calendar: {
+    lastDay: '[wczoraj o] LT',
+    lastWeek: '[ostatni] dddd [o] LT',
+    nextDay: '[jutro o] LT',
+    nextWeek: 'dddd [o] LT',
+    sameDay: '[dzisiaj o] LT',
+    sameElse: 'L',
+  },
+});
+
 const en_locale = {
   formats: {},
   months: [
@@ -248,6 +261,7 @@ type Options = {
  * 10. German (de)
  * 11. Japanese (ja)
  * 12. Korean (ko)
+ * 13. Polish (pl)
  *
  * Simplest way to start using chat components in one of the in-built languages would be following:
  *
@@ -418,6 +432,7 @@ export class Streami18n {
     ja: { [defaultNS]: jaTranslations },
     ko: { [defaultNS]: koTranslations },
     nl: { [defaultNS]: nlTranslations },
+    pl: { [defaultNS]: plTranslations },
     pt: { [defaultNS]: ptTranslations },
     ru: { [defaultNS]: ruTranslations },
     tr: { [defaultNS]: trTranslations },
