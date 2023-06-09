@@ -363,13 +363,13 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { additionalTextareaProps, closeEmojiPickerOnClick, message } = props;
+  const { additionalTextareaProps, closeEmojiPickerOnClick, getDefaultValue, message } = props;
 
   const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
     'useMessageInputState',
   );
 
-  const defaultValue = additionalTextareaProps?.defaultValue;
+  const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
     message ||
     ((Array.isArray(defaultValue)

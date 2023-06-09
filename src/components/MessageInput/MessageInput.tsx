@@ -51,6 +51,8 @@ export type MessageInputProps<
   ) => void;
   /** If true, focuses the text input on component mount */
   focus?: boolean;
+  /** Generates the default value for the underlying textarea element. The function's return value takes precedence before additionalTextareaProps.defaultValue. */
+  getDefaultValue?: () => string | string[];
   /** If true, expands the text input vertically for new lines */
   grow?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */

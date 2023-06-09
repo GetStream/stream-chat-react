@@ -13,8 +13,9 @@ import {
   triggerPropsCheck,
 } from './utils';
 
-import { CommandItem } from '../CommandItem/CommandItem';
-import { UserItem } from '../UserItem/UserItem';
+import { CommandItem } from '../CommandItem';
+import { UserItem } from '../UserItem';
+import { isSafari } from '../../utils/browsers';
 
 export class ReactTextareaAutocomplete extends React.Component {
   static defaultProps = {
@@ -565,7 +566,16 @@ export class ReactTextareaAutocomplete extends React.Component {
     // that was actually clicked. If we clicked inside the auto-select dropdown, then
     // that's not a blur, from the auto-select point of view, so then do nothing.
     const el = e.relatedTarget;
-    if (this.dropdownRef && el instanceof Node && this.dropdownRef.contains(el)) {
+    // If this is a blur event in Safari, then relatedTarget is never a dropdown item, but a common parent
+    // of textarea and dropdown container. That means that dropdownRef will not contain its parent and the
+    // autocomplete will be closed before onclick handler can be invoked selecting an item.
+    // It seems that Safari has different implementation determining the relatedTarget node than Chrome and Firefox.
+    // Therefore, if focused away in Safari, the dropdown will be kept rendered until pressing Esc or selecting and item from it.
+    const focusedAwayInSafari = isSafari() && e.type === 'blur';
+    if (
+      (this.dropdownRef && el instanceof Node && this.dropdownRef.contains(el)) ||
+      focusedAwayInSafari
+    ) {
       return;
     }
 
@@ -687,6 +697,16 @@ export class ReactTextareaAutocomplete extends React.Component {
 
   render() {
     const { className, containerClassName, containerStyle, style } = this.props;
+    const {
+      onBlur,
+      onChange,
+      onClick,
+      onFocus,
+      onKeyDown,
+      onScroll,
+      onSelect,
+      ...restAdditionalTextareaProps
+    } = this.props.additionalTextareaProps || {};
 
     let { maxRows } = this.props;
 
@@ -711,20 +731,41 @@ export class ReactTextareaAutocomplete extends React.Component {
           {...this._cleanUpProps()}
           className={clsx('rta__textarea', className)}
           maxRows={maxRows}
-          onBlur={this._onClickAndBlurHandler}
-          onChange={this._changeHandler}
-          onClick={this._onClickAndBlurHandler}
-          onFocus={this.props.onFocus}
-          onKeyDown={this._handleKeyDown}
-          onScroll={this._onScrollHandler}
-          onSelect={this._selectHandler}
+          onBlur={(e) => {
+            this._onClickAndBlurHandler(e);
+            onBlur?.(e);
+          }}
+          onChange={(e) => {
+            this._changeHandler(e);
+            onChange?.(e);
+          }}
+          onClick={(e) => {
+            this._onClickAndBlurHandler(e);
+            onClick?.(e);
+          }}
+          onFocus={(e) => {
+            this.props.onFocus?.(e);
+            onFocus?.(e);
+          }}
+          onKeyDown={(e) => {
+            this._handleKeyDown(e);
+            onKeyDown?.(e);
+          }}
+          onScroll={(e) => {
+            this._onScrollHandler(e);
+            onScroll?.(e);
+          }}
+          onSelect={(e) => {
+            this._selectHandler(e);
+            onSelect?.(e);
+          }}
           ref={(ref) => {
             this.props?.innerRef(ref);
             this.textareaRef = ref;
           }}
           style={style}
           value={value}
-          {...this.props.additionalTextareaProps}
+          {...restAdditionalTextareaProps}
           defaultValue={undefined}
         />
       </div>
