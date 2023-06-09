@@ -47,6 +47,15 @@ import 'dayjs/locale/tr';
 // to make sure I don't mess up language at other places in app.
 import 'dayjs/locale/en';
 
+type CalendarLocaleConfig = {
+  lastDay: string;
+  lastWeek: string;
+  nextDay: string;
+  nextWeek: string;
+  sameDay: string;
+  sameElse: string;
+};
+
 Dayjs.extend(updateLocale);
 
 Dayjs.updateLocale('de', {
@@ -224,7 +233,7 @@ const isDayJs = (dateTimeParser: typeof Dayjs | typeof moment): dateTimeParser i
 
 type Options = {
   DateTimeParser?: typeof Dayjs | typeof moment;
-  dayjsLocaleConfigForLanguage?: Partial<ILocale>;
+  dayjsLocaleConfigForLanguage?: Partial<ILocale> & { calendar?: CalendarLocaleConfig };
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   language?: TranslationLanguages;
