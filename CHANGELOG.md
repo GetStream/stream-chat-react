@@ -1,3 +1,10 @@
+## [10.8.2](https://github.com/GetStream/stream-chat-react/compare/v10.8.1...v10.8.2) (2023-06-09)
+
+
+### Bug Fixes
+
+* extend i18n datetime locale config type ([#2023](https://github.com/GetStream/stream-chat-react/issues/2023)) ([1db9163](https://github.com/GetStream/stream-chat-react/commit/1db9163df6eb41832ac58f835ccde1a6a1f70537))
+
 ## [10.8.1](https://github.com/GetStream/stream-chat-react/compare/v10.8.0...v10.8.1) (2023-05-22)
 
 
