@@ -148,7 +148,7 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [disabled, inputIsFocused]);
+  }, [disabled, inputIsFocused, query, exitSearch, navOpen, clearSearchOnClickOutside]);
 
   useEffect(() => {
     if (!inputRef.current || disabled) return;
@@ -161,7 +161,7 @@ export const useChannelSearch = <
     return () => {
       inputRef.current?.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [disabled]);
 
   const selectResult = useCallback(
     async (result: ChannelOrUserResponse<StreamChatGenerics>) => {
@@ -193,7 +193,7 @@ export const useChannelSearch = <
         exitSearch();
       }
     },
-    [clearSearchOnClickOutside, client, exitSearch, onSelectResult],
+    [clearSearchOnClickOutside, client, exitSearch, onSelectResult, setActiveChannel, setChannels],
   );
 
   const getChannels = useCallback(
@@ -241,7 +241,7 @@ export const useChannelSearch = <
 
       setSearching(false);
     },
-    [client, searching],
+    [client, searching, searchForChannels],
   );
 
   const getChannelsThrottled = throttle(getChannels, 200);
@@ -266,7 +266,7 @@ export const useChannelSearch = <
       }
       onSearchCallback?.(event);
     },
-    [disabled, getChannelsThrottled, searchFunction],
+    [disabled, getChannelsThrottled, onSearchCallback, searchFunction],
   );
 
   return {
