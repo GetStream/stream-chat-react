@@ -148,7 +148,7 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [disabled, inputIsFocused]);
+  }, [disabled, inputIsFocused, query, exitSearch, navOpen, clearSearchOnClickOutside]);
 
   useEffect(() => {
     if (!inputRef.current || disabled) return;
