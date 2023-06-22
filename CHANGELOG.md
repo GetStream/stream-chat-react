@@ -1,3 +1,10 @@
+## [10.8.3](https://github.com/GetStream/stream-chat-react/compare/v10.8.2...v10.8.3) (2023-06-12)
+
+
+### Bug Fixes
+
+* add missing effect and callback dependencies in useChannelSearch hooks ([#2029](https://github.com/GetStream/stream-chat-react/issues/2029)) ([1090dd3](https://github.com/GetStream/stream-chat-react/commit/1090dd347c81a6bf7328db0be2da4cb9462c8d44))
+
 ## [10.8.2](https://github.com/GetStream/stream-chat-react/compare/v10.8.1...v10.8.2) (2023-06-09)
 
 
