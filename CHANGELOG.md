@@ -1,3 +1,10 @@
+## [10.8.4](https://github.com/GetStream/stream-chat-react/compare/v10.8.3...v10.8.4) (2023-06-22)
+
+
+### Bug Fixes
+
+* prevent showing original text of deleted quoted message ([#2033](https://github.com/GetStream/stream-chat-react/issues/2033)) ([773d59f](https://github.com/GetStream/stream-chat-react/commit/773d59fc0970f7f3128bd740033556e5c646397d))
+
 ## [10.8.3](https://github.com/GetStream/stream-chat-react/compare/v10.8.2...v10.8.3) (2023-06-12)
 
 
