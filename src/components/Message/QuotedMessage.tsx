@@ -19,7 +19,7 @@ export const QuotedMessage = <
     'QuotedMessage',
   );
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
-  const { userLanguage } = useTranslationContext('QuotedMessage');
+  const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
 
   const Avatar = ContextAvatar || DefaultAvatar;
@@ -27,15 +27,17 @@ export const QuotedMessage = <
   const { quoted_message } = message;
   if (!quoted_message) return null;
 
-  const quotedMessageText =
-    quoted_message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
-    quoted_message.text;
+  const quotedMessageDeleted = quoted_message.deleted_at || quoted_message.type === 'deleted';
 
-  // @ts-expect-error
-  const quotedMessageAttachment = quoted_message.attachments.length
-    ? // @ts-expect-error
-      quoted_message.attachments[0]
-    : null;
+  const quotedMessageText = quotedMessageDeleted
+    ? t('This message was deleted...')
+    : quoted_message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+      quoted_message.text;
+
+  const quotedMessageAttachment =
+    quoted_message.attachments?.length && !quotedMessageDeleted
+      ? quoted_message.attachments[0]
+      : null;
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
@@ -43,6 +45,7 @@ export const QuotedMessage = <
     <>
       <div
         className={clsx('str-chat__quoted-message-preview quoted-message', { mine: isMyMessage() })}
+        data-testid='quoted-message'
         onClickCapture={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -57,14 +60,15 @@ export const QuotedMessage = <
             user={quoted_message.user}
           />
         )}
-        <div className='quoted-message-inner str-chat__quoted-message-bubble'>
+        <div
+          className='quoted-message-inner str-chat__quoted-message-bubble'
+          data-testid='quoted-message-contents'
+        >
           {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
-          <div>{quotedMessageText}</div>
+          <div data-testid='quoted-message-text'>{quotedMessageText}</div>
         </div>
       </div>
-      {message.attachments?.length && message.quoted_message ? (
-        <Attachment attachments={message.attachments} />
-      ) : null}
+      {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}
     </>
   );
 };
