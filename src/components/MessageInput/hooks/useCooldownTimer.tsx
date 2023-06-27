@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-
-import { useChatContext } from '../../../context/ChatContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-
 import type { ChannelResponse } from 'stream-chat';
+
+import { useChannelStateContext, useChatContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -16,15 +14,16 @@ export type CooldownTimerState = {
 export const useCooldownTimer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(): CooldownTimerState => {
-  const { latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>('useCooldownTimer');
+  const { client, latestMessageDatesByChannels } = useChatContext<StreamChatGenerics>(
+    'useCooldownTimer',
+  );
   const { channel, messages = [] } = useChannelStateContext<StreamChatGenerics>('useCooldownTimer');
-  const { client } = useChatContext<StreamChatGenerics>('useCooldownTimer');
   const [cooldownRemaining, setCooldownRemaining] = useState<number>();
 
-  const { cooldown: cooldownInterval, own_capabilities } = (channel.data ||
+  const { cooldown: cooldownInterval = 0, own_capabilities } = (channel.data ||
     {}) as ChannelResponse<StreamChatGenerics>;
 
-  const skipCooldown = !own_capabilities?.includes('slow-mode');
+  const skipCooldown = own_capabilities?.includes('skip-slow-mode');
 
   const ownLatestMessageDate = useMemo(
     () =>
@@ -36,17 +35,19 @@ export const useCooldownTimer = <
   ) as Date;
 
   useEffect(() => {
-    if (skipCooldown || !cooldownInterval || !ownLatestMessageDate) return;
+    const timeSinceOwnLastMessage = ownLatestMessageDate
+      ? (new Date().getTime() - ownLatestMessageDate.getTime()) / 1000
+      : undefined;
 
-    const remainingCooldown = Math.round(
-      cooldownInterval - (new Date().getTime() - ownLatestMessageDate.getTime()) / 1000,
+    setCooldownRemaining(
+      !skipCooldown && timeSinceOwnLastMessage && cooldownInterval > timeSinceOwnLastMessage
+        ? Math.round(cooldownInterval - timeSinceOwnLastMessage)
+        : 0,
     );
-
-    if (remainingCooldown > 0) setCooldownRemaining(remainingCooldown);
   }, [cooldownInterval, ownLatestMessageDate, skipCooldown]);
 
   return {
-    cooldownInterval: cooldownInterval ?? 0,
+    cooldownInterval,
     cooldownRemaining,
     setCooldownRemaining,
   };
