@@ -141,7 +141,7 @@ export const useChannelSearch = <
 
       if (isInputClick) return;
 
-      if ((inputIsFocused && (!query || navOpen)) || clearSearchOnClickOutside) {
+      if ((inputIsFocused && !query) || clearSearchOnClickOutside) {
         exitSearch();
       }
     };
