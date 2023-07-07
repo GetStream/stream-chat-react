@@ -1,6 +1,7 @@
+import clsx from 'clsx';
 import React from 'react';
 
-import { useChatContext } from '../../context/ChatContext';
+import { useChatContext } from '../../context';
 
 import { ChannelSearchControllerParams, useChannelSearch } from './hooks/useChannelSearch';
 
@@ -71,7 +72,12 @@ const UnMemoizedChannelSearch = <
   const showSearchBarV2 = themeVersion === '2';
 
   return (
-    <div className='str-chat__channel-search' data-testid='channel-search'>
+    <div
+      className={clsx('str-chat__channel-search', popupResults ? 'popup' : 'inline', {
+        'str-chat__channel-search--with-results': results.length > 0,
+      })}
+      data-testid='channel-search'
+    >
       {showSearchBarV2 ? (
         <SearchBar
           activateSearch={activateSearch}
