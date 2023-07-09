@@ -100,7 +100,7 @@ export const useChannelSearch = <
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, navOpen, setActiveChannel, themeVersion } = useChatContext<StreamChatGenerics>(
+  const { client, setActiveChannel, themeVersion } = useChatContext<StreamChatGenerics>(
     'useChannelSearch',
   );
 
@@ -141,14 +141,14 @@ export const useChannelSearch = <
 
       if (isInputClick) return;
 
-      if ((inputIsFocused && (!query || navOpen)) || clearSearchOnClickOutside) {
+      if ((inputIsFocused && !query) || clearSearchOnClickOutside) {
         exitSearch();
       }
     };
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
-  }, [disabled, inputIsFocused, query, exitSearch, navOpen, clearSearchOnClickOutside]);
+  }, [disabled, inputIsFocused, query, exitSearch, clearSearchOnClickOutside]);
 
   useEffect(() => {
     if (!inputRef.current || disabled) return;
