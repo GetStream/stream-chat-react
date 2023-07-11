@@ -1,3 +1,11 @@
+## [10.8.6](https://github.com/GetStream/stream-chat-react/compare/v10.8.5...v10.8.6) (2023-07-11)
+
+
+### Bug Fixes
+
+* enable search results scrolling ([#2041](https://github.com/GetStream/stream-chat-react/issues/2041)) ([e61cabe](https://github.com/GetStream/stream-chat-react/commit/e61cabe457edc50e4fa69dbafc1cea3205885b41))
+* prevent ignoring the clearSearchOnClickOutside search param on mobile ([#2039](https://github.com/GetStream/stream-chat-react/issues/2039)) ([e83d313](https://github.com/GetStream/stream-chat-react/commit/e83d313085bff66d8a1bdb8886e61fd85af19692))
+
 ## [10.8.5](https://github.com/GetStream/stream-chat-react/compare/v10.8.4...v10.8.5) (2023-06-27)
 
 
