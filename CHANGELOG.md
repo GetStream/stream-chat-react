@@ -1,3 +1,10 @@
+## [10.8.5](https://github.com/GetStream/stream-chat-react/compare/v10.8.4...v10.8.5) (2023-06-27)
+
+
+### Bug Fixes
+
+* make cooldown timer to rely on skip-slow-mode capability  ([#2018](https://github.com/GetStream/stream-chat-react/issues/2018)) ([8f7c79f](https://github.com/GetStream/stream-chat-react/commit/8f7c79f7498a275c5704a891571b5c2728cd6749))
+
 ## [10.8.4](https://github.com/GetStream/stream-chat-react/compare/v10.8.3...v10.8.4) (2023-06-22)
 
 
