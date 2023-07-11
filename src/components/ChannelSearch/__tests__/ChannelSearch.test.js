@@ -38,7 +38,7 @@ describe('ChannelSearch', () => {
     const { channelSearch } = await renderSearch({});
     expect(channelSearch).toMatchInlineSnapshot(`
       <div
-        class="str-chat__channel-search"
+        class="str-chat__channel-search inline"
         data-testid="channel-search"
       >
         <input
@@ -57,7 +57,7 @@ describe('ChannelSearch', () => {
     const { channelSearch } = await renderSearch({ props: { placeholder } });
     expect(channelSearch).toMatchInlineSnapshot(`
       <div
-        class="str-chat__channel-search"
+        class="str-chat__channel-search inline"
         data-testid="channel-search"
       >
         <input
