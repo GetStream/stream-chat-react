@@ -2256,10 +2256,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^3.9.1":
-  version "3.9.2"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.9.2.tgz#7d4a1073c624d548d8a1fcb0170e9f9ad070dd41"
-  integrity sha512-ZZX8zBn65c22I6drDWgK79AJE2WGY/Hj/5zpAAw4fx0i6TrHAM/d9lZJZbNlDXjKh0HXANzrHZg9XEINp1wedg==
+"@stream-io/stream-chat-css@^3.10.2":
+  version "3.10.2"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-3.10.2.tgz#0340b409dda7429fa2af86ba78f796160e3e96c9"
+  integrity sha512-yaVKWLnuC8e4zS85FUB3DK+z0PsOMmX1AMyM9i/ImBXhclQX3QSi6EJDeHQTbqt8CNSby1CtUK+rGJ22QQb2qA==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -12074,10 +12074,10 @@ react-file-utils@^1.2.0:
   dependencies:
     react-dropzone "^12.0.5"
 
-react-image-gallery@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/react-image-gallery/-/react-image-gallery-1.2.7.tgz#2dfb83c52f32828a5340ca565f91bca58241fcfe"
-  integrity sha512-ts7yMWykvZhslGMuvVAUk7a1dJIx9QtIwK6Clv8dOGxPsJid92FRrLvXbZDvkYcUyj48sHalnBhqU6mZNCB2jg==
+react-image-gallery@1.2.12:
+  version "1.2.12"
+  resolved "https://registry.yarnpkg.com/react-image-gallery/-/react-image-gallery-1.2.12.tgz#b08a633cc336bab2a5afdb96941e023925043c6a"
+  integrity sha512-JIh85lh0Av/yewseGJb/ycg00Y/weQiZEC/BQueC2Z5jnYILGB6mkxnrOevNhsM2NdZJpvcDekCluhy6uzEoTA==
 
 "react-is@^16.12.0 || ^17.0.0 || ^18.0.0", react-is@^18.1.0:
   version "18.1.0"
