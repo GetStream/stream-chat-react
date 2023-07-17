@@ -73,9 +73,13 @@ const UnMemoizedChannelSearch = <
 
   return (
     <div
-      className={clsx('str-chat__channel-search', popupResults ? 'popup' : 'inline', {
-        'str-chat__channel-search--with-results': results.length > 0,
-      })}
+      className={clsx(
+        'str-chat__channel-search',
+        popupResults ? 'str-chat__channel-search--popup' : 'str-chat__channel-search--inline',
+        {
+          'str-chat__channel-search--with-results': results.length > 0,
+        },
+      )}
       data-testid='channel-search'
     >
       {showSearchBarV2 ? (
