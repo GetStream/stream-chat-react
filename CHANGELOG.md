@@ -1,3 +1,10 @@
+## [10.8.7](https://github.com/GetStream/stream-chat-react/compare/v10.8.6...v10.8.7) (2023-07-17)
+
+
+### Bug Fixes
+
+* namespace the ChannelSearch's root element "inline" and "popup" classes ([#2056](https://github.com/GetStream/stream-chat-react/issues/2056)) ([442e177](https://github.com/GetStream/stream-chat-react/commit/442e17723dbe6731289e51305cc4ba003e533b7e))
+
 ## [10.8.6](https://github.com/GetStream/stream-chat-react/compare/v10.8.5...v10.8.6) (2023-07-11)
 
 
