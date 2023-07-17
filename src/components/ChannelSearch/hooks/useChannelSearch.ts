@@ -217,6 +217,7 @@ export const useChannelSearch = <
           const channelResponse = client.queryChannels(
             // @ts-expect-error
             {
+              members: { $in: [client.userID] },
               name: { $autocomplete: text },
               ...searchQueryParams?.channelFilters?.filters,
             },
