@@ -41,9 +41,17 @@ import { isDate } from '../../context/TranslationContext';
 
 import type { Channel } from 'stream-chat';
 
+import type { ChatProps } from '../Chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
+
+type VirtuosoContext = {
+  customClasses: ChatProps['customClasses'];
+  messageGroupStyles: Record<string, GroupStyle>;
+  numItemsPrepended: number;
+  processedMessages: StreamMessage[];
+};
 
 type VirtualizedMessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -358,15 +366,18 @@ const VirtualizedMessageListWithContext = <
     // using 'display: inline-block'
     // traps CSS margins of the item elements, preventing incorrect item measurements
     const Item: Components['Item'] = (props) => {
-      const streamMessageIndex = props['data-item-index'] + numItemsPrepended - PREPEND_OFFSET;
-      const message = processedMessages[streamMessageIndex];
-      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+      const context = props.context as VirtuosoContext;
+
+      const streamMessageIndex =
+        props['data-item-index'] + context.numItemsPrepended - PREPEND_OFFSET;
+      const message = context.processedMessages[streamMessageIndex];
+      const groupStyles: GroupStyle = context.messageGroupStyles[message.id] || '';
 
       return (
         <div
           {...props}
           className={
-            customClasses?.virtualMessage ||
+            context?.customClasses?.virtualMessage ||
             clsx('str-chat__virtual-list-message-wrapper str-chat__li', {
               [`str-chat__li--${groupStyles}`]: groupStyles,
             })
@@ -375,12 +386,7 @@ const VirtualizedMessageListWithContext = <
       );
     };
     return Item;
-  }, [
-    customClasses?.virtualMessage,
-    numItemsPrepended,
-    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
-    processedMessages.length,
-  ]);
+  }, []);
 
   const virtuosoComponents: Partial<Components> = useMemo(() => {
     const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
@@ -453,6 +459,14 @@ const VirtualizedMessageListWithContext = <
             components={virtuosoComponents}
             computeItemKey={(index) =>
               processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
+            }
+            context={
+              {
+                customClasses,
+                messageGroupStyles,
+                numItemsPrepended,
+                processedMessages,
+              } as VirtuosoContext
             }
             endReached={endReached}
             firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
