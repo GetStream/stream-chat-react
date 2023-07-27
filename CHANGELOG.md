@@ -1,3 +1,10 @@
+## [10.8.8](https://github.com/GetStream/stream-chat-react/compare/v10.8.7...v10.8.8) (2023-07-27)
+
+
+### Bug Fixes
+
+* prevent remounting Message components in VirtualizedMessageList ([#2067](https://github.com/GetStream/stream-chat-react/issues/2067)) ([17d48b0](https://github.com/GetStream/stream-chat-react/commit/17d48b0f690489ef192acd704a02f1b90c38df79))
+
 ## [10.8.7](https://github.com/GetStream/stream-chat-react/compare/v10.8.6...v10.8.7) (2023-07-17)
 
 
