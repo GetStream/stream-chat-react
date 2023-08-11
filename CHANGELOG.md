@@ -1,3 +1,10 @@
+## [10.8.9](https://github.com/GetStream/stream-chat-react/compare/v10.8.8...v10.8.9) (2023-08-11)
+
+
+### Bug Fixes
+
+* remove color code from LoadingIndicator root class ([#2072](https://github.com/GetStream/stream-chat-react/issues/2072)) ([eba171f](https://github.com/GetStream/stream-chat-react/commit/eba171f8a1ff880b79f9d5da62c372d8127d0c26))
+
 ## [10.8.8](https://github.com/GetStream/stream-chat-react/compare/v10.8.7...v10.8.8) (2023-07-27)
 
 
