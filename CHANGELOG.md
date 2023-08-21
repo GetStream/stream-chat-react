@@ -1,3 +1,15 @@
+# [10.9.0](https://github.com/GetStream/stream-chat-react/compare/v10.8.9...v10.9.0) (2023-08-21)
+
+
+### Bug Fixes
+
+* keep showing message read receipt once read ([#2080](https://github.com/GetStream/stream-chat-react/issues/2080)) ([6f9fb96](https://github.com/GetStream/stream-chat-react/commit/6f9fb96c3746d1f59291f130bae7621154432b8a))
+
+
+### Features
+
+* show read receipts in VirtualizedMessageList ([#2076](https://github.com/GetStream/stream-chat-react/issues/2076)) ([e08d972](https://github.com/GetStream/stream-chat-react/commit/e08d972ebbadf460f021b031bd34bd44e31faa16))
+
 ## [10.8.9](https://github.com/GetStream/stream-chat-react/compare/v10.8.8...v10.8.9) (2023-08-11)
 
 
