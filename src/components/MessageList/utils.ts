@@ -177,7 +177,7 @@ export const getReadStates = <
 
     // loop messages sent by current user and add read data for other users in channel
     messages.forEach((msg) => {
-      if (msg.updated_at && msg.updated_at < readState.last_read) {
+      if (msg.created_at && msg.created_at < readState.last_read) {
         userLastReadMsgId = msg.id;
 
         // if true, save other user's read data for all messages they've read
