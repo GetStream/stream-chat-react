@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import type { Message, SendMessageOptions } from 'stream-chat';
+import type { Message } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
@@ -17,7 +17,11 @@ import type { Channel, SendFileAPIResponse } from 'stream-chat';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+} from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { FileUpload, ImageUpload } from './types';
 

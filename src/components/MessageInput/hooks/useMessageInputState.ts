@@ -12,17 +12,15 @@ import { usePasteHandler } from './usePasteHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type { FileLike } from 'react-file-utils';
-import type {
-  Attachment,
-  Message,
-  OGAttachment,
-  SendMessageOptions,
-  UserResponse,
-} from 'stream-chat';
+import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+} from '../../../types/types';
 import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';

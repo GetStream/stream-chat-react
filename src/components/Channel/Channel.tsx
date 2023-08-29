@@ -18,11 +18,9 @@ import {
   Message,
   MessageResponse,
   SendMessageAPIResponse,
-  SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
   UpdatedMessage,
-  UpdateMessageOptions,
   UserResponse,
 } from 'stream-chat';
 import { nanoid } from 'nanoid';
@@ -81,6 +79,8 @@ import type {
   DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
+  SendMessageOptions,
+  UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';

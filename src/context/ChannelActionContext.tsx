@@ -5,10 +5,8 @@ import type {
   Attachment,
   ErrorFromResponse,
   Message,
-  SendMessageOptions,
   UpdatedMessage,
   UpdateMessageAPIResponse,
-  UpdateMessageOptions,
   UserResponse,
 } from 'stream-chat';
 
@@ -17,7 +15,12 @@ import type { StreamMessage } from './ChannelStateContext';
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type {
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+  UnknownType,
+  UpdateMessageOptions,
+} from '../types/types';
 
 export type MessageAttachments<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

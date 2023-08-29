@@ -1,8 +1,8 @@
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { StreamChat, UpdatedMessage, UpdateMessageOptions } from 'stream-chat';
+import type { StreamChat, UpdatedMessage } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics, UpdateMessageOptions } from '../../../types/types';
 
 type UpdateHandler<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
