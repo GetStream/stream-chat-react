@@ -5,8 +5,10 @@ import type {
   Attachment,
   ErrorFromResponse,
   Message,
+  SendMessageOptions,
   UpdatedMessage,
   UpdateMessageAPIResponse,
+  UpdateMessageOptions,
   UserResponse,
 } from 'stream-chat';
 
@@ -47,6 +49,7 @@ export type ChannelActionContextValue<
   dispatch: React.Dispatch<ChannelStateReducerAction<StreamChatGenerics>>;
   editMessage: (
     message: UpdatedMessage<StreamChatGenerics>,
+    options?: UpdateMessageOptions,
   ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
   jumpToLatestMessage: () => Promise<void>;
   jumpToMessage: (messageId: string, limit?: number) => Promise<void>;
@@ -64,6 +67,7 @@ export type ChannelActionContextValue<
   sendMessage: (
     message: MessageToSend<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => Promise<void>;
   setQuotedMessage: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>

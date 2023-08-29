@@ -40,6 +40,7 @@ export type ComponentContextValue<
 > = {
   Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  AttachmentPreviewList?: React.ComponentType;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
@@ -53,6 +54,8 @@ export type ComponentContextValue<
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
   HeaderComponent?: React.ComponentType;
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
+  /** Custom component to render link previews in message input **/
+  LinkPreviewList?: React.ComponentType;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;

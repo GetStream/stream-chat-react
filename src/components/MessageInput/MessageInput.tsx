@@ -1,12 +1,12 @@
 import React, { PropsWithChildren } from 'react';
-import type { Message } from 'stream-chat';
+import type { Message, SendMessageOptions } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
 
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
-import { FileUpload, ImageUpload, useMessageInputState } from './hooks/useMessageInputState';
+import { useMessageInputState } from './hooks/useMessageInputState';
 
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -18,6 +18,8 @@ import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch'
 import type { MessageToSend } from '../../context/ChannelActionContext';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
+import type { FileUpload, ImageUpload } from './types';
 
 export type MessageInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -72,6 +74,7 @@ export type MessageInputProps<
     message: MessageToSend<StreamChatGenerics>,
     channelCid: string,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: StreamMessage<StreamChatGenerics>;
@@ -88,6 +91,8 @@ export type MessageInputProps<
    * ```
    */
   shouldSubmit?: (event: KeyboardEvent) => boolean;
+  /** Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). */
+  urlEnrichmentConfig?: URLEnrichmentConfig;
   useMentionsTransliteration?: boolean;
 };
 

@@ -18,9 +18,11 @@ import {
   Message,
   MessageResponse,
   SendMessageAPIResponse,
+  SendMessageOptions,
   Channel as StreamChannel,
   StreamChat,
   UpdatedMessage,
+  UpdateMessageOptions,
   UserResponse,
 } from 'stream-chat';
 import { nanoid } from 'nanoid';
@@ -119,11 +121,13 @@ export type ChannelProps<
   doSendMessageRequest?: (
     channelId: string,
     message: Message<StreamChatGenerics>,
+    options?: SendMessageOptions,
   ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
   doUpdateMessageRequest?: (
     cid: string,
     updatedMessage: UpdatedMessage<StreamChatGenerics>,
+    options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
   /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
   dragAndDropWindow?: boolean;
@@ -655,6 +659,7 @@ const ChannelInner = <
   const doSendMessage = async (
     message: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => {
     const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
@@ -677,9 +682,9 @@ const ChannelInner = <
       let messageResponse: void | SendMessageAPIResponse<StreamChatGenerics>;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel.cid, messageData);
+        messageResponse = await doSendMessageRequest(channel.cid, messageData, options);
       } else {
-        messageResponse = await channel.sendMessage(messageData);
+        messageResponse = await channel.sendMessage(messageData, options);
       }
 
       let existingMessage;
@@ -731,6 +736,7 @@ const ChannelInner = <
       text = '',
     }: MessageToSend<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => {
     channel.state.filterErrorMessages();
 
@@ -751,7 +757,7 @@ const ChannelInner = <
 
     updateMessage(messagePreview);
 
-    await doSendMessage(messagePreview, customMessageData);
+    await doSendMessage(messagePreview, customMessageData, options);
   };
 
   const retrySendMessage = async (message: StreamMessage<StreamChatGenerics>) => {
@@ -760,6 +766,11 @@ const ChannelInner = <
       errorStatusCode: undefined,
       status: 'sending',
     });
+
+    if (message.attachments) {
+      // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
+      message.attachments = message.attachments.filter((attachment) => !attachment.og_scrape_url);
+    }
 
     await doSendMessage(message);
   };

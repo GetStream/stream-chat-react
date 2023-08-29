@@ -18,7 +18,8 @@ import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { AttachmentPreviewList } from './AttachmentPreviewList';
+import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
+import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -94,6 +95,7 @@ const MessageInputV1 = <
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
+    AttachmentPreviewList = UploadsPreview,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
 
   return (
@@ -115,7 +117,7 @@ const MessageInputV1 = <
           <QuotedMessagePreview quotedMessage={quotedMessage} />
         )}
         <div className='str-chat__input-flat-wrapper'>
-          {isUploadEnabled && <UploadsPreview />}
+          {isUploadEnabled && <AttachmentPreviewList />}
           <div className='str-chat__input-flat--textarea-wrapper'>
             <div className='str-chat__emojiselect-wrapper'>
               <Tooltip>
@@ -184,6 +186,7 @@ const MessageInputV2 = <
     closeEmojiPicker,
     cooldownRemaining,
     emojiPickerIsOpen,
+    findAndEnqueueURLsToEnrich,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
@@ -196,9 +199,11 @@ const MessageInputV2 = <
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
+    AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
     EmojiIcon = DefaultEmojiPickerIcon,
     FileUploadIcon = DefaultUploadIcon,
+    LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
@@ -266,7 +271,7 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-
+            {findAndEnqueueURLsToEnrich && <LinkPreviewList />}
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
