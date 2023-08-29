@@ -1,12 +1,13 @@
 import clsx from 'clsx';
 import React from 'react';
-import { useMessageInputContext } from '../../context';
+import { useChannelStateContext, useMessageInputContext } from '../../context';
 import type { LinkPreview } from './types';
 import { LinkPreviewState } from './types';
 
 export const LinkPreviewList = () => {
+  const { quotedMessage } = useChannelStateContext();
   const { linkPreviews } = useMessageInputContext('AttachmentPreviewList');
-  const showLinkPreviews = linkPreviews.size > 0;
+  const showLinkPreviews = linkPreviews.size > 0 && !quotedMessage;
 
   if (!showLinkPreviews) return null;
 

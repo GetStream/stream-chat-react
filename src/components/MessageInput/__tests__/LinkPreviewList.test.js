@@ -1051,6 +1051,5 @@ describe('Link preview', () => {
   it.todo('enables custom handling of dismissal');
   it.todo('enables custom debounce interval for typing');
   it.todo('enables custom debounce interval for pasting');
-  it.todo('control enrich in thread');
   it.todo('enrich only urls with protocol?');
 });
