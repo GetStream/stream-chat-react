@@ -20,6 +20,7 @@ export const useCreateChannelStateContext = <
     channelCapabilitiesArray = [],
     channelConfig,
     dragAndDropWindow,
+    enrichURLForPreview,
     giphyVersion,
     error,
     hasMore,
@@ -100,6 +101,7 @@ export const useCreateChannelStateContext = <
       channelCapabilities,
       channelConfig,
       dragAndDropWindow,
+      enrichURLForPreview,
       error,
       giphyVersion,
       hasMore,
@@ -130,6 +132,7 @@ export const useCreateChannelStateContext = <
     }),
     [
       channelId,
+      enrichURLForPreview,
       error,
       hasMore,
       hasMoreNewer,

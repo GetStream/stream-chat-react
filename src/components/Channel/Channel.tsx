@@ -88,6 +88,7 @@ import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
+import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -145,8 +146,10 @@ export type ChannelProps<
   EmojiPicker?: EmojiContextValue['EmojiPicker'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /** Custom UI component to be displayed when the `MessageList` is empty, , defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
+  /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
+  /** Allows for toggling the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. */
+  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
@@ -864,6 +867,7 @@ const ChannelInner = <
     channelCapabilitiesArray,
     channelConfig,
     dragAndDropWindow,
+    enrichURLForPreview: props.enrichURLForPreview,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler: props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,

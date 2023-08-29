@@ -172,7 +172,96 @@ describe('Link preview', () => {
   });
 
   afterEach(tearDown);
-  it.todo('does not render if link previews are disabled');
+
+  it('does not request URL enrichment if disabled in channel config', async () => {
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const {
+      channel: { config },
+    } = generateChannel({ config: { url_enrichment: false } });
+    channel.getConfig = () => config;
+    const enrichSpy = jest.spyOn(chatClient, 'enrichURL');
+    await renderComponent({
+      channelProps: { channel },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(enrichSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not request URL enrichment + not render if link previews are not enabled through Channel props', async () => {
+    const enrichSpy = jest.spyOn(chatClient, 'enrichURL');
+    await renderComponent({
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: '',
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(enrichSpy).not.toHaveBeenCalled();
+    const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
+    expect(linkPreviews).not.toBeInTheDocument();
+  });
+
+  it('request URL enrichment + render if link previews are enabled through Channel props', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    await renderComponent({
+      channelProps: { enrichURLForPreview: true },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(enrichSpy).toHaveBeenCalledWith(scrapedData.og_scrape_url);
+    const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
+    expect(linkPreviews).toBeInTheDocument();
+  });
+
+  it('does not render if link previews are disabled through MessageInput props', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    await renderComponent({
+      channelProps: { enrichURLForPreview: true },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: { urlEnrichmentConfig: { enrichURLForPreview: false } },
+    });
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(enrichSpy).not.toHaveBeenCalled();
+    const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
+    expect(linkPreviews).not.toBeInTheDocument();
+  });
+
   it('does not render if no text', async () => {
     await renderComponent({
       chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
@@ -305,31 +394,6 @@ describe('Link preview', () => {
     });
     const linkPreview = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreview).not.toBeInTheDocument();
-  });
-
-  it('does not request URL enrichment if disabled in channel config', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
-    const {
-      channel: { config },
-    } = generateChannel({ config: { url_enrichment: false } });
-    channel.getConfig = () => config;
-    const enrichSpy = jest.spyOn(chatClient, 'enrichURL');
-    await renderComponent({
-      channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
-      messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
-    });
-
-    await act(async () => {
-      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: `X ${scrapedData.og_scrape_url}`,
-        },
-      });
-      jest.runOnlyPendingTimers();
-    });
-
-    expect(enrichSpy).not.toHaveBeenCalled();
   });
 
   it('renders for all the URLs', async () => {
@@ -1106,9 +1170,65 @@ describe('Link preview', () => {
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviews).not.toBeInTheDocument();
   });
-  it.todo('are retrieved with custom search function');
-  it.todo('enables custom handling of dismissal');
-  it.todo('enables custom debounce interval for typing');
-  it.todo('enables custom debounce interval for pasting');
-  it.todo('enrich only urls with protocol?');
+
+  it('are retrieved with custom search function', async () => {
+    // on purpose returning scrapedData2
+    const findURLFn = jest.fn().mockReturnValueOnce([scrapedData2.og_scrape_url]);
+    const typedText = `X ${scrapedData1.og_scrape_url}`;
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
+    await renderComponent({
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: {
+        urlEnrichmentConfig: {
+          enrichURLForPreview: true,
+          findURLFn,
+        },
+      },
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: typedText,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(findURLFn).toHaveBeenCalledWith(typedText);
+  });
+
+  it('enables custom handling of dismissal', async () => {
+    const onPreviewDismissed = jest.fn();
+    const typedText = `X ${scrapedData1.og_scrape_url}`;
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
+    await renderComponent({
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: {
+        urlEnrichmentConfig: {
+          enrichURLForPreview: true,
+          onPreviewDismissed,
+        },
+      },
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: typedText,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID));
+    });
+
+    expect(onPreviewDismissed).toHaveBeenCalledTimes(1);
+  });
 });

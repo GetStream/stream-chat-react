@@ -11,7 +11,7 @@ import type { DebouncedFunc } from 'lodash';
 export type URLEnrichmentConfig = {
   /** Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). */
   debounceURLEnrichmentMs?: number;
-  /** Enables dynamically toggling the URL enrichment in the runtime */
+  /** Allows for toggling the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. */
   enrichURLForPreview?: boolean;
   /** Custom function to identify URLs in a string and request OG data */
   findURLFn?: (text: string) => string[];
@@ -30,7 +30,9 @@ type UseEnrichURLsParams<
 };
 
 export type EnrichURLsController = {
+  /** Function called when a single link preview is dismissed. */
   dismissLinkPreview: (linkPreview: LinkPreview) => void;
+  /** Function that triggers the search for URLs and their enrichment. */
   findAndEnqueueURLsToEnrich?: DebouncedFunc<(text: string, mode?: SetLinkPreviewMode) => void>;
 };
 
@@ -45,6 +47,7 @@ export const useLinkPreviews = <
   onPreviewDismissed,
 }: UseEnrichURLsParams<StreamChatGenerics>): EnrichURLsController => {
   const { client } = useChatContext();
+  // FIXME: the value of channelConfig is stale due to omitting it from the memoization deps in useCreateChannelStateContext
   const { channelConfig } = useChannelStateContext();
   const [enrichURLsEnabled, setEnrichURLsEnabled] = useState(enrichURLForPreview);
 

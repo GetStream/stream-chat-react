@@ -394,9 +394,11 @@ export const useMessageInputState = <
     urlEnrichmentConfig,
   } = props;
 
-  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
-    'useMessageInputState',
-  );
+  const {
+    channelCapabilities = {},
+    channelConfig,
+    enrichURLForPreview: enrichURLForPreviewChannelContext,
+  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
@@ -418,6 +420,8 @@ export const useMessageInputState = <
     dispatch,
     linkPreviews: state.linkPreviews,
     ...urlEnrichmentConfig,
+    enrichURLForPreview:
+      urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
   const { handleChange, insertText, textareaRef } = useMessageInputText<StreamChatGenerics, V>(
