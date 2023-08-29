@@ -1231,4 +1231,27 @@ describe('Link preview', () => {
 
     expect(onPreviewDismissed).toHaveBeenCalledTimes(1);
   });
+
+  it('are rendered in custom LinkPreviewList component', async () => {
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
+    const customTestId = 'custom-link-preview';
+    const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
+    await renderComponent({
+      channelProps: { enrichURLForPreview: true, LinkPreviewList: CustomLinkPreviewList },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    expect(await screen.queryByTestId(customTestId)).toBeInTheDocument();
+    expect(await screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+  });
 });

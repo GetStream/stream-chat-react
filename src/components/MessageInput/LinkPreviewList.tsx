@@ -7,7 +7,7 @@ import { CloseIcon, LinkIcon } from './icons';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
-type LinkPreviewListProps = {
+export type LinkPreviewListProps = {
   linkPreviews: LinkPreview[];
 };
 

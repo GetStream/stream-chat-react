@@ -89,6 +89,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
+import type { LinkPreviewListProps } from '../MessageInput/LinkPreviewList';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -162,6 +163,8 @@ export type ChannelProps<
   imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
+  /** Custom component to render link previews in message input **/
+  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
@@ -920,6 +923,7 @@ const ChannelInner = <
       GiphyPreviewMessage: props.GiphyPreviewMessage,
       HeaderComponent: props.HeaderComponent,
       Input: props.Input,
+      LinkPreviewList: props.LinkPreviewList,
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,

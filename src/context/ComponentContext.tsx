@@ -33,6 +33,7 @@ import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingI
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { CooldownTimerProps } from '../components';
+import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -54,8 +55,7 @@ export type ComponentContextValue<
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
   HeaderComponent?: React.ComponentType;
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
-  /** Custom component to render link previews in message input **/
-  LinkPreviewList?: React.ComponentType;
+  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
