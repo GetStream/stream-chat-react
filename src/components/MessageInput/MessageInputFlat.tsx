@@ -189,6 +189,7 @@ const MessageInputV2 = <
     findAndEnqueueURLsToEnrich,
     handleSubmit,
     isUploadEnabled,
+    linkPreviews,
     maxFilesLeft,
     message,
     numberOfUploads,
@@ -240,6 +241,9 @@ const MessageInputV2 = <
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {findAndEnqueueURLsToEnrich && (
+          <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
+        )}
         {isDragActive && (
           <div
             className={clsx('str-chat__dropzone-container', {
@@ -271,7 +275,6 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {findAndEnqueueURLsToEnrich && <LinkPreviewList />}
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>

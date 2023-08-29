@@ -148,11 +148,21 @@ describe('Link preview', () => {
     urlEnrichmentConfig: { enrichURLForPreview: true },
   };
   const renderComponent = makeRenderFn(MessageInputFlat);
-  const scrapedData = generateScrapedDataAttachment({ og_scrape_url: 'http://getstream.io' });
-  const scrapedData1 = generateScrapedDataAttachment({ og_scrape_url: 'http://getstream.io' });
-  const scrapedData2 = generateScrapedDataAttachment({ og_scrape_url: 'http://getstream.io/' });
+  const scrapedData = generateScrapedDataAttachment({
+    og_scrape_url: 'http://getstream.io',
+    title: 'http://getstream.io',
+  });
+  const scrapedData1 = generateScrapedDataAttachment({
+    og_scrape_url: 'http://getstream.io',
+    title: 'http://getstream.io',
+  });
+  const scrapedData2 = generateScrapedDataAttachment({
+    og_scrape_url: 'http://getstream.io/',
+    title: 'http://getstream.io/',
+  });
   const scrapedData3 = generateScrapedDataAttachment({
     og_scrape_url: 'http://getstream.io/abc',
+    title: 'http://getstream.io/abc',
   });
 
   beforeEach(async () => {

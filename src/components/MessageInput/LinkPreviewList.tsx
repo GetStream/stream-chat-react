@@ -1,13 +1,19 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useState } from 'react';
 import { useChannelStateContext, useMessageInputContext } from '../../context';
 import type { LinkPreview } from './types';
 import { LinkPreviewState } from './types';
+import { CloseIcon, LinkIcon } from './icons';
+import { PopperTooltip } from '../Tooltip';
+import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
-export const LinkPreviewList = () => {
+type LinkPreviewListProps = {
+  linkPreviews: LinkPreview[];
+};
+
+export const LinkPreviewList = ({ linkPreviews }: LinkPreviewListProps) => {
   const { quotedMessage } = useChannelStateContext();
-  const { linkPreviews } = useMessageInputContext('AttachmentPreviewList');
-  const showLinkPreviews = linkPreviews.size > 0 && !quotedMessage;
+  const showLinkPreviews = linkPreviews.length > 0 && !quotedMessage;
 
   if (!showLinkPreviews) return null;
 
@@ -28,6 +34,8 @@ type LinkPreviewProps = {
 
 const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
   const { dismissLinkPreview } = useMessageInputContext();
+  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLDivElement>();
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
   return (
     <div
       className={clsx('str-chat__link-preview-card', {
@@ -35,12 +43,27 @@ const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
       })}
       data-testid='link-preview-card'
     >
-      {linkPreview.og_scrape_url}
+      <PopperTooltip offset={[0, 5]} referenceElement={referenceElement} visible={tooltipVisible}>
+        {linkPreview.og_scrape_url}
+      </PopperTooltip>
+      <div
+        className='str-chat__link-preview-card__icon-container'
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+        ref={setReferenceElement}
+      >
+        <LinkIcon />
+      </div>
+      <div className='str-chat__link-preview-card__content'>
+        <div className='str-chat__link-preview-card__content-title'>{linkPreview.title}</div>
+        <div className='str-chat__link-preview-card__content-description'>{linkPreview.text}</div>
+      </div>
       <button
+        className='str-chat__link-preview-card__dismiss-button'
         data-testid='link-preview-card-dismiss-btn'
         onClick={() => dismissLinkPreview(linkPreview)}
       >
-        X
+        <CloseIcon />
       </button>
     </div>
   );
