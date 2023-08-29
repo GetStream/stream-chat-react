@@ -134,6 +134,7 @@ export const useSubmitHandler = <
     let attachmentsFromUploads = getAttachmentsFromUploads();
     let attachmentsFromLinkPreviews: Attachment[] = [];
     let someLinkPreviewsLoading;
+    let someLinkPreviewsDismissed;
     if (findAndEnqueueURLsToEnrich) {
       // filter out all the attachments scraped before the message was edited - only if the scr
       attachmentsFromUploads = attachmentsFromUploads.filter(
@@ -143,6 +144,9 @@ export const useSubmitHandler = <
       findAndEnqueueURLsToEnrich.cancel();
       someLinkPreviewsLoading = Array.from(linkPreviews.values()).some((linkPreview) =>
         [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
+      );
+      someLinkPreviewsDismissed = Array.from(linkPreviews.values()).some(
+        (linkPreview) => linkPreview.state === LinkPreviewState.DISMISSED,
       );
 
       if (!someLinkPreviewsLoading) {
@@ -180,7 +184,9 @@ export const useSubmitHandler = <
     // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
     const linkPreviewsEnabled = !!findAndEnqueueURLsToEnrich;
     const skip_enrich_url =
-      linkPreviewsEnabled && !someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0;
+      linkPreviewsEnabled &&
+      ((!someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0) ||
+        someLinkPreviewsDismissed);
     const sendOptions = linkPreviewsEnabled ? { skip_enrich_url } : undefined;
     if (message) {
       delete message.i18n;

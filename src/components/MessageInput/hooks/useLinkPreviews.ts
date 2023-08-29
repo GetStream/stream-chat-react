@@ -53,12 +53,12 @@ export const useLinkPreviews = <
       if (onPreviewDismissed) {
         onPreviewDismissed(linkPreview, setEnrichURLsEnabled);
       } else {
-        // setEnrichURLsEnabled(false);
         const previewToRemoveMap = new Map();
+        linkPreview.state = LinkPreviewState.DISMISSED;
         previewToRemoveMap.set(linkPreview.og_scrape_url, linkPreview);
         dispatch({
           linkPreviews: previewToRemoveMap,
-          mode: SetLinkPreviewMode.REMOVE,
+          mode: SetLinkPreviewMode.UPSERT,
           type: 'setLinkPreviews',
         });
       }
@@ -110,7 +110,7 @@ export const useLinkPreviews = <
 
     dispatch({
       linkPreviews: enqueuedLinks,
-      mode: SetLinkPreviewMode.ADD,
+      mode: SetLinkPreviewMode.UPSERT,
       type: 'setLinkPreviews',
     });
 
@@ -126,7 +126,7 @@ export const useLinkPreviews = <
           });
           dispatch({
             linkPreviews: linkPreviewsMap,
-            mode: SetLinkPreviewMode.ADD,
+            mode: SetLinkPreviewMode.UPSERT,
             type: 'setLinkPreviews',
           });
         })
@@ -138,7 +138,7 @@ export const useLinkPreviews = <
           });
           dispatch({
             linkPreviews: linkPreviewsMap,
-            mode: SetLinkPreviewMode.ADD,
+            mode: SetLinkPreviewMode.UPSERT,
             type: 'setLinkPreviews',
           });
         });

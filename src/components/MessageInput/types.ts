@@ -4,6 +4,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
 
 export enum LinkPreviewState {
+  DISMISSED = 'dismissed',
   FAILED = 'failed',
   LOADED = 'loaded',
   LOADING = 'loading',
@@ -51,7 +52,7 @@ export type LinkPreview = OGAttachment & {
 };
 
 export enum SetLinkPreviewMode {
-  ADD,
+  UPSERT,
   SET,
   REMOVE,
 }

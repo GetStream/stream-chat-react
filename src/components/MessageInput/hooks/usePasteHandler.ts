@@ -44,7 +44,7 @@ export const usePasteHandler = (
         if (plainTextPromise) {
           const pastedText = await plainTextPromise;
           insertText(pastedText);
-          findAndEnqueueURLsToEnrich?.(pastedText, SetLinkPreviewMode.ADD);
+          findAndEnqueueURLsToEnrich?.(pastedText, SetLinkPreviewMode.UPSERT);
           findAndEnqueueURLsToEnrich?.flush();
         }
       })(clipboardEvent);

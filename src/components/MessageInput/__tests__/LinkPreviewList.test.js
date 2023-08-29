@@ -660,6 +660,55 @@ describe('Link preview', () => {
     );
   });
 
+  it('are not sent as attachments to posted message with skip_enrich_url:true if dismissed', async () => {
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
+
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 });
+    const { submit } = await renderComponent({
+      channelProps: { channel },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData1.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
+        },
+      });
+      jest.runOnlyPendingTimers();
+    });
+
+    await act(async () => {
+      const dismissButtons = await screen.findAllByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID);
+      fireEvent.click(dismissButtons[1]);
+    });
+
+    await act(() => submit());
+    expect(sendMessageSpy.mock.calls[0][0].attachments).toHaveLength(1);
+    expect(sendMessageSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: expect.arrayContaining([expect.objectContaining(scrapedData1)]),
+      }),
+      expect.objectContaining({ skip_enrich_url: true }),
+    );
+  });
+
   // todo: find out how to manipulate the link previews to keep them in non-loaded state on submit
   it.todo(
     'does not submit link preview attachments unless all the previews are in loaded or failed state',
