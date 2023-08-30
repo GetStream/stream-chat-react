@@ -89,7 +89,6 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import type { LinkPreviewListProps } from '../MessageInput/LinkPreviewList';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -101,6 +100,8 @@ export type ChannelProps<
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<StreamChatGenerics>['Attachment'];
+  /** Custom UI component to display a attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
+  AttachmentPreviewList?: ComponentContextValue<StreamChatGenerics>['AttachmentPreviewList'];
   /** Optional UI component to override the default suggestion Header component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
   AutocompleteSuggestionHeader?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionHeader'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -149,7 +150,10 @@ export type ChannelProps<
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
-  /** Allows for toggling the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. */
+  /** A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
+   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
+   * or directly and MessageInput level through urlEnrichmentConfig.
+   */
   enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
@@ -164,7 +168,7 @@ export type ChannelProps<
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom component to render link previews in message input **/
-  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
+  LinkPreviewList?: ComponentContextValue<StreamChatGenerics>['LinkPreviewList'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
@@ -910,6 +914,7 @@ const ChannelInner = <
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(
     () => ({
       Attachment: props.Attachment || DefaultAttachment,
+      AttachmentPreviewList: props.AttachmentPreviewList,
       AutocompleteSuggestionHeader: props.AutocompleteSuggestionHeader,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
