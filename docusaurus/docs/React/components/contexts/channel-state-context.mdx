@@ -57,6 +57,15 @@ If true, chat users will be able to drag and drop file uploads to the entire cha
 | ------- | ------- |
 | boolean | false   |
 
+### enrichURLForPreview
+
+A global flag to toggle the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. Can be overridden on Thread and MessageList level through `additionalMessageInputProps`
+or directly and MessageInput level through `urlEnrichmentConfig` prop.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
 ### error
 
 Error object (if any) in loading the `channel`, otherwise null.

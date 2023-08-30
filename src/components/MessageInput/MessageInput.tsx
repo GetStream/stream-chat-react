@@ -95,7 +95,7 @@ export type MessageInputProps<
    * ```
    */
   shouldSubmit?: (event: KeyboardEvent) => boolean;
-  /** Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). */
+  /** Configuration parameters for link previews. */
   urlEnrichmentConfig?: URLEnrichmentConfig;
   useMentionsTransliteration?: boolean;
 };

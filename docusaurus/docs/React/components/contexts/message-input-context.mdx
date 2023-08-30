@@ -119,6 +119,14 @@ If true, the suggestion list will not display and autocomplete @mentions.
 | ------- | ------- |
 | boolean | false   |
 
+### dismissLinkPreview
+
+Function called when a single link preview is dismissed.
+
+| Type                               |
+|------------------------------------|
+| (linkPreview: LinkPreview) => void |
+
 ### doFileUploadRequest
 
 Function to override the default file upload request.
@@ -182,6 +190,14 @@ A mapping of the file attachments added to the current message.
 | Type                         |
 | ---------------------------- |
 | { [id: string]: FileUpload } |
+
+### findAndEnqueueURLsToEnrich
+
+Function that triggers the search for URLs and their enrichment. It is available only if link preview rendering is enabled. Link previews are by default disabled.
+
+| Type                         |
+| ---------------------------- |
+| (text: string, mode?: SetLinkPreviewMode) => void |
 
 ### focus
 
@@ -254,6 +270,14 @@ If true, file uploads are enabled in the currently active channel.
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+### linkPreviews
+
+A Map of `LinkPreview` objects (a union type of `LinkPreviewState` and `OGAttachment`) indexed by string representing link URL. The link URL value is provided by `OGAttachment.og_scrape_url`.
+
+| Type    |
+| ------- |
+| Map<LinkURL, LinkPreview\> |
 
 ### shouldSubmit
 

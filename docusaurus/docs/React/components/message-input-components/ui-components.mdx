@@ -19,6 +19,8 @@ The following UI components are available for use:
 - [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx) - picker
   component for selecting an emoji
 
+- [`LinkPreviewList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/LinkPreviewList.tsx) - component rendering scraped link data in a preview cards
+
 - [`QuotedMessagePreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) - displays
   a UI wrapper around the `MessageInput` when an existing message is being quoted
 
@@ -123,6 +125,16 @@ If true, updates the CSS class name of the `div` container and renders a smaller
 | Type    | Default |
 |---------|---------|
 | boolean | false   |
+
+## LinkPreviewList Props
+
+### <div class="label required basic">Required</div> linkPreviews
+
+An array of `LinkPreview` objects - a union type of `LinkPreviewState` and `OGAttachment`. The array is derived from `linkPreviews` Map of `MessageInputContextValue`.
+
+| Type          |
+|---------------|
+| LinkPreview[] |
 
 ## QuotedMessagePreview Props
 

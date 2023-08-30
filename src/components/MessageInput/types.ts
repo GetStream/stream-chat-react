@@ -3,14 +3,6 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
 
-export enum LinkPreviewState {
-  DISMISSED = 'dismissed',
-  FAILED = 'failed',
-  LOADED = 'loaded',
-  LOADING = 'loading',
-  QUEUED = 'queued',
-}
-
 export type FileUpload = {
   file: {
     name: string;
@@ -46,7 +38,22 @@ export type ImageUpload<
   Attachment<StreamChatGenerics>,
   'og_scrape_url' | 'title' | 'title_link' | 'author_name' | 'text'
 >;
+
+export enum LinkPreviewState {
+  /** Link preview has been dismissed using MessageInputContextValue.dismissLinkPreview **/
+  DISMISSED = 'dismissed',
+  /** Link preview could not be loaded, the enrichment request has failed. **/
+  FAILED = 'failed',
+  /** Link preview has been successfully loaded. **/
+  LOADED = 'loaded',
+  /** The enrichment query is in progress for a given link. **/
+  LOADING = 'loading',
+  /** The link is scheduled for enrichment. **/
+  QUEUED = 'queued',
+}
+
 export type LinkURL = string;
+
 export type LinkPreview = OGAttachment & {
   state: LinkPreviewState;
 };

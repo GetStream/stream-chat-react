@@ -135,6 +135,14 @@ Custom UI component to display a message attachment.
 |-----------|------------------------------------------------------------------------|
 | component | <GHComponentLink text='Attachment' path='/Attachment/Attachment.tsx'/> |
 
+### AttachmentPreviewList
+
+Custom UI component to display a attachment previews in MessageInput.
+
+| Type      | Default                                                                |
+|-----------|------------------------------------------------------------------------|
+| component | <GHComponentLink text='Attachment' path='/MessageInput/AttachmentPreviewList.tsx'/> |
+
 ### AutocompleteSuggestionHeader
 
 Custom UI component to override the default suggestion header component.
@@ -279,6 +287,15 @@ Custom UI component to be displayed when the `MessageList` or `VirtualizedMessag
 |-----------|---------------------------------------------------------------------------------------------------|
 | component | <GHComponentLink text='EmptyStateIndicator' path='/EmptyStateIndicator/EmptyStateIndicator.tsx'/> |
 
+### enrichURLForPreview
+
+A global flag to toggle the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. Can be overridden on Thread and MessageList level through `additionalMessageInputProps`
+or directly and MessageInput level through `urlEnrichmentConfig` prop.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
 ### FileUploadIcon
 
 Custom UI component for file upload icon.
@@ -326,6 +343,15 @@ Custom UI component handling how the message input is rendered.
 | Type      | Default                                                                              |
 |-----------|--------------------------------------------------------------------------------------|
 | component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/MessageInputFlat.tsx'/> |
+
+
+### LinkPreviewList
+
+Custom component to render link previews in message input.
+
+| Type      | Default                                                                              |
+|-----------|--------------------------------------------------------------------------------------|
+| component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/LinkPreviewList.tsx'/> |
 
 ### LoadingErrorIndicator
 

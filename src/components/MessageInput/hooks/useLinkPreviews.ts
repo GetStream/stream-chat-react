@@ -16,7 +16,7 @@ export type URLEnrichmentConfig = {
   /** Custom function to identify URLs in a string and request OG data */
   findURLFn?: (text: string) => string[];
   /** Custom function to handle link preview dismissal */
-  onPreviewDismissed?: (
+  onLinkPreviewDismissed?: (
     linkPreview: LinkPreview,
     setEnrichURLEnabled: Dispatch<React.SetStateAction<boolean>>,
   ) => void;
@@ -44,7 +44,7 @@ export const useLinkPreviews = <
   enrichURLForPreview = false,
   findURLFn,
   linkPreviews,
-  onPreviewDismissed,
+  onLinkPreviewDismissed,
 }: UseEnrichURLsParams<StreamChatGenerics>): EnrichURLsController => {
   const { client } = useChatContext();
   // FIXME: the value of channelConfig is stale due to omitting it from the memoization deps in useCreateChannelStateContext
@@ -53,7 +53,7 @@ export const useLinkPreviews = <
 
   const dismissLinkPreview = useCallback(
     (linkPreview: LinkPreview) => {
-      onPreviewDismissed?.(linkPreview, setEnrichURLsEnabled);
+      onLinkPreviewDismissed?.(linkPreview, setEnrichURLsEnabled);
       const previewToRemoveMap = new Map();
       linkPreview.state = LinkPreviewState.DISMISSED;
       previewToRemoveMap.set(linkPreview.og_scrape_url, linkPreview);
@@ -63,7 +63,7 @@ export const useLinkPreviews = <
         type: 'setLinkPreviews',
       });
     },
-    [onPreviewDismissed],
+    [onLinkPreviewDismissed],
   );
 
   const findAndEnqueueURLsToEnrich = useCallback(

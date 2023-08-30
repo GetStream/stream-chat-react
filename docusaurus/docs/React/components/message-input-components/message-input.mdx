@@ -110,7 +110,7 @@ If true, focuses the text input on component mount.
 
 ### getDefaultValue
 
-Generates the default value for the underlying textarea element. The function's return value takes precedence before `additionalTextareaProps.defaultValue`.
+Generates the default value for the underlying textarea element. The function's return value takes precedence over `additionalTextareaProps.defaultValue`.
 
 |            Type           |
 |---------------------------|
@@ -229,6 +229,36 @@ shouldSubmit={shouldSubmit}
 ```
 
 :::
+
+### urlEnrichmentConfig
+
+Configuration parameters for link previews to customize:
+
+- how the links are found,
+- what actions to execute on link preview card dismissal,
+- what is the debounce interval after which the link enrichment queries are run
+
+It also allows us to disable querying and rendering the link previews with `enrichURLForPreview` parameter.
+
+| Type                              |
+| --------------------------------- |
+| URLEnrichmentConfig |
+
+```typescript
+export type URLEnrichmentConfig = {
+  /** Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). */
+  debounceURLEnrichmentMs?: number;
+  /** Allows for toggling the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. */
+  enrichURLForPreview?: boolean;
+  /** Custom function to identify URLs in a string and request OG data */
+  findURLFn?: (text: string) => string[];
+  /** Custom function to handle link preview dismissal */
+  onLinkPreviewDismissed?: (
+    linkPreview: LinkPreview,
+    setEnrichURLEnabled: Dispatch<React.SetStateAction<boolean>>,
+  ) => void;
+};
+```
 
 ### useMentionsTransliteration
 
