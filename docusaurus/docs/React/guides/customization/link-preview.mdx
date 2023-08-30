@@ -212,7 +212,6 @@ It can be customized how, the link previews are acquired and dismissed or how lo
 By default, when a link preview is dismissed, it's state is set to `'dismissed'`. This behavior can be expanded by providing `onLinkPreviewDismissed` callback:
 
 ```typescript jsx
-import { Dispatch } from 'react';
 import {
     Channel,
     LinkPreview,
@@ -221,10 +220,7 @@ import {
     VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
-const onLinkPreviewDismissed = (
-    linkPreview: LinkPreview,
-    setEnrichURLEnabled: Dispatch<React.SetStateAction<boolean>>
-) => {
+const onLinkPreviewDismissed = (linkPreview: LinkPreview) => {
     // custom logic to invoke, when a given link preview is dismissed
 }
 
@@ -240,8 +236,6 @@ const App = () => (
   </Channel>
 )
 ```
-
-The `onLinkPreviewDismissed` receives a state change dispatcher, that allows us to disable the link previews and URL enrichment.
 
 #### Custom text parsing function
 

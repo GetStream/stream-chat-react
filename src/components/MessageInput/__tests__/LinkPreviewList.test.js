@@ -1201,7 +1201,7 @@ describe('Link preview', () => {
   });
 
   it('enables custom handling of dismissal', async () => {
-    const onPreviewDismissed = jest.fn();
+    const onLinkPreviewDismissed = jest.fn();
     const typedText = `X ${scrapedData1.og_scrape_url}`;
     jest
       .spyOn(chatClient, 'enrichURL')
@@ -1211,7 +1211,7 @@ describe('Link preview', () => {
       messageInputProps: {
         urlEnrichmentConfig: {
           enrichURLForPreview: true,
-          onPreviewDismissed,
+          onLinkPreviewDismissed,
         },
       },
     });
@@ -1229,7 +1229,7 @@ describe('Link preview', () => {
       fireEvent.click(await screen.findByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID));
     });
 
-    expect(onPreviewDismissed).toHaveBeenCalledTimes(1);
+    expect(onLinkPreviewDismissed).toHaveBeenCalledTimes(1);
   });
 
   it('are rendered in custom LinkPreviewList component', async () => {

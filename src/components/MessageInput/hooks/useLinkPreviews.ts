@@ -1,5 +1,5 @@
 import { find } from 'linkifyjs';
-import { Dispatch, useCallback, useEffect, useState } from 'react';
+import { Dispatch, useCallback, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
@@ -15,11 +15,8 @@ export type URLEnrichmentConfig = {
   enrichURLForPreview?: boolean;
   /** Custom function to identify URLs in a string and request OG data */
   findURLFn?: (text: string) => string[];
-  /** Custom function to handle link preview dismissal */
-  onLinkPreviewDismissed?: (
-    linkPreview: LinkPreview,
-    setEnrichURLEnabled: Dispatch<React.SetStateAction<boolean>>,
-  ) => void;
+  /** Custom function to react to link preview dismissal */
+  onLinkPreviewDismissed?: (linkPreview: LinkPreview) => void;
 };
 
 type UseEnrichURLsParams<
@@ -49,11 +46,10 @@ export const useLinkPreviews = <
   const { client } = useChatContext();
   // FIXME: the value of channelConfig is stale due to omitting it from the memoization deps in useCreateChannelStateContext
   const { channelConfig } = useChannelStateContext();
-  const [enrichURLsEnabled, setEnrichURLsEnabled] = useState(enrichURLForPreview);
 
   const dismissLinkPreview = useCallback(
     (linkPreview: LinkPreview) => {
-      onLinkPreviewDismissed?.(linkPreview, setEnrichURLsEnabled);
+      onLinkPreviewDismissed?.(linkPreview);
       const previewToRemoveMap = new Map();
       linkPreview.state = LinkPreviewState.DISMISSED;
       previewToRemoveMap.set(linkPreview.og_scrape_url, linkPreview);
@@ -148,6 +144,6 @@ export const useLinkPreviews = <
   return {
     dismissLinkPreview,
     findAndEnqueueURLsToEnrich:
-      channelConfig?.url_enrichment && enrichURLsEnabled ? findAndEnqueueURLsToEnrich : undefined,
+      channelConfig?.url_enrichment && enrichURLForPreview ? findAndEnqueueURLsToEnrich : undefined,
   };
 };

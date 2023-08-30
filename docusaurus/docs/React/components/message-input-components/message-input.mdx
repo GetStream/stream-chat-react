@@ -252,11 +252,8 @@ export type URLEnrichmentConfig = {
   enrichURLForPreview?: boolean;
   /** Custom function to identify URLs in a string and request OG data */
   findURLFn?: (text: string) => string[];
-  /** Custom function to handle link preview dismissal */
-  onLinkPreviewDismissed?: (
-    linkPreview: LinkPreview,
-    setEnrichURLEnabled: Dispatch<React.SetStateAction<boolean>>,
-  ) => void;
+  /** Custom function to react to link preview dismissal */
+  onLinkPreviewDismissed?: (linkPreview: LinkPreview) => void;
 };
 ```
 
