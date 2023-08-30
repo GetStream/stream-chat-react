@@ -53,18 +53,15 @@ export const useLinkPreviews = <
 
   const dismissLinkPreview = useCallback(
     (linkPreview: LinkPreview) => {
-      if (onPreviewDismissed) {
-        onPreviewDismissed(linkPreview, setEnrichURLsEnabled);
-      } else {
-        const previewToRemoveMap = new Map();
-        linkPreview.state = LinkPreviewState.DISMISSED;
-        previewToRemoveMap.set(linkPreview.og_scrape_url, linkPreview);
-        dispatch({
-          linkPreviews: previewToRemoveMap,
-          mode: SetLinkPreviewMode.UPSERT,
-          type: 'setLinkPreviews',
-        });
-      }
+      onPreviewDismissed?.(linkPreview, setEnrichURLsEnabled);
+      const previewToRemoveMap = new Map();
+      linkPreview.state = LinkPreviewState.DISMISSED;
+      previewToRemoveMap.set(linkPreview.og_scrape_url, linkPreview);
+      dispatch({
+        linkPreviews: previewToRemoveMap,
+        mode: SetLinkPreviewMode.UPSERT,
+        type: 'setLinkPreviews',
+      });
     },
     [onPreviewDismissed],
   );
