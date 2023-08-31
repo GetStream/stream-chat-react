@@ -1,3 +1,44 @@
+# [10.9.0](https://github.com/GetStream/stream-chat-react/compare/v10.8.9...v10.9.0) (2023-08-21)
+
+
+### Bug Fixes
+
+* keep showing message read receipt once read ([#2080](https://github.com/GetStream/stream-chat-react/issues/2080)) ([6f9fb96](https://github.com/GetStream/stream-chat-react/commit/6f9fb96c3746d1f59291f130bae7621154432b8a))
+
+
+### Features
+
+* show read receipts in VirtualizedMessageList ([#2076](https://github.com/GetStream/stream-chat-react/issues/2076)) ([e08d972](https://github.com/GetStream/stream-chat-react/commit/e08d972ebbadf460f021b031bd34bd44e31faa16))
+
+## [10.8.9](https://github.com/GetStream/stream-chat-react/compare/v10.8.8...v10.8.9) (2023-08-11)
+
+
+### Bug Fixes
+
+* remove color code from LoadingIndicator root class ([#2072](https://github.com/GetStream/stream-chat-react/issues/2072)) ([eba171f](https://github.com/GetStream/stream-chat-react/commit/eba171f8a1ff880b79f9d5da62c372d8127d0c26))
+
+## [10.8.8](https://github.com/GetStream/stream-chat-react/compare/v10.8.7...v10.8.8) (2023-07-27)
+
+
+### Bug Fixes
+
+* prevent remounting Message components in VirtualizedMessageList ([#2067](https://github.com/GetStream/stream-chat-react/issues/2067)) ([17d48b0](https://github.com/GetStream/stream-chat-react/commit/17d48b0f690489ef192acd704a02f1b90c38df79))
+
+## [10.8.7](https://github.com/GetStream/stream-chat-react/compare/v10.8.6...v10.8.7) (2023-07-17)
+
+
+### Bug Fixes
+
+* namespace the ChannelSearch's root element "inline" and "popup" classes ([#2056](https://github.com/GetStream/stream-chat-react/issues/2056)) ([442e177](https://github.com/GetStream/stream-chat-react/commit/442e17723dbe6731289e51305cc4ba003e533b7e))
+
+## [10.8.6](https://github.com/GetStream/stream-chat-react/compare/v10.8.5...v10.8.6) (2023-07-11)
+
+
+### Bug Fixes
+
+* enable search results scrolling ([#2041](https://github.com/GetStream/stream-chat-react/issues/2041)) ([e61cabe](https://github.com/GetStream/stream-chat-react/commit/e61cabe457edc50e4fa69dbafc1cea3205885b41))
+* prevent ignoring the clearSearchOnClickOutside search param on mobile ([#2039](https://github.com/GetStream/stream-chat-react/issues/2039)) ([e83d313](https://github.com/GetStream/stream-chat-react/commit/e83d313085bff66d8a1bdb8886e61fd85af19692))
+
 ## [10.8.5](https://github.com/GetStream/stream-chat-react/compare/v10.8.4...v10.8.5) (2023-06-27)
 
 
