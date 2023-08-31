@@ -1,3 +1,10 @@
+## [10.9.1](https://github.com/GetStream/stream-chat-react/compare/v10.9.0...v10.9.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* export ChannelSearchFunctionParams & ChannelSearchParams types ([#2084](https://github.com/GetStream/stream-chat-react/issues/2084)) ([1ef81ea](https://github.com/GetStream/stream-chat-react/commit/1ef81ea602c9b1e817f3bbe2c2dcf5b12e838fee))
+
 # [10.9.0](https://github.com/GetStream/stream-chat-react/compare/v10.8.9...v10.9.0) (2023-08-21)
 
 
