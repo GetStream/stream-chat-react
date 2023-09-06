@@ -46,7 +46,6 @@ const externalDependencies = [
   'lodash.throttle',
   'lodash.uniqby',
   'mml-react',
-  'nanoid',
   'pretty-bytes',
   'prop-types',
   'react-fast-compare',
