@@ -105,6 +105,9 @@ export const useSubmitHandler = <
   ) => {
     event.preventDefault();
 
+    if (text.includes('/poll')) {
+    }
+
     const trimmedMessage = text.trim();
     const isEmptyMessage =
       trimmedMessage === '' ||

@@ -33,6 +33,8 @@ import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
+import { Modal } from '../Modal';
+import { PollForm } from './PollForm';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -203,6 +205,7 @@ const MessageInputV2 = <
     SendButton = DefaultSendButton,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
 
+  const [creatingPoll, setCreatingPoll] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { attributes, styles } = usePopper(referenceElement, popperElement, {
@@ -234,6 +237,11 @@ const MessageInputV2 = <
 
   return (
     <>
+      {creatingPoll && (
+        <Modal onClose={() => setCreatingPoll(false)} open={creatingPoll}>
+          <PollForm />
+        </Modal>
+      )}
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
         {isDragActive && (
           <div
@@ -305,10 +313,13 @@ const MessageInputV2 = <
                   setCooldownRemaining={setCooldownRemaining}
                 />
               ) : (
-                <SendButton
-                  disabled={!numberOfUploads && !text.length}
-                  sendMessage={handleSubmit}
-                />
+                <>
+                  <button onClick={() => setCreatingPoll(true)}>Poll</button>
+                  <SendButton
+                    disabled={!numberOfUploads && !text.length}
+                    sendMessage={handleSubmit}
+                  />
+                </>
               )}
             </>
           )}

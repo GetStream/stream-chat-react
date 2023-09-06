@@ -378,6 +378,7 @@ const ChannelInner = <
   const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
+    console.log('event', event.type, event);
     if (event.message) {
       dispatch({
         channel,

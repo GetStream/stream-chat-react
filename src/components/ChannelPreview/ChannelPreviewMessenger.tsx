@@ -63,7 +63,7 @@ const UnMemoizedChannelPreviewMessenger = <
       <div className='str-chat__channel-preview-messenger--right str-chat__channel-preview-end'>
         <div className='str-chat__channel-preview-end-first-row'>
           <div className='str-chat__channel-preview-messenger--name'>
-            <span>{displayTitle}</span>
+            <span>{channel.id}</span>
           </div>
           {!!unread && (
             <div className='str-chat__channel-preview-unread-badge' data-testid='unread-badge'>

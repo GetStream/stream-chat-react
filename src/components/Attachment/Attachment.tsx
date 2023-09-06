@@ -7,6 +7,7 @@ import {
   isAudioAttachment,
   isFileAttachment,
   isMediaAttachment,
+  isPollAttachment,
   isScrapedContent,
   isUploadedImage,
 } from './utils';
@@ -18,6 +19,7 @@ import {
   GalleryContainer,
   ImageContainer,
   MediaContainer,
+  PollContainer,
   UnsupportedAttachmentContainer,
 } from './AttachmentContainer';
 
@@ -36,6 +38,7 @@ const CONTAINER_MAP = {
   card: CardContainer,
   file: FileContainer,
   media: MediaContainer,
+  poll: PollContainer,
   unsupported: UnsupportedAttachmentContainer,
 } as const;
 
@@ -44,6 +47,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'gallery',
   'image',
   'media',
+  'poll',
   'audio',
   'file',
   'unsupported',
@@ -70,6 +74,7 @@ export type AttachmentProps<
   Image?: React.ComponentType<ImageProps>;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
+  Poll?: React.ComponentType<any>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
 };
@@ -89,7 +94,7 @@ export const Attachment = <
   return (
     <div className='str-chat__attachment-list'>
       {ATTACHMENT_GROUPS_ORDER.reduce(
-        (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
+        (acc, groupName) => [...acc, ...(groupedAttachments[groupName] || {})],
         [] as React.ReactNode[],
       )}
     </div>
@@ -111,11 +116,13 @@ const renderGroupedAttachments = <
     .reduce<GroupedRenderedAttachment>(
       (typeMap, attachment) => {
         const attachmentType = getAttachmentType(attachment);
-
         const Container = CONTAINER_MAP[attachmentType];
+        if (!typeMap[attachmentType]) {
+          typeMap[attachmentType] = [];
+        }
         typeMap[attachmentType].push(
           <Container
-            key={`${attachmentType}-${typeMap[attachmentType].length}`}
+            key={`${attachmentType}-${typeMap[attachmentType].length || 0}`}
             {...rest}
             attachment={attachment}
           />,
@@ -166,6 +173,8 @@ const getAttachmentType = <
     return 'card';
   } else if (isMediaAttachment(attachment)) {
     return 'media';
+  } else if (isPollAttachment(attachment)) {
+    return 'poll';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
   } else if (isFileAttachment(attachment)) {
