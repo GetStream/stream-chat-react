@@ -47,7 +47,6 @@
     "prop-types": "^15.7.2",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
-    "react-file-utils": "^1.2.0",
     "react-image-gallery": "1.2.12",
     "react-is": "^18.1.0",
     "react-markdown": "^8.0.7",
