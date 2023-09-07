@@ -7,7 +7,7 @@ title: Link Previews in Message Input
 import LinkPreviewMessageInput from '../../assets/link-preview-message-input.png'
 import LinkPreviewEditMessageForm from '../../assets/link-preview-edit-message-form.png'
 
-The purpose of link previews in message input is to provide visual guides of what a user may expect to be rendered later in message list by [`Card` component](../../../components/message-components/attachment#card) among message attachments.
+The purpose of link previews in the `MessageInput` is to provide visual guides of what a user may expect to be rendered later in the `MessageList` by [`Card` component](../../../components/message-components/attachment#card) among message attachments.
 
 
 ## Rendering of link previews
@@ -266,7 +266,7 @@ const App = () => (
 
 #### Custom debounce interval
 
-The default debounce interval is 1.5 seconds. This can be prolonged or shorten by passing `debounceURLEnrichmentMs` configuration parameter:
+The default debounce interval is 1.5 seconds. This interval can be increased or decreased by passing `debounceURLEnrichmentMs` configuration parameter:
 
 ```typescript jsx
 import {
