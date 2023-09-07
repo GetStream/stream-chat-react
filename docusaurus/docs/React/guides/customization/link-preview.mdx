@@ -231,7 +231,7 @@ const urlEnrichmentConfig = {
 const App = () => (
   <Channel  enrichURLForPreview >
     <MessageList additionalMessageInputProps={ urlEnrichmentConfig} } />
-    <MessageInput {...urlEnrichmentConfig } />
+    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
     <Thread additionalMessageInputProps={ urlEnrichmentConfig } />
   </Channel>
 )
@@ -258,7 +258,7 @@ const urlEnrichmentConfig = {
 const App = () => (
   <Channel  enrichURLForPreview >
     <MessageList additionalMessageInputProps={ urlEnrichmentConfig } />
-    <MessageInput {...urlEnrichmentConfig} />
+    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
     <Thread additionalMessageInputProps={ urlEnrichmentConfig }/>
   </Channel>
 )
@@ -284,7 +284,7 @@ const urlEnrichmentConfig = {
 const App = () => (
   <Channel  enrichURLForPreview >
     <MessageList additionalMessageInputProps={ urlEnrichmentConfig } />
-    <MessageInput {...urlEnrichmentConfig} />
+    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
     <Thread additionalMessageInputProps={ urlEnrichmentConfig } />
   </Channel>
 )
