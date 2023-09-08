@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FileUploadButton, ImageDropzone, UploadButton } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone, UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { usePopper } from 'react-popper';

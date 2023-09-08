@@ -1,5 +1,9 @@
 import { useCallback } from 'react';
-import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
+import {
+  dataTransferItemsHaveFiles,
+  dataTransferItemsToFiles,
+  FileLike,
+} from '../../ReactFileUtilities';
 import type { EnrichURLsController } from './useLinkPreviews';
 import { SetLinkPreviewMode } from '../types';
 

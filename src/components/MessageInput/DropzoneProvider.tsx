@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { ImageDropzone } from 'react-file-utils';
+import { ImageDropzone } from '../ReactFileUtilities';
 
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';

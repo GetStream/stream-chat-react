@@ -6,7 +6,7 @@ import { useFileUploads } from './useFileUploads';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { FileLike } from 'react-file-utils';
+import type { FileLike } from '../../ReactFileUtilities';
 
 import type { MessageInputProps } from '../MessageInput';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
