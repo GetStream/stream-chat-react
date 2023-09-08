@@ -9,6 +9,8 @@ import type { MessageInputReducerAction, MessageInputState } from './useMessageI
 import type { MessageInputProps } from '../MessageInput';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { EnrichURLsController } from './useLinkPreviews';
+import { LinkPreviewState } from '../types';
 
 const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('video/')) return 'video';
@@ -24,6 +26,7 @@ export const useSubmitHandler = <
   state: MessageInputState<StreamChatGenerics>,
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   numberOfUploads: number,
+  enrichURLsController: EnrichURLsController,
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
 
@@ -33,10 +36,12 @@ export const useSubmitHandler = <
     fileUploads,
     imageOrder,
     imageUploads,
+    linkPreviews,
     mentioned_users,
     text,
   } = state;
 
+  const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
   const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
     'useSubmitHandler',
@@ -127,7 +132,39 @@ export const useSubmitHandler = <
       return addNotification(t('Wait until all attachments have uploaded'), 'error');
     }
 
-    const newAttachments = getAttachmentsFromUploads();
+    let attachmentsFromUploads = getAttachmentsFromUploads();
+    let attachmentsFromLinkPreviews: Attachment[] = [];
+    let someLinkPreviewsLoading;
+    let someLinkPreviewsDismissed;
+    if (findAndEnqueueURLsToEnrich) {
+      // filter out all the attachments scraped before the message was edited - only if the scr
+      attachmentsFromUploads = attachmentsFromUploads.filter(
+        (attachment) => !attachment.og_scrape_url,
+      );
+      // prevent showing link preview in MessageInput after the message has been sent
+      cancelURLEnrichment();
+      someLinkPreviewsLoading = Array.from(linkPreviews.values()).some((linkPreview) =>
+        [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
+      );
+      someLinkPreviewsDismissed = Array.from(linkPreviews.values()).some(
+        (linkPreview) => linkPreview.state === LinkPreviewState.DISMISSED,
+      );
+
+      if (!someLinkPreviewsLoading) {
+        attachmentsFromLinkPreviews = Array.from(linkPreviews.values())
+          .filter(
+            (linkPreview) =>
+              linkPreview.state === LinkPreviewState.LOADED &&
+              !attachmentsFromUploads.find(
+                (attFromUpload) => attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
+              ),
+          )
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .map(({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment);
+      }
+    }
+
+    const newAttachments = [...attachmentsFromUploads, ...attachmentsFromLinkPreviews];
 
     // Instead of checking if a user is still mentioned every time the text changes,
     // just filter out non-mentioned users before submit, which is cheaper
@@ -145,16 +182,25 @@ export const useSubmitHandler = <
       mentioned_users: actualMentionedUsers,
       text,
     };
-
+    // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
+    const linkPreviewsEnabled = !!findAndEnqueueURLsToEnrich;
+    const skip_enrich_url =
+      linkPreviewsEnabled &&
+      ((!someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0) ||
+        someLinkPreviewsDismissed);
+    const sendOptions = linkPreviewsEnabled ? { skip_enrich_url } : undefined;
     if (message) {
       delete message.i18n;
 
       try {
-        await editMessage(({
-          ...message,
-          ...updatedMessage,
-          ...customMessageData,
-        } as unknown) as UpdatedMessage<StreamChatGenerics>);
+        await editMessage(
+          ({
+            ...message,
+            ...updatedMessage,
+            ...customMessageData,
+          } as unknown) as UpdatedMessage<StreamChatGenerics>,
+          sendOptions,
+        );
 
         clearEditingState?.();
         dispatch({ type: 'clear' });
@@ -173,6 +219,7 @@ export const useSubmitHandler = <
             },
             channel.cid,
             customMessageData,
+            sendOptions,
           );
         } else {
           await sendMessage(
@@ -181,6 +228,7 @@ export const useSubmitHandler = <
               parent,
             },
             customMessageData,
+            sendOptions,
           );
         }
 

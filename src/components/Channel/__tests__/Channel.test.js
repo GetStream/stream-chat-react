@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -13,8 +14,10 @@ import { useComponentContext } from '../../../context/ComponentContext';
 import { useEmojiContext } from '../../../context/EmojiContext';
 import {
   generateChannel,
+  generateFileAttachment,
   generateMember,
   generateMessage,
+  generateScrapedDataAttachment,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
@@ -94,7 +97,7 @@ describe('Channel', () => {
     const { messages: channelMessages } = useChannelStateContext();
 
     return channelMessages.map(
-      ({ id, status, text }) => status !== 'failed' && <div key={id}>{text}</div>,
+      ({ id, status, text }) => status !== 'failed' && <div key={id || nanoid()}>{text}</div>,
     );
   };
 
@@ -680,6 +683,7 @@ describe('Channel', () => {
           expect(doSendMessageRequest).toHaveBeenCalledWith(
             channel.cid,
             expect.objectContaining(message),
+            undefined,
           ),
         );
       });
@@ -710,7 +714,9 @@ describe('Channel', () => {
         renderComponent({}, ({ editMessage }) => {
           editMessage(updatedMessage);
         });
-        await waitFor(() => expect(clientUpdateMessageSpy).toHaveBeenCalledWith(updatedMessage));
+        await waitFor(() =>
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(updatedMessage, undefined, undefined),
+        );
       });
 
       it('should use doUpdateMessageRequest for the editMessage callback if provided', async () => {
@@ -721,7 +727,7 @@ describe('Channel', () => {
         });
 
         await waitFor(() =>
-          expect(doUpdateMessageRequest).toHaveBeenCalledWith(channel.cid, messages[0]),
+          expect(doUpdateMessageRequest).toHaveBeenCalledWith(channel.cid, messages[0], undefined),
         );
       });
 
@@ -768,6 +774,45 @@ describe('Channel', () => {
         await waitFor(async () => {
           expect(await findByText(messageObject.text)).toBeInTheDocument();
         });
+      });
+
+      it('should remove scraped attachment on retry-sending message', async () => {
+        // flag to prevent infinite loop
+        let hasSent = false;
+        let hasRetried = false;
+        const fileAttachment = generateFileAttachment();
+        const scrapedAttachment = generateScrapedDataAttachment();
+        const attachments = [fileAttachment, scrapedAttachment];
+        const messageObject = { attachments, text: 'bla bla' };
+        const sendMessageSpy = jest
+          .spyOn(channel, 'sendMessage')
+          .mockImplementationOnce(() => Promise.reject());
+
+        await act(() => {
+          renderComponent(
+            { children: <MockMessageList /> },
+            ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
+              if (!hasSent) {
+                sendMessage(messageObject);
+                hasSent = true;
+              } else if (!hasRetried && contextMessages.some(({ status }) => status === 'failed')) {
+                // retry
+                useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
+                retrySendMessage(messageObject);
+                hasRetried = true;
+              }
+            },
+          );
+        });
+
+        expect(sendMessageSpy).not.toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ attachments: [scrapedAttachment] }),
+        );
+        expect(sendMessageSpy).not.toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ attachments: [fileAttachment] }),
+        );
       });
 
       it('should allow removing messages', async () => {

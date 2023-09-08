@@ -2,13 +2,14 @@ import { useChatContext } from '../../../context/ChatContext';
 
 import type { StreamChat, UpdatedMessage } from 'stream-chat';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics, UpdateMessageOptions } from '../../../types/types';
 
 type UpdateHandler<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = (
   cid: string,
   updatedMessage: UpdatedMessage<StreamChatGenerics>,
+  options?: UpdateMessageOptions,
 ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
 
 export const useEditMessageHandler = <
@@ -18,10 +19,10 @@ export const useEditMessageHandler = <
 ) => {
   const { channel, client } = useChatContext<StreamChatGenerics>('useEditMessageHandler');
 
-  return (updatedMessage: UpdatedMessage<StreamChatGenerics>) => {
+  return (updatedMessage: UpdatedMessage<StreamChatGenerics>, options?: UpdateMessageOptions) => {
     if (doUpdateMessageRequest && channel) {
-      return Promise.resolve(doUpdateMessageRequest(channel.cid, updatedMessage));
+      return Promise.resolve(doUpdateMessageRequest(channel.cid, updatedMessage, options));
     }
-    return client.updateMessage(updatedMessage);
+    return client.updateMessage(updatedMessage, undefined, options);
   };
 };

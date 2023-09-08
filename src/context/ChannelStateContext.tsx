@@ -15,6 +15,7 @@ import type {
   UnknownType,
   VideoAttachmentSizeHandler,
 } from '../types/types';
+import type { URLEnrichmentConfig } from '../components/MessageInput/hooks/useLinkPreviews';
 
 export type ChannelNotifications = Array<{
   id: string;
@@ -66,10 +67,14 @@ export type ChannelStateContextValue<
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   acceptedFiles?: string[];
+  debounceURLEnrichmentMs?: URLEnrichmentConfig['debounceURLEnrichmentMs'];
   dragAndDropWindow?: boolean;
+  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
+  findURLFn?: URLEnrichmentConfig['findURLFn'];
   giphyVersion?: GiphyVersions;
   maxNumberOfFiles?: number;
   mutes?: Array<Mute<StreamChatGenerics>>;
+  onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
   watcher_count?: number;
 };
 

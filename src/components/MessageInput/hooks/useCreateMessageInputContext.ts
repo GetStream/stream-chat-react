@@ -13,6 +13,7 @@ export const useCreateMessageInputContext = <
     additionalTextareaProps,
     attachments,
     autocompleteTriggers,
+    cancelURLEnrichment,
     clearEditingState,
     closeCommandsList,
     closeEmojiPicker,
@@ -21,6 +22,7 @@ export const useCreateMessageInputContext = <
     cooldownRemaining,
     disabled,
     disableMentions,
+    dismissLinkPreview,
     doFileUploadRequest,
     doImageUploadRequest,
     emojiIndex,
@@ -29,6 +31,7 @@ export const useCreateMessageInputContext = <
     errorHandler,
     fileOrder,
     fileUploads,
+    findAndEnqueueURLsToEnrich,
     focus,
     grow,
     handleChange,
@@ -38,6 +41,7 @@ export const useCreateMessageInputContext = <
     imageUploads,
     insertText,
     isUploadEnabled,
+    linkPreviews,
     maxFilesLeft,
     maxRows,
     mentionAllAppUsers,
@@ -79,6 +83,7 @@ export const useCreateMessageInputContext = <
     // eslint-disable-next-line
     .map(([_, value]) => value.state)
     .join();
+  const linkPreviewsValue = Array.from(linkPreviews.values()).join();
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
 
@@ -87,6 +92,7 @@ export const useCreateMessageInputContext = <
       additionalTextareaProps,
       attachments,
       autocompleteTriggers,
+      cancelURLEnrichment,
       clearEditingState,
       closeCommandsList,
       closeEmojiPicker,
@@ -95,6 +101,7 @@ export const useCreateMessageInputContext = <
       cooldownRemaining,
       disabled,
       disableMentions,
+      dismissLinkPreview,
       doFileUploadRequest,
       doImageUploadRequest,
       emojiIndex,
@@ -103,6 +110,7 @@ export const useCreateMessageInputContext = <
       errorHandler,
       fileOrder,
       fileUploads,
+      findAndEnqueueURLsToEnrich,
       focus,
       grow,
       handleChange,
@@ -112,6 +120,7 @@ export const useCreateMessageInputContext = <
       imageUploads,
       insertText,
       isUploadEnabled,
+      linkPreviews,
       maxFilesLeft,
       maxRows,
       mentionAllAppUsers,
@@ -144,13 +153,17 @@ export const useCreateMessageInputContext = <
       useMentionsTransliteration,
     }),
     [
+      cancelURLEnrichment,
       cooldownInterval,
       cooldownRemaining,
+      dismissLinkPreview,
       editing,
       emojiPickerIsOpen,
       fileUploadsValue,
+      findAndEnqueueURLsToEnrich,
       imageUploadsValue,
       isUploadEnabled,
+      linkPreviewsValue,
       mentionedUsersLength,
       parentId,
       publishTypingEvent,
