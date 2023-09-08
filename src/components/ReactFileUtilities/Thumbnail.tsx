@@ -1,8 +1,7 @@
 import React, { MouseEventHandler, useCallback } from 'react';
 
 import { IconButton } from './IconButton';
-import { FilePlaceholder } from './FilePlaceholder';
-import { CloseIcon } from './CloseIcon';
+import { CloseIcon, FilePlaceholderIcon } from './icons';
 
 export type ThumbnailProps = {
   image: string;
@@ -30,7 +29,10 @@ export const Thumbnail = ({ alt, handleClose, image, size = 100 }: ThumbnailProp
       {image ? (
         <img alt={alt ?? ''} className='rfu-thumbnail__image' src={image} />
       ) : (
-        <FilePlaceholder className='rfu-thumbnail__image' preserveAspectRatio='xMinYMin slice' />
+        <FilePlaceholderIcon
+          className='rfu-thumbnail__image'
+          preserveAspectRatio='xMinYMin slice'
+        />
       )}
     </div>
   );

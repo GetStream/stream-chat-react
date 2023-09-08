@@ -1,6 +1,6 @@
-import React, { SVGProps } from 'react';
+import React, { ComponentPropsWithoutRef } from 'react';
 
-export const FilePlaceholder = (props: SVGProps<SVGSVGElement>) => (
+export const FilePlaceholderIcon = (props: ComponentPropsWithoutRef<'svg'>) => (
   <svg role='img' viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg' {...props}>
     <g>
       <path

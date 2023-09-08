@@ -1,4 +1,4 @@
-import React, { SVGProps } from 'react';
+import React, { ComponentPropsWithoutRef } from 'react';
 
 export type IconTypeV2 = 'standard' | 'alt';
 
@@ -6,7 +6,7 @@ export type IconPropsV2 = {
   mimeType?: string;
   size?: number;
   type?: IconTypeV2;
-} & SVGProps<SVGSVGElement>;
+} & ComponentPropsWithoutRef<'svg'>;
 
 const DEFAULT_SIZE = 40;
 

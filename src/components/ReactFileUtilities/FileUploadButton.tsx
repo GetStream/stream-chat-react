@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
-import { AttachmentIcon } from './AttachmentIcon';
-import { useHandleFileChangeWrapper } from './utils';
+import { AttachmentIcon } from './icons';
+import { UploadButton } from './UploadButton';
 
 export type FileUploadButtonProps = {
   handleFiles: (files: FileList | File[]) => void;
@@ -11,6 +11,9 @@ export type FileUploadButtonProps = {
   resetOnChange?: boolean;
 };
 
+/**
+ * @deprecated will be removed in the next major release
+ */
 export const FileUploadButton = ({
   disabled = false,
   multiple = false,
@@ -24,19 +27,17 @@ export const FileUploadButton = ({
     className = `${className} rfu-file-upload-button--disabled`;
   }
 
-  const onFileChange = useHandleFileChangeWrapper(resetOnChange, handleFiles);
-
   return (
     <div className={className}>
       <label>
-        <input
+        <UploadButton
           accept={Array.isArray(accepts) ? accepts.join(',') : accepts}
           aria-label='File input'
           className='rfu-file-input'
           disabled={disabled}
           multiple={multiple}
-          onChange={onFileChange}
-          type='file'
+          onFileChange={handleFiles}
+          resetOnChange={resetOnChange}
         />
         {children}
       </label>

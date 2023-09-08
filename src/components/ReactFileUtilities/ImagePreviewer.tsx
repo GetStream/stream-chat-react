@@ -3,7 +3,7 @@ import React, { MouseEvent, useCallback } from 'react';
 import { LoadingIndicator } from './LoadingIndicator';
 import { Thumbnail } from './Thumbnail';
 import { ThumbnailPlaceholder } from './ThumbnailPlaceholder';
-import { RetryIcon } from './RetryIcon';
+import { RetryIcon } from './icons';
 
 import type { ImageUpload } from './types';
 import clsx from 'clsx';

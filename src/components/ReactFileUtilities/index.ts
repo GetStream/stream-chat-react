@@ -1,4 +1,3 @@
-export * from './AttachmentIcon';
 export * from './FileIcon';
 export * from './FilePreviewer';
 export * from './FileUploadButton';
@@ -6,9 +5,9 @@ export * from './ImageDropzone';
 export * from './ImagePreviewer';
 export * from './ImageUploadButton';
 export * from './LoadingIndicator';
-export * from './PictureIcon';
 export * from './Thumbnail';
 export * from './ThumbnailPlaceholder';
 export * from './UploadButton';
 export * from './types';
 export * from './utils';
+export { AttachmentIcon, PictureIcon } from './icons';

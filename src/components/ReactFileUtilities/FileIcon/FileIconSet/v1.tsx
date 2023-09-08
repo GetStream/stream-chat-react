@@ -2,9 +2,9 @@
  * Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com
  * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
  */
-import React, { SVGProps } from 'react';
+import React, { ComponentPropsWithoutRef } from 'react';
 
-export type IconPropsV1 = { size?: number } & SVGProps<SVGSVGElement>;
+export type IconPropsV1 = { size?: number } & ComponentPropsWithoutRef<'svg'>;
 
 const DEFAULT_SIZE = 20;
 

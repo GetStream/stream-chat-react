@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 
-import { PictureIcon } from './PictureIcon';
-import { useHandleFileChangeWrapper } from './utils';
+import { PictureIcon } from './icons';
+import { UploadButton } from './UploadButton';
 
 export type ImageUploadButtonProps = {
   handleFiles: (files: File[]) => void;
@@ -10,29 +10,28 @@ export type ImageUploadButtonProps = {
   resetOnChange?: boolean;
 };
 
+/**
+ * @deprecated will be removed in the next major release
+ */
 export const ImageUploadButton = ({
   multiple = false,
   disabled = false,
   handleFiles,
   children = <PictureIcon />,
   resetOnChange = false,
-}: PropsWithChildren<ImageUploadButtonProps>) => {
-  const onFileChange = useHandleFileChangeWrapper(resetOnChange, handleFiles);
-
-  return (
-    <div className='rfu-image-upload-button'>
-      <label>
-        <input
-          accept='image/*'
-          aria-label='Image input'
-          className='rfu-image-input'
-          disabled={disabled}
-          multiple={multiple}
-          onChange={onFileChange}
-          type='file'
-        />
-        {children}
-      </label>
-    </div>
-  );
-};
+}: PropsWithChildren<ImageUploadButtonProps>) => (
+  <div className='rfu-image-upload-button'>
+    <label>
+      <UploadButton
+        accept='image/*'
+        aria-label='Image input'
+        className='rfu-image-input'
+        disabled={disabled}
+        multiple={multiple}
+        onFileChange={handleFiles}
+        resetOnChange={resetOnChange}
+      />
+      {children}
+    </label>
+  </div>
+);
