@@ -78,13 +78,12 @@ Function to close the `EmojiPicker` component.
 | ------------------------------------------- |
 | React.MouseEventHandler<HTMLButtonElement\> |
 
-
 ### closeEmojiPickerOnClick
 
 If true, picking an emoji from the `EmojiPicker` component will close the picker.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
 
 ### closeMentionsList
@@ -132,7 +131,7 @@ If true, the suggestion list will not display and autocomplete @mentions.
 Function called when a single link preview is dismissed.
 
 | Type                               |
-|------------------------------------|
+| ---------------------------------- |
 | (linkPreview: LinkPreview) => void |
 
 ### doFileUploadRequest
@@ -203,8 +202,8 @@ A mapping of the file attachments added to the current message.
 
 A function responsible for initiating URL discovery and their subsequent enrichment. It is available only if link preview rendering is enabled. Link previews are disabled by default.
 
-| Type                         |
-| ---------------------------- |
+| Type                                              |
+| ------------------------------------------------- |
 | (text: string, mode?: SetLinkPreviewMode) => void |
 
 ### focus
@@ -283,8 +282,8 @@ If true, file uploads are enabled in the currently active channel.
 
 A Map of `LinkPreview` objects (a union type of `LinkPreviewState` and `OGAttachment`) indexed by string representing link URL. The link URL value is provided by `OGAttachment.og_scrape_url`.
 
-| Type    |
-| ------- |
+| Type                       |
+| -------------------------- |
 | Map<LinkURL, LinkPreview\> |
 
 ### shouldSubmit
@@ -511,7 +510,6 @@ Function to upload an image.
 | Type                 |
 | -------------------- |
 | (id: string) => void |
-
 
 ### uploadNewFiles
 

@@ -3,6 +3,7 @@ id: channel_search
 sidebar_position: 5
 title: ChannelSearch
 ---
+
 import ImageShowcase from '@site/src/components/ImageShowcase';
 
 import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
@@ -56,7 +57,7 @@ If opted in the use of [theme version 2](../../theming/introduction.mdx), the `C
 The input naturally transitions between 3 states regardless of theme version:
 
 | Input state   | Input                            | Search results |
-|---------------|----------------------------------|----------------|
+| ------------- | -------------------------------- | -------------- |
 | inactive      | not focused                      | not rendered   |
 | focused       | focused and empty                | not rendered   |
 | active search | contains non-empty search string | rendered       |
@@ -66,12 +67,10 @@ It is possible to jump directly from active search state to inactive by pressing
 Once the search results container is rendered it transitions between the following states:
 
 | Search results state      | Search results                                                    |
-|---------------------------|-------------------------------------------------------------------|
+| ------------------------- | ----------------------------------------------------------------- |
 | loading                   | the search API call is in progress                                |
 | empty search (result)     | the search API call returned an empty array                       |
 | non-empty search (result) | the search API call returned an array of channel and user objects |
-
-
 
 ### SearchInput component
 
@@ -92,8 +91,16 @@ The `SearchBar` is rendered with [app menu icon](./#menuicon) if a custom [`AppM
 <ImageShowcase
   border
   items={[
-    { image: ImageInactiveSearchBarNoAppMenu, caption: <span>Inactive search bar with an app menu</span>, alt: 'Image of an inactive search bar state with an app menu' },
-    { image: ImageInactiveSearchBarWithAppMenu, caption: <span>Inactive search bar without an app menu</span>, alt: 'Image of an inactive search bar state without an app menu' },
+    {
+      image: ImageInactiveSearchBarNoAppMenu,
+      caption: <span>Inactive search bar with an app menu</span>,
+      alt: 'Image of an inactive search bar state with an app menu',
+    },
+    {
+      image: ImageInactiveSearchBarWithAppMenu,
+      caption: <span>Inactive search bar without an app menu</span>,
+      alt: 'Image of an inactive search bar state without an app menu',
+    },
   ]}
 />
 
@@ -104,8 +111,16 @@ Once the input is focused, a return-arrow button occurs with [`ExitSearchIcon`](
 <ImageShowcase
   border
   items={[
-    { image: ImageActiveSearchBarNoText, caption: <span>Active search bar with empty input</span>, alt: 'Image of an active search bar state with empty input' },
-    { image: ImageActiveSearchBarWithText, caption: <span>Active search bar with search query</span>, alt: 'Image of an active search bar with search query' },
+    {
+      image: ImageActiveSearchBarNoText,
+      caption: <span>Active search bar with empty input</span>,
+      alt: 'Image of an active search bar state with empty input',
+    },
+    {
+      image: ImageActiveSearchBarWithText,
+      caption: <span>Active search bar with search query</span>,
+      alt: 'Image of an active search bar with search query',
+    },
   ]}
 />
 
@@ -128,10 +143,26 @@ The default styling of the first two states are as follows:
 <ImageShowcase
   border
   items={[
-    { image: ImageSearchResultsLoadingThemeV1, caption: <span>Search results list content when loading (theme v1)</span>, alt: 'Image of search results list content when loading' },
-    { image: ImageSearchResultsEmptyThemeV1, caption: <span>Empty search results (theme v1)</span>, alt: 'Image of empty search results' },
-    { image: ImageSearchResultsLoadingThemeV2, caption: <span>Search results list content when loading (theme v2)</span>, alt: 'Image of search results list content when loading' },
-    { image: ImageSearchResultsEmptyThemeV2, caption: <span>Empty search results (theme v2)</span>, alt: 'Image of empty search results' },
+    {
+      image: ImageSearchResultsLoadingThemeV1,
+      caption: <span>Search results list content when loading (theme v1)</span>,
+      alt: 'Image of search results list content when loading',
+    },
+    {
+      image: ImageSearchResultsEmptyThemeV1,
+      caption: <span>Empty search results (theme v1)</span>,
+      alt: 'Image of empty search results',
+    },
+    {
+      image: ImageSearchResultsLoadingThemeV2,
+      caption: <span>Search results list content when loading (theme v2)</span>,
+      alt: 'Image of search results list content when loading',
+    },
+    {
+      image: ImageSearchResultsEmptyThemeV2,
+      caption: <span>Empty search results (theme v2)</span>,
+      alt: 'Image of empty search results',
+    },
   ]}
 />
 
@@ -142,26 +173,41 @@ The search results can be rendered in place of the channel list or above the cha
 <ImageShowcase
   border
   items={[
-    { image: ImageSearchResultsInlineThemeV1, caption: <span>Search results displayed inline (theme v1)</span>, alt: 'Image of search results displayed inline (theme v1)' },
-    { image: ImageSearchResultsPopupThemeV1, caption: <span>Search results displayed floating above the channel list (theme v1)</span>, alt: 'Image of search results displayed floating above the channel list (theme v1)' },
-    { image: ImageSearchResultsInlineThemeV2, caption: <span>Search results displayed inline (theme v2)</span>, alt: 'Image of search results displayed inline (theme v2)' },
-    { image: ImageSearchResultsPopupThemeV2, caption: <span>Search results displayed floating above the channel list (theme v2)</span>, alt: 'Image of search results displayed floating above the channel list (theme v2)' },
+    {
+      image: ImageSearchResultsInlineThemeV1,
+      caption: <span>Search results displayed inline (theme v1)</span>,
+      alt: 'Image of search results displayed inline (theme v1)',
+    },
+    {
+      image: ImageSearchResultsPopupThemeV1,
+      caption: <span>Search results displayed floating above the channel list (theme v1)</span>,
+      alt: 'Image of search results displayed floating above the channel list (theme v1)',
+    },
+    {
+      image: ImageSearchResultsInlineThemeV2,
+      caption: <span>Search results displayed inline (theme v2)</span>,
+      alt: 'Image of search results displayed inline (theme v2)',
+    },
+    {
+      image: ImageSearchResultsPopupThemeV2,
+      caption: <span>Search results displayed floating above the channel list (theme v2)</span>,
+      alt: 'Image of search results displayed floating above the channel list (theme v2)',
+    },
   ]}
 />
 
 #### Keep the search results open on channel select
 
-The `ChannelSearch` offers possibility to keep the search results open meanwhile the user clicks between the search results. This behavior is controlled by  [`clearSearchOnClickOutside`](./#clearsearchonclickoutside) flag. The selected channel is added to the channel list if it was not present there before the search.
-
+The `ChannelSearch` offers possibility to keep the search results open meanwhile the user clicks between the search results. This behavior is controlled by [`clearSearchOnClickOutside`](./#clearsearchonclickoutside) flag. The selected channel is added to the channel list if it was not present there before the search.
 
 ## Props
 
 ### AppMenu
 
-Application menu / drop-down to be displayed  when clicked on [`MenuIcon`](./#menuicon). Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is only available with the use of the [theming v2](../../theming/introduction.mdx).  No default component is provided by the SDK. The library does not provide any CSS for `AppMenu`. Consult the customization tutorial on how to [add AppMenu to your application](../../guides/customization/channel-search.mdx/#adding-menu). The component is passed a prop `close`, which is a function that can be called to hide the app menu (e.g. on menu item selection).
+Application menu / drop-down to be displayed when clicked on [`MenuIcon`](./#menuicon). Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is only available with the use of the [theming v2](../../theming/introduction.mdx). No default component is provided by the SDK. The library does not provide any CSS for `AppMenu`. Consult the customization tutorial on how to [add AppMenu to your application](../../guides/customization/channel-search.mdx/#adding-menu). The component is passed a prop `close`, which is a function that can be called to hide the app menu (e.g. on menu item selection).
 
 | Type                  | Default     |
-|-----------------------|-------------|
+| --------------------- | ----------- |
 | `React.ComponentType` | `undefined` |
 
 ### channelType
@@ -172,13 +218,12 @@ The type of `channel` to create on user result selection.
 | --------------------------------------------------------------- | ----------- |
 | `livestream` \| `messaging` \| `team` \| `gaming` \| `commerce` | `messaging` |
 
-
 ### ClearInputIcon
 
 Custom icon component used as a content of the button used to clear the search input. Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only.
 
 | Type                  | Default                                                         |
-|-----------------------|-----------------------------------------------------------------|
+| --------------------- | --------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='XIcon' path='/ChannelSearch/icons.tsx'/> |
 
 ### clearSearchOnClickOutside
@@ -186,7 +231,7 @@ Custom icon component used as a content of the button used to clear the search i
 Signals that the search state / results should be cleared on every click outside the search input (e.g. selecting a search result or exiting the search UI), defaults to `true`. If set to `false`, the search results are kept in the UI meanwhile the user changes between the channels.
 
 | Type      | Default |
-|-----------|---------|
+| --------- | ------- |
 | `boolean` | `true`  |
 
 ### disabled
@@ -194,7 +239,7 @@ Signals that the search state / results should be cleared on every click outside
 Disables execution of the search queries and makes the search text input element disabled. Defaults to `false`.
 
 | Type      | Default |
-|-----------|---------|
+| --------- | ------- |
 | `boolean` | `false` |
 
 ### ExitSearchIcon
@@ -202,7 +247,7 @@ Disables execution of the search queries and makes the search text input element
 Custom icon component used as a content of the button used to exit the search UI. Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only.
 
 | Type                  | Default                                                              |
-|-----------------------|----------------------------------------------------------------------|
+| --------------------- | -------------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='ReturnIcon' path='/ChannelSearch/icons.tsx'/> |
 
 ### MenuIcon
@@ -210,7 +255,7 @@ Custom icon component used as a content of the button used to exit the search UI
 Custom icon component used as a content of the button used to invoke the [`AppMenu`](./#appmenu). Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only. The menu icon button is displayed only if `AppMenu` component has been passed to `ChannelSearch` props.
 
 | Type                  | Default                                                            |
-|-----------------------|--------------------------------------------------------------------|
+| --------------------- | ------------------------------------------------------------------ |
 | `React.ComponentType` | <GHComponentLink text='MenuIcon' path='/ChannelSearch/icons.tsx'/> |
 
 ### onSearch
@@ -218,7 +263,7 @@ Custom icon component used as a content of the button used to invoke the [`AppMe
 Callback invoked with every search input change handler. SDK user can provide own implementation. The prop is used by the `ChannelList` component to set a flag determining that the search has been initiated. If the search has been initiated and search result are to be displayed instead of the list of loaded channels ([`popupResults` flag](./#popupresults) is set to `false`), then the list of loaded channels is not rendered. This logic is executed despite passing custom implementation of `onSearch` function to `ChanneList` props.
 
 | Type                                          |
-|-----------------------------------------------|
+| --------------------------------------------- |
 | `React.ChangeEventHandler<HTMLInputElement\>` |
 
 ### onSearchExit
@@ -226,7 +271,7 @@ Callback invoked with every search input change handler. SDK user can provide ow
 Callback invoked when the search UI is deactivated. The `ChannelList` component uses it to set a flag that the search has been terminated and search results are not expected to be displayed in place of the list of loaded channels. And so the `ChannelList` renders the list of loaded channels. This logic is executed despite passing custom implementation of `onSearchExit` function to `ChanneList` props.
 
 | Type         |
-|--------------|
+| ------------ |
 | `() => void` |
 
 ### onSelectResult
@@ -237,8 +282,8 @@ Custom handler function to run on search result item selection. If not provided 
 2. adding the selected channel to the channel list
 3. clearing the search results, if [`clearSearchOnClickOutside` flag](./#clearsearchonclickoutside) is set to true (default)
 
-| Type                                            |
-| ----------------------------------------------- |
+| Type                                                                                                                                                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | (<br/>&nbsp;&nbsp;&nbsp;&nbsp;`params: ChannelSearchFunctionParams<StreamChatGenerics\>,` <br/>&nbsp;&nbsp;&nbsp;&nbsp;`result: ChannelOrUserResponse<StreamChatGenerics\>`<br/>) => Promise<void\> \| void |
 
 ### placeholder
@@ -246,7 +291,7 @@ Custom handler function to run on search result item selection. If not provided 
 Custom placeholder text to be displayed in the search input. Can be passed down from `ChannelList` via its `additionalChannelSearchProps`. If using custom i18n translations, it is preferable to change the placeholder value in your translations files under the key `'Search'`.
 
 | Type     | Default    |
-|----------|------------|
+| -------- | ---------- |
 | `string` | `'Search'` |
 
 ### popupResults
@@ -254,23 +299,23 @@ Custom placeholder text to be displayed in the search input. Can be passed down 
 Display search results as an absolutely positioned popup, defaults to false and shows inline.
 
 | Type      | Default |
-|-----------|---------|
+| --------- | ------- |
 | `boolean` | `false` |
 
 ### SearchBar
 
 Custom component to be rendered instead of the default <GHComponentLink text='SearchBar' path='/ChannelSearch/SearchBar.tsx'/>. This component is displayed only if `themeVersion` is `'2'`. With the theme version 1 only the `SearchInput` is rendered. The default `SearchBar` component is a composite of multiple buttons and a search input. You can find more information about its features in an [above section](./#searchbar-component).
 
-|         Type        | Default       |
-| ------------------- |---------------|
-| `React.ComponentType<SearchBarProps\>` | <GHComponentLink text='SearchBar' path='/ChannelSearch/SearchBar.tsx'/>  |
+| Type                                   | Default                                                                 |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `React.ComponentType<SearchBarProps\>` | <GHComponentLink text='SearchBar' path='/ChannelSearch/SearchBar.tsx'/> |
 
 ### SearchEmpty
 
 Custom UI component to display empty search results.
 
 | Type                  | Default                                                                              |
-|-----------------------|--------------------------------------------------------------------------------------|
+| --------------------- | ------------------------------------------------------------------------------------ |
 | `React.ComponentType` | <GHComponentLink text='DefaultSearchEmpty' path='/ChannelSearch/SearchResults.tsx'/> |
 
 ### searchForChannels
@@ -278,7 +323,7 @@ Custom UI component to display empty search results.
 Boolean to search for channels as well as users in the server query, default is `false` and just searches for users.
 
 | Type      | Default |
-|-----------|---------|
+| --------- | ------- |
 | `boolean` | `false` |
 
 ### searchFunction
@@ -290,7 +335,7 @@ Custom search function to override default. The first argument should expect an 
 - `setSearching` - signals that the HTTP search request is in progress
 
 | Type                                                                                                |
-|-----------------------------------------------------------------------------------------------------|
+| --------------------------------------------------------------------------------------------------- |
 | (`params: ChannelSearchFunctionParams, event: React.BaseSyntheticEvent` ) => Promise<void\> \| void |
 
 ### SearchInput
@@ -298,7 +343,7 @@ Custom search function to override default. The first argument should expect an 
 Custom UI component to display the search text input.
 
 | Type                                    | Default                                                                     |
-|-----------------------------------------|-----------------------------------------------------------------------------|
+| --------------------------------------- | --------------------------------------------------------------------------- |
 | `React.ComponentType<SearchInputProps>` | <GHComponentLink text='SearchInput' path='/ChannelSearch/SearchInput.tsx'/> |
 
 ### SearchLoading
@@ -306,7 +351,7 @@ Custom UI component to display the search text input.
 Custom UI component to display the search loading state. Rendered within the `SearchResults` component.
 
 | Type                  | Default                    |
-|-----------------------|----------------------------|
+| --------------------- | -------------------------- |
 | `React.ComponentType` | a div with: 'Searching...' |
 
 ### searchQueryParams
@@ -316,24 +361,23 @@ Object containing filters/sort/options overrides for user / channel search.
 The `filters` attribute (`SearchQueryParams.userFilters.filters`) can be either `UserFilters` object describing the filter query or a function with a single argument of the search / filter (query) string. The function is then expected to derive and return the `UserFilters` from the provided query string.
 
 | Type                                    |
-|-----------------------------------------|
+| --------------------------------------- |
 | `SearchQueryParams<StreamChatGenerics>` |
 
 ### SearchResultsHeader
 
 Custom UI component to display the search results header.
 
-| Type      | Default |
-| --------- |  --------- |
-| `React.ComponentType` |<GHComponentLink text='DefaultSearchResultsHeader' path='/ChannelSearch/SearchResults.tsx'/> |
-
+| Type                  | Default                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| `React.ComponentType` | <GHComponentLink text='DefaultSearchResultsHeader' path='/ChannelSearch/SearchResults.tsx'/> |
 
 ### SearchResultItem
 
 Custom UI component to display a search result list item.
 
 | Type                                                             | Default                                                                                   |
-|------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `React.ComponentType<SearchResultItemProps<StreamChatGenerics>>` | <GHComponentLink text='DefaultSearchResultItem' path='/ChannelSearch/SearchResults.tsx'/> |
 
 ### SearchResultsList
@@ -341,5 +385,5 @@ Custom UI component to display a search result list item.
 Custom UI component to display all the search results.
 
 | Type                                                              | Default                                                                                    |
-|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | `React.ComponentType<SearchResultsListProps<StreamChatGenerics>>` | <GHComponentLink text='DefaultSearchResultsList' path='/ChannelSearch/SearchResults.tsx'/> |

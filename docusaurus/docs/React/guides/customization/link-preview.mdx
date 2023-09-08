@@ -4,11 +4,10 @@ sidebar_position: 21
 title: Link Previews in Message Input
 ---
 
-import LinkPreviewMessageInput from '../../assets/link-preview-message-input.png'
-import LinkPreviewEditMessageForm from '../../assets/link-preview-edit-message-form.png'
+import LinkPreviewMessageInput from '../../assets/link-preview-message-input.png';
+import LinkPreviewEditMessageForm from '../../assets/link-preview-edit-message-form.png';
 
 The purpose of link previews in the `MessageInput` is to provide visual guides of what a user may expect to be rendered later in the `MessageList` by [`Card` component](../../../components/message-components/attachment#card) among message attachments.
-
 
 ## Rendering of link previews
 
@@ -20,14 +19,15 @@ The default `LinkPreviewList` component lists all the successfully loaded previe
 
 The default link preview UI is implemented for:
 
-
 **Message input**
-<img src={LinkPreviewMessageInput}/>
 
-<hr/>
+<img src={LinkPreviewMessageInput} />
+
+<hr />
 
 **Edit message form**
-<img src={LinkPreviewEditMessageForm}/>
+
+<img src={LinkPreviewEditMessageForm} />
 
 ### Enabling link previews
 
@@ -40,7 +40,7 @@ Those who have not previously disabled `url-enrichment` in the channel config, c
 
 **Channel props**
 
-```typescript jsx
+```tsx
 import {
   Channel,
   ChannelHeader,
@@ -51,15 +51,15 @@ import {
 } from 'stream-chat-react';
 
 const App = () => (
-    // highlight-next-line
-    <Channel enrichURLForPreview>
-      <Window>
-        <ChannelHeader />
-        <MessageList/>
-        <MessageInput/>
-      </Window>
-      <Thread/>
-    </Channel>
+  // highlight-next-line
+  <Channel enrichURLForPreview>
+    <Window>
+      <ChannelHeader />
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </Channel>
 );
 
 export default App;
@@ -67,48 +67,42 @@ export default App;
 
 **MessageList or VirtualizedMessageList (applied to EditMessageForm)**
 
-```typescript jsx
-import {
-  Channel,
-  VirtualizedMessageList as MessageList,
-} from 'stream-chat-react';
-
+```tsx
+import { Channel, VirtualizedMessageList as MessageList } from 'stream-chat-react';
 
 const App = () => (
-    <Channel>
-       {/* ... */}
-        // highlight-start
-        <MessageList
-            additionalMessageInputProps={ {
-                urlEnrichmentConfig: { enrichURLForPreview: true }
-        } }/>
-        // highlight-end
-      {/* ... */}
-    </Channel>
+  <Channel>
+    {/* ... */}
+    // highlight-start
+    <MessageList
+      additionalMessageInputProps={{
+        urlEnrichmentConfig: { enrichURLForPreview: true },
+      }}
+    />
+    // highlight-end
+    {/* ... */}
+  </Channel>
 );
 
 export default App;
 ```
 
-
 **Thread (applied to MessageInput)**
 
-```typescript jsx
-import {
-  Channel,
-  Thread,
-} from 'stream-chat-react';
+```tsx
+import { Channel, Thread } from 'stream-chat-react';
 
 const App = () => (
-    <Channel>
-      {/* ... */}
-      // highlight-start
-      <Thread
-        additionalMessageInputProps={ {
-            urlEnrichmentConfig: { enrichURLForPreview: true }
-      } } />
-      // highlight-end
-    </Channel>
+  <Channel>
+    {/* ... */}
+    // highlight-start
+    <Thread
+      additionalMessageInputProps={{
+        urlEnrichmentConfig: { enrichURLForPreview: true },
+      }}
+    />
+    // highlight-end
+  </Channel>
 );
 
 export default App;
@@ -116,19 +110,16 @@ export default App;
 
 **MessageInput**
 
-```typescript jsx
-import {
-  Channel,
-  MessageInput,
-} from 'stream-chat-react';
+```tsx
+import { Channel, MessageInput } from 'stream-chat-react';
 
 const App = () => (
-    <Channel>
-      {/* ... */}
-        // highlight-next-line
-        <MessageInput urlEnrichmentConfig={{ enrichURLForPreview: true }}/>
-      {/* ... */}
-    </Channel>
+  <Channel>
+    {/* ... */}
+    // highlight-next-line
+    <MessageInput urlEnrichmentConfig={{ enrichURLForPreview: true }} />
+    {/* ... */}
+  </Channel>
 );
 
 export default App;
@@ -140,16 +131,12 @@ export default App;
 
 If the default link previews UI does not meet our expectations, we can provide a custom component. To render our own `LinkPreviewList`, we just need to pass it to `Channel` prop `LinkPreviewList`. The component will be passed `linkPreviews`, an array of `LinkPreview` objects.
 
-```typescript jsx
-import {
-  Channel,
-  LinkPreviewListProps,
-  LinkPreviewState,
-} from 'stream-chat-react';
+```tsx
+import { Channel, LinkPreviewListProps, LinkPreviewState } from 'stream-chat-react';
 
 import { LinkPreviewCardLoaded, LinkPreviewCardLoading } from './LinkPreviewCard';
 
-const CustomLinkPreviewList = ({linkPreviews}: LinkPreviewListProps) => {
+const CustomLinkPreviewList = ({ linkPreviews }: LinkPreviewListProps) => {
   const showLinkPreviews = linkPreviews.length > 0;
 
   if (!showLinkPreviews) return null;
@@ -157,26 +144,32 @@ const CustomLinkPreviewList = ({linkPreviews}: LinkPreviewListProps) => {
   return (
     <div className='str-chat__link-preview-list'>
       {Array.from(linkPreviews.values()).map((linkPreview) => {
-          switch (linkPreview.state) {
-              case LinkPreviewState.LOADED:
-                  return <LinkPreviewCardLoaded key={linkPreview.og_scrape_url} linkPreview={linkPreview} />;
-              case LinkPreviewState.LOADING:
-                  return <LinkPreviewCardLoading key={linkPreview.og_scrape_url} linkPreview={linkPreview} />;
-              case LinkPreviewState.QUEUED:
-                  return <LinkPreviewCardLoading key={linkPreview.og_scrape_url} linkPreview={linkPreview} />;
-              default:
-                  return null;
-          }
+        switch (linkPreview.state) {
+          case LinkPreviewState.LOADED:
+            return (
+              <LinkPreviewCardLoaded key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
+            );
+          case LinkPreviewState.LOADING:
+            return (
+              <LinkPreviewCardLoading key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
+            );
+          case LinkPreviewState.QUEUED:
+            return (
+              <LinkPreviewCardLoading key={linkPreview.og_scrape_url} linkPreview={linkPreview} />
+            );
+          default:
+            return null;
+        }
       })}
     </div>
   );
-}
+};
 
 const App = () => (
-    // highlight-next-line
-    <Channel LinkPreviewList={CustomLinkPreviewList} enrichURLForPreview >
-      {/* ...  */}
-    </Channel>
+  // highlight-next-line
+  <Channel LinkPreviewList={CustomLinkPreviewList} enrichURLForPreview>
+    {/* ...  */}
+  </Channel>
 );
 
 export default App;
@@ -220,49 +213,47 @@ The default debounce interval is 1.5 seconds. The URL discovery and enrichment w
 
 Global debounce interval configuration over `Channel`:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 const debounceURLEnrichmentMs = 1000;
 
 const App = () => (
-  <Channel
-        enrichURLForPreview
-        enrichURLForPreviewConfig={{ debounceURLEnrichmentMs }} >
+  <Channel enrichURLForPreview enrichURLForPreviewConfig={{ debounceURLEnrichmentMs }}>
     <MessageList />
     <MessageInput />
     <Thread />
   </Channel>
-)
+);
 ```
 
 Local debounce configuration:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 const debounceURLEnrichmentMs = 1000;
 const additionalMessageInputProps = {
-    urlEnrichmentConfig: { debounceURLEnrichmentMs }
+  urlEnrichmentConfig: { debounceURLEnrichmentMs },
 };
 
 const App = () => (
-  <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ additionalMessageInputProps } />
+  <Channel enrichURLForPreview>
+    <MessageList additionalMessageInputProps={additionalMessageInputProps} />
     <MessageInput urlEnrichmentConfig={{ debounceURLEnrichmentMs }} />
-    <Thread additionalMessageInputProps={ additionalMessageInputProps } />
+    <Thread additionalMessageInputProps={additionalMessageInputProps} />
   </Channel>
-)
+);
 ```
 
 #### Custom text parsing function
@@ -271,50 +262,48 @@ If the default link discovery functionality is not sufficient, this can be overr
 
 The parameter set globally over `Channel` props:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 import { searchForURLs } from '../utils';
 
 const App = () => (
-  <Channel
-        enrichURLForPreview
-        enrichURLForPreviewConfig={{ findURLFn: searchForURLs }}>
+  <Channel enrichURLForPreview enrichURLForPreviewConfig={{ findURLFn: searchForURLs }}>
     <MessageList />
     <MessageInput />
     <Thread />
   </Channel>
-)
+);
 ```
 
 Local configuration of URL discovery function:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 import { searchForURLs } from '../utils';
 
 const additionalMessageInputProps = {
-    urlEnrichmentConfig: { findURLFn: searchForURLs }
+  urlEnrichmentConfig: { findURLFn: searchForURLs },
 };
 
 const App = () => (
-  <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ additionalMessageInputProps } />
+  <Channel enrichURLForPreview>
+    <MessageList additionalMessageInputProps={additionalMessageInputProps} />
     <MessageInput urlEnrichmentConfig={{ findURLFn: searchForURLs }} />
-    <Thread additionalMessageInputProps={ additionalMessageInputProps }/>
+    <Thread additionalMessageInputProps={additionalMessageInputProps} />
   </Channel>
-)
+);
 ```
 
 #### Custom actions on link preview dismissal
@@ -323,80 +312,82 @@ When a link preview is dismissed, it's state is set to `'dismissed'`. This behav
 
 The `onLinkPreviewDismissed` callback can be passed to `Channel` prop `enrichURLForPreviewConfig`:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    LinkPreview,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  LinkPreview,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 const onLinkPreviewDismissed = (linkPreview: LinkPreview) => {
-    // custom logic to invoke, when a given link preview is dismissed
-}
+  // custom logic to invoke, when a given link preview is dismissed
+};
 
 const App = () => (
-  <Channel
-        enrichURLForPreview
-        enrichURLForPreviewConfig={{ onLinkPreviewDismissed }}>
+  <Channel enrichURLForPreview enrichURLForPreviewConfig={{ onLinkPreviewDismissed }}>
     <MessageList />
     <MessageInput />
     <Thread />
   </Channel>
-)
+);
 ```
 
 The configuration can be passed individually to `MessageList`, `VirtualizedMessageList`, `Thread`, `MessageInput`:
 
-```typescript jsx
+```tsx
 import {
-    Channel,
-    LinkPreview,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
+  Channel,
+  LinkPreview,
+  MessageInput,
+  Thread,
+  VirtualizedMessageList as MessageList,
 } from 'stream-chat-react';
 
 const onLinkPreviewDismissed = (linkPreview: LinkPreview) => {
-    // custom logic to invoke, when a given link preview is dismissed
-}
+  // custom logic to invoke, when a given link preview is dismissed
+};
 
 const additionalMessageInputProps = {
-  urlEnrichmentConfig: { onLinkPreviewDismissed }
+  urlEnrichmentConfig: { onLinkPreviewDismissed },
 };
 
 const App = () => (
-  <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ additionalMessageInputProps} } />
+  <Channel enrichURLForPreview>
+    <MessageList additionalMessageInputProps={additionalMessageInputProps} />
     <MessageInput urlEnrichmentConfig={{ onLinkPreviewDismissed }} />
-    <Thread additionalMessageInputProps={ additionalMessageInputProps } />
+    <Thread additionalMessageInputProps={additionalMessageInputProps} />
   </Channel>
-)
+);
 ```
 
 ### EnrichURLsController API
 
-In case we would aspire at implementing custom `MessageInput` components that would require control over link previews, we can access the API over the  `MessageInputContext` value. This is the API that allows us:
+In case we would aspire at implementing custom `MessageInput` components that would require control over link previews, we can access the API over the `MessageInputContext` value. This is the API that allows us:
 
 - to trigger URL search in message text and enrichment - `findAndEnqueueURLsToEnrich`
 - cancel the URL enrichment (for example when submitting a message) - `cancelURLEnrichment`
 - dismiss the loaded link previews assigning them with state `dismissed` - `dismissLinkPreview`
 
-```typescript jsx
-import {useMessageInputContext} from "stream-chat-react";
+```tsx
+import { useMessageInputContext } from 'stream-chat-react';
 
 const CustomMessageInputUI = () => {
-    const { cancelURLEnrichment, findAndEnqueueURLsToEnrich, dismissLinkPreview } = useMessageInputContext();
+  const {
+    cancelURLEnrichment,
+    findAndEnqueueURLsToEnrich,
+    dismissLinkPreview,
+  } = useMessageInputContext();
 
-    // ...
-}
+  // ...
+};
 
 const App = () => {
-    <Channel Input={CustomMessageInputUI} enrichURLForPreview >
-    { /* ... */ }
-  </Channel>
-}
+  <Channel Input={CustomMessageInputUI} enrichURLForPreview>
+    {/* ... */}
+  </Channel>;
+};
 ```
 
 :::note

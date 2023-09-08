@@ -62,7 +62,7 @@ If true, chat users will be able to drag and drop file uploads to the entire cha
 Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | number | 1500    |
 
 ### enrichURLForPreview
@@ -87,7 +87,7 @@ Error object (if any) in loading the `channel`, otherwise null.
 Custom function to identify URLs in a string for later generation of link previews. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
 
 | Type                         |
-|------------------------------|
+| ---------------------------- |
 | `(text: string) => string[]` |
 
 ### giphyVersion
@@ -114,7 +114,6 @@ If the channel has more, older, messages to paginate through.
 | ------- |
 | boolean |
 
-
 ### hasMoreNewer
 
 If the channel has more, newer, messages to paginate through.
@@ -128,7 +127,7 @@ If the channel has more, newer, messages to paginate through.
 Value is used internally for jump-to-message logic. Once the user "jumped" to the message, the message with the given ID is highlighted by manipulating its styles attribute.
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### loading
@@ -152,7 +151,7 @@ Boolean for the `channel` loading more messages.
 Flag signalling whether newer messages are being loaded as the user scrolls down in the message list. Used internally by `VirtualizedMessageList`.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
 
 ### maxNumberOfFiles
@@ -207,10 +206,9 @@ Temporary notifications added to the `MessageList` on specific user/message acti
 
 Custom function to react to link preview dismissal. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
 
-| Type     |
-| -------- |
+| Type                                 |
+| ------------------------------------ |
 | `(linkPreview: LinkPreview) => void` |
-
 
 ### pinnedMessages
 
@@ -236,14 +234,14 @@ The read state for each `channel` member.
 | ------ |
 | object |
 
-
 ### suppressAutoscroll
 
 Flag signalling whether the scroll to the bottom is prevented. Used internally by `MessageList` and `VirtualizedMessageList` components.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
+
 ### shouldGenerateVideoThumbnail
 
 You can turn on/off thumbnail generation for video attachments
@@ -289,8 +287,9 @@ Array of messages within a `thread`.
 Flag signalling whether the scroll to the bottom is prevented in thread. Used internally by `MessageList` and `VirtualizedMessageList` components.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
+
 ### videoAttachmentSizeHandler
 
 A custom function to provide size configuration for video attachments
