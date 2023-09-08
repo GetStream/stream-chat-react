@@ -1,4 +1,4 @@
-import type { ImageUpload } from 'react-file-utils';
+import type { ImageUpload } from '../../ReactFileUtilities';
 import type { AppSettingsAPIResponse, FileUploadConfig, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';

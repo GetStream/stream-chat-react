@@ -1,5 +1,9 @@
 import { useCallback } from 'react';
-import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
+import {
+  dataTransferItemsHaveFiles,
+  dataTransferItemsToFiles,
+  FileLike,
+} from '../../ReactFileUtilities';
 
 export const usePasteHandler = (
   uploadNewFiles: (files: FileList | FileLike[] | File[]) => void,
