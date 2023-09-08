@@ -13,6 +13,7 @@ export const useCreateMessageInputContext = <
     additionalTextareaProps,
     attachments,
     autocompleteTriggers,
+    cancelURLEnrichment,
     clearEditingState,
     closeCommandsList,
     closeEmojiPicker,
@@ -91,6 +92,7 @@ export const useCreateMessageInputContext = <
       additionalTextareaProps,
       attachments,
       autocompleteTriggers,
+      cancelURLEnrichment,
       clearEditingState,
       closeCommandsList,
       closeEmojiPicker,
@@ -151,6 +153,7 @@ export const useCreateMessageInputContext = <
       useMentionsTransliteration,
     }),
     [
+      cancelURLEnrichment,
       cooldownInterval,
       cooldownRemaining,
       dismissLinkPreview,

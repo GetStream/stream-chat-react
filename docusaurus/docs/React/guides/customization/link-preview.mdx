@@ -374,3 +374,31 @@ const App = () => (
   </Channel>
 )
 ```
+
+### EnrichURLsController API
+
+In case we would aspire at implementing custom `MessageInput` components that would require control over link previews, we can access the API over the  `MessageInputContext` value. This is the API that allows us:
+
+- to trigger URL search in message text and enrichment - `findAndEnqueueURLsToEnrich`
+- cancel the URL enrichment (for example when submitting a message) - `cancelURLEnrichment`
+- dismiss the loaded link previews assigning them with state `dismissed` - `dismissLinkPreview`
+
+```typescript jsx
+import {useMessageInputContext} from "stream-chat-react";
+
+const CustomMessageInputUI = () => {
+    const { cancelURLEnrichment, findAndEnqueueURLsToEnrich, dismissLinkPreview } = useMessageInputContext();
+
+    // ...
+}
+
+const App = () => {
+    <Channel Input={CustomMessageInputUI} enrichURLForPreview >
+    { /* ... */ }
+  </Channel>
+}
+```
+
+:::note
+The `findAndEnqueueURLsToEnrich` function serves as an indicator, whether the link preview feature is actually enabled in the application.
+:::
