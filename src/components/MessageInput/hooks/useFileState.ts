@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import type { FileUpload } from './useMessageInputState';
+import type { FileUpload } from '../types';
 
 export const useFileState = <T extends Pick<FileUpload, 'state'>>(file: T) =>
   useMemo(

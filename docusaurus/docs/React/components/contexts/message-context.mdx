@@ -50,7 +50,7 @@ Call this function to keep message list scrolled to the bottom when the message 
 When called, this function will exit the editing state on the message.
 
 | Type                                       |
-|--------------------------------------------|
+| ------------------------------------------ |
 | (event?: React.BaseSyntheticEvent) => void |
 
 ### customMessageActions
@@ -60,7 +60,7 @@ An object containing custom message actions (key) and function handlers (value).
 ```jsx
 const customActions = {
   'Copy text': (message) => {
-    navigator.clipboard.writeText(message.text || '')
+    navigator.clipboard.writeText(message.text || '');
   },
 };
 
@@ -68,7 +68,12 @@ const customActions = {
 ```
 
 Custom action item "Copy text" in the message actions box:
-<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+<img
+  src={MessageActionsBoxWithCustomAction}
+  alt='Image of a custom action item "Copy text" in the message actions box'
+  height='300'
+/>
 
 | Type   |
 | ------ |
@@ -202,13 +207,12 @@ Function that retries sending a message after a failed request (overrides the fu
 | ------------------------------------------ |
 | (message: StreamMessage) => Promise<void\> |
 
-
 ### highlighted
 
 Whether to highlight and focus the message on load.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
 
 ### initialMessage
@@ -263,8 +267,8 @@ DOMRect object linked to the parent `MessageList` component.
 
 An array of users that have been muted by the connected user.
 
-| Type   | Default                                                               |
-| ------ | --------------------------------------------------------------------- |
+| Type   | Default                                                     |
+| ------ | ----------------------------------------------------------- |
 | Mute[] | [ChannelStateContext['mutes']](./channel-state-context.mdx) |
 
 ### onMentionsClickMessage
@@ -312,7 +316,7 @@ Function that runs on hover of a user avatar.
 The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
 
 | Type   | Default                                                                   |
-|--------|---------------------------------------------------------------------------|
+| ------ | ------------------------------------------------------------------------- |
 | object | <GHComponentLink text='defaultPinPermissions' path='/Message/utils.tsx'/> |
 
 ### reactionSelectorRef

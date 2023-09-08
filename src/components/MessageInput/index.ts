@@ -10,3 +10,4 @@ export * from './MessageInputFlat';
 export * from './MessageInputSmall';
 export * from './QuotedMessagePreview';
 export * from './UploadsPreview';
+export * from './types';

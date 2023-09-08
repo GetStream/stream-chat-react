@@ -320,15 +320,15 @@ and for only channels that the current logged in user is a member of. See the ex
 const customSearchFunction = async (
   props: ChannelSearchFunctionParams,
   event: { target: { value: SetStateAction<string> } },
-  client: StreamChat
+  client: StreamChat,
 ) => {
   const { setResults, setSearching, setQuery } = props;
   const value = event.target.value;
 
   const filters = {
-      name: { $autocomplete: value },
-      members: { $in: client.userID }
-  }
+    name: { $autocomplete: value },
+    members: { $in: client.userID },
+  };
 
   setSearching(true);
   setQuery(value);
@@ -348,7 +348,7 @@ const { client } = useChatContext();
     },
   }}
   showChannelSearch
-/>
+/>;
 ```
 
 ### Adding menu
@@ -365,8 +365,7 @@ import type { AppMenuProps } from 'stream-chat-react';
 
 import './AppMenu.scss';
 
-export const AppMenu = ({close}: AppMenuProps) => {
-
+export const AppMenu = ({ close }: AppMenuProps) => {
   const handleSelect = useCallback(() => {
     // custom logic...
     close?.();
@@ -375,13 +374,19 @@ export const AppMenu = ({close}: AppMenuProps) => {
   return (
     <div className='app-menu__container'>
       <ul className='app-menu__item-list'>
-        <li className='app-menu__item' onClick={handleSelect}>Profile</li>
-        <li className='app-menu__item' onClick={handleSelect}>New Group</li>
-        <li className='app-menu__item' onClick={handleSelect}>Sign Out</li>
+        <li className='app-menu__item' onClick={handleSelect}>
+          Profile
+        </li>
+        <li className='app-menu__item' onClick={handleSelect}>
+          New Group
+        </li>
+        <li className='app-menu__item' onClick={handleSelect}>
+          Sign Out
+        </li>
       </ul>
     </div>
   );
-}
+};
 ```
 
 ```scss
@@ -408,7 +413,7 @@ export const AppMenu = ({close}: AppMenuProps) => {
   &__item {
     list-style: none;
     margin: 0;
-    padding: .5rem 1rem;
+    padding: 0.5rem 1rem;
 
     &:hover {
       background-color: lightgrey;
@@ -422,20 +427,20 @@ export const AppMenu = ({close}: AppMenuProps) => {
 import { AppMenu } from './components/AppMenu';
 
 const App = () => (
-    <Chat client={chatClient}>
-      <ChannelList
-        // highlight-next-line
-        additionalChannelSearchProps={{AppMenu}}
-        showChannelSearch
-      />
-      <Channel>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
+  <Chat client={chatClient}>
+    <ChannelList
+      // highlight-next-line
+      additionalChannelSearchProps={{ AppMenu }}
+      showChannelSearch
+    />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
 );
 ```

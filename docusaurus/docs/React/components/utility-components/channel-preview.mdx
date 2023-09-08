@@ -56,7 +56,7 @@ The currently selected channel object.
 The custom UI component to display the avatar for the `channel`.
 
 | Type      | Default                                                    |
-|-----------|------------------------------------------------------------|
+| --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
 ### channelUpdateCount
@@ -72,16 +72,15 @@ A number that forces the update of the preview component on channel update.
 Custom class for the channel preview root
 
 | Type   |
-|--------|
+| ------ |
 | string |
-
 
 ### onSelect
 
 Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `ChannelPreview` to display items of channel search results. There, behind the scenes, the new active channel is set.
 
 | Type                              |
-|-----------------------------------|
+| --------------------------------- |
 | (event: React.MouseEvent) => void |
 
 ### Preview
@@ -89,7 +88,7 @@ Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `Chann
 The UI component to use for display.
 
 | Type      | Default                                                                                              |
-|-----------|------------------------------------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='ChannelPreviewMessenger' path='/ChannelPreview/ChannelPreviewMessenger.tsx'/> |
 
 ### setActiveChannel
