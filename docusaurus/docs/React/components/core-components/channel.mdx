@@ -290,11 +290,19 @@ Custom UI component to be displayed when the `MessageList` or `VirtualizedMessag
 ### enrichURLForPreview
 
 A global flag to toggle the URL enrichment and link previews in `MessageInput`. The feature is disabled by default. It can be overridden on `Thread` and `MessageList` level through `additionalMessageInputProps`
-or directly on `MessageInput` level through `urlEnrichmentConfig` prop.
+or directly on `MessageInput` level through `urlEnrichmentConfig` prop. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
 
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### enrichURLForPreviewConfig:
+
+Global configuration for link preview generation in all the MessageInput components. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
+
+| Type    |
+| ------- |
+| Omit<URLEnrichmentConfig, 'enrichURLForPreview'\> |
 
 ### FileUploadIcon
 

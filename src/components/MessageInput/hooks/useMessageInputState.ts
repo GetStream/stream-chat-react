@@ -483,7 +483,7 @@ export const useMessageInputState = <
     state,
     dispatch,
     numberOfUploads,
-    enrichURLsController.findAndEnqueueURLsToEnrich,
+    enrichURLsController,
   );
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;

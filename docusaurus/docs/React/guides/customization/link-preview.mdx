@@ -1,5 +1,5 @@
 ---
-id: link_preview
+id: link-previews
 sidebar_position: 21
 title: Link Previews in Message Input
 ---
@@ -36,7 +36,7 @@ Link previews have to be enabled in two places:
 - [**channel config property `url-enrichment`**](https://getstream.io/chat/docs/javascript/channel-level_settings/?language=javascript&q=url_enrichment#list-of-settings-that-can-be-overridden) - enabled by default
 - `enrichURLForPreview` prop - disabled by default
 
-Those who have not previously disabled `url-enrichment` in the channel config, can enable link previews in message input by setting `enrichURLForPreview` in one of the following places:
+Those who have not previously disabled `url-enrichment` in the channel config, can enable link previews in `MessageInput` by setting `enrichURLForPreview` in one of the following places:
 
 **Channel props**
 
@@ -49,8 +49,6 @@ import {
   Thread,
   Window,
 } from 'stream-chat-react';
-
-import './App.css';
 
 const App = () => (
     // highlight-next-line
@@ -205,11 +203,125 @@ enum LinkPreviewState {
 
 ### Behavior customization
 
-It can be customized how, the link previews are acquired and dismissed or how long to debounce the enrichment requests.
+The following aspect of link preview management in `MessageInput` can be customized:
+
+- The debounce interval for the URL discovery and enrichment requests.
+- URL discovery
+- Link preview dismissal
+
+In general, the behavior can be customized in two ways:
+
+1. globally through `Channel` props (`enrichURLForPreviewConfig`)
+2. with more granularity over `MessageList`, `VirtualizedMessageList`, `Thread`, `MessageInput` props (`additionalMessageInputProps.urlEnrichmentConfig`)
+
+#### Custom debounce interval
+
+The default debounce interval is 1.5 seconds. The URL discovery and enrichment will thus not start until the stops typing for at least 1.5 seconds. This interval can be increased or decreased by passing `debounceURLEnrichmentMs` configuration parameter.
+
+Global debounce interval configuration over `Channel`:
+
+```typescript jsx
+import {
+    Channel,
+    MessageInput,
+    Thread,
+    VirtualizedMessageList as MessageList,
+} from 'stream-chat-react';
+
+const debounceURLEnrichmentMs = 1000;
+
+const App = () => (
+  <Channel
+        enrichURLForPreview
+        enrichURLForPreviewConfig={{ debounceURLEnrichmentMs }} >
+    <MessageList />
+    <MessageInput />
+    <Thread />
+  </Channel>
+)
+```
+
+Local debounce configuration:
+
+```typescript jsx
+import {
+    Channel,
+    MessageInput,
+    Thread,
+    VirtualizedMessageList as MessageList,
+} from 'stream-chat-react';
+
+const debounceURLEnrichmentMs = 1000;
+const additionalMessageInputProps = {
+    urlEnrichmentConfig: { debounceURLEnrichmentMs }
+};
+
+const App = () => (
+  <Channel  enrichURLForPreview >
+    <MessageList additionalMessageInputProps={ additionalMessageInputProps } />
+    <MessageInput urlEnrichmentConfig={{ debounceURLEnrichmentMs }} />
+    <Thread additionalMessageInputProps={ additionalMessageInputProps } />
+  </Channel>
+)
+```
+
+#### Custom text parsing function
+
+If the default link discovery functionality is not sufficient, this can be overridden by providing `findURLFn` custom function. The requirement is that the function returns an array of strings - links - that will be later used to scrape the data.
+
+The parameter set globally over `Channel` props:
+
+```typescript jsx
+import {
+    Channel,
+    MessageInput,
+    Thread,
+    VirtualizedMessageList as MessageList,
+} from 'stream-chat-react';
+
+import { searchForURLs } from '../utils';
+
+const App = () => (
+  <Channel
+        enrichURLForPreview
+        enrichURLForPreviewConfig={{ findURLFn: searchForURLs }}>
+    <MessageList />
+    <MessageInput />
+    <Thread />
+  </Channel>
+)
+```
+
+Local configuration of URL discovery function:
+
+```typescript jsx
+import {
+    Channel,
+    MessageInput,
+    Thread,
+    VirtualizedMessageList as MessageList,
+} from 'stream-chat-react';
+
+import { searchForURLs } from '../utils';
+
+const additionalMessageInputProps = {
+    urlEnrichmentConfig: { findURLFn: searchForURLs }
+};
+
+const App = () => (
+  <Channel  enrichURLForPreview >
+    <MessageList additionalMessageInputProps={ additionalMessageInputProps } />
+    <MessageInput urlEnrichmentConfig={{ findURLFn: searchForURLs }} />
+    <Thread additionalMessageInputProps={ additionalMessageInputProps }/>
+  </Channel>
+)
+```
 
 #### Custom actions on link preview dismissal
 
-By default, when a link preview is dismissed, it's state is set to `'dismissed'`. This behavior can be expanded by providing `onLinkPreviewDismissed` callback:
+When a link preview is dismissed, it's state is set to `'dismissed'`. This behavior can be expanded (not changed) by providing `onLinkPreviewDismissed` callback. The callback is invoked at the beginning of the dismissal procedure. It is then followed by state update marking the given URL preview as `'dismissed'`.
+
+The `onLinkPreviewDismissed` callback can be passed to `Channel` prop `enrichURLForPreviewConfig`:
 
 ```typescript jsx
 import {
@@ -224,69 +336,41 @@ const onLinkPreviewDismissed = (linkPreview: LinkPreview) => {
     // custom logic to invoke, when a given link preview is dismissed
 }
 
-const urlEnrichmentConfig = {
+const App = () => (
+  <Channel
+        enrichURLForPreview
+        enrichURLForPreviewConfig={{ onLinkPreviewDismissed }}>
+    <MessageList />
+    <MessageInput />
+    <Thread />
+  </Channel>
+)
+```
+
+The configuration can be passed individually to `MessageList`, `VirtualizedMessageList`, `Thread`, `MessageInput`:
+
+```typescript jsx
+import {
+    Channel,
+    LinkPreview,
+    MessageInput,
+    Thread,
+    VirtualizedMessageList as MessageList,
+} from 'stream-chat-react';
+
+const onLinkPreviewDismissed = (linkPreview: LinkPreview) => {
+    // custom logic to invoke, when a given link preview is dismissed
+}
+
+const additionalMessageInputProps = {
   urlEnrichmentConfig: { onLinkPreviewDismissed }
 };
 
 const App = () => (
   <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ urlEnrichmentConfig} } />
-    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
-    <Thread additionalMessageInputProps={ urlEnrichmentConfig } />
+    <MessageList additionalMessageInputProps={ additionalMessageInputProps} } />
+    <MessageInput urlEnrichmentConfig={{ onLinkPreviewDismissed }} />
+    <Thread additionalMessageInputProps={ additionalMessageInputProps } />
   </Channel>
 )
 ```
-
-#### Custom text parsing function
-
-If the default link parsing functionality is not sufficient, this can be overridden by providing `findURLFn` custom function. The requirement is that the function return an array of strings - links - that will be later used to scrape the data.
-
-```typescript jsx
-import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
-} from 'stream-chat-react';
-
-import { searchForURLs } from '../utils';
-
-const urlEnrichmentConfig = {
-    urlEnrichmentConfig: { findURLFn: searchForURLs }
-};
-
-const App = () => (
-  <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ urlEnrichmentConfig } />
-    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
-    <Thread additionalMessageInputProps={ urlEnrichmentConfig }/>
-  </Channel>
-)
-```
-
-#### Custom debounce interval
-
-The default debounce interval is 1.5 seconds. This interval can be increased or decreased by passing `debounceURLEnrichmentMs` configuration parameter:
-
-```typescript jsx
-import {
-    Channel,
-    MessageInput,
-    Thread,
-    VirtualizedMessageList as MessageList,
-} from 'stream-chat-react';
-
-const debounceURLEnrichmentMs = 1000;
-const urlEnrichmentConfig = {
-    urlEnrichmentConfig: { debounceURLEnrichmentMs }
-};
-
-const App = () => (
-  <Channel  enrichURLForPreview >
-    <MessageList additionalMessageInputProps={ urlEnrichmentConfig } />
-    <MessageInput urlEnrichmentConfig={urlEnrichmentConfig} />
-    <Thread additionalMessageInputProps={ urlEnrichmentConfig } />
-  </Channel>
-)
-```
-

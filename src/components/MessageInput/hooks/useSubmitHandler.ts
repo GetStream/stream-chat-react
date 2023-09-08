@@ -26,7 +26,7 @@ export const useSubmitHandler = <
   state: MessageInputState<StreamChatGenerics>,
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   numberOfUploads: number,
-  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
+  enrichURLsController: EnrichURLsController,
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
 
@@ -41,6 +41,7 @@ export const useSubmitHandler = <
     text,
   } = state;
 
+  const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
   const { addNotification, editMessage, sendMessage } = useChannelActionContext<StreamChatGenerics>(
     'useSubmitHandler',
@@ -141,7 +142,7 @@ export const useSubmitHandler = <
         (attachment) => !attachment.og_scrape_url,
       );
       // prevent showing link preview in MessageInput after the message has been sent
-      findAndEnqueueURLsToEnrich.cancel();
+      cancelURLEnrichment();
       someLinkPreviewsLoading = Array.from(linkPreviews.values()).some((linkPreview) =>
         [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
       );

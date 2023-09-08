@@ -250,7 +250,7 @@ export type URLEnrichmentConfig = {
   debounceURLEnrichmentMs?: number;
   /** Allows for toggling the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. */
   enrichURLForPreview?: boolean;
-  /** Custom function to identify URLs in a string and request OG data */
+  /** Custom function to identify URLs in a string for later generation of link previews */
   findURLFn?: (text: string) => string[];
   /** Custom function to react to link preview dismissal */
   onLinkPreviewDismissed?: (linkPreview: LinkPreview) => void;

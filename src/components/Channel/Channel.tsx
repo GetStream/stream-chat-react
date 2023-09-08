@@ -152,9 +152,11 @@ export type ChannelProps<
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
   /** A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
    * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-   * or directly and MessageInput level through urlEnrichmentConfig.
+   * or directly on MessageInput level through urlEnrichmentConfig.
    */
   enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
+  /** Global configuration for link preview generation in all the MessageInput components */
+  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
@@ -307,6 +309,7 @@ const ChannelInner = <
     doUpdateMessageRequest,
     dragAndDropWindow = false,
     emojiData = defaultEmojiData,
+    enrichURLForPreviewConfig,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
@@ -873,14 +876,17 @@ const ChannelInner = <
     channel,
     channelCapabilitiesArray,
     channelConfig,
+    debounceURLEnrichmentMs: enrichURLForPreviewConfig?.debounceURLEnrichmentMs,
     dragAndDropWindow,
     enrichURLForPreview: props.enrichURLForPreview,
+    findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler: props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
     notifications,
+    onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
     quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler: props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -908,7 +914,16 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
-    [channel.cid, loadMore, loadMoreNewer, quotedMessage, jumpToMessage, jumpToLatestMessage],
+    [
+      channel.cid,
+      enrichURLForPreviewConfig?.findURLFn,
+      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
+      loadMore,
+      loadMoreNewer,
+      quotedMessage,
+      jumpToMessage,
+      jumpToLatestMessage,
+    ],
   );
 
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(

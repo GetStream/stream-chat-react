@@ -57,6 +57,14 @@ If true, chat users will be able to drag and drop file uploads to the entire cha
 | ------- | ------- |
 | boolean | false   |
 
+### debounceURLEnrichmentMs:
+
+Number of milliseconds to debounce firing the URL enrichment queries when typing. The default value is 1500(ms). See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
+
+| Type   | Default |
+|--------|---------|
+| number | 1500    |
+
 ### enrichURLForPreview
 
 A global flag to toggle the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. It can be overridden on Thread and MessageList level through `additionalMessageInputProps`
@@ -73,6 +81,14 @@ Error object (if any) in loading the `channel`, otherwise null.
 | Type   |
 | ------ |
 | object |
+
+### findURLFn
+
+Custom function to identify URLs in a string for later generation of link previews. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
+
+| Type                         |
+|------------------------------|
+| `(text: string) => string[]` |
 
 ### giphyVersion
 
@@ -186,6 +202,15 @@ Temporary notifications added to the `MessageList` on specific user/message acti
 | Type                                                     |
 | -------------------------------------------------------- |
 | {id: string, text: string, type: 'success' \| 'error'}[] |
+
+### onLinkPreviewDismissed
+
+Custom function to react to link preview dismissal. See the guide [Link Previews in Message Input](../../../guides/customization/link-previews) for more.
+
+| Type     |
+| -------- |
+| `(linkPreview: LinkPreview) => void` |
+
 
 ### pinnedMessages
 

@@ -1,3 +1,4 @@
+import debounce from 'lodash.debounce';
 import { MessageInputFlat } from '../MessageInputFlat';
 import {
   generateChannel,
@@ -27,7 +28,16 @@ import { MessageInput } from '../MessageInput';
 import '@testing-library/jest-dom';
 import { SendButton } from '../icons';
 
-jest.useFakeTimers('modern');
+// Mock out lodash debounce implementation, so it calls the debounced method immediately
+jest.mock('lodash.debounce', () =>
+  jest.fn((fn) => {
+    //eslint-disable-next-line
+    fn.cancel = jest.fn();
+    //eslint-disable-next-line
+    fn.flush = jest.fn();
+    return fn;
+  }),
+);
 
 const inputPlaceholder = 'Type your message';
 const userId = 'userId';
@@ -192,7 +202,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).not.toHaveBeenCalled();
@@ -209,7 +218,6 @@ describe('Link preview', () => {
           value: '',
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).not.toHaveBeenCalled();
@@ -231,7 +239,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).toHaveBeenCalledWith(scrapedData.og_scrape_url);
@@ -254,7 +261,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).not.toHaveBeenCalled();
@@ -273,13 +279,12 @@ describe('Link preview', () => {
           value: '',
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviews).not.toBeInTheDocument();
   });
 
-  it('does not render if not URLs found', async () => {
+  it('does not render if no URLs found', async () => {
     await renderComponent({
       chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
@@ -290,7 +295,6 @@ describe('Link preview', () => {
           value: 'X',
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviews).not.toBeInTheDocument();
@@ -307,7 +311,6 @@ describe('Link preview', () => {
           value: 'X https://getstream.io',
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviews).not.toBeInTheDocument();
@@ -326,7 +329,6 @@ describe('Link preview', () => {
           value: 'X https://getstream.io',
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviews).not.toBeInTheDocument();
@@ -345,7 +347,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     await waitFor(() => {
@@ -366,7 +367,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -390,7 +390,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     const linkPreview = await screen.queryByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreview).not.toBeInTheDocument();
@@ -417,7 +416,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     let linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -430,7 +428,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -444,7 +441,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url} ${scrapedData3.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -492,8 +488,6 @@ describe('Link preview', () => {
       });
     });
 
-    jest.runOnlyPendingTimers();
-
     await waitFor(() => {
       const linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
       // eslint-disable-next-line
@@ -517,7 +511,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     let linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -530,7 +523,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url} ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -553,7 +545,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).toHaveBeenCalledWith(scrapedData.og_scrape_url);
@@ -564,7 +555,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url} ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).toHaveBeenCalledTimes(1);
@@ -583,7 +573,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).toHaveBeenCalledWith(scrapedData.og_scrape_url);
@@ -595,7 +584,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url} ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(enrichSpy).toHaveBeenCalledWith(scrapedData.og_scrape_url);
@@ -615,7 +603,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     let linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -628,7 +615,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url.slice(0, -1)}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -649,7 +635,6 @@ describe('Link preview', () => {
           value: typedText,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     let linkPreviews = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     // eslint-disable-next-line
@@ -669,7 +654,6 @@ describe('Link preview', () => {
           value: typedText,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
@@ -700,7 +684,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -709,7 +692,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -718,7 +700,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url} ${scrapedData3.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
     await act(() => submit());
 
@@ -756,7 +737,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -765,7 +745,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -782,53 +761,6 @@ describe('Link preview', () => {
       expect.objectContaining({ skip_enrich_url: true }),
     );
   });
-
-  // todo: find out how to manipulate the link previews to keep them in non-loaded state on submit
-  it.todo(
-    'does not submit link preview attachments unless all the previews are in loaded or failed state',
-    // async () => {
-    //   // const channel = chatClient.channel('messaging', mockedChannel.id);
-    //   const sendMessageSpy = jest.spyOn(chatClient, 'updateMessage').mockImplementation();
-    //   const existingMessage = generateMessage({
-    //     attachments: [
-    //       {
-    //         ...generateScrapedImageAttachment({ og_scrape_url: 'loading-image-attachment' }),
-    //         state: LinkPreviewState.LOADING,
-    //       },
-    //       {
-    //         ...generateScrapedImageAttachment({ og_scrape_url: 'queued-image-attachment' }),
-    //         state: LinkPreviewState.QUEUED,
-    //       },
-    //     ],
-    //   });
-    //   jest
-    //     .spyOn(chatClient, 'enrichURL')
-    //     .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
-    //
-    //   const { submit } = await renderComponent({
-    //     // channelProps: { channel },
-    //     chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
-    //     messageInputProps: {
-    //       ...MESSAGE_INPUT_PROPS_COMMON,
-    //       message: existingMessage,
-    //       urlEnrichmentConfig: { findURLFn: jest.fn },
-    //     },
-    //   });
-    //
-    //   await act(async () => {
-    //     fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-    //       target: {
-    //         value: `X ${scrapedData1.og_scrape_url}`,
-    //       },
-    //     });
-    //   });
-    //   jest.runOnlyPendingTimers();
-    //
-    //   await act(() => submit());
-    //
-    //   expect(sendMessageSpy.mock.calls[0][0].attachments).toBe('X');
-    // },
-  );
 
   it('does not add failed link previews among attachments', async () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
@@ -850,7 +782,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -859,7 +790,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -894,7 +824,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -903,7 +832,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -940,7 +868,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -949,7 +876,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} X ${scrapedData1.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     const linkPreviews = await screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
@@ -979,7 +905,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url} Y`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -1021,7 +946,6 @@ describe('Link preview', () => {
           value: `X ${scrapedImageAttachment.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -1062,7 +986,6 @@ describe('Link preview', () => {
           value: `X ${scrapedImageAttachment.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -1080,10 +1003,11 @@ describe('Link preview', () => {
   it('submit new message with skip_url_enrich:false if no link previews managed to get loaded', async () => {
     const channel = chatClient.channel('messaging', mockedChannel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
-
+    let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
+      // eslint-disable-next-line no-unused-vars
+      .mockImplementationOnce(() => new Promise((res) => (resolveEnrichURLPromise = res)));
 
     const { submit } = await renderComponent({
       channelProps: { channel },
@@ -1097,9 +1021,6 @@ describe('Link preview', () => {
           value: `X ${scrapedData1.og_scrape_url}`,
         },
       });
-
-      // not waiting for debounced url search to finish
-      // jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -1119,9 +1040,12 @@ describe('Link preview', () => {
     const existingMessage = generateMessage({ attachments: [scrapedAudioAttachment] });
 
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
+
+    let resolveEnrichURLPromise;
     jest
       .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedImageAttachment });
+      // eslint-disable-next-line no-unused-vars
+      .mockImplementationOnce(() => new Promise((res) => (resolveEnrichURLPromise = res)));
 
     const { submit } = await renderComponent({
       channelProps: { channel },
@@ -1138,9 +1062,6 @@ describe('Link preview', () => {
           value: `X ${scrapedImageAttachment.og_scrape_url}`,
         },
       });
-
-      // not waiting for debounced url search to finish
-      // jest.runOnlyPendingTimers();
     });
 
     await act(() => submit());
@@ -1194,10 +1115,62 @@ describe('Link preview', () => {
           value: typedText,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(findURLFn).toHaveBeenCalledWith(typedText);
+  });
+
+  it('calls findURLFn passed to Channel', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    const findURLFnChannel = jest.fn().mockReturnValueOnce([scrapedData.og_scrape_url]);
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { findURLFn: findURLFnChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    expect(enrichSpy).toHaveBeenCalledTimes(1);
+    expect(findURLFnChannel).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives preference to findURLFn passed directly to MessageInput over the channel state context', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    const findURLFnChannel = jest.fn().mockReturnValueOnce([scrapedData.og_scrape_url]);
+    const findURLFnMsgInput = jest.fn().mockReturnValueOnce([scrapedData.og_scrape_url]);
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { findURLFn: findURLFnChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: { urlEnrichmentConfig: { findURLFn: findURLFnMsgInput } },
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    expect(enrichSpy).toHaveBeenCalledTimes(1);
+    expect(findURLFnChannel).not.toHaveBeenCalled();
+    expect(findURLFnMsgInput).toHaveBeenCalledTimes(1);
   });
 
   it('enables custom handling of dismissal', async () => {
@@ -1222,7 +1195,6 @@ describe('Link preview', () => {
           value: typedText,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     await act(async () => {
@@ -1230,6 +1202,127 @@ describe('Link preview', () => {
     });
 
     expect(onLinkPreviewDismissed).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onLinkPreviewDismissed passed to Channel', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    const onLinkPreviewDismissedChannel = jest.fn();
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { onLinkPreviewDismissed: onLinkPreviewDismissedChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID));
+    });
+
+    expect(enrichSpy).toHaveBeenCalledTimes(1);
+    expect(onLinkPreviewDismissedChannel).toHaveBeenCalledWith(
+      expect.objectContaining(scrapedData),
+    );
+  });
+
+  it('gives preference to onLinkPreviewDismissed passed directly to MessageInput over the channel state context', async () => {
+    const enrichSpy = jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValue({ duration: '10ms', ...scrapedData });
+    const onLinkPreviewDismissedChannel = jest.fn();
+    const onLinkPreviewDismissedInput = jest.fn();
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { onLinkPreviewDismissed: onLinkPreviewDismissedChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: {
+        urlEnrichmentConfig: {
+          onLinkPreviewDismissed: onLinkPreviewDismissedInput,
+        },
+      },
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(await screen.findByTestId(LINK_PREVIEW_DISMISS_BTN_TEST_ID));
+    });
+
+    expect(enrichSpy).toHaveBeenCalledTimes(1);
+    expect(onLinkPreviewDismissedInput).toHaveBeenCalledWith(expect.objectContaining(scrapedData));
+    expect(onLinkPreviewDismissedChannel).not.toHaveBeenCalled();
+  });
+
+  it('gives preference to debounceURLEnrichmentMs passed to Channel', async () => {
+    const debounceURLEnrichmentMsChannel = 500;
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { debounceURLEnrichmentMs: debounceURLEnrichmentMsChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    expect(debounce).toHaveBeenCalledWith(expect.any(Function), debounceURLEnrichmentMsChannel, {
+      leading: false,
+      trailing: true,
+    });
+  });
+
+  it('gives preference to debounceURLEnrichmentMs passed directly over the channel state context', async () => {
+    const debounceURLEnrichmentMsChannel = 500;
+    const debounceURLEnrichmentMsInput = 1000;
+    await renderComponent({
+      channelProps: {
+        enrichURLForPreview: true,
+        enrichURLForPreviewConfig: { debounceURLEnrichmentMs: debounceURLEnrichmentMsChannel },
+      },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+      messageInputProps: {
+        urlEnrichmentConfig: {
+          debounceURLEnrichmentMs: debounceURLEnrichmentMsInput,
+        },
+      },
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData.og_scrape_url}`,
+        },
+      });
+    });
+
+    expect(debounce).toHaveBeenCalledWith(expect.any(Function), debounceURLEnrichmentMsInput, {
+      leading: false,
+      trailing: true,
+    });
   });
 
   it('are rendered in custom LinkPreviewList component', async () => {
@@ -1248,10 +1341,45 @@ describe('Link preview', () => {
           value: `X ${scrapedData.og_scrape_url}`,
         },
       });
-      jest.runOnlyPendingTimers();
     });
 
     expect(await screen.queryByTestId(customTestId)).toBeInTheDocument();
     expect(await screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('link preview state is cleared after message submission', async () => {
+    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
+    let resolveEnrichURLPromise;
+    jest
+      .spyOn(chatClient, 'enrichURL')
+      .mockImplementationOnce(() => new Promise((res) => (resolveEnrichURLPromise = res)));
+
+    const { submit } = await renderComponent({
+      channelProps: { channel, enrichURLForPreview: true },
+      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
+    });
+
+    await act(async () => {
+      fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: `X ${scrapedData1.og_scrape_url}`,
+        },
+      });
+    });
+
+    await act(() => submit());
+
+    expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+    expect(sendMessageSpy.mock.calls[0][0].attachments).toHaveLength(0);
+    expect(sendMessageSpy.mock.calls[0][1].skip_enrich_url).toBe(false);
+
+    await act(() => {
+      resolveEnrichURLPromise({ duration: '10ms', ...scrapedData1 });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { find } from 'linkifyjs';
-import { Dispatch, useCallback, useEffect } from 'react';
+import { Dispatch, useCallback, useEffect, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
@@ -27,6 +27,8 @@ type UseEnrichURLsParams<
 };
 
 export type EnrichURLsController = {
+  /** Function cancels all the scheduled or in-progress URL enrichment queries and resets the state. */
+  cancelURLEnrichment: () => void;
   /** Function called when a single link preview is dismissed. */
   dismissLinkPreview: (linkPreview: LinkPreview) => void;
   /** Function that triggers the search for URLs and their enrichment. */
@@ -36,16 +38,29 @@ export type EnrichURLsController = {
 export const useLinkPreviews = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  debounceURLEnrichmentMs = 1500,
+  debounceURLEnrichmentMs: debounceURLEnrichmentMsInputContext,
   dispatch,
   enrichURLForPreview = false,
-  findURLFn,
+  findURLFn: findURLFnInputContext,
   linkPreviews,
-  onLinkPreviewDismissed,
+  onLinkPreviewDismissed: onLinkPreviewDismissedInputContext,
 }: UseEnrichURLsParams<StreamChatGenerics>): EnrichURLsController => {
   const { client } = useChatContext();
   // FIXME: the value of channelConfig is stale due to omitting it from the memoization deps in useCreateChannelStateContext
-  const { channelConfig } = useChannelStateContext();
+  const {
+    channelConfig,
+    debounceURLEnrichmentMs: debounceURLEnrichmentMsChannelContext,
+    findURLFn: findURLFnChannelContext,
+    onLinkPreviewDismissed: onLinkPreviewDismissedChannelContext,
+  } = useChannelStateContext();
+
+  const shouldDiscardEnrichQueries = useRef(false);
+
+  const findURLFn = findURLFnInputContext ?? findURLFnChannelContext;
+  const onLinkPreviewDismissed =
+    onLinkPreviewDismissedInputContext ?? onLinkPreviewDismissedChannelContext;
+  const debounceURLEnrichmentMs =
+    debounceURLEnrichmentMsInputContext ?? debounceURLEnrichmentMsChannelContext ?? 1500;
 
   const dismissLinkPreview = useCallback(
     (linkPreview: LinkPreview) => {
@@ -72,6 +87,8 @@ export const useLinkPreviews = <
               return acc;
             }, []);
 
+        shouldDiscardEnrichQueries.current = urls.length === 0;
+
         dispatch({
           linkPreviews: urls.reduce<LinkPreviewMap>((acc, url) => {
             acc.set(url, { og_scrape_url: url, state: LinkPreviewState.QUEUED });
@@ -84,8 +101,14 @@ export const useLinkPreviews = <
       debounceURLEnrichmentMs,
       { leading: false, trailing: true },
     ),
-    [debounceURLEnrichmentMs, findURLFn],
+    [debounceURLEnrichmentMs, shouldDiscardEnrichQueries, findURLFn],
   );
+
+  const cancelURLEnrichment = useCallback(() => {
+    findAndEnqueueURLsToEnrich.cancel();
+    findAndEnqueueURLsToEnrich('');
+    findAndEnqueueURLsToEnrich.flush();
+  }, [findAndEnqueueURLsToEnrich]);
 
   useEffect(() => {
     const enqueuedLinks = Array.from(linkPreviews.values()).reduce<LinkPreviewMap>(
@@ -115,11 +138,14 @@ export const useLinkPreviews = <
         .enrichURL(linkPreview.og_scrape_url)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .then(({ duration, ...ogAttachment }) => {
+          if (shouldDiscardEnrichQueries.current) return;
+
           const linkPreviewsMap = new Map();
           linkPreviewsMap.set(linkPreview.og_scrape_url, {
             ...ogAttachment,
             state: LinkPreviewState.LOADED,
           });
+
           dispatch({
             linkPreviews: linkPreviewsMap,
             mode: SetLinkPreviewMode.UPSERT,
@@ -139,9 +165,10 @@ export const useLinkPreviews = <
           });
         });
     });
-  }, [linkPreviews]);
+  }, [shouldDiscardEnrichQueries, linkPreviews]);
 
   return {
+    cancelURLEnrichment,
     dismissLinkPreview,
     findAndEnqueueURLsToEnrich:
       channelConfig?.url_enrichment && enrichURLForPreview ? findAndEnqueueURLsToEnrich : undefined,
