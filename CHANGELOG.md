@@ -1,3 +1,15 @@
+# [10.10.0](https://github.com/GetStream/stream-chat-react/compare/v10.9.1...v10.10.0) (2023-09-08)
+
+
+### Features
+
+* add link previews to MessageInput ([#2083](https://github.com/GetStream/stream-chat-react/issues/2083)) ([76caeea](https://github.com/GetStream/stream-chat-react/commit/76caeeac77e42d5286ae6a409cbf93c582b5c1f6))
+
+
+### Performance Improvements
+
+* **package-size:** remove react-file-utils package ([#2088](https://github.com/GetStream/stream-chat-react/issues/2088)) ([1258e09](https://github.com/GetStream/stream-chat-react/commit/1258e09f252c81295fbaee0da58194886424f0a6))
+
 ## [10.9.1](https://github.com/GetStream/stream-chat-react/compare/v10.9.0...v10.9.1) (2023-08-31)
 
 
