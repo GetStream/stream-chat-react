@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FileUploadButton, ImageDropzone } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 
 import { EmojiPicker } from './EmojiPicker';
 import {

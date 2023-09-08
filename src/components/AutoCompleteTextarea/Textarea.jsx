@@ -57,6 +57,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     };
   }
 
+  // FIXME: unused method
   getSelectionPosition = () => {
     if (!this.textareaRef) return null;
 
@@ -66,6 +67,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     };
   };
 
+  // FIXME: unused method
   getSelectedText = () => {
     if (!this.textareaRef) return null;
     const { selectionEnd, selectionStart } = this.textareaRef;

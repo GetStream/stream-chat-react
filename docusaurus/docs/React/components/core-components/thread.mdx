@@ -126,7 +126,7 @@ const CustomThreadHead = (props) => {
 Additional props to be passed to the underlying [`MessageInput`](../message-input-components/message-input.mdx) component.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### additionalMessageListProps
@@ -134,7 +134,7 @@ Additional props to be passed to the underlying [`MessageInput`](../message-inpu
 Additional props to be passed to the underlying [`MessageList`](./message-list.mdx) component.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### additionalParentMessageProps
@@ -143,7 +143,7 @@ Additional props to be passed to the underlying [`Message`](../message-component
 thread's parent message.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### additionalVirtualizedMessageListProps
@@ -151,7 +151,7 @@ thread's parent message.
 Additional [props for `VirtualizedMessageList`](../virtualized_list/#props) component.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### autoFocus
@@ -159,7 +159,7 @@ Additional [props for `VirtualizedMessageList`](../virtualized_list/#props) comp
 If true, focuses the `MessageInput` component on opening a thread.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### enableDateSeparator
@@ -167,7 +167,7 @@ If true, focuses the `MessageInput` component on opening a thread.
 Controls injection of <GHComponentLink text='DateSeparator' path='/DateSeparator/DateSeparator.tsx'/> UI component into underlying `MessageList` or `VirtualizedMessageList`.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### fullWidth
@@ -175,23 +175,23 @@ Controls injection of <GHComponentLink text='DateSeparator' path='/DateSeparator
 If true, displays the thread at 100% width of its parent container, useful for mobile styling.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### Input
 
-Custom thread input UI component used to override the optional `Input` value stored in `ComponentContext` or the default. For  the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
+Custom thread input UI component used to override the optional `Input` value stored in `ComponentContext` or the default. For the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
 
-| Type      | Default                                                                                                                                                                                               |
-|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/>  /  <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
+| Type      | Default                                                                                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/> / <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
 
 ### Message
 
 Custom thread message UI component used to override the default `Message` value stored in `ComponentContext`.
 
 | Type      | Default                                                                  |
-|-----------|--------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------ |
 | component | [ComponentContext['Message']](../contexts/component-context.mdx#message) |
 
 ### messageActions
@@ -199,7 +199,7 @@ Custom thread message UI component used to override the default `Message` value 
 Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all actions, provide an empty array.
 
 | Type  | Default                                                              |
-|-------|----------------------------------------------------------------------|
+| ----- | -------------------------------------------------------------------- |
 | array | ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'] |
 
 ### virtualized
@@ -207,5 +207,5 @@ Array of allowed message actions (ex: 'edit', 'delete', 'reply'). To disable all
 If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |

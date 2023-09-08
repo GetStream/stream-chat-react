@@ -650,6 +650,7 @@ function axeNoViolations(container) {
           expect.objectContaining({
             text: messageText,
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -700,6 +701,7 @@ function axeNoViolations(container) {
           expect(calledMock).toHaveBeenCalledWith(
             expect.stringMatching(/.+:.+/),
             expect.objectContaining(customMessageData),
+            undefined,
           );
         });
         await axeNoViolations(container);
@@ -729,6 +731,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           customMessageData,
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -771,6 +774,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -804,6 +808,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -839,6 +844,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -868,6 +874,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
         await axeNoViolations(container);
@@ -927,6 +934,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
 
@@ -1002,6 +1010,7 @@ function axeNoViolations(container) {
           mentioned_users: [{ id: userId, name: username }],
           text: message.text,
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1035,6 +1044,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1068,6 +1078,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: [],
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();

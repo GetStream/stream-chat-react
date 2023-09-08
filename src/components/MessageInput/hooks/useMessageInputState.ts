@@ -11,49 +11,19 @@ import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
-import type { FileLike } from 'react-file-utils';
-import type { Attachment, Message, UserResponse } from 'stream-chat';
+import type { FileLike } from '../../ReactFileUtilities';
+import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
-
-export type FileUpload = {
-  file: {
-    name: string;
-    lastModified?: number;
-    lastModifiedDate?: Date;
-    size?: number;
-    type?: string;
-    uri?: string;
-  };
-  id: string;
-  state: 'finished' | 'failed' | 'uploading';
-  thumb_url?: string;
-  url?: string;
-};
-
-export type ImageUpload<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  file: {
-    name: string;
-    height?: number;
-    lastModified?: number;
-    lastModifiedDate?: Date;
-    size?: number;
-    type?: string;
-    uri?: string;
-    width?: number;
-  };
-  id: string;
-  state: 'finished' | 'failed' | 'uploading';
-  previewUri?: string;
-  url?: string;
-} & Pick<
-  Attachment<StreamChatGenerics>,
-  'og_scrape_url' | 'title' | 'title_link' | 'author_name' | 'text'
->;
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+} from '../../../types/types';
+import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
+import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
+import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -64,6 +34,7 @@ export type MessageInputState<
   fileUploads: Record<string, FileUpload>;
   imageOrder: string[];
   imageUploads: Record<string, ImageUpload>;
+  linkPreviews: LinkPreviewMap;
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
@@ -101,6 +72,12 @@ type SetFileUploadAction = {
   url?: string;
 };
 
+type SetLinkPreviewsAction = {
+  linkPreviews: LinkPreviewMap;
+  mode: SetLinkPreviewMode;
+  type: 'setLinkPreviews';
+};
+
 type RemoveImageUploadAction = {
   id: string;
   type: 'removeImageUpload';
@@ -126,13 +103,14 @@ export type MessageInputReducerAction<
   | ClearAction
   | SetImageUploadAction
   | SetFileUploadAction
+  | SetLinkPreviewsAction
   | RemoveImageUploadAction
   | RemoveFileUploadAction
   | AddMentionedUserAction<StreamChatGenerics>;
 
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+> = EnrichURLsController & {
   closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
   emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
@@ -140,6 +118,7 @@ export type MessageInputHookProps<
   handleSubmit: (
     event: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => void;
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
@@ -167,6 +146,7 @@ const makeEmptyMessageInputState = <
   fileUploads: {},
   imageOrder: [],
   imageUploads: {},
+  linkPreviews: new Map(),
   mentioned_users: [],
   setText: () => null,
   text: '',
@@ -234,6 +214,16 @@ const initState = <
         {},
       ) ?? {};
 
+  const linkPreviews =
+    message.attachments?.reduce<LinkPreviewMap>((acc, attachment) => {
+      if (!attachment.og_scrape_url) return acc;
+      acc.set(attachment.og_scrape_url, {
+        ...(attachment as OGAttachment),
+        state: LinkPreviewState.LOADED,
+      });
+      return acc;
+    }, new Map()) ?? new Map();
+
   const imageOrder = Object.keys(imageUploads);
   const fileOrder = Object.keys(fileUploads);
 
@@ -249,6 +239,7 @@ const initState = <
     fileUploads,
     imageOrder,
     imageUploads,
+    linkPreviews,
     mentioned_users,
     setText: () => null,
     text: message.text || '',
@@ -303,6 +294,38 @@ const messageInputReducer = <
           ...state.fileUploads,
           [action.id]: { ...state.fileUploads[action.id], ...newUploadFields },
         },
+      };
+    }
+
+    case 'setLinkPreviews': {
+      const linkPreviews = new Map(state.linkPreviews);
+
+      if (action.mode === SetLinkPreviewMode.REMOVE) {
+        Array.from(action.linkPreviews.keys()).forEach((key) => {
+          linkPreviews.delete(key);
+        });
+      } else {
+        Array.from(action.linkPreviews.values()).reduce<LinkPreviewMap>((acc, linkPreview) => {
+          const existingPreview = acc.get(linkPreview.og_scrape_url);
+          const alreadyEnqueued =
+            linkPreview.state === LinkPreviewState.QUEUED &&
+            existingPreview?.state !== LinkPreviewState.FAILED;
+
+          if (existingPreview && alreadyEnqueued) return acc;
+          acc.set(linkPreview.og_scrape_url, linkPreview);
+          return acc;
+        }, linkPreviews);
+
+        if (action.mode === SetLinkPreviewMode.SET) {
+          Array.from(state.linkPreviews.keys()).forEach((key) => {
+            if (!action.linkPreviews.get(key)) linkPreviews.delete(key);
+          });
+        }
+      }
+
+      return {
+        ...state,
+        linkPreviews,
       };
     }
 
@@ -363,11 +386,19 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { additionalTextareaProps, closeEmojiPickerOnClick, getDefaultValue, message } = props;
+  const {
+    additionalTextareaProps,
+    closeEmojiPickerOnClick,
+    getDefaultValue,
+    message,
+    urlEnrichmentConfig,
+  } = props;
 
-  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
-    'useMessageInputState',
-  );
+  const {
+    channelCapabilities = {},
+    channelConfig,
+    enrichURLForPreview: enrichURLForPreviewChannelContext,
+  } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
   const defaultValue = getDefaultValue?.() || additionalTextareaProps?.defaultValue;
   const initialStateValue =
@@ -385,10 +416,19 @@ export const useMessageInputState = <
     initState,
   );
 
+  const enrichURLsController = useLinkPreviews({
+    dispatch,
+    linkPreviews: state.linkPreviews,
+    ...urlEnrichmentConfig,
+    enrichURLForPreview:
+      urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
+  });
+
   const { handleChange, insertText, textareaRef } = useMessageInputText<StreamChatGenerics, V>(
     props,
     state,
     dispatch,
+    enrichURLsController.findAndEnqueueURLsToEnrich,
   );
 
   const [showCommandsList, setShowCommandsList] = useState(false);
@@ -443,11 +483,17 @@ export const useMessageInputState = <
     state,
     dispatch,
     numberOfUploads,
+    enrichURLsController,
   );
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
 
-  const { onPaste } = usePasteHandler(uploadNewFiles, insertText, isUploadEnabled);
+  const { onPaste } = usePasteHandler(
+    uploadNewFiles,
+    insertText,
+    isUploadEnabled,
+    enrichURLsController.findAndEnqueueURLsToEnrich,
+  );
 
   const onSelectUser = useCallback((item: UserResponse<StreamChatGenerics>) => {
     dispatch({ type: 'addMentionedUser', user: item });
@@ -459,6 +505,7 @@ export const useMessageInputState = <
 
   return {
     ...state,
+    ...enrichURLsController,
     closeCommandsList,
     /**
      * TODO: fix the below at some point because this type casting is wrong

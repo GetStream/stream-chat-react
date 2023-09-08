@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { FileUploadButton, ImageDropzone } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 
 import { EmojiPicker } from './EmojiPicker';

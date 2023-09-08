@@ -78,12 +78,20 @@ The `VirtualizedMessageList` internally creates a mapping of message id to a sty
 
 ## Props
 
+### additionalMessageInputProps
+
+Additional props to be passed to the `MessageInput` component, [available props](../message-input-components/message-input.mdx/#props). It is rendered when editing a message.
+
+| Type   |
+| ------ |
+| object |
+
 ### additionalVirtuosoProps
 
 Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/).
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### closeReactionSelectorOnClick
@@ -91,7 +99,7 @@ Additional props to be passed the underlying [`react-virtuoso` virtualized list 
 If true, picking a reaction from the `ReactionSelector` component will close the selector.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### customMessageRenderer
@@ -99,7 +107,7 @@ If true, picking a reaction from the `ReactionSelector` component will close the
 Custom message render function, overrides the default `messageRenderer` function defined in the component.
 
 | Type                                                               |
-|--------------------------------------------------------------------|
+| ------------------------------------------------------------------ |
 | ( messages: StreamMessage[], index: number ) => React.ReactElement |
 
 ### defaultItemHeight
@@ -107,7 +115,7 @@ Custom message render function, overrides the default `messageRenderer` function
 If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance.
 
 | Type   |
-|--------|
+| ------ |
 | number |
 
 ### disableDateSeparator
@@ -115,7 +123,7 @@ If set, the default item height is used for the calculation of the total list he
 If true, disables the injection of date separator UI components.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### groupStyles
@@ -123,16 +131,15 @@ If true, disables the injection of date separator UI components.
 Callback function to set group styles for each message.
 
 | Type                                                                                                                       |
-|----------------------------------------------------------------------------------------------------------------------------|
+| -------------------------------------------------------------------------------------------------------------------------- |
 | (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean) => GroupStyle |
-
 
 ### hasMore
 
 Whether the list has more items to load.
 
 | Type    | Default                                                                              |
-|---------|--------------------------------------------------------------------------------------|
+| ------- | ------------------------------------------------------------------------------------ |
 | boolean | [ChannelStateContextValue['hasMore']](../contexts/channel-state-context.mdx#hasmore) |
 
 ### hideDeletedMessages
@@ -156,7 +163,7 @@ If true, hides the `DateSeparator` component that renders when new messages are 
 Whether the list is currently loading more items.
 
 | Type    | Default                                                                                      |
-|---------|----------------------------------------------------------------------------------------------|
+| ------- | -------------------------------------------------------------------------------------------- |
 | boolean | [ChannelStateContextValue['loadingMore']](../contexts/channel-state-context.mdx#loadingmore) |
 
 ### loadMore
@@ -164,7 +171,7 @@ Whether the list is currently loading more items.
 Function called when more messages are to be loaded, provide your own function to override the handler stored in context.
 
 | Type     | Default                                                                                  |
-|----------|------------------------------------------------------------------------------------------|
+| -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
 
 ### Message
@@ -172,7 +179,7 @@ Function called when more messages are to be loaded, provide your own function t
 Custom UI component to display an individual message.
 
 | Type      | Default                                                                   |
-|-----------|---------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> |
 
 ### messageLimit
@@ -180,7 +187,7 @@ Custom UI component to display an individual message.
 The limit to use when paginating messages (the page size).
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | number | 100     |
 
 ### messages
@@ -188,7 +195,7 @@ The limit to use when paginating messages (the page size).
 The messages to render in the list, provide your own array to override the data stored in context.
 
 | Type  | Default                                                                                |
-|-------|----------------------------------------------------------------------------------------|
+| ----- | -------------------------------------------------------------------------------------- |
 | array | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
 
 ### overscan
@@ -196,7 +203,7 @@ The messages to render in the list, provide your own array to override the data 
 The amount of extra content the list should render in addition to what's necessary to fill in the viewport.
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | number | 0       |
 
 ### returnAllReadData
@@ -204,7 +211,7 @@ The amount of extra content the list should render in addition to what's necessa
 Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### scrollSeekPlaceHolder
@@ -212,7 +219,7 @@ Keep track of read receipts for each message sent by the user. When disabled, on
 Custom data passed to the list that determines when message placeholders should be shown during fast scrolling.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### scrollToLatestMessageOnFocus
@@ -220,7 +227,7 @@ Custom data passed to the list that determines when message placeholders should 
 If true, the list will scroll to the latest message when the window regains focus.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### shouldGroupByUser
@@ -228,7 +235,7 @@ If true, the list will scroll to the latest message when the window regains focu
 If true, group messages belonging to the same user, otherwise show each message individually.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### separateGiphyPreview
@@ -236,7 +243,7 @@ If true, group messages belonging to the same user, otherwise show each message 
 If true, the Giphy preview will render as a separate component above the `MessageInput`, rather than inline with the other messages in the list.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### stickToBottomScrollBehavior
@@ -253,5 +260,5 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 If true, indicates that the current `VirtualizedMessageList` component is part of a `Thread`.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
