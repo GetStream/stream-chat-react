@@ -1,21 +1,26 @@
 import type { FileLike } from './types';
+import { ChangeEvent, useCallback } from 'react';
 
 export const useHandleFileChangeWrapper = (
   resetOnChange = false,
   handler?: (files: Array<File>) => void,
-) => ({ currentTarget }: React.ChangeEvent<HTMLInputElement>) => {
-  const { files } = currentTarget;
+) =>
+  useCallback(
+    ({ currentTarget }: ChangeEvent<HTMLInputElement>) => {
+      const { files } = currentTarget;
 
-  if (!files) return;
+      if (!files) return;
 
-  try {
-    handler?.(Array.from(files));
-  } catch (error) {
-    console.error(error);
-  }
+      try {
+        handler?.(Array.from(files));
+      } catch (error) {
+        console.error(error);
+      }
 
-  if (resetOnChange) currentTarget.value = '';
-};
+      if (resetOnChange) currentTarget.value = '';
+    },
+    [handler, resetOnChange],
+  );
 
 export function dataTransferItemsHaveFiles(items?: DataTransferItem[]): boolean {
   if (!items || !items.length) {
