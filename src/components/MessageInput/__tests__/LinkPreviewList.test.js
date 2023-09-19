@@ -55,7 +55,7 @@ const threadMessage = generateMessage({
   type: 'reply',
   user: user1,
 });
-const mockedChannel = generateChannel({
+const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
@@ -177,14 +177,14 @@ describe('Link preview', () => {
 
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: user1.id });
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+    channel = chatClient.channel('messaging', mockedChannelData.channel.id);
   });
 
   afterEach(tearDown);
 
   it('does not request URL enrichment if disabled in channel config', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const {
       channel: { config },
     } = generateChannel({ config: { url_enrichment: false } });
@@ -660,7 +660,7 @@ describe('Link preview', () => {
   });
 
   it('are sent as attachments to posted message with skip_enrich_url:true', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
 
     jest
@@ -716,7 +716,7 @@ describe('Link preview', () => {
   });
 
   it('are not sent as attachments to posted message with skip_enrich_url:true if dismissed', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
 
     jest
@@ -763,7 +763,7 @@ describe('Link preview', () => {
   });
 
   it('does not add failed link previews among attachments', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
 
     jest
@@ -804,7 +804,7 @@ describe('Link preview', () => {
   });
 
   it('does not add dismissed link previews among attachments', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
     jest
       .spyOn(chatClient, 'enrichURL')
@@ -1001,7 +1001,7 @@ describe('Link preview', () => {
   });
 
   it('submit new message with skip_url_enrich:false if no link previews managed to get loaded', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
     let resolveEnrichURLPromise;
     jest
@@ -1030,7 +1030,7 @@ describe('Link preview', () => {
   });
 
   it('submit updated message with skip_url_enrich:false if no link previews managed to get loaded', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const scrapedAudioAttachment = generateScrapedAudioAttachment({
       og_scrape_url: 'http://getstream.io/audio',
     });
@@ -1348,7 +1348,7 @@ describe('Link preview', () => {
   });
 
   it('link preview state is cleared after message submission', async () => {
-    const channel = chatClient.channel('messaging', mockedChannel.id);
+    const channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     const sendMessageSpy = jest.spyOn(channel, 'sendMessage').mockImplementation();
     let resolveEnrichURLPromise;
     jest

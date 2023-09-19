@@ -4,6 +4,8 @@ export const generateChannel = (options = { channel: {} }) => {
   const { channel: optionsChannel, config, ...optionsBesidesChannel } = options;
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
+  const { id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
+
   return {
     members: [],
     messages: [],
@@ -56,7 +58,7 @@ export const generateChannel = (options = { channel: {} }) => {
       id,
       type,
       updated_at: '2020-04-28T11:20:48.578147Z',
-      ...optionsChannel,
+      ...restOptionsChannel,
     },
   };
 };
