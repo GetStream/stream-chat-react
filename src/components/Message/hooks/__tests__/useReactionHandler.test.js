@@ -26,7 +26,13 @@ const updateMessage = jest.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUseReactionHandlerHook(message = generateMessage(), channelContextProps) {
+async function renderUseReactionHandlerHook(params = {}) {
+  const {
+    channelContextProps = {},
+    channelStateContextOverrides = {},
+    message = generateMessage(),
+  } = params;
+
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
     deleteReaction,
@@ -38,7 +44,13 @@ async function renderUseReactionHandlerHook(message = generateMessage(), channel
 
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
+      <ChannelStateProvider
+        value={{
+          channel,
+          channelCapabilities: { 'send-reaction': true },
+          ...channelStateContextOverrides,
+        }}
+      >
         <ChannelActionProvider value={{ updateMessage }}>{children}</ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>
@@ -57,7 +69,7 @@ describe('useReactionHandler custom hook', () => {
 
   it('should warn user if the hooks was not initialized with a defined message', async () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    const handleReaction = await renderUseReactionHandlerHook(null);
+    const handleReaction = await renderUseReactionHandlerHook({ message: null });
     await handleReaction();
     expect(console.warn).toHaveBeenCalledWith(reactionHandlerWarning);
   });
@@ -66,7 +78,7 @@ describe('useReactionHandler custom hook', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
-    const handleReaction = await renderUseReactionHandlerHook(message);
+    const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction();
     expect(console.warn).toHaveBeenCalledWith(
       `message.own_reactions contained reactions from a different user, this indicates a bug`,
@@ -76,7 +88,7 @@ describe('useReactionHandler custom hook', () => {
   it('should delete own reaction from channel if it was already there', async () => {
     const reaction = generateReaction({ user: alice });
     const message = generateMessage({ own_reactions: [reaction] });
-    const handleReaction = await renderUseReactionHandlerHook(message);
+    const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction(reaction.type);
     expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
   });
@@ -84,17 +96,28 @@ describe('useReactionHandler custom hook', () => {
   it('should send reaction', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    const handleReaction = await renderUseReactionHandlerHook(message);
+    const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction(reaction.type);
     expect(sendReaction).toHaveBeenCalledWith(message.id, {
       type: reaction.type,
     });
   });
 
+  it('should not send reaction without permission', async () => {
+    const reaction = generateReaction({ user: bob });
+    const message = generateMessage({ own_reactions: [] });
+    const handleReaction = await renderUseReactionHandlerHook({
+      channelStateContextOverrides: { channelCapabilities: { 'send-reaction': false } },
+      message,
+    });
+    await handleReaction(reaction.type);
+    expect(sendReaction).not.toHaveBeenCalled();
+  });
+
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    const handleReaction = await renderUseReactionHandlerHook(message);
+    const handleReaction = await renderUseReactionHandlerHook({ message });
     sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
     expect(updateMessage).toHaveBeenCalledWith(message);
@@ -110,7 +133,7 @@ function renderUseReactionClickHook(
 
   const wrapper = ({ children }) => (
     <ChannelStateProvider value={{ channel }}>
-      <ChannelActionProvider>{children}</ChannelActionProvider>
+      <ChannelActionProvider value={{}}>{children}</ChannelActionProvider>
     </ChannelStateProvider>
   );
 
@@ -123,19 +146,21 @@ function renderUseReactionClickHook(
 
 describe('useReactionClick custom hook', () => {
   beforeEach(jest.clearAllMocks);
-  it('should initialize a click handler and a flag for showing detailed reactions', async () => {
+  it('should initialize a click handler and a flag for showing detailed reactions', () => {
     const {
       result: { current },
-    } = await renderUseReactionClickHook();
+    } = renderUseReactionClickHook();
 
     expect(typeof current.onReactionListClick).toBe('function');
     expect(current.showDetailedReactions).toBe(false);
   });
 
   it('should set show details to true on click', async () => {
-    const { result } = await renderUseReactionClickHook();
+    const { result } = renderUseReactionClickHook();
     expect(result.current.showDetailedReactions).toBe(false);
-    act(() => result.current.onReactionListClick());
+    await act(() => {
+      result.current.onReactionListClick();
+    });
     expect(result.current.showDetailedReactions).toBe(true);
   });
 
@@ -173,18 +198,22 @@ describe('useReactionClick custom hook', () => {
     const clickMock = {
       target: document.createElement('div'),
     };
-    const { result } = await renderUseReactionClickHook();
+    const { result } = renderUseReactionClickHook();
     let onDocumentClick;
     const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
       jest.fn((_, fn) => {
         onDocumentClick = fn;
       }),
     );
-    act(() => result.current.onReactionListClick());
+    await act(() => {
+      result.current.onReactionListClick();
+    });
     expect(result.current.showDetailedReactions).toBe(true);
     expect(document.addEventListener).toHaveBeenCalledTimes(1);
     expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
-    act(() => onDocumentClick(clickMock));
+    await act(() => {
+      onDocumentClick(clickMock);
+    });
     expect(result.current.showDetailedReactions).toBe(false);
     addEventListenerSpy.mockRestore();
   });
@@ -196,12 +225,14 @@ describe('useReactionClick custom hook', () => {
         removeEventListener: jest.fn(),
       },
     };
-    const { result } = await renderUseReactionClickHook(
+    const { result } = renderUseReactionClickHook(
       generateMessage(),
       React.createRef(),
       mockMessageWrapperReference,
     );
-    act(() => result.current.onReactionListClick());
+    await act(() => {
+      result.current.onReactionListClick();
+    });
     expect(mockMessageWrapperReference.current.addEventListener).toHaveBeenCalledWith(
       'mouseleave',
       expect.any(Function),
@@ -215,7 +246,7 @@ describe('useReactionClick custom hook', () => {
     const clickMock = {
       target: reactionSelectorEl,
     };
-    const { result } = await renderUseReactionClickHook(message, {
+    const { result } = renderUseReactionClickHook(message, {
       current: reactionListElement,
     });
     let onDocumentClick;
@@ -224,9 +255,13 @@ describe('useReactionClick custom hook', () => {
         onDocumentClick = fn;
       }),
     );
-    act(() => result.current.onReactionListClick());
+    await act(() => {
+      result.current.onReactionListClick();
+    });
     expect(result.current.showDetailedReactions).toBe(true);
-    act(() => onDocumentClick(clickMock));
+    await act(() => {
+      onDocumentClick(clickMock);
+    });
     expect(result.current.showDetailedReactions).toBe(true);
     addEventListenerSpy.mockRestore();
   });
@@ -235,7 +270,7 @@ describe('useReactionClick custom hook', () => {
     const clickMock = {
       target: document.createElement('div'),
     };
-    const { result } = await renderUseReactionClickHook();
+    const { result } = renderUseReactionClickHook();
     let onDocumentClick;
     const addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation(
       jest.fn((_, fn) => {
@@ -245,7 +280,9 @@ describe('useReactionClick custom hook', () => {
     const removeEventListenerSpy = jest
       .spyOn(document, 'removeEventListener')
       .mockImplementationOnce(jest.fn());
-    act(() => result.current.onReactionListClick());
+    await act(() => {
+      result.current.onReactionListClick();
+    });
     expect(result.current.showDetailedReactions).toBe(true);
     act(() => onDocumentClick(clickMock));
     expect(result.current.showDetailedReactions).toBe(false);
@@ -268,9 +305,11 @@ describe('useReactionClick custom hook', () => {
     const removeEventListenerSpy = jest
       .spyOn(document, 'removeEventListener')
       .mockImplementationOnce(jest.fn());
-    const { rerender, result } = await renderUseReactionClickHook(message);
+    const { rerender, result } = renderUseReactionClickHook(message);
     expect(document.removeEventListener).not.toHaveBeenCalled();
-    act(() => result.current.onReactionListClick(clickMock));
+    await act(() => {
+      result.current.onReactionListClick(clickMock);
+    });
     message.deleted_at = new Date();
     rerender();
     expect(document.removeEventListener).toHaveBeenCalledWith('click', onDocumentClick);

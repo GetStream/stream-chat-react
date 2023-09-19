@@ -235,14 +235,15 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should not show reaction list if disabled in channelConfig', async () => {
+  // FIXME: test relying on deprecated channel config parameter
+  it('should show reaction list even though sending reactions is disabled in channelConfig', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
     const { container, queryByTestId } = await renderMessageText({ message }, { reactions: false });
 
-    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    expect(queryByTestId('reaction-list')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

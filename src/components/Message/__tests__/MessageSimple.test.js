@@ -25,9 +25,11 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  EmojiProvider,
   TranslationProvider,
 } from '../../../context';
 import {
+  emojiComponentMock,
   emojiDataMock,
   generateChannel,
   generateMessage,
@@ -87,13 +89,22 @@ async function renderMessageSimple({
                 ...components,
               }}
             >
-              <Message
-                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                isMyMessage={() => true}
-                message={message}
-                threadList={false}
-                {...props}
-              />
+              <EmojiProvider
+                value={{
+                  Emoji: emojiComponentMock.Emoji,
+                  emojiConfig: emojiDataMock,
+                  EmojiIndex: emojiComponentMock.EmojiIndex,
+                  EmojiPicker: emojiComponentMock.EmojiPicker,
+                }}
+              >
+                <Message
+                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                  isMyMessage={() => true}
+                  message={message}
+                  threadList={false}
+                  {...props}
+                />
+              </EmojiProvider>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
@@ -222,7 +233,8 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should not render reaction list if reaction is disabled in channel config', async () => {
+  // FIXME: test relying on deprecated channel config parameter
+  it('should render reaction list even though sending reactions is disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
@@ -233,7 +245,7 @@ describe('<MessageSimple />', () => {
       channelConfigOverrides: { reactions: false },
       message,
     });
-    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    expect(queryByTestId('reaction-list')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
