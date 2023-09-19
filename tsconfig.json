@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
-    "paths": {
-      "*": ["src/@types/*"]
-    },
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
     "esModuleInterop": true,
-    "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": ["esnext", "DOM"],
-    "module": "esnext",
-    "moduleResolution": "node",
+    "lib": ["ESNext", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
@@ -25,7 +20,7 @@
     "strict": true,
     "target": "ES5",
     "allowSyntheticDefaultImports": true,
-    "noEmitOnError": false,
+    "noEmitOnError": true,
     "noImplicitAny": true,
     "allowJs": true,
     "checkJs": false,
@@ -33,14 +28,8 @@
     "declaration": true,
     "declarationDir": "./dist",
     "declarationMap": true,
-    "types": ["vite/client"]
+    "importHelpers": true
   },
   "include": ["./src/**/*"],
-  "exclude": [
-    "./src/mock-builders",
-    "node_modules",
-    "babel.config.js",
-    "jest.config.js",
-    "**/__tests__/*.test.js"
-  ]
+  "exclude": ["./src/stories", "./src/mock-builders", "./src/**/__tests__/*"]
 }
