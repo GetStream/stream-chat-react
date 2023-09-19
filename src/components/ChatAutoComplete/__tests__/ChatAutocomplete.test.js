@@ -83,13 +83,13 @@ describe('ChatAutoComplete', () => {
   beforeEach(async () => {
     const messages = [generateMessage({ user })];
     const members = [generateMember({ user }), generateMember({ user: mentionUser })];
-    const mockedChannel = generateChannel({
+    const mockedChannelData = generateChannel({
       members,
       messages,
     });
     chatClient = await getTestClientWithUser(user);
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+    channel = chatClient.channel('messaging', mockedChannelData.channel.id);
   });
 
   afterEach(cleanup);
