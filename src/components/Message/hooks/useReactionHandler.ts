@@ -139,7 +139,7 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const { channelCapabilities = {}, channelConfig } = useChannelStateContext<StreamChatGenerics>(
+  const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
     'useReactionClick',
   );
 
@@ -147,8 +147,7 @@ export const useReactionClick = <
 
   const hasListener = useRef(false);
 
-  const isReactionEnabled =
-    channelConfig?.reactions !== false && channelCapabilities['send-reaction'];
+  const isReactionEnabled = channelCapabilities['send-reaction'];
 
   const messageDeleted = !!message?.deleted_at;
 

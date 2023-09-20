@@ -167,14 +167,13 @@ describe('useReactionClick custom hook', () => {
   it('should return correct value for isReactionEnabled', () => {
     const channel = generateChannel();
     const channelCapabilities = { 'send-reaction': true };
-    const channelConfig = { reactions: true };
 
     const { rerender, result } = renderHook(
       () => useReactionClick(generateMessage(), React.createRef(), React.createRef()),
       {
         // eslint-disable-next-line react/display-name
         wrapper: ({ children }) => (
-          <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
+          <ChannelStateProvider value={{ channel, channelCapabilities }}>
             {children}
           </ChannelStateProvider>
         ),
@@ -186,10 +185,6 @@ describe('useReactionClick custom hook', () => {
     rerender();
     expect(result.current.isReactionEnabled).toBe(false);
     channelCapabilities['send-reaction'] = true;
-    channelConfig['reactions'] = false;
-    rerender();
-    expect(result.current.isReactionEnabled).toBe(false);
-    channelConfig['reactions'] = true;
     rerender();
     expect(result.current.isReactionEnabled).toBe(true);
   });

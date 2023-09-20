@@ -60,7 +60,8 @@ const retrySendMessageMock = jest.fn();
 async function renderMessageSimple({
   message,
   props = {},
-  channelConfigOverrides = { reactions: true, replies: true },
+  channelConfigOverrides = { replies: true },
+  channelCapabilities = { 'send-reaction': true },
   components = {},
   renderer = render,
 }) {
@@ -68,7 +69,7 @@ async function renderMessageSimple({
     getConfig: () => channelConfigOverrides,
     state: { membership: {} },
   });
-  const channelCapabilities = { 'send-reaction': true };
+
   const channelConfig = channel.getConfig();
   const client = await getTestClientWithUser(alice);
 
@@ -242,7 +243,7 @@ describe('<MessageSimple />', () => {
     });
 
     const { container, queryByTestId } = await renderMessageSimple({
-      channelConfigOverrides: { reactions: false },
+      channelCapabilities: { 'send-reaction': false },
       message,
     });
     expect(queryByTestId('reaction-list')).toBeInTheDocument();
