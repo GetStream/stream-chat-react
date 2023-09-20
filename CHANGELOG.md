@@ -1,3 +1,10 @@
+## [10.10.1](https://github.com/GetStream/stream-chat-react/compare/v10.10.0...v10.10.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* export UploadButton /w props type ([#2091](https://github.com/GetStream/stream-chat-react/issues/2091)) ([50e22ba](https://github.com/GetStream/stream-chat-react/commit/50e22baa2e03e8a059b3bf6c7d3bc65edcbfb168))
+
 # [10.10.0](https://github.com/GetStream/stream-chat-react/compare/v10.9.1...v10.10.0) (2023-09-08)
 
 
