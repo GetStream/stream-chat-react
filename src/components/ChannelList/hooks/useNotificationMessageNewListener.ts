@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import uniqBy from 'lodash.uniqby';
 
-import { getChannel } from '../utils';
+import { getChannel } from '../../../utils/getChannel';
 
 import { useChatContext } from '../../../context/ChatContext';
 
@@ -26,7 +26,11 @@ export const useNotificationMessageNewListener = <
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else if (allowNewMessagesFromUnfilteredChannels && event.channel?.type) {
-        const channel = await getChannel(client, event.channel.type, event.channel.id);
+        const channel = await getChannel({
+          client,
+          id: event.channel.id,
+          type: event.channel.type,
+        });
         setChannels((channels) => uniqBy([channel, ...channels], 'cid'));
       }
     };

@@ -12,6 +12,7 @@ import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import {
   ChannelAPIResponse,
+  ChannelMemberResponse,
   ChannelState,
   Event,
   logChatPromiseExecution,
@@ -68,6 +69,7 @@ import {
 import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
+import { getChannel } from '../../utils/getChannel';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
@@ -478,7 +480,25 @@ const ChannelInner = <
     (async () => {
       if (!channel.initialized) {
         try {
-          await channel.watch();
+          // if active channel has been set without id, we will create a temporary channel id from its member IDs
+          // to keep track of the /query request in progress. This is the same approach of generating temporary id
+          // that the JS client uses to keep track of channel in client.activeChannels
+          const members: string[] = [];
+          if (!channel.id && channel.data?.members) {
+            for (const member of channel.data.members) {
+              let userId: string | undefined;
+              if (typeof member === 'string') {
+                userId = member;
+              } else if (typeof member === 'object') {
+                const { user, user_id } = member as ChannelMemberResponse<StreamChatGenerics>;
+                userId = user_id || user?.id;
+              }
+              if (userId) {
+                members.push(userId);
+              }
+            }
+          }
+          await getChannel({ channel, client, members });
           const config = channel.getConfig();
           setChannelConfig(config);
         } catch (e) {

@@ -52,7 +52,7 @@ const threadMessage = generateMessage({
   type: 'reply',
   user: user1,
 });
-const mockedChannel = generateChannel({
+const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
@@ -162,8 +162,8 @@ function axeNoViolations(container) {
   describe(`${componentName}`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
     afterEach(tearDown);
 
@@ -1125,8 +1125,8 @@ function axeNoViolations(container) {
   describe(`${componentName}`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
 
     afterEach(tearDown);
