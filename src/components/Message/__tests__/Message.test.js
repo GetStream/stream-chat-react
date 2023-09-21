@@ -58,7 +58,9 @@ async function renderComponent({
 
   return renderer(
     <ChatProvider value={{ client, ...clientOpts }}>
-      <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
+      <ChannelStateProvider
+        value={{ channel, channelCapabilities: { 'send-reaction': true }, ...channelStateOpts }}
+      >
         <ChannelActionProvider
           value={{
             openThread: jest.fn(),
@@ -172,6 +174,23 @@ describe('<Message /> component', () => {
 
     await context.handleReaction(reaction.type);
     expect(sendReaction).toHaveBeenCalledWith(message.id, { type: reaction.type });
+  });
+
+  it('should not send reaction without permission', async () => {
+    const reaction = generateReaction({ user: bob });
+    const message = generateMessage({ own_reactions: [] });
+    let context;
+
+    await renderComponent({
+      channelStateOpts: { channelCapabilities: { 'send-reaction': false } },
+      contextCallback: (ctx) => {
+        context = ctx;
+      },
+      message,
+    });
+
+    await context.handleReaction(reaction.type);
+    expect(sendReaction).not.toHaveBeenCalled();
   });
 
   it('should rollback reaction if channel update fails', async () => {
