@@ -21,7 +21,7 @@ export const CooldownTimer = ({ cooldownInterval, setCooldownRemaining }: Cooldo
 
   return (
     <div className='str-chat__message-input-cooldown' data-testid='cooldown-timer'>
-      {seconds === 0 ? null : seconds}
+      {seconds}
     </div>
   );
 };
