@@ -166,6 +166,7 @@ export const CustomMessage = () => {
 
   const messageWrapperRef = useRef(null);
 
+  const canReact = isReactionEnabled;
   const hasReactions = messageHasReactions(message);
 
   return (
@@ -179,13 +180,13 @@ export const CustomMessage = () => {
             <MessageTimestamp />
           </div>
         </div>
-        {showDetailedReactions && isReactionEnabled && (
+        {showDetailedReactions && canReact && (
           <ReactionSelector reactionOptions={customReactions} ref={reactionSelectorRef} />
         )}
         <MessageText />
         <MessageStatus />
         {message.attachments && <Attachment attachments={message.attachments} />}
-        {hasReactions && !showDetailedReactions && isReactionEnabled && (
+        {hasReactions && (
           <SimpleReactionsList reactionOptions={customReactions} />
         )}
         <MessageRepliesCountButton reply_count={message.reply_count} />

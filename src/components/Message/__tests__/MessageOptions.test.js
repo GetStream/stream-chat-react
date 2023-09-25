@@ -169,14 +169,17 @@ describe('<MessageOptions />', () => {
     const { getByTestId } = await renderMessageOptions({
       channelStateOpts: {
         channelCapabilities: { 'send-reaction': true },
-        channelConfig: { reactions: true },
       },
     });
     expect(getByTestId(reactionActionTestId)).toBeInTheDocument();
   });
 
   it('should not display reactions action when channel has reactions disabled', async () => {
-    const { queryByTestId } = await renderMessageOptions({ channelConfig: { reactions: false } });
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': false },
+      },
+    });
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 

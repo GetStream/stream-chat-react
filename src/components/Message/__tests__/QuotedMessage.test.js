@@ -38,16 +38,16 @@ const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
 const alice = generateUser({ name: 'alice' });
 const jumpToMessageMock = jest.fn();
 
-async function renderQuotedMessage(customProps, channelConfigOverrides = {}, renderer = render) {
+async function renderQuotedMessage(customProps) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
-    getConfig: () => ({ reactions: true, ...channelConfigOverrides }),
+    getConfig: () => {},
     state: { membership: {} },
   });
   const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
-  return renderer(
+  return render(
     <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, channelConfig }}>
         <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock }}>

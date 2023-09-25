@@ -25,9 +25,11 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  EmojiProvider,
   TranslationProvider,
 } from '../../../context';
 import {
+  emojiComponentMock,
   emojiDataMock,
   generateChannel,
   generateMessage,
@@ -58,7 +60,8 @@ const retrySendMessageMock = jest.fn();
 async function renderMessageSimple({
   message,
   props = {},
-  channelConfigOverrides = { reactions: true, replies: true },
+  channelConfigOverrides = { replies: true },
+  channelCapabilities = { 'send-reaction': true },
   components = {},
   renderer = render,
 }) {
@@ -66,7 +69,7 @@ async function renderMessageSimple({
     getConfig: () => channelConfigOverrides,
     state: { membership: {} },
   });
-  const channelCapabilities = { 'send-reaction': true };
+
   const channelConfig = channel.getConfig();
   const client = await getTestClientWithUser(alice);
 
@@ -87,13 +90,22 @@ async function renderMessageSimple({
                 ...components,
               }}
             >
-              <Message
-                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                isMyMessage={() => true}
-                message={message}
-                threadList={false}
-                {...props}
-              />
+              <EmojiProvider
+                value={{
+                  Emoji: emojiComponentMock.Emoji,
+                  emojiConfig: emojiDataMock,
+                  EmojiIndex: emojiComponentMock.EmojiIndex,
+                  EmojiPicker: emojiComponentMock.EmojiPicker,
+                }}
+              >
+                <Message
+                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                  isMyMessage={() => true}
+                  message={message}
+                  threadList={false}
+                  {...props}
+                />
+              </EmojiProvider>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
@@ -222,7 +234,8 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should not render reaction list if reaction is disabled in channel config', async () => {
+  // FIXME: test relying on deprecated channel config parameter
+  it('should render reaction list even though sending reactions is disabled in channel config', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
@@ -230,10 +243,10 @@ describe('<MessageSimple />', () => {
     });
 
     const { container, queryByTestId } = await renderMessageSimple({
-      channelConfigOverrides: { reactions: false },
+      channelCapabilities: { 'send-reaction': false },
       message,
     });
-    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    expect(queryByTestId('reaction-list')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

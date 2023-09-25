@@ -286,6 +286,28 @@ const i18n = new Streami18n({
 
 If you would like to stick with english language for dates and times in Stream components, you can set `disableDateTimeTranslations` to true.
 
+### Timezone location
+
+To display date and time in different than machine's local timezone, provide the `timezone` parameter to the `Streami18n` constructor. The `timezone` value has to be a [valid timezone identifier string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). If no `timezone` parameter is provided, then the machine's local timezone is applied.
+
+```ts
+import { Streami18n } from 'stream-chat-react';
+
+const streamI18n = new Streami18n({ timezone: 'Europe/Prague'});
+```
+
+If you are using `moment` as your datetime parser engine and want to start using timezone-located datetime strings, then we recommend to use `moment-timezone` instead of `moment` package. Moment Timezone will automatically load and extend the moment module, then return the modified instance. This will also prevent multiple versions of `moment` being installed in a project.
+
+```ts
+import type momentTimezone from 'moment-timezone';
+import { Streami18n } from 'stream-chat-react';
+
+const i18n = new Streami18n({
+  DateTimeParser: momentTimezone,
+  timezone: 'Europe/Prague',
+})
+```
+
 ### Translating Messages
 
 Stream Chat provide the ability to run users' messages through automatic translation.
@@ -317,8 +339,7 @@ The `Streami18n` class wraps [`i18next`](https://www.npmjs.com/package/i18next) 
 | logger                       | logs warnings/errors                                                                                                                                                 | function | () => {}   |
 | dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) and [calendar locale config object](https://day.js.org/docs/en/plugin/calendar) | object   | 'enConfig' |
 | DateTimeParser               | custom date time parser                                                                                                                                              | function | Day.js     |
-
-####
+| timezone                     | valid timezone identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                                                                                             | function | Day.js     |
 
 ### Class Instance Methods
 
