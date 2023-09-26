@@ -26,7 +26,7 @@ export const useMessageDeliveryStatus = <
   lastMessage,
 }: UseMessageStatusParamsChannelPreviewProps<StreamChatGenerics>) => {
   const { client } = useChatContext();
-  const [messageDeliveryStatus, setMessageDeliveryStatus] = useState<MessageDeliveryStatus>();
+  const [messageDeliveryStatus, setMessageDeliveryStatus] = useState<MessageDeliveryStatus | undefined>();
 
   const isOwnMessage = useCallback(
     (message?: StreamMessage<StreamChatGenerics>) =>
