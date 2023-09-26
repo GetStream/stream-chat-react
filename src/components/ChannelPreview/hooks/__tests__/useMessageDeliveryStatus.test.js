@@ -321,6 +321,35 @@ describe('Message delivery status', () => {
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);
     });
 
+    it('should ignore mark.read if the last message is not own', async () => {
+      const messages = [
+        generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userB }),
+      ];
+      const lastMessage = messages[0];
+      const read = [
+        {
+          last_read: messages[0].created_at.toISOString(),
+          last_read_message_id: messages[0].id,
+          unread_messages: 0,
+          user: userA,
+        },
+        {
+          last_read: messages[0].created_at.toISOString(),
+          unread_messages: 1,
+          user: userB,
+        },
+      ];
+
+      const { channel, client } = await getClientAndChannel({ messages, read });
+      const { rerender, result } = renderComponent({ channel, client, lastMessage });
+
+      await act(() => {
+        dispatchMessageReadEvent(client, userB, channel);
+      });
+      rerender();
+      expect(result.current.messageDeliveryStatus).toBeUndefined();
+    });
+
     it('is kept "delivered" when the last unread message is updated', async () => {
       const messages = [
         generateMessage({ created_at: new Date('1970-01-01T00:00:02.00Z'), user: userA }),

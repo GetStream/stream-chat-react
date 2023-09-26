@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-
 import type { Channel, Event } from 'stream-chat';
+
+import { useChatContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { StreamMessage } from '../../../context';
-import { useChatContext } from '../../../context';
 
 export enum MessageDeliveryStatus {
   DELIVERED = 'delivered',
@@ -55,7 +55,7 @@ export const useMessageDeliveryStatus = <
         ? MessageDeliveryStatus.READ
         : MessageDeliveryStatus.DELIVERED,
     );
-  }, [channel.state.read, client, isOwnMessage, lastMessage?.created_at]);
+  }, [channel.state.read, client, isOwnMessage, lastMessage]);
 
   useEffect(() => {
     const handleMessageNew = (event: Event<StreamChatGenerics>) => {
@@ -66,18 +66,25 @@ export const useMessageDeliveryStatus = <
 
       return setMessageDeliveryStatus(MessageDeliveryStatus.DELIVERED);
     };
-    const handleMarkRead = (event: Event<StreamChatGenerics>) => {
-      if (event.user?.id !== client.user?.id) setMessageDeliveryStatus(MessageDeliveryStatus.READ);
-    };
 
     channel.on('message.new', handleMessageNew);
-    channel.on('message.read', handleMarkRead);
 
     return () => {
       channel.off('message.new', handleMessageNew);
+    };
+  }, [channel, client, isOwnMessage]);
+
+  useEffect(() => {
+    if (!isOwnMessage(lastMessage)) return;
+    const handleMarkRead = (event: Event<StreamChatGenerics>) => {
+      if (event.user?.id !== client.user?.id) setMessageDeliveryStatus(MessageDeliveryStatus.READ);
+    };
+    channel.on('message.read', handleMarkRead);
+
+    return () => {
       channel.off('message.read', handleMarkRead);
     };
-  }, [channel, client, lastMessage?.id, isOwnMessage]);
+  }, [channel, client, lastMessage, isOwnMessage]);
 
   return {
     messageDeliveryStatus,
