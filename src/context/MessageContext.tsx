@@ -58,7 +58,9 @@ export type MessageContextValue<
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Function that returns whether or not the Message belongs to the current user */
   isMyMessage: () => boolean;
-  /** Whether or not reactions are enabled for the active channel */
+  /** @deprecated will be removed in the next major release.
+   *  Whether sending reactions is enabled for the active channel.
+   */
   isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
