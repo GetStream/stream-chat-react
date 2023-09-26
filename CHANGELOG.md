@@ -1,3 +1,10 @@
+## [10.10.2](https://github.com/GetStream/stream-chat-react/compare/v10.10.1...v10.10.2) (2023-09-19)
+
+
+### Bug Fixes
+
+* keep channels initially without id registered for WS events ([#2095](https://github.com/GetStream/stream-chat-react/issues/2095)) ([eba7bbe](https://github.com/GetStream/stream-chat-react/commit/eba7bbef33fe1d85ce6871ba43010b5b0489d032))
+
 ## [10.10.1](https://github.com/GetStream/stream-chat-react/compare/v10.10.0...v10.10.1) (2023-09-13)
 
 
