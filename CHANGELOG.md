@@ -1,3 +1,16 @@
+# [10.11.0](https://github.com/GetStream/stream-chat-react/compare/v10.10.2...v10.11.0) (2023-09-26)
+
+
+### Bug Fixes
+
+* adjust cooldown interval calculation for messages coming from future ([#2101](https://github.com/GetStream/stream-chat-react/issues/2101)) ([3263f10](https://github.com/GetStream/stream-chat-react/commit/3263f104823caaa00a81de17508ae1ec2c4f5594))
+* enable sending reactions to frozen channel with UseFrozenChannel permission ([#2097](https://github.com/GetStream/stream-chat-react/issues/2097)) ([852490d](https://github.com/GetStream/stream-chat-react/commit/852490ddd397097c2bc13308afcc4b2fe9cc1806))
+
+
+### Features
+
+* add timezone support to datetime parsing ([#2099](https://github.com/GetStream/stream-chat-react/issues/2099)) ([3d4bdf9](https://github.com/GetStream/stream-chat-react/commit/3d4bdf9bd922a16fb3848ac6274ffea11eed8de3))
+
 ## [10.10.2](https://github.com/GetStream/stream-chat-react/compare/v10.10.1...v10.10.2) (2023-09-19)
 
 
