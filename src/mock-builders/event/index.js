@@ -7,6 +7,7 @@ export { default as dispatchConnectionChangedEvent } from './connectionChanged';
 export { default as dispatchConnectionRecoveredEvent } from './connectionRecovered';
 export { default as dispatchMessageDeletedEvent } from './messageDeleted';
 export { default as dispatchMessageNewEvent } from './messageNew';
+export { default as dispatchMessageReadEvent } from './messageRead';
 export { default as dispatchMessageUpdatedEvent } from './messageUpdated';
 export { default as dispatchNotificationAddedToChannelEvent } from './notificationAddedToChannel';
 export { default as dispatchNotificationMessageNewEvent } from './notificationMessageNew';

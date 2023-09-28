@@ -7,6 +7,7 @@ import { getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { MessageDeliveryStatus, useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 
 import type { Channel, Event } from 'stream-chat';
 
@@ -29,6 +30,8 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
+  messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -73,6 +76,10 @@ export const ChannelPreview = <
     channel.state.messages[channel.state.messages.length - 1],
   );
   const [unread, setUnread] = useState(0);
+  const { messageDeliveryStatus } = useMessageDeliveryStatus<StreamChatGenerics>({
+    channel,
+    lastMessage,
+  });
 
   const isActive = activeChannel?.cid === channel.cid;
   const { muted } = useIsChannelMuted(channel);
@@ -126,6 +133,7 @@ export const ChannelPreview = <
       displayTitle={displayTitle}
       lastMessage={lastMessage}
       latestMessage={latestMessage}
+      messageDeliveryStatus={messageDeliveryStatus}
       setActiveChannel={setActiveChannel}
       unread={unread}
     />
