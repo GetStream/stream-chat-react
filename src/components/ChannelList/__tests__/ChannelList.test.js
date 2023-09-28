@@ -48,7 +48,7 @@ const channelsQueryStateMock = {
 };
 
 /**
- * We are gonna use following custom UI components for preview and list.
+ * We use the following custom UI components for preview and list.
  * If we use ChannelPreviewMessenger or ChannelPreviewLastMessage here, then changes
  * to those components might end up breaking tests for ChannelList, which will be quite painful
  * to debug then.
@@ -438,6 +438,7 @@ describe('ChannelList', () => {
     });
 
     describe('channel search', () => {
+      const defaultSearchDebounceInterval = 300;
       const inputText = 'xxxxxxxxxx';
       const user1 = generateUser();
       const user2 = generateUser();
@@ -551,11 +552,13 @@ describe('ChannelList', () => {
       ])(
         'theme v%s %s unmount search results on result click, if configured',
         async (themeVersion, _, clearSearchOnClickOutside) => {
+          jest.useFakeTimers('modern');
+          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
           const { container } = await renderComponents(
             { channel, client, themeVersion },
             { additionalChannelSearchProps: { clearSearchOnClickOutside } },
           );
-          const input = screen.queryByTestId('search-input');
+          const input = screen.getByTestId('search-input');
           await act(() => {
             fireEvent.change(input, {
               target: {
@@ -563,8 +566,10 @@ describe('ChannelList', () => {
               },
             });
           });
-
-          const searchResults = screen.queryAllByRole('option');
+          await act(() => {
+            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+          });
+          const searchResults = screen.queryAllByTestId('channel-search-result-user');
           useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
           await act(() => {
             fireEvent.click(searchResults[0]);
@@ -577,6 +582,7 @@ describe('ChannelList', () => {
               expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).toBeInTheDocument();
             }
           });
+          jest.useRealTimers();
         },
       );
 
@@ -645,6 +651,8 @@ describe('ChannelList', () => {
       it.each([['1'], ['2']])(
         'theme v%s should add the selected result to the top of the channel list',
         async (themeVersion) => {
+          jest.useFakeTimers('modern');
+          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
           const getComputedStyleMock = jest.spyOn(window, 'getComputedStyle');
           getComputedStyleMock.mockReturnValue({
             getPropertyValue: jest.fn().mockReturnValue(themeVersion),
@@ -679,8 +687,11 @@ describe('ChannelList', () => {
               },
             });
           });
+          await act(() => {
+            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+          });
 
-          const targetChannelPreview = screen.queryByText(channelNotInTheList.channel.name);
+          const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
           expect(targetChannelPreview).toBeInTheDocument();
           await act(() => {
             fireEvent.click(targetChannelPreview);
@@ -693,6 +704,7 @@ describe('ChannelList', () => {
             }
           });
           getComputedStyleMock.mockClear();
+          jest.useRealTimers();
         },
       );
     });
