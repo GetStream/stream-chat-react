@@ -1,3 +1,11 @@
+# [10.12.0](https://github.com/GetStream/stream-chat-react/compare/v10.11.0...v10.12.0) (2023-09-29)
+
+
+### Features
+
+* add messageDeliveryStatus prop to ChannelListPreview ([#2104](https://github.com/GetStream/stream-chat-react/issues/2104)) ([9aa4aea](https://github.com/GetStream/stream-chat-react/commit/9aa4aea6b900839a6de8f1ba49f5846167758614))
+* allow to configure the search query debounce interval ([#2107](https://github.com/GetStream/stream-chat-react/issues/2107)) ([d563369](https://github.com/GetStream/stream-chat-react/commit/d5633693f1f087a5e6ad2ba29ccaa1257f9b7d7f))
+
 # [10.11.0](https://github.com/GetStream/stream-chat-react/compare/v10.10.2...v10.11.0) (2023-09-26)
 
 
