@@ -13,6 +13,7 @@ export const getOrCreateChannelApi = (
     members: [],
     messages: [],
     pinnedMessages: [],
+    read: [],
   },
 ) => {
   const result = {
@@ -21,6 +22,7 @@ export const getOrCreateChannelApi = (
     members: channel.members,
     messages: channel.messages,
     pinnedMessages: channel.pinnedMessages,
+    read: channel.read,
   };
 
   return mockedApiResponse(result, 'post');
