@@ -61,6 +61,8 @@ export type MessageInputProps<
   getDefaultValue?: () => string | string[];
   /** If true, expands the text input vertically for new lines */
   grow?: boolean;
+  /** Allows to hide MessageInput's send button. */
+  hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   /** Max number of rows the underlying `textarea` component is allowed to grow */

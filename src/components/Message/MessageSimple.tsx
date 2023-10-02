@@ -124,6 +124,7 @@ const MessageSimpleWithContext = <
           <MessageInput
             clearEditingState={clearEditingState}
             grow
+            hideSendButton
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}

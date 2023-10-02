@@ -32,7 +32,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAhead = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
+        [cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
@@ -44,7 +44,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAgo = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
+        [cid]: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
@@ -63,7 +63,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAhead = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
+        [cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
@@ -75,7 +75,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAgo = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
+        [cid]: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
@@ -84,7 +84,7 @@ describe('useCooldownTimer', () => {
 
   it('should set remaining cooldown time to 0 if skip-slow-mode is among own_capabilities', async () => {
     const channel = { cid, data: { cooldown, own_capabilities: ['skip-slow-mode'] } };
-    const chatContext = { latestMessageDatesByChannels: { cid: new Date() } };
+    const chatContext = { latestMessageDatesByChannels: { [cid]: new Date() } };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
     expect(result.current.cooldownRemaining).toBe(0);
   });
@@ -98,7 +98,7 @@ describe('useCooldownTimer', () => {
 
   it('should set remaining cooldown time to 0 if previous messages sent earlier than channel.cooldown', async () => {
     const channel = { cid, data: { cooldown } };
-    const chatContext = { latestMessageDatesByChannels: { cid: new Date('1970-1-1') } };
+    const chatContext = { latestMessageDatesByChannels: { [cid]: new Date('1970-1-1') } };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
     expect(result.current.cooldownRemaining).toBe(0);
   });
@@ -108,7 +108,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAgo = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
+        [cid]: new Date(new Date().getTime() - lastSentSecondsAgo * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
@@ -120,7 +120,7 @@ describe('useCooldownTimer', () => {
     const lastSentSecondsAhead = 5;
     const chatContext = {
       latestMessageDatesByChannels: {
-        cid: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
+        [cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
       },
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
