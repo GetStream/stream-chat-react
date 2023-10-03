@@ -13,12 +13,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import {
-  ChatProvider,
-  MessageProvider,
-  useChatContext,
-  useMessageInputContext,
-} from '../../../context';
+import { ChatProvider, MessageProvider, useChatContext } from '../../../context';
 import React, { useEffect } from 'react';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -26,7 +21,6 @@ import { MessageActionsBox } from '../../MessageActions';
 import { MessageInput } from '../MessageInput';
 
 import '@testing-library/jest-dom';
-import { SendButton } from '../icons';
 
 // Mock out lodash debounce implementation, so it calls the debounced method immediately
 jest.mock('lodash.debounce', () =>
@@ -107,17 +101,6 @@ const makeRenderFn = (InputComponent) => async ({
   messageContextOverrides = {},
   messageActionsBoxProps = {},
 } = {}) => {
-  // circumvents not so good decision to render SendButton conditionally
-  const InputContainer = () => {
-    const { handleSubmit, message } = useMessageInputContext();
-    return (
-      <>
-        <InputComponent />
-        {!!message && <SendButton sendMessage={handleSubmit} />}
-      </>
-    );
-  };
-
   let renderResult;
   await act(() => {
     renderResult = render(
@@ -131,7 +114,7 @@ const makeRenderFn = (InputComponent) => async ({
                 getMessageActions={defaultMessageContextValue.getMessageActions}
               />
             </MessageProvider>
-            <MessageInput Input={InputContainer} {...messageInputProps} />
+            <MessageInput Input={InputComponent} {...messageInputProps} />
           </Channel>
         </ChatContextOverrider>
       </Chat>,
