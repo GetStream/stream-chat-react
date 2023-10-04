@@ -83,7 +83,7 @@ And then you can pass these newly created options to [`Channel`](../components/c
 
 ## EmojiMart integration
 
-If you're used to work with EmojiMart then integrating with new reaction system shouldn't be a big trouble as you can define how your components look and reach for context if you need to:
+If you're used to work with [EmojiMart emojis](https://github.com/missive/emoji-mart#-emoji-component) then integrating with new reaction system shouldn't be a big trouble as you can define how your components look and reach for context if you need to:
 
 ```tsx
 // arbitrary EmojiMartContext (does not come with the SDK)
@@ -92,6 +92,7 @@ import { useEmojiMartContext } from '../contexts';
 const CustomLikeComponent = () => {
   const { selectedSkinTones, selectedSet } = useEmojiMartContext();
 
+  // to use EmojiMart web components you'll need to go through initiation steps, see EmojiMart documentation
   return <em-emoji id='+1' set={selectedSet} skin={selectedSkinTones['+1']} />;
 };
 
