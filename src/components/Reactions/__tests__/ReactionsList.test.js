@@ -22,9 +22,9 @@ const generateButtonTitle = (count) =>
 
 const renderComponent = ({ reaction_counts = {}, ...props }) => {
   const reactions = Object.entries(reaction_counts).flatMap(([type, count]) =>
-    Array(count)
-      .fill()
-      .map((_, i) => generateReaction({ type, user: { id: `${USER_ID}-${i}` } })),
+    Array.from({ length: count }, (_, i) =>
+      generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
+    ),
   );
 
   return render(
