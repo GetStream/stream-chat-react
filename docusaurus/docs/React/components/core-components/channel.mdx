@@ -329,6 +329,14 @@ The Giphy version to render - check the keys of the [Image Object](https://devel
 | ------ | -------------- |
 | string | 'fixed_height' |
 
+### HeaderComponent
+
+Custom UI component to render at the top of the `MessageList`.
+
+| Type      | Default |
+| --------- | ------- |
+| component | none    |
+
 ### imageAttachmentSizeHandler
 
 A custom function to provide size configuration for image attachments
@@ -337,13 +345,54 @@ A custom function to provide size configuration for image attachments
 | ---------------------------------------------------------------- |
 | `(a: Attachment, e: HTMLElement) => ImageAttachmentConfigration` |
 
-### HeaderComponent
+### initializeOnMount
 
-Custom UI component to render at the top of the `MessageList`.
+Allows to prevent triggering the `channel.watch()` (triggers channel query HTTP request) call when mounting the `Channel` component (the default behavior) with uninitialized (`channel.initialized`) `Channel` instance. That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client. Preventing to initialize the channel on mount allows us to postpone the channel creation in the Stream's DB to a later point in time, for example, when a first message is sent:
 
-| Type      | Default |
-| --------- | ------- |
-| component | none    |
+```typescript jsx
+import {useCallback} from "react";
+import {
+  getChannel,
+  MessageInput as StreamMessageInput,
+  MessageInputProps, MessageToSend,
+  useChannelActionContext,
+  useChatContext
+} from "stream-chat-react";
+import {Message, SendMessageOptions} from "stream-chat";
+
+import {useChannelInitContext} from "../../context/ChannelInitProvider";
+import type { MyStreamChatGenerics } from "../../types";
+
+export const MessageInput = (props: MessageInputProps) => {
+  const {client} = useChatContext();
+  const {sendMessage} = useChannelActionContext();
+  const { setInitializedChannelOnMount} = useChannelInitContext();
+
+  const submitHandler: MessageInputProps['overrideSubmitHandler'] = useCallback(async (
+    message: MessageToSend<MyStreamChatGenerics>,
+    channelCid: string,
+    customMessageData?: Partial<Message<MyStreamChatGenerics>>,
+    options?: SendMessageOptions,
+  ) => {
+    const [channelType, channelId] = channelCid.split(":");
+    const channel = client.channel(channelType, channelId);
+    if (!channel.initialized) {
+      await getChannel({channel, client});
+      setInitializedChannelOnMount(true);
+    }
+
+    await sendMessage(message, customMessageData, options);
+  }, [client, sendMessage, setInitializedChannelOnMount]);
+
+  return (
+    <StreamMessageInput {...props} overrideSubmitHandler={submitHandler} />
+  );
+};
+```
+
+| Type    | Default |
+|---------|---------|
+| boolean | true    |
 
 ### Input
 

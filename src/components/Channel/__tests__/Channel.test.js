@@ -380,11 +380,31 @@ describe('Channel', () => {
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const doMarkReadRequest = jest.fn();
 
-    renderComponent({
-      doMarkReadRequest,
+    await act(() => {
+      renderComponent({
+        doMarkReadRequest,
+      });
     });
 
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
+  });
+
+  it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
+    const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
+    await act(() => {
+      renderComponent({
+        initializeOnMount: false,
+      });
+    });
+    await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
+  });
+
+  it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
+    const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
+    await act(() => {
+      renderComponent();
+    });
+    await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
 
   describe('Children that consume the contexts set in Channel', () => {
