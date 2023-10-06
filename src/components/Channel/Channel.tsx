@@ -147,8 +147,7 @@ export type ChannelProps<
   dragAndDropWindow?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
-  /** Custom UI component to override default `NimbleEmoji` from `emoji-mart` */
-  Emoji?: EmojiContextValue['Emoji'];
+
   /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
   emojiData?: EmojiMartData;
   /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
@@ -1036,7 +1035,6 @@ const ChannelInner = <
 
   const emojiContextValue: EmojiContextValue = useMemo(
     () => ({
-      Emoji: props.Emoji,
       emojiConfig,
       EmojiIndex: props.EmojiIndex,
       EmojiPicker: props.EmojiPicker,
