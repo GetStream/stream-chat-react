@@ -147,15 +147,12 @@ export type ChannelProps<
   dragAndDropWindow?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
-
   /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
   emojiData?: EmojiMartData;
-  /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  EmojiIcon?: ComponentContextValue<StreamChatGenerics>['EmojiIcon'];
   /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
   EmojiIndex?: EmojiContextValue['EmojiIndex'];
-  /** Custom UI component to override default `NimblePicker` from `emoji-mart` */
-  EmojiPicker?: EmojiContextValue['EmojiPicker'];
+  /** Custom UI component for rendering button with emoji picker in MessageInput */
+  EmojiPicker?: ComponentContextValue<StreamChatGenerics>['EmojiPicker'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
@@ -998,7 +995,7 @@ const ChannelInner = <
       CooldownTimer: props.CooldownTimer,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
-      EmojiIcon: props.EmojiIcon,
+      EmojiPicker: props.EmojiPicker,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       GiphyPreviewMessage: props.GiphyPreviewMessage,
@@ -1037,7 +1034,6 @@ const ChannelInner = <
     () => ({
       emojiConfig,
       EmojiIndex: props.EmojiIndex,
-      EmojiPicker: props.EmojiPicker,
     }),
     [],
   );

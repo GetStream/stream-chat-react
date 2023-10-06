@@ -2,12 +2,7 @@ import React, { PropsWithChildren, useContext } from 'react';
 //@ts-expect-error
 import DefaultEmojiIndex from 'emoji-mart/dist/utils/emoji-index/nimble-emoji-index.js';
 
-import type {
-  Data as EmojiMartData,
-  EmojiSheetSize,
-  NimbleEmojiIndex,
-  NimblePickerProps,
-} from 'emoji-mart';
+import type { Data as EmojiMartData, EmojiSheetSize, NimbleEmojiIndex } from 'emoji-mart';
 
 import type { UnknownType } from '../types/types';
 
@@ -44,10 +39,7 @@ export type EmojiConfig = {
 export type EmojiContextValue = {
   emojiConfig: EmojiConfig;
   EmojiIndex?: NimbleEmojiIndex;
-  EmojiPicker?: React.ComponentType<NimblePickerProps>;
 };
-
-const DefaultEmojiPicker = React.lazy(() => import('./DefaultEmojiPicker'));
 
 export const EmojiContext = React.createContext<EmojiContextValue | undefined>(undefined);
 
@@ -57,12 +49,11 @@ export const EmojiProvider = ({
 }: PropsWithChildren<{
   value: EmojiContextValue;
 }>) => {
-  const { emojiConfig, EmojiIndex = DefaultEmojiIndex, EmojiPicker = DefaultEmojiPicker } = value;
+  const { EmojiIndex = DefaultEmojiIndex, emojiConfig } = value;
 
   const emojiContextValue: Required<EmojiContextValue> = {
     emojiConfig,
     EmojiIndex,
-    EmojiPicker,
   };
 
   return <EmojiContext.Provider value={emojiContextValue}>{children}</EmojiContext.Provider>;

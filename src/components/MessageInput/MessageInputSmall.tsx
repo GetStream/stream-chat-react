@@ -2,9 +2,7 @@ import React, { useEffect } from 'react';
 import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 
-import { EmojiPicker } from './EmojiPicker';
 import {
-  EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
 } from './icons';
@@ -48,25 +46,22 @@ export const MessageInputSmall = <
   const { channel } = useChatContext<StreamChatGenerics>('MessageInputSmall');
 
   const {
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
     handleSubmit,
     hideSendButton,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
-    openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics, V>('MessageInputSmall');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputSmall');
 
   useEffect(() => {
@@ -136,23 +131,13 @@ export const MessageInputSmall = <
                     </FileUploadButton>
                   </div>
                 )}
-                <div className='str-chat__emojiselect-wrapper'>
-                  <Tooltip>
-                    {emojiPickerIsOpen
-                      ? t<string>('Close emoji picker')
-                      : t<string>('Open emoji picker')}
-                  </Tooltip>
-                  <button
-                    aria-label='Emoji picker'
-                    className='str-chat__small-message-input-emojiselect'
-                    onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                  >
-                    <EmojiIcon />
-                  </button>
-                </div>
+                {EmojiPicker && (
+                  <div className='str-chat__emojiselect-wrapper'>
+                    <EmojiPicker />
+                  </div>
+                )}
               </>
             )}
-            <EmojiPicker small />
           </div>
           {!(cooldownRemaining || hideSendButton) && <SendButton sendMessage={handleSubmit} />}
         </div>

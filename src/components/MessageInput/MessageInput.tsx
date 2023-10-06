@@ -33,8 +33,6 @@ export type MessageInputProps<
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Function to clear the editing state while editing a message */
   clearEditingState?: () => void;
-  /** If true, picking an emoji from the `EmojiPicker` component will close the picker */
-  closeEmojiPickerOnClick?: boolean;
   /** If true, disables the text input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete @mentions. Default: false. */
