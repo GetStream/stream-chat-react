@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import uniqBy from 'lodash.uniqby';
 
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
 
@@ -52,7 +53,9 @@ export const usePaginatedChannels = <
       const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
 
       const newChannels =
-        queryType === 'reload' ? channelQueryResponse : [...channels, ...channelQueryResponse];
+        queryType === 'reload'
+          ? channelQueryResponse
+          : uniqBy([...channels, ...channelQueryResponse], 'cid');
 
       setChannels(newChannels);
       setHasNextPage(channelQueryResponse.length >= newOptions.limit);

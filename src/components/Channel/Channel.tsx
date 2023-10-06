@@ -152,7 +152,8 @@ export type ChannelProps<
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
-  /** A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
+  /**
+   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
    * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
    * or directly on MessageInput level through urlEnrichmentConfig.
    */
@@ -169,6 +170,12 @@ export type ChannelProps<
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** A custom function to provide size configuration for image attachments */
   imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
+  /**
+   * Allows to prevent triggering the channel.watch() call when mounting the component.
+   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
+   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
+   */
+  initializeOnMount?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
   /** Custom component to render link previews in message input **/
@@ -312,6 +319,7 @@ const ChannelInner = <
     dragAndDropWindow = false,
     emojiData = defaultEmojiData,
     enrichURLForPreviewConfig,
+    initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
@@ -478,7 +486,7 @@ const ChannelInner = <
     };
 
     (async () => {
-      if (!channel.initialized) {
+      if (!channel.initialized && initializeOnMount) {
         try {
           // if active channel has been set without id, we will create a temporary channel id from its member IDs
           // to keep track of the /query request in progress. This is the same approach of generating temporary id
@@ -533,7 +541,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid, doMarkReadRequest, channelConfig?.read_events]);
+  }, [channel.cid, doMarkReadRequest, channelConfig?.read_events, initializeOnMount]);
 
   useEffect(() => {
     if (!state.thread) return;

@@ -81,6 +81,7 @@ const MessageInputV1 = <
     cooldownRemaining,
     emojiPickerIsOpen,
     handleSubmit,
+    hideSendButton,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
@@ -164,7 +165,7 @@ const MessageInputV1 = <
               </div>
             )}
           </div>
-          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
+          {!(cooldownRemaining || hideSendButton) && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>
@@ -188,6 +189,7 @@ const MessageInputV2 = <
     emojiPickerIsOpen,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
+    hideSendButton,
     isUploadEnabled,
     linkPreviews,
     maxFilesLeft,
@@ -304,8 +306,7 @@ const MessageInputV2 = <
               </div>
             </div>
           </div>
-          {/* hide SendButton if this component is rendered in the edit message form */}
-          {!message && (
+          {!hideSendButton && (
             <>
               {cooldownRemaining ? (
                 <CooldownTimer
