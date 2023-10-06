@@ -8,46 +8,6 @@ import type { Message } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export const EmojiIconLarge = () => {
-  const { t } = useTranslationContext('EmojiIconLarge');
-
-  return (
-    <svg height='28' width='28' xmlns='http://www.w3.org/2000/svg'>
-      <title>{t<string>('Open emoji picker')}</title>
-      <g clipRule='evenodd' fillRule='evenodd'>
-        <path d='M14 4.4C8.6 4.4 4.4 8.6 4.4 14c0 5.4 4.2 9.6 9.6 9.6c5.4 0 9.6-4.2 9.6-9.6c0-5.4-4.2-9.6-9.6-9.6zM2 14c0-6.6 5.4-12 12-12s12 5.4 12 12s-5.4 12-12 12s-12-5.4-12-12zM12.8 11c0 1-.8 1.8-1.8 1.8s-1.8-.8-1.8-1.8s.8-1.8 1.8-1.8s1.8.8 1.8 1.8zM18.8 11c0 1-.8 1.8-1.8 1.8s-1.8-.8-1.8-1.8s.8-1.8 1.8-1.8s1.8.8 1.8 1.8zM8.6 15.4c.6-.4 1.2-.2 1.6.2c.6.8 1.6 1.8 3 2c1.2.4 2.8.2 4.8-2c.4-.4 1.2-.6 1.6 0c.4.4.6 1.2 0 1.6c-2.2 2.6-4.8 3.4-7 3c-2-.4-3.6-1.8-4.4-3c-.4-.6-.2-1.2.4-1.8z' />
-      </g>
-    </svg>
-  );
-};
-
-export const EmojiIconSmall = () => {
-  const { t } = useTranslationContext('EmojiIconSmall');
-
-  return (
-    <svg height='14' width='14' xmlns='http://www.w3.org/2000/svg'>
-      <title>{t<string>('Open emoji picker')}</title>
-      <g clipRule='evenodd' fillRule='evenodd'>
-        <path d='M6.7 1.42C3.73 1.42 1.42 3.73 1.42 6.7c0 2.97 2.31 5.28 5.28 5.28c2.97 0 5.28-2.31 5.28-5.28c0-2.97-2.31-5.28-5.28-5.28zM.1 6.7c0-3.63 2.97-6.6 6.6-6.6s6.6 2.97 6.6 6.6s-2.97 6.6-6.6 6.6s-6.6-2.97-6.6-6.6zM6.04 5.05c0 .55-.44.99-.99.99s-.99-.44-.99-.99s.44-.99.99-.99s.99.44.99.99zM9.34 5.05c0 .55-.44.99-.99.99s-.99-.44-.99-.99s.44-.99.99-.99s.99.44.99.99zM3.73 7.47c.33-.22.66-.11.88.11c.33.44.88.99 1.65 1.1c.66.22 1.54.11 2.64-1.1c.22-.22.66-.33.88 0c.22.22.33.66 0 .88c-1.21 1.43-2.64 1.87-3.85 1.65c-1.1-.22-1.98-.99-2.42-1.65c-.22-.33-.11-.66.22-.99z' />
-      </g>
-    </svg>
-  );
-};
-
-// ThemingV2 icon
-export const EmojiPickerIcon = () => (
-  <svg
-    preserveAspectRatio='xMinYMin'
-    viewBox='0 0 28 28'
-    width='100%'
-    xmlns='http://www.w3.org/2000/svg'
-  >
-    <g clipRule='evenodd' fillRule='evenodd'>
-      <path d='M14 4.4C8.6 4.4 4.4 8.6 4.4 14c0 5.4 4.2 9.6 9.6 9.6c5.4 0 9.6-4.2 9.6-9.6c0-5.4-4.2-9.6-9.6-9.6zM2 14c0-6.6 5.4-12 12-12s12 5.4 12 12s-5.4 12-12 12s-12-5.4-12-12zM12.8 11c0 1-.8 1.8-1.8 1.8s-1.8-.8-1.8-1.8s.8-1.8 1.8-1.8s1.8.8 1.8 1.8zM18.8 11c0 1-.8 1.8-1.8 1.8s-1.8-.8-1.8-1.8s.8-1.8 1.8-1.8s1.8.8 1.8 1.8zM8.6 15.4c.6-.4 1.2-.2 1.6.2c.6.8 1.6 1.8 3 2c1.2.4 2.8.2 4.8-2c.4-.4 1.2-.6 1.6 0c.4.4.6 1.2 0 1.6c-2.2 2.6-4.8 3.4-7 3c-2-.4-3.6-1.8-4.4-3c-.4-.6-.2-1.2.4-1.8z'></path>
-    </g>
-  </svg>
-);
-
 export const FileUploadIcon = () => {
   const { t } = useTranslationContext('FileUploadIcon');
 

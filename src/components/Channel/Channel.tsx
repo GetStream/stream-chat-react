@@ -119,8 +119,8 @@ type ChannelPropsForwardedToComponentContext<
   DateSeparator?: ComponentContextValue<StreamChatGenerics>['DateSeparator'];
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
-  /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  EmojiIcon?: ComponentContextValue<StreamChatGenerics>['EmojiIcon'];
+  /** Custom UI component for rendering button with emoji picker in MessageInput */
+  EmojiPicker?: ComponentContextValue<StreamChatGenerics>['EmojiPicker'];
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
@@ -190,8 +190,6 @@ type ChannelPropsForwardedToEmojiContext = {
   emojiData?: EmojiMartData;
   /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
   EmojiIndex?: EmojiContextValue['EmojiIndex'];
-  /** Custom UI component to override default `NimblePicker` from `emoji-mart` */
-  EmojiPicker?: EmojiContextValue['EmojiPicker'];
 };
 
 export type ChannelProps<
@@ -1020,7 +1018,7 @@ const ChannelInner = <
       CooldownTimer: props.CooldownTimer,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
-      EmojiIcon: props.EmojiIcon,
+      EmojiPicker: props.EmojiPicker,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       GiphyPreviewMessage: props.GiphyPreviewMessage,
@@ -1059,7 +1057,6 @@ const ChannelInner = <
     () => ({
       emojiConfig,
       EmojiIndex: props.EmojiIndex,
-      EmojiPicker: props.EmojiPicker,
     }),
     [],
   );

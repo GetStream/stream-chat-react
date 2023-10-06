@@ -51,7 +51,7 @@ export type ComponentContextValue<
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
-  EmojiIcon?: React.ComponentType;
+  EmojiPicker?: React.ComponentType;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
