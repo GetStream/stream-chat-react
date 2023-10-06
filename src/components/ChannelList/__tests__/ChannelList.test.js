@@ -324,6 +324,35 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should show unique channels', async () => {
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+    const ChannelPreview = (props) => <div data-testid={props.channel.id} role='listitem' />;
+    render(
+      <Chat client={chatClientUthred}>
+        <ChannelList filters={{}} options={{ limit: 2 }} Preview={ChannelPreview} />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+      expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    });
+
+    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel3])]);
+
+    await act(() => {
+      fireEvent.click(screen.getByTestId('load-more-button'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel3.channel.id)).toBeInTheDocument();
+      expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    });
+  });
+
   describe('Default and custom active channel', () => {
     let setActiveChannel;
     const watchersConfig = { limit: 20, offset: 0 };
