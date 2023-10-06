@@ -42,7 +42,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.0.1",
     "pretty-bytes": "^5.4.1",
     "prop-types": "^15.7.2",
     "react-dropzone": "^14.2.3",
