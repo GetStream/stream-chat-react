@@ -1,3 +1,16 @@
+# [10.13.0](https://github.com/GetStream/stream-chat-react/compare/v10.12.0...v10.13.0) (2023-10-06)
+
+
+### Bug Fixes
+
+* on pagination keep a unique list of channels in the ChannelList ([#2115](https://github.com/GetStream/stream-chat-react/issues/2115)) ([11173e1](https://github.com/GetStream/stream-chat-react/commit/11173e14e00a92cbfa38cc7f5f19e1a02b6e37a2))
+
+
+### Features
+
+* add initializeOnMount prop to ChannelProps ([#2113](https://github.com/GetStream/stream-chat-react/issues/2113)) ([db18efd](https://github.com/GetStream/stream-chat-react/commit/db18efddfee4fe666997ea691c0d9d07d766cc46))
+* allow to conditionally display MessageInput's send button through MessageInputProps ([#2109](https://github.com/GetStream/stream-chat-react/issues/2109)) ([cd07418](https://github.com/GetStream/stream-chat-react/commit/cd074181d3807587295133f7757a99f1bf5da801))
+
 # [10.12.0](https://github.com/GetStream/stream-chat-react/compare/v10.11.0...v10.12.0) (2023-09-29)
 
 
