@@ -186,8 +186,6 @@ type ChannelPropsForwardedToComponentContext<
 };
 
 type ChannelPropsForwardedToEmojiContext = {
-  /** Custom UI component to override default `NimbleEmoji` from `emoji-mart` */
-  Emoji?: EmojiContextValue['Emoji'];
   /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
   emojiData?: EmojiMartData;
   /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
@@ -1059,7 +1057,6 @@ const ChannelInner = <
 
   const emojiContextValue: EmojiContextValue = useMemo(
     () => ({
-      Emoji: props.Emoji,
       emojiConfig,
       EmojiIndex: props.EmojiIndex,
       EmojiPicker: props.EmojiPicker,
