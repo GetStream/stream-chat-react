@@ -167,6 +167,17 @@ function axeNoViolations(container) {
     });
     afterEach(tearDown);
 
+    it('should render custom EmojiPicker', async () => {
+      const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
+
+      await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+
+      await waitFor(() => {
+        const c = screen.getByTestId('custom-emoji-picker');
+        expect(c).toBeInTheDocument();
+      });
+    });
+
     it('should contain placeholder text if no default message text provided', async () => {
       await renderComponent();
       await waitFor(() => {
@@ -218,35 +229,6 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should render default emoji svg', async () => {
-      const { container } = await renderComponent();
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should render custom emoji svg provided as prop', async () => {
-      const EmojiIcon = () => (
-        <svg>
-          <title>NotEmoji</title>
-        </svg>
-      );
-
-      const { container } = await renderComponent({ channelProps: { EmojiIcon } });
-
-      const emojiIcon = await screen.findByTitle('NotEmoji');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
     it('Should render default file upload icon', async () => {
       const { container } = await renderComponent();
       const fileUploadIcon = await screen.findByTitle('Attach files');
@@ -272,32 +254,6 @@ function axeNoViolations(container) {
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
       });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
-      const { container } = await renderComponent();
-
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      act(() => fireEvent.click(emojiIcon));
-
-      await waitFor(() => {
-        expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
-      });
-
-      const emoji = '💯';
-      const emojiButton = screen.queryAllByText(emoji)[0];
-      expect(emojiButton).toBeInTheDocument();
-      act(() => fireEvent.click(emojiButton));
-
-      // expect input to have emoji as value
-      expect(screen.getByDisplayValue(emoji)).toBeInTheDocument();
-
-      // close picker
-      act(() => fireEvent.click(container));
-      expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
