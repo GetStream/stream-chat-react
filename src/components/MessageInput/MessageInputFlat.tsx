@@ -79,10 +79,12 @@ const MessageInputV1 = <
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
+    setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
+    CooldownTimer = DefaultCooldownTimer,
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
@@ -114,6 +116,14 @@ const MessageInputV1 = <
             {EmojiPicker && (
               <div className='str-chat__emojiselect-wrapper'>
                 <EmojiPicker />
+              </div>
+            )}
+            {cooldownRemaining && (
+              <div className='str-chat__input-flat-cooldown'>
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
               </div>
             )}
             <ChatAutoComplete />
