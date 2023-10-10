@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.0.0-development",
+  "version": "0.0.5-development",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -67,7 +67,13 @@
   "peerDependencies": {
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
-    "stream-chat": "^8.0.0"
+    "stream-chat": "^8.0.0",
+    "emoji-picker-react": "^4.5.2"
+  },
+  "peerDependenciesMeta": {
+    "emoji-picker-react": {
+      "optional": true
+    }
   },
   "files": [
     "dist",
@@ -128,6 +134,7 @@
     "conventional-changelog-conventionalcommits": "^7.0.2",
     "core-js": "^3.6.5",
     "css-loader": "^5.0.1",
+    "emoji-picker-react": "^4.5.2",
     "eslint": "7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",

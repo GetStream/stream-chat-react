@@ -131,11 +131,7 @@ export const MessageInputSmall = <
                     </FileUploadButton>
                   </div>
                 )}
-                {EmojiPicker && (
-                  <div className='str-chat__emojiselect-wrapper'>
-                    <EmojiPicker />
-                  </div>
-                )}
+                {EmojiPicker && <EmojiPicker />}
               </>
             )}
           </div>
