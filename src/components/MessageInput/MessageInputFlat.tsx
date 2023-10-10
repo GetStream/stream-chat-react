@@ -113,12 +113,8 @@ const MessageInputV1 = <
         <div className='str-chat__input-flat-wrapper'>
           {isUploadEnabled && <AttachmentPreviewList />}
           <div className='str-chat__input-flat--textarea-wrapper'>
-            {EmojiPicker && (
-              <div className='str-chat__emojiselect-wrapper'>
-                <EmojiPicker />
-              </div>
-            )}
-            {cooldownRemaining && (
+            {EmojiPicker && <EmojiPicker />}
+            {!!cooldownRemaining && (
               <div className='str-chat__input-flat-cooldown'>
                 <CooldownTimer
                   cooldownInterval={cooldownRemaining}
