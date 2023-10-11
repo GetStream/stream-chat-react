@@ -357,6 +357,39 @@ Custom UI component to display the channel preview in the list.
 | --------- | ---------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='ChannelPreviewMessenger' path='/ChannelPreview/ChannelPreviewMessenger.tsx'/> |
 
+### recoveryThrottleIntervalMs
+
+Custom interval during which the recovery channel list queries will be prevented. This is to avoid firing unnecessary queries during internet connection fluctuation. Recovery channel query is triggered upon internet connection recovery and leads to complete channel list reload with pagination offset 0. The minimum throttle interval is 2000ms. The default throttle interval is 5000ms.
+
+The channel list recovery mechanism described here (applying `recoveryThrottleIntervalMs`) **is activated only if the `StreamChat` client's channel list recovery mechanism is disabled**. The `StreamChat` recovery mechanism can be disabled when initiating the client instance through the `options` parameter:
+
+```typescript jsx
+import { StreamChat } from 'stream-chat';
+import { ChannelList, Chat } from 'stream-chat-react';
+
+// ... get apiKey, filters, sort, options
+
+const client = new StreamChat(apiKey, {recoverStateOnReconnect: false});
+const App = () => (
+    <Chat client={client} >
+     {/** ... */}
+        <ChannelList
+        filters={filters}
+        sort={sort}
+        options={options}
+        recoveryThrottleIntervalMs={3000}
+        {/** other props... */}
+      />
+     {/** ... */}
+    </Chat>
+);
+
+```
+
+| Type   | Default |
+|--------|---------|
+| number | 5000    |
+
 ### renderChannels
 
 Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly.
