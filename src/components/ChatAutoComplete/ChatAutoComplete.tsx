@@ -7,12 +7,12 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
-import type { CommandResponse, UserResponse } from 'stream-chat';
+import type { CommandResponse, UR, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import { EmojiSearchIndex } from 'components/MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
 
@@ -24,19 +24,30 @@ export type SuggestionUser<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UserResponse<StreamChatGenerics>;
 
+// FIXME: entity type is wrong, fix
 export type SuggestionItemProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  T extends UR = UR
 > = {
   className: string;
   component: React.ComponentType<{
-    entity: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
+    entity:
+      | ReturnType<EmojiSearchIndex<T>['search']>
+      | SuggestionUser<StreamChatGenerics>
+      | SuggestionCommand<StreamChatGenerics>;
     selected: boolean;
   }>;
-  item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>;
+  item:
+    | ReturnType<EmojiSearchIndex<T>['search']>
+    | SuggestionUser<StreamChatGenerics>
+    | SuggestionCommand<StreamChatGenerics>;
   key: React.Key;
   onClickHandler: (event: React.BaseSyntheticEvent) => void;
   onSelectHandler: (
-    item: EmojiData | SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics>,
+    item:
+      | ReturnType<EmojiSearchIndex<T>['search']>
+      | SuggestionUser<StreamChatGenerics>
+      | SuggestionCommand<StreamChatGenerics>,
   ) => void;
   selected: boolean;
   style: React.CSSProperties;
@@ -104,7 +115,7 @@ export type ChatAutoCompleteProps = {
   /** The text value of the underlying `textarea` component */
   value?: string;
   /** Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component */
-  wordReplace?: (word: string, emojiIndex?: NimbleEmojiIndex) => string;
+  wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex) => string;
 };
 
 const UnMemoizedChatAutoComplete = <
@@ -120,20 +131,21 @@ const UnMemoizedChatAutoComplete = <
   const { t } = useTranslationContext('ChatAutoComplete');
 
   const messageInput = useMessageInputContext<StreamChatGenerics, V>('ChatAutoComplete');
-  const { cooldownRemaining, disabled, emojiIndex, textareaRef: innerRef } = messageInput;
+  const { cooldownRemaining, disabled, emojiSearchIndex, textareaRef: innerRef } = messageInput;
 
   const placeholder = props.placeholder || t('Type your message');
 
   const emojiReplace = props.wordReplace
-    ? (word: string) => props.wordReplace?.(word, emojiIndex)
-    : (word: string) => {
-        const found = emojiIndex?.search(word) || [];
+    ? (word: string) => props.wordReplace?.(word, emojiSearchIndex)
+    : async (word: string) => {
+        const found = (await emojiSearchIndex?.search(word)) || [];
         const emoji = found
           .filter(Boolean)
           .slice(0, 10)
-          .find(({ emoticons }: EmojiData) => !!emoticons?.includes(word));
-        if (!emoji || !('native' in emoji)) return null;
-        return emoji.native;
+          .find(({ emoticons }) => !!emoticons?.includes(word));
+        if (!emoji) return null;
+        const [firstSkin] = emoji.skins;
+        return firstSkin.native;
       };
 
   const updateInnerRef = useCallback(

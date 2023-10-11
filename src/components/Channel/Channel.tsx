@@ -29,7 +29,6 @@ import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
-import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
@@ -57,7 +56,6 @@ import {
 } from '../../context/ChannelStateContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
-import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 
@@ -68,11 +66,8 @@ import {
 } from '../../constants/limits';
 
 import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
-import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 import { getChannel } from '../../utils/getChannel';
-
-import type { Data as EmojiMartData } from 'emoji-mart';
 
 import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
@@ -147,10 +142,6 @@ export type ChannelProps<
   dragAndDropWindow?: boolean;
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
-  /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
-  emojiData?: EmojiMartData;
-  /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
-  EmojiIndex?: EmojiContextValue['EmojiIndex'];
   /** Custom UI component for rendering button with emoji picker in MessageInput */
   EmojiPicker?: ComponentContextValue<StreamChatGenerics>['EmojiPicker'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
@@ -325,7 +316,6 @@ const ChannelInner = <
     doSendMessageRequest,
     doUpdateMessageRequest,
     dragAndDropWindow = false,
-    emojiData = defaultEmojiData,
     enrichURLForPreviewConfig,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
@@ -373,13 +363,6 @@ const ChannelInner = <
   const online = useRef(true);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
-
-  const emojiConfig: EmojiConfig = {
-    commonEmoji,
-    defaultMinimalEmojis,
-    emojiData,
-    emojiSetDef,
-  };
 
   const throttledCopyStateFromChannel = throttle(
     () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
@@ -1030,14 +1013,6 @@ const ChannelInner = <
     [props.reactionOptions],
   );
 
-  const emojiContextValue: EmojiContextValue = useMemo(
-    () => ({
-      emojiConfig,
-      EmojiIndex: props.EmojiIndex,
-    }),
-    [],
-  );
-
   const typingContextValue = useCreateTypingContext({
     typing,
   });
@@ -1073,16 +1048,14 @@ const ChannelInner = <
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>
-            <EmojiProvider value={emojiContextValue}>
-              <TypingProvider value={typingContextValue}>
-                <div className={`${chatContainerClass}`}>
-                  {dragAndDropWindow && (
-                    <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
-                  )}
-                  {!dragAndDropWindow && <>{children}</>}
-                </div>
-              </TypingProvider>
-            </EmojiProvider>
+            <TypingProvider value={typingContextValue}>
+              <div className={`${chatContainerClass}`}>
+                {dragAndDropWindow && (
+                  <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
+                )}
+                {!dragAndDropWindow && <>{children}</>}
+              </div>
+            </TypingProvider>
           </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>

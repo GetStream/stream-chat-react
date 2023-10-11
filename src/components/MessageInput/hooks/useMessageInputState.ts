@@ -3,13 +3,11 @@ import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import { useEmojiIndex } from './useEmojiIndex';
 import { useAttachments } from './useAttachments';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 
-import type { NimbleEmojiIndex } from 'emoji-mart';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
@@ -121,7 +119,6 @@ export type MessageInputHookProps<
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
-  emojiIndex?: NimbleEmojiIndex;
 };
 
 const makeEmptyMessageInputState = <
@@ -470,7 +467,6 @@ export const useMessageInputState = <
     ...enrichURLsController,
     closeCommandsList,
     closeMentionsList,
-    emojiIndex: useEmojiIndex(),
     handleChange,
     handleSubmit,
     insertText,

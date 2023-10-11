@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 
-// TODO: replace with emoji-mart
-import Picker from 'emoji-picker-react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 import {
   ThemeVersion,
@@ -73,9 +73,11 @@ export const EmojiPicker = () => {
           ref={setPopperElement}
         >
           <Picker
-            lazyLoadEmojis
-            onEmojiClick={(e) => {
-              insertText(e.emoji);
+            data={data}
+            onEmojiSelect={(e: unknown) => {
+              console.log(e);
+              // @ts-ignore
+              insertText(e.native);
               textareaRef.current?.focus();
             }}
           />
