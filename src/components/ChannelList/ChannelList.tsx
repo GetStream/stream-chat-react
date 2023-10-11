@@ -121,6 +121,13 @@ export type ChannelListProps<
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
+  /**
+   * Custom interval during which the recovery channel list queries will be prevented.
+   * This is to avoid firing unnecessary queries during internet connection fluctuation.
+   * Recovery channel query is triggered upon `connection.recovered` and leads to complete channel list reload with pagination offset 0.
+   * The minimum throttle interval is 2000ms. The default throttle interval is 5000ms.
+   */
+  recoveryThrottleIntervalMs?: number;
   /** Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly */
   renderChannels?: (
     channels: Channel<StreamChatGenerics>[],
@@ -167,6 +174,7 @@ const UnMemoizedChannelList = <
     options,
     Paginator = LoadMorePaginator,
     Preview,
+    recoveryThrottleIntervalMs,
     renderChannels,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
@@ -256,6 +264,7 @@ const UnMemoizedChannelList = <
     sort || DEFAULT_SORT,
     options || DEFAULT_OPTIONS,
     activeChannelHandler,
+    recoveryThrottleIntervalMs,
   );
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;

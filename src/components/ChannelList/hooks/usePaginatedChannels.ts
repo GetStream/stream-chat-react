@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import uniqBy from 'lodash.uniqby';
 
 import { MAX_QUERY_CHANNELS_LIMIT } from '../utils';
@@ -8,6 +8,9 @@ import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat }
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+
+const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
+const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
 
 export const usePaginatedChannels = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -20,13 +23,21 @@ export const usePaginatedChannels = <
     channels: Array<Channel<StreamChatGenerics>>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   ) => void,
+  recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
 ) => {
   const {
-    channelsQueryState: { setError, setQueryInProgress },
+    channelsQueryState: { error, setError, setQueryInProgress },
   } = useChatContext('usePaginatedChannels');
   const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const lastRecoveryTimestamp = useRef<number | undefined>();
 
+  const recoveryThrottleInterval =
+    recoveryThrottleIntervalMs < MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
+      ? MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
+      : recoveryThrottleIntervalMs
+      ? recoveryThrottleIntervalMs
+      : RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS;
   // memoize props
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
@@ -72,9 +83,33 @@ export const usePaginatedChannels = <
     setQueryInProgress(null);
   };
 
+  const throttleRecover = useCallback(() => {
+    const now = Date.now();
+    const isFirstRecovery = !lastRecoveryTimestamp.current;
+    const timeElapsedSinceLastRecoveryMs = lastRecoveryTimestamp.current
+      ? now - lastRecoveryTimestamp.current
+      : 0;
+
+    if (!isFirstRecovery && timeElapsedSinceLastRecoveryMs < recoveryThrottleInterval && !error) {
+      return;
+    }
+
+    lastRecoveryTimestamp.current = now;
+    queryChannels('reload');
+  }, [error, queryChannels, lastRecoveryTimestamp]);
+
   const loadNextPage = () => {
     queryChannels();
   };
+
+  useEffect(() => {
+    if (client.recoverStateOnReconnect) return;
+    const { unsubscribe } = client.on('connection.recovered', throttleRecover);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [client, throttleRecover]);
 
   useEffect(() => {
     queryChannels('reload');
