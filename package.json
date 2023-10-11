@@ -1,6 +1,6 @@
 {
   "name": "stream-chat-react",
-  "version": "0.0.5-development",
+  "version": "0.0.0-development",
   "description": "React components to create chat conversations or livestream style chat",
   "author": "GetStream",
   "homepage": "https://getstream.io/chat/",
@@ -33,7 +33,6 @@
     "@stream-io/stream-chat-css": "^3.14.2",
     "clsx": "^2.0.0",
     "dayjs": "^1.10.4",
-    "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "hast-util-find-and-replace": "^5.0.1",
     "i18next": "^21.6.14",
@@ -68,10 +67,18 @@
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "stream-chat": "^8.0.0",
-    "emoji-picker-react": "^4.5.2"
+    "emoji-mart": "^5.5.2",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1"
   },
   "peerDependenciesMeta": {
-    "emoji-picker-react": {
+    "emoji-mart": {
+      "optional": true
+    },
+    "@emoji-mart/data": {
+      "optional": true
+    },
+    "@emoji-mart/react": {
       "optional": true
     }
   },
@@ -92,6 +99,9 @@
     "@babel/preset-typescript": "^7.12.7",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
+    "emoji-mart": "^5.5.2",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.29.1",
     "@rollup/plugin-babel": "^5.2.1",
@@ -135,7 +145,6 @@
     "conventional-changelog-conventionalcommits": "^7.0.2",
     "core-js": "^3.6.5",
     "css-loader": "^5.0.1",
-    "emoji-picker-react": "^4.5.2",
     "eslint": "7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",

@@ -138,7 +138,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     this._replaceWord();
   };
 
-  _replaceWord = () => {
+  _replaceWord = async () => {
     const { value } = this.state;
 
     const lastWordRegex = /([^\s]+)(\s*)$/;
@@ -149,7 +149,7 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     const spaces = match[2];
 
-    const newWord = this.props.replaceWord(lastWord);
+    const newWord = await this.props.replaceWord(lastWord);
     if (newWord == null) return;
 
     const textBeforeWord = value.slice(0, this.getCaretPosition() - match[0].length);
