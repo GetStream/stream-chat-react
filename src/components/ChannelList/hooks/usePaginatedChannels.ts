@@ -96,7 +96,7 @@ export const usePaginatedChannels = <
 
     lastRecoveryTimestamp.current = now;
     queryChannels('reload');
-  }, [error, queryChannels, lastRecoveryTimestamp]);
+  }, [error, queryChannels, recoveryThrottleInterval]);
 
   const loadNextPage = () => {
     queryChannels();
