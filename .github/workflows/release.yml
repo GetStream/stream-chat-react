@@ -20,7 +20,7 @@ on:
           - staging
 
 jobs:
-  release:
+  package_release:
     name: Release from "${{ github.ref_name }}" branch
     runs-on: ubuntu-latest
     # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure
@@ -48,7 +48,7 @@ jobs:
           yarn semantic-release
           ${{ inputs.dry_run && '--dry-run' || '' }}
 
-  push_docusaurus:
+  docs_release:
     name: Publish documentation from "${{ github.ref_name }}" branch to ${{ inputs.docs_env }}
     runs-on: ubuntu-latest
     outputs:
@@ -59,10 +59,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
-      - name: Merge docs stream-chat-css
+      - name: Merge shared "@stream-io/stream-chat-css" docs
         run: bash scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs
       - name: Push to stream-chat-docusaurus
         uses: GetStream/push-stream-chat-docusaurus-action@main
