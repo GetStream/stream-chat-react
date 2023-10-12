@@ -1,28 +1,32 @@
-# Release
+# Release process (for package and documentation)
+
 The `stream-chat-react` package follows semantic versioning and the release is to a big part automated by `semantic-release`. The utility automates:
 
-1. Collects release notes from the commits added since the last release
-2. Creates a [GitHub release](https://github.com/GetStream/stream-chat-react/releases)
-3. Appends release notes to `CHANGELOG.md`
-4. Publishes a new package version to NPM.
+1. release notes collection from the commits added since the last release
+2. [GitHub release](https://github.com/GetStream/stream-chat-react/releases) creation
+3. release notes (`CHANGELOG.md`) update
+4. version bump and package publishment to the NPM
 
-In order the above generates correct outputs, each contributor should [Angular's Commit Messag Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
+In order to get the above generated outputs, each contributor should follow [Angular's Commit Message Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
 
-At the moment these manual actions have to be taken while doing a release:
+## Required steps
 
-0. Make sure that all the new required features and bug fixes in peer dependency repositories `@stream-io/stream-chat-css` and `stream-chat-js` are released
-1. Make sure that the peer dependencies `@stream-io/stream-chat-css` and `stream-chat-js` are installed at their latest version (see `package.json`, `yarn.lock`)
-2. Create a new PR request from `develop` to `master` branch.
-   - The PR name should correspond to the next package version that is to be released (e.g. v1.1, v8, v9.1.2). You can use GitHub's CLI utility (e.g. `gh pr create —base master`)
-   - The PR description should list all the changes in form of commit messages (therefore we require squashing the commit history when merging into `develop`).
-3. Solve potential conflicts between the two branches
-   - As `master` receives updates only from `develop`, there should be no conflicts.
-4. Merge the PR and make sure that:
-   - the `CHANGELOG.md` file has been correctly updated
-   - a new (correct) version of the package has been published at NPM
-   - a new release with correct version number has be created in GitHub
+At the moment these manual actions have to be taken to achieve a successfull release:
+
+1. make sure that all the new required features and bug fixes in peer dependency repositories `@stream-io/stream-chat-css` and `stream-chat-js` are released
+2. make sure that the peer dependencies `@stream-io/stream-chat-css` and `stream-chat-js` are installed at their latest version (see `package.json`, `yarn.lock`) (if applicable)
+3. squash-merge required pull requests to `master` branch with appropriate message name, for example: `fix(scope): new feature`, if this feature is breaking, make sure to include `BREAKING CHANGE: <reason>` in the message footer
+4. navigate to ["Actions"](https://github.com/GetStream/stream-chat-react/actions) and in the left bar select the "Release" workflow
+5. click "Run workflow" and select the branch you want to release from then adjust the prompt options and click "Run workflow", note that allowed branches for __PACKAGE RELEASE__ are: `master`, `release-v9` and `rc`, there's _is no such limititation_ for the __DOCUMENTATION RELEASE__, extend the workflow condition and `.releaserc.json` as needed
+
+## Available release prompt options
+
+- `docs_only` option if checked will skip the `package_release` job and will only run the `docs_release`
+- `dry_run` option if checked will run the `semantic-release` command in ["dry run" mode](https://semantic-release.gitbook.io/semantic-release/usage/configuration#dryrun)
+- `docs_env` (required) option offers two environment options to which the documentation will be pushed to via `GetStream/push-stream-chat-docusaurus-action` - defaults to `staging`
 
 ## After the release
+
 We maintain multiple demo applications developed with `stream-chat-react`. With each new version of the package, the applications should have their dependencies upgraded explicitly in their `package.json`.
 
 The demo apps repositories are:
