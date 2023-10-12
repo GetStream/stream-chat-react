@@ -417,9 +417,8 @@ describe('Channel', () => {
         emojis: {},
       };
       const CustomEmojiPicker = () => <div />;
-      const CustomEmoji = () => <span />;
 
-      renderComponent({ Emoji: CustomEmoji, emojiData, EmojiPicker: CustomEmojiPicker }, (ctx) => {
+      renderComponent({ emojiData, EmojiPicker: CustomEmojiPicker }, (ctx) => {
         context = ctx;
       });
 
@@ -427,7 +426,6 @@ describe('Channel', () => {
         expect(context).toBeInstanceOf(Object);
         expect(context.emojiConfig.emojiData).toBe(emojiData);
         expect(context.EmojiPicker).toBe(CustomEmojiPicker);
-        expect(context.Emoji).toBe(CustomEmoji);
       });
     });
 

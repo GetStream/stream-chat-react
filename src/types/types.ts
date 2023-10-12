@@ -145,3 +145,8 @@ export type SendMessageOptions = {
 export type UpdateMessageOptions = {
   skip_enrich_url?: boolean;
 };
+
+export type Readable<T> = {
+  [key in keyof T]: T[key];
+  // eslint-disable-next-line @typescript-eslint/ban-types
+} & {};
