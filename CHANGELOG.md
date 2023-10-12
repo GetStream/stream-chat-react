@@ -1,3 +1,20 @@
+# [11.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v10.13.1...v11.0.0-rc.1) (2023-10-12)
+
+
+### Bug Fixes
+
+* **emoji-mart:** new reactions  ([#1947](https://github.com/GetStream/stream-chat-react/issues/1947)) ([2050708](https://github.com/GetStream/stream-chat-react/commit/205070822d00b033cf5be0c2e3e6063d5cd90503))
+
+
+### Features
+
+* allow complete channel list throttled reload on internet connection recovery ([#2123](https://github.com/GetStream/stream-chat-react/issues/2123)) ([252cac3](https://github.com/GetStream/stream-chat-react/commit/252cac3366986523b9f6b1152c9408ccab0af710))
+
+
+### BREAKING CHANGES
+
+* **emoji-mart:** `reactionOptions` signature has changed, see [release guide](https://github.com/GetStream/stream-chat-react/blob/7a19e386aa3adcc5741a7f0d92bc816a1a424094/docusaurus/docs/React/release-guides/new-reactions.mdx) for more information
+
 ## [10.13.1](https://github.com/GetStream/stream-chat-react/compare/v10.13.0...v10.13.1) (2023-10-09)
 
 # [10.13.0](https://github.com/GetStream/stream-chat-react/compare/v10.12.0...v10.13.0) (2023-10-06)
