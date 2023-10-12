@@ -1,16 +1,20 @@
 name: Release
 on:
-  push:
-    branches:
-      - master
-      - main
-      - beta
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run semantic-release in "dry run" mode'
+        default: false
+        type: boolean
+
 env:
   NODE_OPTIONS: --max_old_space_size=4096
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure
+    if: ${{ github.ref_name == 'master' || github.ref_name == 'rc' || github.ref_name == 'release-v9' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,4 +32,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn semantic-release
+        run: >
+          yarn semantic-release
+          ${{ inputs.dry_run && '--dry-run' || '' }}
