@@ -1,16 +1,32 @@
 name: Release
 on:
-  push:
-    branches:
-      - master
-      - main
-      - beta
-env:
-  NODE_OPTIONS: --max_old_space_size=4096
+  workflow_dispatch:
+    inputs:
+      docs_only:
+        description: Skip package release and publish documentation only
+        default: false
+        type: boolean
+      dry_run:
+        description: Run package release in "dry run" mode (does not publish)
+        default: false
+        type: boolean
+      docs_env:
+        description: Pick environment to publish documentation to
+        required: true
+        type: choice
+        default: staging
+        options:
+          - production
+          - staging
+
 jobs:
-  release:
-    name: Release
+  package_release:
+    name: Release from "${{ github.ref_name }}" branch
     runs-on: ubuntu-latest
+    # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure
+    if: ${{ inputs.docs_only == 'false' || github.ref_name == 'master' || github.ref_name == 'rc' || github.ref_name == 'release-v9' }}
+    env:
+      NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,4 +44,30 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn semantic-release
+        run: >
+          yarn semantic-release
+          ${{ inputs.dry_run && '--dry-run' || '' }}
+
+  docs_release:
+    name: Publish documentation from "${{ github.ref_name }}" branch to ${{ inputs.docs_env }}
+    runs-on: ubuntu-latest
+    if: ${{ inputs.dry_run == 'false' }}
+    outputs:
+      target-version: $${{ steps.target-version.outputs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+      - name: Merge shared "@stream-io/stream-chat-css" docs
+        run: bash scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs
+      - name: Push to stream-chat-docusaurus
+        uses: GetStream/push-stream-chat-docusaurus-action@main
+        with:
+          target-branch: ${{ inputs.docs_env }}
+        env:
+          DOCUSAURUS_GH_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
