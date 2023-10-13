@@ -5,7 +5,7 @@ The `stream-chat-react` package follows semantic versioning and the release is t
 1. release notes collection from the commits added since the last release
 2. [GitHub release](https://github.com/GetStream/stream-chat-react/releases) creation
 3. release notes (`CHANGELOG.md`) update
-4. version bump and package publishment to the NPM
+4. version bump and package release to the NPM
 
 In order to get the above generated outputs, each contributor should follow [Angular's Commit Message Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
 
@@ -22,7 +22,7 @@ At the moment these manual actions have to be taken to achieve a successfull rel
 ## Available release prompt options
 
 - `docs_only` option if checked will skip the `package_release` job and will only run the `docs_release`
-- `dry_run` option if checked will run the `semantic-release` command in ["dry run" mode](https://semantic-release.gitbook.io/semantic-release/usage/configuration#dryrun)
+- `dry_run` option if checked will run the `semantic-release` command in ["dry run" mode](https://semantic-release.gitbook.io/semantic-release/usage/configuration#dryrun) and will skip `docs_release`
 - `docs_env` (required) option offers two environment options to which the documentation will be pushed to via `GetStream/push-stream-chat-docusaurus-action` - defaults to `staging`
 
 ## After the release
