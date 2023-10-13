@@ -1,3 +1,196 @@
+# [10.14.0](https://github.com/GetStream/stream-chat-react/compare/v10.13.1...v10.14.0) (2023-10-11)
+
+
+### Features
+
+* allow complete channel list throttled reload on internet connection recovery ([#2123](https://github.com/GetStream/stream-chat-react/issues/2123)) ([252cac3](https://github.com/GetStream/stream-chat-react/commit/252cac3366986523b9f6b1152c9408ccab0af710))
+
+## [10.13.1](https://github.com/GetStream/stream-chat-react/compare/v10.13.0...v10.13.1) (2023-10-09)
+
+# [10.13.0](https://github.com/GetStream/stream-chat-react/compare/v10.12.0...v10.13.0) (2023-10-06)
+
+
+### Bug Fixes
+
+* on pagination keep a unique list of channels in the ChannelList ([#2115](https://github.com/GetStream/stream-chat-react/issues/2115)) ([11173e1](https://github.com/GetStream/stream-chat-react/commit/11173e14e00a92cbfa38cc7f5f19e1a02b6e37a2))
+
+
+### Features
+
+* add initializeOnMount prop to ChannelProps ([#2113](https://github.com/GetStream/stream-chat-react/issues/2113)) ([db18efd](https://github.com/GetStream/stream-chat-react/commit/db18efddfee4fe666997ea691c0d9d07d766cc46))
+* allow to conditionally display MessageInput's send button through MessageInputProps ([#2109](https://github.com/GetStream/stream-chat-react/issues/2109)) ([cd07418](https://github.com/GetStream/stream-chat-react/commit/cd074181d3807587295133f7757a99f1bf5da801))
+
+# [10.12.0](https://github.com/GetStream/stream-chat-react/compare/v10.11.0...v10.12.0) (2023-09-29)
+
+
+### Features
+
+* add messageDeliveryStatus prop to ChannelListPreview ([#2104](https://github.com/GetStream/stream-chat-react/issues/2104)) ([9aa4aea](https://github.com/GetStream/stream-chat-react/commit/9aa4aea6b900839a6de8f1ba49f5846167758614))
+* allow to configure the search query debounce interval ([#2107](https://github.com/GetStream/stream-chat-react/issues/2107)) ([d563369](https://github.com/GetStream/stream-chat-react/commit/d5633693f1f087a5e6ad2ba29ccaa1257f9b7d7f))
+
+# [10.11.0](https://github.com/GetStream/stream-chat-react/compare/v10.10.2...v10.11.0) (2023-09-26)
+
+
+### Bug Fixes
+
+* adjust cooldown interval calculation for messages coming from future ([#2101](https://github.com/GetStream/stream-chat-react/issues/2101)) ([3263f10](https://github.com/GetStream/stream-chat-react/commit/3263f104823caaa00a81de17508ae1ec2c4f5594))
+* enable sending reactions to frozen channel with UseFrozenChannel permission ([#2097](https://github.com/GetStream/stream-chat-react/issues/2097)) ([852490d](https://github.com/GetStream/stream-chat-react/commit/852490ddd397097c2bc13308afcc4b2fe9cc1806))
+
+
+### Features
+
+* add timezone support to datetime parsing ([#2099](https://github.com/GetStream/stream-chat-react/issues/2099)) ([3d4bdf9](https://github.com/GetStream/stream-chat-react/commit/3d4bdf9bd922a16fb3848ac6274ffea11eed8de3))
+
+## [10.10.2](https://github.com/GetStream/stream-chat-react/compare/v10.10.1...v10.10.2) (2023-09-19)
+
+
+### Bug Fixes
+
+* keep channels initially without id registered for WS events ([#2095](https://github.com/GetStream/stream-chat-react/issues/2095)) ([eba7bbe](https://github.com/GetStream/stream-chat-react/commit/eba7bbef33fe1d85ce6871ba43010b5b0489d032))
+
+## [10.10.1](https://github.com/GetStream/stream-chat-react/compare/v10.10.0...v10.10.1) (2023-09-13)
+
+
+### Bug Fixes
+
+* export UploadButton /w props type ([#2091](https://github.com/GetStream/stream-chat-react/issues/2091)) ([50e22ba](https://github.com/GetStream/stream-chat-react/commit/50e22baa2e03e8a059b3bf6c7d3bc65edcbfb168))
+
+# [10.10.0](https://github.com/GetStream/stream-chat-react/compare/v10.9.1...v10.10.0) (2023-09-08)
+
+
+### Features
+
+* add link previews to MessageInput ([#2083](https://github.com/GetStream/stream-chat-react/issues/2083)) ([76caeea](https://github.com/GetStream/stream-chat-react/commit/76caeeac77e42d5286ae6a409cbf93c582b5c1f6))
+
+
+### Performance Improvements
+
+* **package-size:** remove react-file-utils package ([#2088](https://github.com/GetStream/stream-chat-react/issues/2088)) ([1258e09](https://github.com/GetStream/stream-chat-react/commit/1258e09f252c81295fbaee0da58194886424f0a6))
+
+## [10.9.1](https://github.com/GetStream/stream-chat-react/compare/v10.9.0...v10.9.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* export ChannelSearchFunctionParams & ChannelSearchParams types ([#2084](https://github.com/GetStream/stream-chat-react/issues/2084)) ([1ef81ea](https://github.com/GetStream/stream-chat-react/commit/1ef81ea602c9b1e817f3bbe2c2dcf5b12e838fee))
+
+# [10.9.0](https://github.com/GetStream/stream-chat-react/compare/v10.8.9...v10.9.0) (2023-08-21)
+
+
+### Bug Fixes
+
+* keep showing message read receipt once read ([#2080](https://github.com/GetStream/stream-chat-react/issues/2080)) ([6f9fb96](https://github.com/GetStream/stream-chat-react/commit/6f9fb96c3746d1f59291f130bae7621154432b8a))
+
+
+### Features
+
+* show read receipts in VirtualizedMessageList ([#2076](https://github.com/GetStream/stream-chat-react/issues/2076)) ([e08d972](https://github.com/GetStream/stream-chat-react/commit/e08d972ebbadf460f021b031bd34bd44e31faa16))
+
+## [10.8.9](https://github.com/GetStream/stream-chat-react/compare/v10.8.8...v10.8.9) (2023-08-11)
+
+
+### Bug Fixes
+
+* remove color code from LoadingIndicator root class ([#2072](https://github.com/GetStream/stream-chat-react/issues/2072)) ([eba171f](https://github.com/GetStream/stream-chat-react/commit/eba171f8a1ff880b79f9d5da62c372d8127d0c26))
+
+## [10.8.8](https://github.com/GetStream/stream-chat-react/compare/v10.8.7...v10.8.8) (2023-07-27)
+
+
+### Bug Fixes
+
+* prevent remounting Message components in VirtualizedMessageList ([#2067](https://github.com/GetStream/stream-chat-react/issues/2067)) ([17d48b0](https://github.com/GetStream/stream-chat-react/commit/17d48b0f690489ef192acd704a02f1b90c38df79))
+
+## [10.8.7](https://github.com/GetStream/stream-chat-react/compare/v10.8.6...v10.8.7) (2023-07-17)
+
+
+### Bug Fixes
+
+* namespace the ChannelSearch's root element "inline" and "popup" classes ([#2056](https://github.com/GetStream/stream-chat-react/issues/2056)) ([442e177](https://github.com/GetStream/stream-chat-react/commit/442e17723dbe6731289e51305cc4ba003e533b7e))
+
+## [10.8.6](https://github.com/GetStream/stream-chat-react/compare/v10.8.5...v10.8.6) (2023-07-11)
+
+
+### Bug Fixes
+
+* enable search results scrolling ([#2041](https://github.com/GetStream/stream-chat-react/issues/2041)) ([e61cabe](https://github.com/GetStream/stream-chat-react/commit/e61cabe457edc50e4fa69dbafc1cea3205885b41))
+* prevent ignoring the clearSearchOnClickOutside search param on mobile ([#2039](https://github.com/GetStream/stream-chat-react/issues/2039)) ([e83d313](https://github.com/GetStream/stream-chat-react/commit/e83d313085bff66d8a1bdb8886e61fd85af19692))
+
+## [10.8.5](https://github.com/GetStream/stream-chat-react/compare/v10.8.4...v10.8.5) (2023-06-27)
+
+
+### Bug Fixes
+
+* make cooldown timer to rely on skip-slow-mode capability  ([#2018](https://github.com/GetStream/stream-chat-react/issues/2018)) ([8f7c79f](https://github.com/GetStream/stream-chat-react/commit/8f7c79f7498a275c5704a891571b5c2728cd6749))
+
+## [10.8.4](https://github.com/GetStream/stream-chat-react/compare/v10.8.3...v10.8.4) (2023-06-22)
+
+
+### Bug Fixes
+
+* prevent showing original text of deleted quoted message ([#2033](https://github.com/GetStream/stream-chat-react/issues/2033)) ([773d59f](https://github.com/GetStream/stream-chat-react/commit/773d59fc0970f7f3128bd740033556e5c646397d))
+
+## [10.8.3](https://github.com/GetStream/stream-chat-react/compare/v10.8.2...v10.8.3) (2023-06-12)
+
+
+### Bug Fixes
+
+* add missing effect and callback dependencies in useChannelSearch hooks ([#2029](https://github.com/GetStream/stream-chat-react/issues/2029)) ([1090dd3](https://github.com/GetStream/stream-chat-react/commit/1090dd347c81a6bf7328db0be2da4cb9462c8d44))
+
+## [10.8.2](https://github.com/GetStream/stream-chat-react/compare/v10.8.1...v10.8.2) (2023-06-09)
+
+
+### Bug Fixes
+
+* extend i18n datetime locale config type ([#2023](https://github.com/GetStream/stream-chat-react/issues/2023)) ([1db9163](https://github.com/GetStream/stream-chat-react/commit/1db9163df6eb41832ac58f835ccde1a6a1f70537))
+
+## [10.8.1](https://github.com/GetStream/stream-chat-react/compare/v10.8.0...v10.8.1) (2023-05-22)
+
+
+### Bug Fixes
+
+* do not try close message input's autocomplete dropdown on textarea blur ([#2015](https://github.com/GetStream/stream-chat-react/issues/2015)) ([af4fb74](https://github.com/GetStream/stream-chat-react/commit/af4fb74dd7c1e7724e13cb88e41038434f680232))
+
+# [10.8.0](https://github.com/GetStream/stream-chat-react/compare/v10.7.6...v10.8.0) (2023-05-05)
+
+
+### Bug Fixes
+
+* prevent duplicate simultaneous query channel quests ([#2004](https://github.com/GetStream/stream-chat-react/issues/2004)) ([33411b8](https://github.com/GetStream/stream-chat-react/commit/33411b8beae165475591ad6a03e22dc1be04eff7))
+* prevent overriding event handlers in MessageInput's Textarea component ([#2006](https://github.com/GetStream/stream-chat-react/issues/2006)) ([569c53d](https://github.com/GetStream/stream-chat-react/commit/569c53db9725cafa1058f3068712e13d38bc773c))
+
+
+### Features
+
+* allow to retrieve the default message input value dynamically ([#2007](https://github.com/GetStream/stream-chat-react/issues/2007)) ([9316bdf](https://github.com/GetStream/stream-chat-react/commit/9316bdfa59efefdd431b946f0c9b607531f1485c))
+
+## [10.7.6](https://github.com/GetStream/stream-chat-react/compare/v10.7.5...v10.7.6) (2023-04-24)
+
+
+### Bug Fixes
+
+* **renderText:** handle forward slash in mentions ([#1997](https://github.com/GetStream/stream-chat-react/issues/1997)) ([eb04651](https://github.com/GetStream/stream-chat-react/commit/eb04651607bc2444b2a864813b1561bf0552585b))
+
+## [10.7.5](https://github.com/GetStream/stream-chat-react/compare/v10.7.4...v10.7.5) (2023-04-14)
+
+
+### Bug Fixes
+
+* prevent overwriting sent message on slow network ([#1993](https://github.com/GetStream/stream-chat-react/issues/1993)) ([5f5893a](https://github.com/GetStream/stream-chat-react/commit/5f5893ad829f6f716406b26dc4efc24d6a52f437))
+
+## [10.7.4](https://github.com/GetStream/stream-chat-react/compare/v10.7.3...v10.7.4) (2023-04-05)
+
+
+### Bug Fixes
+
+* update channel state on user.deleted event ([#1985](https://github.com/GetStream/stream-chat-react/issues/1985)) ([767d194](https://github.com/GetStream/stream-chat-react/commit/767d1949522e290d5f006e4ef7adcd9351dfc07b))
+
+## [10.7.3](https://github.com/GetStream/stream-chat-react/compare/v10.7.2...v10.7.3) (2023-03-16)
+
+
+### Bug Fixes
+
+* do not increase count of prepended VirtualizedMessageList messages of status "sending" or "failed" ([#1972](https://github.com/GetStream/stream-chat-react/issues/1972)) ([f1bf6fa](https://github.com/GetStream/stream-chat-react/commit/f1bf6fa8b21523e968b8eb9bb30ce5beb6eca9da))
+
 ## [10.7.2](https://github.com/GetStream/stream-chat-react/compare/v10.7.1...v10.7.2) (2023-03-08)
 
 

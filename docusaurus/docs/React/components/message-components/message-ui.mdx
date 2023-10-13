@@ -104,15 +104,15 @@ The `themeVersion` `'2'` markup is a bit different:
       <MessageText />
       <MML />
       // highlight-next-line
-      <MessageErrorIcon/>
+      <MessageErrorIcon />
     </div>
-// highlight-start
+    // highlight-start
   </div>
   <MessageRepliesCountButton />
   <div>
     <MessageTimestamp />
   </div>
-// highlight-end
+  // highlight-end
 </div>
 ```
 
@@ -137,7 +137,6 @@ In thread button opening thread is omitted.
 The drop-down menu contains a default list of actions that are enabled for a message. These are determined by the permissions the user has.
 On the other hand, it is also possible to specify [own custom actions](./#custommessageactions). This will lead to adding more items into the drop-down menu.
 
-
 ## Props
 
 :::note
@@ -152,7 +151,7 @@ you wish to override a single prop, so all options are detailed below.
 If true, actions such as edit, delete, flag, etc. are enabled on the message (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### additionalMessageInputProps
@@ -161,7 +160,7 @@ Additional props to be passed to the underlying [`MessageInput`](../message-inpu
 while editing (overrides the value stored in `MessageContext`).
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### autoscrollToBottom
@@ -172,21 +171,22 @@ You can even use the function to keep the container scrolled to the bottom while
 
 ```tsx
 const Image = (props: ImageProps) => {
-    ...
-    const { autoscrollToBottom } = useMessageContext();
-    ...
+  ...
+  const { autoscrollToBottom } = useMessageContext();
+  ...
 
-    return (
-        <img
-            ...
-            onLoad={autoscrollToBottom}
-            ...
-        />
-}
+  return (
+    <img
+      ...
+      onLoad={autoscrollToBottom}
+      ...
+    />
+  );
+};
 ```
 
 | Type       |
-|------------|
+| ---------- |
 | () => void |
 
 ### clearEditingState
@@ -194,7 +194,7 @@ const Image = (props: ImageProps) => {
 When called, this function will exit the editing state on the message (overrides the function stored in `MessageContext`).
 
 | Type                                       |
-|--------------------------------------------|
+| ------------------------------------------ |
 | (event?: React.BaseSyntheticEvent) => void |
 
 ### customMessageActions
@@ -204,7 +204,7 @@ An object containing custom message actions (key) and function handlers (value) 
 ```jsx
 const customActions = {
   'Copy text': (message) => {
-    navigator.clipboard.writeText(message.text || '')
+    navigator.clipboard.writeText(message.text || '');
   },
 };
 
@@ -212,10 +212,15 @@ const customActions = {
 ```
 
 Custom action item "Copy text" in the message actions box:
-<img src={MessageActionsBoxWithCustomAction} alt='Image of a custom action item "Copy text" in the message actions box' height='300'/>
+
+<img
+  src={MessageActionsBoxWithCustomAction}
+  alt='Image of a custom action item "Copy text" in the message actions box'
+  height='300'
+/>
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### editing
@@ -223,7 +228,7 @@ Custom action item "Copy text" in the message actions box:
 If true, the message toggles to an editing state (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### formatDate
@@ -231,7 +236,7 @@ If true, the message toggles to an editing state (overrides the value stored in 
 Overrides the default date formatting logic, has access to the original date object (overrides the function stored in `MessageContext`).
 
 | Type                   |
-|------------------------|
+| ---------------------- |
 | (date: Date) => string |
 
 ### getMessageActions
@@ -239,7 +244,7 @@ Overrides the default date formatting logic, has access to the original date obj
 Function that returns an array of the allowed actions on a message by the currently connected user (overrides the function stored in `MessageContext`).
 
 | Type                      |
-|---------------------------|
+| ------------------------- |
 | () => MessageActionsArray |
 
 ### groupByUser
@@ -247,7 +252,7 @@ Function that returns an array of the allowed actions on a message by the curren
 If true, group messages sent by each user (only used in the `VirtualizedMessageList`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### groupStyles
@@ -335,7 +340,7 @@ Function that retries sending a message after a failed request (overrides the fu
 When true, signifies the message is the parent message in a thread list (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### isMyMessage
@@ -343,15 +348,14 @@ When true, signifies the message is the parent message in a thread list (overrid
 Function that returns whether a message belongs to the current user (overrides the function stored in `MessageContext`).
 
 | Type          |
-|---------------|
+| ------------- |
 | () => boolean |
 
-### isReactionEnabled
-
-If true, reactions are enabled in the currently active channel (overrides the value stored in `MessageContext`).
+### isReactionEnabled (deprecated)
+If true, sending reactions is enabled in the currently active channel (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### lastReceivedId
@@ -359,7 +363,7 @@ If true, reactions are enabled in the currently active channel (overrides the va
 The latest message ID in the current channel (overrides the value stored in `MessageContext`).
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### message
@@ -367,7 +371,7 @@ The latest message ID in the current channel (overrides the value stored in `Mes
 The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value stored in `MessageContext`).
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### messageListRect
@@ -375,7 +379,7 @@ The `StreamChat` message object, which provides necessary data to the underlying
 DOMRect object linked to the parent `MessageList` component (overrides the value stored in `MessageContext`).
 
 | Type    |
-|---------|
+| ------- |
 | DOMRect |
 
 ### mutes
@@ -383,7 +387,7 @@ DOMRect object linked to the parent `MessageList` component (overrides the value
 An array of users that have been muted by the connected user (overrides the value stored in `MessageContext`).
 
 | Type   | Default                                                               |
-|--------|-----------------------------------------------------------------------|
+| ------ | --------------------------------------------------------------------- |
 | Mute[] | [ChannelStateContext['mutes']](../contexts/channel-state-context.mdx) |
 
 ### onMentionsClickMessage
@@ -431,7 +435,7 @@ Function that runs on hover of a user avatar (overrides the function stored in `
 The user roles allowed to pin messages in various channel types (deprecated in favor of `channelCapabilities`).
 
 | Type   | Default                                                                                                              |
-|--------|----------------------------------------------------------------------------------------------------------------------|
+| ------ | -------------------------------------------------------------------------------------------------------------------- |
 | object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
 
 ### reactionSelectorRef
@@ -439,7 +443,7 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 Ref to be placed on the reaction selector component (overrides the ref stored in `MessageContext`).
 
 | Type                                    |
-|-----------------------------------------|
+| --------------------------------------- |
 | React.MutableRefObject<HTMLDivElement\> |
 
 ### readBy
@@ -447,7 +451,7 @@ Ref to be placed on the reaction selector component (overrides the ref stored in
 An array of users that have read the current message (overrides the value stored in `MessageContext`).
 
 | Type  |
-|-------|
+| ----- |
 | array |
 
 ### renderText
@@ -455,7 +459,7 @@ An array of users that have read the current message (overrides the value stored
 Custom function to render message text content (overrides the function stored in `MessageContext`).
 
 | Type     | Default                                                                                |
-|----------|----------------------------------------------------------------------------------------|
+| -------- | -------------------------------------------------------------------------------------- |
 | function | [renderText](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) |
 
 ### setEditingState
@@ -471,7 +475,7 @@ Function to toggle the editing state on a message (overrides the function stored
 When true, show the reactions list component (overrides the value stored in `MessageContext`).
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
 
 ### threadList
@@ -479,7 +483,7 @@ When true, show the reactions list component (overrides the value stored in `Mes
 If true, indicates that the current `MessageList` component is part of a `Thread` (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### unsafeHTML
@@ -487,5 +491,5 @@ If true, indicates that the current `MessageList` component is part of a `Thread
 If true, renders HTML instead of markdown. Posting HTML is only supported server-side (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |

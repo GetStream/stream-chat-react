@@ -5,6 +5,7 @@ import type { MessageInputProps } from '../MessageInput';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { EnrichURLsController } from './useLinkPreviews';
 
 export const useMessageInputText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -13,6 +14,7 @@ export const useMessageInputText = <
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
   const { channel } = useChannelStateContext<StreamChatGenerics>('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
@@ -89,11 +91,14 @@ export const useMessageInputText = <
         getNewText: () => newText,
         type: 'setText',
       });
+
+      findAndEnqueueURLsToEnrich?.(newText);
+
       if (publishTypingEvent && newText && channel) {
         logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
-    [channel, parent, publishTypingEvent],
+    [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
   );
 
   return {

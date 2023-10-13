@@ -84,6 +84,14 @@ const MessageSimpleWithContext = <
     return <MessageDeleted message={message} />;
   }
 
+  /** FIXME: isReactionEnabled should be removed with next major version and a proper centralized permissions logic should be put in place
+   * With the current permissions implementation it would be sth like:
+   * const messageActions = getMessageActions();
+   * const canReact = messageActions.includes(MESSAGE_ACTIONS.react);
+   */
+  const canReact = isReactionEnabled;
+  const canShowReactions = hasReactions;
+
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
@@ -100,8 +108,7 @@ const MessageSimpleWithContext = <
       'pinned-message': message.pinned,
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--highlighted': highlighted,
-      'str-chat__message--with-reactions str-chat__message-with-thread-link':
-        hasReactions && isReactionEnabled,
+      'str-chat__message--with-reactions str-chat__message-with-thread-link': canShowReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.errorStatusCode !== 403,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
@@ -117,6 +124,7 @@ const MessageSimpleWithContext = <
           <MessageInput
             clearEditingState={clearEditingState}
             grow
+            hideSendButton
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}
@@ -145,10 +153,8 @@ const MessageSimpleWithContext = <
           >
             <MessageOptions />
             <div className='str-chat__message-reactions-host'>
-              {hasReactions && isReactionEnabled && <ReactionsList reverse />}
-              {showDetailedReactions && isReactionEnabled && (
-                <ReactionSelector ref={reactionSelectorRef} />
-              )}
+              {canShowReactions && <ReactionsList reverse />}
+              {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
             </div>
             <div className='str-chat__message-bubble'>
               {message.attachments?.length && !message.quoted_message ? (

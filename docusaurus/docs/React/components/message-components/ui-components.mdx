@@ -6,7 +6,6 @@ title: UI Components
 
 import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
 
-
 As described in the [Message UI](./message-ui.mdx) section, our default <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> component is a combination of various UI subcomponents. We export all the building blocks of `MessageSimple`, so a custom Message UI
 component can be built in a similar way. Check out the [Message UI Customization](../../guides/theming/message-ui.mdx) section for an example.
 
@@ -47,7 +46,7 @@ Besides the above there are also components that render reaction list and reacti
 Custom component rendering the icon used in message actions button. This button invokes the message actions menu.
 
 | Type                  | Default                                                         |
-|-----------------------|-----------------------------------------------------------------|
+| --------------------- | --------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='ActionsIcon' path='/Message/icons.tsx'/> |
 
 ### customWrapperClass
@@ -55,7 +54,7 @@ Custom component rendering the icon used in message actions button. This button 
 Custom CSS class to be added to the `div` wrapping the component.
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### getMessageActions
@@ -63,7 +62,7 @@ Custom CSS class to be added to the `div` wrapping the component.
 Function that returns an array of the allowed actions on a message by the currently connected user (overrides the value from `MessageContext`).
 
 | Type                      |
-|---------------------------|
+| ------------------------- |
 | () => MessageActionsArray |
 
 ### handleDelete
@@ -103,7 +102,7 @@ Function that pins a message in the current channel (overrides the value from `M
 If true, renders the wrapper component as a `span`, not a `div`.
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | string | false   |
 
 ### message
@@ -111,7 +110,7 @@ If true, renders the wrapper component as a `span`, not a `div`.
 The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`).
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ### messageWrapperRef
@@ -119,7 +118,7 @@ The `StreamChat` message object, which provides necessary data to the underlying
 React mutable ref placed on the message root `div`. It is forwarded by `MessageOptions` down to `MessageActions` ([see the example](../../guides/theming/message-ui.mdx)).
 
 | Type                             |
-|----------------------------------|
+| -------------------------------- |
 | React.RefObject<HTMLDivElement\> |
 
 ### mine
@@ -127,7 +126,7 @@ React mutable ref placed on the message root `div`. It is forwarded by `MessageO
 Function that returns whether the message was sent by the connected user.
 
 | Type          |
-|---------------|
+| ------------- |
 | () => boolean |
 
 ## MessageDeleted Props
@@ -137,7 +136,7 @@ Function that returns whether the message was sent by the connected user.
 The `StreamChat` message object, which provides necessary data to the underlying UI components.
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ## MessageOptions Props
@@ -147,7 +146,7 @@ The `StreamChat` message object, which provides necessary data to the underlying
 Custom component rendering the icon used in message actions button. This button invokes the message actions menu.
 
 | Type                  | Default                                                         |
-|-----------------------|-----------------------------------------------------------------|
+| --------------------- | --------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='ActionsIcon' path='/Message/icons.tsx'/> |
 
 ### displayReplies
@@ -155,7 +154,7 @@ Custom component rendering the icon used in message actions button. This button 
 If true, show the `ThreadIcon` and enable navigation into a `Thread` component.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### handleOpenThread
@@ -163,7 +162,7 @@ If true, show the `ThreadIcon` and enable navigation into a `Thread` component.
 Function that opens a [`Thread`](../core-components/thread.mdx) on a message (overrides the value from `MessageContext`).
 
 | Type                                                        |
-|-------------------------------------------------------------|
+| ----------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
 
 ### messageWrapperRef
@@ -171,7 +170,7 @@ Function that opens a [`Thread`](../core-components/thread.mdx) on a message (ov
 React mutable ref that can be placed on the message root `div`. `MessageOptions` component forwards this prop to [`MessageActions`](#messageactions-props) component ([see the example](../../guides/theming/message-ui.mdx)).
 
 | Type                             |
-|----------------------------------|
+| -------------------------------- |
 | React.RefObject<HTMLDivElement\> |
 
 ### ReactionIcon
@@ -179,7 +178,7 @@ React mutable ref that can be placed on the message root `div`. `MessageOptions`
 Custom component rendering the icon used in a message options button invoking reactions selector for a given message.
 
 | Type                  | Default                                                          |
-|-----------------------|------------------------------------------------------------------|
+| --------------------- | ---------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='ReactionIcon' path='/Message/icons.tsx'/> |
 
 ### theme
@@ -191,7 +190,7 @@ Theme string to be added to CSS class names.
 ```
 
 | Type   | Default  |
-|--------|----------|
+| ------ | -------- |
 | string | 'simple' |
 
 ### ThreadIcon
@@ -199,7 +198,7 @@ Theme string to be added to CSS class names.
 Custom component rendering the icon used in a message options button opening thread.
 
 | Type                  | Default                                                        |
-|-----------------------|----------------------------------------------------------------|
+| --------------------- | -------------------------------------------------------------- |
 | `React.ComponentType` | <GHComponentLink text='ThreadIcon' path='/Message/icons.tsx'/> |
 
 ## MessageRepliesCountButton Props
@@ -233,7 +232,7 @@ const singleReplyText = `1 ${labelSingle}`;
 Function to navigate into an existing thread on a message.
 
 | Type                    |
-|-------------------------|
+| ----------------------- |
 | React.MouseEventHandler |
 
 ### reply_count
@@ -241,7 +240,7 @@ Function to navigate into an existing thread on a message.
 The amount of replies (i.e., threaded messages) on a message.
 
 | Type   |
-|--------|
+| ------ |
 | number |
 
 ## MessageStatus Props
@@ -251,7 +250,7 @@ The amount of replies (i.e., threaded messages) on a message.
 Custom UI component to display a user's avatar (overrides the value from `ComponentContext`).
 
 | Type      | Default                                                    |
-|-----------|------------------------------------------------------------|
+| --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
 ### messageType
@@ -263,16 +262,16 @@ Message type string to be added to CSS class names.
 ```
 
 | Type   | Default  |
-|--------|----------|
+| ------ | -------- |
 | string | 'simple' |
 
 ### tooltipUserNameMapper
 
 Allows to customize the username(s) that appear on the message status tooltip.
 
-| Type                           | Default                         |
-| ------------------------------ | ------------------------------- |
-| (user: UserResponse) => string | (user) => user.name || user.id  |
+| Type                           | Default             |
+| ------------------------------ | ------------------- | --- | ------- |
+| (user: UserResponse) => string | (user) => user.name |     | user.id |
 
 This prop's implementation is not provided out of the box by the SDK. See below for a customization example:
 
@@ -308,7 +307,7 @@ const WrappedConnectedUser = ({ token, userId }: Omit<ConnectedUserProps, 'child
 If provided, replaces the CSS class name placed on the component's inner `div` container.
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### customWrapperClass
@@ -336,7 +335,7 @@ Theme string to be added to CSS class names.
 ```
 
 | Type   | Default  |
-|--------|----------|
+| ------ | -------- |
 | string | 'simple' |
 
 ## MessageTimestamp Props
@@ -346,7 +345,7 @@ Theme string to be added to CSS class names.
 If true, call the `Day.js` calendar function to get the date string to display.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### customClass
@@ -358,7 +357,7 @@ If provided, adds a CSS class name to the component's outer `time` container.
 ```
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### format
@@ -366,7 +365,7 @@ If provided, adds a CSS class name to the component's outer `time` container.
 If provided, overrides the default timestamp format.
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | string | 'h:mmA' |
 
 ### message
@@ -374,7 +373,7 @@ If provided, overrides the default timestamp format.
 The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`).
 
 | Type   |
-|--------|
+| ------ |
 | object |
 
 ## MML Props
@@ -384,7 +383,7 @@ The `StreamChat` message object, which provides necessary data to the underlying
 The MML source string to be rendered by the `mml-react` library.
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### actionHandler

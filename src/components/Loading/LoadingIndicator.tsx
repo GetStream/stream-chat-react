@@ -12,7 +12,7 @@ const UnMemoizedLoadingIndicator = (props: LoadingIndicatorProps) => {
 
   return (
     <div
-      className={`str-chat__loading-indicator ${color}`}
+      className={`str-chat__loading-indicator`}
       data-testid='loading-indicator-wrapper'
       style={{ height: size, width: size }}
     >

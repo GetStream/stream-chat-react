@@ -12,6 +12,7 @@ import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import {
   ChannelAPIResponse,
+  ChannelMemberResponse,
   ChannelState,
   Event,
   logChatPromiseExecution,
@@ -68,6 +69,7 @@ import {
 import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
+import { getChannel } from '../../utils/getChannel';
 
 import type { Data as EmojiMartData } from 'emoji-mart';
 
@@ -79,6 +81,8 @@ import type {
   DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
+  SendMessageOptions,
+  UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
@@ -86,6 +90,7 @@ import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
+import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -97,6 +102,8 @@ export type ChannelProps<
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<StreamChatGenerics>['Attachment'];
+  /** Custom UI component to display a attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
+  AttachmentPreviewList?: ComponentContextValue<StreamChatGenerics>['AttachmentPreviewList'];
   /** Optional UI component to override the default suggestion Header component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
   AutocompleteSuggestionHeader?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionHeader'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -119,11 +126,13 @@ export type ChannelProps<
   doSendMessageRequest?: (
     channelId: string,
     message: Message<StreamChatGenerics>,
+    options?: SendMessageOptions,
   ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
   doUpdateMessageRequest?: (
     cid: string,
     updatedMessage: UpdatedMessage<StreamChatGenerics>,
+    options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
   /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
   dragAndDropWindow?: boolean;
@@ -141,8 +150,16 @@ export type ChannelProps<
   EmojiPicker?: EmojiContextValue['EmojiPicker'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
-  /** Custom UI component to be displayed when the `MessageList` is empty, , defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
+  /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
+  /**
+   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
+   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
+   * or directly on MessageInput level through urlEnrichmentConfig.
+   */
+  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
+  /** Global configuration for link preview generation in all the MessageInput components */
+  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   FileUploadIcon?: ComponentContextValue<StreamChatGenerics>['FileUploadIcon'];
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
@@ -153,8 +170,16 @@ export type ChannelProps<
   HeaderComponent?: ComponentContextValue<StreamChatGenerics>['HeaderComponent'];
   /** A custom function to provide size configuration for image attachments */
   imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
+  /**
+   * Allows to prevent triggering the channel.watch() call when mounting the component.
+   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
+   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
+   */
+  initializeOnMount?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: ComponentContextValue<StreamChatGenerics>['Input'];
+  /** Custom component to render link previews in message input **/
+  LinkPreviewList?: ComponentContextValue<StreamChatGenerics>['LinkPreviewList'];
   /** Custom UI component to be shown if the channel query fails, defaults to and accepts same props as: [LoadingErrorIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingErrorIndicator.tsx) */
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
@@ -293,6 +318,8 @@ const ChannelInner = <
     doUpdateMessageRequest,
     dragAndDropWindow = false,
     emojiData = defaultEmojiData,
+    enrichURLForPreviewConfig,
+    initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
     maxNumberOfFiles,
@@ -377,7 +404,7 @@ const ChannelInner = <
 
   const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
 
-  const handleEvent = (event: Event<StreamChatGenerics>) => {
+  const handleEvent = async (event: Event<StreamChatGenerics>) => {
     if (event.message) {
       dispatch({
         channel,
@@ -434,6 +461,18 @@ const ChannelInner = <
       }
     }
 
+    if (event.type === 'user.deleted') {
+      const oldestID = channel.state?.messages?.[0]?.id;
+
+      /**
+       * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
+       */
+      await channel.query({
+        messages: { id_lt: oldestID, limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
+        watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
+      });
+    }
+
     throttledCopyStateFromChannel();
   };
 
@@ -447,9 +486,27 @@ const ChannelInner = <
     };
 
     (async () => {
-      if (!channel.initialized) {
+      if (!channel.initialized && initializeOnMount) {
         try {
-          await channel.watch();
+          // if active channel has been set without id, we will create a temporary channel id from its member IDs
+          // to keep track of the /query request in progress. This is the same approach of generating temporary id
+          // that the JS client uses to keep track of channel in client.activeChannels
+          const members: string[] = [];
+          if (!channel.id && channel.data?.members) {
+            for (const member of channel.data.members) {
+              let userId: string | undefined;
+              if (typeof member === 'string') {
+                userId = member;
+              } else if (typeof member === 'object') {
+                const { user, user_id } = member as ChannelMemberResponse<StreamChatGenerics>;
+                userId = user_id || user?.id;
+              }
+              if (userId) {
+                members.push(userId);
+              }
+            }
+          }
+          await getChannel({ channel, client, members });
           const config = channel.getConfig();
           setChannelConfig(config);
         } catch (e) {
@@ -484,7 +541,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
-  }, [channel.cid, doMarkReadRequest, channelConfig?.read_events]);
+  }, [channel.cid, doMarkReadRequest, channelConfig?.read_events, initializeOnMount]);
 
   useEffect(() => {
     if (!state.thread) return;
@@ -643,6 +700,7 @@ const ChannelInner = <
   const doSendMessage = async (
     message: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => {
     const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
@@ -665,13 +723,31 @@ const ChannelInner = <
       let messageResponse: void | SendMessageAPIResponse<StreamChatGenerics>;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel.cid, messageData);
+        messageResponse = await doSendMessageRequest(channel.cid, messageData, options);
       } else {
-        messageResponse = await channel.sendMessage(messageData);
+        messageResponse = await channel.sendMessage(messageData, options);
       }
 
-      // replace it after send is completed
-      if (messageResponse?.message) {
+      let existingMessage;
+      for (let i = channel.state.messages.length - 1; i >= 0; i--) {
+        const msg = channel.state.messages[i];
+        if (msg.id === messageData.id) {
+          existingMessage = msg;
+          break;
+        }
+      }
+
+      const responseTimestamp = new Date(messageResponse?.message?.updated_at || 0).getTime();
+      const existingMessageTimestamp = existingMessage?.updated_at?.getTime() || 0;
+      const responseIsTheNewest = responseTimestamp > existingMessageTimestamp;
+
+      // Replace the message payload after send is completed
+      // We need to check for the newest message payload, because on slow network, the response can arrive later than WS events message.new, message.updated.
+      // Always override existing message in status "sending"
+      if (
+        messageResponse?.message &&
+        (responseIsTheNewest || existingMessage?.status === 'sending')
+      ) {
         updateMessage({
           ...messageResponse.message,
           status: 'received',
@@ -701,6 +777,7 @@ const ChannelInner = <
       text = '',
     }: MessageToSend<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => {
     channel.state.filterErrorMessages();
 
@@ -721,7 +798,7 @@ const ChannelInner = <
 
     updateMessage(messagePreview);
 
-    await doSendMessage(messagePreview, customMessageData);
+    await doSendMessage(messagePreview, customMessageData, options);
   };
 
   const retrySendMessage = async (message: StreamMessage<StreamChatGenerics>) => {
@@ -730,6 +807,11 @@ const ChannelInner = <
       errorStatusCode: undefined,
       status: 'sending',
     });
+
+    if (message.attachments) {
+      // remove scraped attachments added during the message composition in MessageInput to prevent sync issues
+      message.attachments = message.attachments.filter((attachment) => !attachment.og_scrape_url);
+    }
 
     await doSendMessage(message);
   };
@@ -822,13 +904,17 @@ const ChannelInner = <
     channel,
     channelCapabilitiesArray,
     channelConfig,
+    debounceURLEnrichmentMs: enrichURLForPreviewConfig?.debounceURLEnrichmentMs,
     dragAndDropWindow,
+    enrichURLForPreview: props.enrichURLForPreview,
+    findURLFn: enrichURLForPreviewConfig?.findURLFn,
     giphyVersion: props.giphyVersion || 'fixed_height',
     imageAttachmentSizeHandler: props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     maxNumberOfFiles,
     multipleUploads,
     mutes,
     notifications,
+    onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
     quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler: props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
@@ -856,12 +942,22 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
-    [channel.cid, loadMore, loadMoreNewer, quotedMessage, jumpToMessage, jumpToLatestMessage],
+    [
+      channel.cid,
+      enrichURLForPreviewConfig?.findURLFn,
+      enrichURLForPreviewConfig?.onLinkPreviewDismissed,
+      loadMore,
+      loadMoreNewer,
+      quotedMessage,
+      jumpToMessage,
+      jumpToLatestMessage,
+    ],
   );
 
   const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(
     () => ({
       Attachment: props.Attachment || DefaultAttachment,
+      AttachmentPreviewList: props.AttachmentPreviewList,
       AutocompleteSuggestionHeader: props.AutocompleteSuggestionHeader,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -875,6 +971,7 @@ const ChannelInner = <
       GiphyPreviewMessage: props.GiphyPreviewMessage,
       HeaderComponent: props.HeaderComponent,
       Input: props.Input,
+      LinkPreviewList: props.LinkPreviewList,
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
       MessageDeleted: props.MessageDeleted,

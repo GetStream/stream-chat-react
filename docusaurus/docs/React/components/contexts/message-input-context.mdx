@@ -46,6 +46,14 @@ A mapping of the current triggers permitted in the currently active channel.
 |        | `@` - mentions   |
 |        | `:` - emojis     |
 
+### cancelURLEnrichment
+
+Function cancels all the scheduled or in-progress URL enrichment queries and resets the state.
+
+| Type       |
+| ---------- |
+| () => void |
+
 ### clearEditingState
 
 Function to clear the editing state while editing a message.
@@ -70,13 +78,12 @@ Function to close the `EmojiPicker` component.
 | ------------------------------------------- |
 | React.MouseEventHandler<HTMLButtonElement\> |
 
-
 ### closeEmojiPickerOnClick
 
 If true, picking an emoji from the `EmojiPicker` component will close the picker.
 
 | Type    |
-|---------|
+| ------- |
 | boolean |
 
 ### closeMentionsList
@@ -118,6 +125,14 @@ If true, the suggestion list will not display and autocomplete @mentions.
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### dismissLinkPreview
+
+Function called when a single link preview is dismissed.
+
+| Type                               |
+| ---------------------------------- |
+| (linkPreview: LinkPreview) => void |
 
 ### doFileUploadRequest
 
@@ -183,6 +198,14 @@ A mapping of the file attachments added to the current message.
 | ---------------------------- |
 | { [id: string]: FileUpload } |
 
+### findAndEnqueueURLsToEnrich
+
+A function responsible for initiating URL discovery and their subsequent enrichment. It is available only if link preview rendering is enabled. Link previews are disabled by default.
+
+| Type                                              |
+| ------------------------------------------------- |
+| (text: string, mode?: SetLinkPreviewMode) => void |
+
 ### focus
 
 If true, focuses the text input on component mount.
@@ -223,6 +246,14 @@ Function that runs onSubmit to the underlying `textarea` component.
 | ---------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent, customMessageData?: Message) => void |
 
+### hideSendButton
+
+Allows to hide MessageInput's send button. Used by `MessageSimple` to hide the send button in `EditMessageForm`. Received from `MessageInputProps`.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
 ### imageOrder
 
 The order in which image attachments have been added to the current message.
@@ -254,6 +285,14 @@ If true, file uploads are enabled in the currently active channel.
 | Type    | Default |
 | ------- | ------- |
 | boolean | true    |
+
+### linkPreviews
+
+A Map of `LinkPreview` objects (a union type of `LinkPreviewState` and `OGAttachment`) indexed by string representing link URL. The link URL value is provided by `OGAttachment.og_scrape_url`.
+
+| Type                       |
+| -------------------------- |
+| Map<LinkURL, LinkPreview\> |
 
 ### shouldSubmit
 
@@ -479,7 +518,6 @@ Function to upload an image.
 | Type                 |
 | -------------------- |
 | (id: string) => void |
-
 
 ### uploadNewFiles
 

@@ -55,13 +55,18 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageText(customProps, channelConfigOverrides = {}, renderer = render) {
+async function renderMessageText({
+  customProps = {},
+  channelConfigOverrides = {},
+  renderer = render,
+  channelCapabilitiesOverrides = {},
+} = {}) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({
-    getConfig: () => ({ reactions: true, ...channelConfigOverrides }),
+    getConfig: () => channelConfigOverrides,
     state: { membership: {} },
   });
-  const channelCapabilities = { 'send-reaction': true };
+  const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
   const channelConfig = channel.getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
@@ -105,14 +110,18 @@ const reactionSelectorTestId = 'reaction-selector';
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
   it('should not render anything if message is not set', async () => {
-    const { container, queryByTestId } = await renderMessageText({ message: {} });
+    const { container, queryByTestId } = await renderMessageText({
+      customProps: { message: {} },
+    });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('should not render anything if message text is not set', async () => {
-    const { container, queryByTestId } = await renderMessageText({ message: {} });
+    const { container, queryByTestId } = await renderMessageText({
+      customProps: { message: {} },
+    });
     expect(queryByTestId(messageTextTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -126,7 +135,7 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       attachments: [attachment, attachment, attachment],
     });
-    const { container, getByTestId } = await renderMessageText({ message });
+    const { container, getByTestId } = await renderMessageText({ customProps: { message } });
     expect(getByTestId(messageTextTestId).className).toContain('--has-attachment');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -134,7 +143,7 @@ describe('<MessageText />', () => {
 
   it('should set emoji css class when message has text that is only emojis', async () => {
     const message = generateAliceMessage({ text: '🤖🤖🤖🤖' });
-    const { container, getByTestId } = await renderMessageText({ message });
+    const { container, getByTestId } = await renderMessageText({ customProps: { message } });
     expect(getByTestId(messageTextTestId).className).toContain('--is-emoji');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -143,8 +152,10 @@ describe('<MessageText />', () => {
   it('should handle message mention mouse hover event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
     const { container, getByTestId } = await renderMessageText({
-      message,
-      onMentionsHoverMessage: onMentionsHoverMock,
+      customProps: {
+        message,
+        onMentionsHoverMessage: onMentionsHoverMock,
+      },
     });
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
     fireEvent.mouseOver(getByTestId(messageTextTestId));
@@ -156,8 +167,10 @@ describe('<MessageText />', () => {
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
     const { container, getByTestId } = await renderMessageText({
-      message,
-      onMentionsClickMessage: onMentionsClickMock,
+      customProps: {
+        message,
+        onMentionsClickMessage: onMentionsClickMock,
+      },
     });
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
@@ -168,7 +181,7 @@ describe('<MessageText />', () => {
 
   it('should inform that message was not sent when message is has type "error"', async () => {
     const message = generateAliceMessage({ type: 'error' });
-    const { container, getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ customProps: { message } });
     expect(getByText('Error · Unsent')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -176,7 +189,7 @@ describe('<MessageText />', () => {
 
   it('should inform that retry is possible when message has status "failed"', async () => {
     const message = generateAliceMessage({ status: 'failed' });
-    const { container, getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ customProps: { message } });
     expect(getByText('Message Failed · Click to try again')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -187,8 +200,10 @@ describe('<MessageText />', () => {
       html: '<span data-testid="custom-html" />',
     });
     const { container, getByTestId } = await renderMessageText({
-      message,
-      unsafeHTML: true,
+      customProps: {
+        message,
+        unsafeHTML: true,
+      },
     });
     expect(getByTestId('custom-html')).toBeInTheDocument();
     const results = await axe(container);
@@ -198,7 +213,7 @@ describe('<MessageText />', () => {
   it('render message text', async () => {
     const text = 'Hello, world!';
     const message = generateAliceMessage({ text });
-    const { container, getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ customProps: { message } });
     expect(getByText(text)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -211,7 +226,7 @@ describe('<MessageText />', () => {
       text,
     });
 
-    const { container, getByText } = await renderMessageText({ message });
+    const { container, getByText } = await renderMessageText({ customProps: { message } });
 
     expect(getByText('hello')).toBeInTheDocument();
     const results = await axe(container);
@@ -226,7 +241,7 @@ describe('<MessageText />', () => {
 
     let container;
     await act(async () => {
-      const result = await renderMessageText({ message });
+      const result = await renderMessageText({ customProps: { message } });
       container = result.container;
     });
 
@@ -235,14 +250,18 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should not show reaction list if disabled in channelConfig', async () => {
+  // FIXME: test relying on deprecated channel config parameter
+  it('should show reaction list even though sending reactions is disabled in channelConfig', async () => {
     const bobReaction = generateReaction({ user: bob });
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { container, queryByTestId } = await renderMessageText({ message }, { reactions: false });
+    const { container, queryByTestId } = await renderMessageText({
+      channelCapabilitiesOverrides: { 'send-reaction': false },
+      customProps: { message },
+    });
 
-    expect(queryByTestId('reaction-list')).not.toBeInTheDocument();
+    expect(queryByTestId('reaction-list')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -252,7 +271,9 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: [bobReaction],
     });
-    const { container, getByTestId, queryByTestId } = await renderMessageText({ message });
+    const { container, getByTestId, queryByTestId } = await renderMessageText({
+      customProps: { message },
+    });
     expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
     await act(() => {
       fireEvent.click(getByTestId('reaction-list'));
@@ -273,8 +294,10 @@ describe('<MessageText />', () => {
   it('should render message options with custom props when those are set', async () => {
     const displayLeft = false;
     const { container } = await renderMessageText({
-      customOptionProps: {
-        displayLeft,
+      customProps: {
+        customOptionProps: {
+          displayLeft,
+        },
       },
     });
     // eslint-disable-next-line jest/prefer-called-with
@@ -286,7 +309,10 @@ describe('<MessageText />', () => {
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
-    const tree = await renderMessageText({ customWrapperClass, message }, {}, testRenderer.create);
+    const tree = await renderMessageText({
+      customProps: { customWrapperClass, message },
+      renderer: testRenderer.create,
+    });
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
         className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
@@ -328,7 +354,10 @@ describe('<MessageText />', () => {
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const tree = await renderMessageText({ customInnerClass, message }, {}, testRenderer.create);
+    const tree = await renderMessageText({
+      customProps: { customInnerClass, message },
+      renderer: testRenderer.create,
+    });
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
         className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
@@ -369,7 +398,10 @@ describe('<MessageText />', () => {
 
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
-    const tree = await renderMessageText({ message, theme: 'custom' }, {}, testRenderer.create);
+    const tree = await renderMessageText({
+      customProps: { message, theme: 'custom' },
+      renderer: testRenderer.create,
+    });
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
         className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"

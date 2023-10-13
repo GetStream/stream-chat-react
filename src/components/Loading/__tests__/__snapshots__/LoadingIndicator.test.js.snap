@@ -2,7 +2,7 @@
 
 exports[`LoadingIndicator should render with default props 1`] = `
 <div
-  className="str-chat__loading-indicator #006CFF"
+  className="str-chat__loading-indicator"
   data-testid="loading-indicator-wrapper"
   style={
     Object {

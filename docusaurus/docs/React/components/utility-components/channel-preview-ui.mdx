@@ -18,13 +18,12 @@ This UI component is very customizable; below is an example of how to use the `P
 see [ChannelPreview Code Example](../../guides/customization/channel-list-preview.mdx#the-preview-prop-component).
 
 ```tsx
-const YourCustomChannelPreview = (props) => {
+const YourCustomChannelPreview = (previewProps) => {
   // render custom preview info here
+  return <YourCustomChannelPreview {...previewProps} />;
 };
 
-<ChannelList
-  Preview={(previewProps) => <YourCustomChannelPreview {...previewProps} />}
-/>;
+<ChannelList Preview={YourCustomChannelPreview} />;
 ```
 
 ## Props
@@ -59,7 +58,7 @@ The currently selected channel object.
 The custom UI component to display the avatar for the channel.
 
 | Type      | Default                                                    |
-|-----------|------------------------------------------------------------|
+| --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
 ### channelUpdateCount
@@ -75,7 +74,7 @@ A number that forces the update of the preview component on channel update.
 Custom class for the channel preview root
 
 | Type   |
-|--------|
+| ------ |
 | string |
 
 ### displayImage
@@ -86,8 +85,8 @@ Image of channel to display.
 | ------ |
 | string |
 
-
 ### displayTitle
+
 Title of channel to display.
 
 | Type   |
@@ -95,6 +94,7 @@ Title of channel to display.
 | string |
 
 ### lastMessage
+
 The last message received in a channel.
 
 | Type          |
@@ -102,18 +102,53 @@ The last message received in a channel.
 | StreamMessage |
 
 ### latestMessage
+
 Latest message preview to display. Will be either a string or a JSX.Element rendering markdown.
 
 | Type                  |
 | --------------------- |
 | string \| JSX.Element |
 
+### messageDeliveryStatus
+
+Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. The value is calculated from `channel.read` data on mount and updated on every `message.new` resp. `message.read` WS event.
+
+| Type                    |
+|-------------------------|
+| `MessageDeliveryStatus` |
+
+Use `MessageDeliveryStatus` enum to determine the current delivery status, for example:
+
+```typescript jsx
+import { MessageDeliveryStatus } from 'stream-chat-react';
+import {
+    DoubleCheckMarkIcon,
+    SingleCheckMarkIcon,
+} from '../icons';
+
+type MessageDeliveryStatusIndicator = {
+    messageDeliveryStatus: MessageDeliveryStatus;
+}
+
+export const MessageDeliveryStatusIndicator = ({ messageDeliveryStatus }: MessageDeliveryStatusIndicator) => {
+    // the last message is not an own message in the channel
+    if (!messageDeliveryStatus) return null;
+
+    return (
+        <div>
+            {messageDeliveryStatus === MessageDeliveryStatus.DELIVERED && <SingleCheckMarkIcon /> }
+            {messageDeliveryStatus === MessageDeliveryStatus.READ && <DoubleCheckMarkIcon /> }
+        </div>
+    );
+};
+```
+
 ### onSelect
 
 Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `ChannelPreview` to display items of channel search results. There, behind the scenes, the new active channel is set.
 
 | Type                              |
-|-----------------------------------|
+| --------------------------------- |
 | (event: React.MouseEvent) => void |
 
 ### Preview
@@ -121,7 +156,7 @@ Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `Chann
 The UI component to use for display.
 
 | Type      | Default                                                                                              |
-|-----------|------------------------------------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='ChannelPreviewMessenger' path='/ChannelPreview/ChannelPreviewMessenger.tsx'/> |
 
 ### setActiveChannel
@@ -133,6 +168,7 @@ The setter function for a selected `channel`.
 | ChatContextValue['setActiveChannel'] |
 
 ### unread
+
 The number of unread Messages.
 
 | Type   |

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FileIcon } from 'react-file-utils';
+import { FileIcon } from '../ReactFileUtilities';
 
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useFileState } from './hooks/useFileState';

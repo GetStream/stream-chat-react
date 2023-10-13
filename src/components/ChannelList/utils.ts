@@ -1,19 +1,7 @@
-import type { Channel, StreamChat } from 'stream-chat';
+import type { Channel } from 'stream-chat';
 import uniqBy from 'lodash.uniqby';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-
-export const getChannel = async <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  client: StreamChat<StreamChatGenerics>,
-  type: string,
-  id: string,
-) => {
-  const channel = client.channel(type, id);
-  await channel.watch();
-  return channel;
-};
 
 export const MAX_QUERY_CHANNELS_LIMIT = 30;
 

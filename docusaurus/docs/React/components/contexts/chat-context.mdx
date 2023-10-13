@@ -38,7 +38,7 @@ The currently active channel, which populates the [`Channel`](../core-components
 The function to close mobile navigation.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### customClasses
@@ -55,7 +55,7 @@ for implementation assistance.
 The callback function used to get available client-side app settings, includes image and file upload config.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### latestMessageDatesByChannel
@@ -79,7 +79,7 @@ An array of users that have been muted by the connected user.
 When the screen width is at a mobile breakpoint, whether the mobile navigation menu is open.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### openMobileNav
@@ -87,7 +87,7 @@ When the screen width is at a mobile breakpoint, whether the mobile navigation m
 The function to open mobile navigation.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### setActiveChannel
@@ -96,7 +96,7 @@ A function to set the currently active channel. This is used in the `ChannelList
 You can override the default behavior by pulling it from context and then utilizing the function.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### theme
@@ -109,11 +109,11 @@ Deprecated and to be removed in a future major release. Use the `customStyles` p
 
 ### themeVersion
 
-Stream chat theme version 2 has been introduced with the release of stream-chat-react v10.0.0. This flag is used internally by some UI components of the SDK and the integrators shouldn't need to use it. The value is extracted from a CSS variable `--str-chat__theme-version`. You can set it to values `'1'` or `'2'` in your stylesheets and import the corresponding v2 stylesheet from `stream-chat-react/dist`. Find out more about benefits that the theme version 2 brings to the integrators with [the theming guide](../../guides/theming/css-and-theming.mdx).
+Stream chat theme version 2 has been introduced with the release of stream-chat-react v10.0.0. This flag is used internally by some UI components of the SDK and the integrators shouldn't need to use it. The value is extracted from a CSS variable `--str-chat__theme-version`. You can set it to values `'1'` or `'2'` in your stylesheets and import the corresponding v2 stylesheet from `stream-chat-react/dist`. Find out more about benefits that the theme version 2 brings to the integrators with [the theming guide](../../theming/introduction.mdx).
 
-|   Type         |  Default  |
-| -------------- | --------- |
-| `'1'` \| `'2'` |   `'1'`   |
+| Type           | Default |
+| -------------- | ------- |
+| `'1'` \| `'2'` | `'1'`   |
 
 ### useImageFlagEmojisOnWindow
 

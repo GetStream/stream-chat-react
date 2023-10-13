@@ -16,7 +16,7 @@ import { MessageActionsBox } from '../../MessageActions';
 
 import { MessageProvider } from '../../../context/MessageContext';
 import { useMessageInputContext } from '../../../context/MessageInputContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
   dispatchMessageUpdatedEvent,
@@ -52,7 +52,7 @@ const threadMessage = generateMessage({
   type: 'reply',
   user: user1,
 });
-const mockedChannel = generateChannel({
+const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
@@ -162,8 +162,8 @@ function axeNoViolations(container) {
   describe(`${componentName}`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
     afterEach(tearDown);
 
@@ -185,6 +185,22 @@ function axeNoViolations(container) {
       });
       await waitFor(() => {
         const textarea = screen.queryByDisplayValue(defaultValue);
+        expect(textarea).toBeInTheDocument();
+      });
+    });
+
+    it('should prefer value from getDefaultValue before additionalTextareaProps.defaultValue', async () => {
+      const defaultValue = nanoid();
+      const generatedDefaultValue = nanoid();
+      const getDefaultValue = () => generatedDefaultValue;
+      await renderComponent({
+        messageInputProps: {
+          additionalTextareaProps: { defaultValue },
+          getDefaultValue,
+        },
+      });
+      await waitFor(() => {
+        const textarea = screen.queryByDisplayValue(generatedDefaultValue);
         expect(textarea).toBeInTheDocument();
       });
     });
@@ -634,6 +650,7 @@ function axeNoViolations(container) {
           expect.objectContaining({
             text: messageText,
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -684,6 +701,7 @@ function axeNoViolations(container) {
           expect(calledMock).toHaveBeenCalledWith(
             expect.stringMatching(/.+:.+/),
             expect.objectContaining(customMessageData),
+            undefined,
           );
         });
         await axeNoViolations(container);
@@ -713,6 +731,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           customMessageData,
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -755,6 +774,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -788,6 +808,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -823,6 +844,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -852,6 +874,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
         await axeNoViolations(container);
@@ -911,6 +934,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
 
@@ -986,6 +1010,7 @@ function axeNoViolations(container) {
           mentioned_users: [{ id: userId, name: username }],
           text: message.text,
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1019,6 +1044,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1052,6 +1078,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: [],
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1090,29 +1117,91 @@ function axeNoViolations(container) {
 });
 
 [
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
-  { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
-].forEach(({ InputComponent, name: componentName }) => {
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '1' },
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '2' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '1' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '2' },
+].forEach(({ InputComponent, name: componentName, themeVersion }) => {
+  const makeRenderFn = (InputComponent) => async ({
+    channelProps = {},
+    chatContextOverrides = {},
+    messageInputProps = {},
+    messageContextOverrides = {},
+    messageActionsBoxProps = {},
+  } = {}) => {
+    let renderResult;
+    await act(() => {
+      renderResult = render(
+        <ChatProvider
+          value={{
+            channel,
+            channelsQueryState: { error: null, queryInProgress: false },
+            client: chatClient,
+            latestMessageDatesByChannels: {},
+            ...chatContextOverrides,
+          }}
+        >
+          {/*<ActiveChannelSetter activeChannel={channel} />*/}
+          <Channel
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
+          >
+            <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
+              <MessageActionsBox
+                {...messageActionsBoxProps}
+                getMessageActions={defaultMessageContextValue.getMessageActions}
+              />
+            </MessageProvider>
+            <MessageInput Input={InputComponent} {...messageInputProps} />
+          </Channel>
+        </ChatProvider>,
+      );
+    });
+    return renderResult;
+  };
   const renderComponent = makeRenderFn(InputComponent);
 
-  describe(`${componentName}`, () => {
+  describe(`${componentName}${themeVersion ? `(theme: ${themeVersion})` : ''}:`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
 
     afterEach(tearDown);
 
-    const render = async () => {
+    const render = async ({
+      chatContextOverrides = {},
+      messageContextOverrides = {},
+      messageInputProps = {},
+    } = {}) => {
       const message =
         componentName === 'MessageInputSmall' ? threadMessage : defaultMessageContextValue.message;
 
       await renderComponent({
-        messageContextOverrides: { message },
+        chatContextOverrides: { themeVersion, ...chatContextOverrides },
+        messageContextOverrides: { message, ...messageContextOverrides },
+        messageInputProps,
       });
 
       return message;
+    };
+
+    const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
+      channel.data.cooldown = 30;
+      channel.initialized = true;
+      const lastSentSecondsAhead = 5;
+      await render({
+        chatContextOverrides: {
+          channel,
+          latestMessageDatesByChannels: {
+            [channel.cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
+          },
+        },
+        messageInputProps,
+      });
     };
 
     const initQuotedMessagePreview = async (message) => {
@@ -1127,7 +1216,9 @@ function axeNoViolations(container) {
     };
 
     const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-      await waitFor(() => expect(screen.queryByText(/reply to message/i)).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+      );
       await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
     };
 
@@ -1147,17 +1238,19 @@ function axeNoViolations(container) {
         const message = await render();
         await initQuotedMessagePreview(message);
         message.text = nanoid();
-        act(() => {
+        await act(() => {
           dispatchMessageUpdatedEvent(chatClient, message, channel);
         });
         await quotedMessagePreviewIsDisplayedCorrectly(message);
       });
 
       it('is closed on close button click', async () => {
+        // skip trying to cancel reply for theme version 2 as that is not supported
+        if (themeVersion === '2') return;
         const message = await render();
         await initQuotedMessagePreview(message);
         const closeBtn = screen.getByRole('button', { name: /cancel reply/i });
-        act(() => {
+        await act(() => {
           fireEvent.click(closeBtn);
         });
         quotedMessagePreviewIsNotDisplayed(message);
@@ -1166,10 +1259,52 @@ function axeNoViolations(container) {
       it('is closed on original message delete', async () => {
         const message = await render();
         await initQuotedMessagePreview(message);
-        act(() => {
+        await act(() => {
           dispatchMessageDeletedEvent(chatClient, message, channel);
         });
         quotedMessagePreviewIsNotDisplayed(message);
+      });
+    });
+
+    describe('send button', () => {
+      const SEND_BTN_TEST_ID = 'send-button';
+
+      it('should be renderer for empty input', async () => {
+        await render();
+        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should be renderer when editing a message', async () => {
+        await render({ messageInputProps: { message: generateMessage() } });
+        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not be renderer during active cooldown period', async () => {
+        await renderWithActiveCooldown();
+        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not be renderer if explicitly hidden', async () => {
+        await render({ messageInputProps: { hideSendButton: true } });
+        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('cooldown timer', () => {
+      const COOLDOWN_TIMER_TEST_ID = 'cooldown-timer';
+
+      it('should be renderer during active cool-down period', async () => {
+        await renderWithActiveCooldown();
+        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not be renderer if send button explicitly hidden only for MessageInputFlat theme 2', async () => {
+        await renderWithActiveCooldown({ messageInputProps: { hideSendButton: true } });
+        if (componentName === 'MessageInputSmall' || themeVersion === '1') {
+          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+        } else {
+          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+        }
       });
     });
   });
