@@ -1,3 +1,5 @@
+## [10.14.1](https://github.com/GetStream/stream-chat-react/compare/v10.14.0...v10.14.1) (2023-10-19)
+
 # [10.14.0](https://github.com/GetStream/stream-chat-react/compare/v10.13.1...v10.14.0) (2023-10-11)
 
 
