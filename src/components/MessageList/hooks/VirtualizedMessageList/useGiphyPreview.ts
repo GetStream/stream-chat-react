@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { useChatContext } from '../../../context/ChatContext';
+import { useChatContext } from '../../../../context/ChatContext';
 
 import type { EventHandler } from 'stream-chat';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const useGiphyPreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

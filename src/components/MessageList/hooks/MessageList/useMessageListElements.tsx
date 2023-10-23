@@ -1,25 +1,25 @@
 /* eslint-disable no-continue */
 import React, { useMemo } from 'react';
 
-import { useLastReadData } from './useLastReadData';
-import { getLastReceived, GroupStyle } from '../utils';
+import { useLastReadData } from '../useLastReadData';
+import { getLastReceived, GroupStyle } from '../../utils';
 
-import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
-import { DateSeparator as DefaultDateSeparator } from '../../DateSeparator/DateSeparator';
-import { EventComponent } from '../../EventComponent/EventComponent';
-import { Message } from '../../Message';
+import { CUSTOM_MESSAGE_TYPE } from '../../../../constants/messageTypes';
+import { DateSeparator as DefaultDateSeparator } from '../../../DateSeparator/DateSeparator';
+import { EventComponent } from '../../../EventComponent/EventComponent';
+import { Message } from '../../../Message';
 
-import { useChatContext } from '../../../context/ChatContext';
-import { useComponentContext } from '../../../context/ComponentContext';
-import { isDate } from '../../../context/TranslationContext';
+import { useChatContext } from '../../../../context/ChatContext';
+import { useComponentContext } from '../../../../context/ComponentContext';
+import { isDate } from '../../../../context/TranslationContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { MessageProps } from '../../Message/types';
+import type { MessageProps } from '../../../Message/types';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type MessagePropsToOmit =
   | 'channel'

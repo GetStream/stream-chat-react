@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef } from 'react';
 
-import { useChatContext } from '../../../context/ChatContext';
+import { useChatContext } from '../../../../context/ChatContext';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export type ContainerMeasures = {
   offsetHeight: number;
