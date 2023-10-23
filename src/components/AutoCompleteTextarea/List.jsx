@@ -3,10 +3,10 @@ import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
-import { escapeRegExp } from '../../utils';
 
 import { Item } from './Item';
 import { DefaultSuggestionListHeader } from './Header';
+import { escapeRegExp } from '../Message/renderText';
 
 export const List = ({
   className,

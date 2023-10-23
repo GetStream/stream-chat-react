@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { renderText } from '../utils';
+import { renderText } from '../renderText';
 
 describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
