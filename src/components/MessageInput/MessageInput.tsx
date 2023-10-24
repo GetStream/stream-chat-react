@@ -31,7 +31,7 @@ export type EmojiSearchResult = {
 
 export type EmojiSearchIndex<T extends UnknownType = UnknownType> = {
   search: (
-    text: string,
+    query: string,
   ) => PromiseLike<Array<EmojiSearchResult & T>> | Array<EmojiSearchResult & T> | null;
 };
 
