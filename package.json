@@ -8,16 +8,28 @@
     "type": "git",
     "url": "https://github.com/GetStream/stream-chat-react.git"
   },
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "jsnext:main": "dist/index.js",
+  "jsdelivr": "./dist/browser.full-bundle.min.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./emojis": {
+      "types": "./dist/components/Emojis/index.d.ts",
+      "require": "./dist/components/Emojis/index.cjs.js",
+      "import": "./dist/components/Emojis/index.js",
+      "default": "./dist/components/Emojis/index.js"
+    }
+  },
   "style": "dist/css/v2/index.css",
   "sideEffects": [
     "*.css"
   ],
-  "source": "src/index.tsx",
-  "jsdelivr": "./dist/browser.full-bundle.min.js",
   "keywords": [
     "chat",
     "messaging",
