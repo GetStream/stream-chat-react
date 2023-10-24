@@ -15,8 +15,8 @@ By default - our SDK would ship with `emoji-mart` dependency on top of which our
 
 Component now comes as two-part "bundle" - a button and an actual picker element. The component now holds its own `open` state which is handled by the button.
 
-{/* TODO: extend once you have the component ready */}
-{/* TODO: mention that we're dropping the EmojiContext */}
+{/_ TODO: extend once you have the component ready _/}
+{/_ TODO: mention that we're dropping the EmojiContext _/}
 
 ## Switching to opt-in mechanism (BREAKING CHANGE)
 
@@ -33,7 +33,8 @@ yarn add emoji-mart@^5.5.2 @emoji-mart/data@^1.1.2 @emoji-mart/react@^1.1.1
 \\Import `EmojiPicker` component from the `stream-chat-react` package:
 
 ```tsx
-import { Channel, EmojiPicker } from 'stream-chat-react';
+import { Channel } from 'stream-chat-react';
+import { EmojiPicker } from 'stream-chat-react/emojis';
 
 // and apply it to the Channel (component context)
 
@@ -53,7 +54,7 @@ import { useMessageInputContext } from 'stream-chat-react';
 export const CustomEmojiPicker = () => {
   const [open, setOpen] = useState(false);
 
-  const { insertText } = useMessageInputContext();
+  const { insertText, textareaRef } = useMessageInputContext();
 
   return (
     <>
@@ -62,8 +63,8 @@ export const CustomEmojiPicker = () => {
       {open && (
         <EmojiPicker
           onEmojiClick={(emoji, event) => {
-            event.preventDefault(); // prevents cursor from changing place in the input
-            insertText(emoji.emoji);
+            insertText(e.native);
+            textareaRef.current?.focus(); // returns focus back to the message input element
           }}
         />
       )}
@@ -75,4 +76,4 @@ export const CustomEmojiPicker = () => {
 ```
 
 You can make the component slightly better using `FloatingUI` by wrapping the actual picker element to make it float perfectly positioned above the button. See the source of the component which comes with the SDK for inspiration.
-{/* TODO: provide link to the source (once ready) */}
+{/_ TODO: provide link to the source (once ready) _/}
