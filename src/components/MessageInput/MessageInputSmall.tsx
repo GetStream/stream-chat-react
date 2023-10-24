@@ -5,6 +5,7 @@ import type { Event } from 'stream-chat';
 import {
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
+  EmojiIconSmall,
 } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
@@ -131,7 +132,13 @@ export const MessageInputSmall = <
                     </FileUploadButton>
                   </div>
                 )}
-                {EmojiPicker && <EmojiPicker />}
+                {EmojiPicker && (
+                  <EmojiPicker
+                    // @ts-expect-error
+                    buttonClassName='str-chat__small-message-input-emojiselect'
+                    ButtonIconComponent={EmojiIconSmall}
+                  />
+                )}
               </>
             )}
           </div>

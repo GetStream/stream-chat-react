@@ -7,11 +7,11 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { CommandResponse, UR, UserResponse } from 'stream-chat';
+import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 import { EmojiSearchIndex } from 'components/MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
@@ -27,25 +27,25 @@ export type SuggestionUser<
 // FIXME: entity type is wrong, fix
 export type SuggestionItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T extends UR = UR
+  T extends UnknownType = UnknownType
 > = {
   className: string;
   component: React.ComponentType<{
     entity:
-      | ReturnType<EmojiSearchIndex<T>['search']>
+      | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
       | SuggestionUser<StreamChatGenerics>
       | SuggestionCommand<StreamChatGenerics>;
     selected: boolean;
   }>;
   item:
-    | ReturnType<EmojiSearchIndex<T>['search']>
+    | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
     | SuggestionUser<StreamChatGenerics>
     | SuggestionCommand<StreamChatGenerics>;
   key: React.Key;
   onClickHandler: (event: React.BaseSyntheticEvent) => void;
   onSelectHandler: (
     item:
-      | ReturnType<EmojiSearchIndex<T>['search']>
+      | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
       | SuggestionUser<StreamChatGenerics>
       | SuggestionCommand<StreamChatGenerics>,
   ) => void;
@@ -97,7 +97,7 @@ export type SuggestionListProps<
   }
 >;
 
-export type ChatAutoCompleteProps = {
+export type ChatAutoCompleteProps<T extends UnknownType = UnknownType> = {
   /** Function to override the default submit handler on the underlying `textarea` component */
   handleSubmit?: (event: React.BaseSyntheticEvent) => void;
   /** Function to run on blur of the underlying `textarea` component */
@@ -115,7 +115,7 @@ export type ChatAutoCompleteProps = {
   /** The text value of the underlying `textarea` component */
   value?: string;
   /** Function to override the default emojiReplace behavior on the `wordReplace` prop of the `textarea` component */
-  wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex) => string;
+  wordReplace?: (word: string, emojiIndex?: EmojiSearchIndex<T>) => string;
 };
 
 const UnMemoizedChatAutoComplete = <

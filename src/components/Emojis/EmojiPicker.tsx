@@ -1,3 +1,4 @@
+/* eslint-disable typescript-sort-keys/interface */
 import React, { useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 
@@ -10,16 +11,17 @@ import {
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import { EmojiIconLarge, EmojiPickerIcon } from './icons';
+import { EmojiIconLarge, EmojiPickerIcon } from '../MessageInput/icons';
 import { Tooltip } from '../Tooltip';
 
-const classNames: Record<
-  ThemeVersion,
-  Record<
-    'buttonClassName' | 'emojiPickerContainerClassName' | 'wrapperClassName',
-    string | undefined
-  >
-> = {
+type EmojiPickerProps = {
+  ButtonIconComponent?: React.ComponentType;
+  buttonClassName?: string;
+  emojiPickerContainerClassName?: string;
+  wrapperClassName?: string;
+};
+
+const classNames: Record<ThemeVersion, EmojiPickerProps> = {
   1: {
     buttonClassName: 'str-chat__input-flat-emojiselect',
     emojiPickerContainerClassName: undefined,
@@ -32,8 +34,7 @@ const classNames: Record<
   },
 };
 
-// TODO: handle small variant (MessageInputSmall)
-export const EmojiPicker = () => {
+export const EmojiPicker = (props: EmojiPickerProps) => {
   const { themeVersion } = useChatContext('EmojiPicker');
   const { t } = useTranslationContext('EmojiPicker');
   const { insertText, textareaRef } = useMessageInputContext('EmojiPicker');
@@ -47,6 +48,8 @@ export const EmojiPicker = () => {
   const { buttonClassName, emojiPickerContainerClassName, wrapperClassName } = classNames[
     themeVersion
   ];
+
+  const { ButtonIconComponent = themeVersion === '2' ? EmojiPickerIcon : EmojiIconLarge } = props;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -64,10 +67,10 @@ export const EmojiPicker = () => {
   }, [referenceElement, popperElement]);
 
   return (
-    <div className={wrapperClassName}>
+    <div className={props.wrapperClassName ?? wrapperClassName}>
       {displayPicker && (
         <div
-          className={emojiPickerContainerClassName}
+          className={props.emojiPickerContainerClassName ?? emojiPickerContainerClassName}
           style={styles.popper}
           {...attributes.popper}
           ref={setPopperElement}
@@ -75,8 +78,7 @@ export const EmojiPicker = () => {
           <Picker
             data={data}
             onEmojiSelect={(e: unknown) => {
-              console.log(e);
-              // @ts-ignore
+              // @ts-ignore emoji-mart is missing types
               insertText(e.native);
               textareaRef.current?.focus();
             }}
@@ -90,12 +92,12 @@ export const EmojiPicker = () => {
       )}
       <button
         aria-label='Emoji picker'
-        className={buttonClassName}
+        className={props.buttonClassName ?? buttonClassName}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
         type='button'
       >
-        {themeVersion === '2' ? <EmojiPickerIcon /> : <EmojiIconLarge />}
+        {ButtonIconComponent && <ButtonIconComponent />}
       </button>
     </div>
   );
