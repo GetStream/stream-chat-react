@@ -11,6 +11,7 @@ import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from 
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 
 import type { ReactMarkdownProps } from 'react-markdown/lib/complex-types';
+import type { PluggableList } from 'react-markdown/lib/react-markdown';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -50,6 +51,10 @@ function encodeDecode(url: string) {
   }
 }
 
+const transformLinkUri = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
+
+const getPluginsForward = (plugins: PluggableList) => plugins;
+
 export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
   a: Anchor,
   emoji: Emoji,
@@ -64,6 +69,8 @@ export type RenderTextOptions<
       emoji: ComponentType<ReactMarkdownProps>;
       mention: ComponentType<MentionProps<StreamChatGenerics>>;
     }>;
+  getRehypePlugins?: (defaultPlugins: PluggableList) => PluggableList;
+  getRemarkPlugins?: (defaultPlugins: PluggableList) => PluggableList;
 };
 
 export const renderText = <
@@ -71,7 +78,11 @@ export const renderText = <
 >(
   text?: string,
   mentionedUsers?: UserResponse<StreamChatGenerics>[],
-  { customMarkDownRenderers }: RenderTextOptions = {},
+  {
+    customMarkDownRenderers,
+    getRehypePlugins = getPluginsForward,
+    getRemarkPlugins = getPluginsForward,
+  }: RenderTextOptions = {},
 ) => {
   // take the @ mentions and turn them into markdown?
   // translate links
@@ -132,6 +143,7 @@ export const renderText = <
     },
   );
 
+  const remarkPlugins: PluggableList = [[remarkGfm, { singleTilde: false }]];
   const rehypePlugins = [emojiMarkdownPlugin];
 
   if (mentionedUsers?.length) {
@@ -163,10 +175,10 @@ export const renderText = <
     <ReactMarkdown
       allowedElements={allowedMarkups}
       components={rehypeComponents}
-      rehypePlugins={rehypePlugins}
-      remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+      rehypePlugins={getRehypePlugins(rehypePlugins)}
+      remarkPlugins={getRemarkPlugins(remarkPlugins)}
       skipHtml
-      transformLinkUri={(uri) => (uri.startsWith('app://') ? uri : uriTransformer(uri))}
+      transformLinkUri={transformLinkUri}
       unwrapDisallowed
     >
       {newText}

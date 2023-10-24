@@ -1,6 +1,8 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { renderText } from '../renderText';
+import { findAndReplace } from 'hast-util-find-and-replace';
+import { u } from 'unist-builder';
 
 describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
@@ -111,5 +113,138 @@ describe(`renderText`, () => {
     ]);
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchSnapshot();
+  });
+
+  it('parses user mention to default format', () => {
+    const Markdown = renderText('@username@email.com', [
+      { id: 'id-username@email.com', name: 'username@email.com' },
+    ]);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        <span
+          className="str-chat__message-mention"
+          data-user-id="id-username@email.com"
+        >
+          @username@email.com
+        </span>
+      </p>
+    `);
+  });
+
+  it('allows to override rehype plugins', () => {
+    const customPlugin = () => (tree) => tree;
+    const getRehypePlugins = () => [customPlugin];
+    const Markdown = renderText(
+      '@username@email.com',
+      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      { getRehypePlugins },
+    );
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        @
+        <a
+          className=""
+          href="mailto:username@email.com"
+          rel="nofollow noreferrer noopener"
+          target="_blank"
+        >
+          username@email.com
+        </a>
+      </p>
+    `);
+  });
+
+  it('allows to merge custom rehype plugins followed by default rehype plugins', () => {
+    const customPlugin = () => (tree) => findAndReplace(tree, /.*@.*/, () => u('text', '#'));
+    const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
+    const Markdown = renderText(
+      '@username@email.com',
+      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      { getRehypePlugins },
+    );
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        #
+        <a
+          className=""
+          href="mailto:username@email.com"
+          rel="nofollow noreferrer noopener"
+          target="_blank"
+        >
+          #
+        </a>
+      </p>
+    `);
+  });
+
+  it('allows to merge default rehype plugins followed by custom rehype plugins', () => {
+    const customPlugin = () => (tree) => findAndReplace(tree, /.*@.*/, () => u('text', '#'));
+    const getRehypePlugins = (defaultPlugins) => [...defaultPlugins, customPlugin];
+    const Markdown = renderText(
+      '@username@email.com',
+      [{ id: 'id-username@email.com', name: 'username@email.com' }],
+      { getRehypePlugins },
+    );
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        <span
+          className="str-chat__message-mention"
+          data-user-id="id-username@email.com"
+        >
+          #
+        </span>
+      </p>
+    `);
+  });
+
+  const strikeThroughText = '~~xxx~~';
+  it('renders strikethrough', () => {
+    const Markdown = renderText(strikeThroughText);
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        <del>
+          xxx
+        </del>
+      </p>
+    `);
+  });
+
+  it('allows to override remark plugins', () => {
+    const customPlugin = () => (tree) => tree;
+    const getRemarkPlugins = () => [customPlugin];
+    const Markdown = renderText(strikeThroughText, [], { getRemarkPlugins });
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        ~~xxx~~
+      </p>
+    `);
+  });
+
+  it('executes remark-gfm before the custom remark plugins are executed', () => {
+    const replace = () => u('text', '#');
+    const customPlugin = () => (tree) =>
+      findAndReplace(tree, new RegExp(strikeThroughText), replace);
+
+    const getRemarkPluginsFirstCustom = (defaultPlugins) => [customPlugin, ...defaultPlugins];
+    const getRemarkPluginsFirstDefault = (defaultPlugins) => [...defaultPlugins, customPlugin];
+    [getRemarkPluginsFirstCustom, getRemarkPluginsFirstDefault].forEach((getRemarkPlugins) => {
+      const Markdown = renderText(strikeThroughText, [], {
+        getRemarkPlugins,
+      });
+      const tree = renderer.create(Markdown).toJSON();
+      expect(tree).toMatchInlineSnapshot(`
+              <p>
+                <del>
+                  xxx
+                </del>
+              </p>
+          `);
+    });
   });
 });
