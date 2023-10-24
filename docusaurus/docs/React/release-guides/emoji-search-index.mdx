@@ -1,0 +1,79 @@
+---
+id: new-emoji-search-index-integration
+sidebar_position: 4
+title: Emoji Search Index Integration (11.0.0)
+keywords: [migration guide, upgrade, emoji search index, breaking changes, v11]
+---
+
+## Dropping support for built-in `emojiSearchIndex` (previously `emojiIndex`)
+
+By default, our SDK comes bundled with the `emoji-mart`'s (`emojiIndex`)[https://github.com/missive/emoji-mart/tree/v3.0.1#headless-search]. This index serves as a tool for efficiently searching through the emoji list and returning a subset that matches the search criteria (query). Within our SDK, this functionality is utilized by our autocomplete component, triggered by entering `:<query>` to the meessage input. This functionality will continue to be integrated within our SDK. However, due to our decision to discontinue the use of `emoji-mart` within the SDK, this feature will now be available on an opt-in basis. With the updated types and interface this will also allow integrators to supply their own `emojiSearchIndex` instead of relying exclusively on the one supplied by `emoji-mart`.
+
+### Reinstate autocomplete behavior (search emojis with `:`)
+
+Add `emoji-mart` to your packages and make sure the package versions fit our peer-dependency requirements:
+
+```bash
+yarn add emoji-mart@^5.5.2 @emoji-mart/data@^1.1.2
+```
+
+\Import `SearchIndex` and `data` from `emoji-mart`, initiate these data and then and pass then `SearchIndex` to our `MessageInput` component:
+
+```tsx
+import { MessageInput } from 'stream-chat-react';
+import { init, SearchIndex } from 'emoji-mart';
+import data from '@emoji-mart/data';
+
+init({ data });
+
+export const MessageInputWrapper = () => {
+  return <MessageInput emojiSearchIndex={SearchIndex} focus />;
+};
+```
+
+### Build your custom `emojiSearchIndex`
+
+```tsx
+// TODO: write a simple guide
+import {} from '';
+```
+
+### Migrate from `v10` to `v11` (`EmojiIndex` becomes `emojiSearchIndex`)
+
+`EmojiIndex` has previously lived in the `EmojiContext` passed to through `Channel` component. But since `EmojiContext` no longer exists in our SDK, you'll need to move your existing `EmojiIndex` to the `MessageInput` component to its new property called `emojiSearchIndex` and adjust the return value of the `EmojiIndex.search` method to match the new type.
+
+Before:
+
+```tsx
+import { Channel, MessageInput } from 'stream-chat-react';
+// arbitrary import
+import { CustomEmojiIndex } from './CustomEmojiIndex';
+
+const App = () => {
+  return (
+    <Channel EmojiIndex={CustomEmojiIndex}>
+      {/* other components */}
+      <MessageInput />
+    </Channel>
+  );
+};
+```
+
+After:
+
+```tsx
+import { Channel, MessageInput } from 'stream-chat-react';
+// arbitrary import
+import { CustomEmojiIndex } from './CustomEmojiIndex';
+
+const App = () => {
+  return (
+    <Channel>
+      {/* other components */}
+      <MessageInput emojiSearchIndex={CustomEmojiIndex} />
+    </Channel>
+  );
+};
+```
+
+{/_ TODO: provide an example of how the new data returned by the "search" method will look _/}
