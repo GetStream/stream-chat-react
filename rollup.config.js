@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
@@ -20,8 +21,10 @@ process.env.NODE_ENV = 'production';
 
 const baseConfig = {
   cache: false,
-  inlineDynamicImports: true,
-  input: 'src/index.ts',
+  input: {
+    index: 'src/index.ts',
+    'components/Emojis/index': 'src/components/Emojis/index.ts',
+  },
   watch: {
     chokidar: false,
   },
@@ -89,7 +92,7 @@ const basePlugins = ({ useBrowserResolve = false }) => [
     verbose: process.env.VERBOSE,
     watch: process.env.ROLLUP_WATCH,
   }),
-  // Json to ES modules conversion
+  // JSON to ES modules conversion
   json({ compact: true }),
   process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
@@ -97,22 +100,25 @@ const basePlugins = ({ useBrowserResolve = false }) => [
 const normalBundle = {
   ...baseConfig,
   external: externalDependencies,
-  output: [
-    {
-      file: pkg.main,
-      format: 'cjs',
-      sourcemap: true,
-    },
-  ],
+  output: {
+    dir: 'dist',
+    format: 'cjs',
+    entryFileNames: '[name].[format].js',
+  },
   plugins: [...basePlugins({ useBrowserResolve: false })],
 };
 
+// TODO: multiple separate bundles
 const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
+  inlineDynamicImports: true,
+  // includes EmojiPicker
+  input: 'src/index_UMD.ts',
   output: [
     {
       file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
+      // TODO: figure out emoji-mart globals
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',
