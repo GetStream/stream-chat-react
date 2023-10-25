@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { renderText } from '../renderText';
+import { defaultAllowedTagNames, renderText } from '../renderText';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 
@@ -246,5 +246,27 @@ describe(`renderText`, () => {
               </p>
           `);
     });
+  });
+
+  it('allows to render custom elements', () => {
+    const customTagName = 'xxx';
+    const text = 'a b c';
+    const replace = (match) => u('element', { tagName: customTagName }, [u('text', match)]);
+    const customPlugin = () => (tree) => findAndReplace(tree, /b/, replace);
+    const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
+    const Markdown = renderText(text, [], {
+      allowedTagNames: [...defaultAllowedTagNames, customTagName],
+      getRehypePlugins,
+    });
+    const tree = renderer.create(Markdown).toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+      <p>
+        a 
+        <xxx>
+          b
+        </xxx>
+         c
+      </p>
+    `);
   });
 });

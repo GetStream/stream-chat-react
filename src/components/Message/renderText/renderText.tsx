@@ -17,7 +17,7 @@ import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
 
-const allowedMarkups: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention'> = [
+export const defaultAllowedTagNames: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention'> = [
   'html',
   'text',
   'br',
@@ -66,6 +66,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 export type RenderTextOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | string>;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
       emoji: ComponentType<ReactMarkdownProps>;
@@ -81,6 +82,7 @@ export const renderText = <
   text?: string,
   mentionedUsers?: UserResponse<StreamChatGenerics>[],
   {
+    allowedTagNames = defaultAllowedTagNames,
     customMarkDownRenderers,
     getRehypePlugins = getPluginsForward,
     getRemarkPlugins = getPluginsForward,
@@ -175,7 +177,7 @@ export const renderText = <
 
   return (
     <ReactMarkdown
-      allowedElements={allowedMarkups}
+      allowedElements={allowedTagNames}
       components={rehypeComponents}
       rehypePlugins={getRehypePlugins(rehypePlugins)}
       remarkPlugins={getRemarkPlugins(remarkPlugins)}
