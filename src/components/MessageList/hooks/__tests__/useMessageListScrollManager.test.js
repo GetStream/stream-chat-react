@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { useMessageListScrollManager } from '../useMessageListScrollManager';
+import { useMessageListScrollManager } from '../';
 
 import { ChatProvider } from '../../../../context/ChatContext';
 import { generateUser, getTestClientWithUser } from '../../../../mock-builders';

@@ -27,7 +27,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   });
 
   return (
-    <div className='str-chat__date-separator'>
+    <div className='str-chat__date-separator' data-testid='date-separator'>
       {(position === 'right' || position === 'center') && (
         <hr className='str-chat__date-separator-line' />
       )}

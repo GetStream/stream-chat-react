@@ -1,8 +1,8 @@
 import { useMemo, useRef } from 'react';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 const STATUSES_EXCLUDED_FROM_PREPEND = ['sending', 'failed'];
 

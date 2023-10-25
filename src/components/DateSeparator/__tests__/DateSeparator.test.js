@@ -47,6 +47,7 @@ describe('DateSeparator', () => {
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__date-separator"
+        data-testid="date-separator"
       >
         <hr
           className="str-chat__date-separator-line"
@@ -80,6 +81,7 @@ describe('DateSeparator', () => {
       expect(tree).toMatchInlineSnapshot(`
         <div
           className="str-chat__date-separator"
+          data-testid="date-separator"
         >
           <hr
             className="str-chat__date-separator-line"
@@ -99,6 +101,7 @@ describe('DateSeparator', () => {
       expect(tree).toMatchInlineSnapshot(`
         <div
           className="str-chat__date-separator"
+          data-testid="date-separator"
         >
           <div
             className="str-chat__date-separator-date"
@@ -117,6 +120,7 @@ describe('DateSeparator', () => {
       expect(tree).toMatchInlineSnapshot(`
         <div
           className="str-chat__date-separator"
+          data-testid="date-separator"
         >
           <hr
             className="str-chat__date-separator-line"
