@@ -11,8 +11,8 @@ import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
-import type { RenderTextOptions } from '../utils';
 
+import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type CustomMessageActions<

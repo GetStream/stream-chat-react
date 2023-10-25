@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
-import { messageHasAttachments } from './utils';
+import { isOnlyEmojis, messageHasAttachments } from './utils';
 
 import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
-import { renderText as defaultRenderText, isOnlyEmojis } from '../../utils';
+import { renderText as defaultRenderText } from './renderText';
 
 import type { TranslationLanguages } from 'stream-chat';
 import type { MessageContextValue, StreamMessage } from '../../context';

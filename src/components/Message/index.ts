@@ -10,5 +10,6 @@ export * from './MessageStatus';
 export * from './MessageText';
 export * from './MessageTimestamp';
 export * from './QuotedMessage';
+export * from './renderText';
 export * from './types';
 export * from './utils';

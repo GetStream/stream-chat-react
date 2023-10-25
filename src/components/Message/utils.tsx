@@ -1,4 +1,5 @@
 import deepequal from 'react-fast-compare';
+import emojiRegex from 'emoji-regex';
 
 import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
@@ -402,4 +403,13 @@ export const getReadByTooltipText = <
   }
 
   return outStr;
+};
+
+export const isOnlyEmojis = (text?: string) => {
+  if (!text) return false;
+
+  const noEmojis = text.replace(emojiRegex(), '');
+  const noSpace = noEmojis.replace(/[\s\n]/gm, '');
+
+  return !noSpace;
 };
