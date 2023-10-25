@@ -190,6 +190,34 @@ const CustomMessageList = () => (
 );
 ```
 
+It is also possible to define your custom set of allowed tag names for the elements rendered from the parsed markdown. To perform the tree transformations, you will need to use libraries like [`unist-builder`](https://github.com/syntax-tree/unist-builder) to build the trees and [`unist-util-visit`](https://github.com/syntax-tree/unist-util-visit-parents) or [`hast-util-find-and-replace`](https://github.com/syntax-tree/hast-util-find-and-replace) to traverse the tree:
+
+```tsx
+import { findAndReplace } from 'hast-util-find-and-replace';
+import { u } from 'unist-builder';
+import { defaultAllowedTagNames, renderText, RenderTextPluginConfigurator } from 'stream-chat-react';
+
+// wraps every letter b in <xxx></xxx> tags
+const customTagName = 'xxx';
+const replace = (match) => u('element', { tagName: customTagName }, [u('text', match)]);
+const customRehypePlugin = () => (tree) => findAndReplace(tree, /b/, replace);
+
+const getRehypePlugins: RenderTextPluginConfigurator = (plugins) => {
+    return [customRehypePlugin, ...plugins];
+}
+
+
+const customRenderText = (text, mentionedUsers) =>
+  renderText(text, mentionedUsers, {
+    allowedTagNames: [...defaultAllowedTagNames, customTagName],
+    getRehypePlugins,
+  });
+
+const CustomMessageList = () => (
+  <MessageList renderText={customRenderText}/>
+);
+```
+
 ## Props
 
 ### additionalMessageInputProps
