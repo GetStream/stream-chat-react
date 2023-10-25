@@ -1,3 +1,11 @@
+# [10.15.0](https://github.com/GetStream/stream-chat-react/compare/v10.14.1...v10.15.0) (2023-10-25)
+
+
+### Features
+
+* **renderText:** allow custom remark and rehype plugin composition ([#2142](https://github.com/GetStream/stream-chat-react/issues/2142)) ([4a25912](https://github.com/GetStream/stream-chat-react/commit/4a259125a41d49d50473b6f0edc89a9f56d21ea6))
+* **VirtualizedMessageList:** allow to merge custom virtuoso components with the SDK defaults ([#2140](https://github.com/GetStream/stream-chat-react/issues/2140)) ([6ea9ff0](https://github.com/GetStream/stream-chat-react/commit/6ea9ff0ca01782ec1b4ceffffb74d9fa9a2fdc1c))
+
 ## [10.14.1](https://github.com/GetStream/stream-chat-react/compare/v10.14.0...v10.14.1) (2023-10-19)
 
 
