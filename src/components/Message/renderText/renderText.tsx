@@ -66,7 +66,8 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 export type RenderTextOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | string>;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})>;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
       emoji: ComponentType<ReactMarkdownProps>;
