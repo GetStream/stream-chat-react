@@ -33,7 +33,6 @@ export const useScrollToBottomOnNewMessage = <
 
   const scrollToBottomIfConfigured = useCallback(
     (event: Event) => {
-      console.log('VML (focus)', scrollToLatestMessageOnFocus);
       if (
         !scrollToLatestMessageOnFocus ||
         !newMessagesReceivedInBackground ||
