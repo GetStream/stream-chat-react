@@ -15,6 +15,8 @@ import type { PluggableList } from 'react-markdown/lib/react-markdown';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
+
 const allowedMarkups: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention'> = [
   'html',
   'text',
@@ -53,7 +55,7 @@ function encodeDecode(url: string) {
 
 const transformLinkUri = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
 
-const getPluginsForward = (plugins: PluggableList) => plugins;
+const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) => plugins;
 
 export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
   a: Anchor,
@@ -69,8 +71,8 @@ export type RenderTextOptions<
       emoji: ComponentType<ReactMarkdownProps>;
       mention: ComponentType<MentionProps<StreamChatGenerics>>;
     }>;
-  getRehypePlugins?: (defaultPlugins: PluggableList) => PluggableList;
-  getRemarkPlugins?: (defaultPlugins: PluggableList) => PluggableList;
+  getRehypePlugins?: RenderTextPluginConfigurator;
+  getRemarkPlugins?: RenderTextPluginConfigurator;
 };
 
 export const renderText = <
