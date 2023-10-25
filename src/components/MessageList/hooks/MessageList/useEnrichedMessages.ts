@@ -1,15 +1,15 @@
 import { useMemo } from 'react';
 
-import { getGroupStyles, GroupStyle, insertIntro, processMessages } from '../utils';
+import { getGroupStyles, GroupStyle, insertIntro, processMessages } from '../../utils';
 
-import { useChatContext } from '../../../context/ChatContext';
-import { useComponentContext } from '../../../context/ComponentContext';
+import { useChatContext } from '../../../../context/ChatContext';
+import { useComponentContext } from '../../../../context/ComponentContext';
 
 import type { Channel } from 'stream-chat';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const useEnrichedMessages = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
