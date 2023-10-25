@@ -30,6 +30,7 @@ describe('EventComponent', () => {
     expect(tree).toMatchInlineSnapshot(`
       <div
         className="str-chat__message--system"
+        data-testid="message-system"
       >
         <div
           className="str-chat__message--system__text"

@@ -13,7 +13,7 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-import { usePrependedMessagesCount } from '../hooks/usePrependMessagesCount';
+import { usePrependedMessagesCount } from '../hooks';
 import { VirtualizedMessageList } from '../VirtualizedMessageList';
 
 import { Chat } from '../../Chat';

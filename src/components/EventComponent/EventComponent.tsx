@@ -34,7 +34,7 @@ const UnMemoizedEventComponent = <
 
   if (type === 'system')
     return (
-      <div className='str-chat__message--system'>
+      <div className='str-chat__message--system' data-testid='message-system'>
         <div className='str-chat__message--system__text'>
           <div className='str-chat__message--system__line' />
           <p>{text}</p>
