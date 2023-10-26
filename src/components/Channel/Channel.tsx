@@ -144,6 +144,8 @@ export type ChannelProps<
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
   /** Custom UI component for rendering button with emoji picker in MessageInput */
   EmojiPicker?: ComponentContextValue<StreamChatGenerics>['EmojiPicker'];
+  /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  emojiSearchIndex?: ComponentContextValue<StreamChatGenerics>['emojiSearchIndex'];
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
@@ -979,6 +981,7 @@ const ChannelInner = <
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EmojiPicker: props.EmojiPicker,
+      emojiSearchIndex: props.emojiSearchIndex,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       GiphyPreviewMessage: props.GiphyPreviewMessage,
@@ -1069,7 +1072,6 @@ const ChannelInner = <
  * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
  * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [EmojiContext](https://getstream.io/chat/docs/sdk/react/contexts/emoji_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;

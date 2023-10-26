@@ -20,12 +20,13 @@ export const useEmojiTrigger = <T extends EmojiSearchIndex>(
       const result = emojis
         .filter(Boolean)
         .slice(0, themeVersion === '2' ? 7 : 10)
-        .map(({ id, name, skins }) => {
-          const [{ native }] = skins;
+        .map(({ id, name, native, skins = [] }) => {
+          const [firstSkin] = skins;
+
           return {
             id,
             name,
-            native,
+            native: native ?? firstSkin.native,
           };
         });
 

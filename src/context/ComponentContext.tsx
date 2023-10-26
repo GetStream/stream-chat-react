@@ -13,7 +13,7 @@ import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPr
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
-import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { EmojiSearchIndex, MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
 import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
@@ -52,6 +52,7 @@ export type ComponentContextValue<
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
   EmojiPicker?: React.ComponentType;
+  emojiSearchIndex?: EmojiSearchIndex;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
