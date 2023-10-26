@@ -139,13 +139,17 @@ const UnMemoizedChatAutoComplete = <
     ? (word: string) => props.wordReplace?.(word, emojiSearchIndex)
     : async (word: string) => {
         const found = (await emojiSearchIndex?.search(word)) || [];
+
         const emoji = found
           .filter(Boolean)
           .slice(0, 10)
           .find(({ emoticons }) => !!emoticons?.includes(word));
+
         if (!emoji) return null;
-        const [firstSkin] = emoji.skins;
-        return firstSkin.native;
+
+        const [firstSkin] = emoji.skins ?? [];
+
+        return emoji.native ?? firstSkin.native;
       };
 
   const updateInnerRef = useCallback(

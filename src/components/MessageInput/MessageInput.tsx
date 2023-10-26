@@ -6,7 +6,7 @@ import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
 import { useMessageInputState } from './hooks/useMessageInputState';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
 import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
@@ -22,18 +22,19 @@ import type {
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { FileUpload, ImageUpload } from './types';
 
-export type EmojiSearchResult = {
-  emoticons: Array<string>;
+export type EmojiSearchIndexResult = {
   id: string;
   name: string;
-  skins: Array<{ native: string; shortcodes: string }>;
+  skins: Array<{ native: string }>;
+  emoticons?: Array<string>;
+  native?: string;
 };
 
-export type EmojiSearchIndex<T extends UnknownType = UnknownType> = {
+export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
   search: (
     query: string,
-  ) => PromiseLike<Array<EmojiSearchResult & T>> | Array<EmojiSearchResult & T> | null;
-};
+  ) => PromiseLike<Array<EmojiSearchIndexResult & T>> | Array<EmojiSearchIndexResult & T> | null;
+}
 
 export type MessageInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -57,8 +58,8 @@ export type MessageInputProps<
     file: ImageUpload['file'],
     channel: Channel<StreamChatGenerics>,
   ) => Promise<SendFileAPIResponse>;
-  /** Custom emojiSearchIndex */
-  emojiSearchIndex?: EmojiSearchIndex;
+  /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** Custom error handler function to be called with a file/image upload fails */
   errorHandler?: (
     error: Error,
@@ -120,11 +121,13 @@ const MessageInputProvider = <
 ) => {
   const cooldownTimerState = useCooldownTimer<StreamChatGenerics>();
   const messageInputState = useMessageInputState<StreamChatGenerics, V>(props);
+  const { emojiSearchIndex } = useComponentContext('MessageInput');
 
   const messageInputContextValue = useCreateMessageInputContext<StreamChatGenerics, V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
+    emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
   return (
