@@ -1,5 +1,5 @@
 ---
-id: new-emoji-search-index-integration
+id: emoji-search-index-integration-v11
 sidebar_position: 4
 title: Emoji Search Index Integration (11.0.0)
 keywords: [migration guide, upgrade, emoji search index, breaking changes, v11]
@@ -17,7 +17,7 @@ Add `emoji-mart` to your packages and make sure the package versions fit our pee
 yarn add emoji-mart@^5.5.2 @emoji-mart/data@^1.1.2
 ```
 
-\Import `SearchIndex` and `data` from `emoji-mart`, initiate these data and then and pass then `SearchIndex` to our `MessageInput` component:
+\Import `SearchIndex` and `data` from `emoji-mart`, initiate these data and then and pass `SearchIndex` to our `MessageInput` component:
 
 ```tsx
 import { MessageInput } from 'stream-chat-react';
@@ -26,7 +26,7 @@ import data from '@emoji-mart/data';
 
 init({ data });
 
-export const MessageInputWrapper = () => {
+export const WrappedMessageInput = () => {
   return <MessageInput emojiSearchIndex={SearchIndex} focus />;
 };
 ```
@@ -46,7 +46,7 @@ Optional properties:
 - emoticons - an array of strings to match substitutions with, ie: `[":D", ":-D", ":d"]`
 - native - native emoji string (old `emoji-mart` API), ie: `"😄"` - will be prioritized if specified
 
-## Code
+## Example
 
 ```tsx
 import search from '@jukben/emoji-search';
