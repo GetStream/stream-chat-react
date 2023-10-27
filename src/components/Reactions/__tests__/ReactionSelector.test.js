@@ -16,10 +16,6 @@ import { MessageProvider } from '../../../context/MessageContext';
 
 import { generateReaction, generateUser } from '../../../mock-builders';
 
-jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
-  jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
-);
-
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div data-testid='avatar' />),
 }));

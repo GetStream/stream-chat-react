@@ -1,7 +1,6 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
 import '@testing-library/jest-dom';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import testRenderer from 'react-test-renderer';
@@ -12,11 +11,9 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  EmojiProvider,
   TranslationProvider,
 } from '../../../context';
 import {
-  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
@@ -87,17 +84,14 @@ async function renderMessageText({
             <ComponentProvider
               value={{
                 Attachment,
-                Emoji: EmojiComponentMock,
                 // eslint-disable-next-line react/display-name
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
             >
-              <EmojiProvider value={{ emojiConfig: emojiDataMock }}>
-                <Message {...defaultProps} {...customProps}>
-                  <MessageText {...defaultProps} {...customProps} />
-                </Message>
-              </EmojiProvider>
+              <Message {...defaultProps} {...customProps}>
+                <MessageText {...defaultProps} {...customProps} />
+              </Message>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
