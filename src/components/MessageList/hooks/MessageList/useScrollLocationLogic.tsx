@@ -2,9 +2,9 @@ import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 
-import type { StreamMessage } from '../../../context/ChannelStateContext';
+import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export type UseScrollLocationLogicParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

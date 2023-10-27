@@ -11,8 +11,8 @@ import type { ChannelActionContextValue } from '../../context/ChannelActionConte
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
-import type { RenderTextOptions } from '../../utils';
 
+import type { RenderTextOptions } from './renderText';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;

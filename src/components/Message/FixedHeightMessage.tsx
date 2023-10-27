@@ -14,7 +14,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { renderText } from '../../utils';
+import { renderText } from './renderText';
 
 import type { TranslationLanguages } from 'stream-chat';
 

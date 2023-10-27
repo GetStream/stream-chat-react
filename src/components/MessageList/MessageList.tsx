@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { useEnrichedMessages } from './hooks/useEnrichedMessages';
-import { useMessageListElements } from './hooks/useMessageListElements';
-import { useScrollLocationLogic } from './hooks/useScrollLocationLogic';
+import {
+  useEnrichedMessages,
+  useMessageListElements,
+  useScrollLocationLogic,
+} from './hooks/MessageList';
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';

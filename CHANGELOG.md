@@ -9,6 +9,27 @@
 ### BREAKING CHANGES
 
 * **emoji-mart:** `reactionOptions` signature has changed, see [release guide](https://github.com/GetStream/stream-chat-react/blob/7a19e386aa3adcc5741a7f0d92bc816a1a424094/docusaurus/docs/React/release-guides/new-reactions.mdx) for more information
+  
+# [10.15.0](https://github.com/GetStream/stream-chat-react/compare/v10.14.1...v10.15.0) (2023-10-25)
+
+
+### Features
+
+* **renderText:** allow custom remark and rehype plugin composition ([#2142](https://github.com/GetStream/stream-chat-react/issues/2142)) ([4a25912](https://github.com/GetStream/stream-chat-react/commit/4a259125a41d49d50473b6f0edc89a9f56d21ea6))
+* **VirtualizedMessageList:** allow to merge custom virtuoso components with the SDK defaults ([#2140](https://github.com/GetStream/stream-chat-react/issues/2140)) ([6ea9ff0](https://github.com/GetStream/stream-chat-react/commit/6ea9ff0ca01782ec1b4ceffffb74d9fa9a2fdc1c))
+
+## [10.14.1](https://github.com/GetStream/stream-chat-react/compare/v10.14.0...v10.14.1) (2023-10-19)
+
+
+###
+* chore(deps): bump stream-chat from 8.12.4 to 8.13.1
+
+# [10.14.0](https://github.com/GetStream/stream-chat-react/compare/v10.13.1...v10.14.0) (2023-10-11)
+
+
+### Features
+
+* allow complete channel list throttled reload on internet connection recovery ([#2123](https://github.com/GetStream/stream-chat-react/issues/2123)) ([252cac3](https://github.com/GetStream/stream-chat-react/commit/252cac3366986523b9f6b1152c9408ccab0af710))
 
 ## [10.13.1](https://github.com/GetStream/stream-chat-react/compare/v10.13.0...v10.13.1) (2023-10-09)
 
