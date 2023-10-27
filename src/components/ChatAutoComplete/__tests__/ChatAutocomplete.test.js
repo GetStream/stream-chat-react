@@ -35,6 +35,18 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
+const searchIndexMock = {
+  search: () => [
+    {
+      emoticons: [':D'],
+      id: 'smile',
+      name: 'Smile',
+      native: '😄',
+      skins: [],
+    },
+  ],
+};
+
 const renderComponent = async (
   props = {},
   messageInputContextOverrides = {},
@@ -63,7 +75,7 @@ const renderComponent = async (
     <Chat client={chatClient}>
       <ActiveChannelSetter activeChannel={activeChannel} />
       <Channel>
-        <MessageInput Input={AutoComplete} />
+        <MessageInput emojiSearchIndex={searchIndexMock} Input={AutoComplete} />
       </Channel>
     </Chat>,
   );
@@ -123,14 +135,18 @@ describe('ChatAutoComplete', () => {
   it('should let you select emojis when you type :<emoji>', async () => {
     const emojiAutocompleteText = ':smile';
     const { findByText, textarea, typeText } = await renderComponent();
+
     typeText(emojiAutocompleteText);
+
     const emoji = await findByText('😄');
 
     expect(emoji).toBeInTheDocument();
 
     fireEvent.click(emoji);
 
-    expect(textarea.value).toContain('😄');
+    await waitFor(() => {
+      expect(textarea.value).toContain('😄');
+    });
   });
 
   it('should let you select users when you type @<username>', async () => {
