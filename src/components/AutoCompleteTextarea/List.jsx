@@ -33,12 +33,12 @@ export const List = ({
   const SuggestionHeader =
     PropHeader || AutocompleteSuggestionHeader || DefaultSuggestionListHeader;
 
-  const [selectedItem, setSelectedItem] = useState(undefined);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(undefined);
 
   const itemsRef = [];
 
   const isSelected = (item) =>
-    selectedItem === values.findIndex((value) => getId(value) === getId(item));
+    selectedItemIndex === values.findIndex((value) => getId(value) === getId(item));
 
   const getId = (item) => {
     const textToReplace = getTextToReplace(item);
@@ -53,6 +53,12 @@ export const List = ({
     return item.key;
   };
 
+  const findItemIndex = useCallback(
+    (item) =>
+      values.findIndex((value) => (value.id ? value.id === item.id : value.name === item.name)),
+    [values],
+  );
+
   const modifyText = (value) => {
     if (!value) return;
 
@@ -60,48 +66,52 @@ export const List = ({
     if (getSelectedItem) getSelectedItem(value);
   };
 
-  const handleClick = (e) => {
-    e?.preventDefault();
-    modifyText(values[selectedItem]);
-  };
+  const handleClick = useCallback(
+    (e, item) => {
+      e?.preventDefault();
+
+      const index = findItemIndex(item);
+
+      modifyText(values[index]);
+    },
+    [modifyText, findItemIndex],
+  );
 
   const selectItem = useCallback(
     (item) => {
-      const index = values.findIndex((value) =>
-        value.id ? value.id === item.id : value.name === item.name,
-      );
-      setSelectedItem(index);
+      const index = findItemIndex(item);
+      setSelectedItemIndex(index);
     },
-    [values],
+    [findItemIndex],
   );
 
   const handleKeyDown = useCallback(
     (event) => {
       if (event.key === 'ArrowUp') {
-        setSelectedItem((prevSelected) => {
+        setSelectedItemIndex((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          const newID = prevSelected === 0 ? values.length - 1 : prevSelected - 1;
-          dropdownScroll(itemsRef[newID]);
-          return newID;
+          const newIndex = prevSelected === 0 ? values.length - 1 : prevSelected - 1;
+          dropdownScroll(itemsRef[newIndex]);
+          return newIndex;
         });
       }
 
       if (event.key === 'ArrowDown') {
-        setSelectedItem((prevSelected) => {
+        setSelectedItemIndex((prevSelected) => {
           if (prevSelected === undefined) return 0;
-          const newID = prevSelected === values.length - 1 ? 0 : prevSelected + 1;
-          dropdownScroll(itemsRef[newID]);
-          return newID;
+          const newIndex = prevSelected === values.length - 1 ? 0 : prevSelected + 1;
+          dropdownScroll(itemsRef[newIndex]);
+          return newIndex;
         });
       }
 
-      if ((event.key === 'Enter' || event.key === 'Tab') && selectedItem !== undefined) {
-        handleClick(event);
+      if ((event.key === 'Enter' || event.key === 'Tab') && selectedItemIndex !== undefined) {
+        handleClick(event, values[selectedItemIndex]);
       }
 
       return null;
     },
-    [selectedItem, values], // eslint-disable-line
+    [selectedItemIndex, values],
   );
 
   useEffect(() => {
