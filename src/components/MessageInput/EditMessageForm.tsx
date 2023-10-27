@@ -1,11 +1,7 @@
 import React, { useEffect } from 'react';
 import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 
-import { EmojiPicker } from './EmojiPicker';
-import {
-  EmojiIconSmall as DefaultEmojiIcon,
-  FileUploadIcon as DefaultFileUploadIcon,
-} from './icons';
+import { FileUploadIcon as DefaultFileUploadIcon } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -33,18 +29,15 @@ export const EditMessageForm = <
 
   const {
     clearEditingState,
-    closeEmojiPicker,
-    emojiPickerIsOpen,
     handleSubmit,
     isUploadEnabled,
     maxFilesLeft,
-    openEmojiPicker,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics, V>('EditMessageForm');
 
   const {
-    EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('EditMessageForm');
 
   const { themeVersion } = useChatContext('EditMessageForm');
@@ -88,17 +81,10 @@ export const EditMessageForm = <
       >
         <form onSubmit={handleSubmit}>
           {isUploadEnabled && <UploadsPreview />}
-          <EmojiPicker small />
           <ChatAutoComplete />
           <div className='str-chat__message-team-form-footer'>
             <div className='str-chat__edit-message-form-options'>
-              <button
-                aria-label='Open Emoji Picker'
-                className='str-chat__input-emojiselect'
-                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-              >
-                <EmojiIcon />
-              </button>
+              {EmojiPicker && <EmojiPicker />}
               {isUploadEnabled && (
                 <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
                   <Tooltip>

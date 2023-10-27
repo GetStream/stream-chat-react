@@ -11,7 +11,6 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
-import { useEmojiContext } from '../../../context/EmojiContext';
 import {
   generateChannel,
   generateFileAttachment,
@@ -49,13 +48,11 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelStateContext = useChannelStateContext();
   const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
-  const emojiContext = useEmojiContext();
 
   const channelContext = {
     ...channelStateContext,
     ...channelActionContext,
     ...componentContext,
-    ...emojiContext,
   };
 
   useEffect(() => {
@@ -408,27 +405,6 @@ describe('Channel', () => {
   });
 
   describe('Children that consume the contexts set in Channel', () => {
-    it('should expose the emoji config', async () => {
-      let context;
-      const emojiData = {
-        aliases: {},
-        categories: [],
-        compressed: true,
-        emojis: {},
-      };
-      const CustomEmojiPicker = () => <div />;
-
-      renderComponent({ emojiData, EmojiPicker: CustomEmojiPicker }, (ctx) => {
-        context = ctx;
-      });
-
-      await waitFor(() => {
-        expect(context).toBeInstanceOf(Object);
-        expect(context.emojiConfig.emojiData).toBe(emojiData);
-        expect(context.EmojiPicker).toBe(CustomEmojiPicker);
-      });
-    });
-
     it('should be able to open threads', async () => {
       const threadMessage = messages[0];
       const hasThread = jest.fn();

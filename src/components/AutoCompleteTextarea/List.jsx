@@ -53,6 +53,12 @@ export const List = ({
     return item.key;
   };
 
+  const findItemIndex = useCallback(
+    (item) =>
+      values.findIndex((value) => (value.id ? value.id === item.id : value.name === item.name)),
+    [values],
+  );
+
   const modifyText = (value) => {
     if (!value) return;
 
@@ -60,19 +66,23 @@ export const List = ({
     if (getSelectedItem) getSelectedItem(value);
   };
 
-  const handleClick = (e) => {
-    e?.preventDefault();
-    modifyText(values[selectedItem]);
-  };
+  const handleClick = useCallback(
+    (e, item) => {
+      e?.preventDefault();
+
+      const index = findItemIndex(item);
+
+      modifyText(values[index]);
+    },
+    [modifyText, findItemIndex],
+  );
 
   const selectItem = useCallback(
     (item) => {
-      const index = values.findIndex((value) =>
-        value.id ? value.id === item.id : value.name === item.name,
-      );
+      const index = findItemIndex(item);
       setSelectedItem(index);
     },
-    [values],
+    [findItemIndex],
   );
 
   const handleKeyDown = useCallback(

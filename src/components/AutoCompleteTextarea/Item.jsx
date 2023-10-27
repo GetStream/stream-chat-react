@@ -16,7 +16,8 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
 
   const { themeVersion } = useChatContext('SuggestionItem');
 
-  const selectItem = useCallback(() => onSelectHandler(item), [item, onClickHandler]);
+  const handleSelect = useCallback(() => onSelectHandler(item), [item, onSelectHandler]);
+  const handleClick = useCallback((event) => onClickHandler(event, item), [item, onClickHandler]);
 
   if (themeVersion === '2')
     return (
@@ -27,8 +28,8 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
         <a
           href=''
           onClick={onClickHandler}
-          onFocus={selectItem}
-          onMouseEnter={selectItem}
+          onFocus={handleSelect}
+          onMouseEnter={handleSelect}
           ref={innerRef}
         >
           <Component entity={item} selected={selected} />
@@ -40,9 +41,9 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
     <li className={clsx('rta__item', className)} style={style}>
       <button
         className={clsx('rta__entity', { 'rta__entity--selected': selected })}
-        onClick={onClickHandler}
-        onFocus={selectItem}
-        onMouseEnter={selectItem}
+        onClick={handleClick}
+        onFocus={handleSelect}
+        onMouseEnter={handleSelect}
         ref={innerRef}
       >
         <div tabIndex={-1}>
