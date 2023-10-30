@@ -12,6 +12,46 @@ In this example, we will demonstrate how to customize the autocomplete suggestio
 appear above the `MessageInput` component when one of the supported [`autocompleteTriggers`](../../components/contexts/message-input-context.mdx#autocompletetriggers)
 is entered into the text input.
 
+## Commands translations
+
+The default strings for command suggestion items are in English. To define your custom translations, please, provide these under the following keys in the JSON file corresponding to the language mutation. For example, override the German translations in your `de.json` file, you would target these defaults:
+
+```
+{
+  ...
+  "ban-command-args": "[@Benutzername] [Text]",
+  "ban-command-description": "Einen Benutzer verbannen",
+  "ban-command-name": "Verbannen",
+  ...
+  "giphy-command-args": "[Text]",
+  "giphy-command-description": "Poste ein zufälliges Gif in den Kanal",
+  "giphy-command-name": "Giphy",
+  ...
+  "mute-command-args": "[@Benutzername]",
+  "mute-command-description": "Stummschalten eines Benutzers",
+  "mute-command-name": "Stumm schalten"
+  ...
+  "unban-command-args": "[@Benutzername]",
+  "unban-command-description": "Einen Benutzer entbannen",
+  "unban-command-name": "Entbannen",
+  ...
+  "unmute-command-args": "[@Benutzername]",
+  "unmute-command-description": "Stummschaltung eines Benutzers aufheben",
+  "unmute-command-name": "Stummschaltung aufheben",
+```
+
+Where:
+
+- **name** is the name of the command
+- **description** a phrase describing what the command does
+- **args** format notation in which the following strings will be considered as inputs for the given command
+
+:::note
+The SDK's default English translation sheet (`en.json`) does not contain the above keys, as the displayed strings are taken directly from the channel data queried from the Stream's back-end.
+:::
+
+## Custom suggestion list item components
+
 The [`Channel`](../../components/core-components/channel.mdx) component accepts three props that adjust the look and feel of the autocomplete
 suggestion list:
 
@@ -21,7 +61,7 @@ suggestion list:
 
 Below we show how to create custom header and list items, while leaving the list container unchanged.
 
-## Suggestion Header
+### Suggestion Header
 
 By default, the component library handles autocomplete suggestions for user mentions `@`, commands `/`,
 and emojis `:`. The header component receives the text `value` of the `MessageInput` via props. The current trigger
@@ -54,7 +94,7 @@ To customize `autocompleteTriggers`, pass your own [`TriggerProvider`](../../com
 component to `Channel`.
 :::
 
-## Suggestion List Items
+### Suggestion List Items
 
 Similar to our header component, we will conditionally render the list items based on the `item` type
 received by our custom component. The `SuggestionItem` type represents a union of type options
@@ -108,11 +148,11 @@ const SuggestionItem = React.forwardRef(
 );
 ```
 
-## Implementation
+### Implementation
 
 Now that each individual piece has been constructed, we can assemble all of the snippets into the final code example.
 
-### The Code
+#### The Code
 
 ```css
 .suggestion-header {
@@ -210,7 +250,7 @@ const App = () => (
 );
 ```
 
-### The Result
+#### The Result
 
 **Mentions UI:**
 

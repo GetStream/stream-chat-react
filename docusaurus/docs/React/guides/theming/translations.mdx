@@ -330,16 +330,45 @@ The `Streami18n` class wraps [`i18next`](https://www.npmjs.com/package/i18next) 
 
 ### Class Constructor Options
 
-| Option                       | Description                                                                                                                                                          | Type     | Default    |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------- |
-| language                     | connected user's language                                                                                                                                            | string   | 'en'       |
-| translationsForLanguage      | overrides existing component text                                                                                                                                    | object   | {}         |
-| disableDateTimeTranslations  | disables translation of date times                                                                                                                                   | boolean  | false      |
-| debug                        | enables i18n debug mode                                                                                                                                              | boolean  | false      |
-| logger                       | logs warnings/errors                                                                                                                                                 | function | () => {}   |
-| dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) and [calendar locale config object](https://day.js.org/docs/en/plugin/calendar) | object   | 'enConfig' |
-| DateTimeParser               | custom date time parser                                                                                                                                              | function | Day.js     |
-| timezone                     | valid timezone identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                                                                                             | function | Day.js     |
+| Option                       | Description                                                                                                                                                          | Type     | Default                                         |
+|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|-------------------------------------------------|
+| DateTimeParser               | custom date time parser                                                                                                                                              | function | Day.js                                          |
+| dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) and [calendar locale config object](https://day.js.org/docs/en/plugin/calendar) | object   | 'enConfig'                                      |
+| debug                        | enables i18n debug mode                                                                                                                                              | boolean  | false                                           |
+| disableDateTimeTranslations  | disables translation of date times                                                                                                                                   | boolean  | false                                           |
+| language                     | connected user's language                                                                                                                                            | string   | 'en'                                            |
+| logger                       | logs warnings/errors                                                                                                                                                 | function | () => {}                                        |
+| parseMissingKeyHandler       | function executed, when a key is not found among the translations                                                                                                    | function | (key: string, defaultValue?: string) => string; |
+| translationsForLanguage      | overrides existing component text                                                                                                                                    | object   | {}                                              |
+| timezone                     | valid timezone identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                      | function | Day.js                                          |
+
+#### parseMissingKeyHandler
+
+The default implementation returns the default value provided to the translator function, for example the component below will display string `'hello'` if the key `'some-key'` is not found among the translations for a given language:
+
+```tsx
+import { useTranslationContext } from 'stream-chat-react';
+
+const Component = () => {
+    const { t } = useTranslationContext('useCommandTrigger');
+
+    return (
+      <div>{t('some-key', {defaultValue: 'hello'})}</div>
+    );
+}
+```
+The custom handler may log missing key warnings to the console in the development environment:
+
+```ts
+import { Streami18n, Streami18nOptions } from 'stream-chat-react';
+
+const parseMissingKeyHandler: Streami18nOptions['parseMissingKeyHandler'] = (key: string, defaultValue?: string) => {
+    console.warn(`Streami18n: Missing translation for key: ${key}`);
+    return defaultValue ?? key;
+};
+
+const i18nInstance = new Streami18n({ parseMissingKeyHandler });
+```
 
 ### Class Instance Methods
 

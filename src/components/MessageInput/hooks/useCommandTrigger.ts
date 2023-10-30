@@ -2,6 +2,7 @@ import { CommandItem } from '../../CommandItem/CommandItem';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
+import { useTranslationContext } from '../../../context';
 
 import type { CommandResponse } from 'stream-chat';
 
@@ -9,11 +10,17 @@ import type { CommandTriggerSetting } from '../DefaultTriggerProvider';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+type ValidCommand<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Required<Pick<CommandResponse<StreamChatGenerics>, 'name'>> &
+  Omit<CommandResponse<StreamChatGenerics>, 'name'>;
+
 export const useCommandTrigger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(): CommandTriggerSetting<StreamChatGenerics> => {
   const { themeVersion } = useChatContext<StreamChatGenerics>('useCommandTrigger');
   const { channelConfig } = useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
+  const { t } = useTranslationContext('useCommandTrigger');
 
   const commands = channelConfig?.commands;
 
@@ -25,7 +32,7 @@ export const useCommandTrigger = <
       }
       const selectedCommands = commands.filter((command) => command.name?.indexOf(query) !== -1);
 
-      // sort alphabetically unless the you're matching the first char
+      // sort alphabetically unless you're matching the first char
       selectedCommands.sort((a, b) => {
         let nameA = a.name?.toLowerCase();
         let nameB = b.name?.toLowerCase();
@@ -51,10 +58,29 @@ export const useCommandTrigger = <
       const result = selectedCommands.slice(0, themeVersion === '2' ? 5 : 10);
       if (onReady)
         onReady(
-          result.filter(
-            (result): result is CommandResponse<StreamChatGenerics> & { name: string } =>
-              result.name !== undefined,
-          ),
+          result
+            .filter(
+              (result): result is CommandResponse<StreamChatGenerics> & { name: string } =>
+                result.name !== undefined,
+            )
+            .map((commandData) => {
+              const translatedCommandData: ValidCommand<StreamChatGenerics> = {
+                name: t(`${commandData.name}-command-name`, {
+                  defaultValue: commandData.name,
+                }),
+              };
+
+              if (commandData.args)
+                translatedCommandData.args = t(`${commandData.name}-command-args`, {
+                  defaultValue: commandData.args,
+                });
+              if (commandData.description)
+                translatedCommandData.description = t(`${commandData.name}-command-description`, {
+                  defaultValue: commandData.description,
+                });
+
+              return translatedCommandData;
+            }),
           query,
         );
 

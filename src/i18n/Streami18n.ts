@@ -242,13 +242,14 @@ type TimezoneParser = {
 const supportsTz = (dateTimeParser: unknown): dateTimeParser is TimezoneParser =>
   (dateTimeParser as TimezoneParser).tz !== undefined;
 
-type Options = {
+export type Streami18nOptions = {
   DateTimeParser?: DateTimeParserModule;
   dayjsLocaleConfigForLanguage?: Partial<ILocale> & { calendar?: CalendarLocaleConfig };
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   language?: TranslationLanguages;
   logger?: (message?: string) => void;
+  parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
   translationsForLanguage?: Partial<typeof enTranslations>;
 };
@@ -467,7 +468,7 @@ export class Streami18n {
     keySeparator: false;
     lng: string;
     nsSeparator: false;
-    parseMissingKeyHandler: (key: string) => string;
+    parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   };
   /**
    * A valid TZ identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
@@ -499,7 +500,7 @@ export class Streami18n {
    *
    * @param {*} options
    */
-  constructor(options: Options = {}) {
+  constructor(options: Streami18nOptions = {}) {
     const finalOptions = {
       ...defaultStreami18nOptions,
       ...options,
@@ -553,13 +554,11 @@ export class Streami18n {
       keySeparator: false,
       lng: this.currentLanguage,
       nsSeparator: false,
-
-      parseMissingKeyHandler: (key) => {
-        this.logger(`Streami18n: Missing translation for key: ${key}`);
-
-        return key;
-      },
     };
+
+    if (finalOptions.parseMissingKeyHandler) {
+      this.i18nextConfig.parseMissingKeyHandler = finalOptions.parseMissingKeyHandler;
+    }
 
     this.validateCurrentLanguage();
 
