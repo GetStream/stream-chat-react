@@ -42,7 +42,7 @@
   "dependencies": {
     "@braintree/sanitize-url": "^6.0.4",
     "@popperjs/core": "^2.11.5",
-    "@stream-io/stream-chat-css": "^3.13.0",
+    "@stream-io/stream-chat-css": "^4.0.0-rc.1",
     "clsx": "^2.0.0",
     "dayjs": "^1.10.4",
     "emoji-regex": "^9.2.0",
