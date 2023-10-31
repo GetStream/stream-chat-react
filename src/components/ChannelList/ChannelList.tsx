@@ -350,7 +350,10 @@ const UnMemoizedChannelList = <
           <List
             error={channelsQueryState.error}
             loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-            loading={channelsQueryState.queryInProgress === 'reload'}
+            loading={
+              !!channelsQueryState.queryInProgress &&
+              ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
+            }
             LoadingErrorIndicator={LoadingErrorIndicator}
             LoadingIndicator={LoadingIndicator}
             setChannels={setChannels}
