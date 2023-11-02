@@ -79,6 +79,6 @@ You can make the component slightly better using [`FloatingUI`](https://floating
 Even though it's not explicitly provided by our SDK anymore, it's still possible for our integrators to use older version of the `emoji-mart` - specifically version `3.0.1` on top of which our old components were built. We don't recommend using old version of the `emoji-mart` but if you really need to, follow the [`3.0.1` documentation](https://github.com/missive/emoji-mart/tree/v3.0.1#picker) in combination with the previous guide to build your own `EmojiPicker` component with the old `emoji-mart` API. Beware though, if you wish to use slightly modified `emoji-mart` CSS previously supplied by our SDK by default in the main `index.css` file, you'll now have to explicitly import it:
 
 ```tsx
-import 'stream-chat-react/dist/css/v2/index.css';
-import 'stream-chat-react/dist/css/v2/emoji-mart.css';
+import 'stream-chat-react/css/v2/index.css';
+import 'stream-chat-react/css/v2/emoji-mart.css';
 ```
