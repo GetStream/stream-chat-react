@@ -1,3 +1,20 @@
+## [11.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.2...v11.0.0-rc.3) (2023-11-02)
+
+
+### Bug Fixes
+
+* prevent flashing EmptyStateIndicator in ChannelList before the first channels page is loaded ([#2150](https://github.com/GetStream/stream-chat-react/issues/2150)) ([a2a9645](https://github.com/GetStream/stream-chat-react/commit/a2a964513e400b62f800b118433f1d5d671b557d))
+
+
+### Features
+
+* add commands translations ([#2149](https://github.com/GetStream/stream-chat-react/issues/2149)) ([f55c86f](https://github.com/GetStream/stream-chat-react/commit/f55c86fab8dcbfd2fb3b68aaa912e31e8c5fbe67))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to v4-rc ([#2153](https://github.com/GetStream/stream-chat-react/issues/2153)) ([030688f](https://github.com/GetStream/stream-chat-react/commit/030688f756624a31c534c54b8941f66b3da0c9a6))
+
 # [11.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.1...v11.0.0-rc.2) (2023-10-27)
 
 
