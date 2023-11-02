@@ -53,9 +53,12 @@ export type ChatProps<
   initialNavOpen?: boolean;
   /** Used for injecting className/s to the Channel and ChannelList components */
   theme?: string;
-  /** Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
+  /**
+   * Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead. Stream
    * Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending on the platform).
    * Set this prop to true if you want to use these custom emojis for Windows users.
+   *
+   * Note: requires importing `stream-chat-react/css/v2/emoji-replacement.css` style sheet
    */
   useImageFlagEmojisOnWindows?: boolean;
 };

@@ -42,7 +42,7 @@ const WrappedChannel = ({ children }) => {
 };
 ```
 
-### Build your custom `EmojiPicker` (example)
+### Build your custom `EmojiPicker` (with example)
 
 If `emoji-mart` is too heavy for your use-case and you'd like to build your own you can certainly do so, here's a simple `EmojiPicker` built using `emoji-picker-react` package:
 
@@ -57,12 +57,12 @@ export const CustomEmojiPicker = () => {
 
   return (
     <>
-      <button onClick={() => setOpen((cv) => !cv)}>Open EmojiPicker</button>
+      <button onClick={() => setOpen((isOpen) => !isOpen)}>Open EmojiPicker</button>
 
       {open && (
         <EmojiPicker
           onEmojiClick={(emoji, event) => {
-            insertText(e.native);
+            insertText(emoji.native);
             textareaRef.current?.focus(); // returns focus back to the message input element
           }}
         />
@@ -75,5 +75,14 @@ export const CustomEmojiPicker = () => {
 ```
 
 You can make the component slightly better using [`FloatingUI`](https://floating-ui.com/) by wrapping the actual picker element to make it float perfectly positioned above the button. See the [source of the component (`EmojiPicker`)]() which comes with the SDK for inspiration.
+
+## Old `emoji-mart` (v3.0.1)
+
+Even though it's not explicitly provided by our SDK anymore, it's still possible for our integrators to use older version of the `emoji-mart` - specifically version `3.0.1` on top of which our old components were built. We don't recommend using old version of the `emoji-mart` but if you really need to, follow the [`3.0.1` documentation](https://github.com/missive/emoji-mart/tree/v3.0.1#picker) in combination with the previous guide to build your own `EmojiPicker` component with the old `emoji-mart` API. Beware though, if you wish to use slightly modified `emoji-mart` CSS previously supplied by our SDK by default in the main `index.css` file, you'll now have to explicitly import it:
+
+```tsx
+import 'stream-chat-react/css/v2/index.css';
+import 'stream-chat-react/css/v2/emoji-mart.css';
+```
 
 {/_ TODO: mention EmojiContext removal _/}
