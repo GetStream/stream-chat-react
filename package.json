@@ -162,6 +162,7 @@
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "codecov": "^3.8.1",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
     "core-js": "^3.6.5",
     "css-loader": "^5.0.1",
     "emoji-mart": "^5.5.2",
