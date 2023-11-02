@@ -36,7 +36,8 @@ import {
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
-import { ChatContext } from '../../../context/ChatContext';
+import { ChatContext, useChatContext } from '../../../context/ChatContext';
+import { ChannelListMessenger } from '../ChannelListMessenger';
 
 expect.extend(toHaveNoViolations);
 
@@ -254,6 +255,42 @@ describe('ChannelList', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should render loading indicator before the first channel list load and on reload', async () => {
+    const channelsQueryStatesHistory = [];
+    const channelListMessengerLoadingHistory = [];
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+    const QueryStateInterceptor = ({ children }) => {
+      const { channelsQueryState } = useChatContext();
+      channelsQueryStatesHistory.push(channelsQueryState.queryInProgress);
+      return children;
+    };
+
+    const ChannelListMessengerPropsInterceptor = (props) => {
+      channelListMessengerLoadingHistory.push(props.loading);
+      return <ChannelListMessenger {...props} />;
+    };
+
+    await act(() => {
+      render(
+        <Chat client={chatClient}>
+          <QueryStateInterceptor>
+            <ChannelList List={ChannelListMessengerPropsInterceptor} />
+          </QueryStateInterceptor>
+        </Chat>,
+      );
+    });
+
+    expect(channelsQueryStatesHistory).toHaveLength(3);
+    expect(channelListMessengerLoadingHistory).toHaveLength(3);
+    expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
+    expect(channelListMessengerLoadingHistory[0]).toBe(true);
+    expect(channelsQueryStatesHistory[1]).toBe('reload');
+    expect(channelListMessengerLoadingHistory[1]).toBe(true);
+    expect(channelsQueryStatesHistory[2]).toBeNull();
+    expect(channelListMessengerLoadingHistory[2]).toBe(false);
   });
 
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
