@@ -40,6 +40,7 @@
             },
             {
               "type": "chore",
+              "scope": "deps",
               "section": "Chores",
               "hidden": false
             },
