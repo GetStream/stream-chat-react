@@ -2,37 +2,66 @@ import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
 
 import { useDeleteHandler } from '../useDeleteHandler';
+import {
+  ChannelActionProvider,
+  useChannelActionContext,
+} from '../../../../context/ChannelActionContext';
+import {
+  generateChannel,
+  generateMessage,
+  generateUser,
+  getOrCreateChannelApi,
+  getTestClientWithUser,
+  useMockedApis,
+} from '../../../../mock-builders';
+import { Channel } from '../../../Channel';
+import { Chat } from '../../../Chat';
+import { act } from '@testing-library/react';
 
-import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
-import { generateChannel, generateMessage, getTestClient } from '../../../../mock-builders';
-
-const deleteMessage = jest.fn(() => Promise.resolve(generateMessage()));
+let channel;
+let client;
+const message = generateMessage();
+const deleteMessage = jest.fn(() => Promise.resolve(message));
 const updateMessage = jest.fn();
 const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
 };
 
-async function renderUseDeleteHandler(message = generateMessage()) {
-  const client = await getTestClient();
-  client.deleteMessage = deleteMessage;
-  const channel = generateChannel({
-    updateMessage,
-  });
-  const wrapper = ({ children }) => (
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>
-        <ChannelActionProvider value={{ updateMessage }}>{children}</ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>
+const ChannelActionContextOverrider = ({ children }) => {
+  const context = useChannelActionContext();
+  return (
+    <ChannelActionProvider value={{ ...context, deleteMessage, updateMessage }}>
+      {children}
+    </ChannelActionProvider>
   );
-  const { result } = renderHook(() => useDeleteHandler(message), { wrapper });
-  return result.current;
+};
+
+async function renderUseDeleteHandler(message = message) {
+  const wrapper = ({ children }) => (
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <ChannelActionContextOverrider>{children}</ChannelActionContextOverrider>
+      </Channel>
+    </Chat>
+  );
+  let rendered;
+  await act(async () => {
+    rendered = await renderHook(() => useDeleteHandler(message), { wrapper });
+  });
+
+  return rendered.result.current;
 }
 
 describe('useDeleteHandler custom hook', () => {
+  beforeAll(async () => {
+    client = await getTestClientWithUser(generateUser());
+    const channelData = generateChannel();
+    useMockedApis(client, [getOrCreateChannelApi(channelData)]);
+    channel = client.channel('messaging', channelData.channel.id);
+  });
+
   afterEach(jest.clearAllMocks);
+
   it('should generate function that handles message deletion', async () => {
     const handleDelete = await renderUseDeleteHandler();
     expect(typeof handleDelete).toBe('function');
@@ -48,15 +77,16 @@ describe('useDeleteHandler custom hook', () => {
     const message = generateMessage();
     const handleDelete = await renderUseDeleteHandler(message);
     await handleDelete(mouseEventMock);
-    expect(deleteMessage).toHaveBeenCalledWith(message.id);
+    expect(deleteMessage).toHaveBeenCalledWith(message);
   });
 
   it('should update the message with the result of deletion', async () => {
-    const message = generateMessage();
-    const deletedMessage = generateMessage();
-    deleteMessage.mockImplementationOnce(() => Promise.resolve({ message: deletedMessage }));
+    const deleteMessageResponse = generateMessage();
+    deleteMessage.mockImplementationOnce(() => Promise.resolve(deleteMessageResponse));
     const handleDelete = await renderUseDeleteHandler(message);
-    await handleDelete(mouseEventMock);
-    expect(updateMessage).toHaveBeenCalledWith(deletedMessage);
+    await act(async () => {
+      await handleDelete(mouseEventMock);
+    });
+    expect(updateMessage).toHaveBeenCalledWith(deleteMessageResponse);
   });
 });

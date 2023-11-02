@@ -1,5 +1,6 @@
 import React, {
   PropsWithChildren,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -118,6 +119,10 @@ export type ChannelProps<
   CooldownTimer?: ComponentContextValue<StreamChatGenerics>['CooldownTimer'];
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: ComponentContextValue<StreamChatGenerics>['DateSeparator'];
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
+  doDeleteMessageRequest?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>>;
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel<StreamChatGenerics>,
@@ -313,6 +318,7 @@ const ChannelInner = <
     activeUnreadHandler,
     channel,
     children,
+    doDeleteMessageRequest,
     doMarkReadRequest,
     doSendMessageRequest,
     doUpdateMessageRequest,
@@ -679,6 +685,26 @@ const ChannelInner = <
     });
   };
 
+  const deleteMessage = useCallback(
+    async (
+      message: StreamMessage<StreamChatGenerics>,
+    ): Promise<MessageResponse<StreamChatGenerics>> => {
+      if (!message?.id) {
+        throw new Error('Cannot delete a message - missing message ID.');
+      }
+      let deletedMessage;
+      if (doDeleteMessageRequest) {
+        deletedMessage = await doDeleteMessageRequest(message);
+      } else {
+        const result = await client.deleteMessage(message.id);
+        deletedMessage = result.message;
+      }
+
+      return deletedMessage;
+    },
+    [client, doDeleteMessageRequest],
+  );
+
   const updateMessage = (
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
   ) => {
@@ -925,6 +951,7 @@ const ChannelInner = <
     () => ({
       addNotification,
       closeThread,
+      deleteMessage,
       dispatch,
       editMessage,
       jumpToLatestMessage,
@@ -944,6 +971,7 @@ const ChannelInner = <
     }),
     [
       channel.cid,
+      deleteMessage,
       enrichURLForPreviewConfig?.findURLFn,
       enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,

@@ -727,6 +727,62 @@ describe('Channel', () => {
         expect(await findByText(messageResponse.text)).toBeInTheDocument();
       });
 
+      it('should throw error instead of calling default client.deleteMessage() function', async () => {
+        const { id, ...message } = generateMessage();
+        const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
+        let deleteMessageHandler;
+        await act(() => {
+          renderComponent({}, ({ deleteMessage }) => {
+            deleteMessageHandler = deleteMessage;
+          });
+        });
+
+        await expect(() => deleteMessageHandler(message)).rejects.toThrow(
+          'Cannot delete a message - missing message ID.',
+        );
+        expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
+      });
+
+      it('should call the default client.deleteMessage() function', async () => {
+        const message = generateMessage();
+        const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
+        renderComponent({}, ({ deleteMessage }) => {
+          deleteMessage(message);
+        });
+        await waitFor(() => expect(clientDeleteMessageSpy).toHaveBeenCalledWith(message.id));
+      });
+
+      it('should throw error instead of calling custom doDeleteMessageRequest function', async () => {
+        const { id, ...message } = generateMessage();
+        const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
+        const doDeleteMessageRequest = jest.fn();
+        let deleteMessageHandler;
+        await act(() => {
+          renderComponent({ doDeleteMessageRequest }, ({ deleteMessage }) => {
+            deleteMessageHandler = deleteMessage;
+          });
+        });
+
+        await expect(() => deleteMessageHandler(message)).rejects.toThrow(
+          'Cannot delete a message - missing message ID.',
+        );
+        expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
+        expect(doDeleteMessageRequest).not.toHaveBeenCalled();
+      });
+
+      it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
+        const message = generateMessage();
+        const doDeleteMessageRequest = jest.fn();
+        const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
+        renderComponent({ doDeleteMessageRequest }, ({ deleteMessage }) => {
+          deleteMessage(message);
+        });
+        await waitFor(() => {
+          expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
+          expect(doDeleteMessageRequest).toHaveBeenCalledWith(message);
+        });
+      });
+
       it('should enable editing messages', async () => {
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
