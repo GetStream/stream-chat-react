@@ -1,3 +1,10 @@
+## [10.16.2](https://github.com/GetStream/stream-chat-react/compare/v10.16.1...v10.16.2) (2023-11-03)
+
+
+### Bug Fixes
+
+* **i18n:** do not translate command names ([#2155](https://github.com/GetStream/stream-chat-react/issues/2155)) ([b654b9a](https://github.com/GetStream/stream-chat-react/commit/b654b9a20edc2968d5c9460c3db791d05fcd8ab3))
+
 ## [10.16.1](https://github.com/GetStream/stream-chat-react/compare/v10.16.0...v10.16.1) (2023-11-03)
 
 
