@@ -1,3 +1,10 @@
+## [10.16.1](https://github.com/GetStream/stream-chat-react/compare/v10.16.0...v10.16.1) (2023-11-03)
+
+
+### Bug Fixes
+
+* **i18n:** prevent removal of dynamically generated translation keys ([#2154](https://github.com/GetStream/stream-chat-react/issues/2154)) ([ebcaa8f](https://github.com/GetStream/stream-chat-react/commit/ebcaa8f4872a94f94d0ee3841367b92ab5263959))
+
 # [10.16.0](https://github.com/GetStream/stream-chat-react/compare/v10.15.0...v10.16.0) (2023-10-31)
 
 
