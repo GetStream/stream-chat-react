@@ -65,9 +65,7 @@ export const useCommandTrigger = <
             )
             .map((commandData) => {
               const translatedCommandData: ValidCommand<StreamChatGenerics> = {
-                name: t(`${commandData.name}-command-name`, {
-                  defaultValue: commandData.name,
-                }),
+                name: commandData.name,
               };
 
               if (commandData.args)
