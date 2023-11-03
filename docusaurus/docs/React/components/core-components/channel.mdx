@@ -192,6 +192,37 @@ Custom UI component for date separators.
 | --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='DateSeparator' path='/DateSeparator/DateSeparator.tsx'/> |
 
+### doDeleteMessageRequest
+
+Custom action handler to override the default `client.deleteMessage(message.id)` function.
+
+| Type                                                                                                                      |
+|---------------------------------------------------------------------------------------------------------------------------|
+| `(message: StreamMessage<StreamChatGenerics>) => Promise<MessageResponse<StreamChatGenerics>>` |
+
+The function can execute different logic for message replies compared to messages in the main message list based on the `parent_id` property of `StreamMessage` object:
+
+```tsx
+import { Channel, StreamMessage } from 'stream-chat-react';
+import type { MyStreamChatGenerics } from './types';
+
+const doDeleteMessageRequest = async (message: StreamMessage<MyStreamChatGenerics>) => {
+    if (message.parent_id) {
+        // do something before / after deleting a message reply
+    } else {
+        // do something before / after deleting a message
+    }
+}
+
+const App = () => (
+  {/* more components */}
+    <Channel doDeleteMessageRequest={ doDeleteMessageRequest }>
+        {/* more components */}
+    </Channel>
+  {/* more components */}
+);
+```
+
 ### doMarkReadRequest
 
 Custom action handler to override the default `channel.markRead` request function (advanced usage only).
