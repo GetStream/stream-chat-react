@@ -2,6 +2,7 @@
 module.exports = {
   createOldCatalogs: false,
   input: ['./src/**/*.{tsx,ts}'],
+  keepRemoved: true,
   keySeparator: false,
   locales: ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'],
   namespaceSeparator: false,
