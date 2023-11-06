@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
+import { useTranslationContext } from '../../context';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
@@ -15,11 +16,14 @@ export type LoadMoreButtonProps = {
 };
 
 const UnMemoizedLoadMoreButton = ({
-  children = 'Load more',
+  children,
   isLoading,
   onClick,
   refreshing,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
+  const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
+
+  const childrenOrDefaultString = children ?? t<string>('Load more');
   const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
 
   useEffect(() => {
@@ -35,7 +39,7 @@ const UnMemoizedLoadMoreButton = ({
         disabled={loading}
         onClick={onClick}
       >
-        {loading ? <LoadingIndicator /> : children}
+        {loading ? <LoadingIndicator /> : childrenOrDefaultString}
       </button>
     </div>
   );
