@@ -183,15 +183,14 @@ export const ChannelListWrapper = () => {
   }, [channel?.id, channelId, setChannels, client, navigate, setActiveChannel]);
 
   return (
-      <ChannelList
-        setActiveChannelOnMount={false}
-        filters={filters}
-        sort={sort}
-        options={options}
-      />
-      );
+    <ChannelList
+      setActiveChannelOnMount={false}
+      filters={filters}
+      sort={sort}
+      options={options}
+    />
+  );
 };
-
 ```
 
 | Type     |
