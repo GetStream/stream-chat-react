@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { PropsWithChildren, useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useTranslationContext } from '../../context';
 
 export type ImageDropzoneProps = {
   /**
@@ -25,6 +26,8 @@ export const ImageDropzone = ({
   maxNumberOfFiles,
   multiple,
 }: PropsWithChildren<ImageDropzoneProps>) => {
+  const { t } = useTranslationContext('ImageDropzone');
+
   const handleDrop = useCallback(
     (accepted: File[]) => {
       if (!handleFiles) {
@@ -78,7 +81,7 @@ export const ImageDropzone = ({
               fillRule='nonzero'
             />
           </svg>
-          <p>Drag your files here to add to your post</p>
+          <p>{t<string>('Drag your files here to add to your post')}</p>
         </div>
       </div>
       {children}
