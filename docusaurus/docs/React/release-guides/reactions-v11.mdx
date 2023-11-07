@@ -1,7 +1,7 @@
 ---
-id: new-reactions
+id: reactions-v11
 sidebar_position: 2
-title: New reactions (11.0.0)
+title: Reactions 11.0.0
 keywords: [migration guide, upgrade, reactions, breaking changes, v11]
 ---
 
@@ -81,7 +81,7 @@ And then you can pass these newly created options to [`Channel`](../components/c
 <Channel reactionOptions={customReactionOptions}>{/*...*/}</Channel>
 ```
 
-## EmojiMart integration
+## Emoji Mart integration
 
 If you're used to work with [EmojiMart emojis](https://github.com/missive/emoji-mart#-emoji-component) then integrating with new reaction system shouldn't be a big trouble as you can define how your components look and reach for context if you need to:
 
@@ -196,8 +196,15 @@ const reactionOptions = [
   {
     type: 'joy',
     component: () => (
-      <SpriteImage columns={2} rows={3} spriteUrl={SPRITE_URL} position={[0, 1]} fallback='😂' />
-    ), // renders fallback initially and then image when it successfully loads
+      // renders fallback initially and then image when it successfully loads
+      <SpriteImage
+        columns={2} // number of spritesheet columns
+        rows={3} // number of spritesheet rows
+        spriteUrl={SPRITE_URL} // source URL of the spritesheet
+        position={[0, 1]} // x and y axis positions, zero indexed
+        fallback='😂' // native emoji (or any string) to render while the sprite image is loading
+      />
+    ),
     name: 'ROFL',
   },
 ];
