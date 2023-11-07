@@ -117,6 +117,7 @@ export const usePaginatedChannels = <
     queryChannels('reload');
   }, [filterString, sortString]);
 
+  // FIXME: state refactor (breaking change) is needed - do not forward `channels` and `setChannel`
   return {
     channels,
     hasNextPage,
