@@ -24,10 +24,13 @@ jobs:
         run: yarn types --noEmit
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: End-to-end tests
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
       - name: 💾 Cache Dependencies
         uses: actions/cache@v3
@@ -38,10 +41,22 @@ jobs:
       - name: 🔨 Install Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
 
+      - name: 💾 Cache Playwright browsers
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}${{ runner.arch }}-playwright-browsers
+
+      - name: Install Playwright browsers if not cached
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium webkit firefox
+
+      - name: Install Playwright system dependencies (always)
+        run: npx playwright install-deps
+
       - name: ⚗️ End-to-end tests
         run: |
-          npx playwright install
-          npx playwright install-deps
           yarn e2e-fixtures
           # running with --browser=all causes failures
           yarn e2e --browser=chromium
@@ -99,3 +114,45 @@ jobs:
 
       - name: 🧪 Validate CommonJS bundle with ${{ matrix.node }}
         run: yarn validate-cjs
+  test-frameworks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        framework: ["next", "remix", "vite"]
+    name: Test with framework ${{ matrix.framework }}
+    env:
+      STREAM_API_KEY: ${{ secrets.E2E_APP_KEY }}
+      USER_ID: test-user-1
+      USER_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - uses: actions/cache@v3
+        id: node-modules-cache
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('./yarn.lock') }}
+
+      - name: Install packages
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}${{ runner.arch }}-playwright-browsers
+
+      - name: Install Playwright browsers if not cached
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium webkit firefox
+
+      - name: Install Playwright system dependencies (always)
+        run: npx playwright install-deps
+
+      - name: Pack package (stream-chat-react.tgz)
+        working-directory: ./test-react-frameworks
+        run: ./pack-package.sh
+
+      - name: Run ${{ matrix.framework }}.sh test
+        working-directory: ./test-react-frameworks/${{ matrix.framework }}
+        run: ./${{ matrix.framework }}.sh

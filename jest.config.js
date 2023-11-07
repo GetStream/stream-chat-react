@@ -12,7 +12,13 @@ module.exports = {
   },
   preset: 'ts-jest',
   setupFiles: ['core-js'],
-  testPathIgnorePatterns: ['/node_modules/', '/examples/', '__snapshots__', '/e2e/'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/examples/',
+    '__snapshots__',
+    '/e2e/',
+    '/test-react-frameworks/',
+  ],
   testRegex: [
     /**
      * If you want to test single file, mention it here
