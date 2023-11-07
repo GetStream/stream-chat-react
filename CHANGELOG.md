@@ -1,3 +1,10 @@
+## [10.18.0](https://github.com/GetStream/stream-chat-react/compare/v10.17.0...v10.18.0) (2023-11-07)
+
+
+### Features
+
+* expose channels state on chat level ([#2161](https://github.com/GetStream/stream-chat-react/issues/2161)) ([7e5543b](https://github.com/GetStream/stream-chat-react/commit/7e5543b3bf3961900c17e8a9283dfc64611f8660))
+
 ## [10.17.0](https://github.com/GetStream/stream-chat-react/compare/v10.16.2...v10.17.0) (2023-11-07)
 
 
