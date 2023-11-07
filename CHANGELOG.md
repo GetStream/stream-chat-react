@@ -1,3 +1,15 @@
+## [10.17.0](https://github.com/GetStream/stream-chat-react/compare/v10.16.2...v10.17.0) (2023-11-07)
+
+
+### Bug Fixes
+
+* **i18n:** add missing SDK translations ([#2157](https://github.com/GetStream/stream-chat-react/issues/2157)) ([e22a6ce](https://github.com/GetStream/stream-chat-react/commit/e22a6ceeb0116a0b8b1b963c1736c5ae7c0debcc))
+
+
+### Features
+
+* add Channel prop doDeleteMessageRequest ([#2152](https://github.com/GetStream/stream-chat-react/issues/2152)) ([a01774a](https://github.com/GetStream/stream-chat-react/commit/a01774aa3a02b3a92a01a7c6bd5f98b49507dfbd))
+
 ## [10.16.2](https://github.com/GetStream/stream-chat-react/compare/v10.16.1...v10.16.2) (2023-11-03)
 
 
