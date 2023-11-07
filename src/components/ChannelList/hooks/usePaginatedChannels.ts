@@ -26,9 +26,11 @@ export const usePaginatedChannels = <
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
 ) => {
   const {
+    channels,
     channelsQueryState: { error, setError, setQueryInProgress },
-  } = useChatContext('usePaginatedChannels');
-  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
+    setChannels,
+  } = useChatContext<StreamChatGenerics>('usePaginatedChannels');
+
   const [hasNextPage, setHasNextPage] = useState(true);
   const lastRecoveryTimestamp = useRef<number | undefined>();
 

@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { Dispatch, PropsWithChildren, SetStateAction, useContext } from 'react';
 
 import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
 
@@ -28,6 +28,7 @@ export type ThemeVersion = '1' | '2';
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  channels: Channel<StreamChatGenerics>[];
   channelsQueryState: ChannelsQueryState;
   closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse<StreamChatGenerics>> | null;
@@ -39,6 +40,7 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
+  setChannels: Dispatch<SetStateAction<Channel<StreamChatGenerics>[]>>;
   themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   channel?: Channel<StreamChatGenerics>;
