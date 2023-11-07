@@ -45,8 +45,8 @@ State representing the array of loaded channels. Channels query is executed by d
 
 Exposes API that:
 
-- indicates, whether and what channels query has been triggered within [`ChannelList` component](../core-components/channel-list.mdx) by its channels pagination controller - `queryInProgress` of type `ChannelQueryState`.
-- allows to set the `queryInProgress` state with `setQueryInProgress` state setter.
+- indicates, whether and what channels query has been triggered within [`ChannelList` component](../core-components/channel-list.mdx) by its channels pagination controller - `queryInProgress` of type `ChannelQueryState`
+- allows to set the `queryInProgress` state with `setQueryInProgress` state setter
 - keeps track of error response from the channels query - `error`
 - allows to set the `error` state with `setError`
 
@@ -129,7 +129,7 @@ You can override the default behavior by pulling it from context and then utiliz
 
 ### setChannels
 
-Sets the list of Channel objects to be rendered by ChannelList component. One have to be careful, when to call `setChannels` as the first channels query executed by the `ChannelList` overrides the whole [`channels` state](#channels). In that case it is better to subscribe to `client` event `channels.queried` and only then set the channels.
+Sets the list of `Channel` objects to be rendered by `ChannelList` component. One have to be careful, when to call `setChannels` as the first channels query executed by the `ChannelList` overrides the whole [`channels` state](#channels). In that case it is better to subscribe to `client` event `channels.queried` and only then set the channels.
 In the following example, we have a component that sets the active channel based on the id in the URL. It waits until the first channels page is loaded, and then it sets the active channel. If the channel is not present on the first page, it performs additional API request with `getChannel()`:
 
 ```tsx
