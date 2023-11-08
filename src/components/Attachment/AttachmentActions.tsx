@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Action, Attachment } from 'stream-chat';
 
+import { useTranslationContext } from '../../context';
+
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -23,6 +25,7 @@ const UnMemoizedAttachmentActions = <
   props: AttachmentActionsProps<StreamChatGenerics>,
 ) => {
   const { actionHandler, actions, id, text } = props;
+  const { t } = useTranslationContext('UnMemoizedAttachmentActions');
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -42,7 +45,7 @@ const UnMemoizedAttachmentActions = <
             key={`${id}-${action.value}`}
             onClick={(event) => handleActionClick(event, action.name, action.value)}
           >
-            {action.text}
+            {action.text ? t<string>(action.text) : null}
           </button>
         ))}
       </div>

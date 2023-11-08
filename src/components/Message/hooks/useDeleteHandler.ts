@@ -25,7 +25,9 @@ export const useDeleteHandler = <
 ): ReactEventHandler => {
   const { getErrorNotification, notify } = notifications;
 
-  const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useDeleteHandler');
+  const { deleteMessage, updateMessage } = useChannelActionContext<StreamChatGenerics>(
+    'useDeleteHandler',
+  );
   const { client } = useChatContext<StreamChatGenerics>('useDeleteHandler');
   const { t } = useTranslationContext('useDeleteHandler');
 
@@ -36,8 +38,8 @@ export const useDeleteHandler = <
     }
 
     try {
-      const data = await client.deleteMessage(message.id);
-      updateMessage(data.message);
+      const deletedMessage = await deleteMessage(message);
+      updateMessage(deletedMessage);
     } catch (e) {
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);

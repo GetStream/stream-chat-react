@@ -5,6 +5,7 @@ import type {
   Attachment,
   ErrorFromResponse,
   Message,
+  MessageResponse,
   UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
@@ -49,6 +50,9 @@ export type ChannelActionContextValue<
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
+  deleteMessage: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>>;
   dispatch: React.Dispatch<ChannelStateReducerAction<StreamChatGenerics>>;
   editMessage: (
     message: UpdatedMessage<StreamChatGenerics>,

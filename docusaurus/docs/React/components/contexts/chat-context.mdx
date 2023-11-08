@@ -33,6 +33,34 @@ The currently active channel, which populates the [`Channel`](../core-components
 | ------- |
 | Channel |
 
+### channels
+
+State representing the array of loaded channels. Channels query is executed by default only within the [`ChannelList` component](../core-components/channel-list.mdx) in the SDK.
+
+| Type        |
+|-------------|
+| `Channel[]` |
+
+### channelsQueryState
+
+Exposes API that:
+
+- indicates, whether and what channels query has been triggered within [`ChannelList` component](../core-components/channel-list.mdx) by its channels pagination controller - `queryInProgress` of type `ChannelQueryState`
+- allows to set the `queryInProgress` state with `setQueryInProgress` state setter
+- keeps track of error response from the channels query - `error`
+- allows to set the `error` state with `setError`
+
+The `queryInProgress` values are:
+
+- `uninitialized` - the initial state before the first channels query is triggered
+- `reload` - the initial channels query (loading the first page) is in progress
+- `load-more` - loading the next page of channels
+- `null` - at least one channels page has been loaded and there is no query in progress at the moment
+
+| Type                 |
+|----------------------|
+| `ChannelsQueryState` |
+
 ### closeMobileNav
 
 The function to close mobile navigation.
@@ -98,6 +126,76 @@ You can override the default behavior by pulling it from context and then utiliz
 | Type     |
 | -------- |
 | function |
+
+### setChannels
+
+Sets the list of `Channel` objects to be rendered by `ChannelList` component. One have to be careful, when to call `setChannels` as the first channels query executed by the `ChannelList` overrides the whole [`channels` state](#channels). In that case it is better to subscribe to `client` event `channels.queried` and only then set the channels.
+In the following example, we have a component that sets the active channel based on the id in the URL. It waits until the first channels page is loaded, and then it sets the active channel. If the channel is not present on the first page, it performs additional API request with `getChannel()`:
+
+```tsx
+import {useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {ChannelList, getChannel, useChatContext} from 'stream-chat-react';
+import {ChannelFilters, ChannelOptions, ChannelSort, Event} from 'stream-chat';
+
+const DEFAULT_CHANNEL = 'general';
+const CHANNEL_TYPE = 'messaging';
+
+export const ChannelListWrapper = () => {
+  const { channelId } = useParams();
+  const navigate = useNavigate();
+  const { client, channel, setActiveChannel, setChannels } = useChatContext();
+
+  const filters: ChannelFilters = { type: CHANNEL_TYPE, members: { $in: [client.user?.id || ''] } };
+  const options: ChannelOptions = { state: true, presence: true, limit: 10 };
+  const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+
+  // set active channel only if URL param changed
+  useEffect(() => {
+    if (!channelId) return navigate(`/${DEFAULT_CHANNEL}`);
+
+    if (channel?.id === channelId || !client) return;
+
+    let subscription: { unsubscribe: () => void } | undefined;
+    if(!channel?.id || channel?.id !== channelId) {
+      subscription = client.on('channels.queried', (event: Event) => {
+        // check, whether the channel has already been loaded with the first page
+        const loadedChannelData = event.queriedChannels?.channels.find((response) => response.channel.id === channelId);
+
+        if (loadedChannelData) {
+          setActiveChannel(client.channel( CHANNEL_TYPE, channelId));
+          subscription?.unsubscribe();
+          return;
+        }
+
+        return getChannel({client, id: channelId, type: CHANNEL_TYPE}).then((newActiveChannel) => {
+          setActiveChannel(newActiveChannel);
+          setChannels((channels) => {
+            return ([newActiveChannel, ...channels.filter((ch) => ch.data?.cid !== newActiveChannel.data?.cid)]);
+          });
+        });
+      });
+    }
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [channel?.id, channelId, setChannels, client, navigate, setActiveChannel]);
+
+  return (
+    <ChannelList
+      setActiveChannelOnMount={false}
+      filters={filters}
+      sort={sort}
+      options={options}
+    />
+  );
+};
+```
+
+| Type                                  |
+|---------------------------------------|
+| `Dispatch<SetStateAction<Channel[]>>` |
 
 ### theme
 
