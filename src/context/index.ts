@@ -5,5 +5,6 @@ export * from './ComponentContext';
 export * from './EmojiContext';
 export * from './MessageContext';
 export * from './MessageInputContext';
+export * from './MessageListContext';
 export * from './TranslationContext';
 export * from './TypingContext';
