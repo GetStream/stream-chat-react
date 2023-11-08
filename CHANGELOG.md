@@ -1,3 +1,19 @@
+## [11.0.0-rc.4](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.3...v11.0.0-rc.4) (2023-11-08)
+
+
+### Bug Fixes
+
+* **i18n:** add missing SDK translations ([#2157](https://github.com/GetStream/stream-chat-react/issues/2157)) ([e22a6ce](https://github.com/GetStream/stream-chat-react/commit/e22a6ceeb0116a0b8b1b963c1736c5ae7c0debcc))
+* **i18n:** do not translate command names ([#2155](https://github.com/GetStream/stream-chat-react/issues/2155)) ([b654b9a](https://github.com/GetStream/stream-chat-react/commit/b654b9a20edc2968d5c9460c3db791d05fcd8ab3))
+* **i18n:** prevent removal of dynamically generated translation keys ([#2154](https://github.com/GetStream/stream-chat-react/issues/2154)) ([ebcaa8f](https://github.com/GetStream/stream-chat-react/commit/ebcaa8f4872a94f94d0ee3841367b92ab5263959))
+* List/Item & EmojiPicker async data loading + docs update ([dedefac](https://github.com/GetStream/stream-chat-react/commit/dedeface68182cf04096ba73a7b52288d52e8bd4))
+
+
+### Features
+
+* add Channel prop doDeleteMessageRequest ([#2152](https://github.com/GetStream/stream-chat-react/issues/2152)) ([a01774a](https://github.com/GetStream/stream-chat-react/commit/a01774aa3a02b3a92a01a7c6bd5f98b49507dfbd))
+* expose channels state on chat level ([#2161](https://github.com/GetStream/stream-chat-react/issues/2161)) ([7e5543b](https://github.com/GetStream/stream-chat-react/commit/7e5543b3bf3961900c17e8a9283dfc64611f8660))
+
 ## [11.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.2...v11.0.0-rc.3) (2023-11-02)
 
 
