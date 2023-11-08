@@ -27,7 +27,7 @@ export const Item = React.forwardRef(function Item(props, innerRef) {
       >
         <a
           href=''
-          onClick={onClickHandler}
+          onClick={handleClick}
           onFocus={handleSelect}
           onMouseEnter={handleSelect}
           ref={innerRef}

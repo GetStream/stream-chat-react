@@ -1,7 +1,7 @@
 ---
-id: new-emoji-picker-integration-v11
+id: emoji-picker-v11
 sidebar_position: 3
-title: EmojiPicker Integration (11.0.0)
+title: EmojiPicker 11.0.0
 keywords: [migration guide, upgrade, emoji picker, breaking changes, v11]
 ---
 
@@ -15,8 +15,6 @@ By default - our SDK would ship with `emoji-mart` dependency on top of which our
 
 SDK's `EmojiPicker` component now comes as two-part "bundle" - a button and an actual picker element. The component now holds its own `open` state which is handled by clicking the button (or anywhere else to close it).
 
-{/_ TODO: extend once the component is fully ready _/}
-
 ## Switching to opt-in mechanism (BREAKING CHANGE)
 
 We made `emoji-mart` package in our SDK completely optional which means that `EmojiPicker` component is now disabled by default.
@@ -29,7 +27,7 @@ To reinstate the previous behavior you'll have to add `emoji-mart` to your packa
 yarn add emoji-mart@^5.5.2 @emoji-mart/data@^1.1.2 @emoji-mart/react@^1.1.1
 ```
 
-\\Import `EmojiPicker` component from the `stream-chat-react` package:
+Import `EmojiPicker` component from the `stream-chat-react` package:
 
 ```tsx
 import { Channel } from 'stream-chat-react';
@@ -74,7 +72,7 @@ export const CustomEmojiPicker = () => {
 // and pass it down to the `Channel` component
 ```
 
-You can make the component slightly better using [`FloatingUI`](https://floating-ui.com/) by wrapping the actual picker element to make it float perfectly positioned above the button. See the [source of the component (`EmojiPicker`)]() which comes with the SDK for inspiration.
+You can make the component slightly better using [`FloatingUI`](https://floating-ui.com/) by wrapping the actual picker element to make it float perfectly positioned above the button. See the source of the component <GHComponentLink text="EmojiPicker" branch="feat/emoji-picker-delete" as="code" path="/Emojis/EmojiPicker.tsx" /> which comes with the SDK for inspiration.
 
 ## Old `emoji-mart` (v3.0.1)
 
@@ -84,5 +82,3 @@ Even though it's not explicitly provided by our SDK anymore, it's still possible
 import 'stream-chat-react/css/v2/index.css';
 import 'stream-chat-react/css/v2/emoji-mart.css';
 ```
-
-{/_ TODO: mention EmojiContext removal _/}

@@ -1,13 +1,13 @@
 ---
-id: emoji-search-index-integration-v11
+id: emoji-search-index-v11
 sidebar_position: 4
-title: Emoji Search Index Integration (11.0.0)
+title: emojiSearchIndex 11.0.0
 keywords: [migration guide, upgrade, emoji search index, breaking changes, v11]
 ---
 
 ## Dropping support for built-in `EmojiIndex`
 
-By default, our SDK comes bundled with the `emoji-mart`'s (`emojiIndex`)[https://github.com/missive/emoji-mart/tree/v3.0.1#headless-search]. This index serves as a tool for efficiently searching through the emoji list and returning a subset that matches the search criteria (query). Within our SDK, this functionality is utilized by our autocomplete component, triggered by entering `:<query>` to the meessage input. This functionality will continue to be integrated within our SDK. However, due to our decision to discontinue the use of `emoji-mart` within the SDK, this feature will now be available on an opt-in basis. With the updated types and interface this will also allow integrators to supply their own `emojiSearchIndex` instead of relying exclusively on the one supplied by `emoji-mart`.
+By default, our SDK comes bundled with the `emoji-mart`'s [`emojiIndex`](https://github.com/missive/emoji-mart/tree/v3.0.1#headless-search), more specifically - `NimbleEmojiIndex` class which is then instantiated with custom `emojiData` by our SDK. This index serves as a tool for efficiently searching through the emoji list and returning a subset that matches the search criteria (query). Within our SDK, this functionality is utilized by our autocomplete component, triggered by entering `:<query>` to the meessage input. This functionality will continue to be integrated within our SDK. However, due to our decision to discontinue the use of `emoji-mart` within the SDK, this feature will now be available on an opt-in basis. With the updated types and interface this will also allow integrators to supply their own `emojiSearchIndex` instead of relying exclusively on the one supplied by `emoji-mart`.
 
 ### Reinstate emoji autocomplete behavior (search for emojis with `:`)
 
@@ -17,7 +17,7 @@ Add `emoji-mart` to your packages and make sure the package versions fit our pee
 yarn add emoji-mart@^5.5.2 @emoji-mart/data@^1.1.2
 ```
 
-\Import `SearchIndex` and `data` from `emoji-mart`, initiate these data and then and pass `SearchIndex` to our `MessageInput` component:
+Import `SearchIndex` and `data` from `emoji-mart`, initiate these data and then and pass `SearchIndex` to our `MessageInput` component:
 
 ```tsx
 import { MessageInput } from 'stream-chat-react';
@@ -31,9 +31,9 @@ export const WrappedMessageInput = () => {
 };
 ```
 
-### Build your custom `emojiSearchIndex`
+## Build your custom `emojiSearchIndex`
 
-## Prerequisities
+### Prerequisities
 
 Your data returned from the `search` method should have _at least_ these three properies which our SDK relies on:
 
@@ -46,9 +46,10 @@ Optional properties:
 - emoticons - an array of strings to match substitutions with, ie: `[":D", ":-D", ":d"]`
 - native - native emoji string (old `emoji-mart` API), ie: `"😄"` - will be prioritized if specified
 
-## Example
+### Example
 
 ```tsx
+import { type EmojiSearchIndex } from 'stream-chat-react';
 import search from '@jukben/emoji-search';
 
 const emoticonMap: Record<string, string[]> = {
@@ -76,7 +77,7 @@ export const WrappedChannel = ({ children }) => (
 );
 ```
 
-### Migrate from `v10` to `v11` (`EmojiIndex` becomes `emojiSearchIndex`)
+## Migrate from `v10` to `v11` (`EmojiIndex` becomes `emojiSearchIndex`)
 
 `EmojiIndex` has previously lived in the `EmojiContext` passed to through `Channel` component. But since `EmojiContext` no longer exists in our SDK, the property has been moved to our `ComponentContext` (still passed through `Channel`) and changed its name to `emojiSearchIndex` to properly repesent its funtionality. If your custom `EmojiIndex` worked with our default components in `v10` then it should still work in `v11` without any changes to its `search` method output:
 
@@ -85,11 +86,11 @@ Your old code:
 ```tsx
 import { Channel, MessageInput } from 'stream-chat-react';
 // arbitrary import
-import { CustomEmojiIndex } from './CustomEmojiIndex';
+import { CustomEmojiIndex, customData } from './CustomEmojiIndex';
 
 const App = () => {
   return (
-    <Channel EmojiIndex={CustomEmojiIndex}>
+    <Channel emojiData={customData} EmojiIndex={CustomEmojiIndex}>
       {/* other components */}
       <MessageInput />
     </Channel>
@@ -102,11 +103,13 @@ Should newly look like this:
 ```tsx
 import { Channel, MessageInput } from 'stream-chat-react';
 // arbitrary import
-import { CustomEmojiIndex } from './CustomEmojiIndex';
+import { CustomEmojiIndex, customData } from './CustomEmojiIndex';
+// instantiate the search index
+const customEmojiSearchIndex = new CustomEmojiIndex(customData);
 
 const App = () => {
   return (
-    <Channel emojiSearchIndex={CustomEmojiIndex}>
+    <Channel emojiSearchIndex={customEmojiSearchIndex}>
       {/* other components */}
       <MessageInput />
     </Channel>
@@ -119,14 +122,16 @@ Or enable it in either of the `MessageInput` components individually:
 ```tsx
 import { Channel, MessageInput } from 'stream-chat-react';
 // arbitrary import
-import { CustomEmojiIndex } from './CustomEmojiIndex';
+import { CustomEmojiIndex, customData } from './CustomEmojiIndex';
+// instantiate the search index
+const customEmojiSearchIndex = new CustomEmojiIndex(customData);
 
 const App = () => {
   return (
     <Channel>
       {/* other components */}
-      <MessageInput emojiSearchIndex={CustomEmojiIndex} />
-      <Thread additionalMessageInputProps={{ emojiSearchIndex: CustomEmojiIndex }} />
+      <MessageInput emojiSearchIndex={customEmojiSearchIndex} />
+      <Thread additionalMessageInputProps={{ emojiSearchIndex: customEmojiSearchIndex }} />
     </Channel>
   );
 };

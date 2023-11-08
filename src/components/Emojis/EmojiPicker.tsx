@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { usePopper } from 'react-popper';
 
-import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
 import {
@@ -14,7 +13,7 @@ import {
 import { EmojiIconLarge, EmojiPickerIcon } from '../MessageInput/icons';
 import { Tooltip } from '../Tooltip';
 
-type EmojiPickerProps = {
+export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
   emojiPickerContainerClassName?: string;
@@ -76,7 +75,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           ref={setPopperElement}
         >
           <Picker
-            data={data}
+            data={async () => (await import('@emoji-mart/data')).default}
             onEmojiSelect={(e: unknown) => {
               // @ts-ignore emoji-mart is missing types
               insertText(e.native);
