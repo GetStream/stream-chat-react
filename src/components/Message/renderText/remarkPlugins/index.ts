@@ -1,2 +1,2 @@
-export * from './htmlToStringPlugin';
+export * from './htmlToTextPlugin';
 export * from './keepLineBreaksPlugin';

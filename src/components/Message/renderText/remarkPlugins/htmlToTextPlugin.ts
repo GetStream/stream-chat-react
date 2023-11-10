@@ -11,4 +11,4 @@ const transform = (tree: Nodes) => {
   visit(tree, visitor);
 };
 
-export const htmlToStringPlugin = () => transform;
+export const htmlToTextPlugin = () => transform;
