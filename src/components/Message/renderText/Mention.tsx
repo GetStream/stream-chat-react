@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 
-import type { ReactMarkdownProps } from 'react-markdown/lib/complex-types';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type MentionProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = ReactMarkdownProps & {
+> = PropsWithChildren<{
   /**
    * @deprecated will be removed in the next major release, transition to using `node.mentionedUser` instead
    */
@@ -18,7 +17,7 @@ export type MentionProps<
     mentioned_user: UserResponse<StreamChatGenerics>;
     mentionedUser: UserResponse<StreamChatGenerics>;
   };
-};
+}>;
 export const Mention = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({

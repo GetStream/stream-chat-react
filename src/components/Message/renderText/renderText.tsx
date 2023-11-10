@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
+import ReactMarkdown, { defaultUrlTransform, Options } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
@@ -7,11 +7,10 @@ import remarkGfm from 'remark-gfm';
 import { Emoji } from './Emoji';
 import { Anchor } from './Anchor';
 import { Mention, MentionProps } from './Mention';
-import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
+import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 
-import type { ReactMarkdownProps } from 'react-markdown/lib/complex-types';
-import type { PluggableList } from 'react-markdown/lib/react-markdown';
+import type { PluggableList } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -53,7 +52,7 @@ function encodeDecode(url: string) {
   }
 }
 
-const transformLinkUri = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
+const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : defaultUrlTransform(uri));
 
 const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) => plugins;
 
@@ -70,7 +69,7 @@ export type RenderTextOptions<
   allowedTagNames?: Array<keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})>;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
-      emoji: ComponentType<ReactMarkdownProps>;
+      emoji: ComponentType;
       mention: ComponentType<MentionProps<StreamChatGenerics>>;
     }>;
   getRehypePlugins?: RenderTextPluginConfigurator;
@@ -149,7 +148,7 @@ export const renderText = <
   );
 
   const remarkPlugins: PluggableList = [[remarkGfm, { singleTilde: false }]];
-  const rehypePlugins = [emojiMarkdownPlugin];
+  const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
   if (mentionedUsers?.length) {
     rehypePlugins.push(mentionsMarkdownPlugin(mentionedUsers));
@@ -183,8 +182,8 @@ export const renderText = <
       rehypePlugins={getRehypePlugins(rehypePlugins)}
       remarkPlugins={getRemarkPlugins(remarkPlugins)}
       skipHtml
-      transformLinkUri={transformLinkUri}
       unwrapDisallowed
+      urlTransform={urlTransform}
     >
       {newText}
     </ReactMarkdown>
