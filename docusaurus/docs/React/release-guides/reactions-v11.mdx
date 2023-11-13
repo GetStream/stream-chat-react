@@ -14,7 +14,7 @@ When it came to developer experience regarding customization of the reaction com
 ### Main reasons for a revamp
 
 - inability to reuse default (Stream supplied reactions) with your custom ones
-- strong reliance on [`EmojiMart`](https://github.com/missive/emoji-mart) and inability to use completely custom reactions out of the box
+- strong reliance on [`emoji-mart`](https://github.com/missive/emoji-mart) and inability to use completely custom reactions out of the box
 - certain `additionalEmojiProps` did not work with Stream-supplied reactions
 
 ```tsx
@@ -38,7 +38,7 @@ export const customReactions = [
 
 ## New default setup and how it works
 
-SDK by default comes with five pre-defined reaction types (`haha`, `like`, `love`, `sad` and `wow`) which are newly rendered by <GHComponentLink text='StreamEmoji' branch="feat/reactions" path='/Reactions/StreamEmoji.tsx'/> component which utilises sprite sheet system and renders images for each reaction to make sure it works flawlessly on every system. Default reaction options are defined in <GHComponentLink text='defaultReactionOptions' branch="feat/reactions" path='/Reactions/reactionOptions.tsx'/> and these options are reused for both [`ReactionSelector`](../components/message-components/reactions.mdx) and [`ReactionsList`](../components/message-components/reactions.mdx) (as well as [`SimpleReactionsList`](../components/message-components/reactions.mdx)). These options come by default from the ComponentContext but local component property will be prioritised if defined. This is how it works under the hood:
+SDK by default comes with five pre-defined reaction types (`haha`, `like`, `love`, `sad` and `wow`) which are newly rendered by <GHComponentLink text='StreamEmoji' branch="feat/reactions" path='/Reactions/StreamEmoji.tsx'/> component which utilises sprite sheet system and renders images for each reaction to make sure it works flawlessly on every system. Default reaction options are defined in <GHComponentLink text='defaultReactionOptions' branch="feat/reactions" path='/Reactions/reactionOptions.tsx'/> and these options are reused for both [`ReactionSelector`](../components/message-components/reactions.mdx#reactionselector-props) and [`ReactionsList`](../components/message-components/reactions.mdx#reactionslist-props) (as well as [`SimpleReactionsList`](../components/message-components/reactions.mdx#simplereactionslist-props)). These options come by default from the ComponentContext but local component property will be prioritised if defined. This is how it works under the hood:
 
 ```ts
 contextReactionOptions = defaultReactionOptions;
@@ -75,7 +75,7 @@ const customReactionOptions = [
 ];
 ```
 
-And then you can pass these newly created options to [`Channel`](../components/core-components/channel) component which will be then propagated to `ReactionSelector` and `ReactionsList`:
+And then you can pass these newly created options to [`Channel`](../components/core-components/channel.mdx) component which will be then propagated to `ReactionSelector` and `ReactionsList`:
 
 ```tsx
 <Channel reactionOptions={customReactionOptions}>{/*...*/}</Channel>
@@ -234,7 +234,7 @@ const newReactionOptions = [
 ];
 ```
 
-All of the extra options previously applied to `EmojiMart` emojis can now be directly applied to your custom components either manually or through your custom context. For more information see [EmojiMart integration](#emojimart-integration).
+All of the extra options previously applied to `EmojiMart` emojis can now be directly applied to your custom components either manually or through your custom context. For more information see [EmojiMart integration](#emoji-mart-integration).
 
 ### Re-enabling `angry` reaction
 
