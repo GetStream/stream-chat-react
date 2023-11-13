@@ -9,14 +9,8 @@ const visitor: Visitor = (node, index, parent) => {
   if (!parent) return;
   if (!node.position) return;
 
-  console.log('node', node);
   const prevSibling = parent.children.at(index - 1);
   if (!prevSibling?.position) return;
-  console.log(
-    'prevSibling',
-    prevSibling,
-    node.position.start.line === prevSibling.position.start.line,
-  );
 
   if (node.position.start.line === prevSibling.position.start.line) return false;
   const ownStartLine = node.position.start.line;
@@ -24,7 +18,6 @@ const visitor: Visitor = (node, index, parent) => {
 
   // the -1 is adjustment for the single line break into which multiple line breaks are converted
   const countTruncatedLineBreaks = ownStartLine - prevEndLine - 1;
-  console.log('countTruncatedLineBreaks', countTruncatedLineBreaks);
   if (countTruncatedLineBreaks < 1) return;
 
   const lineBreaks = Array.from({ length: countTruncatedLineBreaks }).map(() =>
@@ -37,7 +30,7 @@ const visitor: Visitor = (node, index, parent) => {
     ...lineBreaks,
     ...parent.children.slice(index),
   ];
-  console.log('parent.children', parent.children);
+
   return;
 };
 const transform = (tree: HNode) => {
