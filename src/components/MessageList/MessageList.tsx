@@ -19,6 +19,7 @@ import {
 } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { MessageListContextProvider } from '../../context/MessageListContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
@@ -180,7 +181,7 @@ const MessageListWithContext = <
   const showEmptyStateIndicator = elements.length === 0 && !threadList;
 
   return (
-    <>
+    <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
         <div
           className={`${messageListClass} ${threadListClass}`}
@@ -230,7 +231,7 @@ const MessageListWithContext = <
         scrollToBottom={scrollToBottomFromNotification}
         threadList={threadList}
       />
-    </>
+    </MessageListContextProvider>
   );
 };
 
