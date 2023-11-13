@@ -16,12 +16,12 @@ Array [
   "
 ",
   <blockquote>
-
+    
 
     <p>
       b
     </p>
-
+    
 
   </blockquote>,
   "
@@ -125,80 +125,80 @@ Array [
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an ordered list 1`] = `
 <ol>
-
+  
 
   <li>
-
+    
 
     <p>
       item 1
     </p>
-
+    
 
   </li>
-
+  
 
   <li>
-
+    
 
     <p>
       item 2
     </p>
-
+    
 
   </li>
-
+  
 
   <li>
-
+    
 
     <p>
       item 3
     </p>
-
+    
 
   </li>
-
+  
 
 </ol>
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between the items in an unordered list 1`] = `
 <ul>
-
+  
 
   <li>
-
+    
 
     <p>
       item 1
     </p>
-
+    
 
   </li>
-
+  
 
   <li>
-
+    
 
     <p>
       item 2
     </p>
-
+    
 
   </li>
-
+  
 
   <li>
-
+    
 
     <p>
       item 3
     </p>
-
+    
 
   </li>
-
+  
 
 </ul>
 `;
@@ -239,7 +239,7 @@ Array [
     <p>
       b
     </p>
-
+    
 
   </blockquote>,
   "
@@ -497,128 +497,128 @@ Array [
 
 exports[`keepLineBreaksPlugin present keeps line breaks between the items in an ordered list 1`] = `
 <ol>
-
+  
 
   <li>
-
+    
 
     <p>
       item 1
     </p>
-
+    
 
   </li>
-
-
-  <br />
-
-
-
-
-
+  
 
   <br />
+  
 
+  
 
+  
 
+  <br />
+  
 
+  
 
+  
 
   <li>
     <p>
       item 2
     </p>
-
+    
 
   </li>
-
-
-  <br />
-
-
-
-
-
+  
 
   <br />
+  
 
+  
 
+  
 
+  <br />
+  
 
+  
 
+  
 
   <li>
     <p>
       item 3
     </p>
-
+    
 
   </li>
-
+  
 
 </ol>
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks between the items in an unordered list 1`] = `
 <ul>
-
+  
 
   <li>
-
+    
 
     <p>
       item 1
     </p>
-
+    
 
   </li>
-
-
-  <br />
-
-
-
-
-
+  
 
   <br />
+  
 
+  
 
+  
 
+  <br />
+  
 
+  
 
+  
 
   <li>
     <p>
       item 2
     </p>
-
+    
 
   </li>
-
-
-  <br />
-
-
-
-
-
+  
 
   <br />
+  
 
+  
 
+  
 
+  <br />
+  
 
+  
 
+  
 
   <li>
     <p>
       item 3
     </p>
-
+    
 
   </li>
-
+  
 
 </ul>
 `;
@@ -650,7 +650,7 @@ Array [
 
 exports[`renderText handles the special case where there are pronouns in the name 1`] = `
 <p>
-  hey,
+  hey, 
   <span
     className="str-chat__message-mention"
     data-user-id="john"
@@ -663,7 +663,7 @@ exports[`renderText handles the special case where there are pronouns in the nam
 
 exports[`renderText handles the special case where there is a backslash in the name 1`] = `
 <p>
-  hey,
+  hey, 
   <span
     className="str-chat__message-mention"
     data-user-id="john"
@@ -676,7 +676,7 @@ exports[`renderText handles the special case where there is a backslash in the n
 
 exports[`renderText handles the special case where there is a forward slash in the name 1`] = `
 <p>
-  hey,
+  hey, 
   <span
     className="str-chat__message-mention"
     data-user-id="john"
@@ -701,14 +701,14 @@ exports[`renderText handles the special case where there's at least one mention 
 
 exports[`renderText handles the special case where user name matches to an e-mail pattern - 1 1`] = `
 <p>
-  Hello
+  Hello 
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
-  , is
+  , is 
   <a
     className=""
     href="mailto:username@email.com"
@@ -731,7 +731,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
   >
     username@email.com
   </a>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
@@ -750,21 +750,21 @@ exports[`renderText handles the special case where user name matches to an e-mai
   >
     @username@email.com
   </span>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
@@ -782,14 +782,14 @@ exports[`renderText handles the special case where user name matches to an e-mai
   >
     @username@email.com
   </span>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
   >
     @username@email.com
   </span>
-
+   
   <a
     className=""
     href="mailto:username@email.com"
@@ -798,7 +798,7 @@ exports[`renderText handles the special case where user name matches to an e-mai
   >
     username@email.com
   </a>
-
+   
   <span
     className="str-chat__message-mention"
     data-user-id="id-username@email.com"
@@ -818,7 +818,7 @@ exports[`renderText renders custom mention 1`] = `
   >
     @username@email.com
   </span>
-
+   
   <span
     className="my-mention"
     data-mentioned-user-id="id-username@email.com"
@@ -827,7 +827,7 @@ exports[`renderText renders custom mention 1`] = `
   >
     @username@email.com
   </span>
-
+   
   <a
     className=""
     href="mailto:username@email.com"
@@ -836,7 +836,7 @@ exports[`renderText renders custom mention 1`] = `
   >
     username@email.com
   </a>
-
+   
   <span
     className="my-mention"
     data-mentioned-user-id="id-username@email.com"
@@ -856,29 +856,29 @@ Array [
   "
 ",
   <ul>
-
+    
 
     <li>
       Wednesday
     </li>
-
+    
 
     <li>
       Thursday
     </li>
-
+    
 
     <li>
       <del>
         Sunday
       </del>
     </li>
-
+    
 
     <li>
       ~Monday~
     </li>
-
+    
 
   </ul>,
 ]
@@ -886,7 +886,7 @@ Array [
 
 exports[`renderText renders standard markdown text 1`] = `
 <p>
-  Hi, shall we meet on
+  Hi, shall we meet on 
   <strong>
     Tuesday
   </strong>

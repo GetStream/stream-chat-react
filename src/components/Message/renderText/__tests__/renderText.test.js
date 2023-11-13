@@ -263,7 +263,7 @@ describe(`renderText`, () => {
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <p>
-        a
+        a 
         <xxx>
           b
         </xxx>
