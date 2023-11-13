@@ -1,3 +1,15 @@
+## [11.0.0-rc.5](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.4...v11.0.0-rc.5) (2023-11-13)
+
+
+### Bug Fixes
+
+* reduce emoji-mart peer requirements, add "typesVersions" ([6e92116](https://github.com/GetStream/stream-chat-react/commit/6e921160bf3708cb3950fa3e72acc38bc223b2ab))
+
+
+### Features
+
+* introduce MessageListContext ([#2166](https://github.com/GetStream/stream-chat-react/issues/2166)) ([8dcb1ac](https://github.com/GetStream/stream-chat-react/commit/8dcb1acd5e8e3465d6b457b07f5de2923ac2daed))
+
 ## [11.0.0-rc.4](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.3...v11.0.0-rc.4) (2023-11-08)
 
 
