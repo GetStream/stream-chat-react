@@ -38,6 +38,13 @@
       "default": "./dist/scss/*"
     }
   },
+  "typesVersions": {
+    "*": {
+      "emojis": [
+        "./dist/components/Emojis/index.d.ts"
+      ]
+    }
+  },
   "sideEffects": [
     "*.css"
   ],
@@ -87,9 +94,9 @@
     "mml-react": "^0.4.7"
   },
   "peerDependencies": {
-    "@emoji-mart/data": "^1.1.2",
-    "@emoji-mart/react": "^1.1.1",
-    "emoji-mart": "^5.5.2",
+    "@emoji-mart/data": "^1.1.0",
+    "@emoji-mart/react": "^1.1.0",
+    "emoji-mart": "^5.4.0",
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "stream-chat": "^8.0.0"

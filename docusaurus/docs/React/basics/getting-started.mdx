@@ -176,6 +176,14 @@ The [`MessageInput`](../components/message-input-components/message-input.mdx) c
 
 The [`Thread`](../components/core-components/thread.mdx) component renders a list of replies tied to a single parent message in a channel's main message list. A `Thread` maintains its own state and renders its own `MessageList` and `MessageInput` components.
 
+### Emojis (picker & autocomplete)
+
+The SDK is equipped with features designed to facilitate seamless integration, enabling developers to effortlessly incorporate emoji picker and emoji autocomplete (built on top of [`emoji-mart`](https://github.com/missive/emoji-mart)) functionalities for a comprehensive chat experience.
+
+Starting from version `11.0.0`, these features are entirely optional, requiring integrators to opt-in manually. The decision was made in conjunction with enhanced architecture, aiming to reduce the overall size of the final bundles of our integrators.
+
+Make sure to read ["EmojiPicker 11.0.0"](../release-guides/emoji-picker-v11.mdx) and ["emojiSearchIndex 11.0.0"](../release-guides/emoji-search-index-v11.mdx) release guides for more information.
+
 ## Summary
 
 In addition to the above referenced UI components, client instantiation, and user connection, you need little other code to get a fully functioning chat application up and running. See below for an example of the complete code.
