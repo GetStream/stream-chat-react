@@ -1,8 +1,11 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { defaultAllowedTagNames, renderText } from '../renderText';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
+import { htmlToTextPlugin, keepLineBreaksPlugin } from '../remarkPlugins';
+import { defaultAllowedTagNames, renderText } from '../renderText';
+
+const strikeThroughText = '~~xxx~~';
 
 describe(`renderText`, () => {
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
@@ -201,7 +204,6 @@ describe(`renderText`, () => {
     `);
   });
 
-  const strikeThroughText = '~~xxx~~';
   it('renders strikethrough', () => {
     const Markdown = renderText(strikeThroughText);
     const tree = renderer.create(Markdown).toJSON();
@@ -268,5 +270,133 @@ describe(`renderText`, () => {
          c
       </p>
     `);
+  });
+});
+
+describe('keepLineBreaksPlugin', () => {
+  const lineBreaks = '\n\n\n';
+  const paragraphText = `a${lineBreaks}b${lineBreaks}c`;
+  const unorderedListText = `* item 1${lineBreaks}* item 2${lineBreaks}* item 3`;
+  const orderedListText = `1. item 1${lineBreaks}2. item 2${lineBreaks}3. item 3`;
+  const headingText = `## Heading${lineBreaks}a`;
+  const codeBlockText = 'a\n\n\n```b```\n\n\nc';
+  const horizontalRuleText = `a${lineBreaks}---${lineBreaks}b`;
+  const blockquoteText = `a${lineBreaks}>b${lineBreaks}c`;
+  const withStrikeThroughText = `a${lineBreaks}${strikeThroughText}${lineBreaks}b`;
+  const tableText = `a${lineBreaks}| a | b  |  c |  d  |\n| - | :- | -: | :-: |\n| a | b  |  c |  d  |${lineBreaks}c`;
+
+  const doRenderText = (text, present) => {
+    const Markdown = renderText(
+      text,
+      {},
+      { getRemarkPlugins: () => (present ? [keepLineBreaksPlugin] : []) },
+    );
+    return renderer.create(Markdown).toJSON();
+  };
+
+  describe('absent', () => {
+    const present = false;
+    it(`does not keep line breaks between paragraphs`, () => {
+      const tree = doRenderText(paragraphText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks between the items in an unordered list`, () => {
+      const tree = doRenderText(unorderedListText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks between the items in an ordered list`, () => {
+      const tree = doRenderText(orderedListText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks under a heading`, () => {
+      const tree = doRenderText(headingText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks around a horizontal rule`, () => {
+      const tree = doRenderText(horizontalRuleText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks around a code block`, () => {
+      const tree = doRenderText(codeBlockText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks around a blockquote`, () => {
+      const tree = doRenderText(blockquoteText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks around a strikethrough`, () => {
+      const tree = doRenderText(withStrikeThroughText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`does not keep line breaks around a table`, () => {
+      const tree = doRenderText(tableText, present);
+      expect(tree).toMatchSnapshot();
+    });
+  });
+  describe('present', () => {
+    const present = true;
+    it(`keeps line breaks between paragraphs`, () => {
+      const tree = doRenderText(paragraphText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks between the items in an unordered list`, () => {
+      const tree = doRenderText(unorderedListText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks between the items in an ordered list`, () => {
+      const tree = doRenderText(orderedListText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks under a heading`, () => {
+      const tree = doRenderText(headingText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks around a horizontal rule`, () => {
+      const tree = doRenderText(horizontalRuleText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks around a code block`, () => {
+      const tree = doRenderText(codeBlockText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks around a blockquote`, () => {
+      const tree = doRenderText(blockquoteText, present);
+      expect(tree).toMatchSnapshot();
+    });
+
+    it(`keeps line breaks around a strikethrough`, () => {
+      const tree = doRenderText(withStrikeThroughText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line breaks around a table`, () => {
+      const tree = doRenderText(tableText, present);
+      expect(tree).toMatchSnapshot();
+    });
+  });
+});
+
+describe('htmlToTextPlugin', () => {
+  const renderTextWithHtml = (withPlugin) => {
+    const textWithHtml = `
+<div>
+  <script>console.error('This error should not be logged from renderText.test.js!')</script>
+</div>
+`;
+    const Markdown = renderText(
+      textWithHtml,
+      {},
+      { getRemarkPlugins: () => (withPlugin ? [htmlToTextPlugin] : []) },
+    );
+    return renderer.create(Markdown).toJSON();
+  };
+
+  it(`absent does not keep HTML in text`, () => {
+    const tree = renderTextWithHtml(false);
+    expect(tree).toMatchSnapshot();
+  });
+
+  it(`present keeps HTML in text`, () => {
+    const tree = renderTextWithHtml(true);
+    expect(tree).toMatchSnapshot();
   });
 });

@@ -73,6 +73,14 @@
 
 * **emoji-mart:** `reactionOptions` signature has changed, see [release guide](https://github.com/GetStream/stream-chat-react/blob/7a19e386aa3adcc5741a7f0d92bc816a1a424094/docusaurus/docs/React/release-guides/new-reactions.mdx) for more information
 
+## [10.19.0](https://github.com/GetStream/stream-chat-react/compare/v10.18.0...v10.19.0) (2023-11-14)
+
+
+### Features
+
+* expose optional remark plugin to keep all line breaks and keep HTML in message text ([#2170](https://github.com/GetStream/stream-chat-react/issues/2170)) ([5b191c9](https://github.com/GetStream/stream-chat-react/commit/5b191c94de6ec4ff483be65b15ea00e754e0eb47))
+* introduce MessageListContext ([#2166](https://github.com/GetStream/stream-chat-react/issues/2166)) ([8dcb1ac](https://github.com/GetStream/stream-chat-react/commit/8dcb1acd5e8e3465d6b457b07f5de2923ac2daed))
+
 ## [10.18.0](https://github.com/GetStream/stream-chat-react/compare/v10.17.0...v10.18.0) (2023-11-07)
 
 

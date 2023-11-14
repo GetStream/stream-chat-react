@@ -1,16 +1,13 @@
+import { DefaultStreamChatGenerics } from '../../../../types/types';
+import { UserResponse } from 'stream-chat';
+import { escapeRegExp } from '../regex';
 import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
-import emojiRegex from 'emoji-regex';
 
-import { escapeRegExp } from './regex';
-
-import type { Content, Root } from 'hast';
 import type { Element } from 'react-markdown/lib/ast-to-react';
-import type { UserResponse } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { HNode } from '../types';
 
-export type HNode = Content | Root;
 export const mentionsMarkdownPlugin = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -68,15 +65,6 @@ export const mentionsMarkdownPlugin = <
 
     return findAndReplace(tree, mentionedUsersRegex, replace);
   };
-
-  return transform;
-};
-
-export const emojiMarkdownPlugin = () => {
-  const replace: ReplaceFunction = (match) =>
-    u('element', { tagName: 'emoji' }, [u('text', match)]);
-
-  const transform = (node: HNode) => findAndReplace(node, emojiRegex(), replace);
 
   return transform;
 };
