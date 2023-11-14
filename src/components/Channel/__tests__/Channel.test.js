@@ -753,7 +753,7 @@ describe('Channel', () => {
 
         await waitFor(() =>
           expect(doSendMessageRequest).toHaveBeenCalledWith(
-            channel.cid,
+            channel,
             expect.objectContaining(message),
             undefined,
           ),

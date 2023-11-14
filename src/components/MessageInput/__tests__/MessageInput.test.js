@@ -646,7 +646,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             text: messageText,
           }),
@@ -697,9 +697,10 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         await waitFor(() => {
-          const calledMock = componentName === 'EditMessageForm' ? editMock : submitMock;
+          const isEdit = componentName === 'EditMessageForm';
+          const calledMock = isEdit ? editMock : submitMock;
           expect(calledMock).toHaveBeenCalledWith(
-            expect.stringMatching(/.+:.+/),
+            isEdit ? channel.cid : channel,
             expect.objectContaining(customMessageData),
             undefined,
           );
@@ -765,7 +766,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -799,7 +800,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -835,7 +836,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -1040,7 +1041,7 @@ function axeNoViolations(container) {
       await act(() => submit());
 
       expect(submitMock).toHaveBeenCalledWith(
-        channel.cid,
+        channel,
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
