@@ -160,7 +160,7 @@ describe(`renderText`, () => {
   });
 
   it('allows to merge custom rehype plugins followed by default rehype plugins', () => {
-    const customPlugin = () => (tree) => findAndReplace(tree, /.*@.*/, () => u('text', '#'));
+    const customPlugin = () => (tree) => findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
     const Markdown = renderText(
       '@username@email.com',
@@ -184,7 +184,7 @@ describe(`renderText`, () => {
   });
 
   it('allows to merge default rehype plugins followed by custom rehype plugins', () => {
-    const customPlugin = () => (tree) => findAndReplace(tree, /.*@.*/, () => u('text', '#'));
+    const customPlugin = () => (tree) => findAndReplace(tree, [/.*@.*/, () => u('text', '#')]);
     const getRehypePlugins = (defaultPlugins) => [...defaultPlugins, customPlugin];
     const Markdown = renderText(
       '@username@email.com',
@@ -231,7 +231,7 @@ describe(`renderText`, () => {
   it('executes remark-gfm before the custom remark plugins are executed', () => {
     const replace = () => u('text', '#');
     const customPlugin = () => (tree) =>
-      findAndReplace(tree, new RegExp(strikeThroughText), replace);
+      findAndReplace(tree, [new RegExp(strikeThroughText), replace]);
 
     const getRemarkPluginsFirstCustom = (defaultPlugins) => [customPlugin, ...defaultPlugins];
     const getRemarkPluginsFirstDefault = (defaultPlugins) => [...defaultPlugins, customPlugin];
@@ -253,8 +253,9 @@ describe(`renderText`, () => {
   it('allows to render custom elements', () => {
     const customTagName = 'xxx';
     const text = 'a b c';
-    const replace = (match) => u('element', { tagName: customTagName }, [u('text', match)]);
-    const customPlugin = () => (tree) => findAndReplace(tree, /b/, replace);
+    const replace = (match) =>
+      u('element', { properties: {}, tagName: customTagName }, [u('text', match)]);
+    const customPlugin = () => (tree) => findAndReplace(tree, [/b/, replace]);
     const getRehypePlugins = (defaultPlugins) => [customPlugin, ...defaultPlugins];
     const Markdown = renderText(text, [], {
       allowedTagNames: [...defaultAllowedTagNames, customTagName],
@@ -263,7 +264,7 @@ describe(`renderText`, () => {
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <p>
-        a 
+        a
         <xxx>
           b
         </xxx>
