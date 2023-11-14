@@ -13,6 +13,7 @@ import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from 
 import type { PluggableList } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 
 export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
 
@@ -147,7 +148,11 @@ export const renderText = <
     },
   );
 
-  const remarkPlugins: PluggableList = [[remarkGfm, { singleTilde: false }]];
+  const remarkPlugins: PluggableList = [
+    htmlToTextPlugin,
+    keepLineBreaksPlugin,
+    [remarkGfm, { singleTilde: false }],
+  ];
   const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
   if (mentionedUsers?.length) {
