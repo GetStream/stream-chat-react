@@ -1,3 +1,11 @@
+## [11.0.0-rc.6](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.5...v11.0.0-rc.6) (2023-11-14)
+
+
+### Features
+
+* add pickerProps & popperOptions to EmojiPicker ([06a139a](https://github.com/GetStream/stream-chat-react/commit/06a139a60f975db51529745e16526b013e39df4a))
+* expose optional remark plugin to keep all line breaks and keep HTML in message text ([#2170](https://github.com/GetStream/stream-chat-react/issues/2170)) ([5b191c9](https://github.com/GetStream/stream-chat-react/commit/5b191c94de6ec4ff483be65b15ea00e754e0eb47))
+
 ## [11.0.0-rc.5](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.4...v11.0.0-rc.5) (2023-11-13)
 
 
