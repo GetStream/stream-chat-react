@@ -1,11 +1,11 @@
 import { visit, Visitor } from 'unist-util-visit';
 import { u } from 'unist-builder';
 
-import type { Nodes } from 'react-markdown/lib';
 import type { Break } from 'mdast';
+import type { Nodes } from 'react-markdown/lib';
 
 const visitor: Visitor = (node, index, parent) => {
-  if (typeof index === 'undefined') return;
+  if (typeof index === 'undefined' || index === 0) return;
   if (typeof parent === 'undefined') return;
   if (!node.position) return;
 
@@ -27,9 +27,9 @@ const visitor: Visitor = (node, index, parent) => {
   console.log('countTruncatedLineBreaks', countTruncatedLineBreaks);
   if (countTruncatedLineBreaks < 1) return;
 
-  const lineBreaks = Array.from({ length: countTruncatedLineBreaks }).map(() =>
+  const lineBreaks = Array.from<unknown, Break>({ length: countTruncatedLineBreaks }, () =>
     u('break', { tagName: 'br' }),
-  ) as Break[];
+  );
 
   // @ts-ignore
   parent.children = [

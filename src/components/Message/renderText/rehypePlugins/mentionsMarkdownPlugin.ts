@@ -1,12 +1,12 @@
-import { DefaultStreamChatGenerics } from '../../../../types/types';
-import { UserResponse } from 'stream-chat';
 import { escapeRegExp } from '../regex';
 import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
-import type { Element } from 'react-markdown/lib';
 import type { Nodes } from 'hast-util-find-and-replace/lib';
+import type { Element } from 'react-markdown/lib';
+import type { UserResponse } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const mentionsMarkdownPlugin = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
