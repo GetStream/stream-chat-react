@@ -822,8 +822,6 @@ exports[`renderText renders custom mention 1`] = `
 <p>
   <span
     className="my-mention"
-    data-mentioned-user-id="id-username@email.com"
-    data-node-mentioned-user-id="id-username@email.com"
     data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com
@@ -831,8 +829,6 @@ exports[`renderText renders custom mention 1`] = `
    
   <span
     className="my-mention"
-    data-mentioned-user-id="id-username@email.com"
-    data-node-mentioned-user-id="id-username@email.com"
     data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com
@@ -849,8 +845,6 @@ exports[`renderText renders custom mention 1`] = `
    
   <span
     className="my-mention"
-    data-mentioned-user-id="id-username@email.com"
-    data-node-mentioned-user-id="id-username@email.com"
     data-node-mentionedUser-id="id-username@email.com"
   >
     @username@email.com

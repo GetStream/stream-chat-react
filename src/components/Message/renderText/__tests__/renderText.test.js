@@ -45,25 +45,17 @@ describe(`renderText`, () => {
   });
 
   it('renders custom mention', () => {
+    const CustomMention = (props) => (
+      <span className='my-mention' data-node-mentionedUser-id={props.node.mentionedUser.id}>
+        {props.children}
+      </span>
+    );
     const Markdown = renderText(
       '@username@email.com @username@email.com username@email.com @username@email.com',
       [{ id: 'id-username@email.com', name: 'username@email.com' }],
       {
         customMarkDownRenderers: {
-          mention: function MyMention(props) {
-            return (
-              <span
-                className='my-mention'
-                // TODO: remove in the next major release
-                data-mentioned-user-id={props.mentioned_user.id}
-                // TODO: remove in the next major release
-                data-node-mentioned-user-id={props.node.mentioned_user.id}
-                data-node-mentionedUser-id={props.node.mentionedUser.id}
-              >
-                {props.children}
-              </span>
-            );
-          },
+          mention: CustomMention,
         },
       },
     );
@@ -264,7 +256,7 @@ describe(`renderText`, () => {
     const tree = renderer.create(Markdown).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <p>
-        a
+        a 
         <xxx>
           b
         </xxx>

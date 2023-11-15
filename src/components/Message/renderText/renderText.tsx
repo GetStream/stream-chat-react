@@ -4,16 +4,14 @@ import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
 
-import { Emoji } from './Emoji';
-import { Anchor } from './Anchor';
-import { Mention, MentionProps } from './Mention';
-import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
+import { Anchor, Emoji, Mention, MentionProps } from './componentRenderers';
 import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
+import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
+import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 
 import type { PluggableList } from 'react-markdown/lib';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 
 export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
 
@@ -159,31 +157,13 @@ export const renderText = <
     rehypePlugins.push(mentionsMarkdownPlugin(mentionedUsers));
   }
 
-  // TODO: remove in the next major release
-  if (customMarkDownRenderers?.mention) {
-    const MentionComponent = customMarkDownRenderers['mention'];
-
-    // eslint-disable-next-line react/display-name
-    customMarkDownRenderers['mention'] = ({ node, ...rest }) => (
-      <MentionComponent
-        // @ts-ignore
-        mentioned_user={node.mentionedUser}
-        // @ts-ignore
-        node={{ mentioned_user: node.mentionedUser, ...node }}
-        {...rest}
-      />
-    );
-  }
-
-  const rehypeComponents = {
-    ...markDownRenderers,
-    ...customMarkDownRenderers,
-  };
-
   return (
     <ReactMarkdown
       allowedElements={allowedTagNames}
-      components={rehypeComponents}
+      components={{
+        ...markDownRenderers,
+        ...customMarkDownRenderers,
+      }}
       rehypePlugins={getRehypePlugins(rehypePlugins)}
       remarkPlugins={getRemarkPlugins(remarkPlugins)}
       skipHtml
