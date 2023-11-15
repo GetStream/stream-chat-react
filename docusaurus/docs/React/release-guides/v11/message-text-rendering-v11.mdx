@@ -1,0 +1,55 @@
+---
+id: message-text-rendering-v11
+sidebar_position: 3
+title: Message text rendering 11.0.0
+keywords: [migration guide, upgrade, message, text rendering, breaking changes, v11]
+---
+
+Optional remark plugins `htmlToTextPlugin`, `keepLineBreaksPlugin` introduced with [stream-chat-react@v10.19.0](https://github.com/GetStream/stream-chat-react/releases/tag/v10.19.0) are now included among the default remark plugins. That means that in the messages that originally contained a sequence of multiple newline characters `\n`, these will be replaced with line break elements `<br/>`. The number of line breaks equals count of newline characters minus 1.
+The dependencies used to parse the markdown with [`renderText()` function](../../components/core-components/message_list/#rendering-message-text-with-rendertext-function) have been upgraded as a result of that, the following changes had to be performed in stream-chat-react library:
+
+### `ReactMarkdownProps` dropped from `customMarkDownRenderers`
+
+`RenderTextOptions.customMarkDownRenderers`- a mapping of element name and corresponding React component to be rendered. The components are no longer accepting `ReactMarkdownProps`
+
+### User mention renderer props change
+
+The `RenderTextOptions.customMarkDownRenderers.mention` props have been reduced. From now on, only `children` and `node` are passed to the component. And so now `mention` renderer props look as follows:
+
+```ts
+import { PropsWithChildren } from 'react';
+import type { UserResponse } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from 'stream-chat-react';
+
+type MentionProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = PropsWithChildren<{
+  node: {
+    mentionedUser: UserResponse<StreamChatGenerics>;
+  };
+}>;
+```
+
+### Adjust custom rehype or remark plugins
+
+If you have implemented your own rehype or remark plugin using `visit` function from the library `unist-util-visit` beware that the `index` and `parent` arguments of the `Visitor` function cannot be `null` but `undefined` instead. You should be notified by Typescript about this and should adjust the type checks accordingly.
+
+If you would like to prevent applying plugins `htmlToTextPlugin`, `keepLineBreaksPlugin`, you can customize your `renderText()` by overriding the remark plugins. The example below will keep the plugin `remarkGfm` and exclude the rest:
+
+```tsx
+import remarkGfm from 'remark-gfm';
+import { renderText, RenderTextPluginConfigurator } from 'stream-chat-react';
+
+
+const getRemarkPlugins: RenderTextPluginConfigurator = () => {
+    return [[remarkGfm, { singleTilde: false }]];
+};
+
+const customRenderText = (text, mentionedUsers) =>
+  renderText(text, mentionedUsers, {
+    getRemarkPlugins
+  });
+const CustomMessageList = () => (
+  <MessageList renderText={customRenderText}/>
+);
+```
