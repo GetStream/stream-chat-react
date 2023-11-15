@@ -1,3 +1,10 @@
+## [11.0.0-rc.7](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.6...v11.0.0-rc.7) (2023-11-15)
+
+
+### Bug Fixes
+
+* make pickerProps & popperOptions properties optional ([bce3d28](https://github.com/GetStream/stream-chat-react/commit/bce3d285caf9af4ce96916e85bef9b8173b846b4))
+
 ## [11.0.0-rc.6](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.5...v11.0.0-rc.6) (2023-11-14)
 
 
