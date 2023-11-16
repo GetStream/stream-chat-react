@@ -1,3 +1,15 @@
+## [10.20.0](https://github.com/GetStream/stream-chat-react/compare/v10.19.0...v10.20.0) (2023-11-16)
+
+
+### Bug Fixes
+
+* lift notifications above modal overlay ([#2175](https://github.com/GetStream/stream-chat-react/issues/2175)) ([17d98f4](https://github.com/GetStream/stream-chat-react/commit/17d98f40eaea0a134a501deea14605b71d965871))
+
+
+### Features
+
+* allow to configure channel query options ([#2177](https://github.com/GetStream/stream-chat-react/issues/2177)) ([4f91d9a](https://github.com/GetStream/stream-chat-react/commit/4f91d9a65e752f4bcab2000f5d633b57ae4d6b0e))
+
 ## [10.19.0](https://github.com/GetStream/stream-chat-react/compare/v10.18.0...v10.19.0) (2023-11-14)
 
 
