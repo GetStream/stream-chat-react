@@ -176,6 +176,39 @@ Custom UI component to display a user's avatar.
 | --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
+### channelQueryOptions
+
+Optional configuration parameters used for the initial channel query. Applied only if the value of `channel.initialized` is false. If the channel instance has already been initialized (channel has been queried), then the channel query will be skipped and channelQueryOptions will not be applied.
+
+In the example below, we specify, that the first page of messages when a channel is queried should have 20 messages (the default is 100). Note that the `channel` prop has to be passed along `channelQueryOptions`.
+
+```tsx
+import {ChannelQueryOptions} from "stream-chat";
+import {Channel, useChatContext} from "stream-chat-react";
+
+const channelQueryOptions: ChannelQueryOptions = {
+  messages: { limit: 20 },
+};
+
+type ChannelRendererProps = {
+    id: string;
+    type: string;
+};
+
+const ChannelRenderer = ({id, type}: ChannelRendererProps) => {
+  const { client } = useChatContext();
+  return (
+    <Channel channel={client.channel(type, id)} channelQueryOptions={channelQueryOptions}>
+      {/* Channel children */}
+    </Channel>
+  );
+}
+```
+
+| Type                  |
+|-----------------------|
+| `ChannelQueryOptions` |
+
 ### CooldownTimer
 
 Custom UI component to display the slow mode cooldown timer.

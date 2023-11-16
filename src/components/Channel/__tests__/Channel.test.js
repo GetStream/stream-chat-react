@@ -272,7 +272,26 @@ describe('Channel', () => {
       renderComponent({ channel, chatClient });
     });
 
-    await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      expect(watchSpy).toHaveBeenCalledTimes(1);
+      expect(watchSpy).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  it('should apply channelQueryOptions to channel watch call', async () => {
+    const { channel, chatClient } = await initClient();
+    const watchSpy = jest.spyOn(channel, 'watch');
+    const channelQueryOptions = {
+      messages: { limit: 20 },
+    };
+    await act(() => {
+      renderComponent({ channel, channelQueryOptions, chatClient });
+    });
+
+    await waitFor(() => {
+      expect(watchSpy).toHaveBeenCalledTimes(1);
+      expect(watchSpy).toHaveBeenCalledWith(channelQueryOptions);
+    });
   });
 
   it('should not call watch the current channel on mount if channel is initialized', async () => {
@@ -375,7 +394,7 @@ describe('Channel', () => {
 
     // first, wait for the effect in which the channel is watched,
     // so we know the event listener is added to the document.
-    await waitFor(() => expect(watchSpy).toHaveBeenCalledWith());
+    await waitFor(() => expect(watchSpy).toHaveBeenCalledWith(undefined));
     setTimeout(() => fireEvent(document, new Event('visibilitychange')), 0);
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
