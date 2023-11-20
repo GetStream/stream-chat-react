@@ -1,3 +1,10 @@
+## [10.20.1](https://github.com/GetStream/stream-chat-react/compare/v10.20.0...v10.20.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* calculate pagination stop from custom channel query message limit ([#2180](https://github.com/GetStream/stream-chat-react/issues/2180)) ([8374af1](https://github.com/GetStream/stream-chat-react/commit/8374af1048b81c307d0687d7730df6a96633b7e6))
+
 ## [10.20.0](https://github.com/GetStream/stream-chat-react/compare/v10.19.0...v10.20.0) (2023-11-16)
 
 
