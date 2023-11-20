@@ -68,7 +68,7 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably, hasNotMoreMessages } from '../MessageList/utils';
+import { hasMoreMessagesProbably } from '../MessageList/utils';
 import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 import { getChannel } from '../../utils/getChannel';
@@ -490,6 +490,7 @@ const ChannelInner = <
       /**
        * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
        */
+      // FIXME: we should use channelQueryOptions if they are available
       await channel.query({
         messages: { id_lt: oldestID, limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
         watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
@@ -542,7 +543,14 @@ const ChannelInner = <
       originalTitle.current = document.title;
 
       if (!errored) {
-        dispatch({ channel, type: 'initStateFromChannel' });
+        dispatch({
+          channel,
+          hasMore: hasMoreMessagesProbably(
+            channel.state.messages.length,
+            channelQueryOptions?.messages?.limit ?? DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+          ),
+          type: 'initStateFromChannel',
+        });
         if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
@@ -598,23 +606,13 @@ const ChannelInner = <
   );
 
   const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (!online.current || !window.navigator.onLine) return 0;
+    if (!online.current || !window.navigator.onLine || !state.hasMore) return 0;
 
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
 
     if (state.loadingMore || state.loadingMoreNewer || oldestMessage?.status !== 'received') {
       return 0;
-    }
-
-    // initial state loads with up to 25 messages, so if less than 25 no need for additional query
-    const notHasMore = hasNotMoreMessages(
-      channel.state.messages.length,
-      DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
-    );
-    if (notHasMore) {
-      loadMoreFinished(false, channel.state.messages);
-      return channel.state.messages.length;
     }
 
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
@@ -701,6 +699,7 @@ const ChannelInner = <
 
   const jumpToLatestMessage = async () => {
     await channel.state.loadMessageIntoState('latest');
+    // FIXME: we cannot rely on constant value 25 as the page size can be customized by integrators
     const hasMoreOlder = channel.state.messages.length >= 25;
     loadMoreFinished(hasMoreOlder, channel.state.messages);
     dispatch({
@@ -913,6 +912,7 @@ const ChannelInner = <
   );
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
+    // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
     if (state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
