@@ -125,6 +125,7 @@ const ThreadInner = <
 
   useEffect(() => {
     if (thread?.id && thread?.reply_count) {
+      // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
   }, []);

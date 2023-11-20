@@ -33,6 +33,19 @@ jest.mock('../../Loading', () => ({
   LoadingIndicator: jest.fn(() => <div>loading</div>),
 }));
 
+const queryChannelWithNewMessages = (newMessages, channel) =>
+  // generate new channel mock from existing channel with new messages added
+  getOrCreateChannelApi(
+    generateChannel({
+      channel: {
+        config: channel.getConfig(),
+        id: channel.id,
+        type: channel.type,
+      },
+      messages: newMessages,
+    }),
+  );
+
 const MockAvatar = ({ name }) => (
   <div className='avatar' data-testid='custom-avatar'>
     {name}
@@ -291,6 +304,83 @@ describe('Channel', () => {
     await waitFor(() => {
       expect(watchSpy).toHaveBeenCalledTimes(1);
       expect(watchSpy).toHaveBeenCalledWith(channelQueryOptions);
+    });
+  });
+
+  it('should set hasMore state to false if the initial channel query returns less messages than the default initial page size', async () => {
+    const { channel, chatClient } = await initClient();
+    useMockedApis(chatClient, [queryChannelWithNewMessages([generateMessage()], channel)]);
+    let hasMore;
+    await act(() => {
+      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      });
+    });
+
+    await waitFor(() => {
+      expect(hasMore).toBe(false);
+    });
+  });
+
+  it('should set hasMore state to true if the initial channel query returns count of messages equal to the default initial page size', async () => {
+    const { channel, chatClient } = await initClient();
+    useMockedApis(chatClient, [
+      queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
+    ]);
+    let hasMore;
+    await act(() => {
+      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      });
+    });
+
+    await waitFor(() => {
+      expect(hasMore).toBe(true);
+    });
+  });
+
+  it('should set hasMore state to false if the initial channel query returns less messages than the custom query channels options message limit', async () => {
+    const { channel, chatClient } = await initClient();
+    useMockedApis(chatClient, [queryChannelWithNewMessages([generateMessage()], channel)]);
+    let hasMore;
+    const channelQueryOptions = {
+      messages: { limit: 10 },
+    };
+    await act(() => {
+      renderComponent(
+        { channel, channelQueryOptions, chatClient },
+        ({ hasMore: contextHasMore }) => {
+          hasMore = contextHasMore;
+        },
+      );
+    });
+
+    await waitFor(() => {
+      expect(hasMore).toBe(false);
+    });
+  });
+
+  it('should set hasMore state to true if the initial channel query returns count of messages equal custom query channels options message limit', async () => {
+    const { channel, chatClient } = await initClient();
+    const equalCount = 10;
+    useMockedApis(chatClient, [
+      queryChannelWithNewMessages(Array.from({ length: equalCount }, generateMessage), channel),
+    ]);
+    let hasMore;
+    const channelQueryOptions = {
+      messages: { limit: equalCount },
+    };
+    await act(() => {
+      renderComponent(
+        { channel, channelQueryOptions, chatClient },
+        ({ hasMore: contextHasMore }) => {
+          hasMore = contextHasMore;
+        },
+      );
+    });
+
+    await waitFor(() => {
+      expect(hasMore).toBe(true);
     });
   });
 
@@ -605,19 +695,6 @@ describe('Channel', () => {
     });
 
     describe('loading more messages', () => {
-      const queryChannelWithNewMessages = (newMessages, channel) =>
-        // generate new channel mock from existing channel with new messages added
-        getOrCreateChannelApi(
-          generateChannel({
-            channel: {
-              config: channel.getConfig(),
-              id: channel.id,
-              type: channel.type,
-            },
-            messages: newMessages,
-          }),
-        );
-
       const limit = 10;
       it('should be able to load more messages', async () => {
         const { channel, chatClient } = await initClient();
@@ -665,7 +742,7 @@ describe('Channel', () => {
                 useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
                 loadMore(limit);
               } else {
-                // If message has been added, set our checker variable so we can verify if hasMore is false.
+                // If message has been added, set our checker variable, so we can verify if hasMore is false.
                 channelHasMore = hasMore;
               }
             },
@@ -712,6 +789,151 @@ describe('Channel', () => {
           isLoadingMore = loadingMore;
         });
         await waitFor(() => expect(isLoadingMore).toBe(true));
+      });
+
+      it('should not load the second page, if the previous query has returned less then default limit messages', async () => {
+        const { channel, chatClient } = await initClient();
+        const firstPageOfMessages = [generateMessage()];
+        useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageOfMessages, channel)]);
+        let queryNextPageSpy;
+        let contextMessageCount;
+        await act(() => {
+          renderComponent({ channel, chatClient }, ({ loadMore, messages: contextMessages }) => {
+            queryNextPageSpy = jest.spyOn(channel, 'query');
+            contextMessageCount = contextMessages.length;
+            loadMore();
+          });
+        });
+
+        await waitFor(() => {
+          expect(queryNextPageSpy).not.toHaveBeenCalled();
+          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(1);
+          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject(
+            expect.objectContaining({ data: {}, presence: false, state: true, watch: false }),
+          );
+          expect(contextMessageCount).toBe(firstPageOfMessages.length);
+        });
+      });
+      it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
+        const { channel, chatClient } = await initClient();
+        const firstPageMessages = Array.from({ length: 25 }, generateMessage);
+        const secondPageMessages = Array.from({ length: 15 }, generateMessage);
+        useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageMessages, channel)]);
+        let queryNextPageSpy;
+        let contextMessageCount;
+        await act(() => {
+          renderComponent({ channel, chatClient }, ({ loadMore, messages: contextMessages }) => {
+            queryNextPageSpy = jest.spyOn(channel, 'query');
+            contextMessageCount = contextMessages.length;
+            useMockedApis(chatClient, [queryChannelWithNewMessages(secondPageMessages, channel)]);
+            loadMore();
+          });
+        });
+
+        await waitFor(() => {
+          expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
+          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(2);
+          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
+            data: {},
+            presence: false,
+            state: true,
+            watch: false,
+          });
+          expect(chatClient.axiosInstance.post.mock.calls[1][1]).toMatchObject(
+            expect.objectContaining({
+              data: {},
+              messages: { id_lt: firstPageMessages[0].id, limit: 100 },
+              state: true,
+              watchers: { limit: 100 },
+            }),
+          );
+          expect(contextMessageCount).toBe(firstPageMessages.length + secondPageMessages.length);
+        });
+      });
+      it('should not load the second page, if the previous query has returned less then custom limit messages', async () => {
+        const { channel, chatClient } = await initClient();
+        const channelQueryOptions = {
+          messages: { limit: 10 },
+        };
+        const firstPageOfMessages = [generateMessage()];
+        useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageOfMessages, channel)]);
+        let queryNextPageSpy;
+        let contextMessageCount;
+        await act(() => {
+          renderComponent(
+            { channel, channelQueryOptions, chatClient },
+            ({ loadMore, messages: contextMessages }) => {
+              queryNextPageSpy = jest.spyOn(channel, 'query');
+              contextMessageCount = contextMessages.length;
+              loadMore(channelQueryOptions.messages.limit);
+            },
+          );
+        });
+
+        await waitFor(() => {
+          expect(queryNextPageSpy).not.toHaveBeenCalled();
+          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(1);
+          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
+            data: {},
+            messages: {
+              limit: channelQueryOptions.messages.limit,
+            },
+            presence: false,
+            state: true,
+            watch: false,
+          });
+          expect(contextMessageCount).toBe(firstPageOfMessages.length);
+        });
+      });
+      it('should load the second page, if the previous query has returned message count equal custom messages limit', async () => {
+        const { channel, chatClient } = await initClient();
+        const equalCount = 10;
+        const channelQueryOptions = {
+          messages: { limit: equalCount },
+        };
+        const firstPageMessages = Array.from({ length: equalCount }, generateMessage);
+        const secondPageMessages = Array.from({ length: equalCount - 1 }, generateMessage);
+        useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageMessages, channel)]);
+        let queryNextPageSpy;
+        let contextMessageCount;
+
+        await act(() => {
+          renderComponent(
+            { channel, channelQueryOptions, chatClient },
+            ({ loadMore, messages: contextMessages }) => {
+              queryNextPageSpy = jest.spyOn(channel, 'query');
+              contextMessageCount = contextMessages.length;
+              useMockedApis(chatClient, [queryChannelWithNewMessages(secondPageMessages, channel)]);
+              loadMore(channelQueryOptions.messages.limit);
+            },
+          );
+        });
+
+        await waitFor(() => {
+          expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
+          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(2);
+          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
+            data: {},
+            messages: {
+              limit: channelQueryOptions.messages.limit,
+            },
+            presence: false,
+            state: true,
+            watch: false,
+          });
+          expect(chatClient.axiosInstance.post.mock.calls[1][1]).toMatchObject(
+            expect.objectContaining({
+              data: {},
+              messages: {
+                id_lt: firstPageMessages[0].id,
+                limit: channelQueryOptions.messages.limit,
+              },
+              state: true,
+              watchers: { limit: channelQueryOptions.messages.limit },
+            }),
+          );
+          expect(contextMessageCount).toBe(firstPageMessages.length + secondPageMessages.length);
+        });
       });
     });
 
