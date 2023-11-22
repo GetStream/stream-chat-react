@@ -1,4 +1,9 @@
-import type { Channel, QueryChannelAPIResponse, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  ChannelQueryOptions,
+  QueryChannelAPIResponse,
+  StreamChat,
+} from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../types/types';
 
 /**
@@ -17,12 +22,14 @@ type GetChannelParams<
   channel?: Channel<StreamChatGenerics>;
   id?: string;
   members?: string[];
+  options?: ChannelQueryOptions<StreamChatGenerics>;
   type?: string;
 };
 /**
  * Calls channel.watch() if it was not already recently called. Waits for watch promise to resolve even if it was invoked previously.
  * @param client
  * @param members
+ * @param options
  * @param type
  * @param id
  * @param channel
@@ -34,6 +41,7 @@ export const getChannel = async <
   client,
   id,
   members,
+  options,
   type,
 }: GetChannelParams<StreamChatGenerics>) => {
   if (!channel && !type) {
@@ -60,7 +68,7 @@ export const getChannel = async <
   if (queryPromise) {
     await queryPromise;
   } else {
-    WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid] = theChannel.watch();
+    WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid] = theChannel.watch(options);
     await WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
     delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
   }
