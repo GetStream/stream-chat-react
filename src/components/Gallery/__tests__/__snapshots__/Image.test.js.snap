@@ -2,9 +2,10 @@
 
 exports[`Image should render component with default props 1`] = `
 <img
-  className="str-chat__message-attachment--img"
+  className="str-chat__message-attachment--img str-chat__base-image"
   data-testid="image-test"
   onClick={[Function]}
+  onError={[Function]}
   src="about:blank"
   tabIndex={0}
 />

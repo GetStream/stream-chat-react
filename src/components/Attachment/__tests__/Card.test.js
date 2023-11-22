@@ -164,7 +164,7 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
@@ -217,7 +217,7 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
@@ -296,7 +296,7 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"

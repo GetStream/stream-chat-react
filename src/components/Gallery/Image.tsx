@@ -1,6 +1,7 @@
 import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
+import { BaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { useComponentContext } from '../../context';
@@ -46,7 +47,7 @@ export const ImageComponent = <
 
   return (
     <>
-      <img
+      <BaseImage
         alt={fallback}
         className='str-chat__message-attachment--img'
         data-testid='image-test'

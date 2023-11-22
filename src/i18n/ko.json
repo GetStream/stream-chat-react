@@ -25,6 +25,7 @@
   "Error uploading image": "이미지를 업로드하는 동안 오류가 발생했습니다.",
   "Error · Unsent": "오류 · 전송되지 않음",
   "Error: {{ errorMessage }}": "오류: {{ errorMessage }}",
+  "Failed to load the image": "이미지 로드 실패",
   "Flag": "플래그",
   "Latest Messages": "최신 메시지",
   "Load more": "더 불러오기",

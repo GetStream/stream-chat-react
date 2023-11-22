@@ -1,0 +1,86 @@
+---
+id: base-image
+sidebar_position: 9
+title: BaseImage
+---
+
+import ImageShowcase from '@site/src/components/ImageShowcase';
+import BaseImageInGallery from '../../assets/base-image-in-attachment-gallery.png'
+import BaseImageInAttachmentPreview from '../../assets/base-image-in-attachment-preview.png'
+import BaseImageInImageAttachment from '../../assets/base-image-in-image-attachment.png'
+
+The `BaseImage` component's purpose is to display an image or a fallback if loading the resource has failed. The component is used internally by:
+
+- `Image` component - used to display image attachments in `Message`
+- `Gallery` component - used to display image gallery among `Message` attachments
+- `AttachmentPreviewList` component - used to display attachment previews in `MessageInput`
+
+The default image fallbacks are rendered as follows:
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: BaseImageInImageAttachment,
+      caption: <span>BaseImage in image attachment</span>,
+      alt: 'BaseImage in image attachment',
+    },
+    {
+      image: BaseImageInGallery,
+      caption: <span>BaseImage in image attachment gallery</span>,
+      alt: 'BaseImage in image attachment gallery',
+    },
+    {
+      image: BaseImageInAttachmentPreview,
+      caption: <span>BaseImage in attachment preview</span>,
+      alt: 'BaseImage in attachment preview',
+    },
+  ]}
+/>
+
+## Usage
+
+The component props are internally forwarded to the underlying `<img/>`. The component supports forwarding `ref` as well.
+
+```tsx
+import { useRef } from 'react';
+import { BaseImage } from 'stream-chat-react';
+
+const ImageFallback = () => <div>Custom fallback</div>;
+
+const MyUI = () => {
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const toggleModal = () => {
+      //...
+  }
+  const imageSrc = 'http://link.to/my/image';
+  const style = {
+      // custom styles..
+  }
+  return (
+    <BaseImage
+      alt='My image'
+      className='custom-class'
+      data-testid='custom-test-id'
+      onClick={toggleModal}
+      src={imageSrc}
+      style={style}
+      tabIndex={0}
+      ref={imgRef}
+      ImageFallback={ImageFallback}
+    />
+  );
+}
+```
+
+## Props
+
+Besides the `img` component props, the component accepts the following:
+
+### ImageFallback
+
+A custom React component to be displayed as a fallback to an image failing to load.
+
+| Type                |
+|---------------------|
+| React.ComponentType |

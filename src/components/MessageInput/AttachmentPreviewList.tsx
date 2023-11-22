@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import { FileIcon } from '../ReactFileUtilities';
 
+import { BaseImage } from '../Gallery';
+import { FileIcon } from '../ReactFileUtilities';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useFileState } from './hooks/useFileState';
 
@@ -74,7 +75,7 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
       )}
 
       {(image.previewUri || image.url) && (
-        <img
+        <BaseImage
           alt={image.file.name}
           className='str-chat__attachment-preview-thumbnail'
           src={image.previewUri ?? image.url}

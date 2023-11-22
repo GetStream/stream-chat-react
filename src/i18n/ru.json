@@ -25,6 +25,7 @@
   "Error uploading image": "Ошибка загрузки изображения",
   "Error · Unsent": "Ошибка · Не отправлено",
   "Error: {{ errorMessage }}": "Ошибка: {{ errorMessage }}",
+  "Failed to load the image": "Не удалось загрузить изображение",
   "Flag": "Пожаловаться",
   "Latest Messages": "Последние сообщения",
   "Load more": "Загрузить больше",

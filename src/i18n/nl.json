@@ -25,6 +25,7 @@
   "Error uploading image": "Fout bij uploaden afbeelding",
   "Error · Unsent": "Error: · niet verzonden",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
+  "Failed to load the image": "De afbeelding kon niet worden geladen",
   "Flag": "Markeer",
   "Latest Messages": "Laatste berichten",
   "Load more": "Meer laden",

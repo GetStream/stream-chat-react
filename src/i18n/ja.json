@@ -25,6 +25,7 @@
   "Error uploading image": "画像をアップロードのエラーが発生しました",
   "Error · Unsent": "エラー・未送信",
   "Error: {{ errorMessage }}": "エラー: {{ errorMessage }}",
+  "Failed to load the image": "画像の読み込みに失敗しました",
   "Flag": "フラグ",
   "Latest Messages": "最新のメッセージ",
   "Load more": "もっと読み込む",

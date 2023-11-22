@@ -53,7 +53,9 @@ exports[`AttachmentPreviewList renders with one image and one file with state "f
       </button>
       <img
         alt="image-upload"
-        className="str-chat__attachment-preview-thumbnail"
+        className="str-chat__attachment-preview-thumbnail str-chat__base-image"
+        data-testid="str-chat__base-image"
+        onError={[Function]}
         src="url"
       />
     </div>
@@ -206,7 +208,9 @@ exports[`AttachmentPreviewList renders with one image and one file with state "f
       </button>
       <img
         alt="image-upload"
-        className="str-chat__attachment-preview-thumbnail"
+        className="str-chat__attachment-preview-thumbnail str-chat__base-image"
+        data-testid="str-chat__base-image"
+        onError={[Function]}
         src="url"
       />
     </div>
@@ -402,7 +406,9 @@ exports[`AttachmentPreviewList renders with one image and one file with state "u
       </div>
       <img
         alt="image-upload"
-        className="str-chat__attachment-preview-thumbnail"
+        className="str-chat__attachment-preview-thumbnail str-chat__base-image"
+        data-testid="str-chat__base-image"
+        onError={[Function]}
         src="url"
       />
     </div>

@@ -25,6 +25,7 @@
   "Error uploading image": "Erreur lors de l'envoi de l'image",
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
+  "Failed to load the image": "L'image n'a pas été chargée",
   "Flag": "Signaler",
   "Latest Messages": "Derniers messages",
   "Load more": "Charger plus",

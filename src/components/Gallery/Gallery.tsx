@@ -2,6 +2,7 @@ import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
+import { BaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 
@@ -80,7 +81,7 @@ const UnMemoizedGallery = <
         key={`gallery-image-${i}`}
         onClick={() => toggleModal(i)}
       >
-        <img
+        <BaseImage
           alt='User uploaded content'
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
