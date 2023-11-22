@@ -1,3 +1,16 @@
+## [11.0.0-rc.8](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.7...v11.0.0-rc.8) (2023-11-22)
+
+
+### Bug Fixes
+
+* calculate pagination stop from custom channel query message limit ([#2180](https://github.com/GetStream/stream-chat-react/issues/2180)) ([8374af1](https://github.com/GetStream/stream-chat-react/commit/8374af1048b81c307d0687d7730df6a96633b7e6))
+* lift notifications above modal overlay ([#2175](https://github.com/GetStream/stream-chat-react/issues/2175)) ([17d98f4](https://github.com/GetStream/stream-chat-react/commit/17d98f40eaea0a134a501deea14605b71d965871))
+
+
+### Features
+
+* allow to configure channel query options ([#2177](https://github.com/GetStream/stream-chat-react/issues/2177)) ([4f91d9a](https://github.com/GetStream/stream-chat-react/commit/4f91d9a65e752f4bcab2000f5d633b57ae4d6b0e))
+
 ## [11.0.0-rc.7](https://github.com/GetStream/stream-chat-react/compare/v11.0.0-rc.6...v11.0.0-rc.7) (2023-11-15)
 
 
