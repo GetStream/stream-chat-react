@@ -84,7 +84,6 @@ export const Chat = <
 
   const {
     channel,
-    channels,
     closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
@@ -92,7 +91,6 @@ export const Chat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
-    setChannels,
     translators,
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
@@ -109,7 +107,6 @@ export const Chat = <
 
   const chatContextValue = useCreateChatContext({
     channel,
-    channels,
     channelsQueryState,
     client,
     closeMobileNav,
@@ -120,7 +117,6 @@ export const Chat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
-    setChannels,
     theme,
     themeVersion,
     useImageFlagEmojisOnWindows,
