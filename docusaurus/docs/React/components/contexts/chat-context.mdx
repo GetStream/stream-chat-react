@@ -33,6 +33,26 @@ The currently active channel, which populates the [`Channel`](../core-components
 | ------- |
 | Channel |
 
+### channelsQueryState
+
+Exposes API that:
+
+- indicates, whether and what channels query has been triggered within [`ChannelList` component](../core-components/channel-list.mdx) by its channels pagination controller - `queryInProgress` of type `ChannelQueryState`
+- allows to set the `queryInProgress` state with `setQueryInProgress` state setter
+- keeps track of error response from the channels query - `error`
+- allows to set the `error` state with `setError`
+
+The `queryInProgress` values are:
+
+- `uninitialized` - the initial state before the first channels query is triggered
+- `reload` - the initial channels query (loading the first page) is in progress
+- `load-more` - loading the next page of channels
+- `null` - at least one channels page has been loaded and there is no query in progress at the moment
+
+| Type                 |
+|----------------------|
+| `ChannelsQueryState` |
+
 ### closeMobileNav
 
 The function to close mobile navigation.
