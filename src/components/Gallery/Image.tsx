@@ -55,6 +55,7 @@ export const ImageComponent = <
         src={imageSrc}
         style={style}
         tabIndex={0}
+        title={fallback}
         {...dimensions}
         {...(innerRef && { ref: innerRef })}
       />

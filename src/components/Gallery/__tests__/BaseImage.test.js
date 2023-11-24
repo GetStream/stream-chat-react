@@ -52,6 +52,26 @@ describe('BaseImage', () => {
     renderComponent();
     expect(screen.queryByTestId(FALLBACK_TEST_ID)).toBeInTheDocument();
   });
+
+  it('should forward img props to fallback', () => {
+    const props = { alt: 'alt', title: 'title' };
+    const ImageFallback = (props) => <div>{JSON.stringify(props)}</div>;
+    renderComponent({ ...props, ImageFallback });
+    expect(screen.getByText(JSON.stringify(props))).toBeInTheDocument();
+  });
+
+  it('should apply img title to fallback root div title', () => {
+    const props = { alt: 'alt', title: 'title' };
+    renderComponent(props);
+    expect(screen.queryByTitle(props.title)).toBeInTheDocument();
+  });
+
+  it('should apply img alt to fallback root div title if img title is falsy', () => {
+    const props = { alt: 'alt' };
+    renderComponent({ alt: 'alt' });
+    expect(screen.queryByTitle(props.alt)).toBeInTheDocument();
+  });
+
   it('should render an image fallback on load error', () => {
     renderComponent(props);
     const img = getImage();

@@ -39,6 +39,8 @@ const UnMemoizedGallery = <
   const { ModalGallery = DefaultModalGallery } = useComponentContext('Gallery');
   const { t } = useTranslationContext('Gallery');
 
+  const imageFallbackTitle = t('User uploaded content');
+
   const countImagesDisplayedInPreview = 4;
   const lastImageIndexInPreview = countImagesDisplayedInPreview - 1;
 
@@ -82,9 +84,10 @@ const UnMemoizedGallery = <
         onClick={() => toggleModal(i)}
       >
         <BaseImage
-          alt='User uploaded content'
+          alt={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
+          title={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
           {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
         />
       </button>

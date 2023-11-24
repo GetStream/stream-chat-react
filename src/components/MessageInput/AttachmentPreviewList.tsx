@@ -79,6 +79,7 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
           alt={image.file.name}
           className='str-chat__attachment-preview-thumbnail'
           src={image.previewUri ?? image.url}
+          title={image.file.name}
         />
       )}
     </div>
