@@ -25,7 +25,6 @@
   "Error uploading image": "Resmi yüklerken hata",
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
-  "Failed to load the image": "Görüntü yüklenemedi",
   "Flag": "Bayrak",
   "Latest Messages": "Son Mesajlar",
   "Load more": "Daha fazla yükle",

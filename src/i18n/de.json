@@ -25,7 +25,6 @@
   "Error uploading image": "Hochladen des Bildes fehlgeschlagen",
   "Error · Unsent": "Fehler nicht gesendet",
   "Error: {{ errorMessage }}": "Fehler: {{ errorMessage }}",
-  "Failed to load the image": "Fehler beim Laden des Bildes",
   "Flag": "Meldung",
   "Latest Messages": "Neueste Nachrichten",
   "Load more": "Mehr laden",
