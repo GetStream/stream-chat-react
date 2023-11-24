@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 
-import { BaseImage } from '../Gallery';
+import { BaseImage as DefaultBaseImage } from '../Gallery';
 import { FileIcon } from '../ReactFileUtilities';
+import { useComponentContext } from '../../context';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useFileState } from './hooks/useFileState';
 
@@ -30,6 +31,7 @@ export const AttachmentPreviewList = () => {
 type PreviewItemProps = { id: string };
 
 const ImagePreviewItem = ({ id }: PreviewItemProps) => {
+  const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreviewItem');
   const { imageUploads, removeImage, uploadImage } = useMessageInputContext('ImagePreviewItem');
 
   const handleRemove: React.MouseEventHandler<HTMLButtonElement> = useCallback(

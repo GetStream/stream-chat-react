@@ -1,7 +1,7 @@
 import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-import { BaseImage } from './BaseImage';
+import { BaseImage as DefaultBaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 import { useComponentContext } from '../../context';
@@ -39,7 +39,9 @@ export const ImageComponent = <
   const { dimensions = {}, fallback, image_url, thumb_url, innerRef, previewUrl, style } = props;
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const { ModalGallery = DefaultModalGallery } = useComponentContext('ImageComponent');
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
+    'ImageComponent',
+  );
 
   const imageSrc = sanitizeUrl(previewUrl || image_url || thumb_url);
 

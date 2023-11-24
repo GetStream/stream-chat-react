@@ -2,7 +2,7 @@ import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
-import { BaseImage } from './BaseImage';
+import { BaseImage as DefaultBaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 
@@ -36,7 +36,9 @@ const UnMemoizedGallery = <
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { ModalGallery = DefaultModalGallery } = useComponentContext('Gallery');
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
+    'Gallery',
+  );
   const { t } = useTranslationContext('Gallery');
 
   const imageFallbackTitle = t('User uploaded content');

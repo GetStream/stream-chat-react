@@ -1,15 +1,18 @@
 /* eslint-disable jest-dom/prefer-in-document */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
+import { Chat } from '../../Chat';
+import { Channel } from '../../Channel';
 import { AttachmentPreviewList } from '../AttachmentPreviewList';
+import { ComponentProvider, useChatContext } from '../../../context';
 import { MessageInputContextProvider } from '../../../context/MessageInputContext';
 
-import { generateUpload } from '../../../mock-builders';
+import { generateUpload, initClientWithChannel } from '../../../mock-builders';
 
 const uploadsReducer = (pv, cv) => {
   pv[cv.id] = cv;
@@ -38,13 +41,15 @@ const generateMessageInputContextValue = ({ files = [], images = [] } = {}) => (
 
 const renderComponent = (value = {}, renderFunction = render) =>
   renderFunction(
-    <MessageInputContextProvider value={{ ...generateMessageInputContextValue(), ...value }}>
-      <AttachmentPreviewList />
-    </MessageInputContextProvider>,
+    <ComponentProvider value={{}}>
+      <MessageInputContextProvider value={{ ...generateMessageInputContextValue(), ...value }}>
+        <AttachmentPreviewList />
+      </MessageInputContextProvider>
+    </ComponentProvider>,
   );
 
 jest.mock('nanoid', () => ({
-  nanoid: () => '<randomNanoId>',
+  nanoid: () => 'randomNanoId',
 }));
 
 describe('AttachmentPreviewList', () => {
@@ -111,5 +116,41 @@ describe('AttachmentPreviewList', () => {
     fireEvent.click(deleteButton);
 
     expect(contextValue[`remove${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
+  });
+
+  it('should render custom BaseImage component', async () => {
+    const ActiveChannelSetter = ({ activeChannel }) => {
+      const { setActiveChannel } = useChatContext();
+      useEffect(() => {
+        setActiveChannel(activeChannel);
+      }, [activeChannel]); // eslint-disable-line
+      return null;
+    };
+
+    const { channel, client } = await initClientWithChannel();
+
+    const names = ['image-upload-1', 'image-upload-2'];
+    const images = names.map((name, id) =>
+      generateUpload({
+        fileOverrides: { name, type: 'image' },
+        objectOverrides: { id },
+      }),
+    );
+    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    let result;
+    await act(() => {
+      result = render(
+        <Chat client={client}>
+          <ActiveChannelSetter activeChannel={channel} />
+          <Channel BaseImage={CustomBaseImage}>
+            <MessageInputContextProvider value={generateMessageInputContextValue({ images })}>
+              <AttachmentPreviewList />
+            </MessageInputContextProvider>
+          </Channel>
+          ,
+        </Chat>,
+      );
+    });
+    expect(result.container).toMatchSnapshot();
   });
 });

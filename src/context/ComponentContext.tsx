@@ -32,7 +32,7 @@ import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type { CooldownTimerProps } from '../components';
+import type { BaseImageProps, CooldownTimerProps } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 
 export type ComponentContextValue<
@@ -46,6 +46,7 @@ export type ComponentContextValue<
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
+  BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;

@@ -197,3 +197,43 @@ exports[`Gallery should render component with default props 1`] = `
   </button>
 </div>
 `;
+
+exports[`Gallery should render custom BaseImage component 1`] = `
+<div>
+  <div
+    class="str-chat messaging light str-chat-channel str-chat__channel"
+  >
+    <div
+      class="str-chat__container"
+    >
+      <div
+        class="str-chat__gallery"
+      >
+        <button
+          class="str-chat__gallery-image"
+          data-testid="gallery-image"
+        >
+          <img
+            alt="fallback-0"
+            data-testid="custom-base-image"
+            src="image_url-0"
+            title="fallback-0"
+          />
+        </button>
+        <button
+          class="str-chat__gallery-image"
+          data-testid="gallery-image"
+        >
+          <img
+            alt="fallback-1"
+            data-testid="custom-base-image"
+            src="image_url-1"
+            title="fallback-1"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+  ,
+</div>
+`;
