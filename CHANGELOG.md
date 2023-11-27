@@ -1,3 +1,32 @@
+## [11.0.0](https://github.com/GetStream/stream-chat-react/compare/v10.20.1...v11.0.0) (2023-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **emoji-mart:** `EmojiPicker` & `EmojiIndex` signatures changed, `EmojiIndex` has been renamed to `emojiSearchIndex`, both `EmojiPicker` & `emojiSearchIndex` are now optional, see [release guide](https://github.com/GetStream/stream-chat-react/blob/v11.0.0/docusaurus/docs/React/release-guides/upgrade-to-v11.mdx) for more information
+* **emoji-mart:** `useImageFlagEmojisOnWindow` flag now requires extra style sheet import, see [release guide](https://github.com/GetStream/stream-chat-react/blob/v11.0.0/docusaurus/docs/React/release-guides/upgrade-to-v11.mdx) for more information
+* **emoji-mart:** `reactionOptions` signature has changed, see [release guide](https://github.com/GetStream/stream-chat-react/blob/v11.0.0/docusaurus/docs/React/release-guides/upgrade-to-v11.mdx) for more information
+* the first argument to `doSendMessageRequest` is now Channel instance instead of `Channel.cid`
+* apply the remark plugins `keepLineBreaksPlugin`, `htmlToTextPlugin` as a part of the default message text parsing, upgrade `unified` libraries
+
+### Bug Fixes
+
+* **emoji-mart:** new reactions  ([#1947](https://github.com/GetStream/stream-chat-react/issues/1947)) ([14bef23](https://github.com/GetStream/stream-chat-react/commit/14bef231424cbd98f1c568be35ca9ce3bb9c98f9)), closes [#1935](https://github.com/GetStream/stream-chat-react/issues/1935) [#1637](https://github.com/GetStream/stream-chat-react/issues/1637) [#1437](https://github.com/GetStream/stream-chat-react/issues/1437) [#2159](https://github.com/GetStream/stream-chat-react/issues/2159)
+* **emoji-mart:** simplify EmojiPicker & emojiSearchIndex ([#2117](https://github.com/GetStream/stream-chat-react/issues/2117)) ([a6e0a87](https://github.com/GetStream/stream-chat-react/commit/a6e0a87eee6d17acff5880f2d0dbeff3b49f8db2)), closes [#2116](https://github.com/GetStream/stream-chat-react/issues/2116) [#2094](https://github.com/GetStream/stream-chat-react/issues/2094)
+
+
+### Features
+
+* apply keepLineBreaksPlugin & htmlToTextPlugin plugins to text rendering by default ([#2169](https://github.com/GetStream/stream-chat-react/issues/2169)) ([e8047f2](https://github.com/GetStream/stream-chat-react/commit/e8047f2e5bfe11e8569fce6b5ded35139b7e3c04)), closes [#2170](https://github.com/GetStream/stream-chat-react/issues/2170) [/github.com/GetStream/stream-chat-react/blob/f0bc7ba2532760cabb1db01e685a35bd3b0b64c5/src/components/Message/renderText/renderText.tsx#L158](https://github.com/GetStream//github.com/GetStream/stream-chat-react/blob/f0bc7ba2532760cabb1db01e685a35bd3b0b64c5/src/components/Message/renderText/renderText.tsx/issues/L158)
+* export MessageListNotifications and LinkPreviewList components and component props ([#2181](https://github.com/GetStream/stream-chat-react/issues/2181)) ([a5a7e5a](https://github.com/GetStream/stream-chat-react/commit/a5a7e5aef8ea9432a948137b070a80b2898b8d32))
+* require Channel instance as the first argument to doSendMessageRequest ([#2171](https://github.com/GetStream/stream-chat-react/issues/2171)) ([2a06b88](https://github.com/GetStream/stream-chat-react/commit/2a06b88d6fdea7a9205c798397c91301fee09916))
+
+
+### Chores
+
+* **deps:** bump stream-chat from 8.14.0 to 8.14.2 ([#2179](https://github.com/GetStream/stream-chat-react/issues/2179)) ([4e6a59d](https://github.com/GetStream/stream-chat-react/commit/4e6a59dd3bcb044b091c1deb0470ba136f9155d9))
+* **deps:** bump stream-chat from 8.14.2 to 8.14.3 ([#2185](https://github.com/GetStream/stream-chat-react/issues/2185)) ([3dd8dab](https://github.com/GetStream/stream-chat-react/commit/3dd8dab51bfab8a9a6e10bb83ef3752780930899))
+
 ## [10.20.1](https://github.com/GetStream/stream-chat-react/compare/v10.20.0...v10.20.1) (2023-11-20)
 
 
