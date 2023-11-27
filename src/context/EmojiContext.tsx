@@ -6,7 +6,6 @@ import type {
   Data as EmojiMartData,
   EmojiSheetSize,
   NimbleEmojiIndex,
-  NimbleEmojiProps,
   NimblePickerProps,
 } from 'emoji-mart';
 
@@ -44,12 +43,9 @@ export type EmojiConfig = {
 
 export type EmojiContextValue = {
   emojiConfig: EmojiConfig;
-  Emoji?: React.ComponentType<NimbleEmojiProps>;
   EmojiIndex?: NimbleEmojiIndex;
   EmojiPicker?: React.ComponentType<NimblePickerProps>;
 };
-
-const DefaultEmoji = React.lazy(() => import('./DefaultEmoji'));
 
 const DefaultEmojiPicker = React.lazy(() => import('./DefaultEmojiPicker'));
 
@@ -61,15 +57,9 @@ export const EmojiProvider = ({
 }: PropsWithChildren<{
   value: EmojiContextValue;
 }>) => {
-  const {
-    Emoji = DefaultEmoji,
-    emojiConfig,
-    EmojiIndex = DefaultEmojiIndex,
-    EmojiPicker = DefaultEmojiPicker,
-  } = value;
+  const { emojiConfig, EmojiIndex = DefaultEmojiIndex, EmojiPicker = DefaultEmojiPicker } = value;
 
   const emojiContextValue: Required<EmojiContextValue> = {
-    Emoji,
     emojiConfig,
     EmojiIndex,
     EmojiPicker,

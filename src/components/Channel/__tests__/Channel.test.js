@@ -548,20 +548,15 @@ describe('Channel', () => {
         emojis: {},
       };
       const CustomEmojiPicker = () => <div />;
-      const CustomEmoji = () => <span />;
 
-      renderComponent(
-        { channel, chatClient, Emoji: CustomEmoji, emojiData, EmojiPicker: CustomEmojiPicker },
-        (ctx) => {
-          context = ctx;
-        },
-      );
+      renderComponent({ channel, chatClient, emojiData, EmojiPicker: CustomEmojiPicker }, (ctx) => {
+        context = ctx;
+      });
 
       await waitFor(() => {
         expect(context).toBeInstanceOf(Object);
         expect(context.emojiConfig.emojiData).toBe(emojiData);
         expect(context.EmojiPicker).toBe(CustomEmojiPicker);
-        expect(context.Emoji).toBe(CustomEmoji);
       });
     });
 
