@@ -41,7 +41,7 @@ describe('MML', () => {
         />
       </div>
     `);
-  });
+  }, 10000);
 
   it('should render a basic mml', async () => {
     const tree = await renderComponent({

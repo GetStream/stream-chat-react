@@ -91,7 +91,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     }
 
     if (isLoading) return;
-
+    // FIXME: this triggers loadMore call when a user types messages in thread and the scroll container container expands
     if (
       reverseOffset < Number(threshold) &&
       typeof loadPreviousPageFn === 'function' &&
