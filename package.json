@@ -8,16 +8,46 @@
     "type": "git",
     "url": "https://github.com/GetStream/stream-chat-react.git"
   },
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "jsnext:main": "dist/index.js",
-  "style": "dist/css/v2/index.css",
+  "jsdelivr": "./dist/browser.full-bundle.min.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./emojis": {
+      "types": "./dist/components/Emojis/index.d.ts",
+      "require": "./dist/components/Emojis/index.cjs.js",
+      "import": "./dist/components/Emojis/index.js",
+      "default": "./dist/components/Emojis/index.js"
+    },
+    "./dist/css/*": {
+      "default": "./dist/css/*"
+    },
+    "./dist/scss/*": {
+      "default": "./dist/scss/*"
+    },
+    "./css/*": {
+      "default": "./dist/css/*"
+    },
+    "./scss/*": {
+      "default": "./dist/scss/*"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "emojis": [
+        "./dist/components/Emojis/index.d.ts"
+      ]
+    }
+  },
   "sideEffects": [
     "*.css"
   ],
-  "source": "src/index.tsx",
-  "jsdelivr": "./dist/browser.full-bundle.min.js",
   "keywords": [
     "chat",
     "messaging",
@@ -30,10 +60,9 @@
   "dependencies": {
     "@braintree/sanitize-url": "^6.0.4",
     "@popperjs/core": "^2.11.5",
-    "@stream-io/stream-chat-css": "^3.14.2",
+    "@stream-io/stream-chat-css": "^4.0.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.10.4",
-    "emoji-mart": "3.0.1",
     "emoji-regex": "^9.2.0",
     "hast-util-find-and-replace": "^5.0.1",
     "i18next": "^21.6.14",
@@ -65,9 +94,23 @@
     "mml-react": "^0.4.7"
   },
   "peerDependencies": {
+    "@emoji-mart/data": "^1.1.0",
+    "@emoji-mart/react": "^1.1.0",
+    "emoji-mart": "^5.4.0",
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "stream-chat": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "emoji-mart": {
+      "optional": true
+    },
+    "@emoji-mart/data": {
+      "optional": true
+    },
+    "@emoji-mart/react": {
+      "optional": true
+    }
   },
   "files": [
     "dist",
@@ -86,6 +129,8 @@
     "@babel/preset-typescript": "^7.12.7",
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.29.1",
     "@rollup/plugin-babel": "^5.2.1",
@@ -103,7 +148,6 @@
     "@testing-library/react-hooks": "^8.0.0",
     "@types/deep-equal": "^1.0.1",
     "@types/dotenv": "^8.2.0",
-    "@types/emoji-mart": "^3.0.9",
     "@types/hast": "^2.3.4",
     "@types/jsdom": "^21.1.5",
     "@types/linkifyjs": "^2.1.3",
@@ -129,6 +173,7 @@
     "conventional-changelog-conventionalcommits": "^7.0.2",
     "core-js": "^3.6.5",
     "css-loader": "^5.0.1",
+    "emoji-mart": "^5.5.2",
     "eslint": "7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",

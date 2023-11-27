@@ -3,14 +3,11 @@ import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import { useEmojiIndex } from './useEmojiIndex';
 import { useAttachments } from './useAttachments';
 import { useMessageInputText } from './useMessageInputText';
-import { useEmojiPicker } from './useEmojiPicker';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 
-import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
@@ -29,7 +26,6 @@ export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachments: Attachment<StreamChatGenerics>[];
-  emojiPickerIsOpen: boolean;
   fileOrder: string[];
   fileUploads: Record<string, FileUpload>;
   imageOrder: string[];
@@ -38,11 +34,6 @@ export type MessageInputState<
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
-};
-
-type SetEmojiPickerIsOpenAction = {
-  type: 'setEmojiPickerIsOpen';
-  value: boolean;
 };
 
 type SetTextAction = {
@@ -98,7 +89,6 @@ type AddMentionedUserAction<
 export type MessageInputReducerAction<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > =
-  | SetEmojiPickerIsOpenAction
   | SetTextAction
   | ClearAction
   | SetImageUploadAction
@@ -111,10 +101,7 @@ export type MessageInputReducerAction<
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = EnrichURLsController & {
-  closeEmojiPicker: React.MouseEventHandler<HTMLElement>;
-  emojiPickerRef: React.MutableRefObject<HTMLDivElement | null>;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
-  handleEmojiKeyDown: React.KeyboardEventHandler<HTMLSpanElement>;
   handleSubmit: (
     event: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
@@ -125,23 +112,19 @@ export type MessageInputHookProps<
   maxFilesLeft: number;
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
-  onSelectEmoji: (emoji: EmojiData) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
-  openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
-  emojiIndex?: NimbleEmojiIndex;
 };
 
 const makeEmptyMessageInputState = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(): MessageInputState<StreamChatGenerics> => ({
   attachments: [],
-  emojiPickerIsOpen: false,
   fileOrder: [],
   fileUploads: {},
   imageOrder: [],
@@ -234,7 +217,6 @@ const initState = <
 
   return {
     attachments,
-    emojiPickerIsOpen: false,
     fileOrder,
     fileUploads,
     imageOrder,
@@ -256,9 +238,6 @@ const messageInputReducer = <
   action: MessageInputReducerAction<StreamChatGenerics>,
 ) => {
   switch (action.type) {
-    case 'setEmojiPickerIsOpen':
-      return { ...state, emojiPickerIsOpen: action.value };
-
     case 'setText':
       return { ...state, text: action.getNewText(state.text) };
 
@@ -386,13 +365,7 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const {
-    additionalTextareaProps,
-    closeEmojiPickerOnClick,
-    getDefaultValue,
-    message,
-    urlEnrichmentConfig,
-  } = props;
+  const { additionalTextareaProps, getDefaultValue, message, urlEnrichmentConfig } = props;
 
   const {
     channelCapabilities = {},
@@ -455,20 +428,6 @@ export const useMessageInputState = <
   const closeMentionsList = () => setShowMentionsList(false);
 
   const {
-    closeEmojiPicker,
-    emojiPickerRef,
-    handleEmojiKeyDown,
-    onSelectEmoji,
-    openEmojiPicker,
-  } = useEmojiPicker<StreamChatGenerics>(
-    state,
-    dispatch,
-    insertText,
-    textareaRef,
-    closeEmojiPickerOnClick,
-  );
-
-  const {
     maxFilesLeft,
     numberOfUploads,
     removeFile,
@@ -507,26 +466,16 @@ export const useMessageInputState = <
     ...state,
     ...enrichURLsController,
     closeCommandsList,
-    /**
-     * TODO: fix the below at some point because this type casting is wrong
-     * and just forced to not have warnings currently with the unknown casting
-     */
-    closeEmojiPicker: (closeEmojiPicker as unknown) as React.MouseEventHandler<HTMLSpanElement>,
     closeMentionsList,
-    emojiIndex: useEmojiIndex(),
-    emojiPickerRef,
     handleChange,
-    handleEmojiKeyDown,
     handleSubmit,
     insertText,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
     onPaste,
-    onSelectEmoji,
     onSelectUser,
     openCommandsList,
-    openEmojiPicker,
     openMentionsList,
     removeFile,
     removeImage,

@@ -28,20 +28,19 @@ import { ChannelList, InfiniteScroll } from 'stream-chat-react';
 If you would like to adjust the configuration parameters like `threshold`, `reverse` (`PaginatorProps`) or `useCapture`, etc. (`InfiniteScrollProps`), you can create a wrapper component where these props can be set:
 
 ```tsx
-import {
-  ChannelList,
-  InfiniteScroll,
-  InfiniteScrollProps
-} from 'stream-chat-react';
-
+import { ChannelList, InfiniteScroll, InfiniteScrollProps } from 'stream-chat-react';
 
 const Paginator = (props: InfiniteScrollProps) => <InfiniteScroll {...props} threshold={50} />;
 
-...
-<ChannelList filters={filters} sort={sort} options={options}
-             Paginator={Paginator}
-             showChannelSearch
-/>
+// ...
+
+<ChannelList
+  filters={filters}
+  sort={sort}
+  options={options}
+  Paginator={Paginator}
+  showChannelSearch
+/>;
 ```
 
 Especially the `threshold` prop may need to be set as the default is 250px. That may be too soon to load more channels.

@@ -6,16 +6,15 @@ title: Emoji Picker
 
 import CustomEmojiPicker from '../../assets/CustomEmojiPicker.png';
 
-In this example, we will demonstrate how to create a custom Emoji Picker component that can be used in the `MessageInput`.
-This component will replace the default [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx)
-with only breakfast food emojis.
+:::caution
+Note that this guide is for versions lower than `11.0.0`, the new API has slightly changed. See the ["EmojiPicker 11.0.0"](../../release-guides/emoji-picker-v11.mdx) release guide to help you transition smoothly to the new API.
+:::
+
+In this example, we will demonstrate how to create a custom Emoji Picker component that can be used in the `MessageInput`. This component will replace the default [`EmojiPicker`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EmojiPicker.tsx) with only breakfast food emojis.
 
 ## Choose Your Emojis
 
-The default `EmojiPicker` renders individual emoji objects using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js)
-component from [emoji-mart](https://www.npmjs.com/package/emoji-mart). Our custom set of emojis will need to follow the same `NimbleEmoji` props.
-`NimbleEmoji` accepts an `emoji` prop, which pertains to either an object mapping of the emoji data or simply the ID (for IDs already existing
-in `emoji-mart`). The object mapping of the `emoji` prop has the following type:
+The default `EmojiPicker` renders individual emoji objects using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/v3.0.1/src/components/emoji/nimble-emoji.js) component from [emoji-mart](https://www.npmjs.com/package/emoji-mart). Our custom set of emojis will need to follow the same `NimbleEmoji` props. `NimbleEmoji` accepts an `emoji` prop, which pertains to either an object mapping of the emoji data or simply the ID (for IDs already existing in `emoji-mart`). The object mapping of the `emoji` prop has the following type:
 
 ```tsx
 export interface BaseEmoji {
@@ -29,8 +28,7 @@ export interface BaseEmoji {
 }
 ```
 
-In this example we will use only the ID and select existing emojis. For a more detailed example of how to construct these emoji objects, please see the
-[Reactions Selector and List](../theming/reactions.mdx) section. Below is the array of breakfast emojis we will use:
+In this example we will use only the ID and select existing emojis. For a more detailed example of how to construct these emoji objects, please see the [Reactions Selector and List](../theming/reactions.mdx) section. Below is the array of breakfast emojis we will use:
 
 ```tsx
 const customEmojis = ['fried_egg', 'croissant', 'bacon', 'waffle', 'pancakes', 'doughnut'];
@@ -43,8 +41,7 @@ loaded into the component library.
 
 ## Create the Custom Component
 
-To construct our component, we will utilize the `EmojiContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for the
-`data` prop on the `Emoji` component. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker.
+To construct our component, we will utilize the `EmojiContext` to get our `emojiConfig` data. This config object contains the `emojiData` we need for the `data` prop on the `Emoji` component. Using the `onSelectEmoji` method from the `MessageInputContext`, we can add the onClick functionality to our custom picker.
 
 :::note
 The `Emoji` component needs to be wrapped in React's `Suspense` component because it is lazy loaded.

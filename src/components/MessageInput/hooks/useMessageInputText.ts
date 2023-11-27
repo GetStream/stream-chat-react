@@ -37,7 +37,7 @@ export const useMessageInputText = <
       const { maxLength } = additionalTextareaProps || {};
 
       if (!textareaRef.current) {
-        dispatch({
+        return dispatch({
           getNewText: (text) => {
             const updatedText = text + textToInsert;
             if (maxLength && updatedText.length > maxLength) {
@@ -47,7 +47,6 @@ export const useMessageInputText = <
           },
           type: 'setText',
         });
-        return;
       }
 
       const { selectionEnd, selectionStart } = textareaRef.current;

@@ -296,7 +296,7 @@ Custom UI component to override default edit message input.
 | --------- | ---------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='EditMessageForm' path='/MessageInput/EditMessageForm.tsx'/> |
 
-### Emoji
+### Emoji (removed in `11.0.0`)
 
 Custom UI component to override default `NimbleEmoji` from `emoji-mart`.
 
@@ -304,7 +304,7 @@ Custom UI component to override default `NimbleEmoji` from `emoji-mart`.
 | --------- |
 | component |
 
-### emojiData
+### emojiData (removed in `11.0.0`)
 
 Custom prop to override default `facebook.json` emoji data set from `emoji-mart`.
 
@@ -312,7 +312,7 @@ Custom prop to override default `facebook.json` emoji data set from `emoji-mart`
 | ------ |
 | object |
 
-### EmojiIcon
+### EmojiIcon (removed in `11.0.0`)
 
 Custom UI component for emoji button in input.
 
@@ -320,21 +320,30 @@ Custom UI component for emoji button in input.
 | --------- | ----------------------------------------------------------------------- |
 | component | <GHComponentLink text='EmojiIconSmall' path='/MessageInput/icons.tsx'/> |
 
-### EmojiIndex
+### EmojiIndex (removed in `11.0.0`)
 
-Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart`.
+Custom search mechanism class to override default `NimbleEmojiIndex` class from `emoji-mart`.
 
-| Type      |
-| --------- |
-| component |
+| Type  | Default                                                                                                           |
+| ----- | ----------------------------------------------------------------------------------------------------------------- |
+| class | [NimbleEmojiIndex](https://github.com/missive/emoji-mart/blob/v3.0.1/src/utils/emoji-index/nimble-emoji-index.js) |
 
-### EmojiPicker
+### emojiSearchIndex (available since `11.0.0`)
 
-Custom UI component to override default `NimblePicker` from `emoji-mart`.
+Custom search mechanism instance or object to enable emoji autocomplete. See ["emojiSearchIndex 11.0.0"](../../release-guides/emoji-search-index-v11.mdx) release guide for more information.
 
-| Type      |
-| --------- |
-| component |
+| Type   | Default   |
+| ------ | --------- |
+| object | undefined |
+
+### EmojiPicker (changed in `11.0.0`)
+
+Custom UI component to override default `NimblePicker` from `emoji-mart`. Markup structure changed in `11.0.0`, see ["EmojiPicker 11.0.0"](../../release-guides/emoji-picker-v11.mdx) release guide for more information.
+
+| Version | Type      | Default                                                                                                  |
+| ------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| >=4.0.0 | component | [NimblePicker](https://github.com/missive/emoji-mart/blob/v3.0.1/src/components/picker/nimble-picker.js) |
+| ^11.0.0 | component | undefined                                                                                                |
 
 ### EmptyPlaceholder
 
@@ -414,48 +423,50 @@ A custom function to provide size configuration for image attachments
 Allows to prevent triggering the `channel.watch()` (triggers channel query HTTP request) call when mounting the `Channel` component (the default behavior) with uninitialized (`channel.initialized`) `Channel` instance. That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client. Preventing to initialize the channel on mount allows us to postpone the channel creation in the Stream's DB to a later point in time, for example, when a first message is sent:
 
 ```typescript jsx
-import {useCallback} from "react";
+import { useCallback } from 'react';
 import {
   getChannel,
   MessageInput as StreamMessageInput,
-  MessageInputProps, MessageToSend,
+  MessageInputProps,
+  MessageToSend,
   useChannelActionContext,
-  useChatContext
-} from "stream-chat-react";
-import {Message, SendMessageOptions} from "stream-chat";
+  useChatContext,
+} from 'stream-chat-react';
+import { Message, SendMessageOptions } from 'stream-chat';
 
-import {useChannelInitContext} from "../../context/ChannelInitProvider";
-import type { MyStreamChatGenerics } from "../../types";
+import { useChannelInitContext } from '../../context/ChannelInitProvider';
+import type { MyStreamChatGenerics } from '../../types';
 
 export const MessageInput = (props: MessageInputProps) => {
-  const {client} = useChatContext();
-  const {sendMessage} = useChannelActionContext();
-  const { setInitializedChannelOnMount} = useChannelInitContext();
+  const { client } = useChatContext();
+  const { sendMessage } = useChannelActionContext();
+  const { setInitializedChannelOnMount } = useChannelInitContext();
 
-  const submitHandler: MessageInputProps['overrideSubmitHandler'] = useCallback(async (
-    message: MessageToSend<MyStreamChatGenerics>,
-    channelCid: string,
-    customMessageData?: Partial<Message<MyStreamChatGenerics>>,
-    options?: SendMessageOptions,
-  ) => {
-    const [channelType, channelId] = channelCid.split(":");
-    const channel = client.channel(channelType, channelId);
-    if (!channel.initialized) {
-      await getChannel({channel, client});
-      setInitializedChannelOnMount(true);
-    }
+  const submitHandler: MessageInputProps['overrideSubmitHandler'] = useCallback(
+    async (
+      message: MessageToSend<MyStreamChatGenerics>,
+      channelCid: string,
+      customMessageData?: Partial<Message<MyStreamChatGenerics>>,
+      options?: SendMessageOptions,
+    ) => {
+      const [channelType, channelId] = channelCid.split(':');
+      const channel = client.channel(channelType, channelId);
+      if (!channel.initialized) {
+        await getChannel({ channel, client });
+        setInitializedChannelOnMount(true);
+      }
 
-    await sendMessage(message, customMessageData, options);
-  }, [client, sendMessage, setInitializedChannelOnMount]);
-
-  return (
-    <StreamMessageInput {...props} overrideSubmitHandler={submitHandler} />
+      await sendMessage(message, customMessageData, options);
+    },
+    [client, sendMessage, setInitializedChannelOnMount],
   );
+
+  return <StreamMessageInput {...props} overrideSubmitHandler={submitHandler} />;
 };
 ```
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### Input
@@ -662,9 +673,9 @@ Custom UI component for send button.
 
 You can turn on/off thumbnail generation for video attachments
 
-| Type      |
-| --------- |
-| `boolean` |
+| Type    |
+| ------- |
+| boolean |
 
 ### skipMessageDataMemoization
 
