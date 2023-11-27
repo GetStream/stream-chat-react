@@ -1,13 +1,13 @@
 import { visit, Visitor } from 'unist-util-visit';
 
-import type { HNode } from '../types';
+import type { Nodes } from 'react-markdown/lib';
 
 const visitor: Visitor = (node) => {
   if (node.type !== 'html') return;
 
   node.type = 'text';
 };
-const transform = (tree: HNode) => {
+const transform = (tree: Nodes) => {
   visit(tree, visitor);
 };
 

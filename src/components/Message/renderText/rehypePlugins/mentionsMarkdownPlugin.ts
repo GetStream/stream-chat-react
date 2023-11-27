@@ -1,12 +1,12 @@
-import { DefaultStreamChatGenerics } from '../../../../types/types';
-import { UserResponse } from 'stream-chat';
 import { escapeRegExp } from '../regex';
 import { findAndReplace, ReplaceFunction } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
-import type { Element } from 'react-markdown/lib/ast-to-react';
-import type { HNode } from '../types';
+import type { Nodes } from 'hast-util-find-and-replace/lib';
+import type { Element } from 'react-markdown/lib';
+import type { UserResponse } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export const mentionsMarkdownPlugin = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -28,11 +28,13 @@ export const mentionsMarkdownPlugin = <
     const user = mentioned_users.find(
       ({ id, name }) => name === usernameOrId || id === usernameOrId,
     );
-    return u('element', { mentionedUser: user, tagName: 'mention' }, [u('text', match)]);
+    return u('element', { mentionedUser: user, properties: {}, tagName: 'mention' }, [
+      u('text', match),
+    ]);
   };
 
-  const transform = (tree: HNode): HNode => {
-    if (!mentioned_usernames.length) return tree;
+  const transform = (tree: Nodes) => {
+    if (!mentioned_usernames.length) return;
 
     // handles special cases of mentions where user.name is an e-mail
     // Remark GFM translates all e-mail-like text nodes to links creating
@@ -41,7 +43,7 @@ export const mentionsMarkdownPlugin = <
     // this piece finds these two separated nodes and merges them together
     // before "replace" function takes over
     visit(tree, (node, index, parent) => {
-      if (index === null) return;
+      if (typeof index === 'undefined') return;
       if (!parent) return;
 
       const nextChild = parent.children.at(index + 1) as Element;
@@ -63,7 +65,7 @@ export const mentionsMarkdownPlugin = <
       }
     });
 
-    return findAndReplace(tree, mentionedUsersRegex, replace);
+    findAndReplace(tree, [mentionedUsersRegex, replace]);
   };
 
   return transform;

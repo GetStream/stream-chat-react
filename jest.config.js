@@ -12,6 +12,8 @@ module.exports = {
   },
   preset: 'ts-jest',
   setupFiles: ['core-js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.env.setup.js'],
+  testEnvironment: 'jsdom',
   testPathIgnorePatterns: ['/node_modules/', '/examples/', '__snapshots__', '/e2e/'],
   testRegex: [
     /**
