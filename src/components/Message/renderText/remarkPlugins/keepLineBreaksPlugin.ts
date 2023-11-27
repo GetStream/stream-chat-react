@@ -2,11 +2,11 @@ import { visit, Visitor } from 'unist-util-visit';
 import { u } from 'unist-builder';
 
 import type { Break } from 'mdast';
-import type { HNode } from '../types';
+import type { Nodes } from 'react-markdown/lib';
 
 const visitor: Visitor = (node, index, parent) => {
-  if (index === null || index === 0) return;
-  if (!parent) return;
+  if (typeof index === 'undefined' || index === 0) return;
+  if (typeof parent === 'undefined') return;
   if (!node.position) return;
 
   const prevSibling = parent.children.at(index - 1);
@@ -24,16 +24,14 @@ const visitor: Visitor = (node, index, parent) => {
     u('break', { tagName: 'br' }),
   );
 
-  // @ts-ignore
   parent.children = [
     ...parent.children.slice(0, index),
     ...lineBreaks,
     ...parent.children.slice(index),
   ];
-
   return;
 };
-const transform = (tree: HNode) => {
+const transform = (tree: Nodes) => {
   visit(tree, visitor);
 };
 

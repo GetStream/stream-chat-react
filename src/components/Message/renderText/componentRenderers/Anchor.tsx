@@ -1,8 +1,7 @@
 import clsx from 'clsx';
 import React, { ComponentProps } from 'react';
-import { ReactMarkdownProps } from 'react-markdown/lib/complex-types';
 
-export const Anchor = ({ children, href }: ComponentProps<'a'> & ReactMarkdownProps) => {
+export const Anchor = ({ children, href }: ComponentProps<'a'>) => {
   const isEmail = href?.startsWith('mailto:');
   const isUrl = href?.startsWith('http');
 
