@@ -19,18 +19,16 @@ import { EditMessageForm, MessageInput as MessageInputMock } from '../../Message
 import { getReadStates } from '../../MessageList';
 import { MML as MMLMock } from '../../MML';
 import { Modal as ModalMock } from '../../Modal';
+import { defaultReactionOptions } from '../../Reactions';
 
 import {
   ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  EmojiProvider,
   TranslationProvider,
 } from '../../../context';
 import {
-  emojiComponentMock,
-  emojiDataMock,
   generateChannel,
   generateMessage,
   generateReaction,
@@ -75,9 +73,7 @@ async function renderMessageSimple({
 
   return renderer(
     <ChatProvider value={{ client, themeVersion: '1' }}>
-      <ChannelStateProvider
-        value={{ channel, channelCapabilities, channelConfig, emojiConfig: emojiDataMock }}
-      >
+      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
           value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
         >
@@ -87,25 +83,17 @@ async function renderMessageSimple({
                 Attachment: AttachmentMock,
                 // eslint-disable-next-line react/display-name
                 Message: () => <MessageSimple {...props} />,
+                reactionOptions: defaultReactionOptions,
                 ...components,
               }}
             >
-              <EmojiProvider
-                value={{
-                  Emoji: emojiComponentMock.Emoji,
-                  emojiConfig: emojiDataMock,
-                  EmojiIndex: emojiComponentMock.EmojiIndex,
-                  EmojiPicker: emojiComponentMock.EmojiPicker,
-                }}
-              >
-                <Message
-                  getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
-                  isMyMessage={() => true}
-                  message={message}
-                  threadList={false}
-                  {...props}
-                />
-              </EmojiProvider>
+              <Message
+                getMessageActions={() => Object.keys(MESSAGE_ACTIONS)}
+                isMyMessage={() => true}
+                message={message}
+                threadList={false}
+                {...props}
+              />
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>
