@@ -1,0 +1,20 @@
+---
+id: minor-breaking-changes-v11
+sidebar_position: 4
+title: Minor breaking changes 11.0.0
+keywords: [migration guide, upgrade, breaking changes, v11]
+---
+
+### Channel instance as a first argument to doSendMessageRequest
+
+The `doSendMessageRequest` will from now on be passed the `Channel` instance instead of its CID to avoid forcing the developers to recreate a reference to the `Channel` instance inside the `doSendMessageRequest` function. The developers should adjust their implementation of `doSendMessageRequest` to call directly `await channel.sendMessage(messageData, options)`:
+
+```ts
+import { ChannelProps } from 'stream-chat-react';
+
+const doSendMessageRequest: ChannelProps['doSendMessageRequest'] = async (channel, messageData, options) => {
+    // optional custom logic
+   await channel.sendMessage(messageData, options);
+   // optional custom logic
+}
+```
