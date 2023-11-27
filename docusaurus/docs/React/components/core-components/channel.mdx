@@ -183,30 +183,30 @@ Optional configuration parameters used for the initial channel query. Applied on
 In the example below, we specify, that the first page of messages when a channel is queried should have 20 messages (the default is 100). Note that the `channel` prop has to be passed along `channelQueryOptions`.
 
 ```tsx
-import {ChannelQueryOptions} from "stream-chat";
-import {Channel, useChatContext} from "stream-chat-react";
+import { ChannelQueryOptions } from 'stream-chat';
+import { Channel, useChatContext } from 'stream-chat-react';
 
 const channelQueryOptions: ChannelQueryOptions = {
   messages: { limit: 20 },
 };
 
 type ChannelRendererProps = {
-    id: string;
-    type: string;
+  id: string;
+  type: string;
 };
 
-const ChannelRenderer = ({id, type}: ChannelRendererProps) => {
+const ChannelRenderer = ({ id, type }: ChannelRendererProps) => {
   const { client } = useChatContext();
   return (
     <Channel channel={client.channel(type, id)} channelQueryOptions={channelQueryOptions}>
       {/* Channel children */}
     </Channel>
   );
-}
+};
 ```
 
 | Type                  |
-|-----------------------|
+| --------------------- |
 | `ChannelQueryOptions` |
 
 ### CooldownTimer
@@ -229,8 +229,8 @@ Custom UI component for date separators.
 
 Custom action handler to override the default `client.deleteMessage(message.id)` function.
 
-| Type                                                                                                                      |
-|---------------------------------------------------------------------------------------------------------------------------|
+| Type                                                                                           |
+| ---------------------------------------------------------------------------------------------- |
 | `(message: StreamMessage<StreamChatGenerics>) => Promise<MessageResponse<StreamChatGenerics>>` |
 
 The function can execute different logic for message replies compared to messages in the main message list based on the `parent_id` property of `StreamMessage` object:
@@ -330,7 +330,7 @@ Custom search mechanism class to override default `NimbleEmojiIndex` class from 
 
 ### emojiSearchIndex (available since `11.0.0`)
 
-Custom search mechanism instance or object to enable emoji autocomplete. See ["emojiSearchIndex 11.0.0"](../../release-guides/emoji-search-index-v11.mdx) release guide for more information.
+Custom search mechanism instance or object to enable emoji autocomplete. See ["Dropping support for built-in `EmojiIndex`"](../../release-guides/upgrade-to-v11.mdx#dropping-support-for-built-in-emojiindex) release guide for more information.
 
 | Type   | Default   |
 | ------ | --------- |
@@ -338,7 +338,7 @@ Custom search mechanism instance or object to enable emoji autocomplete. See ["e
 
 ### EmojiPicker (changed in `11.0.0`)
 
-Custom UI component to override default `NimblePicker` from `emoji-mart`. Markup structure changed in `11.0.0`, see ["EmojiPicker 11.0.0"](../../release-guides/emoji-picker-v11.mdx) release guide for more information.
+Custom UI component to override default `NimblePicker` from `emoji-mart`. Markup structure changed in `11.0.0`, see ["Dropping support for built-in `EmojiPicker`"](../../release-guides/upgrade-to-v11.mdx#dropping-support-for-built-in-emojipicker) release guide for more information.
 
 | Version | Type      | Default                                                                                                  |
 | ------- | --------- | -------------------------------------------------------------------------------------------------------- |
