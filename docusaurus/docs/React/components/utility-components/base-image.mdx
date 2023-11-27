@@ -79,8 +79,8 @@ Besides the `img` component props, the component accepts the following:
 
 ### ImageFallback
 
-A custom React component to be displayed as a fallback to an image failing to load.
+A custom React component to be displayed as a fallback to an image failing to load. The component accepts the `img` props that have originally been passed to `BaseImage` component.
 
 | Type                |
 |---------------------|
-| React.ComponentType |
+| `React.ComponentProps<'img'>` |
