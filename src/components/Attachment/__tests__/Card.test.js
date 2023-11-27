@@ -168,6 +168,7 @@ describe('Card', () => {
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -221,6 +222,7 @@ describe('Card', () => {
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -300,6 +302,7 @@ describe('Card', () => {
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
         </div>

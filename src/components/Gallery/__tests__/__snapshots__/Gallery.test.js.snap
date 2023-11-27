@@ -15,6 +15,7 @@ exports[`Gallery should render component with 3 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -28,6 +29,7 @@ exports[`Gallery should render component with 3 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -41,6 +43,7 @@ exports[`Gallery should render component with 3 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
 </div>
@@ -61,6 +64,7 @@ exports[`Gallery should render component with 4 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -74,6 +78,7 @@ exports[`Gallery should render component with 4 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -87,6 +92,7 @@ exports[`Gallery should render component with 4 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -100,6 +106,7 @@ exports[`Gallery should render component with 4 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
 </div>
@@ -120,6 +127,7 @@ exports[`Gallery should render component with 5 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -133,6 +141,7 @@ exports[`Gallery should render component with 5 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -146,6 +155,7 @@ exports[`Gallery should render component with 5 images 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -180,6 +190,7 @@ exports[`Gallery should render component with default props 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
   <button
@@ -193,6 +204,7 @@ exports[`Gallery should render component with default props 1`] = `
       data-testid="str-chat__base-image"
       onError={[Function]}
       src="about:blank"
+      title="User uploaded content"
     />
   </button>
 </div>
