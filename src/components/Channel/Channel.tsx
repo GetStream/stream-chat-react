@@ -218,7 +218,7 @@ export type ChannelProps<
     ) => Promise<MessageResponse<StreamChatGenerics>> | void;
     /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
     doSendMessageRequest?: (
-      channelId: string,
+      channel: StreamChannel<StreamChatGenerics>,
       message: Message<StreamChatGenerics>,
       options?: SendMessageOptions,
     ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
@@ -771,7 +771,7 @@ const ChannelInner = <
       let messageResponse: void | SendMessageAPIResponse<StreamChatGenerics>;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel.cid, messageData, options);
+        messageResponse = await doSendMessageRequest(channel, messageData, options);
       } else {
         messageResponse = await channel.sendMessage(messageData, options);
       }
