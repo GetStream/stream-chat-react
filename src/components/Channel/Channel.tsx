@@ -30,7 +30,6 @@ import { nanoid } from 'nanoid';
 import clsx from 'clsx';
 
 import { channelReducer, ChannelStateReducer, initialState } from './channelState';
-import { commonEmoji, defaultMinimalEmojis, emojiSetDef } from './emojiData';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
 import { useCreateTypingContext } from './hooks/useCreateTypingContext';
 import { useEditMessageHandler } from './hooks/useEditMessageHandler';
@@ -58,7 +57,6 @@ import {
 } from '../../context/ChannelStateContext';
 import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
 import { useChatContext } from '../../context/ChatContext';
-import { EmojiConfig, EmojiContextValue, EmojiProvider } from '../../context/EmojiContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 
@@ -69,11 +67,8 @@ import {
 } from '../../constants/limits';
 
 import { hasMoreMessagesProbably } from '../MessageList/utils';
-import defaultEmojiData from '../../stream-emoji.json';
 import { makeAddNotifications } from './utils';
 import { getChannel } from '../../utils/getChannel';
-
-import type { Data as EmojiMartData } from 'emoji-mart';
 
 import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
@@ -119,8 +114,10 @@ type ChannelPropsForwardedToComponentContext<
   DateSeparator?: ComponentContextValue<StreamChatGenerics>['DateSeparator'];
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
   EditMessageInput?: ComponentContextValue<StreamChatGenerics>['EditMessageInput'];
-  /** Custom UI component for emoji button in input, defaults to and accepts same props as: [EmojiIconSmall](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
-  EmojiIcon?: ComponentContextValue<StreamChatGenerics>['EmojiIcon'];
+  /** Custom UI component for rendering button with emoji picker in MessageInput */
+  EmojiPicker?: ComponentContextValue<StreamChatGenerics>['EmojiPicker'];
+  /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  emojiSearchIndex?: ComponentContextValue<StreamChatGenerics>['emojiSearchIndex'];
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: ComponentContextValue<StreamChatGenerics>['EmptyStateIndicator'];
   /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
@@ -185,92 +182,82 @@ type ChannelPropsForwardedToComponentContext<
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
 
-type ChannelPropsForwardedToEmojiContext = {
-  /** Custom prop to override default `facebook.json` emoji data set from `emoji-mart` */
-  emojiData?: EmojiMartData;
-  /** Custom UI component to override default `NimbleEmojiIndex` from `emoji-mart` */
-  EmojiIndex?: EmojiContextValue['EmojiIndex'];
-  /** Custom UI component to override default `NimblePicker` from `emoji-mart` */
-  EmojiPicker?: EmojiContextValue['EmojiPicker'];
-};
-
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
-> = ChannelPropsForwardedToComponentContext<StreamChatGenerics> &
-  ChannelPropsForwardedToEmojiContext & {
-    /** List of accepted file types */
-    acceptedFiles?: string[];
-    /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
-    activeUnreadHandler?: (unread: number, documentTitle: string) => void;
-    /** The connected and active channel */
-    channel?: StreamChannel<StreamChatGenerics>;
-    /**
-     * Optional configuration parameters used for the initial channel query.
-     * Applied only if the value of channel.initialized is false.
-     * If the channel instance has already been initialized (channel has been queried),
-     * then the channel query will be skipped and channelQueryOptions will not be applied.
-     */
-    channelQueryOptions?: ChannelQueryOptions<StreamChatGenerics>;
-    /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-    doDeleteMessageRequest?: (
-      message: StreamMessage<StreamChatGenerics>,
-    ) => Promise<MessageResponse<StreamChatGenerics>>;
-    /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
-    doMarkReadRequest?: (
-      channel: StreamChannel<StreamChatGenerics>,
-    ) => Promise<MessageResponse<StreamChatGenerics>> | void;
-    /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
-    doSendMessageRequest?: (
-      channel: StreamChannel<StreamChatGenerics>,
-      message: Message<StreamChatGenerics>,
-      options?: SendMessageOptions,
-    ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
-    /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
-    doUpdateMessageRequest?: (
-      cid: string,
-      updatedMessage: UpdatedMessage<StreamChatGenerics>,
-      options?: UpdateMessageOptions,
-    ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
-    /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
-    dragAndDropWindow?: boolean;
-    /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-    EmptyPlaceholder?: React.ReactElement;
-    /**
-     * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
-     * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
-     * or directly on MessageInput level through urlEnrichmentConfig.
-     */
-    enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
-    /** Global configuration for link preview generation in all the MessageInput components */
-    enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
-    /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
-    giphyVersion?: GiphyVersions;
-    /** A custom function to provide size configuration for image attachments */
-    imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
-    /**
-     * Allows to prevent triggering the channel.watch() call when mounting the component.
-     * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
-     * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
-     */
-    initializeOnMount?: boolean;
-    /** Maximum number of attachments allowed per message */
-    maxNumberOfFiles?: number;
-    /** Whether to allow multiple attachment uploads */
-    multipleUploads?: boolean;
-    /** Custom action handler function to run on click of an @mention in a message */
-    onMentionsClick?: OnMentionAction<StreamChatGenerics>;
-    /** Custom action handler function to run on hover of an @mention in a message */
-    onMentionsHover?: OnMentionAction<StreamChatGenerics>;
-    /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
-    optionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
-    /** You can turn on/off thumbnail generation for video attachments */
-    shouldGenerateVideoThumbnail?: boolean;
-    /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
-    skipMessageDataMemoization?: boolean;
-    /** A custom function to provide size configuration for video attachments */
-    videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
-  };
+> = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
+  /** List of accepted file types */
+  acceptedFiles?: string[];
+  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
+  activeUnreadHandler?: (unread: number, documentTitle: string) => void;
+  /** The connected and active channel */
+  channel?: StreamChannel<StreamChatGenerics>;
+  /**
+   * Optional configuration parameters used for the initial channel query.
+   * Applied only if the value of channel.initialized is false.
+   * If the channel instance has already been initialized (channel has been queried),
+   * then the channel query will be skipped and channelQueryOptions will not be applied.
+   */
+  channelQueryOptions?: ChannelQueryOptions<StreamChatGenerics>;
+  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
+  doDeleteMessageRequest?: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>>;
+  /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
+  doMarkReadRequest?: (
+    channel: StreamChannel<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>> | void;
+  /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
+  doSendMessageRequest?: (
+    channel: StreamChannel<StreamChatGenerics>,
+    message: Message<StreamChatGenerics>,
+    options?: SendMessageOptions,
+  ) => ReturnType<StreamChannel<StreamChatGenerics>['sendMessage']> | void;
+  /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
+  doUpdateMessageRequest?: (
+    cid: string,
+    updatedMessage: UpdatedMessage<StreamChatGenerics>,
+    options?: UpdateMessageOptions,
+  ) => ReturnType<StreamChat<StreamChatGenerics>['updateMessage']>;
+  /** If true, chat users will be able to drag and drop file uploads to the entire channel window */
+  dragAndDropWindow?: boolean;
+  /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
+  EmptyPlaceholder?: React.ReactElement;
+  /**
+   * A global flag to toggle the URL enrichment and link previews in `MessageInput` components.
+   * By default, the feature is disabled. Can be overridden on Thread, MessageList level through additionalMessageInputProps
+   * or directly on MessageInput level through urlEnrichmentConfig.
+   */
+  enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];
+  /** Global configuration for link preview generation in all the MessageInput components */
+  enrichURLForPreviewConfig?: Omit<URLEnrichmentConfig, 'enrichURLForPreview'>;
+  /** The giphy version to render - check the keys of the [Image Object](https://developers.giphy.com/docs/api/schema#image-object) for possible values. Uses 'fixed_height' by default */
+  giphyVersion?: GiphyVersions;
+  /** A custom function to provide size configuration for image attachments */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
+  /**
+   * Allows to prevent triggering the channel.watch() call when mounting the component.
+   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
+   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
+   */
+  initializeOnMount?: boolean;
+  /** Maximum number of attachments allowed per message */
+  maxNumberOfFiles?: number;
+  /** Whether to allow multiple attachment uploads */
+  multipleUploads?: boolean;
+  /** Custom action handler function to run on click of an @mention in a message */
+  onMentionsClick?: OnMentionAction<StreamChatGenerics>;
+  /** Custom action handler function to run on hover of an @mention in a message */
+  onMentionsHover?: OnMentionAction<StreamChatGenerics>;
+  /** If `dragAndDropWindow` prop is true, the props to pass to the MessageInput component (overrides props placed directly on MessageInput) */
+  optionalMessageInputProps?: MessageInputProps<StreamChatGenerics, V>;
+  /** You can turn on/off thumbnail generation for video attachments */
+  shouldGenerateVideoThumbnail?: boolean;
+  /** If true, skips the message data string comparison used to memoize the current channel messages (helpful for channels with 1000s of messages) */
+  skipMessageDataMemoization?: boolean;
+  /** A custom function to provide size configuration for video attachments */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
+};
 
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -344,7 +331,6 @@ const ChannelInner = <
     doSendMessageRequest,
     doUpdateMessageRequest,
     dragAndDropWindow = false,
-    emojiData = defaultEmojiData,
     enrichURLForPreviewConfig,
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
@@ -392,13 +378,6 @@ const ChannelInner = <
   const online = useRef(true);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
-
-  const emojiConfig: EmojiConfig = {
-    commonEmoji,
-    defaultMinimalEmojis,
-    emojiData,
-    emojiSetDef,
-  };
 
   const throttledCopyStateFromChannel = throttle(
     () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
@@ -1020,7 +999,8 @@ const ChannelInner = <
       CooldownTimer: props.CooldownTimer,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
-      EmojiIcon: props.EmojiIcon,
+      EmojiPicker: props.EmojiPicker,
+      emojiSearchIndex: props.emojiSearchIndex,
       EmptyStateIndicator: props.EmptyStateIndicator,
       FileUploadIcon: props.FileUploadIcon,
       GiphyPreviewMessage: props.GiphyPreviewMessage,
@@ -1053,15 +1033,6 @@ const ChannelInner = <
       VirtualMessage: props.VirtualMessage,
     }),
     [props.reactionOptions],
-  );
-
-  const emojiContextValue: EmojiContextValue = useMemo(
-    () => ({
-      emojiConfig,
-      EmojiIndex: props.EmojiIndex,
-      EmojiPicker: props.EmojiPicker,
-    }),
-    [],
   );
 
   const typingContextValue = useCreateTypingContext({
@@ -1099,16 +1070,14 @@ const ChannelInner = <
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <ComponentProvider value={componentContextValue}>
-            <EmojiProvider value={emojiContextValue}>
-              <TypingProvider value={typingContextValue}>
-                <div className={`${chatContainerClass}`}>
-                  {dragAndDropWindow && (
-                    <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
-                  )}
-                  {!dragAndDropWindow && <>{children}</>}
-                </div>
-              </TypingProvider>
-            </EmojiProvider>
+            <TypingProvider value={typingContextValue}>
+              <div className={`${chatContainerClass}`}>
+                {dragAndDropWindow && (
+                  <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
+                )}
+                {!dragAndDropWindow && <>{children}</>}
+              </div>
+            </TypingProvider>
           </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
@@ -1122,7 +1091,6 @@ const ChannelInner = <
  * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
  * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
  * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [EmojiContext](https://getstream.io/chat/docs/sdk/react/contexts/emoji_context/)
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;

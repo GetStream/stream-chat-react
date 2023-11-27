@@ -124,10 +124,14 @@ const { client } = useChatContext();
 The [`Channel`](../components/core-components/channel.mdx) component is a React Context provider that wraps all of the logic, functionality, and UI for an individual chat channel.
 It provides five separate contexts to its children:
 
+:::caution
+`EmojiContext` has been removed in version `11.0.0`, see related release guides (["Reactions 11.0.0"](../release-guides/reactions-v11.mdx), ["EmojiPicker 11.0.0"](../release-guides/emoji-picker-v11.mdx) and ["emojiSearchIndex 11.0.0"](../release-guides/emoji-search-index-v11.mdx)) to adjust your integration to this new change.
+:::
+
 - [`ChannelStateContext`](../components/contexts/channel-state-context.mdx) - stateful data (ex: `messages` or `members`)
 - [`ChannelActionContext`](../components/contexts/channel-action-context.mdx) - action handlers (ex: `sendMessage` or `openThread`)
 - [`ComponentContext`](../components/contexts/component-context.mdx) - custom component UI overrides (ex: `Avatar` or `Message`)
-- [`EmojiContext`](../components/contexts/emoji-context.mdx) - emoji UI components and data (ex: `EmojiPicker` or `emojiConfig`)
+- [`EmojiContext`](../components/contexts/emoji-context.mdx) - emoji UI components and data (ex: `EmojiPicker` or `emojiConfig`) - removed in `11.0.0`
 - [`TypingContext`](../components/contexts/typing-context.mdx) - object of currently typing users (i.e., `typing`)
 
 ### ChannelList
@@ -171,6 +175,14 @@ The [`MessageInput`](../components/message-input-components/message-input.mdx) c
 ### Thread
 
 The [`Thread`](../components/core-components/thread.mdx) component renders a list of replies tied to a single parent message in a channel's main message list. A `Thread` maintains its own state and renders its own `MessageList` and `MessageInput` components.
+
+### Emojis (picker & autocomplete)
+
+The SDK is equipped with features designed to facilitate seamless integration, enabling developers to effortlessly incorporate emoji picker and emoji autocomplete (built on top of [`emoji-mart`](https://github.com/missive/emoji-mart)) functionalities for a comprehensive chat experience.
+
+Starting from version `11.0.0`, these features are entirely optional, requiring integrators to opt-in manually. The decision was made in conjunction with enhanced architecture, aiming to reduce the overall size of the final bundles of our integrators.
+
+Make sure to read ["EmojiPicker 11.0.0"](../release-guides/emoji-picker-v11.mdx) and ["emojiSearchIndex 11.0.0"](../release-guides/emoji-search-index-v11.mdx) release guides for more information.
 
 ## Summary
 

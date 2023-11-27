@@ -15,10 +15,6 @@ import { MessageProvider } from '../../../context/MessageContext';
 import { generateReaction } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context';
 
-jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
-  jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
-);
-
 const handleReactionMock = jest.fn();
 // const loveEmojiTestId = 'emoji-love';
 
