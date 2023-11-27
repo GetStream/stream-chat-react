@@ -318,5 +318,6 @@ export const getGroupStyles = <
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages === limit;
 
+// @deprecated
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages < limit;
