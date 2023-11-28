@@ -93,7 +93,7 @@ For components that implement significant logic, it's helpful to split the compo
 The preferred method for overriding the pre-defined styles in the library is to two step process. First, import our bundled CSS into the file where you instantiate your chat application. Second, locate any Stream styles you want to override using either the browser inspector or by viewing the library code. You can then add selectors to your local CSS file to override our defaults. For example:
 
 ```js
-import '@stream-io/stream-chat-css/dist/css/index.css';
+import 'stream-chat-react/dist/css/v2/index.css';
 import './App.css';
 ```
 
