@@ -37,7 +37,7 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    setError(false);
+    return () => setError(false);
   }, [props.src]);
 
   if (props.src && !error) {
