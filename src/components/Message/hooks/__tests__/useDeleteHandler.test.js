@@ -20,8 +20,8 @@ import { act } from '@testing-library/react';
 
 let channel;
 let client;
-const message = generateMessage();
-const deleteMessage = jest.fn(() => Promise.resolve(message));
+const testMessage = generateMessage();
+const deleteMessage = jest.fn(() => Promise.resolve(testMessage));
 const updateMessage = jest.fn();
 const mouseEventMock = {
   preventDefault: jest.fn(() => {}),
@@ -36,7 +36,7 @@ const ChannelActionContextOverrider = ({ children }) => {
   );
 };
 
-async function renderUseDeleteHandler(message = message) {
+async function renderUseDeleteHandler(message = testMessage) {
   const wrapper = ({ children }) => (
     <Chat client={client}>
       <Channel channel={channel}>
@@ -83,7 +83,7 @@ describe('useDeleteHandler custom hook', () => {
   it('should update the message with the result of deletion', async () => {
     const deleteMessageResponse = generateMessage();
     deleteMessage.mockImplementationOnce(() => Promise.resolve(deleteMessageResponse));
-    const handleDelete = await renderUseDeleteHandler(message);
+    const handleDelete = await renderUseDeleteHandler(testMessage);
     await act(async () => {
       await handleDelete(mouseEventMock);
     });
