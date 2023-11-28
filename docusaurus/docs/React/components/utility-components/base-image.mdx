@@ -46,7 +46,7 @@ The component props are internally forwarded to the underlying `<img/>`. The com
 import { useRef } from 'react';
 import { BaseImage } from 'stream-chat-react';
 
-const ImageFallback = () => <div>Custom fallback</div>;
+const CustomImageFallback = () => <img src="unsupported-image-format-fallback.jpg" alt="Unsupported Image Format Fallback" />;
 
 const MyUI = () => {
   const imgRef = useRef<HTMLImageElement | null>(null);
