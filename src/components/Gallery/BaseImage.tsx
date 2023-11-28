@@ -2,7 +2,7 @@ import React, { forwardRef, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { DownloadButton } from '../Attachment/DownloadButton';
 
-export type ImageFallbackProps = React.ComponentProps<'img'>;
+export type ImageFallbackProps = React.ComponentPropsWithoutRef<'img'>;
 
 const DefaultImageFallback = ({ alt, src, title }: ImageFallbackProps) => (
   <div
@@ -25,7 +25,7 @@ const DefaultImageFallback = ({ alt, src, title }: ImageFallbackProps) => (
   </div>
 );
 
-export type BaseImageProps = React.ComponentProps<'img'> & {
+export type BaseImageProps = React.ComponentPropsWithRef<'img'> & {
   ImageFallback?: React.ComponentType<ImageFallbackProps>;
 };
 
