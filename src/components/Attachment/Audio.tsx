@@ -107,7 +107,7 @@ export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
     role='progressbar'
     style={{
       background: `linear-gradient(
-		 to right, 
+		 to right,
 		 var(--str-chat__primary-color),
 		 var(--str-chat__primary-color) ${progress}%,
 		 var(--str-chat__disabled-color) ${progress}%,

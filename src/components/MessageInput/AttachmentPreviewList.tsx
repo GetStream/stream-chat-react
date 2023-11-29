@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
-import { FileIcon } from '../ReactFileUtilities';
 
+import { BaseImage as DefaultBaseImage } from '../Gallery';
+import { FileIcon } from '../ReactFileUtilities';
+import { useComponentContext } from '../../context';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useFileState } from './hooks/useFileState';
 
@@ -29,6 +31,7 @@ export const AttachmentPreviewList = () => {
 type PreviewItemProps = { id: string };
 
 const ImagePreviewItem = ({ id }: PreviewItemProps) => {
+  const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreviewItem');
   const { imageUploads, removeImage, uploadImage } = useMessageInputContext('ImagePreviewItem');
 
   const handleRemove: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -74,10 +77,11 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
       )}
 
       {(image.previewUri || image.url) && (
-        <img
+        <BaseImage
           alt={image.file.name}
           className='str-chat__attachment-preview-thumbnail'
           src={image.previewUri ?? image.url}
+          title={image.file.name}
         />
       )}
     </div>
