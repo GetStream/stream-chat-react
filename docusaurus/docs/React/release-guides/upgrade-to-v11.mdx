@@ -525,3 +525,20 @@ const customRenderText = (text, mentionedUsers) =>
 
 const CustomMessageList = () => <MessageList renderText={customRenderText} />;
 ```
+
+## Flag `useImageFlagEmojisOnWindows`
+
+Since this release you'll need to explicitly import extra stylesheet from `stream-chat-react/css/v2/emoji-replacement.css` as it has been removed from our main stylesheet to reduce final bundle size for integrators who do not wish to use this feature.
+
+```tsx
+import { Chat } from 'stream-chat-react';
+
+import 'stream-chat-react/css/v2/index.css';
+import 'stream-chat-react/css/v2/emoji-replacement.css';
+
+export const WrappedChat = ({ children, client }) => (
+  <Chat useImageFlagEmojisOnWindows client={client}>
+    {children}
+  </Chat>
+);
+```
