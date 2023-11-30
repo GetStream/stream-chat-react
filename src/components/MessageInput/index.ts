@@ -1,4 +1,4 @@
-export * from './AttachmentPreviewList';
+export { AttachmentPreviewList } from './AttachmentPreviewList';
 export * from './CooldownTimer';
 export * from './DefaultTriggerProvider';
 export * from './EditMessageForm';

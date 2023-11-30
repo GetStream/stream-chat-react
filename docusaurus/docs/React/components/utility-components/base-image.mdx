@@ -40,47 +40,55 @@ The default image fallbacks are rendered as follows:
 
 ## Usage
 
-The component props are internally forwarded to the underlying `<img/>`. The component supports forwarding `ref` as well.
+### Custom image fallback
+
+The default image fallback can be changed by applying a new CSS data image to the fallback mask in the `BaseImage`'s `<img/>` element. The data image has to be assigned to a CSS variable `--str-chat__image-fallback-icon` within the scope of `.str-chat` class. An example follows:
+
+```css
+
+.str-chat {
+  --str-chat__image-fallback-icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iOSIgdmlld0JveD0iMCAwIDEwIDkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8cGF0aCBkPSJNOS4xOTk0OSAwLjMwNTY3MUM4LjkzOTQ5IDAuMDQ1NjcwNyA4LjUxOTQ5IDAuMDQ1NjcwNyA4LjI1OTQ5IDAuMzA1NjcxTDQuOTk5NDkgMy41NTlMMS43Mzk0OSAwLjI5OTAwNEMxLjQ3OTQ5IDAuMDM5MDAzOSAxLjA1OTQ5IDAuMDM5MDAzOSAwLjc5OTQ5MiAwLjI5OTAwNEMwLjUzOTQ5MiAwLjU1OTAwNCAwLjUzOTQ5MiAwLjk3OTAwNCAwLjc5OTQ5MiAxLjIzOUw0LjA1OTQ5IDQuNDk5TDAuNzk5NDkyIDcuNzU5QzAuNTM5NDkyIDguMDE5IDAuNTM5NDkyIDguNDM5IDAuNzk5NDkyIDguNjk5QzEuMDU5NDkgOC45NTkgMS40Nzk0OSA4Ljk1OSAxLjczOTQ5IDguNjk5TDQuOTk5NDkgNS40MzlMOC4yNTk0OSA4LjY5OUM4LjUxOTQ5IDguOTU5IDguOTM5NDkgOC45NTkgOS4xOTk0OSA4LjY5OUM5LjQ1OTQ5IDguNDM5IDkuNDU5NDkgOC4wMTkgOS4xOTk0OSA3Ljc1OUw1LjkzOTQ5IDQuNDk5TDkuMTk5NDkgMS4yMzlDOS40NTI4MyAwLjk4NTY3MSA5LjQ1MjgzIDAuNTU5MDA0IDkuMTk5NDkgMC4zMDU2NzFaIiBmaWxsPSIjNzI3NjdFIi8+Cjwvc3ZnPgo=");
+}
+```
+
+We can change the mask dimensions or color by applying the following rules to the image's class `.str-chat__base-image--load-failed`, that signals the image load has failed:
+
+```css
+:root{
+  --custom-icon-fill-color: #223344;
+  --custom-icon-width-and-height: 4rem 4rem;
+}
+
+.str-chat__base-image--load-failed {
+  mask-size: var(--custom-icon-width-and-height);
+  -webkit-mask-size: var(--custom-icon-width-and-height);
+  background-color: var(--custom-icon-fill-color);
+}
+```
+
+### Custom BaseImage
+
+The default `BaseImage` can be overridden by passing a custom component to `Channel` props:
+
 
 ```tsx
-import { useRef } from 'react';
-import { BaseImage } from 'stream-chat-react';
+import {ComponentProps } from 'react';
+import { Channel } from 'stream-chat-react';
 
-const CustomImageFallback = () => <img src="unsupported-image-format-fallback.jpg" alt="Unsupported Image Format Fallback" />;
-
-const MyUI = () => {
-  const imgRef = useRef<HTMLImageElement | null>(null);
-  const toggleModal = () => {
-      //...
-  }
-  const imageSrc = 'http://link.to/my/image';
-  const style = {
-      // custom styles..
-  }
-  return (
-    <BaseImage
-      alt='My image'
-      className='custom-class'
-      data-testid='custom-test-id'
-      onClick={toggleModal}
-      src={imageSrc}
-      style={style}
-      tabIndex={0}
-      ref={imgRef}
-      ImageFallback={ImageFallback}
-    />
-  );
+const CustomBaseImage = (props: ComponentProps<'img'>) => {
+    // your implementation...
 }
+
+export const MyUI = () => {
+  return (
+    <Channel BaseImage={CustomBaseImage}>
+      {{/* more components */ }}
+    </Channel>
+  );
+};
 ```
 
 ## Props
 
-Besides the `img` component props, the component accepts the following:
+The component accepts the `img` component props.
 
-### ImageFallback
-
-A custom React component to be displayed as a fallback to an image failing to load. The component accepts the `img` props that have originally been passed to `BaseImage` component.
-
-| Type                |
-|---------------------|
-| `React.ComponentProps<'img'>` |
