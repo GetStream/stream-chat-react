@@ -31,6 +31,7 @@ import {
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 
+import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
@@ -336,7 +337,7 @@ const UnMemoizedChannelList = <
 
   const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
   return (
-    <>
+    <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
         {showChannelSearch && (
           <ChannelSearch
@@ -374,7 +375,7 @@ const UnMemoizedChannelList = <
           </List>
         )}
       </div>
-    </>
+    </ChannelListContextProvider>
   );
 };
 

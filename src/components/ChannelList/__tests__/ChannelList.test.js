@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -36,7 +36,7 @@ import {
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
-import { ChatContext, useChatContext } from '../../../context/ChatContext';
+import { ChatContext, useChannelListContext, useChatContext } from '../../../context';
 import { ChannelListMessenger } from '../ChannelListMessenger';
 
 expect.extend(toHaveNoViolations);
@@ -1661,6 +1661,49 @@ describe('ChannelList', () => {
       expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
 
       dateNowSpy.mockRestore();
+    });
+  });
+
+  describe('context', () => {
+    it('allows to set the new list of channels', async () => {
+      let setChannelsFromOutside;
+      const channelsToBeLoaded = Array.from({ length: 5 }, generateChannel);
+      const channelsToBeSet = Array.from({ length: 5 }, generateChannel);
+      const channelsToIdString = (channels) => channels.map(({ id }) => id).join();
+      const channelsDataToIdString = (channels) => channels.map(({ channel: { id } }) => id).join();
+
+      const ChannelListCustom = () => {
+        const { channels, setChannels } = useChannelListContext();
+        useEffect(() => {
+          setChannelsFromOutside = setChannels;
+        }, []);
+        return <div>{channelsToIdString(channels)}</div>;
+      };
+      const props = {
+        filters: {},
+        List: ChannelListCustom,
+        Preview: ChannelPreviewComponent,
+      };
+
+      useMockedApis(chatClient, [queryChannelsApi(channelsToBeLoaded)]);
+
+      await act(async () => {
+        await render(
+          <Chat client={chatClient}>
+            <ChannelList {...props} />
+          </Chat>,
+        );
+      });
+
+      expect(screen.getByText(channelsDataToIdString(channelsToBeLoaded))).toBeInTheDocument();
+
+      await act(() => {
+        setChannelsFromOutside(chatClient.hydrateActiveChannels(channelsToBeSet));
+      });
+      expect(
+        screen.queryByText(channelsDataToIdString(channelsToBeLoaded)),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText(channelsDataToIdString(channelsToBeSet))).toBeInTheDocument();
     });
   });
 });
