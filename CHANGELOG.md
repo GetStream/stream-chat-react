@@ -1,3 +1,15 @@
+## [10.21.0](https://github.com/GetStream/stream-chat-react/compare/v10.20.1...v10.21.0) (2023-11-30)
+
+
+### Bug Fixes
+
+* revert "feat: expose channels state on chat level ([#2161](https://github.com/GetStream/stream-chat-react/issues/2161))" (v10) ([#2194](https://github.com/GetStream/stream-chat-react/issues/2194)) ([2932ba1](https://github.com/GetStream/stream-chat-react/commit/2932ba1104512da03f67a1a52f3177d4cbc79295))
+
+
+### Features
+
+* add channel list context (v10) ([#2195](https://github.com/GetStream/stream-chat-react/issues/2195)) ([e123c3c](https://github.com/GetStream/stream-chat-react/commit/e123c3c967dff06f0ddbc04505c7c2e852cadd1d))
+
 ## [10.20.1](https://github.com/GetStream/stream-chat-react/compare/v10.20.0...v10.20.1) (2023-11-20)
 
 
