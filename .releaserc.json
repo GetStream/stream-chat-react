@@ -9,6 +9,11 @@
     {
       "name": "rc",
       "prerelease": true
+    },
+    {
+      "name": "release-v10",
+      "channel": "v10",
+      "range": "10.x"
     }
   ],
   "plugins": [

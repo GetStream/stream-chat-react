@@ -36,7 +36,6 @@ export const useChat = <
     userLanguage: 'en',
   });
 
-  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
   const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
@@ -124,7 +123,6 @@ export const useChat = <
 
   return {
     channel,
-    channels,
     closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
@@ -132,7 +130,6 @@ export const useChat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
-    setChannels,
     translators,
   };
 };
