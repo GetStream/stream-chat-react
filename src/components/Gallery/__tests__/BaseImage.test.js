@@ -10,10 +10,8 @@ const props = {
   src: 'src',
 };
 const t = (val) => val;
-const FALLBACK_TEST_ID = 'str-chat__image-fallback';
 const BASE_IMAGE_TEST_ID = 'str-chat__base-image';
 const getImage = () => screen.queryByTestId(BASE_IMAGE_TEST_ID);
-const getFallback = () => screen.queryByTestId(FALLBACK_TEST_ID);
 
 const renderComponent = (props = {}) =>
   render(
@@ -48,43 +46,48 @@ describe('BaseImage', () => {
       </div>
     `);
   });
-  it('should render an image fallback when missing src', () => {
-    renderComponent();
-    expect(screen.queryByTestId(FALLBACK_TEST_ID)).toBeInTheDocument();
-  });
-
-  it('should forward img props to fallback', () => {
-    const props = { alt: 'alt', title: 'title' };
-    const ImageFallback = (props) => <div>{JSON.stringify(props)}</div>;
-    renderComponent({ ...props, ImageFallback });
-    expect(screen.getByText(JSON.stringify(props))).toBeInTheDocument();
-  });
-
-  it('should apply img title to fallback root div title', () => {
-    const props = { alt: 'alt', title: 'title' };
-    renderComponent(props);
-    expect(screen.queryByTitle(props.title)).toBeInTheDocument();
-  });
-
-  it('should apply img alt to fallback root div title if img title is falsy', () => {
-    const props = { alt: 'alt' };
-    renderComponent({ alt: 'alt' });
-    expect(screen.queryByTitle(props.alt)).toBeInTheDocument();
-  });
 
   it('should render an image fallback on load error', () => {
-    renderComponent(props);
+    const { container } = renderComponent(props);
     const img = getImage();
-    expect(getImage()).toBeInTheDocument();
-    expect(getFallback()).not.toBeInTheDocument();
 
     fireEvent.error(img);
-    expect(img).not.toBeInTheDocument();
-    expect(getFallback()).toBeInTheDocument();
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <img
+          alt="alt"
+          class="str-chat__base-image str-chat__base-image--load-failed"
+          data-testid="str-chat__base-image"
+          src="src"
+        />
+        <a
+          aria-label="Attachment"
+          class="str-chat__message-attachment-file--item-download"
+          download=""
+          href="src"
+          target="_blank"
+        >
+          <svg
+            class="str-chat__message-attachment-download-icon"
+            data-testid="download"
+            fill="none"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04ZM19 18H6C3.79 18 2 16.21 2 14C2 11.95 3.53 10.24 5.56 10.03L6.63 9.92L7.13 8.97C8.08 7.14 9.94 6 12 6C14.62 6 16.88 7.86 17.39 10.43L17.69 11.93L19.22 12.04C20.78 12.14 22 13.45 22 15C22 16.65 20.65 18 19 18ZM13.45 10H10.55V13H8L12 17L16 13H13.45V10Z"
+              fill="black"
+            />
+          </svg>
+        </a>
+      </div>
+    `);
   });
 
   it('should reset error state on image src change', () => {
-    const { rerender } = renderComponent(props);
+    const { container, rerender } = renderComponent(props);
 
     fireEvent.error(getImage());
 
@@ -93,8 +96,15 @@ describe('BaseImage', () => {
         <BaseImage src={'new-src'} />
       </TranslationProvider>,
     );
-    expect(getImage()).toBeInTheDocument();
-    expect(getFallback()).not.toBeInTheDocument();
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <img
+          class="str-chat__base-image"
+          data-testid="str-chat__base-image"
+          src="new-src"
+        />
+      </div>
+    `);
   });
 
   it('should execute a custom onError callback on load error', () => {
@@ -103,15 +113,5 @@ describe('BaseImage', () => {
 
     fireEvent.error(getImage());
     expect(onError).toHaveBeenCalledTimes(1);
-  });
-  it('should render a custom image fallback on load error', () => {
-    const testId = 'custom-fallback';
-    const ImageFallback = () => <div data-testid={testId}>Custom Fallback</div>;
-    renderComponent({ ...props, ImageFallback });
-
-    fireEvent.error(getImage());
-    expect(screen.queryByTestId(testId)).toBeInTheDocument();
-    expect(getImage()).not.toBeInTheDocument();
-    expect(getFallback()).not.toBeInTheDocument();
   });
 });

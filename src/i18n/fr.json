@@ -60,6 +60,7 @@
   "Unmute": "Désactiver muet",
   "Unpin": "Détacher",
   "Upload type: \"{{ type }}\" is not allowed": "Le type de téléchargement: \"{{ type }}\" n'est pas autorisé",
+  "User uploaded content": "Contenu téléchargé par l'utilisateur",
   "Wait until all attachments have uploaded": "Attendez que toutes les pièces jointes soient téléchargées",
   "You have no channels currently": "Vous n'avez actuellement aucun canal",
   "You've reached the maximum number of files": "Vous avez atteint le nombre maximum de fichiers",
