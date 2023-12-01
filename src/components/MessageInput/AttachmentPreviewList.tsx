@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
+import clsx from 'clsx';
+import React, { useCallback, useState } from 'react';
 
 import { BaseImage as DefaultBaseImage } from '../Gallery';
 import { FileIcon } from '../ReactFileUtilities';
-import { useComponentContext } from '../../context';
-import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useComponentContext, useMessageInputContext } from '../../context';
 import { useFileState } from './hooks/useFileState';
 
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
@@ -30,9 +30,10 @@ export const AttachmentPreviewList = () => {
 
 type PreviewItemProps = { id: string };
 
-const ImagePreviewItem = ({ id }: PreviewItemProps) => {
+export const ImagePreviewItem = ({ id }: PreviewItemProps) => {
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreviewItem');
   const { imageUploads, removeImage, uploadImage } = useMessageInputContext('ImagePreviewItem');
+  const [previewError, setPreviewError] = useState(false);
 
   const handleRemove: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -43,24 +44,29 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
   );
   const handleRetry = useCallback(() => uploadImage(id), [uploadImage, id]);
 
-  const image = imageUploads[id];
-  const state = useFileState(image);
+  const handleLoadError = useCallback(() => setPreviewError(true), []);
 
+  const image = imageUploads[id];
   // do not display scraped attachments
   if (!image || image.og_scrape_url) return null;
 
   return (
-    <div className='str-chat__attachment-preview-image' data-testid='attachment-preview-image'>
+    <div
+      className={clsx('str-chat__attachment-preview-image', {
+        'str-chat__attachment-preview-image--error': previewError,
+      })}
+      data-testid='attachment-preview-image'
+    >
       <button
         className='str-chat__attachment-preview-delete'
         data-testid='image-preview-item-delete-button'
-        disabled={state.uploading}
+        disabled={image.state === 'uploading'}
         onClick={handleRemove}
       >
         <CloseIcon />
       </button>
 
-      {state.failed && (
+      {image.state === 'failed' && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-image'
           data-testid='image-preview-item-retry-button'
@@ -70,7 +76,7 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
         </button>
       )}
 
-      {state.uploading && (
+      {image.state === 'uploading' && (
         <div className='str-chat__attachment-preview-image-loading'>
           <LoadingIndicatorIcon size={17} />
         </div>
@@ -80,6 +86,7 @@ const ImagePreviewItem = ({ id }: PreviewItemProps) => {
         <BaseImage
           alt={image.file.name}
           className='str-chat__attachment-preview-thumbnail'
+          onError={handleLoadError}
           src={image.previewUri ?? image.url}
           title={image.file.name}
         />

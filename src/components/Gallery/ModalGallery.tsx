@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import ImageGallery from 'react-image-gallery';
+import { useTranslationContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -19,6 +20,7 @@ export const ModalGallery = <
   props: ModalGalleryProps<StreamChatGenerics>,
 ) => {
   const { images, index } = props;
+  const { t } = useTranslationContext('ModalGallery');
 
   const formattedArray = useMemo(
     () =>
@@ -26,7 +28,7 @@ export const ModalGallery = <
         const imageSrc = image.image_url || image.thumb_url || '';
         return {
           original: imageSrc,
-          originalAlt: 'User uploaded content',
+          originalAlt: t('User uploaded content'),
           source: imageSrc,
         };
       }),
