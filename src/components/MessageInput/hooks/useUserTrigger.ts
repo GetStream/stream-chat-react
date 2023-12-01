@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import throttle from 'lodash.throttle';
+import { useCallback } from 'react';
+import debounce from 'lodash.debounce';
 
 import { SearchLocalUserParams, searchLocalUsers } from './utils';
 
@@ -25,6 +25,8 @@ export type UserTriggerParams<
   useMentionsTransliteration?: boolean;
 };
 
+const DEBOUNCE_DELAY = 200;
+
 export const useUserTrigger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -38,8 +40,6 @@ export const useUserTrigger = <
     useMentionsTransliteration,
   } = params;
 
-  const [searching, setSearching] = useState(false);
-
   const { client, mutes, themeVersion } = useChatContext<StreamChatGenerics>('useUserTrigger');
   const { channel } = useChannelStateContext<StreamChatGenerics>('useUserTrigger');
 
@@ -52,7 +52,7 @@ export const useUserTrigger = <
     const users = [...memberUsers, ...watcherUsers];
 
     // make sure we don't list users twice
-    const uniqueUsers = {} as Record<string, UserResponse<StreamChatGenerics>>;
+    const uniqueUsers: Record<string, UserResponse<StreamChatGenerics>> = {};
 
     users.forEach((user) => {
       if (user && !uniqueUsers[user.id]) {
@@ -63,8 +63,8 @@ export const useUserTrigger = <
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
-  const queryMembersThrottled = useCallback(
-    throttle(
+  const queryMembersDebounced = useCallback(
+    debounce(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         try {
           // @ts-expect-error
@@ -85,71 +85,63 @@ export const useUserTrigger = <
           console.log({ error });
         }
       },
-      200,
+      DEBOUNCE_DELAY,
     ),
     [channel],
   );
 
-  const queryUsers = async (
-    query: string,
-    onReady: (users: UserResponse<StreamChatGenerics>[]) => void,
-  ) => {
-    if (!query || searching) return;
-    setSearching(true);
+  const queryUsersDebounced = useCallback(
+    debounce(
+      async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
+        if (!query) return;
 
-    try {
-      const { users } = await client.queryUsers(
-        // @ts-expect-error
-        {
-          $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
-          id: { $ne: client.userID },
-          ...(typeof mentionQueryParams.filters === 'function'
-            ? mentionQueryParams.filters(query)
-            : mentionQueryParams.filters),
-        },
-        Array.isArray(mentionQueryParams.sort)
-          ? [{ id: 1 }, ...mentionQueryParams.sort]
-          : { id: 1, ...mentionQueryParams.sort },
-        { limit: 10, ...mentionQueryParams.options },
-      );
+        try {
+          const { users } = await client.queryUsers(
+            // @ts-expect-error
+            {
+              $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
+              id: { $ne: client.userID },
+              ...(typeof mentionQueryParams.filters === 'function'
+                ? mentionQueryParams.filters(query)
+                : mentionQueryParams.filters),
+            },
+            Array.isArray(mentionQueryParams.sort)
+              ? [{ id: 1 }, ...mentionQueryParams.sort]
+              : { id: 1, ...mentionQueryParams.sort },
+            // TODO: adjust limit
+            { limit: 10, ...mentionQueryParams.options },
+          );
+          onReady?.(users);
+        } catch (error) {
+          console.log({ error });
+        }
+      },
+      DEBOUNCE_DELAY,
+    ),
+    [client, mentionQueryParams],
+  );
 
-      if (onReady && users.length) {
-        onReady(users);
-      } else {
-        onReady([]);
-      }
-    } catch (error) {
-      console.log({ error });
+  const filterMutes = (data: UserResponse<StreamChatGenerics>[], text: string) => {
+    if (text.includes('/unmute') && !mutes.length) {
+      return [];
     }
+    if (!mutes.length) return data;
 
-    setSearching(false);
+    if (text.includes('/unmute')) {
+      return data.filter((suggestion) => mutes.some((mute) => mute.target.id === suggestion.id));
+    }
+    return data.filter((suggestion) => mutes.every((mute) => mute.target.id !== suggestion.id));
   };
 
-  const queryUsersThrottled = throttle(queryUsers, 200);
-
   return {
-    callback: (item) => onSelectUser(item),
+    callback: onSelectUser,
     component: UserItem,
     dataProvider: (query, text, onReady) => {
       if (disableMentions) return;
 
-      const filterMutes = (data: UserResponse<StreamChatGenerics>[]) => {
-        if (text.includes('/unmute') && !mutes.length) {
-          return [];
-        }
-        if (!mutes.length) return data;
-
-        if (text.includes('/unmute')) {
-          return data.filter((suggestion) =>
-            mutes.some((mute) => mute.target.id === suggestion.id),
-          );
-        }
-        return data.filter((suggestion) => mutes.every((mute) => mute.target.id !== suggestion.id));
-      };
-
       if (mentionAllAppUsers) {
-        return queryUsersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) => {
-          if (onReady) onReady(filterMutes(data), query);
+        return queryUsersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) => {
+          onReady?.(filterMutes(data, text), query);
         });
       }
 
@@ -175,12 +167,11 @@ export const useUserTrigger = <
         const usersToShow = mentionQueryParams.options?.limit ?? (themeVersion === '2' ? 7 : 10);
         const data = matchingUsers.slice(0, usersToShow);
 
-        if (onReady) onReady(filterMutes(data), query);
-        return data;
+        return onReady?.(filterMutes(data, text), query);
       }
 
-      return queryMembersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) => {
-        if (onReady) onReady(filterMutes(data), query);
+      queryMembersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) => {
+        onReady?.(filterMutes(data, text), query);
       });
     },
     output: (entity) => ({
