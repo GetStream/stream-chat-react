@@ -48,21 +48,6 @@ const channelsQueryStateMock = {
   setQueryInProgress: jest.fn(),
 };
 
-const ChatContextOverrider = ({ chatContext, children }) => {
-  const existingContext = useChatContext();
-  return (
-    <ChatContext.Provider
-      value={{
-        ...existingContext,
-        channelsQueryState: channelsQueryStateMock,
-        ...chatContext,
-      }}
-    >
-      {children}
-    </ChatContext.Provider>
-  );
-};
-
 /**
  * We use the following custom UI components for preview and list.
  * If we use ChannelPreviewMessenger or ChannelPreviewLastMessage here, then changes
@@ -131,7 +116,6 @@ describe('ChannelList', () => {
               client: chatClient,
               closeMobileNav,
               navOpen: true,
-              setChannels: jest.fn(),
             }}
           >
             <ChannelList {...props} />
@@ -163,7 +147,6 @@ describe('ChannelList', () => {
               client: chatClient,
               closeMobileNav,
               navOpen: false,
-              setChannels: jest.fn(),
             }}
           >
             <ChannelList {...props} />
@@ -409,7 +392,6 @@ describe('ChannelList', () => {
 
   describe('Default and custom active channel', () => {
     let setActiveChannel;
-    let setChannels;
     const watchersConfig = { limit: 20, offset: 0 };
     const testSetActiveChannelCall = (channelInstance) =>
       waitFor(() => {
@@ -420,7 +402,6 @@ describe('ChannelList', () => {
 
     beforeEach(() => {
       setActiveChannel = jest.fn();
-      setChannels = jest.fn();
       useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
     });
 
@@ -431,7 +412,6 @@ describe('ChannelList', () => {
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
             setActiveChannel,
-            setChannels,
           }}
         >
           <ChannelList
@@ -463,7 +443,6 @@ describe('ChannelList', () => {
             channelsQueryState: channelsQueryStateMock,
             client: chatClient,
             setActiveChannel,
-            setChannels,
           }}
         >
           <ChannelList
@@ -487,40 +466,41 @@ describe('ChannelList', () => {
     });
 
     it('should render channel with id `customActiveChannel` at top of the list', async () => {
-      useMockedApis(chatClient, [getOrCreateChannelApi(testChannel2)]);
-      jest
-        .spyOn(chatClient, 'queryChannels')
-        .mockImplementationOnce(() =>
-          chatClient.hydrateActiveChannels([testChannel1, testChannel2]),
-        );
-      await act(async () => {
-        await render(
-          <Chat client={chatClient}>
-            <ChannelList
-              customActiveChannel={testChannel2.channel.id}
-              filters={{}}
-              List={ChannelListComponent}
-              options={{ presence: true, state: true, watch: true }}
-              Preview={ChannelPreviewComponent}
-              watchers={watchersConfig}
-            />
-          </Chat>,
-        );
-      });
+      const { container, getAllByRole, getByRole, getByTestId } = render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            setActiveChannel,
+          }}
+        >
+          <ChannelList
+            customActiveChannel={testChannel2.channel.id}
+            filters={{}}
+            List={ChannelListComponent}
+            options={{ presence: true, state: true, watch: true }}
+            Preview={ChannelPreviewComponent}
+            setActiveChannel={setActiveChannel}
+            setActiveChannelOnMount
+            watchers={watchersConfig}
+          />
+        </ChatContext.Provider>,
+      );
 
       // Wait for list of channels to load in DOM.
-      await waitFor(() => {
-        expect(screen.getByRole('list')).toBeInTheDocument();
-        const items = screen.getAllByRole('listitem');
+      await waitFor(async () => {
+        expect(getByRole('list')).toBeInTheDocument();
+        const items = getAllByRole('listitem');
 
         // Get the closest listitem to the channel that received new message.
-        const channelPreview = screen
-          .getByTestId(testChannel2.channel.id)
-          .closest(ROLE_LIST_ITEM_SELECTOR);
+        const channelPreview = getByTestId(testChannel2.channel.id).closest(
+          ROLE_LIST_ITEM_SELECTOR,
+        );
 
         expect(channelPreview.isEqualNode(items[0])).toBe(true);
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
       });
-      jest.restoreAllMocks();
     });
 
     describe('channel search', () => {
@@ -555,16 +535,20 @@ describe('ChannelList', () => {
 
       const renderComponents = (chatContext = {}, channeListProps) =>
         render(
-          <Chat client={chatContext.client}>
-            <ChatContextOverrider chatContext={{ ...chatContext, setActiveChannel }}>
-              <ChannelList
-                filters={{}}
-                options={{ presence: true, state: true }}
-                showChannelSearch
-                {...channeListProps}
-              />
-            </ChatContextOverrider>
-          </Chat>,
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              setActiveChannel,
+              ...chatContext,
+            }}
+          >
+            <ChannelList
+              filters={{}}
+              options={{ presence: true, state: true }}
+              showChannelSearch
+              {...channeListProps}
+            />
+          </ChatContext.Provider>,
         );
 
       it.each([['1'], ['2']])(
@@ -1209,20 +1193,19 @@ describe('ChannelList', () => {
       it('should unset activeChannel if it was deleted', async () => {
         const setActiveChannel = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClient}>
-            <ChatContextOverrider
-              chatContext={{
-                channelsQueryState: channelsQueryStateMock,
-                setActiveChannel,
-              }}
-            >
-              <ChannelList
-                {...channelListProps}
-                channel={{ cid: testChannel1.channel.cid }}
-                setActiveChannel={setActiveChannel}
-              />
-            </ChatContextOverrider>
-          </Chat>,
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              setActiveChannel,
+            }}
+          >
+            <ChannelList
+              {...channelListProps}
+              channel={{ cid: testChannel1.channel.cid }}
+              setActiveChannel={setActiveChannel}
+            />
+          </ChatContext.Provider>,
         );
 
         // Wait for list of channels to load in DOM.
@@ -1274,21 +1257,32 @@ describe('ChannelList', () => {
       });
 
       it('should unset activeChannel if it was hidden', async () => {
+        const setActiveChannel = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClient}>
-            <ChannelList {...channelListProps} />
-          </Chat>,
+          <ChatContext.Provider
+            value={{
+              channelsQueryState: channelsQueryStateMock,
+              client: chatClient,
+              setActiveChannel,
+            }}
+          >
+            <ChannelList
+              {...channelListProps}
+              channel={{ cid: testChannel1.channel.cid }}
+              setActiveChannel={setActiveChannel}
+            />
+          </ChatContext.Provider>,
         );
 
+        // Wait for list of channels to load in DOM.
         await waitFor(() => {
-          expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
           expect(getByRole('list')).toBeInTheDocument();
         });
 
         act(() => dispatchChannelHiddenEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
-          expect(screen.queryByTestId(testChannel1.channel.id)).not.toBeInTheDocument();
+          expect(setActiveChannel).toHaveBeenCalledTimes(1);
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
