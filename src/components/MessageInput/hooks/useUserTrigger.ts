@@ -95,22 +95,20 @@ export const useUserTrigger = <
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         if (!query) return;
 
+        const {
+          filters = { id: { $ne: client.user?.id }, name: { $autocomplete: query } },
+          sort = { name: 1 },
+          options = { limit: 10 },
+        } = mentionQueryParams;
+
         try {
           const { users } = await client.queryUsers(
             // @ts-expect-error
-            {
-              $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
-              id: { $ne: client.userID },
-              ...(typeof mentionQueryParams.filters === 'function'
-                ? mentionQueryParams.filters(query)
-                : mentionQueryParams.filters),
-            },
-            Array.isArray(mentionQueryParams.sort)
-              ? [{ id: 1 }, ...mentionQueryParams.sort]
-              : { id: 1, ...mentionQueryParams.sort },
-            // TODO: adjust limit
-            { limit: 10, ...mentionQueryParams.options },
+            typeof filters === 'function' ? filters(query) : filters,
+            sort,
+            options,
           );
+
           onReady?.(users);
         } catch (error) {
           console.log({ error });
@@ -140,9 +138,9 @@ export const useUserTrigger = <
       if (disableMentions) return;
 
       if (mentionAllAppUsers) {
-        return queryUsersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) => {
-          onReady?.(filterMutes(data, text), query);
-        });
+        return queryUsersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) =>
+          onReady?.(filterMutes(data, text), query),
+        );
       }
 
       /**
@@ -170,9 +168,9 @@ export const useUserTrigger = <
         return onReady?.(filterMutes(data, text), query);
       }
 
-      queryMembersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) => {
-        onReady?.(filterMutes(data, text), query);
-      });
+      queryMembersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) =>
+        onReady?.(filterMutes(data, text), query),
+      );
     },
     output: (entity) => ({
       caretPosition: 'next',
