@@ -1,3 +1,24 @@
+## [11.1.0](https://github.com/GetStream/stream-chat-react/compare/v11.0.0...v11.1.0) (2023-12-01)
+
+
+### Bug Fixes
+
+* revert "feat: expose channels state on chat level ([#2161](https://github.com/GetStream/stream-chat-react/issues/2161))" ([#2184](https://github.com/GetStream/stream-chat-react/issues/2184)) ([32e4867](https://github.com/GetStream/stream-chat-react/commit/32e4867032414d11d1946f6a33a9d0e5aeebbde8))
+
+
+### Features
+
+* add BaseImage component with image fallback display ([#2183](https://github.com/GetStream/stream-chat-react/issues/2183)) ([ec1d79b](https://github.com/GetStream/stream-chat-react/commit/ec1d79bb4acc64bc5c1542d847d541ad104dbed2))
+* add channel list context ([#2187](https://github.com/GetStream/stream-chat-react/issues/2187)) ([fd5ea67](https://github.com/GetStream/stream-chat-react/commit/fd5ea6718712cdc0ff5fdbe3d4180d1eccb292cc))
+* render BaseImage image fallback within the same img element ([#2200](https://github.com/GetStream/stream-chat-react/issues/2200)) ([2fcd564](https://github.com/GetStream/stream-chat-react/commit/2fcd5644f55eed77537cc4a856dbe1b6cbebde3f))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css from 4.0.0 to 4.1.0 ([e600e3c](https://github.com/GetStream/stream-chat-react/commit/e600e3cb03e7523f97b26ca2aa71167b1a40c807))
+* **deps:** bump stream-chat from 8.14.3 to 8.14.4 ([#2199](https://github.com/GetStream/stream-chat-react/issues/2199)) ([a4dd57f](https://github.com/GetStream/stream-chat-react/commit/a4dd57f592f91bfcd33ba73c72cc1254e984d8e5))
+* **deps:** move `@stream-io/stream-chat-css` to `devDeps` ([#2191](https://github.com/GetStream/stream-chat-react/issues/2191)) ([61af19c](https://github.com/GetStream/stream-chat-react/commit/61af19cd1b142dc45c07023825d323dd7b78e5d5))
+
 ## [11.0.0](https://github.com/GetStream/stream-chat-react/compare/v10.20.1...v11.0.0) (2023-11-27)
 
 
