@@ -1,3 +1,16 @@
+## [10.22.0](https://github.com/GetStream/stream-chat-react/compare/v10.21.0...v10.22.0) (2023-12-01)
+
+
+### Features
+
+* add BaseImage component with image fallback display ([#2193](https://github.com/GetStream/stream-chat-react/issues/2193)) ([6bcf06a](https://github.com/GetStream/stream-chat-react/commit/6bcf06ac571ababb46029aaf0e96c2da82859626))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css from 3.14.2 to 3.15.0 ([40ca394](https://github.com/GetStream/stream-chat-react/commit/40ca3942f64848c925070261c3ecc1a818a2808c))
+* **deps:** bump stream-chat from 8.13.1 to 8.14.4 ([30a3647](https://github.com/GetStream/stream-chat-react/commit/30a3647ef73c3b4fe1e5ae3aa0d530d4fad2bea2))
+
 ## [10.21.0](https://github.com/GetStream/stream-chat-react/compare/v10.20.1...v10.21.0) (2023-11-30)
 
 
