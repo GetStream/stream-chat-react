@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import renderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser } from '../../../mock-builders';
+import { getTestClientWithUser, initClientWithChannel } from '../../../mock-builders';
 
+import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { Gallery } from '../Gallery';
 
 import { ComponentProvider } from '../../../context/ComponentContext';
+import { useChatContext } from '../../../context';
 
 let chatClient;
 
@@ -152,5 +154,36 @@ describe('Gallery', () => {
     await waitFor(() => {
       expect(getByText(galleryContent)).toBeInTheDocument();
     });
+  });
+
+  it('should render custom BaseImage component', async () => {
+    const ActiveChannelSetter = ({ activeChannel }) => {
+      const { setActiveChannel } = useChatContext();
+      useEffect(() => {
+        setActiveChannel(activeChannel);
+      }, [activeChannel]); // eslint-disable-line
+      return null;
+    };
+
+    const { channel, client } = await initClientWithChannel();
+    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    const images = Array.from({ length: 2 }, (_, i) => ({
+      fallback: `fallback-${i}`,
+      image_url: `image_url-${i}`,
+      thumb_url: `thumb_url-${i}`,
+    }));
+    let result;
+    await act(() => {
+      result = render(
+        <Chat client={client}>
+          <ActiveChannelSetter activeChannel={channel} />
+          <Channel BaseImage={CustomBaseImage}>
+            <Gallery images={images} />
+          </Channel>
+          ,
+        </Chat>,
+      );
+    });
+    expect(result.container).toMatchSnapshot();
   });
 });
