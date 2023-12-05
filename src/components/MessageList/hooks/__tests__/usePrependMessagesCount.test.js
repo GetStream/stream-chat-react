@@ -83,17 +83,26 @@ describe('usePrependMessagesCount', function () {
   });
 
   it('is 0 when re-rendered with no new but swapped messages and date separator enabled', () => {
-    const messages = messagesWithDateSeparator({
-      messages: getMessages(2, ['sending', 'sending']),
-    });
-    const { rerender, result } = render({
+    const messages = getMessages(2, ['sending', 'sending']);
+    const messages1 = messagesWithDateSeparator({
       messages,
     });
-    rerender({
-      messages: messagesWithDateSeparator({
-        messages: [messages[2], { ...messages[1], status: 'received' }],
-      }),
+    const messages2 = messagesWithDateSeparator({
+      messages: [
+        messages[1],
+        ...getMessages(1, ['sending']),
+        { ...messages[0], status: 'received' },
+      ],
     });
+    const { rerender, result } = render({
+      hasDateSeparator,
+      messages: messages1,
+    });
+    rerender({
+      hasDateSeparator,
+      messages: messages2,
+    });
+
     expect(result.current).toBe(0);
   });
 
