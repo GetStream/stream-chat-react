@@ -1,3 +1,10 @@
+## [10.22.1](https://github.com/GetStream/stream-chat-react/compare/v10.22.0...v10.22.1) (2023-12-05)
+
+
+### Bug Fixes
+
+* **VML:** prevent recalculation of prepended items when messages are swapped due to status change ([#2203](https://github.com/GetStream/stream-chat-react/issues/2203)) ([0e23887](https://github.com/GetStream/stream-chat-react/commit/0e2388765fbec133414f938bf33b620705f7e1d5))
+
 ## [10.22.0](https://github.com/GetStream/stream-chat-react/compare/v10.21.0...v10.22.0) (2023-12-01)
 
 
