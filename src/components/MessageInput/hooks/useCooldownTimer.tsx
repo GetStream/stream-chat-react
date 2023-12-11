@@ -40,13 +40,24 @@ export const useCooldownTimer = <
         Math.max(0, (new Date().getTime() - ownLatestMessageDate.getTime()) / 1000)
       : undefined;
 
-    setCooldownRemaining(
+    const remaining =
       !skipCooldown &&
-        typeof timeSinceOwnLastMessage !== 'undefined' &&
-        cooldownInterval > timeSinceOwnLastMessage
+      typeof timeSinceOwnLastMessage !== 'undefined' &&
+      cooldownInterval > timeSinceOwnLastMessage
         ? Math.round(cooldownInterval - timeSinceOwnLastMessage)
-        : 0,
-    );
+        : 0;
+
+    setCooldownRemaining(remaining);
+
+    if (!remaining) return;
+
+    const timeout = setTimeout(() => {
+      setCooldownRemaining(0);
+    }, remaining * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [cooldownInterval, ownLatestMessageDate, skipCooldown]);
 
   return {

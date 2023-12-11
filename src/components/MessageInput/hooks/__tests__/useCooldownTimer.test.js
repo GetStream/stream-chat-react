@@ -5,6 +5,9 @@ import { useCooldownTimer } from '../useCooldownTimer';
 
 import { ChannelStateProvider, ChatProvider } from '../../../../context';
 import { getTestClient } from '../../../../mock-builders';
+import { act } from '@testing-library/react';
+
+jest.useFakeTimers();
 
 async function renderUseCooldownTimerHook({ channel, chatContext }) {
   const client = await getTestClient();
@@ -125,5 +128,24 @@ describe('useCooldownTimer', () => {
     };
     const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
     expect(result.current.cooldownRemaining).toBe(cooldown);
+  });
+
+  it('remove the cooldown after the cooldown period elapses', async () => {
+    const channel = { cid, data: { cooldown } };
+    const chatContext = {
+      latestMessageDatesByChannels: {
+        [cid]: new Date(),
+      },
+    };
+
+    const { result } = await renderUseCooldownTimerHook({ channel, chatContext });
+
+    expect(result.current.cooldownRemaining).toBe(cooldown);
+
+    await act(() => {
+      jest.advanceTimersByTime(cooldown * 1000);
+    });
+
+    expect(result.current.cooldownRemaining).toBe(0);
   });
 });
