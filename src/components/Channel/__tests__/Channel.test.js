@@ -1347,7 +1347,7 @@ describe('Channel', () => {
         await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
       });
 
-      it('should mark the channel as read if a new message current user comes in and the user is looking at the page', async () => {
+      it('should mark the channel as read if the new message author is the current user and the user is looking at the page', async () => {
         const { channel, chatClient } = await initClient();
         const markReadSpy = jest.spyOn(channel, 'markRead');
 
