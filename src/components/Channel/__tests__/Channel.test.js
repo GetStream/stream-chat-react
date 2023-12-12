@@ -1347,6 +1347,20 @@ describe('Channel', () => {
         await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
       });
 
+      it('should mark the channel as read if a new message current user comes in and the user is looking at the page', async () => {
+        const { channel, chatClient } = await initClient();
+        const markReadSpy = jest.spyOn(channel, 'markRead');
+
+        const message = generateMessage({ user: generateUser() });
+        const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
+
+        renderComponent({ channel, chatClient }, () => {
+          dispatchMessageEvent();
+        });
+
+        await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
+      });
+
       it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
         const { channel, chatClient } = await initClient();
         const unreadAmount = 1;
