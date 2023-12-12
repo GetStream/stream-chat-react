@@ -438,7 +438,7 @@ const ChannelInner = <
         mainChannelUpdated = false;
       }
 
-      if (mainChannelUpdated && event.message?.user?.id !== client.userID) {
+      if (mainChannelUpdated) {
         if (!document.hidden) {
           markReadThrottled();
         } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
@@ -536,6 +536,14 @@ const ChannelInner = <
           ),
           type: 'initStateFromChannel',
         });
+
+        /**
+         * TODO: maybe pass last_read to the countUnread method to get proper value
+         * combined with channel.countUnread adjustment (_countMessageAsUnread)
+         * to allow counting own messages too
+         *
+         * const lastRead = channel.state.read[client.userID as string].last_read;
+         */
         if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
