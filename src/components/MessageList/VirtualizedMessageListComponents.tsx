@@ -108,6 +108,7 @@ export const messageRenderer = <
     lastReceivedMessageId,
     Message: MessageUIComponent,
     messageActions,
+    messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
     ownMessagesReadByOthers,
@@ -153,6 +154,7 @@ export const messageRenderer = <
       endOfGroup={endOfGroup}
       firstOfGroup={firstOfGroup}
       groupedByUser={groupedByUser}
+      groupStyles={[messageGroupStyles[message.id] ?? '']}
       lastReceivedId={lastReceivedMessageId}
       message={message}
       Message={MessageUIComponent}
