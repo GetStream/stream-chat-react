@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import ImageGallery from 'react-image-gallery';
+import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
+import { BaseImage } from './BaseImage';
 import { useTranslationContext } from '../../context';
 
 import type { Attachment } from 'stream-chat';
@@ -13,6 +14,16 @@ export type ModalGalleryProps<
   /** The index for the component */
   index?: number;
 };
+
+const onError: React.ReactEventHandler<HTMLImageElement> = (e) => {
+  // Prevent having alt attribute on img as the img takes the height of the alt text
+  // instead of the CSS / element width & height when the CSS mask (fallback) is applied.
+  (e.target as HTMLImageElement).alt = '';
+};
+
+const renderItem = ({ original, originalAlt }: ReactImageGalleryItem) => (
+  <BaseImage alt={originalAlt} className='image-gallery-image' onError={onError} src={original} />
+);
 
 export const ModalGallery = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -38,6 +49,7 @@ export const ModalGallery = <
   return (
     <ImageGallery
       items={formattedArray}
+      renderItem={renderItem}
       showIndex={true}
       showPlayButton={false}
       showThumbnails={false}
