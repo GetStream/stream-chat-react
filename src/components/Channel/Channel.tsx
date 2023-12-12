@@ -491,7 +491,7 @@ const ChannelInner = <
     let done = false;
 
     const onVisibilityChange = () => {
-      if (!document.hidden) markRead();
+      if (!document.hidden) markReadThrottled();
     };
 
     (async () => {
@@ -536,7 +536,7 @@ const ChannelInner = <
           ),
           type: 'initStateFromChannel',
         });
-        if (channel.countUnread() > 0) markRead();
+        if (channel.countUnread() > 0) markReadThrottled();
         // The more complex sync logic is done in Chat
         document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
