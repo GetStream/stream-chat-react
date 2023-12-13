@@ -9,7 +9,7 @@ export const CooldownTimer = ({ cooldownInterval }: CooldownTimerProps) => {
 
   useEffect(() => {
     let countdownTimeout: ReturnType<typeof setTimeout>;
-    if (seconds > 0) {
+    if (typeof seconds === 'number' && seconds > 0) {
       countdownTimeout = setTimeout(() => {
         setSeconds(seconds - 1);
       }, 1000);
