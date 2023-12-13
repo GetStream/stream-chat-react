@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import debounce from 'lodash.debounce';
+import throttle from 'lodash.throttle';
 
 import { SearchLocalUserParams, searchLocalUsers } from './utils';
 
@@ -25,7 +25,7 @@ export type UserTriggerParams<
   useMentionsTransliteration?: boolean;
 };
 
-const DEBOUNCE_DELAY = 200;
+const THROTTLE_DELAY = 500;
 
 export const useUserTrigger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -63,8 +63,8 @@ export const useUserTrigger = <
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
-  const queryMembersDebounced = useCallback(
-    debounce(
+  const queryMembersThrottled = useCallback(
+    throttle(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         try {
           // @ts-expect-error
@@ -85,13 +85,14 @@ export const useUserTrigger = <
           console.log({ error });
         }
       },
-      DEBOUNCE_DELAY,
+      THROTTLE_DELAY,
+      { leading: true, trailing: true },
     ),
     [channel],
   );
 
-  const queryUsersDebounced = useCallback(
-    debounce(
+  const queryUsersThrottled = useCallback(
+    throttle(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {
         if (!query) return;
 
@@ -114,7 +115,8 @@ export const useUserTrigger = <
           console.log({ error });
         }
       },
-      DEBOUNCE_DELAY,
+      THROTTLE_DELAY,
+      { leading: true, trailing: true },
     ),
     [client, mentionQueryParams],
   );
@@ -138,7 +140,7 @@ export const useUserTrigger = <
       if (disableMentions) return;
 
       if (mentionAllAppUsers) {
-        return queryUsersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) =>
+        return queryUsersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) =>
           onReady?.(filterMutes(data, text), query),
         );
       }
@@ -168,7 +170,7 @@ export const useUserTrigger = <
         return onReady?.(filterMutes(data, text), query);
       }
 
-      queryMembersDebounced(query, (data: UserResponse<StreamChatGenerics>[]) =>
+      queryMembersThrottled(query, (data: UserResponse<StreamChatGenerics>[]) =>
         onReady?.(filterMutes(data, text), query),
       );
     },
