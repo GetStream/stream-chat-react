@@ -58,6 +58,7 @@ const mockedChannelData = generateChannel({
   thread: [threadMessage],
 });
 
+const cooldown = 30;
 const filename = 'some.txt';
 const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
 
@@ -1147,7 +1148,7 @@ function axeNoViolations(container) {
 
     const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
       channel = chatClient.channel('messaging', mockedChannelData.channel.id);
-      channel.data.cooldown = 30;
+      channel.data.cooldown = cooldown;
       channel.initialized = true;
       const lastSentSecondsAhead = 5;
       await render({
@@ -1262,6 +1263,17 @@ function axeNoViolations(container) {
         } else {
           expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
         }
+      });
+
+      it('should be removed after cool-down period elapsed', async () => {
+        jest.useFakeTimers();
+        await renderWithActiveCooldown();
+        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
+        act(() => {
+          jest.advanceTimersByTime(cooldown * 1000);
+        });
+        expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+        jest.useRealTimers();
       });
     });
   });
