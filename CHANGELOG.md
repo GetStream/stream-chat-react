@@ -1,3 +1,18 @@
+## [11.1.2](https://github.com/GetStream/stream-chat-react/compare/v11.1.1...v11.1.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* disable SuggestionList during text composition ([#2205](https://github.com/GetStream/stream-chat-react/issues/2205)) ([614bc99](https://github.com/GetStream/stream-chat-react/commit/614bc996a51e1498003c52810ffcad545cbd1895))
+* mark as read messages sent by current user ([#2211](https://github.com/GetStream/stream-chat-react/issues/2211)) ([38f2363](https://github.com/GetStream/stream-chat-react/commit/38f2363085216c6eaf525592e8d7ee827b392e14))
+* schedule cooldown removal from useCooldownTimer hook instead of CooldownTimer ([#2208](https://github.com/GetStream/stream-chat-react/issues/2208)) ([9523b45](https://github.com/GetStream/stream-chat-react/commit/9523b45ac6e8969f257cccf33ac4c6a76f8cc4e6))
+* show image fallbacks in image gallery modal ([#2212](https://github.com/GetStream/stream-chat-react/issues/2212)) ([5ac95a1](https://github.com/GetStream/stream-chat-react/commit/5ac95a1bf5c0b78bc4e401c3378ebe28fa710541))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css from v4.1.0 to v4.2.0 ([ff554ad](https://github.com/GetStream/stream-chat-react/commit/ff554adfe8c016e7667c3669970068e52097db6a))
+
 ## [11.1.1](https://github.com/GetStream/stream-chat-react/compare/v11.1.0...v11.1.1) (2023-12-05)
 
 
