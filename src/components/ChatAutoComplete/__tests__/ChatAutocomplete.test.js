@@ -202,6 +202,31 @@ describe('ChatAutoComplete', () => {
     expect(userText).toHaveLength(0);
   });
 
+  it('should disable popup list when the input is in "isComposing" state', async () => {
+    const { findAllByText, findByTestId, queryAllByText, typeText } = await renderComponent();
+
+    const messageInput = await findByTestId('message-input');
+
+    act(() => {
+      const cStartEvent = new Event('compositionstart', { bubbles: true });
+      messageInput.dispatchEvent(cStartEvent);
+    });
+
+    const userAutocompleteText = `@${user.name}`;
+    typeText(userAutocompleteText);
+
+    // eslint-disable-next-line jest-dom/prefer-in-document
+    expect(await queryAllByText(user.name)).toHaveLength(0);
+
+    act(() => {
+      const cEndEvent = new Event('compositionend', { bubbles: true });
+      messageInput.dispatchEvent(cEndEvent);
+    });
+
+    // eslint-disable-next-line jest-dom/prefer-in-document
+    expect(await findAllByText(user.name)).toHaveLength(2);
+  });
+
   it('should use the queryMembers API for mentions if a channel has many members', async () => {
     const users = Array(100).fill().map(generateUser);
     const members = users.map((u) => generateMember({ user: u }));
