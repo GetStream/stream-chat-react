@@ -1,3 +1,15 @@
+## [10.22.2](https://github.com/GetStream/stream-chat-react/compare/v10.22.1...v10.22.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* show image fallbacks in image gallery modal ([#2212](https://github.com/GetStream/stream-chat-react/issues/2212)) ([f222ab5](https://github.com/GetStream/stream-chat-react/commit/f222ab5bbeea4ded98555c03b7e5bc2bf1336fdf))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css from v3.15.0 to v3.16.0 ([8cd7e6d](https://github.com/GetStream/stream-chat-react/commit/8cd7e6d0f51cccfae9181757bf776d6f2443049c))
+
 ## [10.22.1](https://github.com/GetStream/stream-chat-react/compare/v10.22.0...v10.22.1) (2023-12-05)
 
 
