@@ -1,43 +1,83 @@
-import React, { Reducer, useCallback, useReducer, useState } from 'react';
+import React, { Reducer, useCallback, useReducer, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import { useEmojiIndex } from './useEmojiIndex';
-import { useAttachments } from './useAttachments';
+import {
+  isLinkPreview,
+  isMessageComposerFileAttachment,
+  isMessageComposerImageAttachment,
+  isUploadAttachment,
+  useAttachments,
+} from './useAttachments';
 import { useMessageInputText } from './useMessageInputText';
 import { useEmojiPicker } from './useEmojiPicker';
+import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 
 import type { EmojiData, NimbleEmojiIndex } from 'emoji-mart';
-import type { FileLike } from '../../ReactFileUtilities';
-import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
+import type { Message, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
+import { isScrapedContent, isUploadedImage } from '../../Attachment';
+import {
+  attachmentToFileUpload,
+  attachmentToImageUpload,
+  messageComposerAttachmentToFileUpload,
+  messageComposerAttachmentToImageUpload,
+} from '../attachmentTransformers';
 
+import {
+  FileUpload,
+  ImageUpload,
+  LinkPreview,
+  LinkPreviewMap,
+  LinkPreviewState,
+  MessageComposerAttachment,
+  SetLinkPreviewMode,
+  UploadState,
+} from '../types';
 import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
   SendMessageOptions,
 } from '../../../types/types';
-import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
-import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
-import { LinkPreviewState, SetLinkPreviewMode } from '../types';
+
+type FileUploads = Record<string, FileUpload>; // should be removed with version v12
+type ImageUploads = Record<string, ImageUpload>; // should be removed with version v12
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  attachments: Attachment<StreamChatGenerics>[];
+  attachments: MessageComposerAttachment<StreamChatGenerics>[];
   emojiPickerIsOpen: boolean;
+  /* @deprecated use attachments to access message composer attachments state instead, attachment order is kept in a Map. */
   fileOrder: string[];
-  fileUploads: Record<string, FileUpload>;
+  /* @deprecated use attachments to access message composer attachments state instead */
+  fileUploads: FileUploads;
+  /* @deprecated use attachments to access message composer attachments state instead, attachment order is kept in a Map */
   imageOrder: string[];
-  imageUploads: Record<string, ImageUpload>;
+  /* @deprecated use attachments to access message composer attachments state instead */
+  imageUploads: ImageUploads;
+  /* @deprecated use attachments to access message composer attachments state instead */
   linkPreviews: LinkPreviewMap;
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
+};
+
+type UpsertAttachmentAction<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachment: MessageComposerAttachment<StreamChatGenerics>;
+  type: 'upsertAttachment';
+};
+
+type RemoveAttachmentAction = {
+  id: string;
+  type: 'removeAttachment';
 };
 
 type SetEmojiPickerIsOpenAction = {
@@ -54,38 +94,10 @@ type ClearAction = {
   type: 'clear';
 };
 
-type SetImageUploadAction = {
-  id: string;
-  type: 'setImageUpload';
-  file?: File | FileLike;
-  previewUri?: string;
-  state?: string;
-  url?: string;
-};
-
-type SetFileUploadAction = {
-  id: string;
-  type: 'setFileUpload';
-  file?: File;
-  state?: string;
-  thumb_url?: string;
-  url?: string;
-};
-
 type SetLinkPreviewsAction = {
   linkPreviews: LinkPreviewMap;
   mode: SetLinkPreviewMode;
   type: 'setLinkPreviews';
-};
-
-type RemoveImageUploadAction = {
-  id: string;
-  type: 'removeImageUpload';
-};
-
-type RemoveFileUploadAction = {
-  id: string;
-  type: 'removeFileUpload';
 };
 
 type AddMentionedUserAction<
@@ -98,14 +110,12 @@ type AddMentionedUserAction<
 export type MessageInputReducerAction<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > =
+  | UpsertAttachmentAction
+  | RemoveAttachmentAction
   | SetEmojiPickerIsOpenAction
   | SetTextAction
   | ClearAction
-  | SetImageUploadAction
-  | SetFileUploadAction
   | SetLinkPreviewsAction
-  | RemoveImageUploadAction
-  | RemoveFileUploadAction
   | AddMentionedUserAction<StreamChatGenerics>;
 
 export type MessageInputHookProps<
@@ -123,17 +133,20 @@ export type MessageInputHookProps<
   insertText: (textToInsert: string) => void;
   isUploadEnabled: boolean;
   maxFilesLeft: number;
+  // todo: remove when legacy components UploadsPreview, MessageInputSmall, MessageInputV1 are removed. Used only in legacy components
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectEmoji: (emoji: EmojiData) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
   openEmojiPicker: React.MouseEventHandler<HTMLSpanElement>;
-  removeFile: (id: string) => void;
-  removeImage: (id: string) => void;
+  removeAttachment: (id: string) => void;
+  removeFile: (id: string) => void; // should be removed with version v12
+  removeImage: (id: string) => void; // should be removed with version v12
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
+  upsertAttachment: (attachment: MessageComposerAttachment<StreamChatGenerics>) => void;
   emojiIndex?: NimbleEmojiIndex;
 };
 
@@ -142,11 +155,11 @@ const makeEmptyMessageInputState = <
 >(): MessageInputState<StreamChatGenerics> => ({
   attachments: [],
   emojiPickerIsOpen: false,
-  fileOrder: [],
-  fileUploads: {},
-  imageOrder: [],
-  imageUploads: {},
-  linkPreviews: new Map(),
+  fileOrder: [], // should be removed with version v12
+  fileUploads: {}, // should be removed with version v12
+  imageOrder: [], // should be removed with version v12
+  imageUploads: {}, // should be removed with version v12
+  linkPreviews: new Map(), // should be removed with version v12
   mentioned_users: [],
   setText: () => null,
   text: '',
@@ -164,86 +177,131 @@ const initState = <
     return makeEmptyMessageInputState();
   }
 
-  // if message prop is defined, get image uploads, file uploads, text, etc.
-  const imageUploads =
-    message.attachments
-      ?.filter(({ type }) => type === 'image')
-      .reduce<Record<string, ImageUpload>>(
-        (
-          acc,
-          { author_name, fallback = '', image_url, og_scrape_url, text, title, title_link },
-        ) => {
-          const id = nanoid();
-          acc[id] = {
-            author_name,
-            file: {
-              name: fallback,
-            },
-            id,
-            og_scrape_url,
-            state: 'finished',
-            text,
-            title,
-            title_link,
-            url: image_url,
-          };
-          return acc;
-        },
-        {},
-      ) ?? {};
+  const attachmentsSeed = {
+    attachments: [],
+    fileUploads: {}, // should be removed with version v12
+    imageUploads: {}, // should be removed with version v12
+    linkPreviews: new Map(), // should be removed with version v12
+  };
 
-  const fileUploads =
-    message.attachments
-      ?.filter(({ type }) => type === 'file')
-      .reduce<Record<string, FileUpload>>(
-        (acc, { asset_url, file_size, mime_type, thumb_url, title = '' }) => {
-          const id = nanoid();
-          acc[id] = {
-            file: {
-              name: title,
-              size: file_size,
-              type: mime_type,
-            },
-            id,
-            state: 'finished',
-            thumb_url,
-            url: asset_url,
-          };
-          return acc;
-        },
-        {},
-      ) ?? {};
+  const { attachments, fileUploads, imageUploads, linkPreviews } =
+    message.attachments?.reduce<{
+      attachments: MessageComposerAttachment<StreamChatGenerics>[]; // should be removed with version v12
+      fileUploads: Record<string, FileUpload>; // should be removed with version v12
+      imageUploads: Record<string, ImageUpload>; // should be removed with version v12
+      linkPreviews: LinkPreviewMap;
+    }>((acc, attachment) => {
+      const id = nanoid();
+      const attachmentWithId: MessageComposerAttachment<StreamChatGenerics> = {
+        ...attachment,
+        id: attachment.id || id,
+      };
+      if (isScrapedContent(attachmentWithId)) {
+        const linkPreview = {
+          ...attachmentWithId,
+          state: LinkPreviewState.LOADED,
+        };
+        acc.linkPreviews.set(linkPreview.og_scrape_url, linkPreview);
+        acc.attachments.push(linkPreview);
+      } else {
+        acc.attachments.push({ ...attachmentWithId, uploadState: UploadState.finished });
+      }
 
-  const linkPreviews =
-    message.attachments?.reduce<LinkPreviewMap>((acc, attachment) => {
-      if (!attachment.og_scrape_url) return acc;
-      acc.set(attachment.og_scrape_url, {
-        ...(attachment as OGAttachment),
-        state: LinkPreviewState.LOADED,
-      });
+      // should be removed with version v12
+      if (isUploadedImage(attachmentWithId)) {
+        acc.imageUploads[id] = attachmentToImageUpload(attachmentWithId);
+      } else if (isMessageComposerFileAttachment(attachmentWithId)) {
+        acc.fileUploads[id] = attachmentToFileUpload(attachmentWithId);
+      }
+
       return acc;
-    }, new Map()) ?? new Map();
-
-  const imageOrder = Object.keys(imageUploads);
-  const fileOrder = Object.keys(fileUploads);
-
-  const attachments =
-    message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
+    }, attachmentsSeed) ?? attachmentsSeed;
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
 
   return {
     attachments,
     emojiPickerIsOpen: false,
-    fileOrder,
-    fileUploads,
-    imageOrder,
-    imageUploads,
+    fileOrder: Object.keys(fileUploads), // should be removed with version v12
+    fileUploads, // should be removed with version v12
+    imageOrder: Object.keys(imageUploads), // should be removed with version v12
+    imageUploads, // should be removed with version v12
     linkPreviews,
     mentioned_users,
     setText: () => null,
     text: message.text || '',
   };
+};
+
+// should be removed with version v12
+const determineUploadsWithOrderKeys = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: MessageComposerAttachment<StreamChatGenerics>,
+) => {
+  let orderKey: 'fileOrder' | 'imageOrder' = 'fileOrder';
+  let uploadsKey: 'fileUploads' | 'imageUploads' = 'fileUploads';
+  if (isMessageComposerImageAttachment(attachment)) {
+    orderKey = 'imageOrder';
+    uploadsKey = 'imageUploads';
+  }
+  return { orderKey, uploadsKey };
+};
+
+// should be removed with version v12
+const removeUploadsWithOrder = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  state: MessageInputState<StreamChatGenerics>,
+  id: string,
+) => {
+  const attachment = state.attachments.find((att) => att.id === id);
+  if (!attachment) return state;
+  const { orderKey, uploadsKey } = determineUploadsWithOrderKeys(attachment);
+  const newUploads = { ...state[uploadsKey] };
+  delete newUploads[id];
+  return {
+    ...state,
+    [orderKey]: state[orderKey].filter((_id) => _id !== id),
+    [uploadsKey]: newUploads,
+  };
+};
+
+// should be removed with version v12
+type FileOrImageUploadsInState<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> =
+  | Pick<MessageInputState<StreamChatGenerics>, 'fileOrder' | 'fileUploads'>
+  | Pick<MessageInputState<StreamChatGenerics>, 'imageOrder' | 'imageUploads'>;
+
+// should be removed with version v12
+const updateUploadsWithOrder = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  state: MessageInputState<StreamChatGenerics>,
+  attachment: MessageComposerAttachment<StreamChatGenerics>,
+): FileOrImageUploadsInState<StreamChatGenerics> => {
+  const { orderKey, uploadsKey } = determineUploadsWithOrderKeys(attachment);
+  const existingUploadsWithOrder = {
+    [orderKey]: state[orderKey],
+    [uploadsKey]: state[uploadsKey],
+  } as FileOrImageUploadsInState<StreamChatGenerics>;
+
+  const alreadyExists = state[uploadsKey][attachment.id];
+  if (isUploadAttachment(attachment) || alreadyExists) {
+    const uploadData = isMessageComposerImageAttachment(attachment)
+      ? messageComposerAttachmentToImageUpload(attachment)
+      : messageComposerAttachmentToFileUpload(attachment);
+
+    return {
+      [orderKey]: alreadyExists ? state[orderKey] : state[orderKey].concat(attachment.id),
+      [uploadsKey]: {
+        ...state[uploadsKey],
+        [attachment.id]: { ...alreadyExists, ...uploadData },
+      },
+    } as FileOrImageUploadsInState<StreamChatGenerics>;
+  }
+  return existingUploadsWithOrder;
 };
 
 /**
@@ -265,47 +323,43 @@ const messageInputReducer = <
     case 'clear':
       return makeEmptyMessageInputState();
 
-    case 'setImageUpload': {
-      const imageAlreadyExists = state.imageUploads[action.id];
-      if (!imageAlreadyExists && !action.file) return state;
-      const imageOrder = imageAlreadyExists ? state.imageOrder : state.imageOrder.concat(action.id);
-      const newUploadFields = { ...action } as Partial<SetImageUploadAction>;
-      delete newUploadFields.type;
+    case 'removeAttachment': {
+      const { id } = action;
       return {
-        ...state,
-        imageOrder,
-        imageUploads: {
-          ...state.imageUploads,
-          [action.id]: { ...state.imageUploads[action.id], ...newUploadFields },
-        },
+        ...removeUploadsWithOrder(state, id),
+        attachments: state.attachments.filter((att) => att.id !== id),
       };
     }
 
-    case 'setFileUpload': {
-      const fileAlreadyExists = state.fileUploads[action.id];
-      if (!fileAlreadyExists && !action.file) return state;
-      const fileOrder = fileAlreadyExists ? state.fileOrder : state.fileOrder.concat(action.id);
-      const newUploadFields = { ...action } as Partial<SetFileUploadAction>;
-      delete newUploadFields.type;
+    case 'upsertAttachment': {
+      const { attachment } = action;
+      let updated = false;
+      const newAttachments = state.attachments.map((att) => {
+        if (att.id !== attachment.id) return att;
+        updated = true;
+        return { ...att, ...attachment };
+      });
+
       return {
         ...state,
-        fileOrder,
-        fileUploads: {
-          ...state.fileUploads,
-          [action.id]: { ...state.fileUploads[action.id], ...newUploadFields },
-        },
+        ...updateUploadsWithOrder(state, attachment),
+        attachments: updated ? newAttachments : [...newAttachments, attachment],
       };
     }
 
     case 'setLinkPreviews': {
       const linkPreviews = new Map(state.linkPreviews);
+      let attachments = [...state.attachments];
+      const actionLinkPreviewIds = Array.from(action.linkPreviews.keys());
+      const actionLinkPreviews = Array.from(action.linkPreviews.values());
 
       if (action.mode === SetLinkPreviewMode.REMOVE) {
-        Array.from(action.linkPreviews.keys()).forEach((key) => {
-          linkPreviews.delete(key);
-        });
+        actionLinkPreviewIds.forEach(linkPreviews.delete);
+        attachments = attachments.filter(
+          (att) => !isLinkPreview(att) || !actionLinkPreviewIds.includes(att.og_scrape_url),
+        );
       } else {
-        Array.from(action.linkPreviews.values()).reduce<LinkPreviewMap>((acc, linkPreview) => {
+        actionLinkPreviews.reduce<LinkPreviewMap>((acc, linkPreview) => {
           const existingPreview = acc.get(linkPreview.og_scrape_url);
           const alreadyEnqueued =
             linkPreview.state === LinkPreviewState.QUEUED &&
@@ -316,38 +370,46 @@ const messageInputReducer = <
           return acc;
         }, linkPreviews);
 
+        actionLinkPreviews.forEach((actionLinkPreview) => {
+          const existingPreviewIndex = attachments.findIndex(
+            (existingAtt) =>
+              isLinkPreview(existingAtt) &&
+              existingAtt.og_scrape_url === actionLinkPreview.og_scrape_url,
+          );
+          const existingPreview = attachments[existingPreviewIndex] as LinkPreview | undefined;
+
+          const alreadyEnqueued =
+            actionLinkPreview.state === LinkPreviewState.QUEUED &&
+            existingPreview?.state !== LinkPreviewState.FAILED;
+
+          if (existingPreview && alreadyEnqueued) return;
+
+          if (action.mode === SetLinkPreviewMode.SET && existingPreview) {
+            attachments.splice(existingPreviewIndex, 1, actionLinkPreview);
+          } else if (existingPreview) {
+            attachments.splice(existingPreviewIndex, 1, {
+              ...existingPreview,
+              ...actionLinkPreview,
+            });
+          } else {
+            attachments.push(actionLinkPreview);
+          }
+        }, []);
+
         if (action.mode === SetLinkPreviewMode.SET) {
           Array.from(state.linkPreviews.keys()).forEach((key) => {
             if (!action.linkPreviews.get(key)) linkPreviews.delete(key);
           });
+          attachments = attachments.filter(
+            (att) => !isLinkPreview(att) || actionLinkPreviewIds.includes(att.og_scrape_url),
+          );
         }
       }
 
       return {
         ...state,
+        attachments,
         linkPreviews,
-      };
-    }
-
-    case 'removeImageUpload': {
-      if (!state.imageUploads[action.id]) return state; // cannot remove anything
-      const newImageUploads = { ...state.imageUploads };
-      delete newImageUploads[action.id];
-      return {
-        ...state,
-        imageOrder: state.imageOrder.filter((_id) => _id !== action.id),
-        imageUploads: newImageUploads,
-      };
-    }
-
-    case 'removeFileUpload': {
-      if (!state.fileUploads[action.id]) return state; // cannot remove anything
-      const newFileUploads = { ...state.fileUploads };
-      delete newFileUploads[action.id];
-      return {
-        ...state,
-        fileOrder: state.fileOrder.filter((_id) => _id !== action.id),
-        fileUploads: newFileUploads,
       };
     }
 
@@ -416,6 +478,20 @@ export const useMessageInputState = <
     initState,
   );
 
+  const textareaRef = useRef<HTMLTextAreaElement>();
+
+  const {
+    maxFilesLeft,
+    numberOfUploads,
+    removeAttachment,
+    removeFile,
+    removeImage,
+    uploadFile,
+    uploadImage,
+    uploadNewFiles,
+    upsertAttachment,
+  } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
+
   const enrichURLsController = useLinkPreviews({
     dispatch,
     linkPreviews: state.linkPreviews,
@@ -424,10 +500,11 @@ export const useMessageInputState = <
       urlEnrichmentConfig?.enrichURLForPreview ?? enrichURLForPreviewChannelContext,
   });
 
-  const { handleChange, insertText, textareaRef } = useMessageInputText<StreamChatGenerics, V>(
+  const { handleChange, insertText } = useMessageInputText<StreamChatGenerics, V>(
     props,
     state,
     dispatch,
+    textareaRef,
     enrichURLsController.findAndEnqueueURLsToEnrich,
   );
 
@@ -467,16 +544,6 @@ export const useMessageInputState = <
     textareaRef,
     closeEmojiPickerOnClick,
   );
-
-  const {
-    maxFilesLeft,
-    numberOfUploads,
-    removeFile,
-    removeImage,
-    uploadFile,
-    uploadImage,
-    uploadNewFiles,
-  } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
 
   const { handleSubmit } = useSubmitHandler<StreamChatGenerics, V>(
     props,
@@ -528,6 +595,7 @@ export const useMessageInputState = <
     openCommandsList,
     openEmojiPicker,
     openMentionsList,
+    removeAttachment,
     removeFile,
     removeImage,
     setText,
@@ -537,5 +605,6 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachment,
   };
 };

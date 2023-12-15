@@ -184,6 +184,7 @@ const MessageInputV2 = <
   const { t } = useTranslationContext('MessageInputV2');
 
   const {
+    attachments,
     closeEmojiPicker,
     cooldownRemaining,
     emojiPickerIsOpen,
@@ -194,7 +195,6 @@ const MessageInputV2 = <
     linkPreviews,
     maxFilesLeft,
     message,
-    numberOfUploads,
     openEmojiPicker,
     setCooldownRemaining,
     text,
@@ -277,7 +277,7 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
+            {isUploadEnabled && attachments.length > 0 && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
@@ -315,7 +315,7 @@ const MessageInputV2 = <
                 />
               ) : (
                 <SendButton
-                  disabled={!numberOfUploads && !text.length}
+                  disabled={!attachments.length && !text.length}
                   sendMessage={handleSubmit}
                 />
               )}

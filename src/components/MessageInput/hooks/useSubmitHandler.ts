@@ -7,15 +7,89 @@ import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
+import {
+  isLinkPreview,
+  isMessageComposerFileAttachment,
+  isMessageComposerImageAttachment,
+  isUploadAttachment,
+} from './useAttachments';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
-import { LinkPreviewState } from '../types';
+import { LinkPreview, LinkPreviewState, MessageComposerAttachment, UploadState } from '../types';
 
-const getAttachmentTypeFromMime = (mime: string) => {
-  if (mime.includes('video/')) return 'video';
-  if (mime.includes('audio/')) return 'audio';
-  return 'file';
+const isEmptyMessage = (text: string) => {
+  const trimmedMessage = text.trim();
+  return (
+    trimmedMessage === '' ||
+    trimmedMessage === '>' ||
+    trimmedMessage === '``````' ||
+    trimmedMessage === '``' ||
+    trimmedMessage === '**' ||
+    trimmedMessage === '____' ||
+    trimmedMessage === '__' ||
+    trimmedMessage === '****'
+  );
+};
+
+const attachmentFilter = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: MessageComposerAttachment<StreamChatGenerics>,
+  index: number,
+  self: MessageComposerAttachment<StreamChatGenerics>[],
+) => {
+  if (isLinkPreview(attachment)) {
+    return attachment.state === LinkPreviewState.LOADED;
+  }
+
+  if (!isUploadAttachment(attachment)) return true;
+  if (attachment.uploadState === UploadState.failed) return false;
+
+  let isNotDuplicateUploadAttachment: (
+    att: MessageComposerAttachment<StreamChatGenerics>,
+  ) => boolean;
+  if (isMessageComposerImageAttachment(attachment)) {
+    isNotDuplicateUploadAttachment = (att: MessageComposerAttachment<StreamChatGenerics>) =>
+      !isMessageComposerImageAttachment(att) ||
+      att.image_url !== attachment.image_url ||
+      att.id !== attachment.id;
+  } else if (isMessageComposerFileAttachment(attachment)) {
+    isNotDuplicateUploadAttachment = (att: MessageComposerAttachment<StreamChatGenerics>) =>
+      !isMessageComposerFileAttachment(att) ||
+      att.asset_url !== attachment.asset_url ||
+      att.id !== attachment.id;
+  } else {
+    return attachment;
+  }
+  return [...self.slice(0, index), ...self.slice(index + 1)].every(isNotDuplicateUploadAttachment);
+};
+
+type CleanedAttachmentsWithLinkPreviews<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = { cleanedAttachments: Attachment<StreamChatGenerics>[]; linkPreviews: LinkPreview[] };
+
+const messageComposerAttachmentToMessageAttachmentReducer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  acc: CleanedAttachmentsWithLinkPreviews<StreamChatGenerics>,
+  attachment: MessageComposerAttachment<StreamChatGenerics>,
+) => {
+  const finalAtt: Attachment<StreamChatGenerics> = { ...attachment };
+  if (isUploadAttachment(attachment)) {
+    delete finalAtt.file;
+    delete finalAtt.uploadState;
+  }
+  if (isMessageComposerImageAttachment(attachment)) {
+    delete finalAtt.previewUri;
+  }
+  if (isLinkPreview(attachment)) {
+    delete finalAtt.state;
+    acc.linkPreviews.push(attachment);
+  }
+  delete finalAtt.id;
+  acc.cleanedAttachments.push(finalAtt);
+  return acc;
 };
 
 export const useSubmitHandler = <
@@ -30,16 +104,7 @@ export const useSubmitHandler = <
 ) => {
   const { clearEditingState, message, overrideSubmitHandler, parent, publishTypingEvent } = props;
 
-  const {
-    attachments,
-    fileOrder,
-    fileUploads,
-    imageOrder,
-    imageUploads,
-    linkPreviews,
-    mentioned_users,
-    text,
-  } = state;
+  const { attachments, mentioned_users, text } = state;
 
   const { cancelURLEnrichment, findAndEnqueueURLsToEnrich } = enrichURLsController;
   const { channel } = useChannelStateContext<StreamChatGenerics>('useSubmitHandler');
@@ -59,112 +124,48 @@ export const useSubmitHandler = <
     textReference.current.hasChanged = text !== textReference.current.initialText;
   }, [text]);
 
-  const getAttachmentsFromUploads = () => {
-    const imageAttachments = imageOrder
-      .map((id) => imageUploads[id])
-      .filter((upload) => upload.state !== 'failed')
-      .filter((
-        { id, url },
-        _,
-        self, // filter out duplicates based on ID or URL
-      ) => self.every((upload) => upload.id === id || upload.url !== url))
-      .filter((upload) => {
-        // keep the OG attachments in case the text has not changed as the BE
-        // won't re-enrich the message when only attachments have changed
-        if (!textReference.current.hasChanged) return true;
-        return !upload.og_scrape_url;
-      })
-      .map<Attachment<StreamChatGenerics>>(({ file: { name }, url, ...rest }) => ({
-        author_name: rest.author_name,
-        fallback: name,
-        image_url: url,
-        og_scrape_url: rest.og_scrape_url,
-        text: rest.text,
-        title: rest.title,
-        title_link: rest.title_link,
-        type: 'image',
-      }));
-
-    const fileAttachments = fileOrder
-      .map((id) => fileUploads[id])
-      .filter((upload) => upload.state !== 'failed')
-      .map<Attachment<StreamChatGenerics>>((upload) => ({
-        asset_url: upload.url,
-        file_size: upload.file.size,
-        mime_type: upload.file.type,
-        thumb_url: upload.thumb_url,
-        title: upload.file.name,
-        type: getAttachmentTypeFromMime(upload.file.type || ''),
-      }));
-
-    return [
-      ...attachments, // from state
-      ...imageAttachments,
-      ...fileAttachments,
-    ];
-  };
-
   const handleSubmit = async (
     event: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
   ) => {
     event.preventDefault();
 
-    const trimmedMessage = text.trim();
-    const isEmptyMessage =
-      trimmedMessage === '' ||
-      trimmedMessage === '>' ||
-      trimmedMessage === '``````' ||
-      trimmedMessage === '``' ||
-      trimmedMessage === '**' ||
-      trimmedMessage === '____' ||
-      trimmedMessage === '__' ||
-      trimmedMessage === '****';
+    if (isEmptyMessage(text) && numberOfUploads === 0) return;
 
-    if (isEmptyMessage && numberOfUploads === 0) return;
+    const linkPreviewsEnabled = !!findAndEnqueueURLsToEnrich;
 
     // the channel component handles the actual sending of the message
-    const someAttachmentsUploading =
-      Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
-      Object.values(fileUploads).some((upload) => upload.state === 'uploading');
+    const someAttachmentsUploading = attachments.some(
+      (att) => isUploadAttachment(att) && att.uploadState === UploadState.uploading,
+    );
 
     if (someAttachmentsUploading) {
       return addNotification(t('Wait until all attachments have uploaded'), 'error');
     }
 
-    let attachmentsFromUploads = getAttachmentsFromUploads();
-    let attachmentsFromLinkPreviews: Attachment[] = [];
+    const { cleanedAttachments, linkPreviews } = attachments
+      .filter(attachmentFilter)
+      .reduce<CleanedAttachmentsWithLinkPreviews<StreamChatGenerics>>(
+        messageComposerAttachmentToMessageAttachmentReducer,
+        {
+          cleanedAttachments: [],
+          linkPreviews: [],
+        },
+      );
+
     let someLinkPreviewsLoading;
     let someLinkPreviewsDismissed;
-    if (findAndEnqueueURLsToEnrich) {
-      // filter out all the attachments scraped before the message was edited - only if the scr
-      attachmentsFromUploads = attachmentsFromUploads.filter(
-        (attachment) => !attachment.og_scrape_url,
-      );
+    if (linkPreviewsEnabled) {
       // prevent showing link preview in MessageInput after the message has been sent
       cancelURLEnrichment();
-      someLinkPreviewsLoading = Array.from(linkPreviews.values()).some((linkPreview) =>
+
+      someLinkPreviewsLoading = linkPreviews.some((linkPreview) =>
         [LinkPreviewState.QUEUED, LinkPreviewState.LOADING].includes(linkPreview.state),
       );
-      someLinkPreviewsDismissed = Array.from(linkPreviews.values()).some(
+      someLinkPreviewsDismissed = linkPreviews.some(
         (linkPreview) => linkPreview.state === LinkPreviewState.DISMISSED,
       );
-
-      if (!someLinkPreviewsLoading) {
-        attachmentsFromLinkPreviews = Array.from(linkPreviews.values())
-          .filter(
-            (linkPreview) =>
-              linkPreview.state === LinkPreviewState.LOADED &&
-              !attachmentsFromUploads.find(
-                (attFromUpload) => attFromUpload.og_scrape_url === linkPreview.og_scrape_url,
-              ),
-          )
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          .map(({ state: linkPreviewState, ...ogAttachment }) => ogAttachment as Attachment);
-      }
     }
-
-    const newAttachments = [...attachmentsFromUploads, ...attachmentsFromLinkPreviews];
 
     // Instead of checking if a user is still mentioned every time the text changes,
     // just filter out non-mentioned users before submit, which is cheaper
@@ -178,17 +179,19 @@ export const useSubmitHandler = <
     );
 
     const updatedMessage = {
-      attachments: newAttachments,
+      attachments: cleanedAttachments,
       mentioned_users: actualMentionedUsers,
       text,
     };
-    // scraped attachments are added only if all enrich queries has completed. Otherwise, the scraping has to be done server-side.
-    const linkPreviewsEnabled = !!findAndEnqueueURLsToEnrich;
-    const skip_enrich_url =
-      linkPreviewsEnabled &&
-      ((!someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0) ||
-        someLinkPreviewsDismissed);
-    const sendOptions = linkPreviewsEnabled ? { skip_enrich_url } : undefined;
+
+    const sendOptions = linkPreviewsEnabled
+      ? {
+          // scraped attachments are added only if all enrich queries have completed. Otherwise, the scraping has to be done server-side.
+          skip_enrich_url:
+            (!someLinkPreviewsLoading && linkPreviews.length > 0) || someLinkPreviewsDismissed,
+        }
+      : undefined;
+
     if (message) {
       delete message.i18n;
 

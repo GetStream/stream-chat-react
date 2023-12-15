@@ -60,6 +60,7 @@ export const useCreateMessageInputContext = <
     overrideSubmitHandler,
     parent,
     publishTypingEvent,
+    removeAttachment,
     removeFile,
     removeImage,
     setCooldownRemaining,
@@ -72,6 +73,7 @@ export const useCreateMessageInputContext = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachment,
     useMentionsTransliteration,
   } = value;
 
@@ -140,6 +142,7 @@ export const useCreateMessageInputContext = <
       overrideSubmitHandler,
       parent,
       publishTypingEvent,
+      removeAttachment,
       removeFile,
       removeImage,
       setCooldownRemaining,
@@ -152,6 +155,7 @@ export const useCreateMessageInputContext = <
       uploadFile,
       uploadImage,
       uploadNewFiles,
+      upsertAttachment,
       useMentionsTransliteration,
     }),
     [
@@ -170,10 +174,12 @@ export const useCreateMessageInputContext = <
       mentionedUsersLength,
       parentId,
       publishTypingEvent,
+      removeAttachment,
       showCommandsList,
       showMentionsList,
       text,
       handleSubmit,
+      upsertAttachment,
     ],
   );
 

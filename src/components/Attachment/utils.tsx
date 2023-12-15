@@ -9,7 +9,7 @@ import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 
-import type { Attachment } from 'stream-chat';
+import type { Attachment, OGAttachment } from 'stream-chat';
 import type { AttachmentProps } from './Attachment';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -49,7 +49,7 @@ export const isScrapedContent = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: Attachment<StreamChatGenerics>,
-) => attachment.og_scrape_url || attachment.title_link;
+): attachment is OGAttachment => !!(attachment.og_scrape_url || attachment.title_link);
 
 export const isUploadedImage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -7,14 +7,12 @@ import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import { AttachmentPreviewList } from '../AttachmentPreviewList';
-import { MessageInputContextProvider } from '../../../context/MessageInputContext';
+import { MessageInputContextProvider } from '../../../context';
 
-import { generateUpload } from '../../../mock-builders';
-
-const uploadsReducer = (pv, cv) => {
-  pv[cv.id] = cv;
-  return pv;
-};
+import {
+  generateMessageComposerFileAttachment,
+  generateMessageComposerImageAttachment,
+} from '../../../mock-builders';
 
 /**
  * @param {string} word
@@ -23,15 +21,9 @@ const uploadsReducer = (pv, cv) => {
 const capitalize = ([firstLetter, ...restOfTheWord]) =>
   `${firstLetter.toUpperCase()}${restOfTheWord.join('')}`;
 
-const orderMapper = ({ id }) => id;
-
-const generateMessageInputContextValue = ({ files = [], images = [] } = {}) => ({
-  fileOrder: files.map(orderMapper),
-  fileUploads: files.reduce(uploadsReducer, {}),
-  imageOrder: images.map(orderMapper),
-  imageUploads: images.reduce(uploadsReducer, {}),
-  removeFile: jest.fn(),
-  removeImage: jest.fn(),
+const generateMessageInputContextValue = ({ attachments = [] } = {}) => ({
+  attachments,
+  removeAttachment: jest.fn(),
   uploadFile: jest.fn(),
   uploadImage: jest.fn(),
 });
@@ -58,20 +50,20 @@ describe('AttachmentPreviewList', () => {
 
   it.each(['uploading', 'failed', 'finished'])(
     'renders with one image and one file with state "%s"',
-    (state) => {
-      const [file, image] = [
-        generateUpload({
-          fileOverrides: { name: 'file-upload' },
-          objectOverrides: { state },
+    (uploadState) => {
+      const attachments = [
+        generateMessageComposerFileAttachment({
+          fileOverrides: { name: 'file-name' },
+          objectOverrides: { id: 'file-attachment', uploadState },
         }),
-        generateUpload({
-          fileOverrides: { name: 'image-upload', type: 'image' },
-          objectOverrides: { state },
+        generateMessageComposerImageAttachment({
+          fileOverrides: { name: 'image-name' },
+          objectOverrides: { id: 'image-attachment', uploadState },
         }),
       ];
 
       const tree = renderComponent(
-        generateMessageInputContextValue({ files: [file], images: [image] }),
+        generateMessageInputContextValue({ attachments }),
         renderer.create,
       ).toJSON();
 
@@ -79,13 +71,14 @@ describe('AttachmentPreviewList', () => {
     },
   );
 
-  it.each(['file', 'image'])('tests "retry" click on %s upload', (type) => {
-    const file = generateUpload({
-      fileOverrides: { type },
-      objectOverrides: { state: 'failed' },
-    });
+  it.each(['file', 'image'])('retries to upload %s when retry button is clicked', (type) => {
+    const objectOverrides = { uploadState: 'failed' };
+    const file =
+      type === 'image'
+        ? generateMessageComposerImageAttachment({ objectOverrides })
+        : generateMessageComposerFileAttachment({ objectOverrides });
 
-    const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+    const contextValue = generateMessageInputContextValue({ attachments: [file] });
 
     const { getByTestId } = renderComponent(contextValue);
 
@@ -96,13 +89,13 @@ describe('AttachmentPreviewList', () => {
     expect(contextValue[`upload${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
   });
 
-  it.each(['file', 'image'])('tests "remove" click on %s upload', (type) => {
-    const file = generateUpload({
-      fileOverrides: { type },
-      objectOverrides: { state: 'finished' },
-    });
+  it.each(['file', 'image'])('removes %s from the state when remove button is clicked', (type) => {
+    const file =
+      type === 'image'
+        ? generateMessageComposerImageAttachment()
+        : generateMessageComposerFileAttachment();
 
-    const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+    const contextValue = generateMessageInputContextValue({ attachments: [file] });
 
     const { getByTestId } = renderComponent(contextValue);
 
@@ -110,6 +103,6 @@ describe('AttachmentPreviewList', () => {
 
     fireEvent.click(deleteButton);
 
-    expect(contextValue[`remove${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
+    expect(contextValue.removeAttachment).toHaveBeenCalledWith(file.id);
   });
 });

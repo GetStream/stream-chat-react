@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 import { logChatPromiseExecution } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
@@ -14,15 +14,13 @@ export const useMessageInputText = <
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+  textareaRef: MutableRefObject<HTMLTextAreaElement | undefined>,
   findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
   const { channel } = useChannelStateContext<StreamChatGenerics>('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
   const { text } = state;
 
-  const textareaRef = useRef<HTMLTextAreaElement>();
-
-  // Focus
   useEffect(() => {
     if (focus && textareaRef.current) {
       textareaRef.current.focus();
@@ -104,6 +102,5 @@ export const useMessageInputText = <
   return {
     handleChange,
     insertText,
-    textareaRef,
   };
 };

@@ -14,11 +14,10 @@ and the several hooks used by the [`DefaultTriggerProvider`](../components/messa
 
 ### useMessageInputState
 
-A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useMessageInputState.ts) that is a reducer hook and compiles all of the state information for the input and returns the current state and a dispatch method.
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useMessageInputState.ts) that is a reducer hook and compiles all the state information for the input and returns the current state and a dispatch method.
 This dispatch method is then used within the many smaller hooks that each compile and process a specific section of the state, and these are outlined below.
 
 - [useAttachments](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useAttachments.ts) - sets the state for attachments and returns this data and related functions.
-  Utilizes two hooks within it, [useFileUploads](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useFileUploads.ts) and [useImageUploads](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useImageUploads.ts).
 
 - [useEmojiIndex](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useEmojiIndex.ts) - returns the NimbleEmojiIndex. Added to the state under the `emojiIndex` key.
 

@@ -3,9 +3,10 @@ import { FilePreviewer, ImagePreviewer } from '../ReactFileUtilities';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import { useChatContext } from '../../context';
+
+import type { Attachment } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 /**
  * @deprecated This component has been deprecated in favor of `AttachmentPreviewList` as this component
@@ -37,7 +38,7 @@ export const UploadsPreview = <
   const imagesToPreview = imageOrder
     .map((id) => imageUploads[id])
     // filter OG scraped images
-    .filter((image) => !image.og_scrape_url);
+    .filter((image) => !(image as Attachment).og_scrape_url);
   const filesToPreview = fileOrder.map((id) => fileUploads[id]);
 
   return (

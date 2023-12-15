@@ -5,6 +5,7 @@ import type { ChannelActionContextValue } from '../../../context/ChannelActionCo
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { FileUpload } from '../types';
 
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
@@ -76,7 +77,7 @@ export const searchLocalUsers = <
 ): UserResponse<StreamChatGenerics>[] => {
   const { ownUserId, query, text, useMentionsTransliteration, users } = params;
 
-  const matchingUsers = users.filter((user) => {
+  return users.filter((user) => {
     if (user.id === ownUserId) return false;
     if (!query) return true;
 
@@ -107,15 +108,13 @@ export const searchLocalUsers = <
 
     return updatedId.includes(updatedQuery) || (levenshtein <= maxDistance && lastDigits);
   });
-
-  return matchingUsers;
 };
 
 type CheckUploadPermissionsParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   addNotification: ChannelActionContextValue<StreamChatGenerics>['addNotification'];
-  file: ImageUpload['file'];
+  file: FileUpload['file'] | ImageUpload['file'];
   getAppSettings: ChatContextValue<StreamChatGenerics>['getAppSettings'];
   t: TranslationContextValue['t'];
   uploadType: 'image' | 'file';
@@ -128,8 +127,7 @@ export const checkUploadPermissions = async <
 ) => {
   const { addNotification, file, getAppSettings, t, uploadType } = params;
 
-  let appSettings: AppSettingsAPIResponse<StreamChatGenerics> | null = null;
-  appSettings = await getAppSettings();
+  const appSettings: AppSettingsAPIResponse<StreamChatGenerics> | null = await getAppSettings();
 
   const {
     allowed_file_extensions,

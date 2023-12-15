@@ -91,7 +91,7 @@ export const useLinkPreviews = <
 
         dispatch({
           linkPreviews: urls.reduce<LinkPreviewMap>((acc, url) => {
-            acc.set(url, { og_scrape_url: url, state: LinkPreviewState.QUEUED });
+            acc.set(url, { id: url, og_scrape_url: url, state: LinkPreviewState.QUEUED });
             return acc;
           }, new Map()),
           mode,

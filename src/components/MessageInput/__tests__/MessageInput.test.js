@@ -303,6 +303,7 @@ function axeNoViolations(container) {
     });
 
     describe('Attachments', () => {
+      it.todo('are displayed in the preview');
       it('Pasting images and files should result in uploading the files and showing previewers', async () => {
         // FIXME: act is missing somewhere within this test which results in unwanted warning
 

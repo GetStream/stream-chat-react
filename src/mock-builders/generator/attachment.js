@@ -27,6 +27,7 @@ export const generateVideoAttachment = (a) => ({
   asset_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   file_size: 2930530,
   mime_type: 'video/mp4',
+  thumb_url: 'thumb_url',
   title: nanoid(),
   type: 'video',
   ...a,
