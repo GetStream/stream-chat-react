@@ -5,7 +5,7 @@ import { moveChannelUp } from '../utils';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, ChannelMemberResponse, Event } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -21,10 +21,19 @@ export const useMessageNewListener = <
   useEffect(() => {
     const handleEvent = (event: Event<StreamChatGenerics>) => {
       setChannels((channels) => {
-        const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
+        const channelInList = channels.find((channel) => channel.cid === event.cid);
 
         if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
           const channel = client.channel(event.channel_type, event.channel_id);
+
+          const userIsNotChannelMember = !(channel.data?.members as (
+            | string
+            | ChannelMemberResponse<StreamChatGenerics>
+          )[])?.find(
+            (member) => (typeof member === 'string' ? member : member.user?.id) === client.user?.id,
+          );
+          if (userIsNotChannelMember) return channels;
+
           return uniqBy([channel, ...channels], 'cid');
         }
 
@@ -39,5 +48,5 @@ export const useMessageNewListener = <
     return () => {
       client.off('message.new', handleEvent);
     };
-  }, [lockChannelOrder]);
+  }, [client, lockChannelOrder]);
 };
