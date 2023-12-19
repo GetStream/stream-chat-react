@@ -111,6 +111,11 @@ export type ChannelListProps<
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
     event: Event<StreamChatGenerics>,
   ) => void;
+  /** Function to override the default behavior when a message is received on a channel being watched, handles [message.new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  onMessageNewHandler?: (
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
+  ) => void;
   /** Function to override the default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
@@ -171,6 +176,7 @@ const UnMemoizedChannelList = <
     onChannelUpdated,
     onChannelVisible,
     onMessageNew,
+    onMessageNewHandler,
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
@@ -272,7 +278,12 @@ const UnMemoizedChannelList = <
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
+  useMessageNewListener(
+    setChannels,
+    onMessageNewHandler,
+    lockChannelOrder,
+    allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationMessageNewListener(
     setChannels,
     onMessageNew,
