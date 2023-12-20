@@ -94,6 +94,18 @@ export const ChannelPreview = <
     return () => client.off('notification.mark_read', handleEvent);
   }, []);
 
+  useEffect(() => {
+    const handleEvent = (event: Event) => {
+      if (channel.cid !== event.cid) return;
+      if (event.user?.id !== client.user?.id) return;
+      setUnread(channel.countUnread());
+    };
+    channel.on('notification.mark_unread', handleEvent);
+    return () => {
+      channel.off('notification.mark_unread', handleEvent);
+    };
+  }, [channel, client]);
+
   const refreshUnreadCount = useCallback(() => {
     if (isActive || muted) {
       setUnread(0);

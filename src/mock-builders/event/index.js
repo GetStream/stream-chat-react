@@ -10,6 +10,8 @@ export { default as dispatchMessageNewEvent } from './messageNew';
 export { default as dispatchMessageReadEvent } from './messageRead';
 export { default as dispatchMessageUpdatedEvent } from './messageUpdated';
 export { default as dispatchNotificationAddedToChannelEvent } from './notificationAddedToChannel';
+export { default as dispatchNotificationMarkRead } from './notificationMarkRead';
+export { default as dispatchNotificationMarkUnread } from './notificationMarkUnread';
 export { default as dispatchNotificationMessageNewEvent } from './notificationMessageNew';
 export { default as dispatchNotificationMutesUpdated } from './notificationMutesUpdated';
 export { default as dispatchNotificationRemovedFromChannel } from './notificationRemovedFromChannel';
