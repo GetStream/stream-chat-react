@@ -1,3 +1,15 @@
+## [11.2.0](https://github.com/GetStream/stream-chat-react/compare/v11.1.2...v11.2.0) (2023-12-20)
+
+
+### Bug Fixes
+
+* update MessageInput icons to include viewBox property ([#2220](https://github.com/GetStream/stream-chat-react/issues/2220)) ([df8988e](https://github.com/GetStream/stream-chat-react/commit/df8988eabe15357a78b860526041a8284023b7f0))
+
+
+### Features
+
+* handle message.new events in ChannelList with custom handler onMessageNewHandler ([#2221](https://github.com/GetStream/stream-chat-react/issues/2221)) ([7ffeeaf](https://github.com/GetStream/stream-chat-react/commit/7ffeeaf1279c46f8ae3c0ea6fbc8f831b2f159f9))
+
 ## [11.1.2](https://github.com/GetStream/stream-chat-react/compare/v11.1.1...v11.1.2) (2023-12-13)
 
 
