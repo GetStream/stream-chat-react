@@ -116,6 +116,7 @@ export type ChannelListProps<
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
     event: Event<StreamChatGenerics>,
   ) => void;
+  onGetActiveChannelError?: (error: unknown) => void;
   /** An object containing channel query options */
   options?: ChannelOptions;
   /** Custom UI component to handle channel pagination logic, defaults to and accepts same props as: [LoadMorePaginator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.tsx) */
@@ -215,8 +216,13 @@ const UnMemoizedChannelList = <
       let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
 
       if (!customActiveChannelObject) {
-        //@ts-expect-error
-        [customActiveChannelObject] = await client.queryChannels({ id: customActiveChannel });
+        try {
+          //@ts-expect-error
+          [customActiveChannelObject] = await client.queryChannels({ id: customActiveChannel });
+        } catch (err) {
+           console.warn(err);
+           onGetActiveChannelError?.(err);
+        }
       }
 
       if (customActiveChannelObject) {
