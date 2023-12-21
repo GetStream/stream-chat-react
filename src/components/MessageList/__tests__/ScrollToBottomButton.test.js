@@ -8,6 +8,7 @@ import {
   createClientWithChannel,
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
+  dispatchNotificationMarkUnread,
   generateMessage,
 } from '../../../mock-builders';
 
@@ -297,5 +298,78 @@ describe.each([
       expect(container.querySelector(containerMsgListCounterSelector)).toBeInTheDocument();
       expect(container.querySelector(otherMsgListCounterSelector)).not.toBeInTheDocument();
     });
+  });
+
+  it('reflects the unread count when the active channel is marked unread', async () => {
+    render(
+      <ChatProvider value={{ channel, client }}>
+        <ChannelStateProvider value={channelStateContext}>
+          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
+
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+    const payload = { unread_channels: 2, unread_messages: 5 };
+    await act(() => {
+      dispatchNotificationMarkUnread({
+        channel,
+        client,
+        payload,
+        user: client.user,
+      });
+    });
+
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).toHaveTextContent(
+      payload.unread_messages.toString(),
+    );
+  });
+
+  it('ignores notification.mark_unread from other users', async () => {
+    render(
+      <ChatProvider value={{ channel, client }}>
+        <ChannelStateProvider value={channelStateContext}>
+          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
+
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+    const payload = { unread_channels: 2, unread_messages: 5 };
+    await act(() => {
+      dispatchNotificationMarkUnread({
+        channel,
+        client,
+        payload,
+        user: { id: 'other-user' },
+      });
+    });
+
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('ignores notification.mark_unread from other than active channels', async () => {
+    render(
+      <ChatProvider value={{ channel, client }}>
+        <ChannelStateProvider value={channelStateContext}>
+          <ScrollToBottomButton isMessageListScrolledToBottom={false} onClick={onClick} />
+        </ChannelStateProvider>
+      </ChatProvider>,
+    );
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+    const payload = { unread_channels: 2, unread_messages: 5 };
+    await act(() => {
+      dispatchNotificationMarkUnread({
+        channel: { cid: 'other-channel' },
+        client,
+        payload,
+        user: client.user,
+      });
+    });
+
+    expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
   });
 });

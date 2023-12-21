@@ -54,6 +54,19 @@ const UnMemoizedScrollToBottomButton = (
   }, [activeChannel, isMessageListScrolledToBottom, observedEvent, replyCount, thread]);
 
   useEffect(() => {
+    if (!activeChannel) return;
+    const handleEvent = (event: Event) => {
+      if (activeChannel.cid !== event.cid) return;
+      if (event.user?.id !== client.user?.id) return;
+      setCountUnread(activeChannel.countUnread());
+    };
+    activeChannel.on('notification.mark_unread', handleEvent);
+    return () => {
+      activeChannel.off('notification.mark_unread', handleEvent);
+    };
+  }, [activeChannel, client]);
+
+  useEffect(() => {
     if (isMessageListScrolledToBottom) {
       setCountUnread(0);
       setReplyCount(thread?.reply_count || 0);
