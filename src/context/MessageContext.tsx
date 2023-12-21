@@ -46,6 +46,8 @@ export type MessageContextValue<
   handleEdit: ReactEventHandler;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
+  /** Function to mark message and the messages that follow it as unread in a Channel */
+  handleMarkUnread: ReactEventHandler;
   /** Function to mute a user in a Channel */
   handleMute: ReactEventHandler;
   /** Function to open a Thread on a Message */
@@ -56,7 +58,7 @@ export type MessageContextValue<
   handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /** Function that returns whether or not the Message belongs to the current user */
+  /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** @deprecated will be removed in the next major release.
    *  Whether sending reactions is enabled for the active channel.
@@ -64,6 +66,8 @@ export type MessageContextValue<
   isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
+  /** Indicates whether a message has not been read yet or has been marked unread */
+  messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */

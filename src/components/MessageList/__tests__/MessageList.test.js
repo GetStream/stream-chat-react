@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -19,7 +19,7 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-
+import { useMessageContext } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 
 jest.mock('../../EmptyStateIndicator', () => ({
@@ -237,5 +237,36 @@ describe('MessageList', () => {
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  describe('props forwarded to Message', () => {
+    it.each([
+      ['getMarkMessageUnreadErrorNotification'],
+      ['getMarkMessageUnreadSuccessNotification'],
+    ])('calls %s', async (funcName) => {
+      const markUnreadSpy = jest.spyOn(channel, 'markUnread');
+      if (funcName === 'getMarkMessageUnreadErrorNotification')
+        markUnreadSpy.mockRejectedValueOnce();
+
+      const message = generateMessage();
+      const notificationFunc = jest.fn();
+      const Message = () => {
+        const { handleMarkUnread } = useMessageContext();
+        useEffect(() => {
+          const event = { preventDefault: () => null };
+          handleMarkUnread(event);
+        }, []);
+        return null;
+      };
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { [funcName]: notificationFunc, Message, messages: [message] },
+        });
+      });
+
+      expect(notificationFunc).toHaveBeenCalledWith(expect.objectContaining(message));
+    });
   });
 });

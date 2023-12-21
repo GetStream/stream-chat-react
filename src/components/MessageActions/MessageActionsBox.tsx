@@ -2,16 +2,14 @@ import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
-
 import { useChannelActionContext } from '../../context/ChannelActionContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 import {
   CustomMessageActions,
   MessageContextValue,
   useMessageContext,
 } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-
-import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -55,6 +53,7 @@ type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
   | 'handleDelete'
   | 'handleEdit'
+  | 'handleMarkUnread'
   | 'handleFlag'
   | 'handleMute'
   | 'handlePin';
@@ -77,17 +76,21 @@ const UnMemoizedMessageActionsBox = <
     handleDelete,
     handleEdit,
     handleFlag,
+    handleMarkUnread,
     handleMute,
     handlePin,
     isUserMuted,
     mine,
     open = false,
   } = props;
-
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, messageListRect } = useMessageContext<StreamChatGenerics>(
-    'MessageActionsBox',
-  );
+  const {
+    customMessageActions,
+    message,
+    messageIsUnread,
+    messageListRect,
+    threadList,
+  } = useMessageContext<StreamChatGenerics>('MessageActionsBox');
 
   const { t } = useTranslationContext('MessageActionsBox');
 
@@ -162,6 +165,18 @@ const UnMemoizedMessageActionsBox = <
             {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
           </button>
         )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
+          !threadList &&
+          !messageIsUnread && (
+            <button
+              aria-selected='false'
+              className={buttonClassName}
+              onClick={handleMarkUnread}
+              role='option'
+            >
+              {t<string>('Mark as unread')}
+            </button>
+          )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button
             aria-selected='false'

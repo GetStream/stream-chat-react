@@ -14,6 +14,7 @@ type MessageContextPropsToPick =
   | 'getMessageActions'
   | 'handleDelete'
   | 'handleFlag'
+  | 'handleMarkUnread'
   | 'handleMute'
   | 'handlePin'
   | 'message';
@@ -44,6 +45,7 @@ export const MessageActions = <
     getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
+    handleMarkUnread: propHandleMarkUnread,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
     inline,
@@ -58,6 +60,7 @@ export const MessageActions = <
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
+    handleMarkUnread: contextHandleMarkUnread,
     handleMute: contextHandleMute,
     handlePin: contextHandlePin,
     isMyMessage,
@@ -68,6 +71,7 @@ export const MessageActions = <
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
   const handleFlag = propHandleFlag || contextHandleFlag;
+  const handleMarkUnread = propHandleMarkUnread || contextHandleMarkUnread;
   const handleMute = propHandleMute || contextHandleMute;
   const handlePin = propHandlePin || contextHandlePin;
   const message = propMessage || contextMessage;
@@ -122,6 +126,7 @@ export const MessageActions = <
         handleDelete={handleDelete}
         handleEdit={setEditingState}
         handleFlag={handleFlag}
+        handleMarkUnread={handleMarkUnread}
         handleMute={handleMute}
         handlePin={handlePin}
         isUserMuted={isMuted}

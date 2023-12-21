@@ -123,6 +123,8 @@ const MessageListWithContext = <
       getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
+      getMarkMessageUnreadErrorNotification: props.getMarkMessageUnreadErrorNotification,
+      getMarkMessageUnreadSuccessNotification: props.getMarkMessageUnreadSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
       getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
@@ -244,6 +246,8 @@ type PropsDrilledToMessage =
   | 'getDeleteMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
+  | 'getMarkMessageUnreadErrorNotification'
+  | 'getMarkMessageUnreadSuccessNotification'
   | 'getMuteUserErrorNotification'
   | 'getMuteUserSuccessNotification'
   | 'getPinMessageErrorNotification'
