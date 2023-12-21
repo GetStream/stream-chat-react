@@ -1,3 +1,10 @@
+## [11.2.1](https://github.com/GetStream/stream-chat-react/compare/v11.2.0...v11.2.1) (2023-12-21)
+
+
+### Chores
+
+* **deps:** add @babel/runtime to dependencies ([#2219](https://github.com/GetStream/stream-chat-react/issues/2219)) ([c9f5844](https://github.com/GetStream/stream-chat-react/commit/c9f584486cab1d6308f90feea9fead04cc909ede)), closes [#2218](https://github.com/GetStream/stream-chat-react/issues/2218)
+
 ## [11.2.0](https://github.com/GetStream/stream-chat-react/compare/v11.1.2...v11.2.0) (2023-12-20)
 
 
