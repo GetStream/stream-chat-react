@@ -58,6 +58,7 @@
     "getstream.io"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.23.6",
     "@braintree/sanitize-url": "^6.0.4",
     "@popperjs/core": "^2.11.5",
     "clsx": "^2.0.0",
