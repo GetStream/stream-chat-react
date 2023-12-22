@@ -112,6 +112,8 @@ type ChannelPropsForwardedToComponentContext<
   BaseImage?: ComponentContextValue<StreamChatGenerics>['BaseImage'];
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/CooldownTimer.tsx) */
   CooldownTimer?: ComponentContextValue<StreamChatGenerics>['CooldownTimer'];
+  /** Custom UI component to render set of buttons to be displayed in the MessageActionsBox, defaults to and accepts same props as: [CustomMessageActionsList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) */
+  CustomMessageActionsList?: ComponentContextValue<StreamChatGenerics>['CustomMessageActionsList'];
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
   DateSeparator?: ComponentContextValue<StreamChatGenerics>['DateSeparator'];
   /** Custom UI component to override default edit message input, defaults to and accepts same props as: [EditMessageForm](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/EditMessageForm.tsx) */
