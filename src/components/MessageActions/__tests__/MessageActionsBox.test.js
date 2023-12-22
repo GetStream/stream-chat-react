@@ -260,7 +260,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as option for messages already marked as unread', async () => {
+    it('should be displayed as option for messages already marked as unread', async () => {
       const read = [
         {
           last_read: new Date(new Date(message.created_at).getTime() - 1000),
@@ -282,7 +282,7 @@ describe('MessageActionsBox', () => {
       await act(() => {
         fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
-      expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
+      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
 
     it('does not send the request if the message does not have id', async () => {

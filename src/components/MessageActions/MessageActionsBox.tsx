@@ -87,7 +87,6 @@ const UnMemoizedMessageActionsBox = <
   const {
     customMessageActions,
     message,
-    messageIsUnread,
     messageListRect,
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageActionsBox');
@@ -165,18 +164,16 @@ const UnMemoizedMessageActionsBox = <
             {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
           </button>
         )}
-        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 &&
-          !threadList &&
-          !messageIsUnread && (
-            <button
-              aria-selected='false'
-              className={buttonClassName}
-              onClick={handleMarkUnread}
-              role='option'
-            >
-              {t<string>('Mark as unread')}
-            </button>
-          )}
+        {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 && !threadList && (
+          <button
+            aria-selected='false'
+            className={buttonClassName}
+            onClick={handleMarkUnread}
+            role='option'
+          >
+            {t<string>('Mark as unread')}
+          </button>
+        )}
         {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
           <button
             aria-selected='false'
