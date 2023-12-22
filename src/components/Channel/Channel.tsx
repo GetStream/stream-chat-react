@@ -1010,6 +1010,7 @@ const ChannelInner = <
       Avatar: props.Avatar,
       BaseImage: props.BaseImage,
       CooldownTimer: props.CooldownTimer,
+      CustomMessageActionsList: props.CustomMessageActionsList,
       DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EmojiPicker: props.EmojiPicker,
