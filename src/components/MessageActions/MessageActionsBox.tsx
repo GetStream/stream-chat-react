@@ -57,7 +57,8 @@ type PropsDrilledToMessageActionsBox =
   | 'handleEdit'
   | 'handleFlag'
   | 'handleMute'
-  | 'handlePin';
+  | 'handlePin'
+  | 'customMessageActions';
 
 export type MessageActionsBoxProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -73,6 +74,7 @@ const UnMemoizedMessageActionsBox = <
   props: MessageActionsBoxProps<StreamChatGenerics>,
 ) => {
   const {
+    customMessageActions: propCustomMessageActions,
     getMessageActions,
     handleDelete,
     handleEdit,
@@ -85,9 +87,13 @@ const UnMemoizedMessageActionsBox = <
   } = props;
 
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, messageListRect } = useMessageContext<StreamChatGenerics>(
-    'MessageActionsBox',
-  );
+  const {
+    customMessageActions: contextCustomMessageActions,
+    message,
+    messageListRect,
+  } = useMessageContext<StreamChatGenerics>('MessageActionsBox');
+
+  const customMessageActions = propCustomMessageActions ?? contextCustomMessageActions;
 
   const { t } = useTranslationContext('MessageActionsBox');
 

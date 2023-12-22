@@ -16,7 +16,8 @@ type MessageContextPropsToPick =
   | 'handleFlag'
   | 'handleMute'
   | 'handlePin'
-  | 'message';
+  | 'message'
+  | 'customMessageActions';
 
 export type MessageActionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -44,6 +45,7 @@ export const MessageActions = <
     getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
+    customMessageActions,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
     inline,
@@ -54,7 +56,6 @@ export const MessageActions = <
 
   const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
   const {
-    customMessageActions,
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
@@ -118,6 +119,7 @@ export const MessageActions = <
       setActionsBoxOpen={setActionsBoxOpen}
     >
       <MessageActionsBox
+        customMessageActions={customMessageActions}
         getMessageActions={getMessageActions}
         handleDelete={handleDelete}
         handleEdit={setEditingState}

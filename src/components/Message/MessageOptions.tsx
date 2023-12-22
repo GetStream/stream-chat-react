@@ -15,7 +15,9 @@ import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Partial<Pick<MessageContextValue<StreamChatGenerics>, 'handleOpenThread'>> & {
+> = Partial<
+  Pick<MessageContextValue<StreamChatGenerics>, 'handleOpenThread' | 'customMessageActions'>
+> & {
   /* Custom component rendering the icon used in message actions button. This button invokes the message actions menu. */
   ActionsIcon?: React.ComponentType<IconProps>;
   /* If true, show the `ThreadIcon` and enable navigation into a `Thread` component. */
@@ -43,10 +45,11 @@ const UnMemoizedMessageOptions = <
     ReactionIcon = DefaultReactionIcon,
     theme = 'simple',
     ThreadIcon = DefaultThreadIcon,
+    customMessageActions: propCustomMessageActions,
   } = props;
 
   const {
-    customMessageActions,
+    customMessageActions: contextCustomMessageActions,
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
@@ -55,6 +58,7 @@ const UnMemoizedMessageOptions = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
+  const customMessageActions = propCustomMessageActions ?? contextCustomMessageActions;
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
@@ -82,7 +86,11 @@ const UnMemoizedMessageOptions = <
   return (
     <div className={rootClassName} data-testid='message-options'>
       {showActionsBox && (
-        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+        <MessageActions
+          ActionsIcon={ActionsIcon}
+          customMessageActions={customMessageActions}
+          messageWrapperRef={messageWrapperRef}
+        />
       )}
       {shouldShowReplies && (
         <button

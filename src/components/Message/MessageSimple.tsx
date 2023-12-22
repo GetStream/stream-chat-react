@@ -151,7 +151,7 @@ const MessageSimpleWithContext = <
             onClick={allowRetry ? () => handleRetry(message) : undefined}
             onKeyUp={allowRetry ? () => handleRetry(message) : undefined}
           >
-            <MessageOptions />
+            <MessageOptions customMessageActions={props.customMessageActions} />
             <div className='str-chat__message-reactions-host'>
               {canShowReactions && <ReactionsList reverse />}
               {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
