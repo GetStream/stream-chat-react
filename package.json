@@ -78,7 +78,7 @@
     "react-fast-compare": "^3.2.2",
     "react-image-gallery": "1.2.12",
     "react-is": "^18.1.0",
-    "react-markdown": "^9.0.0",
+    "react-markdown": "9.0.1",
     "react-player": "2.10.1",
     "react-popper": "^2.3.0",
     "react-textarea-autosize": "^8.3.0",
