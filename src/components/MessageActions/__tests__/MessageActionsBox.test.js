@@ -7,7 +7,7 @@ import { MessageActionsBox } from '../MessageActionsBox';
 
 import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { MessageProvider } from '../../../context/MessageContext';
-import { ComponentProvider, TranslationProvider } from '../../../context';
+import { TranslationProvider } from '../../../context/TranslationContext';
 
 import { generateMessage } from '../../../mock-builders';
 
@@ -20,23 +20,21 @@ const messageContextValue = {
   messageListRect: {},
 };
 
-function renderComponent(boxProps, components = {}) {
+function renderComponent(boxProps) {
   return render(
-    <ComponentProvider value={components}>
-      <TranslationProvider value={{ t: (key) => key }}>
-        <ChannelActionProvider
-          value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-          }}
-        >
-          <MessageProvider value={{ ...messageContextValue, message: boxProps.message }}>
-            <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
-          </MessageProvider>
-        </ChannelActionProvider>
-      </TranslationProvider>
-    </ComponentProvider>,
+    <TranslationProvider value={{ t: (key) => key }}>
+      <ChannelActionProvider
+        value={{
+          openThread: jest.fn(),
+          removeMessage: jest.fn(),
+          updateMessage: jest.fn(),
+        }}
+      >
+        <MessageProvider value={{ ...messageContextValue, message: boxProps.message }}>
+          <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
+        </MessageProvider>
+      </ChannelActionProvider>
+    </TranslationProvider>,
   );
 }
 
@@ -130,14 +128,6 @@ describe('MessageActionsBox', () => {
     const { container, getByText } = renderComponent({ handlePin, message });
     fireEvent.click(getByText('Unpin'));
     expect(handlePin).toHaveBeenCalledTimes(1);
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should render CustomMessageActionsList if provided', async () => {
-    const CustomMessageActionsList = jest.fn().mockImplementation(() => null);
-    const { container } = renderComponent({}, { CustomMessageActionsList });
-    expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
