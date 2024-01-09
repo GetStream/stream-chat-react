@@ -71,18 +71,18 @@ Custom UI component to display a user's avatar.
 
 ### BaseImage
 
-Custom UI component to display image resp. a fallback in case of load error, in `<img/>` element. The  default resp. custom (from `ComponentContext`) `BaseImage` component is rendered by:
+Custom UI component to display image resp. a fallback in case of load error, in `<img/>` element. The default resp. custom (from `ComponentContext`) `BaseImage` component is rendered by:
 
-- <GHComponentLink text='Image' path='/Gallery/Image.tsx'/> - single image attachment in message list
-- <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx'/> - group of image attachments in message list
-- <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx'/> - image uploads preview in message input (composer)
+- <GHComponentLink text='Image' path='/Gallery/Image.tsx' /> - single image attachment in message list
+- <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx' /> - group of image attachments in message list
+- <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx' /> - image uploads preview in message input (composer)
 
 The `BaseImage` component accepts the same props as `<img/>` element.
 
 The [default `BaseImage` component](../../utility-components/base-image) tries to load and display an image and if the load fails, then an SVG image fallback is applied to the `<img/>` element as a CSS mask targeting attached `str-chat__base-image--load-failed` class.
 
-| Type      | Default                                                               |
-|-----------|-----------------------------------------------------------------------|
+| Type      | Default                                                           |
+| --------- | ----------------------------------------------------------------- |
 | component | <GHComponentLink text='BaseImage' path='/Gallery/BaseImage.tsx'/> |
 
 ### CooldownTimer
@@ -92,6 +92,14 @@ Custom UI component to display the slow mode cooldown timer.
 | Type      | Default                                                                        |
 | --------- | ------------------------------------------------------------------------------ |
 | component | <GHComponentLink text='CooldownTimer' path='/MessageInput/CooldownTimer.tsx'/> |
+
+### CustomMessageActionsList
+
+Custom UI component to render set of buttons to be displayed in the <GHComponentLink text='MessageActionsBox' path='/MessageActions/MessageActionsBox.tsx' />.
+
+| Type      | Default                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='CustomMessageActionsList' path='/MessageActions/CustomMessageActionsList.tsx' /> |
 
 ### DateSeparator
 
