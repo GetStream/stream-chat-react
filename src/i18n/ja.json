@@ -83,6 +83,7 @@
   "unban-command-description": "ユーザーの禁止を解除する",
   "unmute-command-args": "[@ユーザ名]",
   "unmute-command-description": "ユーザーのミュートを解除する",
+  "unreadMessagesSeparatorText_other": "未読メッセージ {{count}} 件",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} と {{ moreCount }} 他人",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} と {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} と {{ secondUser }}",

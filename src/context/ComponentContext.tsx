@@ -26,6 +26,7 @@ import type {
   SuggestionItemProps,
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
+import { UnreadMessagesSeparatorProps } from '../components/MessageList/UnreadMessagesSeparator';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
@@ -82,6 +83,7 @@ export type ComponentContextValue<
   ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };
 

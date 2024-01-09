@@ -83,6 +83,8 @@
   "unban-command-description": "एक उपयोगकर्ता को प्रतिषेध से मुक्त करें",
   "unmute-command-args": "[@उपयोगकर्तनाम]",
   "unmute-command-description": "एक उपयोगकर्ता को अनम्यूट करें",
+  "unreadMessagesSeparatorText_one": "1 अपठित संदेश",
+  "unreadMessagesSeparatorText_other": "{{count}} अपठित संदेश",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} और {{ moreCount }} और",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} और {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} और {{ secondUser }}",

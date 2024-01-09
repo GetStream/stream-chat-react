@@ -73,6 +73,8 @@
   "searchResultsCount_one": "1 result",
   "searchResultsCount_other": "{{ count }} results",
   "this content could not be displayed": "this content could not be displayed",
+  "unreadMessagesSeparatorText_one": "1 unread message",
+  "unreadMessagesSeparatorText_other": "{{count}} unread messages",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} and {{ moreCount }} more",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, and {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} and {{ secondUser }}",

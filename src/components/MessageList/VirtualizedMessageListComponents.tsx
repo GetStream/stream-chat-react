@@ -1,14 +1,17 @@
-import { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { isDate, useComponentContext } from '../../context';
-import React from 'react';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { Message } from '../Message';
-import { ItemProps } from 'react-virtuoso';
-import { GroupStyle } from './utils';
 import clsx from 'clsx';
-import { VirtuosoContext } from './VirtualizedMessageList';
+import React from 'react';
+import { ItemProps } from 'react-virtuoso';
+
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { Message } from '../Message';
+
+import { isDate, useComponentContext } from '../../context';
+import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
+
+import type { GroupStyle } from './utils';
+import type { VirtuosoContext } from './VirtualizedMessageList';
+import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -105,6 +108,7 @@ export const messageRenderer = <
     customMessageActions,
     customMessageRenderer,
     DateSeparator,
+    firstUnreadMessageId,
     lastReceivedMessageId,
     Message: MessageUIComponent,
     messageActions,
@@ -113,6 +117,8 @@ export const messageRenderer = <
     ownMessagesReadByOthers,
     processedMessages: messageList,
     shouldGroupByUser,
+    unreadMessageCount,
+    UnreadMessagesSeparator,
     virtuosoRef,
   } = virtuosoContext;
 
@@ -145,19 +151,26 @@ export const messageRenderer = <
     shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
   return (
-    <Message
-      additionalMessageInputProps={additionalMessageInputProps}
-      autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
-      closeReactionSelectorOnClick={closeReactionSelectorOnClick}
-      customMessageActions={customMessageActions}
-      endOfGroup={endOfGroup}
-      firstOfGroup={firstOfGroup}
-      groupedByUser={groupedByUser}
-      lastReceivedId={lastReceivedMessageId}
-      message={message}
-      Message={MessageUIComponent}
-      messageActions={messageActions}
-      readBy={ownMessagesReadByOthers[message.id] || []}
-    />
+    <>
+      {!!unreadMessageCount && firstUnreadMessageId === message.id && (
+        <div className='str-chat__unread-separator-wrapper'>
+          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
+        </div>
+      )}
+      <Message
+        additionalMessageInputProps={additionalMessageInputProps}
+        autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
+        closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+        customMessageActions={customMessageActions}
+        endOfGroup={endOfGroup}
+        firstOfGroup={firstOfGroup}
+        groupedByUser={groupedByUser}
+        lastReceivedId={lastReceivedMessageId}
+        message={message}
+        Message={MessageUIComponent}
+        messageActions={messageActions}
+        readBy={ownMessagesReadByOthers[message.id] || []}
+      />
+    </>
   );
 };

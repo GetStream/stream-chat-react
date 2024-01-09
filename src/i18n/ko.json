@@ -83,6 +83,7 @@
   "unban-command-description": "사용자 차단 해제",
   "unmute-command-args": "[@사용자이름]",
   "unmute-command-description": "사용자 음소거 해제",
+  "unreadMessagesSeparatorText_other": "읽지 않은 메시지 {{count}}개",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} 그리고 {{ moreCount }}명 더",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} 그리고 {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} 그리고 {{ secondUser }}",

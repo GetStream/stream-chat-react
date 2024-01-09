@@ -83,6 +83,8 @@
   "unban-command-description": "Einen Benutzer entbannen",
   "unmute-command-args": "[@Benutzername]",
   "unmute-command-description": "Stummschaltung eines Benutzers aufheben",
+  "unreadMessagesSeparatorText_one": "1 ungelesene Nachricht",
+  "unreadMessagesSeparatorText_other": "{{count}} ungelesene Nachrichten",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} und {{moreCount}} Mehr",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} und {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} und {{ secondUser }}",

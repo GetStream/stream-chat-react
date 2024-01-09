@@ -83,6 +83,8 @@
   "unban-command-description": "Bir kullanıcının yasağını kaldır",
   "unmute-command-args": "[@kullanıcıadı]",
   "unmute-command-description": "Bir kullanıcının sesini aç",
+  "unreadMessagesSeparatorText_one": "1 okunmamış mesaj",
+  "unreadMessagesSeparatorText_other": "{{count}} okunmamış mesaj",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} ve {{ moreCount }} daha",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }}, ve {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} ve {{ secondUser }}",

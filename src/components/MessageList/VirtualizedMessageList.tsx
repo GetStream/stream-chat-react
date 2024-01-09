@@ -25,6 +25,7 @@ import { getGroupStyles, getLastReceived, GroupStyle, processMessages } from './
 import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent } from '../EventComponent';
+import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
 import {
   calculateFirstItemIndex,
   calculateItemIndex,
@@ -67,7 +68,12 @@ type VirtualizedMessageListPropsForContext =
  */
 export type VirtuosoContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Required<Pick<ComponentContextValue<StreamChatGenerics>, 'DateSeparator' | 'MessageSystem'>> &
+> = Required<
+  Pick<
+    ComponentContextValue<StreamChatGenerics>,
+    'DateSeparator' | 'MessageSystem' | 'UnreadMessagesSeparator'
+  >
+> &
   Pick<VirtualizedMessageListProps<StreamChatGenerics>, VirtualizedMessageListPropsForContext> &
   Pick<ChatContextValue<StreamChatGenerics>, 'customClasses'> & {
     /** Latest received message id in the current channel */
@@ -82,6 +88,10 @@ export type VirtuosoContext<
     processedMessages: StreamMessage<StreamChatGenerics>[];
     /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
     virtuosoRef: RefObject<VirtuosoHandle>;
+    /** Message id which was marked as unread. ALl the messages following this message are considered unread in that case.  */
+    firstUnreadMessageId?: string;
+    /** The number of unread messages in the current channel. */
+    unreadMessageCount?: number;
   };
 
 type VirtualizedMessageListWithContextProps<
@@ -194,6 +204,7 @@ const VirtualizedMessageListWithContext = <
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
+    UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
@@ -203,7 +214,7 @@ const VirtualizedMessageListWithContext = <
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
-
+  const currentUserChannelReadState = client.user && read?.[client.user.id];
   const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
     separateGiphyPreview,
   );
@@ -381,6 +392,7 @@ const VirtualizedMessageListWithContext = <
               customMessageActions,
               customMessageRenderer,
               DateSeparator,
+              firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
               head,
               lastReceivedMessageId,
               loadingMore,
@@ -393,6 +405,8 @@ const VirtualizedMessageListWithContext = <
               processedMessages,
               shouldGroupByUser,
               threadList,
+              unreadMessageCount: currentUserChannelReadState?.unread_messages,
+              UnreadMessagesSeparator,
               virtuosoRef: virtuoso,
             }}
             endReached={endReached}

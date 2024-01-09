@@ -180,6 +180,8 @@ type ChannelPropsForwardedToComponentContext<
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
+  /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
+  UnreadMessagesSeparator?: ComponentContextValue<StreamChatGenerics>['UnreadMessagesSeparator'];
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
@@ -1041,6 +1043,7 @@ const ChannelInner = <
       ThreadStart: props.ThreadStart,
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
+      UnreadMessagesSeparator: props.UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),
     [props.reactionOptions],

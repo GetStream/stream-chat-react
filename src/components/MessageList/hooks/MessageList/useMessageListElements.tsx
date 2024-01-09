@@ -1,5 +1,5 @@
 /* eslint-disable no-continue */
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import { useLastReadData } from '../useLastReadData';
 import { getLastReceived, GroupStyle } from '../../utils';
@@ -8,17 +8,15 @@ import { CUSTOM_MESSAGE_TYPE } from '../../../../constants/messageTypes';
 import { DateSeparator as DefaultDateSeparator } from '../../../DateSeparator/DateSeparator';
 import { EventComponent } from '../../../EventComponent/EventComponent';
 import { Message } from '../../../Message';
+import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from '../../UnreadMessagesSeparator';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 import { isDate } from '../../../../context/TranslationContext';
 
-import type { UserResponse } from 'stream-chat';
-
+import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { MessageProps } from '../../../Message/types';
-
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
-
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type MessagePropsToOmit =
@@ -38,7 +36,7 @@ type UseMessageListElementsProps<
   messageGroupStyles: Record<string, GroupStyle>;
   returnAllReadData: boolean;
   threadList: boolean;
-  read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
+  read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
 export const useMessageListElements = <
@@ -60,6 +58,7 @@ export const useMessageListElements = <
     DateSeparator = DefaultDateSeparator,
     HeaderComponent,
     MessageSystem = EventComponent,
+    UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
   } = useComponentContext<StreamChatGenerics>('useMessageListElements');
 
   // get the readData, but only for messages submitted by the user themselves
@@ -109,23 +108,31 @@ export const useMessageListElements = <
 
         const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
         const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
+        const unreadState =
+          client.user &&
+          read?.[client.user.id] &&
+          read[client.user.id].first_unread_message_id === message.id
+            ? read[client.user.id]
+            : undefined;
 
         return (
-          <li
-            className={messageClass}
-            data-message-id={message.id}
-            data-testid={messageClass}
-            key={message.id || (message.created_at as string)}
-          >
-            <Message
-              groupStyles={[groupStyles]} /* TODO: convert to simple string */
-              lastReceivedId={lastReceivedId}
-              message={message}
-              readBy={readData[message.id] || []}
-              threadList={threadList}
-              {...internalMessageProps}
-            />
-          </li>
+          <Fragment key={message.id || (message.created_at as string)}>
+            {!!unreadState?.unread_messages && (
+              <li className='str-chat__li str-chat__unread-separator-wrapper'>
+                <UnreadMessagesSeparator unreadCount={unreadState.unread_messages} />
+              </li>
+            )}
+            <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
+              <Message
+                groupStyles={[groupStyles]} /* TODO: convert to simple string */
+                lastReceivedId={lastReceivedId}
+                message={message}
+                readBy={readData[message.id] || []}
+                threadList={threadList}
+                {...internalMessageProps}
+              />
+            </li>
+          </Fragment>
         );
       }),
     [

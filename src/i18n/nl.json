@@ -83,6 +83,8 @@
   "unban-command-description": "Een gebruiker debannen",
   "unmute-command-args": "[@gebruikersnaam]",
   "unmute-command-description": "Een gebruiker niet meer dempen",
+  "unreadMessagesSeparatorText_one": "1 ongelezen bericht",
+  "unreadMessagesSeparatorText_other": "{{count}} ongelezen berichten",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} en {{ moreCount }} meer",
   "{{ commaSeparatedUsers }}, and {{ lastUser }}": "{{ commaSeparatedUsers }} en {{ lastUser }}",
   "{{ firstUser }} and {{ secondUser }}": "{{ firstUser }} en {{ secondUser }}",
