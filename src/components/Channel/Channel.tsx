@@ -66,9 +66,10 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList/utils';
+import { hasMoreMessagesProbably } from '../MessageList';
+import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { makeAddNotifications } from './utils';
-import { getChannel } from '../../utils/getChannel';
+import { getChannel } from '../../utils';
 
 import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
@@ -82,16 +83,13 @@ import type {
   UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
-import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import {
-  defaultReactionOptions,
-  ReactionOptions,
-} from '../../components/Reactions/reactionOptions';
+import { defaultReactionOptions, ReactionOptions } from '../Reactions';
+import type { UnreadMessagesNotificationProps } from '../MessageList';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -180,6 +178,8 @@ type ChannelPropsForwardedToComponentContext<
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
+  /** Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to UnreadMessagesSeparator. Defaults to and accepts same props as: [UnreadMessagesNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesNotification.tsx) */
+  UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
   UnreadMessagesSeparator?: ComponentContextValue<StreamChatGenerics>['UnreadMessagesSeparator'];
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
@@ -977,6 +977,7 @@ const ChannelInner = <
       loadMore,
       loadMoreNewer,
       loadMoreThread,
+      markRead: markReadThrottled,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
       openThread,
@@ -994,6 +995,7 @@ const ChannelInner = <
       enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,
       loadMoreNewer,
+      markReadThrottled,
       quotedMessage,
       jumpToMessage,
       jumpToLatestMessage,
@@ -1043,6 +1045,7 @@ const ChannelInner = <
       ThreadStart: props.ThreadStart,
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
+      UnreadMessagesNotification: props.UnreadMessagesNotification,
       UnreadMessagesSeparator: props.UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),

@@ -96,5 +96,7 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
+  "{{count}} unread_one": "{{count}} ongelezen",
+  "{{count}} unread_other": "{{count}} ongelezen",
   "🏙 Attachment...": "🏙 Bijlage..."
 }

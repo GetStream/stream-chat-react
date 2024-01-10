@@ -85,7 +85,6 @@
   "unban-command-description": "Débannir un utilisateur",
   "unmute-command-args": "[@nomdutilisateur]",
   "unmute-command-description": "Démuter un utilisateur",
-  "unreadMessagesSeparatorText_many": "unreadMessagesSeparatorText",
   "unreadMessagesSeparatorText_one": "1 message non lu",
   "unreadMessagesSeparatorText_other": "{{count}} messages non lus",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} et {{ moreCount }} autres",
@@ -99,5 +98,7 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} en ligne",
+  "{{count}} unread_one": "{{count}} non lu",
+  "{{count}} unread_other": "{{count}} non lus",
   "🏙 Attachment...": "🏙 Pièce jointe..."
 }

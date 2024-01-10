@@ -8,6 +8,7 @@ import {
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
+import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import {
   ChannelActionContextValue,
@@ -74,7 +75,7 @@ const MessageListWithContext = <
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
-  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
+  const { client, customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -82,9 +83,11 @@ const MessageListWithContext = <
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
+    UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
   const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
+  const currentUserChannelReadState = client.user && read?.[client.user.id];
 
   const {
     hasNewMessages,
@@ -185,6 +188,12 @@ const MessageListWithContext = <
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
+        {!threadList && (
+          <UnreadMessagesNotification
+            firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
+            unreadCount={currentUserChannelReadState?.unread_messages}
+          />
+        )}
         <div
           className={`${messageListClass} ${threadListClass}`}
           onScroll={onScroll}

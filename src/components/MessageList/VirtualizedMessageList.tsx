@@ -25,6 +25,7 @@ import { getGroupStyles, getLastReceived, GroupStyle, processMessages } from './
 import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent } from '../EventComponent';
+import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
 import {
   calculateFirstItemIndex,
@@ -204,6 +205,7 @@ const VirtualizedMessageListWithContext = <
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = EventComponent,
+    UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
@@ -372,6 +374,12 @@ const VirtualizedMessageListWithContext = <
   return (
     <>
       <MessageListMainPanel>
+        {!threadList && (
+          <UnreadMessagesNotification
+            firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
+            unreadCount={currentUserChannelReadState?.unread_messages}
+          />
+        )}
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
           <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
             atBottomStateChange={atBottomStateChange}

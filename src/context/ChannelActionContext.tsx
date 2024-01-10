@@ -63,6 +63,7 @@ export type ChannelActionContextValue<
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
+  markRead: () => void;
   onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
   onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
   openThread: (

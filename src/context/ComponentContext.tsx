@@ -36,6 +36,7 @@ import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../t
 import type { BaseImageProps, CooldownTimerProps } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
+import { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -83,6 +84,7 @@ export type ComponentContextValue<
   ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };

@@ -95,5 +95,6 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} 온라인",
+  "{{count}} unread_other": "{{count}} 읽지 않음",
   "🏙 Attachment...": "🏙 부착..."
 }

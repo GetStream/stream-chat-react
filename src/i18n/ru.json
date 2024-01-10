@@ -102,5 +102,7 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} в сети",
+  "{{count}} unread_one": "{{count}} непрочитанное",
+  "{{count}} unread_other": "{{count}} непрочитанных",
   "🏙 Attachment...": "🏙 Вложение..."
 }
