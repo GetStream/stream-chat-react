@@ -1,3 +1,10 @@
+## [10.22.3](https://github.com/GetStream/stream-chat-react/compare/v10.22.2...v10.22.3) (2024-01-10)
+
+
+### Bug Fixes
+
+* disable SuggestionList during text composition ([#2205](https://github.com/GetStream/stream-chat-react/issues/2205)) ([502c588](https://github.com/GetStream/stream-chat-react/commit/502c588a03a01f862f1e1295021e5760882bca9b))
+
 ## [10.22.2](https://github.com/GetStream/stream-chat-react/compare/v10.22.1...v10.22.2) (2023-12-13)
 
 
