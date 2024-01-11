@@ -117,7 +117,7 @@ export const useMessageListElements = <
 
         return (
           <Fragment key={message.id || (message.created_at as string)}>
-            {!!unreadState?.unread_messages && (
+            {!threadList && !!unreadState?.unread_messages && (
               <li className='str-chat__li str-chat__unread-separator-wrapper'>
                 <UnreadMessagesSeparator unreadCount={unreadState.unread_messages} />
               </li>

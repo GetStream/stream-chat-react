@@ -252,6 +252,7 @@ describe('MessageList', () => {
     const messages = Array.from({ length: 5 }, generateMessage);
     const unread_messages = 2;
     const lastReadMessage = messages[unread_messages];
+    const separatorText = `${unread_messages} unread messages`;
     const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }) => {
       dispatchNotificationMarkUnread({
         channel,
@@ -300,19 +301,19 @@ describe('MessageList', () => {
         });
       });
 
-      expect(screen.queryByText(`${unread_messages} unread messages`)).not.toBeInTheDocument();
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
 
       await act(() => {
         dispatchMarkUnreadForChannel({ channel, client });
       });
-      expect(screen.getByText(`${unread_messages} unread messages`)).toBeInTheDocument();
+      expect(screen.getByText(separatorText)).toBeInTheDocument();
 
       jest.runAllTimers();
       await act(() => {
         dispatchMessageReadEvent(client, client.user, channel);
       });
 
-      expect(screen.queryByText(`${unread_messages} unread messages`)).not.toBeInTheDocument();
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
       jest.useRealTimers();
     });
 
@@ -335,6 +336,25 @@ describe('MessageList', () => {
         dispatchMarkUnreadForChannel({ channel, client });
       });
       expect(screen.getByText(customUnreadMessagesSeparatorText)).toBeInTheDocument();
+    });
+
+    it('should not display unread messages separator in thread', async () => {
+      const { channel, client } = await initClientWithChannel();
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { messages, threadList: true },
+        });
+      });
+
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        dispatchMarkUnreadForChannel({ channel, client });
+      });
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
     });
 
     describe('notification', () => {
@@ -400,7 +420,7 @@ describe('MessageList', () => {
         expect(screen.getByText(customUnreadMessagesNotificationText)).toBeInTheDocument();
       });
 
-      it('should not display custom unread messages notification when first unread message id is unknown', async () => {
+      it('should not display unread messages notification when first unread message id is unknown', async () => {
         await setupTest({
           dispatchMarkUnreadPayload: { first_unread_message_id: undefined },
           entries: observerEntriesScrolledBelowSeparator,
@@ -408,7 +428,7 @@ describe('MessageList', () => {
         expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
       });
 
-      it('should not display custom unread messages notification when unread count is 0', async () => {
+      it('should not display unread messages notification when unread count is 0', async () => {
         await setupTest({
           dispatchMarkUnreadPayload: { unread_messages: 0 },
           entries: observerEntriesScrolledBelowSeparator,
@@ -416,9 +436,17 @@ describe('MessageList', () => {
         expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
       });
 
-      it('should not display custom unread messages notification IntersectionObserver is undefined', async () => {
+      it('should not display unread messages notification IntersectionObserver is undefined', async () => {
         window.IntersectionObserver = undefined;
         await setupTest({ entries: observerEntriesScrolledBelowSeparator });
+        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+      });
+
+      it('should not display unread messages notification in thread', async () => {
+        await setupTest({
+          entries: observerEntriesScrolledBelowSeparator,
+          msgListProps: { threadList: true },
+        });
         expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
       });
     });
