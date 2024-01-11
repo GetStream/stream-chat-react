@@ -1,12 +1,13 @@
 import clsx from 'clsx';
+import throttle from 'lodash.throttle';
 import React from 'react';
-import { ItemProps } from 'react-virtuoso';
+import { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { Message } from '../Message';
 
-import { isDate, useComponentContext } from '../../context';
+import { isDate, StreamMessage, useComponentContext } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import type { GroupStyle } from './utils';
@@ -22,6 +23,24 @@ export function calculateItemIndex(virtuosoIndex: number, numItemsPrepended: num
 export function calculateFirstItemIndex(numItemsPrepended: number) {
   return PREPEND_OFFSET - numItemsPrepended;
 }
+
+export const makeItemsRenderedHandler = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  renderedItemsActions: Array<(msg: StreamMessage<StreamChatGenerics>[]) => void>,
+  processedMessages: StreamMessage<StreamChatGenerics>[],
+) =>
+  throttle((items: ListItem<UnknownType>[]) => {
+    const renderedMessages = items
+      .map((item) => {
+        if (!item.originalIndex) return undefined;
+        return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
+      })
+      .filter((msg) => !!msg);
+    renderedItemsActions.forEach((action) =>
+      action(renderedMessages as StreamMessage<StreamChatGenerics>[]),
+    );
+  }, 200);
 
 type CommonVirtuosoComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

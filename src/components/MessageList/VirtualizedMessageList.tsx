@@ -17,6 +17,7 @@ import {
   usePrependedMessagesCount,
   useScrollToBottomOnNewMessage,
   useShouldForceScrollToBottom,
+  useUnreadMessagesNotificationVirtualized,
 } from './hooks/VirtualizedMessageList';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
@@ -34,6 +35,7 @@ import {
   Footer,
   Header,
   Item,
+  makeItemsRenderedHandler,
   messageRenderer,
 } from './VirtualizedMessageListComponents';
 
@@ -217,6 +219,15 @@ const VirtualizedMessageListWithContext = <
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
   const currentUserChannelReadState = client.user && read?.[client.user.id];
+
+  const {
+    show: showUnreadMessagesNotification,
+    toggleShowUnreadMessagesNotification,
+  } = useUnreadMessagesNotificationVirtualized({
+    lastRead: currentUserChannelReadState?.last_read,
+    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
+  });
+
   const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
     separateGiphyPreview,
   );
@@ -320,6 +331,10 @@ const VirtualizedMessageListWithContext = <
 
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
 
+  const handleItemsRendered = useMemo(
+    () => makeItemsRenderedHandler([toggleShowUnreadMessagesNotification], processedMessages),
+    [processedMessages, toggleShowUnreadMessagesNotification],
+  );
   const followOutput = (isAtBottom: boolean) => {
     if (hasMoreNewer || suppressAutoscroll) {
       return false;
@@ -374,7 +389,7 @@ const VirtualizedMessageListWithContext = <
   return (
     <>
       <MessageListMainPanel>
-        {!threadList && (
+        {!threadList && showUnreadMessagesNotification && (
           <UnreadMessagesNotification
             firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
             unreadCount={currentUserChannelReadState?.unread_messages}
@@ -427,6 +442,7 @@ const VirtualizedMessageListWithContext = <
             )}
             itemContent={messageRenderer}
             itemSize={fractionalItemSize}
+            itemsRendered={handleItemsRendered}
             key={messageSetKey}
             overscan={overscan}
             ref={virtuoso}

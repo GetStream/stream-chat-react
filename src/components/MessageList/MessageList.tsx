@@ -4,6 +4,7 @@ import {
   useEnrichedMessages,
   useMessageListElements,
   useScrollLocationLogic,
+  useUnreadMessagesNotification,
 } from './hooks/MessageList';
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
@@ -88,6 +89,10 @@ const MessageListWithContext = <
 
   const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
   const currentUserChannelReadState = client.user && read?.[client.user.id];
+
+  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
+    firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
+  });
 
   const {
     hasNewMessages,
@@ -188,7 +193,7 @@ const MessageListWithContext = <
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
-        {!threadList && (
+        {!threadList && showUnreadMessagesNotification && (
           <UnreadMessagesNotification
             firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
             unreadCount={currentUserChannelReadState?.unread_messages}
