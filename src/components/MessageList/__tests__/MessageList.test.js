@@ -24,6 +24,8 @@ import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 import { ChatProvider, useChatContext, useMessageContext } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
+import { ScrollToBottomButton } from '../ScrollToBottomButton';
+import { MessageListNotifications } from '../MessageListNotifications';
 
 jest.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: jest.fn(),
@@ -448,6 +450,65 @@ describe('MessageList', () => {
           msgListProps: { threadList: true },
         });
         expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('ScrollToBottomButton', () => {
+      const BUTTON_TEST_ID = 'message-notification';
+      const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
+      const MockMessageListNotifications = (props) => (
+        <MessageListNotifications {...props} isMessageListScrolledToBottom={false} />
+      );
+
+      it('reflects the channel unread state', async () => {
+        const { channel, client } = await initClientWithChannel();
+
+        await act(() => {
+          renderComponent({
+            channelProps: {
+              channel,
+              MessageListNotifications: MockMessageListNotifications,
+              MessageNotification: ScrollToBottomButton,
+            },
+            chatClient: client,
+            msgListProps: { messages },
+          });
+        });
+
+        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+        await act(() => {
+          dispatchMarkUnreadForChannel({ channel, client });
+        });
+
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).toHaveTextContent(
+          unread_messages,
+        );
+      });
+
+      it('does not reflect the channel unread state in a thread', async () => {
+        const { channel, client } = await initClientWithChannel();
+
+        await act(() => {
+          renderComponent({
+            channelProps: {
+              channel,
+              MessageListNotifications: MockMessageListNotifications,
+              MessageNotification: ScrollToBottomButton,
+            },
+            chatClient: client,
+            msgListProps: { messages, threadList: true },
+          });
+        });
+
+        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+        await act(() => {
+          dispatchMarkUnreadForChannel({ channel, client });
+        });
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
       });
     });
   });

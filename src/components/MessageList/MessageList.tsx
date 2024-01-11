@@ -246,6 +246,7 @@ const MessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottomFromNotification}
         threadList={threadList}
+        unreadCount={threadList ? undefined : currentUserChannelReadState?.unread_messages}
       />
     </MessageListContextProvider>
   );

@@ -463,6 +463,7 @@ const VirtualizedMessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottom}
         threadList={threadList}
+        unreadCount={threadList ? undefined : currentUserChannelReadState?.unread_messages}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
