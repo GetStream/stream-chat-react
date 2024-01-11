@@ -875,6 +875,30 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      it('should execute custom event handler', async () => {
+        const onMessageNewEvent = jest.fn();
+        await act(() => {
+          render(
+            <Chat client={chatClient}>
+              <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
+            </Chat>,
+          );
+        });
+        const message = sendNewMessageOnChannel3();
+        await waitFor(() => {
+          expect(onMessageNewEvent.mock.calls[0][0]).toStrictEqual(expect.any(Function));
+          expect(onMessageNewEvent.mock.calls[0][1]).toStrictEqual(
+            expect.objectContaining({
+              channel: testChannel3.channel,
+              cid: testChannel3.channel.cid,
+              message,
+              type: 'message.new',
+              user: message.user,
+            }),
+          );
+        });
+      });
     });
 
     describe('notification.message_new', () => {

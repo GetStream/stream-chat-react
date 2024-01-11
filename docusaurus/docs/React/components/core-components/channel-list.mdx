@@ -111,8 +111,8 @@ re-setting the list state, you can customize behavior and UI.
 | `channel.truncated`                                                                       | Updates the channel                              | [onChannelTruncated](#onchanneltruncated)     |
 | `channel.updated`                                                                         | Updates the channel                              | [onChannelUpdated](#onchannelupdated)         |
 | `channel.visible`                                                                         | Adds channel to list                             | [onChannelVisible](#onchannelvisible)         |
-| `connection.recovered`                                                                    | Forces a component render                        | N/A                                           |
-| `message.new`                                                                             | Moves channel to top of list                     | N/A                                           |
+| `connection.recovered`                                                                    | Forces a component render                        |  N/A                                          |
+| `message.new`                                                                             | Moves channel to top of list                     | [onMessageNewHandler](#onmessagenewhandler)   |
 | `notification.added_to_channel`                                                           | Moves channel to top of list and starts watching | [onAddedToChannel](#onaddedtochannel)         |
 | `notification.message_new`                                                                | Moves channel to top of list and starts watching | [onMessageNew](#onmessagenew)                 |
 | `notification.removed_from_channel`                                                       | Removes channel from list                        | [onRemovedFromChannel](#onremovedfromchannel) |
@@ -323,6 +323,14 @@ Function to override the default behavior when a message is received on a channe
 | Type     |
 | -------- |
 | function |
+
+### onMessageNewHandler
+
+Function to override the default behavior when a message is received on a channel being watched. Handles `message.new` event.
+
+| Type                                                                                                                                |
+|-------------------------------------------------------------------------------------------------------------------------------------|
+| `(setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>, event: Event<StreamChatGenerics>) => void` |
 
 ### onRemovedFromChannel
 

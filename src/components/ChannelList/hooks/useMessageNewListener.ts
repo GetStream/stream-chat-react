@@ -13,6 +13,10 @@ export const useMessageNewListener = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+  customHandler?: (
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
+  ) => void,
   lockChannelOrder = false,
   allowNewMessagesFromUnfilteredChannels = true,
 ) => {
@@ -20,18 +24,22 @@ export const useMessageNewListener = <
 
   useEffect(() => {
     const handleEvent = (event: Event<StreamChatGenerics>) => {
-      setChannels((channels) => {
-        const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
+      if (customHandler && typeof customHandler === 'function') {
+        customHandler(setChannels, event);
+      } else {
+        setChannels((channels) => {
+          const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
 
-        if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
-          const channel = client.channel(event.channel_type, event.channel_id);
-          return uniqBy([channel, ...channels], 'cid');
-        }
+          if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
+            const channel = client.channel(event.channel_type, event.channel_id);
+            return uniqBy([channel, ...channels], 'cid');
+          }
 
-        if (!lockChannelOrder) return moveChannelUp({ channels, cid: event.cid || '' });
+          if (!lockChannelOrder) return moveChannelUp({ channels, cid: event.cid || '' });
 
-        return channels;
-      });
+          return channels;
+        });
+      }
     };
 
     client.on('message.new', handleEvent);

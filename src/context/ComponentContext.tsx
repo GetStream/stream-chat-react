@@ -33,7 +33,11 @@ import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type { BaseImageProps, CooldownTimerProps } from '../components';
+import type {
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
+} from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 import { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
@@ -52,6 +56,7 @@ export type ComponentContextValue<
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
   BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
+  CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps<StreamChatGenerics>>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
   EmojiPicker?: React.ComponentType;

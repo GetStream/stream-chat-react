@@ -26,6 +26,8 @@ import {
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
+import { MessageProvider } from '../../../context';
+import { MessageActionsBox } from '../../MessageActions';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -1527,6 +1529,35 @@ describe('Channel', () => {
             expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
           });
         });
+      });
+    });
+  });
+
+  describe('Custom Components', () => {
+    it('should render CustomMessageActionsList if provided', async () => {
+      const { channel, chatClient } = await initClient();
+      const CustomMessageActionsList = jest
+        .fn()
+        .mockImplementation(() => 'CustomMessageActionsList');
+
+      const messageContextValue = {
+        message: generateMessage(),
+        messageListRect: {},
+      };
+
+      renderComponent({
+        channel,
+        chatClient,
+        children: (
+          <MessageProvider value={{ ...messageContextValue }}>
+            <MessageActionsBox getMessageActions={jest.fn(() => [])} />
+          </MessageProvider>
+        ),
+        CustomMessageActionsList,
+      });
+
+      await waitFor(() => {
+        expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
       });
     });
   });

@@ -2,52 +2,18 @@ import React, { useCallback, useState } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
-import { useChannelActionContext } from '../../context/ChannelActionContext';
-import type { StreamMessage } from '../../context/ChannelStateContext';
+
 import {
-  CustomMessageActions,
   MessageContextValue,
+  useChannelActionContext,
+  useComponentContext,
   useMessageContext,
-} from '../../context/MessageContext';
-import { useTranslationContext } from '../../context/TranslationContext';
+  useTranslationContext,
+} from '../../context';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type CustomMessageActionsType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  customMessageActions: CustomMessageActions<StreamChatGenerics>;
-  message: StreamMessage<StreamChatGenerics>;
-};
-
-const CustomMessageActionsList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  props: CustomMessageActionsType<StreamChatGenerics>,
-) => {
-  const { customMessageActions, message } = props;
-  const customActionsArray = Object.keys(customMessageActions);
-
-  return (
-    <>
-      {customActionsArray.map((customAction) => {
-        const customHandler = customMessageActions[customAction];
-
-        return (
-          <button
-            aria-selected='false'
-            className='str-chat__message-actions-list-item str-chat__message-actions-list-item-button'
-            key={customAction}
-            onClick={(event) => customHandler(message, event)}
-            role='option'
-          >
-            {customAction}
-          </button>
-        );
-      })}
-    </>
-  );
-};
+import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -83,6 +49,10 @@ const UnMemoizedMessageActionsBox = <
     mine,
     open = false,
   } = props;
+
+  const {
+    CustomMessageActionsList = DefaultCustomMessageActionsList,
+  } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
   const {
     customMessageActions,
@@ -141,9 +111,7 @@ const UnMemoizedMessageActionsBox = <
   return (
     <div className={rootClassName} data-testid='message-actions-box' ref={checkIfReverse}>
       <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
-        {customMessageActions && (
-          <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
-        )}
+        <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
           <button
             aria-selected='false'

@@ -1,3 +1,34 @@
+## [11.3.0](https://github.com/GetStream/stream-chat-react/compare/v11.2.1...v11.3.0) (2024-01-09)
+
+
+### Features
+
+* add CustomMessageActionsList to ComponentContext ([#2226](https://github.com/GetStream/stream-chat-react/issues/2226)) ([2c6e56c](https://github.com/GetStream/stream-chat-react/commit/2c6e56c6c709bdd25ec97435b7b82c64a0b26580))
+
+
+### Chores
+
+* **deps:** pin react-markdown to v9.0.1 ([#2229](https://github.com/GetStream/stream-chat-react/issues/2229)) ([61213d7](https://github.com/GetStream/stream-chat-react/commit/61213d72f4d061aa4536d468b38017f7aa4856dc))
+
+## [11.2.1](https://github.com/GetStream/stream-chat-react/compare/v11.2.0...v11.2.1) (2023-12-21)
+
+
+### Chores
+
+* **deps:** add @babel/runtime to dependencies ([#2219](https://github.com/GetStream/stream-chat-react/issues/2219)) ([c9f5844](https://github.com/GetStream/stream-chat-react/commit/c9f584486cab1d6308f90feea9fead04cc909ede)), closes [#2218](https://github.com/GetStream/stream-chat-react/issues/2218)
+
+## [11.2.0](https://github.com/GetStream/stream-chat-react/compare/v11.1.2...v11.2.0) (2023-12-20)
+
+
+### Bug Fixes
+
+* update MessageInput icons to include viewBox property ([#2220](https://github.com/GetStream/stream-chat-react/issues/2220)) ([df8988e](https://github.com/GetStream/stream-chat-react/commit/df8988eabe15357a78b860526041a8284023b7f0))
+
+
+### Features
+
+* handle message.new events in ChannelList with custom handler onMessageNewHandler ([#2221](https://github.com/GetStream/stream-chat-react/issues/2221)) ([7ffeeaf](https://github.com/GetStream/stream-chat-react/commit/7ffeeaf1279c46f8ae3c0ea6fbc8f831b2f159f9))
+
 ## [11.1.2](https://github.com/GetStream/stream-chat-react/compare/v11.1.1...v11.1.2) (2023-12-13)
 
 
