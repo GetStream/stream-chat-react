@@ -72,7 +72,7 @@ export const QuotedMessagePreview = <
         {quotedMessage.user && (
           <Avatar
             image={quotedMessage.user.image}
-            name={quotedMessage.user.name || quotedMessage.user.id}
+            name={quotedMessage.user.name || quotedMessage.user.username || quotedMessage.user.id}
             size={20}
             user={quotedMessage.user}
           />

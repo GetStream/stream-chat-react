@@ -21,7 +21,7 @@ if (!channelId || typeof channelId !== 'string') {
 
 const CustomMessageStatus = (props: MessageStatusProps) => {
   const allCapsUserName = useCallback<TooltipUsernameMapper>(
-    (user) => (user.name || user.id).toUpperCase(),
+    (user) => (user.name || user.username || user.id).toUpperCase(),
     [],
   );
   return <MessageStatus {...props} tooltipUserNameMapper={allCapsUserName} />;

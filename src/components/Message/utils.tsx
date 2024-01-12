@@ -346,7 +346,7 @@ export interface TooltipUsernameMapper {
  *
  * @param user the user.
  */
-export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.id;
+export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || user.username || user.id;
 
 export const getReadByTooltipText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

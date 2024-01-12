@@ -55,7 +55,7 @@ export const QuotedMessage = <
         {quoted_message.user && (
           <Avatar
             image={quoted_message.user.image}
-            name={quoted_message.user.name || quoted_message.user.id}
+            name={quoted_message.user.name || quoted_message.user.username || quoted_message.user.id}
             size={20}
             user={quoted_message.user}
           />

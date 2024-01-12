@@ -137,7 +137,7 @@ const MessageSimpleWithContext = <
           {message.user && (
             <Avatar
               image={message.user.image}
-              name={message.user.name || message.user.id}
+              name={message.user.name || message.user.username || message.user.id}
               onClick={onUserClick}
               onMouseOver={onUserHover}
               user={message.user}
@@ -180,7 +180,7 @@ const MessageSimpleWithContext = <
               <div className='str-chat__message-data str-chat__message-simple-data'>
                 {!isMyMessage() && message.user ? (
                   <span className='str-chat__message-simple-name'>
-                    {message.user.name || message.user.id}
+                    {message.user.name || message.user.username || message.user.id}
                   </span>
                 ) : null}
                 <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
@@ -198,7 +198,7 @@ const MessageSimpleWithContext = <
               <MessageStatus />
               {!isMyMessage() && !!message.user && (
                 <span className='str-chat__message-simple-name'>
-                  {message.user.name || message.user.id}
+                  {message.user.name || message.user.username || message.user.id}
                 </span>
               )}
               <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />

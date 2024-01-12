@@ -59,7 +59,7 @@ export const getDisplayTitle = <
   if (!title && members.length === 2) {
     const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
     if (otherMember?.user?.name) {
-      title = otherMember.user.name;
+      title = otherMember.user.name || otherMember.user.username;
     }
   }
 

@@ -100,7 +100,7 @@ const UnMemoizedFixedHeightMessage = <
       {message.user && (
         <Avatar
           image={message.user.image}
-          name={message.user.name || message.user.id}
+          name={message.user.name || message.user.username || message.user.id}
           shape='rounded'
           size={38}
           user={message.user}

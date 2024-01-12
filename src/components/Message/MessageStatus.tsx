@@ -126,7 +126,7 @@ const UnMemoizedMessageStatus = <
           )}
           <Avatar
             image={lastReadUser.image}
-            name={lastReadUser.name || lastReadUser.id}
+            name={lastReadUser.name || lastReadUser.username || lastReadUser.id}
             size={15}
             user={lastReadUser}
           />

@@ -183,7 +183,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
                       {latestUser ? (
                         <Avatar
                           image={latestUser.image}
-                          name={latestUser.name}
+                          name={latestUser.name || latestUser.username}
                           size={20}
                           user={latestUser}
                         />

@@ -14,7 +14,7 @@ export const mentionsMarkdownPlugin = <
   mentioned_users: UserResponse<StreamChatGenerics>[],
 ) => () => {
   const mentioned_usernames = mentioned_users
-    .map((user) => user.name || user.id)
+    .map((user) => user.name || user.username || user.id)
     .filter(Boolean)
     .map(escapeRegExp);
 
