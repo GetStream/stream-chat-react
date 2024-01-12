@@ -182,7 +182,10 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(getByTestId, newUnreadCount);
     });
 
-    it('should set unreadCount to 0, in case of active channel', async () => {
+    it("should reflect client's unreadCount in case of active channel", async () => {
+      let unreadCount = 0;
+      const countUnreadSpy = jest.spyOn(c0, 'countUnread');
+      countUnreadSpy.mockReturnValueOnce(unreadCount);
       const { getByTestId } = renderComponent(
         {
           activeChannel: c0,
@@ -190,13 +193,17 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      await expectUnreadCountToBe(getByTestId, 0);
+      await expectUnreadCountToBe(getByTestId, unreadCount);
 
+      unreadCount = 10e10;
+      countUnreadSpy.mockReturnValueOnce(unreadCount);
       const message = generateMessage();
       act(() => {
         dispatcher(client, message, c0);
       });
-      await expectUnreadCountToBe(getByTestId, 0);
+      await expectUnreadCountToBe(getByTestId, unreadCount);
+
+      countUnreadSpy.mockRestore();
     });
 
     it('should set unreadCount to 0, in case of muted channel', async () => {

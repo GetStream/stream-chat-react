@@ -107,7 +107,7 @@ export const ChannelPreview = <
   }, [channel, client]);
 
   const refreshUnreadCount = useCallback(() => {
-    if (isActive || muted) {
+    if (muted) {
       setUnread(0);
     } else {
       setUnread(channel.countUnread());
