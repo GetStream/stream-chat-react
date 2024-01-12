@@ -172,7 +172,7 @@ export const messageRenderer = <
   return (
     <>
       {!!unreadMessageCount && firstUnreadMessageId === message.id && (
-        <div className='str-chat__unread-separator-wrapper'>
+        <div className='str-chat__unread-messages-separator-wrapper'>
           <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
         </div>
       )}
