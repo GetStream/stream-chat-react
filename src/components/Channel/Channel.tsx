@@ -443,9 +443,7 @@ const ChannelInner = <
       }
 
       if (mainChannelUpdated) {
-        if (!document.hidden) {
-          markReadThrottled();
-        } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
+        if (document.hidden && channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
 
           if (activeUnreadHandler) {
