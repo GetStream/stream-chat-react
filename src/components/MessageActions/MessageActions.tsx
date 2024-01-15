@@ -1,4 +1,11 @@
-import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import React, {
+  ElementRef,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -109,6 +116,8 @@ export const MessageActions = <
     };
   }, [actionsBoxOpen, hideOptions]);
 
+  const actionsBoxButtonRef = useRef<ElementRef<'button'>>(null);
+
   if (!messageActions.length && !customMessageActions) return null;
 
   return (
@@ -127,12 +136,14 @@ export const MessageActions = <
         isUserMuted={isMuted}
         mine={mine ? mine() : isMyMessage()}
         open={actionsBoxOpen}
+        referenceElement={actionsBoxButtonRef.current}
       />
       <button
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
         aria-label='Open Message Actions Menu'
         className='str-chat__message-actions-box-button'
+        ref={actionsBoxButtonRef}
       >
         <ActionsIcon className='str-chat__message-action-icon' />
       </button>
