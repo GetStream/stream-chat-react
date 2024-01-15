@@ -470,25 +470,6 @@ describe('Channel', () => {
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should mark the current channel as read if the user switches to the current window', async () => {
-    const { channel, chatClient } = await initClient();
-    Object.defineProperty(document, 'hidden', {
-      configurable: true,
-      get: () => false,
-    });
-    const markReadSpy = jest.spyOn(channel, 'markRead');
-    const watchSpy = jest.spyOn(channel, 'watch');
-
-    renderComponent({ channel, chatClient });
-
-    // first, wait for the effect in which the channel is watched,
-    // so we know the event listener is added to the document.
-    await waitFor(() => expect(watchSpy).toHaveBeenCalledWith(undefined));
-    setTimeout(() => fireEvent(document, new Event('visibilitychange')), 0);
-
-    await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
-  });
-
   it('should mark the channel as read if the count of unread messages is higher than 0 on mount', async () => {
     const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);

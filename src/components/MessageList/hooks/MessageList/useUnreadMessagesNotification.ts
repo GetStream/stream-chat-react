@@ -18,9 +18,10 @@ export const useUnreadMessagesNotification = ({
 }: UseUnreadMessagesNotificationParams) => {
   const { messages } = useChannelStateContext('UnreadMessagesNotification');
   const [show, setShow] = useState(false);
+  const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';
 
   useEffect(() => {
-    if (!(firstUnreadMessageId && IntersectionObserver)) {
+    if (!(firstUnreadMessageId && intersectionObserverIsSupported)) {
       setShow(false);
       return;
     }
@@ -53,5 +54,5 @@ export const useUnreadMessagesNotification = ({
     };
   }, [firstUnreadMessageId, messages]);
 
-  return { show: show && !!IntersectionObserver };
+  return { show: show && intersectionObserverIsSupported };
 };

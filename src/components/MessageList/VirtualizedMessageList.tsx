@@ -19,6 +19,8 @@ import {
   useShouldForceScrollToBottom,
   useUnreadMessagesNotificationVirtualized,
 } from './hooks/VirtualizedMessageList';
+import { useMarkRead } from './hooks/useMarkRead';
+
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { MessageListMainPanel } from './MessageListMainPanel';
@@ -301,6 +303,12 @@ const VirtualizedMessageListWithContext = <
     setIsMessageListScrolledToBottom,
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID, hasMoreNewer);
+
+  useMarkRead({
+    isMessageListScrolledToBottom,
+    messageListIsThread: !!threadList,
+    wasChannelMarkedUnread: !!currentUserChannelReadState?.first_unread_message_id,
+  });
 
   const scrollToBottom = useCallback(async () => {
     if (hasMoreNewer) {

@@ -6,6 +6,7 @@ import {
   useScrollLocationLogic,
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import { useMarkRead } from './hooks/useMarkRead';
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
@@ -107,6 +108,12 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
+  });
+
+  useMarkRead({
+    isMessageListScrolledToBottom,
+    messageListIsThread: threadList,
+    wasChannelMarkedUnread: !!currentUserChannelReadState?.first_unread_message_id,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
