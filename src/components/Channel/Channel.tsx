@@ -394,27 +394,32 @@ const ChannelInner = <
     },
   );
 
-  const markRead = () => {
-    if (channel.disconnected || !channelConfig?.read_events) {
-      return;
-    }
+  const markRead = useCallback(
+    throttle(
+      () => {
+        if (channel.disconnected || !channelConfig?.read_events) {
+          return;
+        }
 
-    lastRead.current = new Date();
+        lastRead.current = new Date();
 
-    if (doMarkReadRequest) {
-      doMarkReadRequest(channel);
-    } else {
-      logChatPromiseExecution(channel.markRead(), 'mark read');
-    }
+        if (doMarkReadRequest) {
+          doMarkReadRequest(channel);
+        } else {
+          logChatPromiseExecution(channel.markRead(), 'mark read');
+        }
 
-    if (activeUnreadHandler) {
-      activeUnreadHandler(0, originalTitle.current);
-    } else if (originalTitle.current) {
-      document.title = originalTitle.current;
-    }
-  };
-
-  const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
+        if (activeUnreadHandler) {
+          activeUnreadHandler(0, originalTitle.current);
+        } else if (originalTitle.current) {
+          document.title = originalTitle.current;
+        }
+      },
+      500,
+      { leading: true, trailing: false },
+    ),
+    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest],
+  );
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
     if (event.message) {
@@ -492,10 +497,6 @@ const ChannelInner = <
     let errored = false;
     let done = false;
 
-    const onVisibilityChange = () => {
-      if (!document.hidden) markRead();
-    };
-
     (async () => {
       if (!channel.initialized && initializeOnMount) {
         try {
@@ -548,7 +549,6 @@ const ChannelInner = <
          */
         if (channel.countUnread() > 0) markRead();
         // The more complex sync logic is done in Chat
-        document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
         client.on('user.updated', handleEvent);
@@ -559,7 +559,6 @@ const ChannelInner = <
 
     return () => {
       if (errored || !done) return;
-      document.removeEventListener('visibilitychange', onVisibilityChange);
       channel?.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
@@ -977,7 +976,7 @@ const ChannelInner = <
       loadMore,
       loadMoreNewer,
       loadMoreThread,
-      markRead: markReadThrottled,
+      markRead,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
       openThread,
@@ -995,7 +994,7 @@ const ChannelInner = <
       enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,
       loadMoreNewer,
-      markReadThrottled,
+      markRead,
       quotedMessage,
       jumpToMessage,
       jumpToLatestMessage,
