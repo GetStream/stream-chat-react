@@ -85,6 +85,7 @@
   "unban-command-description": "Togliere il divieto a un utente",
   "unmute-command-args": "[@nomeutente]",
   "unmute-command-description": "Togliere il silenzio a un utente",
+  "unreadMessagesSeparatorText_many": "{{count}} messaggi non letti",
   "unreadMessagesSeparatorText_one": "1 messaggio non letto",
   "unreadMessagesSeparatorText_other": "{{count}} messaggi non letti",
   "{{ commaSeparatedUsers }} and {{ moreCount }} more": "{{ commaSeparatedUsers }} e altri {{ moreCount }}",
@@ -98,6 +99,7 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
+  "{{count}} unread_many": "{{count}} non letti",
   "{{count}} unread_one": "{{count}} non letto",
   "{{count}} unread_other": "{{count}} non letti",
   "🏙 Attachment...": "🏙 Allegato..."
