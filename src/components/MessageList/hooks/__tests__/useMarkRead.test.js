@@ -1,19 +1,14 @@
-import { ChannelActionProvider, ChannelStateProvider } from '../../../../context';
-import { renderHook } from '@testing-library/react-hooks';
 import React from 'react';
+import { renderHook } from '@testing-library/react-hooks';
 import { useMarkRead } from '../useMarkRead';
-import { initClientWithChannel } from '../../../../mock-builders';
+import { ChannelActionProvider } from '../../../../context';
 
 const visibilityChangeScenario = 'visibilitychange event';
-const markRead = jest.fn().mockReturnValue();
-let channel;
-let channelCountUnreadSpy;
+const markRead = jest.fn();
 
-const render = ({ channel, params }) => {
+const render = ({ params }) => {
   const wrapper = ({ children }) => (
-    <ChannelStateProvider value={{ channel }}>
-      <ChannelActionProvider value={{ markRead }}>{children}</ChannelActionProvider>
-    </ChannelStateProvider>
+    <ChannelActionProvider value={{ markRead }}>{children}</ChannelActionProvider>
   );
   const { result } = renderHook(() => useMarkRead(params), { wrapper });
   return result.current;
@@ -23,19 +18,15 @@ describe('useMarkRead', () => {
   const shouldMarkReadParams = {
     isMessageListScrolledToBottom: true,
     messageListIsThread: false,
+    unreadCount: 1,
     wasChannelMarkedUnread: false,
   };
-  beforeAll(async () => {
-    channel = (await initClientWithChannel()).channel;
-    channelCountUnreadSpy = jest.spyOn(channel, 'countUnread').mockReturnValue(1);
-  });
 
   beforeEach(jest.clearAllMocks);
 
   describe.each([[visibilityChangeScenario], ['render']])('on %s', (scenario) => {
     it('should not mark channel read from thread message list', () => {
       render({
-        channel,
         params: {
           ...shouldMarkReadParams,
           messageListIsThread: true,
@@ -49,7 +40,6 @@ describe('useMarkRead', () => {
 
     it('should not mark channel read from message list not scrolled to the bottom', () => {
       render({
-        channel,
         params: {
           ...shouldMarkReadParams,
           isMessageListScrolledToBottom: false,
@@ -63,7 +53,6 @@ describe('useMarkRead', () => {
 
     it('should not mark channel read from message list in channel previously marked unread', () => {
       render({
-        channel,
         params: {
           ...shouldMarkReadParams,
           wasChannelMarkedUnread: true,
@@ -76,10 +65,11 @@ describe('useMarkRead', () => {
     });
 
     it('should not mark channel read from message list in channel with 0 unread messages', () => {
-      channelCountUnreadSpy.mockReturnValueOnce(0);
       render({
-        channel,
-        params: shouldMarkReadParams,
+        params: {
+          ...shouldMarkReadParams,
+          unreadCount: 0,
+        },
       });
       if (scenario === visibilityChangeScenario) {
         document.dispatchEvent(new Event('visibilitychange'));
@@ -89,7 +79,6 @@ describe('useMarkRead', () => {
 
     it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread', () => {
       render({
-        channel,
         params: shouldMarkReadParams,
       });
       if (scenario === visibilityChangeScenario) {

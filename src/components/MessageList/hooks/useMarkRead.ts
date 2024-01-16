@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { useChannelActionContext, useChannelStateContext } from '../../../context';
+import { useChannelActionContext } from '../../../context';
 
 type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
   messageListIsThread: boolean;
+  unreadCount: number;
   wasChannelMarkedUnread: boolean;
 };
 
@@ -14,22 +15,23 @@ type UseMarkReadParams = {
  * 3. the channel was not marked unread by the user
  * @param isMessageListScrolledToBottom
  * @param messageListIsThread
+ * @param unreadCount
  * @param wasChannelMarkedUnread
  */
 export const useMarkRead = ({
   isMessageListScrolledToBottom,
   messageListIsThread,
+  unreadCount,
   wasChannelMarkedUnread,
 }: UseMarkReadParams) => {
   const { markRead } = useChannelActionContext('useMarkRead');
-  const { channel } = useChannelStateContext('useMarkRead');
 
   useEffect(() => {
     const shouldMarkRead =
       !messageListIsThread &&
       isMessageListScrolledToBottom &&
       !wasChannelMarkedUnread &&
-      channel.countUnread() > 0;
+      unreadCount > 0;
 
     const onVisibilityChange = () => {
       if (!document.hidden && shouldMarkRead) markRead();
@@ -43,10 +45,10 @@ export const useMarkRead = ({
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [
-    channel,
     isMessageListScrolledToBottom,
-    messageListIsThread,
     markRead,
+    messageListIsThread,
+    unreadCount,
     wasChannelMarkedUnread,
   ]);
 };

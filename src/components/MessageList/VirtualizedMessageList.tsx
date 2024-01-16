@@ -307,6 +307,7 @@ const VirtualizedMessageListWithContext = <
   useMarkRead({
     isMessageListScrolledToBottom,
     messageListIsThread: !!threadList,
+    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
     wasChannelMarkedUnread: !!currentUserChannelReadState?.first_unread_message_id,
   });
 
