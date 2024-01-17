@@ -14,7 +14,6 @@ import {
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 import { CustomMessageActionsList as DefaultCustomMessageActionsList } from './CustomMessageActionsList';
-import { useMessageActionsBoxPopper } from './hooks';
 
 type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
@@ -30,7 +29,6 @@ export type MessageActionsBoxProps<
   isUserMuted: () => boolean;
   mine: boolean;
   open: boolean;
-  referenceElement: HTMLElement | null;
 };
 
 const UnMemoizedMessageActionsBox = <
@@ -46,9 +44,7 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
-    mine,
     open = false,
-    referenceElement,
   } = props;
 
   const {
@@ -60,12 +56,6 @@ const UnMemoizedMessageActionsBox = <
   );
 
   const { t } = useTranslationContext('MessageActionsBox');
-
-  const { attributes, popperElementRef, styles } = useMessageActionsBoxPopper<HTMLDivElement>({
-    open,
-    placement: mine ? 'top-end' : 'top-start',
-    referenceElement,
-  });
 
   const messageActions = getMessageActions();
 
@@ -89,19 +79,8 @@ const UnMemoizedMessageActionsBox = <
     'str-chat__message-actions-list-item str-chat__message-actions-list-item-button';
 
   return (
-    <div
-      className={rootClassName}
-      data-testid='message-actions-box'
-      ref={popperElementRef}
-      style={styles.popper}
-      {...attributes.popper}
-    >
-      <div
-        aria-label='Message Options'
-        className='str-chat__message-actions-list'
-        ref={popperElementRef}
-        role='listbox'
-      >
+    <div className={rootClassName} data-testid='message-actions-box'>
+      <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
         <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
           <button

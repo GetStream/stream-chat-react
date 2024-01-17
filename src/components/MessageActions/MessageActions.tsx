@@ -16,6 +16,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
+import { useMessageActionsBoxPopper } from './hooks';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -78,6 +79,7 @@ export const MessageActions = <
   const handleMute = propHandleMute || contextHandleMute;
   const handlePin = propHandlePin || contextHandlePin;
   const message = propMessage || contextMessage;
+  const isMine = mine ? mine() : isMyMessage();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -118,6 +120,12 @@ export const MessageActions = <
 
   const actionsBoxButtonRef = useRef<ElementRef<'button'>>(null);
 
+  const { attributes, popperElementRef, styles } = useMessageActionsBoxPopper<HTMLDivElement>({
+    open: actionsBoxOpen,
+    placement: isMine ? 'top-end' : 'top-start',
+    referenceElement: actionsBoxButtonRef.current,
+  });
+
   if (!messageActions.length && !customMessageActions) return null;
 
   return (
@@ -126,18 +134,24 @@ export const MessageActions = <
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
-      <MessageActionsBox
-        getMessageActions={getMessageActions}
-        handleDelete={handleDelete}
-        handleEdit={setEditingState}
-        handleFlag={handleFlag}
-        handleMute={handleMute}
-        handlePin={handlePin}
-        isUserMuted={isMuted}
-        mine={mine ? mine() : isMyMessage()}
-        open={actionsBoxOpen}
-        referenceElement={actionsBoxButtonRef.current}
-      />
+      <div
+        {...attributes.popper}
+        className='str-chat__message-actions-box-wrapper'
+        ref={popperElementRef}
+        style={styles.popper}
+      >
+        <MessageActionsBox
+          getMessageActions={getMessageActions}
+          handleDelete={handleDelete}
+          handleEdit={setEditingState}
+          handleFlag={handleFlag}
+          handleMute={handleMute}
+          handlePin={handlePin}
+          isUserMuted={isMuted}
+          mine={isMine}
+          open={actionsBoxOpen}
+        />
+      </div>
       <button
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
