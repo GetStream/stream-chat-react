@@ -5,7 +5,7 @@ type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
   messageListIsThread: boolean;
   unreadCount: number;
-  wasChannelMarkedUnread: boolean;
+  markReadOnScrolledToBottom?: boolean;
 };
 
 /**
@@ -20,9 +20,9 @@ type UseMarkReadParams = {
  */
 export const useMarkRead = ({
   isMessageListScrolledToBottom,
+  markReadOnScrolledToBottom,
   messageListIsThread,
   unreadCount,
-  wasChannelMarkedUnread,
 }: UseMarkReadParams) => {
   const { markRead } = useChannelActionContext('useMarkRead');
 
@@ -30,7 +30,7 @@ export const useMarkRead = ({
     const shouldMarkRead =
       !messageListIsThread &&
       isMessageListScrolledToBottom &&
-      !wasChannelMarkedUnread &&
+      markReadOnScrolledToBottom &&
       unreadCount > 0;
 
     const onVisibilityChange = () => {
@@ -49,6 +49,6 @@ export const useMarkRead = ({
     markRead,
     messageListIsThread,
     unreadCount,
-    wasChannelMarkedUnread,
+    markReadOnScrolledToBottom,
   ]);
 };

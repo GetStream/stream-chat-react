@@ -65,6 +65,7 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
+    markReadOnScrolledToBottom,
     messageLimit = 100,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
@@ -112,9 +113,9 @@ const MessageListWithContext = <
 
   useMarkRead({
     isMessageListScrolledToBottom,
+    markReadOnScrolledToBottom,
     messageListIsThread: threadList,
     unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
-    wasChannelMarkedUnread: !!currentUserChannelReadState?.first_unread_message_id,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -321,6 +322,8 @@ export type MessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
+  /** When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list. */
+  markReadOnScrolledToBottom?: boolean;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */

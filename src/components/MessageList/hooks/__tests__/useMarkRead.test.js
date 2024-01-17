@@ -17,9 +17,9 @@ const render = ({ params }) => {
 describe('useMarkRead', () => {
   const shouldMarkReadParams = {
     isMessageListScrolledToBottom: true,
+    markReadOnScrolledToBottom: true,
     messageListIsThread: false,
     unreadCount: 1,
-    wasChannelMarkedUnread: false,
   };
 
   beforeEach(jest.clearAllMocks);
@@ -51,11 +51,11 @@ describe('useMarkRead', () => {
       expect(markRead).toHaveBeenCalledTimes(0);
     });
 
-    it('should not mark channel read from message list in channel previously marked unread', () => {
+    it('should not mark channel read when markReadOnScrolledToBottom is disabled', () => {
       render({
         params: {
           ...shouldMarkReadParams,
-          wasChannelMarkedUnread: true,
+          markReadOnScrolledToBottom: false,
         },
       });
       if (scenario === visibilityChangeScenario) {
