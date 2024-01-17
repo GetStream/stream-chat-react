@@ -247,6 +247,8 @@ export type ChannelProps<
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
+  markReadOnMount?: boolean;
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /** Whether to allow multiple attachment uploads */
@@ -341,6 +343,7 @@ const ChannelInner = <
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
+    markReadOnMount = true,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,
@@ -547,7 +550,7 @@ const ChannelInner = <
          *
          * const lastRead = channel.state.read[client.userID as string].last_read;
          */
-        if (channel.countUnread() > 0) markRead();
+        if (channel.countUnread() > 0 && markReadOnMount) markRead();
         // The more complex sync logic is done in Chat
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
@@ -773,7 +776,7 @@ const ChannelInner = <
       let existingMessage;
       for (let i = channel.state.messages.length - 1; i >= 0; i--) {
         const msg = channel.state.messages[i];
-        if (msg.id === messageData.id) {
+        if (msg.id && msg.id === messageData.id) {
           existingMessage = msg;
           break;
         }

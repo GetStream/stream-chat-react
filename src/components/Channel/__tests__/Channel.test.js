@@ -90,17 +90,21 @@ const messages = Array.from({ length: 25 }, () => generateMessage({ user }));
 
 const pinnedMessages = [generateMessage({ pinned: true, user })];
 
-const renderComponent = (props = {}, callback = () => {}) => {
+const renderComponent = async (props = {}, callback = () => {}) => {
   const { channel: channelFromProps, chatClient: chatClientFromProps, ...channelProps } = props;
-  return render(
-    <Chat client={chatClientFromProps}>
-      <ActiveChannelSetter activeChannel={channelFromProps} />
-      <Channel {...channelProps}>
-        {channelProps.children}
-        <CallbackEffectWithChannelContexts callback={callback} />
-      </Channel>
-    </Chat>,
-  );
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={chatClientFromProps}>
+        <ActiveChannelSetter activeChannel={channelFromProps} />
+        <Channel {...channelProps}>
+          {channelProps.children}
+          <CallbackEffectWithChannelContexts callback={callback} />
+        </Channel>
+      </Chat>,
+    );
+  });
+  return result;
 };
 
 const initClient = async () => {
@@ -280,9 +284,7 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch');
 
-    await act(() => {
-      renderComponent({ channel, chatClient });
-    });
+    await renderComponent({ channel, chatClient });
 
     await waitFor(() => {
       expect(watchSpy).toHaveBeenCalledTimes(1);
@@ -296,9 +298,7 @@ describe('Channel', () => {
     const channelQueryOptions = {
       messages: { limit: 20 },
     };
-    await act(() => {
-      renderComponent({ channel, channelQueryOptions, chatClient });
-    });
+    await renderComponent({ channel, channelQueryOptions, chatClient });
 
     await waitFor(() => {
       expect(watchSpy).toHaveBeenCalledTimes(1);
@@ -310,10 +310,8 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [queryChannelWithNewMessages([generateMessage()], channel)]);
     let hasMore;
-    await act(() => {
-      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      });
+    await renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
+      hasMore = contextHasMore;
     });
 
     await waitFor(() => {
@@ -327,10 +325,8 @@ describe('Channel', () => {
       queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
     ]);
     let hasMore;
-    await act(() => {
-      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      });
+    await renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
+      hasMore = contextHasMore;
     });
 
     await waitFor(() => {
@@ -345,14 +341,12 @@ describe('Channel', () => {
     const channelQueryOptions = {
       messages: { limit: 10 },
     };
-    await act(() => {
-      renderComponent(
-        { channel, channelQueryOptions, chatClient },
-        ({ hasMore: contextHasMore }) => {
-          hasMore = contextHasMore;
-        },
-      );
-    });
+    await renderComponent(
+      { channel, channelQueryOptions, chatClient },
+      ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      },
+    );
 
     await waitFor(() => {
       expect(hasMore).toBe(false);
@@ -369,14 +363,12 @@ describe('Channel', () => {
     const channelQueryOptions = {
       messages: { limit: equalCount },
     };
-    await act(() => {
-      renderComponent(
-        { channel, channelQueryOptions, chatClient },
-        ({ hasMore: contextHasMore }) => {
-          hasMore = contextHasMore;
-        },
-      );
-    });
+    await renderComponent(
+      { channel, channelQueryOptions, chatClient },
+      ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      },
+    );
 
     await waitFor(() => {
       expect(hasMore).toBe(true);
@@ -387,9 +379,7 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch');
     channel.initialized = true;
-    await act(() => {
-      renderComponent({ channel, chatClient });
-    });
+    await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
   });
 
@@ -398,7 +388,7 @@ describe('Channel', () => {
     const watchError = new Error('watching went wrong');
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => Promise.reject(watchError));
 
-    renderComponent({ channel, chatClient });
+    await renderComponent({ channel, chatClient });
 
     await waitFor(() =>
       expect(LoadingErrorIndicator).toHaveBeenCalledWith(
@@ -414,17 +404,18 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     const watchPromise = new Promise(() => {});
     jest.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
-    let result;
-    await act(() => {
-      result = renderComponent({ channel, chatClient });
-    });
+    const result = await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(result.asFragment()).toMatchSnapshot());
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
     const { channel, chatClient } = await initClient();
-    const { findByText } = renderComponent({ channel, chatClient, children: <div>children</div> });
+    const { findByText } = await renderComponent({
+      channel,
+      chatClient,
+      children: <div>children</div>,
+    });
 
     expect(await findByText('children')).toBeInTheDocument();
   });
@@ -433,7 +424,7 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     let ctxPins;
 
-    const { getByText } = renderComponent(
+    const { getByText } = await renderComponent(
       {
         channel,
         chatClient,
@@ -455,7 +446,7 @@ describe('Channel', () => {
     const { channel, chatClient } = await initClient();
     const clientOnSpy = jest.spyOn(chatClient, 'on');
 
-    renderComponent({ channel, chatClient });
+    await renderComponent({ channel, chatClient });
 
     await waitFor(() =>
       expect(clientOnSpy).toHaveBeenCalledWith('connection.recovered', expect.any(Function)),
@@ -465,31 +456,40 @@ describe('Channel', () => {
   it('should add an `on` handler to the channel on mount', async () => {
     const { channel, chatClient } = await initClient();
     const channelOnSpy = jest.spyOn(channel, 'on');
-    renderComponent({ channel, chatClient });
+    await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should mark the channel as read if the count of unread messages is higher than 0 on mount', async () => {
+  it('should mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is enabled (default)', async () => {
     const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
-    renderComponent({ channel, chatClient });
+    await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
+
+  it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
+    const { channel, chatClient } = await initClient();
+    jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+    const markReadSpy = jest.spyOn(channel, 'markRead');
+
+    await renderComponent({ channel, chatClient, markReadOnMount: false });
+
+    await waitFor(() => expect(markReadSpy).not.toHaveBeenCalledWith());
+  });
+
   it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
     const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const doMarkReadRequest = jest.fn();
 
-    await act(() => {
-      renderComponent({
-        channel,
-        chatClient,
-        doMarkReadRequest,
-      });
+    await renderComponent({
+      channel,
+      chatClient,
+      doMarkReadRequest,
     });
 
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
@@ -498,12 +498,10 @@ describe('Channel', () => {
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
     const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
-    await act(() => {
-      renderComponent({
-        channel,
-        chatClient,
-        initializeOnMount: false,
-      });
+    await renderComponent({
+      channel,
+      chatClient,
+      initializeOnMount: false,
     });
     await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
   });
@@ -511,9 +509,7 @@ describe('Channel', () => {
   it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
     const { channel, chatClient } = await initClient();
     const watchSpy = jest.spyOn(channel, 'watch').mockImplementationOnce();
-    await act(() => {
-      renderComponent({ channel, chatClient });
-    });
+    await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
 
@@ -525,7 +521,7 @@ describe('Channel', () => {
 
       // this renders Channel, calls openThread from a child context consumer with a message,
       // and then calls hasThread with the thread id if it was set.
-      renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
+      await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
         if (!thread) {
           openThread(threadMessage, { preventDefault: () => null });
         } else {
@@ -547,7 +543,7 @@ describe('Channel', () => {
 
       const hasThreadMessages = jest.fn();
 
-      renderComponent(
+      await renderComponent(
         { channel, chatClient },
         ({ loadMoreThread, openThread, thread, threadMessages }) => {
           if (!thread) {
@@ -577,7 +573,7 @@ describe('Channel', () => {
       const threadMessage = messages[0];
 
       let threadHasAlreadyBeenOpened = false;
-      renderComponent({ channel, chatClient }, ({ closeThread, openThread, thread }) => {
+      await renderComponent({ channel, chatClient }, ({ closeThread, openThread, thread }) => {
         if (!thread) {
           // if there is no open thread
           if (!threadHasAlreadyBeenOpened) {
@@ -618,7 +614,7 @@ describe('Channel', () => {
         );
       };
 
-      const { findByText } = renderComponent({
+      const { findByText } = await renderComponent({
         channel,
         chatClient,
         children: <MentionedUserComponent />,
@@ -656,16 +652,19 @@ describe('Channel', () => {
 
         const newMessages = [generateMessage()];
 
-        renderComponent({ channel, chatClient }, ({ loadMore, messages: contextMessages }) => {
-          if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
-            // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-            useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
-            loadMore(limit);
-          } else {
-            // If message has been added, update checker so we can verify it happened.
-            newMessageAdded = true;
-          }
-        });
+        await renderComponent(
+          { channel, chatClient },
+          ({ loadMore, messages: contextMessages }) => {
+            if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
+              // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
+              useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
+              loadMore(limit);
+            } else {
+              // If message has been added, update checker so we can verify it happened.
+              newMessageAdded = true;
+            }
+          },
+        );
 
         await waitFor(() =>
           expect(channelQuerySpy).toHaveBeenCalledWith({
@@ -686,21 +685,19 @@ describe('Channel', () => {
         const { channel, chatClient } = await initClient();
         let channelHasMore = false;
         const newMessages = [generateMessage()];
-        await act(() => {
-          renderComponent(
-            { channel, chatClient },
-            ({ hasMore, loadMore, messages: contextMessages }) => {
-              if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
-                // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-                useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
-                loadMore(limit);
-              } else {
-                // If message has been added, set our checker variable, so we can verify if hasMore is false.
-                channelHasMore = hasMore;
-              }
-            },
-          );
-        });
+        await renderComponent(
+          { channel, chatClient },
+          ({ hasMore, loadMore, messages: contextMessages }) => {
+            if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
+              // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
+              useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
+              loadMore(limit);
+            } else {
+              // If message has been added, set our checker variable, so we can verify if hasMore is false.
+              channelHasMore = hasMore;
+            }
+          },
+        );
 
         await waitFor(() => expect(channelHasMore).toBe(false));
       });
@@ -711,21 +708,19 @@ describe('Channel', () => {
         const newMessages = Array(limit)
           .fill(null)
           .map(() => generateMessage());
-        await act(() => {
-          renderComponent(
-            { channel, chatClient },
-            ({ hasMore, loadMore, messages: contextMessages }) => {
-              if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
-                // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
-                useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
-                loadMore(limit);
-              } else {
-                // If message has been added, set our checker variable so we can verify if hasMore is true.
-                channelHasMore = hasMore;
-              }
-            },
-          );
-        });
+        await renderComponent(
+          { channel, chatClient },
+          ({ hasMore, loadMore, messages: contextMessages }) => {
+            if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
+              // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
+              useMockedApis(chatClient, [queryChannelWithNewMessages(newMessages, channel)]);
+              loadMore(limit);
+            } else {
+              // If message has been added, set our checker variable so we can verify if hasMore is true.
+              channelHasMore = hasMore;
+            }
+          },
+        );
 
         await waitFor(() => expect(channelHasMore).toBe(true));
       });
@@ -735,7 +730,7 @@ describe('Channel', () => {
         const queryPromise = new Promise(() => {});
         let isLoadingMore = false;
 
-        renderComponent({ channel, chatClient }, ({ loadingMore, loadMore }) => {
+        await renderComponent({ channel, chatClient }, ({ loadingMore, loadMore }) => {
           // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
           jest.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
           loadMore();
@@ -750,13 +745,14 @@ describe('Channel', () => {
         useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageOfMessages, channel)]);
         let queryNextPageSpy;
         let contextMessageCount;
-        await act(() => {
-          renderComponent({ channel, chatClient }, ({ loadMore, messages: contextMessages }) => {
+        await renderComponent(
+          { channel, chatClient },
+          ({ loadMore, messages: contextMessages }) => {
             queryNextPageSpy = jest.spyOn(channel, 'query');
             contextMessageCount = contextMessages.length;
             loadMore();
-          });
-        });
+          },
+        );
 
         await waitFor(() => {
           expect(queryNextPageSpy).not.toHaveBeenCalled();
@@ -774,14 +770,15 @@ describe('Channel', () => {
         useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageMessages, channel)]);
         let queryNextPageSpy;
         let contextMessageCount;
-        await act(() => {
-          renderComponent({ channel, chatClient }, ({ loadMore, messages: contextMessages }) => {
+        await renderComponent(
+          { channel, chatClient },
+          ({ loadMore, messages: contextMessages }) => {
             queryNextPageSpy = jest.spyOn(channel, 'query');
             contextMessageCount = contextMessages.length;
             useMockedApis(chatClient, [queryChannelWithNewMessages(secondPageMessages, channel)]);
             loadMore();
-          });
-        });
+          },
+        );
 
         await waitFor(() => {
           expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
@@ -812,16 +809,14 @@ describe('Channel', () => {
         useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageOfMessages, channel)]);
         let queryNextPageSpy;
         let contextMessageCount;
-        await act(() => {
-          renderComponent(
-            { channel, channelQueryOptions, chatClient },
-            ({ loadMore, messages: contextMessages }) => {
-              queryNextPageSpy = jest.spyOn(channel, 'query');
-              contextMessageCount = contextMessages.length;
-              loadMore(channelQueryOptions.messages.limit);
-            },
-          );
-        });
+        await renderComponent(
+          { channel, channelQueryOptions, chatClient },
+          ({ loadMore, messages: contextMessages }) => {
+            queryNextPageSpy = jest.spyOn(channel, 'query');
+            contextMessageCount = contextMessages.length;
+            loadMore(channelQueryOptions.messages.limit);
+          },
+        );
 
         await waitFor(() => {
           expect(queryNextPageSpy).not.toHaveBeenCalled();
@@ -850,17 +845,15 @@ describe('Channel', () => {
         let queryNextPageSpy;
         let contextMessageCount;
 
-        await act(() => {
-          renderComponent(
-            { channel, channelQueryOptions, chatClient },
-            ({ loadMore, messages: contextMessages }) => {
-              queryNextPageSpy = jest.spyOn(channel, 'query');
-              contextMessageCount = contextMessages.length;
-              useMockedApis(chatClient, [queryChannelWithNewMessages(secondPageMessages, channel)]);
-              loadMore(channelQueryOptions.messages.limit);
-            },
-          );
-        });
+        await renderComponent(
+          { channel, channelQueryOptions, chatClient },
+          ({ loadMore, messages: contextMessages }) => {
+            queryNextPageSpy = jest.spyOn(channel, 'query');
+            contextMessageCount = contextMessages.length;
+            useMockedApis(chatClient, [queryChannelWithNewMessages(secondPageMessages, channel)]);
+            loadMore(channelQueryOptions.messages.limit);
+          },
+        );
 
         await waitFor(() => {
           expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
@@ -897,7 +890,7 @@ describe('Channel', () => {
         // flag to prevent infinite loop
         let hasSent = false;
 
-        renderComponent({ channel, chatClient }, ({ sendMessage }) => {
+        await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
           if (!hasSent) sendMessage({ text: 'message' });
           hasSent = true;
         });
@@ -911,7 +904,7 @@ describe('Channel', () => {
         let hasSent = false;
         const messageText = 'bla bla';
 
-        const { findByText } = renderComponent(
+        const { findByText } = await renderComponent(
           {
             channel,
             chatClient,
@@ -933,7 +926,7 @@ describe('Channel', () => {
         let hasSent = false;
         const doSendMessageRequest = jest.fn(() => new Promise(() => {}));
         const message = { text: 'message' };
-        renderComponent(
+        await renderComponent(
           {
             channel,
             chatClient,
@@ -960,7 +953,7 @@ describe('Channel', () => {
         const messageResponse = { text: 'different message' };
         let hasSent = false;
 
-        const { findByText } = renderComponent(
+        const { findByText } = await renderComponent(
           {
             channel,
             chatClient,
@@ -981,10 +974,8 @@ describe('Channel', () => {
           const { channel, chatClient } = await initClient();
           const clientDeleteMessageSpy = jest.spyOn(chatClient, 'deleteMessage');
           let deleteMessageHandler;
-          await act(() => {
-            renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
-              deleteMessageHandler = deleteMessage;
-            });
+          await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
+            deleteMessageHandler = deleteMessage;
           });
 
           await expect(() => deleteMessageHandler(message)).rejects.toThrow(
@@ -999,7 +990,7 @@ describe('Channel', () => {
           const clientDeleteMessageSpy = jest
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
-          renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
+          await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
             deleteMessage(message);
           });
           await waitFor(() => expect(clientDeleteMessageSpy).toHaveBeenCalledWith(message.id));
@@ -1013,14 +1004,12 @@ describe('Channel', () => {
             .mockImplementationOnce(() => Promise.resolve({ message }));
           const doDeleteMessageRequest = jest.fn();
           let deleteMessageHandler;
-          await act(() => {
-            renderComponent(
-              { channel, chatClient, doDeleteMessageRequest },
-              ({ deleteMessage }) => {
-                deleteMessageHandler = deleteMessage;
-              },
-            );
-          });
+          await renderComponent(
+            { channel, chatClient, doDeleteMessageRequest },
+            ({ deleteMessage }) => {
+              deleteMessageHandler = deleteMessage;
+            },
+          );
 
           await expect(() => deleteMessageHandler(message)).rejects.toThrow(
             'Cannot delete a message - missing message ID.',
@@ -1037,9 +1026,12 @@ describe('Channel', () => {
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
 
-          renderComponent({ channel, chatClient, doDeleteMessageRequest }, ({ deleteMessage }) => {
-            deleteMessage(message);
-          });
+          await renderComponent(
+            { channel, chatClient, doDeleteMessageRequest },
+            ({ deleteMessage }) => {
+              deleteMessage(message);
+            },
+          );
 
           await waitFor(() => {
             expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
@@ -1053,7 +1045,7 @@ describe('Channel', () => {
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
         const clientUpdateMessageSpy = jest.spyOn(chatClient, 'updateMessage');
-        renderComponent({ channel, chatClient }, ({ editMessage }) => {
+        await renderComponent({ channel, chatClient }, ({ editMessage }) => {
           editMessage(updatedMessage);
         });
         await waitFor(() =>
@@ -1065,9 +1057,12 @@ describe('Channel', () => {
         const { channel, chatClient } = await initClient();
         const doUpdateMessageRequest = jest.fn((channelId, message) => message);
 
-        renderComponent({ channel, chatClient, doUpdateMessageRequest }, ({ editMessage }) => {
-          editMessage(messages[0]);
-        });
+        await renderComponent(
+          { channel, chatClient, doUpdateMessageRequest },
+          ({ editMessage }) => {
+            editMessage(messages[0]);
+          },
+        );
 
         await waitFor(() =>
           expect(doUpdateMessageRequest).toHaveBeenCalledWith(channel.cid, messages[0], undefined),
@@ -1080,7 +1075,7 @@ describe('Channel', () => {
         const updatedMessage = { ...messages[0], text: newText, updated_at: Date.now() };
         let hasUpdated = false;
 
-        const { findByText } = renderComponent(
+        const { findByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ updateMessage }) => {
             if (!hasUpdated) updateMessage(updatedMessage);
@@ -1100,7 +1095,7 @@ describe('Channel', () => {
         let hasRetried = false;
         const messageObject = { text: 'bla bla' };
 
-        const { findByText } = renderComponent(
+        await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
             if (!hasSent) {
@@ -1109,16 +1104,14 @@ describe('Channel', () => {
               hasSent = true;
             } else if (!hasRetried && contextMessages.some(({ status }) => status === 'failed')) {
               // retry
-              useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
+              useMockedApis(chatClient, [sendMessageApi(messageObject)]);
               retrySendMessage(messageObject);
               hasRetried = true;
             }
           },
         );
 
-        await waitFor(async () => {
-          expect(await findByText(messageObject.text)).toBeInTheDocument();
-        });
+        expect(screen.queryByText(messageObject.text)).toBeInTheDocument();
       });
 
       it('should remove scraped attachment on retry-sending message', async () => {
@@ -1134,22 +1127,20 @@ describe('Channel', () => {
           .spyOn(channel, 'sendMessage')
           .mockImplementationOnce(() => Promise.reject());
 
-        await act(() => {
-          renderComponent(
-            { channel, chatClient, children: <MockMessageList /> },
-            ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
-              if (!hasSent) {
-                sendMessage(messageObject);
-                hasSent = true;
-              } else if (!hasRetried && contextMessages.some(({ status }) => status === 'failed')) {
-                // retry
-                useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
-                retrySendMessage(messageObject);
-                hasRetried = true;
-              }
-            },
-          );
-        });
+        await renderComponent(
+          { channel, chatClient, children: <MockMessageList /> },
+          ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
+            if (!hasSent) {
+              sendMessage(messageObject);
+              hasSent = true;
+            } else if (!hasRetried && contextMessages.some(({ status }) => status === 'failed')) {
+              // retry
+              useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
+              retrySendMessage(messageObject);
+              hasRetried = true;
+            }
+          },
+        );
 
         expect(sendMessageSpy).not.toHaveBeenNthCalledWith(
           2,
@@ -1166,15 +1157,18 @@ describe('Channel', () => {
         let allMessagesRemoved = false;
         const removeSpy = jest.spyOn(channel.state, 'removeMessage');
 
-        renderComponent({ channel, chatClient }, ({ messages: contextMessages, removeMessage }) => {
-          if (contextMessages.length > 0) {
-            // if there are messages passed as the context, remove them
-            removeMessage(contextMessages[0]);
-          } else {
-            // once they're all gone, set to true so we can verify that we no longer have messages
-            allMessagesRemoved = true;
-          }
-        });
+        await renderComponent(
+          { channel, chatClient },
+          ({ messages: contextMessages, removeMessage }) => {
+            if (contextMessages.length > 0) {
+              // if there are messages passed as the context, remove them
+              removeMessage(contextMessages[0]);
+            } else {
+              // once they're all gone, set to true so we can verify that we no longer have messages
+              allMessagesRemoved = true;
+            }
+          },
+        );
 
         await waitFor(() => expect(removeSpy).toHaveBeenCalledWith(messages[0]));
         await waitFor(() => expect(allMessagesRemoved).toBe(true));
@@ -1210,7 +1204,7 @@ describe('Channel', () => {
         const message = generateMessage({ user });
         const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
 
-        const { findByText } = renderComponent(
+        const { findByText } = await renderComponent(
           {
             channel,
             chatClient,
@@ -1268,7 +1262,7 @@ describe('Channel', () => {
           return channel.sendMessage(message);
         });
 
-        const { queryByText } = renderComponent(
+        const { queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ sendMessage }) => {
             if (!hasSent) {
@@ -1300,7 +1294,7 @@ describe('Channel', () => {
           return channel.sendMessage(message);
         });
 
-        const { queryByText } = renderComponent(
+        const { queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ sendMessage }) => {
             if (!hasSent) {
@@ -1323,7 +1317,7 @@ describe('Channel', () => {
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
 
-        renderComponent({ channel, chatClient }, () => {
+        await renderComponent({ channel, chatClient }, () => {
           dispatchMessageEvent();
         });
 
@@ -1337,7 +1331,7 @@ describe('Channel', () => {
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
 
-        renderComponent({ channel, chatClient }, () => {
+        await renderComponent({ channel, chatClient }, () => {
           dispatchMessageEvent();
         });
 
@@ -1355,7 +1349,7 @@ describe('Channel', () => {
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
 
-        renderComponent({ channel, chatClient }, () => {
+        await renderComponent({ channel, chatClient }, () => {
           dispatchMessageEvent();
         });
 
@@ -1373,7 +1367,7 @@ describe('Channel', () => {
           channel,
         );
         let threadStarterHasUpdatedText = false;
-        renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
+        await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
           if (!thread) {
             // first, open thread
             openThread(threadMessage, { preventDefault: () => null });
@@ -1403,7 +1397,7 @@ describe('Channel', () => {
           channel,
         );
         let newThreadMessageWasAdded = false;
-        renderComponent({ channel, chatClient }, ({ openThread, thread, threadMessages }) => {
+        await renderComponent({ channel, chatClient }, ({ openThread, thread, threadMessages }) => {
           if (!thread) {
             // first, open thread
             openThread(threadMessage, { preventDefault: () => null });
@@ -1454,7 +1448,7 @@ describe('Channel', () => {
             chatClient,
             channel,
           );
-          renderComponent(
+          await renderComponent(
             {
               Avatar: MockAvatar,
               channel,
@@ -1488,7 +1482,7 @@ describe('Channel', () => {
             chatClient,
             channel,
           );
-          renderComponent(
+          await renderComponent(
             {
               Avatar: MockAvatar,
               channel,
@@ -1526,7 +1520,7 @@ describe('Channel', () => {
         messageListRect: {},
       };
 
-      renderComponent({
+      await renderComponent({
         channel,
         chatClient,
         children: (
