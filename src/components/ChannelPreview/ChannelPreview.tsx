@@ -50,6 +50,12 @@ export type ChannelPreviewProps<
   /** Custom class for the channel preview root */
   className?: string;
   key?: string;
+  /**
+   * Marks active channel read before switching the active channel state to the clicked preview's channel.
+   * This means that active channel being left is marked read before navigating to another channel.
+   * By default, this is disabled.
+   */
+  markActiveChannelReadOnClick?: boolean;
   /** Custom ChannelPreview click handler function */
   onSelect?: (event: React.MouseEvent) => void;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */

@@ -194,7 +194,7 @@ export type ChannelProps<
 > = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
   /** List of accepted file types */
   acceptedFiles?: string[];
-  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
+  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running in a separate browser tab) */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** The connected and active channel */
   channel?: StreamChannel<StreamChatGenerics>;

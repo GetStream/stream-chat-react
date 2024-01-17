@@ -14,12 +14,14 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
+    activeChannel,
     Avatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
     displayTitle,
     latestMessage,
+    markActiveChannelReadOnClick,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
@@ -35,6 +37,8 @@ const UnMemoizedChannelPreviewMessenger = <
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else if (setActiveChannel) {
+      if (markActiveChannelReadOnClick && activeChannel && activeChannel.countUnread() > 0)
+        activeChannel.markRead();
       setActiveChannel(channel, watchers);
     }
     if (channelPreviewButton?.current) {

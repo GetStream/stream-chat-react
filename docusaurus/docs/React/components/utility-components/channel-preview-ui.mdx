@@ -109,6 +109,14 @@ Latest message preview to display. Will be either a string or a JSX.Element rend
 | --------------------- |
 | string \| JSX.Element |
 
+### markActiveChannelReadOnClick
+
+Marks active channel read before switching the active channel state to the clicked preview's channel. This means that active channel being left is marked read before navigating to another channel. By default, this is disabled.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
 ### messageDeliveryStatus
 
 Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. The value is calculated from `channel.read` data on mount and updated on every `message.new` resp. `message.read` WS event.
