@@ -231,6 +231,7 @@ const VirtualizedMessageListWithContext = <
       setGiphyPreviewMessage,
       userId: client.userID || '',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     disableDateSeparator,
     hideDeletedMessages,
@@ -267,6 +268,7 @@ const VirtualizedMessageListWithContext = <
         return acc;
       }, {}),
     // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [processedMessages.length, shouldGroupByUser, groupStylesFn],
   );
 
@@ -289,6 +291,7 @@ const VirtualizedMessageListWithContext = <
     }
 
     setNewMessagesNotification(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     virtuoso,
     processedMessages,
@@ -354,6 +357,7 @@ const VirtualizedMessageListWithContext = <
         virtuoso.current?.scrollToIndex({ align: 'center', index });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightedMessageId]);
 
   if (!processedMessages) return null;

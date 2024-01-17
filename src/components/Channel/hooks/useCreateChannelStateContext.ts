@@ -136,6 +136,7 @@ export const useCreateChannelStateContext = <
       watcherCount,
       watchers,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channelId,
       debounceURLEnrichmentMs,

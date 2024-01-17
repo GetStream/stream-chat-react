@@ -28,6 +28,7 @@ const UnMemoizedLoadMoreButton = ({
 
   useEffect(() => {
     deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMoreButton');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

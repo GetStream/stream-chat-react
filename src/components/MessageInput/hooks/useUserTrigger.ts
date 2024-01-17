@@ -63,6 +63,7 @@ export const useUserTrigger = <
     return Object.values(uniqueUsers);
   }, [members, watchers]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryMembersThrottled = useCallback(
     throttle(
       async (query: string, onReady: (users: UserResponse<StreamChatGenerics>[]) => void) => {

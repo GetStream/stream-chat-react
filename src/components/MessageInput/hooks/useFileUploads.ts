@@ -31,11 +31,13 @@ export const useFileUploads = <
 
   const uploadFile = useCallback((id: string) => {
     dispatch({ id, state: 'uploading', type: 'setFileUpload' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const removeFile = useCallback((id: string) => {
     // TODO: cancel upload if still uploading
     dispatch({ id, type: 'removeFileUpload' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export const useFileUploads = <
         url: response.file,
       });
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileUploads, channel, doFileUploadRequest, errorHandler, removeFile]);
 
   return {

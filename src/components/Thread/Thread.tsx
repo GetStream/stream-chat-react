@@ -128,6 +128,7 @@ const ThreadInner = <
       // FIXME: integrators can customize channel query options but cannot customize channel.getReplies() options
       loadMoreThread();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!thread) return null;

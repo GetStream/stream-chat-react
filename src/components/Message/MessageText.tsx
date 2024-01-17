@@ -57,6 +57,7 @@ const UnMemoizedMessageTextComponent = <
   const messageTextToRender =
     message.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] || message.text;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const messageText = useMemo(() => renderText(messageTextToRender, message.mentioned_users), [
     message.mentioned_users,
     messageTextToRender,

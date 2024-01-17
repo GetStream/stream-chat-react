@@ -54,5 +54,6 @@ export const useScrollToBottomOnNewMessage = <
       window.removeEventListener('focus', scrollToBottomIfConfigured);
       window.removeEventListener('blur', resetNewMessagesReceivedInBackground);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollToBottomIfConfigured]);
 };

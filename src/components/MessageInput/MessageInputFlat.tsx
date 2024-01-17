@@ -54,6 +54,7 @@ export const MessageInputFlat = <
       channel?.off('message.deleted', handleQuotedMessageUpdate);
       channel?.off('message.updated', handleQuotedMessageUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel, quotedMessage]);
 
   return themeVersion === '2' ? (

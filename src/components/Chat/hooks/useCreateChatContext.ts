@@ -51,6 +51,7 @@ export const useCreateChatContext = <
       themeVersion,
       useImageFlagEmojisOnWindows,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channelCid,
       channelsQueryError,

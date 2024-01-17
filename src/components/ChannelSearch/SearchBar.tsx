@@ -130,11 +130,13 @@ export const SearchBar = (props: SearchBarProps) => {
       props.inputRef.current?.removeEventListener('focus', handleFocus);
       props.inputRef.current?.addEventListener('blur', handleBlur);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleClearClick = useCallback(() => {
     exitSearch();
     inputProps.inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const closeAppMenu = useCallback(() => setMenuIsOpen(false), []);

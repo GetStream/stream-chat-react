@@ -66,6 +66,7 @@ export const useMessageInputText = <
         type: 'setText',
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [additionalTextareaProps, newCursorPosition, textareaRef],
   );
 
@@ -97,6 +98,7 @@ export const useMessageInputText = <
         logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
   );
 
