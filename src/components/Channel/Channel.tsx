@@ -92,6 +92,8 @@ import {
   defaultReactionOptions,
   ReactionOptions,
 } from '../../components/Reactions/reactionOptions';
+import { EventComponent } from '../EventComponent';
+import { DateSeparator } from '../DateSeparator';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -1011,7 +1013,7 @@ const ChannelInner = <
       BaseImage: props.BaseImage,
       CooldownTimer: props.CooldownTimer,
       CustomMessageActionsList: props.CustomMessageActionsList,
-      DateSeparator: props.DateSeparator,
+      DateSeparator: props.DateSeparator || DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EmojiPicker: props.EmojiPicker,
       emojiSearchIndex: props.emojiSearchIndex,
@@ -1029,7 +1031,7 @@ const ChannelInner = <
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageStatus: props.MessageStatus,
-      MessageSystem: props.MessageSystem,
+      MessageSystem: props.MessageSystem || EventComponent,
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,

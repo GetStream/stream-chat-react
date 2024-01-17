@@ -28,6 +28,7 @@ import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel } from './MessageListMainPanel';
 
 import type { GroupStyle } from './utils';
+import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
 import type { MessageProps } from '../Message/types';
 
@@ -62,6 +63,7 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
+    renderMessages = defaultRenderMessages,
     messageLimit = 100,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
@@ -142,6 +144,7 @@ const MessageListWithContext = <
     },
     messageGroupStyles,
     read,
+    renderMessages,
     returnAllReadData,
     threadList,
   });
@@ -300,6 +303,8 @@ export type MessageListProps<
   messages?: StreamMessage<StreamChatGenerics>[];
   /** If true, turns off message UI grouping by user */
   noGroupByUser?: boolean;
+  /** Overrides the way MessageList renders messages */
+  renderMessages?: MessageRenderer<StreamChatGenerics>;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
   returnAllReadData?: boolean;
   /**

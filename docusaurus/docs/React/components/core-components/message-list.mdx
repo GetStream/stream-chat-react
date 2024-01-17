@@ -218,6 +218,34 @@ const CustomMessageList = () => (
 );
 ```
 
+#### Custom message list rendering
+
+Finally, you can completely change the way message list is rendered by providing a custom `renderMessages` function. This function receives all messages that have been fetched so far (along with some additional data) and returns an array of React elements to be rendered. By overriding default behavior, you can change add custom elements to the message list, change the way messages are grouped, add custom separators between messages, etc.
+
+When providing a custom `renderMessages` function, it's your responsibility to correctly render every message type. You can use the <GHComponentLink text='default implementation' path='/MessageList/renderMessages.tsx'/> as a reference. Or, if you just want to tweak a few things here and there, you can just call `defaultRenderMessages` from you custom `renderMessages` function.
+
+In this example we use the default implementation for rendering a message list, and we add a custom element to the bottom at the list:
+
+```tsx
+const customRenderMessages: MessageRenderer<StreamChatGenerics> = (options) => {
+  const elements = defaultRenderMessages(options);
+  elements.push(<li key='caught-up'>You're all caught up!</li>);
+  return elements;
+};
+
+const CustomMessageList = () => (
+  <MessageList renderMessages={customRenderMessages}/>
+);
+```
+
+Make sure the elements you return have `key`, since they will be rendered as an array. It's also a good idea to wrap every element with `<li>` to keep your markup semantically correct.
+
+:::note
+`MessageList` will re-render every time `renderMessages` function changes. For best performance, make sure that you don't recreate `renderMessages` function on every render: either move it to the global or module scope, or wrap it with `useCallback`.
+:::
+
+Custom message list rendering is only supported in `MessageList` and currently is not supported in `VirtualizedMessageList`.
+
 ## Props
 
 ### additionalMessageInputProps
@@ -507,6 +535,15 @@ Custom function to render message text content.
 | Type     | Default                                                                                |
 | -------- | -------------------------------------------------------------------------------------- |
 | function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
+
+
+### renderMessages
+
+Custom function to render message text content.
+
+| Type     | Default                                                                                |
+| -------- | -------------------------------------------------------------------------------------- |
+| function | <GHComponentLink text='defaultRenderMessages' path='/MessageList/renderMessages.tsx'/> |
 
 ### retrySendMessage
 
