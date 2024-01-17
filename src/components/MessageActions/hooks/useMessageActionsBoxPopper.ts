@@ -35,7 +35,7 @@ export function useMessageActionsBoxPopper<T extends HTMLElement>({
       // all the time, it's safer to force popper update before showing it.
       update?.();
     }
-  }, [open]);
+  }, [open, update]);
 
   return {
     attributes,
