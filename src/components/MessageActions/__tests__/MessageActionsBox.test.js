@@ -210,7 +210,7 @@ describe('MessageActionsBox', () => {
         );
       });
 
-    it('should not be displayed as option in channels without "read-events" capability', async () => {
+    it('should not be displayed as an option in channels without "read-events" capability', async () => {
       const { channel, client } = await initClientWithChannel({
         customUser: me,
         generateChannelOptions: {
@@ -231,7 +231,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as option for own messages', async () => {
+    it('should not be displayed as an option for own messages', async () => {
       const myMessage = { ...message, user: me };
       const { channel, client } = await initClientWithChannel({
         customUser: me,
@@ -253,7 +253,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as option for thread messages', async () => {
+    it('should not be displayed as an option for thread messages', async () => {
       const { channel, client } = await initClientWithChannel({
         customUser: me,
         generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
@@ -270,7 +270,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as option for message already marked unread', async () => {
+    it('should not be displayed as an option for message already marked unread', async () => {
       const { channel, client } = await initClientWithChannel({
         customUser: me,
         generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
@@ -302,7 +302,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as option for message without id', async () => {
+    it('should not be displayed as an option for message without id', async () => {
       jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
       const messageWithoutID = { ...message, id: undefined };
       const { channel, client } = await initClientWithChannel({
@@ -326,10 +326,13 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should be displayed as option for messages other than message marked unread', async () => {
+    it('should be displayed as an option for messages other than message marked unread', async () => {
+      const otherMsg = generateMessage({
+        created_at: new Date(new Date(message.created_at).getTime() + 1000),
+      });
       const read = [
         {
-          first_unread_message_id: new Date().toISOString(),
+          first_unread_message_id: message.id,
           last_read: new Date(new Date(message.created_at).getTime() - 1000),
           // last_read_message_id: message.id, // optional
           unread_messages: 2,
@@ -338,18 +341,27 @@ describe('MessageActionsBox', () => {
       ];
       const { channel, client } = await initClientWithChannel({
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
+        generateChannelOptions: {
+          channel: { own_capabilities },
+          messages: [message, otherMsg],
+          read,
+        },
       });
 
-      await renderMarkUnreadUI({
-        channelProps: { channel },
-        chatProps: { client },
-        messageProps: { message },
-      });
       await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <Message lastReceivedId={otherMsg.id} message={message} threadList={false} />
+              <Message lastReceivedId={otherMsg.id} message={otherMsg} threadList={false} />
+            </Channel>
+          </Chat>,
+        );
       });
-      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
+
+      const [actionsBox1, actionsBox2] = screen.getAllByTestId('message-actions-box');
+      expect(actionsBox1).not.toHaveTextContent(ACTION_TEXT);
+      expect(actionsBox2).toHaveTextContent(ACTION_TEXT);
     });
 
     it('should be displayed and execute API request', async () => {
