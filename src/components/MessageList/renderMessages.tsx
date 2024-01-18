@@ -15,12 +15,16 @@ export interface RenderMessagesOptions<
   components: ComponentContextValue<StreamChatGenerics>;
   lastReceivedId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
-  messageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
+  messageProps: SharedMessageProps;
   messages: Array<StreamMessage<StreamChatGenerics>>;
   readData: Record<string, Array<UserResponse<StreamChatGenerics>>>;
   threadList: boolean;
   customClasses?: CustomClasses;
 }
+
+export type SharedMessageProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
 
 export type MessageRenderer<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

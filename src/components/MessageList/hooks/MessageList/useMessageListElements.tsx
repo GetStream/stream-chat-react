@@ -9,27 +9,16 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 
 import type { UserResponse } from 'stream-chat';
 
-import type { MessageProps } from '../../../Message/types';
-
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
-import { MessageRenderer } from '../../renderMessages';
-
-type MessagePropsToOmit =
-  | 'channel'
-  | 'groupStyles'
-  | 'initialMessage'
-  | 'lastReceivedId'
-  | 'message'
-  | 'readBy'
-  | 'threadList';
+import { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
 type UseMessageListElementsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
-  internalMessageProps: Omit<MessageProps<StreamChatGenerics>, MessagePropsToOmit>;
+  internalMessageProps: SharedMessageProps;
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer<StreamChatGenerics>;
   returnAllReadData: boolean;
