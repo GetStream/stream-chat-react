@@ -532,10 +532,9 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 
 Custom function to render message text content.
 
-| Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+| Type     | Default                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
 | function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
-
 
 ### renderMessages
 
@@ -544,6 +543,24 @@ Custom function to render message text content.
 | Type     | Default                                                                                |
 | -------- | -------------------------------------------------------------------------------------- |
 | function | <GHComponentLink text='defaultRenderMessages' path='/MessageList/renderMessages.tsx'/> |
+
+#### Parameters
+
+The function receives a single object with the following properties:
+
+| Name                  | Type                                                                                          | Description                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| components            | [ComponentContextValue](../contexts/component-context.mdx)                                    | UI components, including possible overrides                                                                                                        |
+| customClasses         | object                                                                                        | Object containing [custom CSS classnames](../../components/core-components/chat.mdx#customclasses) to override the library's default container CSS |
+| lastReceivedMessageId | string                                                                                        | The latest message ID in the current channel                                                                                                       |
+| messageGroupStyles    | string[]                                                                                      | An array of potential styles to apply to a grouped message (ex: top, bottom, single)                                                               |
+| messages              | Array<[ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages)> | The messages to render in the list                                                                                                                 |
+| readData              | object                                                                                        | The read state for for messages submitted by the user themselves                                                                                   |
+| sharedMessageProps    | object                                                                                        | Object containing props that can be directly passed to the `Message` component                                                                     |
+
+#### Return value
+
+The function is expected to return an array of valid React nodes: `Array<ReactNode>`. For best performance, each node should have a `key`.
 
 ### retrySendMessage
 
