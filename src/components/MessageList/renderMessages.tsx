@@ -18,7 +18,6 @@ export interface RenderMessagesOptions<
   messages: Array<StreamMessage<StreamChatGenerics>>;
   readData: Record<string, Array<UserResponse<StreamChatGenerics>>>;
   sharedMessageProps: SharedMessageProps<StreamChatGenerics>;
-  threadList: boolean;
   customClasses?: CustomClasses;
 }
 
@@ -36,8 +35,7 @@ type MessagePropsToOmit =
   | 'initialMessage'
   | 'lastReceivedId'
   | 'message'
-  | 'readBy'
-  | 'threadList';
+  | 'readBy';
 
 export function defaultRenderMessages<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -49,7 +47,6 @@ export function defaultRenderMessages<
   messages,
   readData,
   sharedMessageProps: messageProps,
-  threadList,
 }: RenderMessagesOptions<StreamChatGenerics>) {
   const { DateSeparator, HeaderComponent, MessageSystem } = components;
 
@@ -102,7 +99,6 @@ export function defaultRenderMessages<
           lastReceivedId={lastReceivedId}
           message={message}
           readBy={readData[message.id] || []}
-          threadList={threadList}
           {...messageProps}
         />
       </li>

@@ -65,8 +65,7 @@ export const useMessageListElements = <
         messageGroupStyles,
         messages: enrichedMessages,
         readData,
-        sharedMessageProps: internalMessageProps,
-        threadList,
+        sharedMessageProps: { ...internalMessageProps, threadList },
       }),
     [
       enrichedMessages,
