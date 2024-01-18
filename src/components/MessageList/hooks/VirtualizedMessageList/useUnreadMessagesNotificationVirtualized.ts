@@ -28,6 +28,7 @@ export const useUnreadMessagesNotificationVirtualized = <
 
   const toggleShowUnreadMessagesNotification = useCallback(
     (renderedMessages: StreamMessage<StreamChatGenerics>[]) => {
+      if (!renderedMessages.length) return;
       const firstRenderedMessageTimestamp = renderedMessages[0].created_at
         ? new Date(renderedMessages[0].created_at).getTime()
         : 0;
