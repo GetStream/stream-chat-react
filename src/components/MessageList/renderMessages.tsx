@@ -13,11 +13,11 @@ export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > {
   components: ComponentContextValue<StreamChatGenerics>;
-  lastReceivedId: string | null;
+  lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
-  messageProps: SharedMessageProps;
   messages: Array<StreamMessage<StreamChatGenerics>>;
   readData: Record<string, Array<UserResponse<StreamChatGenerics>>>;
+  sharedMessageProps: SharedMessageProps;
   threadList: boolean;
   customClasses?: CustomClasses;
 }
@@ -44,11 +44,11 @@ export function defaultRenderMessages<
 >({
   components,
   customClasses,
-  lastReceivedId,
+  lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
-  messageProps,
   messages,
   readData,
+  sharedMessageProps: messageProps,
   threadList,
 }: RenderMessagesOptions<StreamChatGenerics>) {
   const { DateSeparator, HeaderComponent, MessageSystem } = components;

@@ -52,24 +52,26 @@ export const useMessageListElements = <
     userID: client.userID,
   });
 
-  const lastReceivedId = useMemo(() => getLastReceived(enrichedMessages), [enrichedMessages]);
+  const lastReceivedMessageId = useMemo(() => getLastReceived(enrichedMessages), [
+    enrichedMessages,
+  ]);
 
   const elements: React.ReactNode[] = useMemo(
     () =>
       renderMessages({
         components,
         customClasses,
-        lastReceivedId,
+        lastReceivedMessageId,
         messageGroupStyles,
-        messageProps: internalMessageProps,
         messages: enrichedMessages,
         readData,
+        sharedMessageProps: internalMessageProps,
         threadList,
       }),
     [
       enrichedMessages,
       internalMessageProps,
-      lastReceivedId,
+      lastReceivedMessageId,
       messageGroupStyles,
       readData,
       renderMessages,
