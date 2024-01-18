@@ -17,7 +17,7 @@ export interface RenderMessagesOptions<
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<StreamMessage<StreamChatGenerics>>;
   readData: Record<string, Array<UserResponse<StreamChatGenerics>>>;
-  sharedMessageProps: SharedMessageProps;
+  sharedMessageProps: SharedMessageProps<StreamChatGenerics>;
   threadList: boolean;
   customClasses?: CustomClasses;
 }

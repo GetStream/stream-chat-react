@@ -18,7 +18,7 @@ type UseMessageListElementsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   enrichedMessages: StreamMessage<StreamChatGenerics>[];
-  internalMessageProps: SharedMessageProps;
+  internalMessageProps: SharedMessageProps<StreamChatGenerics>;
   messageGroupStyles: Record<string, GroupStyle>;
   renderMessages: MessageRenderer<StreamChatGenerics>;
   returnAllReadData: boolean;
