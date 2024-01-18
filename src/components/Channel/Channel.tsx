@@ -247,7 +247,7 @@ export type ChannelProps<
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
-  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is not marked read on mount. */
   markReadOnMount?: boolean;
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
@@ -343,7 +343,7 @@ const ChannelInner = <
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
-    markReadOnMount = true,
+    markReadOnMount,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,

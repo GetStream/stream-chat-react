@@ -461,14 +461,14 @@ describe('Channel', () => {
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is enabled (default)', async () => {
+  it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is enabled (default)', async () => {
     const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
     await renderComponent({ channel, chatClient });
 
-    await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
+    await waitFor(() => expect(markReadSpy).not.toHaveBeenCalledWith());
   });
 
   it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
@@ -490,6 +490,7 @@ describe('Channel', () => {
       channel,
       chatClient,
       doMarkReadRequest,
+      markReadOnMount: true,
     });
 
     await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
