@@ -21,7 +21,7 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
-    markActiveChannelReadOnClick,
+    markActiveChannelReadOnClick = true,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,

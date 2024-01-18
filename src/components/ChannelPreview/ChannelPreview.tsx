@@ -53,7 +53,7 @@ export type ChannelPreviewProps<
   /**
    * Marks active channel read before switching the active channel state to the clicked preview's channel.
    * This means that active channel being left is marked read before navigating to another channel.
-   * By default, this is disabled.
+   * By default, this is enabled.
    */
   markActiveChannelReadOnClick?: boolean;
   /** Custom ChannelPreview click handler function */
