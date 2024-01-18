@@ -25,6 +25,7 @@ export const UnMemoizedLoadMorePaginator = (props: PropsWithChildren<LoadMorePag
 
   useEffect(() => {
     deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMorePaginator');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

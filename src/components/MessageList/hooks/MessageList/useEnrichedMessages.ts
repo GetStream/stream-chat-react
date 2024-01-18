@@ -75,6 +75,7 @@ export const useEnrichedMessages = <
         if (style) acc[message.id] = style;
         return acc;
       }, {}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [messagesWithDates, noGroupByUser],
   );
 

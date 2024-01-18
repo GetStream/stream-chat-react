@@ -260,6 +260,7 @@ export const MediaContainer = <
       );
       setAttachmentConfiguration(config);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoElement, videoAttachmentSizeHandler, attachment]);
 
   const content = (

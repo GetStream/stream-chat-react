@@ -42,6 +42,7 @@ export const usePaginatedChannels = <
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryChannels = async (queryType?: string) => {
     setError(null);
 
@@ -113,6 +114,7 @@ export const usePaginatedChannels = <
 
   useEffect(() => {
     queryChannels('reload');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterString, sortString]);
 
   return {

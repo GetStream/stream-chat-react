@@ -30,8 +30,11 @@ export const useProcessReactions = <
   );
 
   const reactionOptions = propReactionOptions ?? contextReactionOptions;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const latestReactions = propReactions || message.latest_reactions || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const ownReactions = propOwnReactions || message?.own_reactions || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const reactionCounts = propReactionCounts || message.reaction_counts || {};
 
   const iHaveReactedWithReaction = useCallback(

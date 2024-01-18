@@ -72,6 +72,7 @@ export function usePrependedMessagesCount<
     return 0;
     // TODO: there's a bug here, the messages prop is the same array instance (something mutates it)
     // that's why the second dependency is necessary
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firstRealMessageIndex, messages, messages?.length]);
 
   return numItemsPrepended;
