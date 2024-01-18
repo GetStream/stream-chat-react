@@ -134,24 +134,20 @@ export const MessageActions = <
       inline={inline}
       setActionsBoxOpen={setActionsBoxOpen}
     >
-      <div
+      <MessageActionsBox
         {...attributes.popper}
-        className='str-chat__message-actions-box-wrapper'
+        getMessageActions={getMessageActions}
+        handleDelete={handleDelete}
+        handleEdit={setEditingState}
+        handleFlag={handleFlag}
+        handleMute={handleMute}
+        handlePin={handlePin}
+        isUserMuted={isMuted}
+        mine={isMine}
+        open={actionsBoxOpen}
         ref={popperElementRef}
         style={styles.popper}
-      >
-        <MessageActionsBox
-          getMessageActions={getMessageActions}
-          handleDelete={handleDelete}
-          handleEdit={setEditingState}
-          handleFlag={handleFlag}
-          handleMute={handleMute}
-          handlePin={handlePin}
-          isUserMuted={isMuted}
-          mine={isMine}
-          open={actionsBoxOpen}
-        />
-      </div>
+      />
       <button
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
