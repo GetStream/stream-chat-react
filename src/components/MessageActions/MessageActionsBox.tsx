@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
@@ -44,7 +44,6 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
-    mine,
     open = false,
   } = props;
 
@@ -52,35 +51,13 @@ const UnMemoizedMessageActionsBox = <
     CustomMessageActionsList = DefaultCustomMessageActionsList,
   } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
   const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-  const { customMessageActions, message, messageListRect } = useMessageContext<StreamChatGenerics>(
+  const { customMessageActions, message } = useMessageContext<StreamChatGenerics>(
     'MessageActionsBox',
   );
 
   const { t } = useTranslationContext('MessageActionsBox');
 
-  const [reverse, setReverse] = useState(false);
-
   const messageActions = getMessageActions();
-
-  const checkIfReverse = useCallback(
-    (containerElement: HTMLDivElement) => {
-      if (!containerElement) {
-        setReverse(false);
-        return;
-      }
-
-      if (open) {
-        const containerRect = containerElement.getBoundingClientRect();
-
-        if (mine) {
-          setReverse(!!messageListRect && containerRect.left < messageListRect.left);
-        } else {
-          setReverse(!!messageListRect && containerRect.right + 5 > messageListRect.right);
-        }
-      }
-    },
-    [messageListRect, mine, open],
-  );
 
   const handleQuote = () => {
     setQuotedMessage(message);
@@ -96,15 +73,13 @@ const UnMemoizedMessageActionsBox = <
   };
 
   const rootClassName = clsx('str-chat__message-actions-box', {
-    'str-chat__message-actions-box--mine': mine,
     'str-chat__message-actions-box--open': open,
-    'str-chat__message-actions-box--reverse': reverse,
   });
   const buttonClassName =
     'str-chat__message-actions-list-item str-chat__message-actions-list-item-button';
 
   return (
-    <div className={rootClassName} data-testid='message-actions-box' ref={checkIfReverse}>
+    <div className={rootClassName} data-testid='message-actions-box'>
       <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
         <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
         {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (

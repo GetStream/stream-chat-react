@@ -72,7 +72,18 @@ describe('<MessageActions /> component', () => {
         data-testid="message-actions"
         onClick={[Function]}
       >
-        <div />
+        <div
+          className="str-chat__message-actions-box-wrapper"
+          style={
+            Object {
+              "left": "0",
+              "position": "absolute",
+              "top": "0",
+            }
+          }
+        >
+          <div />
+        </div>
         <button
           aria-expanded={false}
           aria-haspopup="true"
@@ -243,7 +254,18 @@ describe('<MessageActions /> component', () => {
         data-testid="message-actions"
         onClick={[Function]}
       >
-        <div />
+        <div
+          className="str-chat__message-actions-box-wrapper"
+          style={
+            Object {
+              "left": "0",
+              "position": "absolute",
+              "top": "0",
+            }
+          }
+        >
+          <div />
+        </div>
         <button
           aria-expanded={false}
           aria-haspopup="true"
@@ -283,7 +305,18 @@ describe('<MessageActions /> component', () => {
         data-testid="message-actions"
         onClick={[Function]}
       >
-        <div />
+        <div
+          className="str-chat__message-actions-box-wrapper"
+          style={
+            Object {
+              "left": "0",
+              "position": "absolute",
+              "top": "0",
+            }
+          }
+        >
+          <div />
+        </div>
         <button
           aria-expanded={false}
           aria-haspopup="true"
