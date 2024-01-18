@@ -397,6 +397,7 @@ const ChannelInner = <
     },
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const markRead = useCallback(
     throttle(
       () => {
@@ -569,6 +570,7 @@ const ChannelInner = <
       client.off('user.deleted', handleEvent);
       notificationTimeouts.forEach(clearTimeout);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     channel.cid,
     channelQueryOptions,
@@ -990,6 +992,7 @@ const ChannelInner = <
       skipMessageDataMemoization,
       updateMessage,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channel.cid,
       deleteMessage,
@@ -1052,6 +1055,7 @@ const ChannelInner = <
       UnreadMessagesSeparator: props.UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [props.reactionOptions],
   );
 

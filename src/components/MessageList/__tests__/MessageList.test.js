@@ -529,7 +529,7 @@ describe('MessageList', () => {
         useEffect(() => {
           const event = { preventDefault: () => null };
           handleMarkUnread(event);
-        }, []);
+        }, [handleMarkUnread]);
         return null;
       };
 

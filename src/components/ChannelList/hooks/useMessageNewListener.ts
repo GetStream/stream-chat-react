@@ -47,5 +47,6 @@ export const useMessageNewListener = <
     return () => {
       client.off('message.new', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lockChannelOrder]);
 };

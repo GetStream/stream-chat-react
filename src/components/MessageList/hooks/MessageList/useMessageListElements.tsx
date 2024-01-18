@@ -135,6 +135,7 @@ export const useMessageListElements = <
           </Fragment>
         );
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       enrichedMessages,
       internalMessageProps,

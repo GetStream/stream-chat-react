@@ -43,6 +43,7 @@ export const useAudioController = () => {
     audioRef.current.play();
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       audioRef.current?.pause();
 
       window.clearInterval(interval);

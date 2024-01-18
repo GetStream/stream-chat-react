@@ -258,11 +258,13 @@ const UnMemoizedChannelList = <
       setSearchActive(true);
     }
     additionalChannelSearchProps?.onSearch?.(event);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSearchExit = useCallback(() => {
     setSearchActive(false);
     additionalChannelSearchProps?.onSearchExit?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
@@ -317,6 +319,7 @@ const UnMemoizedChannelList = <
       client.off('channel.deleted', handleEvent);
       client.off('channel.hidden', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel?.cid]);
 
   const renderChannel = (item: Channel<StreamChatGenerics>) => {

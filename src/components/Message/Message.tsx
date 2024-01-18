@@ -110,7 +110,7 @@ const MessageWithContext = <
           (message?.created_at &&
             new Date(message.created_at).getTime() > read[client.user.id].last_read.getTime()))
       ),
-    [client, isMyMessage, read],
+    [client, isMyMessage, message.created_at, read],
   );
 
   const messageActionsHandler = useCallback(

@@ -63,6 +63,7 @@ export const useReactionHandler = <
         reaction_scores: newReactionCounts,
       } as StreamMessage<StreamChatGenerics>;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [client.user, client.userID],
   );
 
@@ -163,6 +164,7 @@ export const useReactionClick = <
 
       setShowDetailedReactions(false);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setShowDetailedReactions, reactionSelectorRef],
   );
 

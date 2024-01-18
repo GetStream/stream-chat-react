@@ -52,7 +52,7 @@ export const useUnreadMessagesNotification = ({
     return () => {
       observer.disconnect();
     };
-  }, [firstUnreadMessageId, messages]);
+  }, [firstUnreadMessageId, intersectionObserverIsSupported, messages]);
 
   return { show: show && intersectionObserverIsSupported };
 };

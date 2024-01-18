@@ -77,6 +77,7 @@ export const useAttachments = <
 
       textareaRef?.current?.focus();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [maxFilesLeft, noFiles],
   );
 

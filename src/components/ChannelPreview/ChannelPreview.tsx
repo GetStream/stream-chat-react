@@ -98,6 +98,7 @@ export const ChannelPreview = <
 
     client.on('notification.mark_read', handleEvent);
     return () => client.off('notification.mark_read', handleEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -118,7 +119,7 @@ export const ChannelPreview = <
     } else {
       setUnread(channel.countUnread());
     }
-  }, [channel, isActive, muted]);
+  }, [channel, muted]);
 
   useEffect(() => {
     refreshUnreadCount();
@@ -137,6 +138,7 @@ export const ChannelPreview = <
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshUnreadCount, channelUpdateCount]);
 
   if (!Preview) return null;

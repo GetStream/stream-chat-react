@@ -101,6 +101,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannel]);
   return null;
 };

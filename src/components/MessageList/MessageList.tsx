@@ -188,6 +188,7 @@ const MessageListWithContext = <
     } else {
       scrollToBottom();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollToBottom, hasMoreNewer]);
 
   React.useLayoutEffect(() => {
@@ -195,6 +196,7 @@ const MessageListWithContext = <
       const element = ulElement?.querySelector(`[data-message-id='${highlightedMessageId}']`);
       element?.scrollIntoView({ block: 'center' });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightedMessageId]);
 
   const showEmptyStateIndicator = elements.length === 0 && !threadList;

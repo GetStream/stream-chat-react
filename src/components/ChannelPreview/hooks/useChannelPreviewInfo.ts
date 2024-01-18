@@ -41,6 +41,7 @@ export const useChannelPreviewInfo = <
     return () => {
       client.off('user.updated', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
