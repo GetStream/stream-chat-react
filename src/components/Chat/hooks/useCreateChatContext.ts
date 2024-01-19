@@ -10,7 +10,6 @@ export const useCreateChatContext = <
 ) => {
   const {
     channel,
-    channels,
     channelsQueryState,
     client,
     closeMobileNav,
@@ -21,7 +20,6 @@ export const useCreateChatContext = <
     navOpen,
     openMobileNav,
     setActiveChannel,
-    setChannels,
     theme,
     themeVersion,
     useImageFlagEmojisOnWindows,
@@ -39,7 +37,6 @@ export const useCreateChatContext = <
   const chatContext: ChatContextValue<StreamChatGenerics> = useMemo(
     () => ({
       channel,
-      channels,
       channelsQueryState,
       client,
       closeMobileNav,
@@ -50,21 +47,19 @@ export const useCreateChatContext = <
       navOpen,
       openMobileNav,
       setActiveChannel,
-      setChannels,
       theme,
       themeVersion,
       useImageFlagEmojisOnWindows,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channelCid,
       channelsQueryError,
       channelsQueryInProgress,
-      channels,
       clientValues,
       getAppSettings,
       mutedUsersLength,
       navOpen,
-      setChannels,
     ],
   );
 

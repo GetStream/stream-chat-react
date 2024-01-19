@@ -110,6 +110,7 @@ const SetThreadOpen = () => {
     const [lastMsg] = messages.slice(-1);
 
     if (lastMsg) openThread(lastMsg, { preventDefault: () => null } as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   return null;

@@ -164,10 +164,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -217,10 +218,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -296,10 +298,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
         </div>

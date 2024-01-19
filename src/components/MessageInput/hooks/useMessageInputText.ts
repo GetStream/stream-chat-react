@@ -25,7 +25,7 @@ export const useMessageInputText = <
     if (focus && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [focus]);
+  }, [focus, textareaRef]);
 
   // Text + cursor position
   const newCursorPosition = useRef<number>();
@@ -35,7 +35,7 @@ export const useMessageInputText = <
       const { maxLength } = additionalTextareaProps || {};
 
       if (!textareaRef.current) {
-        dispatch({
+        return dispatch({
           getNewText: (text) => {
             const updatedText = text + textToInsert;
             if (maxLength && updatedText.length > maxLength) {
@@ -45,7 +45,6 @@ export const useMessageInputText = <
           },
           type: 'setText',
         });
-        return;
       }
 
       const { selectionEnd, selectionStart } = textareaRef.current;
@@ -65,6 +64,7 @@ export const useMessageInputText = <
         type: 'setText',
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [additionalTextareaProps, newCursorPosition, textareaRef],
   );
 
@@ -75,7 +75,7 @@ export const useMessageInputText = <
       textareaElement.selectionEnd = newCursorPosition.current;
       newCursorPosition.current = undefined;
     }
-  }, [text, newCursorPosition]);
+  }, [text, textareaRef, newCursorPosition]);
 
   const handleChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (event) => {
@@ -96,6 +96,7 @@ export const useMessageInputText = <
         logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
   );
 

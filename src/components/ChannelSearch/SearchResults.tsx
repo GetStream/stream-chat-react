@@ -227,6 +227,7 @@ export const SearchResults = <
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResult],
   );
 

@@ -31,6 +31,7 @@ import {
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 
+import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
@@ -110,6 +111,11 @@ export type ChannelListProps<
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
     event: Event<StreamChatGenerics>,
   ) => void;
+  /** Function to override the default behavior when a message is received on a channel being watched, handles [message.new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  onMessageNewHandler?: (
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
+  ) => void;
   /** Function to override the default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
@@ -170,6 +176,7 @@ const UnMemoizedChannelList = <
     onChannelUpdated,
     onChannelVisible,
     onMessageNew,
+    onMessageNewHandler,
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
@@ -251,11 +258,13 @@ const UnMemoizedChannelList = <
       setSearchActive(true);
     }
     additionalChannelSearchProps?.onSearch?.(event);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSearchExit = useCallback(() => {
     setSearchActive(false);
     additionalChannelSearchProps?.onSearchExit?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
@@ -271,7 +280,12 @@ const UnMemoizedChannelList = <
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
+  useMessageNewListener(
+    setChannels,
+    onMessageNewHandler,
+    lockChannelOrder,
+    allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationMessageNewListener(
     setChannels,
     onMessageNew,
@@ -305,6 +319,7 @@ const UnMemoizedChannelList = <
       client.off('channel.deleted', handleEvent);
       client.off('channel.hidden', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel?.cid]);
 
   const renderChannel = (item: Channel<StreamChatGenerics>) => {
@@ -336,7 +351,7 @@ const UnMemoizedChannelList = <
 
   const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
   return (
-    <>
+    <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
         {showChannelSearch && (
           <ChannelSearch
@@ -374,7 +389,7 @@ const UnMemoizedChannelList = <
           </List>
         )}
       </div>
-    </>
+    </ChannelListContextProvider>
   );
 };
 

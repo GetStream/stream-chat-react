@@ -7,6 +7,10 @@ title: Reaction Selector and List
 import CustomReactionSelector from '../../assets/CustomReactionSelector.png';
 import CustomReactionsList from '../../assets/CustomReactionsList.png';
 
+:::caution
+If you're moving from older versions to `11.0.0` then make sure to read ["Introducing new reactions"](../../release-guides/upgrade-to-v11.mdx#introducing-new-reactions) release guide to help you transition to the new implementation.
+:::
+
 In this example, we will demonstrate how to override the library's default reaction set, which can be found stored as the
 [`defaultMinimalEmojis`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Channel/emojiData.ts)
 variable. We will replace the default set with up and down arrows, simulating an up/down voting feature.
@@ -14,8 +18,8 @@ variable. We will replace the default set with up and down arrows, simulating an
 ### Choose Your Reactions
 
 Under the hood, our `ReactionSelector`, `ReactionsList`, and `SimpleReactionsList` components render individual emoji objects
-using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/master/src/components/emoji/nimble-emoji.js) component
-from [emoji-mart](https://www.npmjs.com/package/emoji-mart). Therefore, the object type of our custom reactions needs to
+using the [`NimbleEmoji`](https://github.com/missive/emoji-mart/blob/v3.0.1/src/components/emoji/nimble-emoji.js) component
+from [`emoji-mart`](https://www.npmjs.com/package/emoji-mart). Therefore, the object type of our custom reactions needs to
 conform to `NimbleEmoji` props.
 
 `NimbleEmoji` accepts an `emoji` prop, which pertains to the object mapping of your custom reaction. The `emoji` prop has
@@ -107,15 +111,12 @@ const customReactions = [
 ```
 
 :::caution
-If custom `reactionOptions` are supplied to the selector component, then the same data set needs to be delivered to the
-list component so the display for processed reactions has the same emoji objects.
+If custom `reactionOptions` are supplied to the selector component, then the same data set needs to be delivered to the list component so the display for processed reactions has the same emoji objects.
 :::
 
 ### The Final Code
 
-Putting all the pieces together and building upon the [custom message](./message-ui.mdx#how-it-fits-together)
-in the General Customization section, we are left with the following code for our [Message UI](../../components/message-components/message-ui.mdx)
-component:
+Putting all the pieces together and building upon the [custom message](./message-ui.mdx#how-it-fits-together) in the General Customization section, we are left with the following code for our [Message UI](../../components/message-components/message-ui.mdx) component:
 
 ```jsx
 import React, { useRef } from 'react';
@@ -186,9 +187,7 @@ export const CustomMessage = () => {
         <MessageText />
         <MessageStatus />
         {message.attachments && <Attachment attachments={message.attachments} />}
-        {hasReactions && (
-          <SimpleReactionsList reactionOptions={customReactions} />
-        )}
+        {hasReactions && <SimpleReactionsList reactionOptions={customReactions} />}
         <MessageRepliesCountButton reply_count={message.reply_count} />
       </div>
     </div>

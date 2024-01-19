@@ -36,7 +36,6 @@ export const useChat = <
     userLanguage: 'en',
   });
 
-  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
   const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
@@ -76,6 +75,7 @@ export const useChat = <
 
     client.on('notification.mutes_updated', handleEvent);
     return () => client.off('notification.mutes_updated', handleEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
 
   useEffect(() => {
@@ -98,6 +98,7 @@ export const useChat = <
         userLanguage: userLanguage || defaultLanguage,
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18nInstance]);
 
   const setActiveChannel = useCallback(
@@ -124,7 +125,6 @@ export const useChat = <
 
   return {
     channel,
-    channels,
     closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
@@ -132,7 +132,6 @@ export const useChat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
-    setChannels,
     translators,
   };
 };

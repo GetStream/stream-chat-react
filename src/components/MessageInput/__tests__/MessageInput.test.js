@@ -58,6 +58,7 @@ const mockedChannelData = generateChannel({
   thread: [threadMessage],
 });
 
+const cooldown = 30;
 const filename = 'some.txt';
 const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
 
@@ -100,6 +101,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannel]);
   return null;
 };
@@ -167,6 +169,17 @@ function axeNoViolations(container) {
     });
     afterEach(tearDown);
 
+    it('should render custom EmojiPicker', async () => {
+      const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
+
+      await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+
+      await waitFor(() => {
+        const c = screen.getByTestId('custom-emoji-picker');
+        expect(c).toBeInTheDocument();
+      });
+    });
+
     it('should contain placeholder text if no default message text provided', async () => {
       await renderComponent();
       await waitFor(() => {
@@ -218,35 +231,6 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should render default emoji svg', async () => {
-      const { container } = await renderComponent();
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should render custom emoji svg provided as prop', async () => {
-      const EmojiIcon = () => (
-        <svg>
-          <title>NotEmoji</title>
-        </svg>
-      );
-
-      const { container } = await renderComponent({ channelProps: { EmojiIcon } });
-
-      const emojiIcon = await screen.findByTitle('NotEmoji');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
     it('Should render default file upload icon', async () => {
       const { container } = await renderComponent();
       const fileUploadIcon = await screen.findByTitle('Attach files');
@@ -272,32 +256,6 @@ function axeNoViolations(container) {
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
       });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
-      const { container } = await renderComponent();
-
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      act(() => fireEvent.click(emojiIcon));
-
-      await waitFor(() => {
-        expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
-      });
-
-      const emoji = '💯';
-      const emojiButton = screen.queryAllByText(emoji)[0];
-      expect(emojiButton).toBeInTheDocument();
-      act(() => fireEvent.click(emojiButton));
-
-      // expect input to have emoji as value
-      expect(screen.getByDisplayValue(emoji)).toBeInTheDocument();
-
-      // close picker
-      act(() => fireEvent.click(container));
-      expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -647,7 +605,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             text: messageText,
           }),
@@ -698,9 +656,10 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         await waitFor(() => {
-          const calledMock = componentName === 'EditMessageForm' ? editMock : submitMock;
+          const isEdit = componentName === 'EditMessageForm';
+          const calledMock = isEdit ? editMock : submitMock;
           expect(calledMock).toHaveBeenCalledWith(
-            expect.stringMatching(/.+:.+/),
+            isEdit ? channel.cid : channel,
             expect.objectContaining(customMessageData),
             undefined,
           );
@@ -766,7 +725,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -800,7 +759,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -836,7 +795,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -1041,7 +1000,7 @@ function axeNoViolations(container) {
       await act(() => submit());
 
       expect(submitMock).toHaveBeenCalledWith(
-        channel.cid,
+        channel,
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
@@ -1191,7 +1150,7 @@ function axeNoViolations(container) {
 
     const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
       channel = chatClient.channel('messaging', mockedChannelData.channel.id);
-      channel.data.cooldown = 30;
+      channel.data.cooldown = cooldown;
       channel.initialized = true;
       const lastSentSecondsAhead = 5;
       await render({
@@ -1306,6 +1265,17 @@ function axeNoViolations(container) {
         } else {
           expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
         }
+      });
+
+      it('should be removed after cool-down period elapsed', async () => {
+        jest.useFakeTimers();
+        await renderWithActiveCooldown();
+        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
+        act(() => {
+          jest.advanceTimersByTime(cooldown * 1000);
+        });
+        expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+        jest.useRealTimers();
       });
     });
   });

@@ -49,6 +49,7 @@ export class ReactTextareaAutocomplete extends React.Component {
       currentTrigger: null,
       data: null,
       dataLoading: false,
+      isComposing: false,
       left: null,
       selectionEnd: 0,
       selectionStart: 0,
@@ -138,7 +139,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     this._replaceWord();
   };
 
-  _replaceWord = () => {
+  _replaceWord = async () => {
     const { value } = this.state;
 
     const lastWordRegex = /([^\s]+)(\s*)$/;
@@ -149,7 +150,7 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     const spaces = match[2];
 
-    const newWord = this.props.replaceWord(lastWord);
+    const newWord = await this.props.replaceWord(lastWord);
     if (newWord == null) return;
 
     const textBeforeWord = value.slice(0, this.getCaretPosition() - match[0].length);
@@ -664,37 +665,39 @@ export class ReactTextareaAutocomplete extends React.Component {
       SuggestionList = DefaultSuggestionList,
     } = this.props;
 
+    const { isComposing } = this.state;
+
     const triggerProps = this.getTriggerProps();
 
     if (
-      triggerProps.values &&
-      triggerProps.currentTrigger &&
-      !(disableMentions && triggerProps.currentTrigger === '@')
-    ) {
-      return (
-        <div
-          className={clsx(
-            'rta__autocomplete',
-            'str-chat__suggestion-list-container',
-            dropdownClassName,
-          )}
-          ref={this.setDropdownRef}
-          style={dropdownStyle}
-        >
-          <SuggestionList
-            className={clsx('str-chat__suggestion-list', listClassName)}
-            dropdownScroll={this._dropdownScroll}
-            itemClassName={clsx('str-chat__suggestion-list-item', itemClassName)}
-            itemStyle={itemStyle}
-            onSelect={this._onSelect}
-            SuggestionItem={SuggestionItem}
-            {...triggerProps}
-          />
-        </div>
-      );
-    }
+      isComposing ||
+      !triggerProps.values ||
+      !triggerProps.currentTrigger ||
+      (disableMentions && triggerProps.currentTrigger === '@')
+    )
+      return null;
 
-    return null;
+    return (
+      <div
+        className={clsx(
+          'rta__autocomplete',
+          'str-chat__suggestion-list-container',
+          dropdownClassName,
+        )}
+        ref={this.setDropdownRef}
+        style={dropdownStyle}
+      >
+        <SuggestionList
+          className={clsx('str-chat__suggestion-list', listClassName)}
+          dropdownScroll={this._dropdownScroll}
+          itemClassName={clsx('str-chat__suggestion-list-item', itemClassName)}
+          itemStyle={itemStyle}
+          onSelect={this._onSelect}
+          SuggestionItem={SuggestionItem}
+          {...triggerProps}
+        />
+      </div>
+    );
   }
 
   render() {
@@ -745,6 +748,8 @@ export class ReactTextareaAutocomplete extends React.Component {
             this._onClickAndBlurHandler(e);
             onClick?.(e);
           }}
+          onCompositionEnd={() => this.setState((pv) => ({ ...pv, isComposing: false }))}
+          onCompositionStart={() => this.setState((pv) => ({ ...pv, isComposing: true }))}
           onFocus={(e) => {
             this.props.onFocus?.(e);
             onFocus?.(e);

@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import renderer from 'react-test-renderer';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import '@testing-library/jest-dom';
 
 import { ImageComponent } from '../Image';
+import { Chat } from '../../Chat';
+import { Channel } from '../../Channel';
 
+import { useChatContext } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
+
+import { initClientWithChannel } from '../../../mock-builders';
 
 const mockImageAssets = 'https://placeimg.com/640/480/any';
 
@@ -77,5 +82,51 @@ describe('Image', () => {
     await waitFor(() => {
       expect(getByTitle('Close')).toBeInTheDocument();
     });
+  });
+
+  it('should render custom BaseImage component', async () => {
+    const ActiveChannelSetter = ({ activeChannel }) => {
+      const { setActiveChannel } = useChatContext();
+      useEffect(() => {
+        setActiveChannel(activeChannel);
+      }, [activeChannel]); // eslint-disable-line
+      return null;
+    };
+
+    const { channel, client } = await initClientWithChannel();
+    const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
+    let result;
+    await act(() => {
+      result = render(
+        <Chat client={client}>
+          <ActiveChannelSetter activeChannel={channel} />
+          <Channel BaseImage={CustomBaseImage}>
+            <ImageComponent fallback='fallback' image_url='image_url' thumb_url='thumb_url' />
+          </Channel>
+          ,
+        </Chat>,
+      );
+    });
+    expect(result.container).toMatchInlineSnapshot(`
+      <div>
+        <div
+          class="str-chat messaging light str-chat-channel str-chat__channel"
+        >
+          <div
+            class="str-chat__container"
+          >
+            <img
+              alt="fallback"
+              class="str-chat__message-attachment--img"
+              data-testid="custom-base-image"
+              src="image_url"
+              tabindex="0"
+              title="fallback"
+            />
+          </div>
+        </div>
+        ,
+      </div>
+    `);
   });
 });

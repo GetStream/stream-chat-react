@@ -8,14 +8,11 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  EmojiProvider,
   TranslationProvider,
   useMessageInputContext,
 } from '../../../context';
 
 import {
-  emojiComponentMock,
-  emojiDataMock,
   generateChannel,
   generateMessage,
   generateUser,
@@ -63,13 +60,6 @@ const channelStateContextMock = {
   threadMessages: [reply1, reply2],
 };
 
-const emojiContextMock = {
-  Emoji: emojiComponentMock.Emoji,
-  emojiConfig: emojiDataMock,
-  EmojiIndex: emojiComponentMock.EmojiIndex,
-  EmojiPicker: emojiComponentMock.EmojiPicker,
-};
-
 const channelActionContextMock = {
   closeThread: jest.fn(),
   loadMoreThread: jest.fn(() => Promise.resolve()),
@@ -92,13 +82,11 @@ const renderComponent = ({
     <ChatProvider value={{ client: chatClient, latestMessageDatesByChannels: {} }}>
       <ChannelStateProvider value={{ ...channelStateContextMock, ...channelStateOverrides }}>
         <ChannelActionProvider value={{ ...channelActionContextMock, ...channelActionOverrides }}>
-          <EmojiProvider value={emojiContextMock}>
-            <ComponentProvider value={{ ...componentOverrides }}>
-              <TranslationProvider value={{ t: i18nMock }}>
-                <Thread {...threadProps} />
-              </TranslationProvider>
-            </ComponentProvider>
-          </EmojiProvider>
+          <ComponentProvider value={{ ...componentOverrides }}>
+            <TranslationProvider value={{ t: i18nMock }}>
+              <Thread {...threadProps} />
+            </TranslationProvider>
+          </ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>,

@@ -26,11 +26,9 @@ export const usePaginatedChannels = <
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
 ) => {
   const {
-    channels,
     channelsQueryState: { error, setError, setQueryInProgress },
-    setChannels,
-  } = useChatContext<StreamChatGenerics>('usePaginatedChannels');
-
+  } = useChatContext('usePaginatedChannels');
+  const [channels, setChannels] = useState<Array<Channel<StreamChatGenerics>>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
   const lastRecoveryTimestamp = useRef<number | undefined>();
 
@@ -44,6 +42,7 @@ export const usePaginatedChannels = <
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryChannels = async (queryType?: string) => {
     setError(null);
 
@@ -115,9 +114,9 @@ export const usePaginatedChannels = <
 
   useEffect(() => {
     queryChannels('reload');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterString, sortString]);
 
-  // FIXME: state refactor (breaking change) is needed - do not forward `channels` and `setChannel`
   return {
     channels,
     hasNextPage,

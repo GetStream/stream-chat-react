@@ -112,9 +112,12 @@ export const useAttachments = <
   const { t } = useTranslationContext('useAttachments');
   const { maxFilesLeft, numberOfUploads } = useCalculateMaxFilesLeft(state);
 
-  const removeAttachment = useCallback((id: string) => {
-    dispatch({ id, type: 'removeAttachment' });
-  }, []);
+  const removeAttachment = useCallback(
+    (id: string) => {
+      dispatch({ id, type: 'removeAttachment' });
+    },
+    [dispatch],
+  );
 
   const upsertAttachment = useCallback(
     (attachment: MessageComposerAttachment<StreamChatGenerics>) => {
@@ -123,7 +126,7 @@ export const useAttachments = <
         type: 'upsertAttachment',
       });
     },
-    [],
+    [dispatch],
   );
 
   const uploadAttachment = useCallback(
@@ -210,7 +213,15 @@ export const useAttachments = <
       }
       upsertAttachment(payload);
     },
-    [errorHandler, removeAttachment, state.attachments, upsertAttachment],
+    [
+      addNotification,
+      errorHandler,
+      getAppSettings,
+      removeAttachment,
+      state.attachments,
+      t,
+      upsertAttachment,
+    ],
   );
 
   const uploadFile = useCallback(
@@ -223,7 +234,7 @@ export const useAttachments = <
           ? doFileUploadRequest(file, channel)
           : channel.sendFile(file as File);
       }),
-    [channel, doFileUploadRequest, uploadAttachment],
+    [channel, doFileUploadRequest, t, uploadAttachment],
   );
 
   const uploadImage = useCallback(
@@ -236,7 +247,7 @@ export const useAttachments = <
           ? doImageUploadRequest(file, channel)
           : channel.sendImage(file as File);
       }),
-    [channel, doImageUploadRequest, uploadAttachment],
+    [channel, doImageUploadRequest, t, uploadAttachment],
   );
 
   const uploadNewFiles = useCallback(
@@ -270,6 +281,7 @@ export const useAttachments = <
 
       textareaRef?.current?.focus();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [maxFilesLeft, noFiles, upsertAttachment],
   );
 

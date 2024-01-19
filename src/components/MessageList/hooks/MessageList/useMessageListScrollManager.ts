@@ -91,6 +91,7 @@ export function useMessageListScrollManager<
 
     messages.current = newMessages;
     measures.current = newMeasures;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measures, messages, params.messages]);
 
   return (scrollTopValue: number) => {

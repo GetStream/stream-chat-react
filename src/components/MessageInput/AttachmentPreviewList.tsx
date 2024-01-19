@@ -1,4 +1,7 @@
-import React, { useCallback } from 'react';
+import clsx from 'clsx';
+import React, { useCallback, useState } from 'react';
+
+import { BaseImage as DefaultBaseImage } from '../Gallery';
 import { FileIcon } from '../ReactFileUtilities';
 
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
@@ -7,7 +10,7 @@ import {
   isMessageComposerFileAttachment,
   isMessageComposerImageAttachment,
 } from './hooks/useAttachments';
-import { useMessageInputContext } from '../../context';
+import { useComponentContext, useMessageInputContext } from '../../context';
 
 import {
   MessageComposerFileAttachment,
@@ -42,8 +45,10 @@ type ImagePreviewItemProps = {
   attachment: MessageComposerImageAttachment;
 };
 
-const ImagePreviewItem = ({ attachment }: ImagePreviewItemProps) => {
+export const ImagePreviewItem = ({ attachment }: ImagePreviewItemProps) => {
+  const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreviewItem');
   const { removeAttachment, uploadImage } = useMessageInputContext('ImagePreviewItem');
+  const [previewError, setPreviewError] = useState(false);
 
   const handleRemove: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
@@ -53,11 +58,17 @@ const ImagePreviewItem = ({ attachment }: ImagePreviewItemProps) => {
     [removeAttachment, attachment.id],
   );
   const handleRetry = useCallback(() => uploadImage(attachment.id), [uploadImage, attachment.id]);
+  const handleLoadError = useCallback(() => setPreviewError(true), []);
 
   if (isScrapedContent(attachment)) return null;
 
   return (
-    <div className='str-chat__attachment-preview-image' data-testid='attachment-preview-image'>
+    <div
+      className={clsx('str-chat__attachment-preview-image', {
+        'str-chat__attachment-preview-image--error': previewError,
+      })}
+      data-testid='attachment-preview-image'
+    >
       <button
         className='str-chat__attachment-preview-delete'
         data-testid='image-preview-item-delete-button'
@@ -84,10 +95,12 @@ const ImagePreviewItem = ({ attachment }: ImagePreviewItemProps) => {
       )}
 
       {(attachment.previewUri || attachment.image_url) && (
-        <img
+        <BaseImage
           alt={attachment.file?.name || attachment?.title}
           className='str-chat__attachment-preview-thumbnail'
+          onError={handleLoadError}
           src={attachment.previewUri ?? attachment.image_url}
+          title={attachment.file.name}
         />
       )}
     </div>

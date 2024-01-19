@@ -1,15 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
-import { usePopper } from 'react-popper';
 import { useDropzone } from 'react-dropzone';
 import { nanoid } from 'nanoid';
 
-import { EmojiPicker } from './EmojiPicker';
 import {
-  EmojiIconLarge as DefaultEmojiIcon,
-  EmojiPickerIcon as DefaultEmojiPickerIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
   UploadIcon as DefaultUploadIcon,
@@ -58,6 +54,7 @@ export const MessageInputFlat = <
       channel?.off('message.deleted', handleQuotedMessageUpdate);
       channel?.off('message.updated', handleQuotedMessageUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel, quotedMessage]);
 
   return themeVersion === '2' ? (
@@ -77,26 +74,23 @@ const MessageInputV1 = <
   } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
   const { t } = useTranslationContext('MessageInputFlat');
   const {
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
     handleSubmit,
     hideSendButton,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
-    openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
     AttachmentPreviewList = UploadsPreview,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
 
   return (
@@ -120,30 +114,15 @@ const MessageInputV1 = <
         <div className='str-chat__input-flat-wrapper'>
           {isUploadEnabled && <AttachmentPreviewList />}
           <div className='str-chat__input-flat--textarea-wrapper'>
-            <div className='str-chat__emojiselect-wrapper'>
-              <Tooltip>
-                {emojiPickerIsOpen
-                  ? t<string>('Close emoji picker')
-                  : t<string>('Open emoji picker')}
-              </Tooltip>
-              <button
-                aria-label='Emoji picker'
-                className='str-chat__input-flat-emojiselect'
-                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-              >
-                {cooldownRemaining ? (
-                  <div className='str-chat__input-flat-cooldown'>
-                    <CooldownTimer
-                      cooldownInterval={cooldownRemaining}
-                      setCooldownRemaining={setCooldownRemaining}
-                    />
-                  </div>
-                ) : (
-                  <EmojiIcon />
-                )}
-              </button>
-            </div>
-            <EmojiPicker />
+            {EmojiPicker && <EmojiPicker />}
+            {!!cooldownRemaining && (
+              <div className='str-chat__input-flat-cooldown'>
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
+              </div>
+            )}
             <ChatAutoComplete />
             {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
@@ -185,9 +164,7 @@ const MessageInputV2 = <
 
   const {
     attachments,
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
     hideSendButton,
@@ -195,7 +172,6 @@ const MessageInputV2 = <
     linkPreviews,
     maxFilesLeft,
     message,
-    openEmojiPicker,
     setCooldownRemaining,
     text,
     uploadNewFiles,
@@ -204,18 +180,12 @@ const MessageInputV2 = <
   const {
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiPickerIcon,
     FileUploadIcon = DefaultUploadIcon,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
-
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { attributes, styles } = usePopper(referenceElement, popperElement, {
-    placement: 'top-end',
-  });
 
   const id = useMemo(() => nanoid(), []);
 
@@ -282,28 +252,7 @@ const MessageInputV2 = <
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
 
-              <div className='str-chat__message-textarea-emoji-picker'>
-                {emojiPickerIsOpen && (
-                  <div
-                    className='str-chat__message-textarea-emoji-picker-container'
-                    style={styles.popper}
-                    {...attributes.popper}
-                    ref={setPopperElement}
-                  >
-                    <EmojiPicker />
-                  </div>
-                )}
-
-                <button
-                  aria-label='Emoji picker'
-                  className='str-chat__emoji-picker-button'
-                  onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                  ref={setReferenceElement}
-                  type='button'
-                >
-                  <EmojiIcon />
-                </button>
-              </div>
+              {EmojiPicker && <EmojiPicker />}
             </div>
           </div>
           {!hideSendButton && (

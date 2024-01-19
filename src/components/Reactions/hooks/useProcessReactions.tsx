@@ -1,19 +1,17 @@
 import { useCallback, useMemo } from 'react';
-import { getStrippedEmojiData, ReactionEmoji } from '../../Channel/emojiData';
-import type { EmojiContextValue } from '../../../context/EmojiContext';
+
+import { useComponentContext, useMessageContext } from '../../../context';
+
 import type { ReactionsListProps } from '../ReactionsList';
-import { useMessageContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 type SharedReactionListProps =
-  | 'additionalEmojiProps'
   | 'own_reactions'
   | 'reaction_counts'
   | 'reactionOptions'
   | 'reactions';
 
-type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> &
-  Pick<EmojiContextValue, 'emojiConfig'>;
+type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps>;
 
 export const useProcessReactions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -21,21 +19,23 @@ export const useProcessReactions = <
   params: UseProcessReactionsParams,
 ) => {
   const {
-    additionalEmojiProps = {},
-    emojiConfig,
     own_reactions: propOwnReactions,
     reaction_counts: propReactionCounts,
     reactionOptions: propReactionOptions,
     reactions: propReactions,
   } = params;
-  const { message } = useMessageContext<StreamChatGenerics>('ReactionsList');
-  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
+  const { message } = useMessageContext<StreamChatGenerics>('useProcessReactions');
+  const { reactionOptions: contextReactionOptions } = useComponentContext<StreamChatGenerics>(
+    'useProcessReactions',
+  );
 
+  const reactionOptions = propReactionOptions ?? contextReactionOptions;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const latestReactions = propReactions || message.latest_reactions || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const ownReactions = propOwnReactions || message?.own_reactions || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const reactionCounts = propReactionCounts || message.reaction_counts || {};
-  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-  const reactionsAreCustom = !!propReactionOptions?.length;
 
   const iHaveReactedWithReaction = useCallback(
     (reactionType: string) => ownReactions.find((reaction) => reaction.type === reactionType),
@@ -43,14 +43,8 @@ export const useProcessReactions = <
   );
 
   const getEmojiByReactionType = useCallback(
-    (type: string): ReactionEmoji | undefined =>
-      reactionOptions.find((option: ReactionEmoji) => option.id === type),
+    (reactionType: string) => reactionOptions.find(({ type }) => type === reactionType),
     [reactionOptions],
-  );
-
-  const emojiData = useMemo(
-    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-    [fullEmojiData, reactionsAreCustom],
   );
 
   const latestReactionTypes = useMemo(
@@ -66,15 +60,15 @@ export const useProcessReactions = <
 
   const supportedReactionMap = useMemo(
     () =>
-      reactionOptions.reduce<Record<string, boolean>>((acc, { id }) => {
-        acc[id] = true;
-        return acc;
+      reactionOptions.reduce<Record<string, boolean>>((map, { type: reactionType }) => {
+        map[reactionType] = true;
+        return map;
       }, {}),
     [reactionOptions],
   );
 
   const supportedReactionsArePresent = useMemo(
-    () => latestReactionTypes.some((type) => supportedReactionMap[type]),
+    () => latestReactionTypes.some((reactionType) => supportedReactionMap[reactionType]),
     [latestReactionTypes, supportedReactionMap],
   );
 
@@ -99,9 +93,7 @@ export const useProcessReactions = <
   );
 
   return {
-    additionalEmojiProps: reactionsAreCustom ? additionalEmojiProps : emojiSetDef,
     aggregatedUserNamesByType,
-    emojiData,
     getEmojiByReactionType,
     iHaveReactedWithReaction,
     latestReactions,

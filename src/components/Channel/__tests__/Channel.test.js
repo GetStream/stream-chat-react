@@ -11,7 +11,6 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
-import { useEmojiContext } from '../../../context/EmojiContext';
 import {
   generateChannel,
   generateFileAttachment,
@@ -27,6 +26,8 @@ import {
 } from '../../../mock-builders';
 import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
+import { MessageProvider } from '../../../context';
+import { MessageActionsBox } from '../../MessageActions';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -59,13 +60,12 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelStateContext = useChannelStateContext();
   const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
-  const emojiContext = useEmojiContext();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const channelContext = {
     ...channelStateContext,
     ...channelActionContext,
     ...componentContext,
-    ...emojiContext,
   };
 
   useEffect(() => {
@@ -538,33 +538,6 @@ describe('Channel', () => {
   });
 
   describe('Children that consume the contexts set in Channel', () => {
-    it('should expose the emoji config', async () => {
-      const { channel, chatClient } = await initClient();
-      let context;
-      const emojiData = {
-        aliases: {},
-        categories: [],
-        compressed: true,
-        emojis: {},
-      };
-      const CustomEmojiPicker = () => <div />;
-      const CustomEmoji = () => <span />;
-
-      renderComponent(
-        { channel, chatClient, Emoji: CustomEmoji, emojiData, EmojiPicker: CustomEmojiPicker },
-        (ctx) => {
-          context = ctx;
-        },
-      );
-
-      await waitFor(() => {
-        expect(context).toBeInstanceOf(Object);
-        expect(context.emojiConfig.emojiData).toBe(emojiData);
-        expect(context.EmojiPicker).toBe(CustomEmojiPicker);
-        expect(context.Emoji).toBe(CustomEmoji);
-      });
-    });
-
     it('should be able to open threads', async () => {
       const { channel, chatClient } = await initClient();
       const threadMessage = messages[0];
@@ -994,7 +967,7 @@ describe('Channel', () => {
 
         await waitFor(() =>
           expect(doSendMessageRequest).toHaveBeenCalledWith(
-            channel.cid,
+            channel,
             expect.objectContaining(message),
             undefined,
           ),
@@ -1377,6 +1350,20 @@ describe('Channel', () => {
         await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
       });
 
+      it('should mark the channel as read if the new message author is the current user and the user is looking at the page', async () => {
+        const { channel, chatClient } = await initClient();
+        const markReadSpy = jest.spyOn(channel, 'markRead');
+
+        const message = generateMessage({ user: generateUser() });
+        const dispatchMessageEvent = createChannelEventDispatcher({ message }, chatClient, channel);
+
+        renderComponent({ channel, chatClient }, () => {
+          dispatchMessageEvent();
+        });
+
+        await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
+      });
+
       it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
         const { channel, chatClient } = await initClient();
         const unreadAmount = 1;
@@ -1543,6 +1530,35 @@ describe('Channel', () => {
             expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
           });
         });
+      });
+    });
+  });
+
+  describe('Custom Components', () => {
+    it('should render CustomMessageActionsList if provided', async () => {
+      const { channel, chatClient } = await initClient();
+      const CustomMessageActionsList = jest
+        .fn()
+        .mockImplementation(() => 'CustomMessageActionsList');
+
+      const messageContextValue = {
+        message: generateMessage(),
+        messageListRect: {},
+      };
+
+      renderComponent({
+        channel,
+        chatClient,
+        children: (
+          <MessageProvider value={{ ...messageContextValue }}>
+            <MessageActionsBox getMessageActions={jest.fn(() => [])} />
+          </MessageProvider>
+        ),
+        CustomMessageActionsList,
+      });
+
+      await waitFor(() => {
+        expect(CustomMessageActionsList).toHaveBeenCalledTimes(1);
       });
     });
   });

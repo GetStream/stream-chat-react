@@ -31,3 +31,19 @@ export async function createClientWithChannel(
 
   return { channel, client, users };
 }
+
+export const initClientWithChannel = async ({ customUser, generateChannelOptions } = {}) => {
+  const user = customUser || generateUser();
+  const members = [generateMember({ user })];
+  const mockedChannel = generateChannel({
+    members,
+    ...generateChannelOptions,
+  });
+  const client = await getTestClientWithUser(user);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+  const channel = client.channel('messaging', mockedChannel.channel.id);
+
+  jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
+  return { channel, client };
+};

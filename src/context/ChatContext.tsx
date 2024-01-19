@@ -1,4 +1,4 @@
-import React, { Dispatch, PropsWithChildren, SetStateAction, useContext } from 'react';
+import React, { PropsWithChildren, useContext } from 'react';
 
 import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
 
@@ -29,11 +29,6 @@ export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /**
-   * State representing the array of loaded channels.
-   * Channels query is executed by default only by ChannelList component in the SDK.
-   */
-  channels: Channel<StreamChatGenerics>[];
-  /**
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
    */
   channelsQueryState: ChannelsQueryState;
@@ -53,10 +48,6 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
-  /**
-   * Sets the list of Channel objects to be rendered by ChannelList component.
-   */
-  setChannels: Dispatch<SetStateAction<Channel<StreamChatGenerics>[]>>;
   /**
    * Allows to opt out of the use of legacy CSS (version "1") and opt into the use of the latest SDK's CSS (version "2").
    */

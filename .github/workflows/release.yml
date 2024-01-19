@@ -45,6 +45,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           # https://github.com/stream-ci-bot
           GH_TOKEN: ${{ secrets.DOCUSAURUS_GH_TOKEN }}
+          HUSKY: 0
         run: >
           yarn semantic-release
           ${{ inputs.dry_run && '--dry-run' || '' }}
@@ -53,7 +54,7 @@ jobs:
     name: Publish documentation from "${{ github.ref_name }}" branch to ${{ inputs.docs_env }}
     runs-on: ubuntu-latest
     # skip during dry runs, release to production only from master, release to staging from anywhere
-    if: ${{ !inputs.dry_run && ((inputs.docs_env == 'production' && github.ref_name == 'master') || (github.ref_name != 'master' && inputs.docs_env == 'staging')) }}
+    if: ${{ !inputs.dry_run && ((github.ref_name == 'master' && contains('production,staging', inputs.docs_env)) || (github.ref_name != 'master' && inputs.docs_env == 'staging')) }}
     outputs:
       target-version: $${{ steps.target-version.outputs }}
     steps:

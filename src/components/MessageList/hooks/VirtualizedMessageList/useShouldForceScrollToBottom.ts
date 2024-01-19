@@ -30,6 +30,7 @@ export function useShouldForceScrollToBottom<
       initialFocusRegistered.current = true;
       recheckForNewOwnMessage();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, messages?.length]);
 
   return recheckForNewOwnMessage;

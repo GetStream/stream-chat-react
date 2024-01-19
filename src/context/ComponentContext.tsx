@@ -13,7 +13,7 @@ import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPr
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
-import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { EmojiSearchIndex, MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
 import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
@@ -32,8 +32,13 @@ import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type { CooldownTimerProps } from '../components';
+import type {
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
+} from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
+import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -41,15 +46,19 @@ export type ComponentContextValue<
 > = {
   Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  reactionOptions: ReactionOptions;
   AttachmentPreviewList?: React.ComponentType;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
+  BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
+  CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps<StreamChatGenerics>>;
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
-  EmojiIcon?: React.ComponentType;
+  EmojiPicker?: React.ComponentType;
+  emojiSearchIndex?: EmojiSearchIndex;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
