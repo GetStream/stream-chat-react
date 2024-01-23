@@ -111,7 +111,7 @@ const UnMemoizedSimpleReactionsList = <
                     {tooltipVisible && themeVersion === '1' && (
                       <div className='str-chat__simple-reactions-list-tooltip'>
                         <div className='arrow' />
-                        {re}
+                        {tooltipContent}
                       </div>
                     )}
                   </WithTooltip>
