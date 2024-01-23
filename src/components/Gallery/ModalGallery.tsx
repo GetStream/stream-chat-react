@@ -43,6 +43,7 @@ export const ModalGallery = <
           source: imageSrc,
         };
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [images],
   );
 

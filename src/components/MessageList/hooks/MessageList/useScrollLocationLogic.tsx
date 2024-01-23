@@ -56,6 +56,7 @@ export const useScrollLocationLogic = <
       setWrapperRect(listElement.getBoundingClientRect());
       scrollToBottom();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listElement, hasMoreNewer]);
 
   const updateScrollTop = useMessageListScrollManager({

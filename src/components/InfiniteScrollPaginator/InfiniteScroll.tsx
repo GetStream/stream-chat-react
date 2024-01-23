@@ -123,6 +123,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
       ],
       'InfiniteScroll',
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useLayoutEffect(() => {

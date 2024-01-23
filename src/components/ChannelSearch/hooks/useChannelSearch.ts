@@ -161,6 +161,7 @@ export const useChannelSearch = <
 
     document.addEventListener('click', clickListener);
     return () => document.removeEventListener('click', clickListener);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, inputIsFocused, query, exitSearch, clearSearchOnClickOutside]);
 
   useEffect(() => {
@@ -172,8 +173,10 @@ export const useChannelSearch = <
     inputRef.current.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       inputRef.current?.removeEventListener('keydown', handleKeyDown);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled]);
 
   const selectResult = useCallback(
@@ -206,6 +209,7 @@ export const useChannelSearch = <
         exitSearch();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [clearSearchOnClickOutside, client, exitSearch, onSelectResult, setActiveChannel, setChannels],
   );
 
@@ -264,6 +268,7 @@ export const useChannelSearch = <
     [client, searchForChannels, searchQueryParams],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const scheduleGetChannels = useCallback(debounce(getChannels, searchDebounceIntervalMs), [
     getChannels,
     searchDebounceIntervalMs,

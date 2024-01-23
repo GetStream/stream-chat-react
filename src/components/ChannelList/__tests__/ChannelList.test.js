@@ -1700,6 +1700,7 @@ describe('ChannelList', () => {
         const { channels, setChannels } = useChannelListContext();
         useEffect(() => {
           setChannelsFromOutside = setChannels;
+          // eslint-disable-next-line react-hooks/exhaustive-deps
         }, []);
         return <div>{channelsToIdString(channels)}</div>;
       };

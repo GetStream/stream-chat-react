@@ -61,6 +61,7 @@ const CallbackEffectWithChannelContexts = ({ callback }) => {
   const channelActionContext = useChannelActionContext();
   const componentContext = useComponentContext();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const channelContext = {
     ...channelStateContext,
     ...channelActionContext,

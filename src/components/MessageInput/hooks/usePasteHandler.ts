@@ -53,6 +53,7 @@ export const usePasteHandler = (
         }
       })(clipboardEvent);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [insertText, uploadNewFiles],
   );
 

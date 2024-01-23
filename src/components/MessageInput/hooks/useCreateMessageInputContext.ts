@@ -142,6 +142,7 @@ export const useCreateMessageInputContext = <
       uploadNewFiles,
       useMentionsTransliteration,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       cancelURLEnrichment,
       cooldownInterval,

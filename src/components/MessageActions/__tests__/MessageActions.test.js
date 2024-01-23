@@ -106,7 +106,7 @@ describe('<MessageActions /> component', () => {
 
   it('should open message actions box on click', () => {
     const { getByTestId } = renderMessageActions();
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );

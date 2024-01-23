@@ -51,6 +51,7 @@ const UnMemoizedScrollToBottomButton = (
     return () => {
       client.off(observedEvent, handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannel, isMessageListScrolledToBottom, observedEvent, replyCount, thread]);
 
   useEffect(() => {

@@ -81,6 +81,7 @@ export const MessageInputSmall = <
       channel?.off('message.deleted', handleQuotedMessageUpdate);
       channel?.off('message.updated', handleQuotedMessageUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel, quotedMessage]);
   return (
     <div className='str-chat__small-message-input__wrapper'>

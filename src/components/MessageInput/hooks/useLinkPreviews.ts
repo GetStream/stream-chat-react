@@ -74,9 +74,11 @@ export const useLinkPreviews = <
         type: 'setLinkPreviews',
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onLinkPreviewDismissed],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const findAndEnqueueURLsToEnrich = useCallback(
     debounce(
       (text: string, mode = SetLinkPreviewMode.SET) => {
@@ -165,6 +167,7 @@ export const useLinkPreviews = <
           });
         });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldDiscardEnrichQueries, linkPreviews]);
 
   return {

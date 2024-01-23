@@ -32,6 +32,7 @@ export const useImageUploads = <
   const removeImage = useCallback((id: string) => {
     dispatch({ id, type: 'removeImageUpload' });
     // TODO: cancel upload if still uploading
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const uploadImage = useCallback(
@@ -107,6 +108,7 @@ export const useImageUploads = <
         url: response.file,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [imageUploads, channel, doImageUploadRequest, errorHandler, removeImage],
   );
 

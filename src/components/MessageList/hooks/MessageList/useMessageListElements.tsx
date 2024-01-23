@@ -67,6 +67,7 @@ export const useMessageListElements = <
         readData,
         sharedMessageProps: { ...internalMessageProps, threadList },
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       enrichedMessages,
       internalMessageProps,
