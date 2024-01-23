@@ -41,6 +41,8 @@ export type MessageProps<
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
   getDeleteMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when loading message reactions fails */
+  getFetchReactionsErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
   getFlagMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */

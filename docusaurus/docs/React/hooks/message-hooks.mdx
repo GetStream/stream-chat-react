@@ -179,6 +179,26 @@ const MyCustomMessageComponent = () => {
 };
 ```
 
+### useReactionsFetcher
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useReactionsFetcher.ts) to handle loading message reactions. Returns an async function that loads and returns message reactions.
+
+```jsx
+const MyCustomMessageComponent = () => {
+  const { message } = useMessageContext();
+  const { addNotification } = useChannelActionContext();
+  const handleFetchReactions = useReactionsFetcher(message, { notify: addNotification });
+  const { data } = useQuery(['message', message.id, 'reactions'], handleFetchReactions);
+
+  return (
+    <div>
+      {message.text}
+      {data && data.map((reaction) => <span key={reaction.type}>reaction.type</span>)}
+    </div>
+  );
+};
+```
+
 ### useRetryHandler
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useRetryHandler.ts) to handle the retry of sending a message.

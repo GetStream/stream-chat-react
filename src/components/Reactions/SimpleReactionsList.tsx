@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import type { ReactionResponse } from 'stream-chat';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useMessageContext } from '../../context/MessageContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { PopperTooltip } from '../Tooltip';
@@ -18,8 +18,6 @@ type WithTooltipProps = {
   title: React.ReactNode;
 };
 
-// todo: merge with ReactionsList/ButtonWithTooltip
-// avoiding breaking change of replacing <span> with <button>
 const WithTooltip = ({
   children,
   onMouseEnter,
@@ -50,9 +48,7 @@ const WithTooltip = ({
 
 export type SimpleReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
-  handleReaction?: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
+> = Partial<Pick<MessageContextValue, 'handleFetchReactions' | 'handleReaction'>> & {
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An object that keeps track of the count of each type of reaction on a message */
@@ -74,33 +70,14 @@ const UnMemoizedSimpleReactionsList = <
     'SimpleReactionsList',
   );
 
-  const {
-    getEmojiByReactionType,
-    iHaveReactedWithReaction,
-    latestReactions,
-    latestReactionTypes,
-    supportedReactionsArePresent,
-    totalReactionCount,
-  } = useProcessReactions(rest);
+  const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
 
   const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
   const { themeVersion } = useChatContext('SimpleReactionsList');
 
   const handleReaction = propHandleReaction || contextHandleReaction;
 
-  if (!latestReactions.length) return null;
-
-  if (!supportedReactionsArePresent) return null;
-
-  const getUsersPerReactionType = (type: string | undefined) =>
-    latestReactions
-      .map((reaction) => {
-        if (type && reaction.type === type) {
-          return reaction.user?.name || reaction.user?.id;
-        }
-        return null;
-      })
-      .filter(Boolean);
+  if (!hasReactions) return null;
 
   return (
     <div className='str-chat__message-reactions-container'>
@@ -109,40 +86,40 @@ const UnMemoizedSimpleReactionsList = <
         data-testid='simple-reaction-list'
         onMouseLeave={() => setTooltipReactionType(undefined)}
       >
-        {latestReactionTypes.map((reactionType) => {
-          const ReactionOption = getEmojiByReactionType(reactionType);
-          const isOwnReaction = iHaveReactedWithReaction(reactionType);
-          const tooltipVisible = tooltipReactionType === reactionType;
-          const tooltipContent = getUsersPerReactionType(tooltipReactionType)?.join(', ');
+        {existingReactions.map(
+          ({ EmojiComponent, isOwnReaction, latestReactedUserNames, reactionType }) => {
+            const tooltipVisible = tooltipReactionType === reactionType;
+            const tooltipContent = latestReactedUserNames.join(', ');
 
-          return (
-            ReactionOption && (
-              <li
-                className={clsx('str-chat__simple-reactions-list-item', {
-                  'str-chat__message-reaction-own': isOwnReaction,
-                })}
-                key={reactionType}
-                onClick={(event) => handleReaction(reactionType, event)}
-                onKeyUp={(event) => handleReaction(reactionType, event)}
-              >
-                <WithTooltip
-                  onMouseEnter={() => setTooltipReactionType(reactionType)}
-                  onMouseLeave={() => setTooltipReactionType(undefined)}
-                  title={tooltipContent}
+            return (
+              EmojiComponent && (
+                <li
+                  className={clsx('str-chat__simple-reactions-list-item', {
+                    'str-chat__message-reaction-own': isOwnReaction,
+                  })}
+                  key={reactionType}
+                  onClick={(event) => handleReaction(reactionType, event)}
+                  onKeyUp={(event) => handleReaction(reactionType, event)}
                 >
-                  <ReactionOption.Component />
-                  &nbsp;
-                  {tooltipVisible && themeVersion === '1' && (
-                    <div className='str-chat__simple-reactions-list-tooltip'>
-                      <div className='arrow' />
-                      {tooltipContent}
-                    </div>
-                  )}
-                </WithTooltip>
-              </li>
-            )
-          );
-        })}
+                  <WithTooltip
+                    onMouseEnter={() => setTooltipReactionType(reactionType)}
+                    onMouseLeave={() => setTooltipReactionType(undefined)}
+                    title={tooltipContent}
+                  >
+                    <EmojiComponent />
+                    &nbsp;
+                    {tooltipVisible && themeVersion === '1' && (
+                      <div className='str-chat__simple-reactions-list-tooltip'>
+                        <div className='arrow' />
+                        {re}
+                      </div>
+                    )}
+                  </WithTooltip>
+                </li>
+              )
+            );
+          },
+        )}
         {
           <li className='str-chat__simple-reactions-list-item--last-number'>
             {totalReactionCount}
