@@ -6,4 +6,5 @@ export * from './MessageNotification';
 export * from './ScrollToBottomButton';
 export * from './VirtualizedMessageList';
 export * from './hooks';
+export * from './renderMessages';
 export * from './utils';

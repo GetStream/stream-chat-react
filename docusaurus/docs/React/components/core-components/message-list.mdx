@@ -218,6 +218,34 @@ const CustomMessageList = () => (
 );
 ```
 
+#### Custom message list rendering
+
+You can completely change the way the message list is rendered by providing a custom `renderMessages` function. This function takes all the messages fetched so far (along with some additional data) and returns an array of React elements to render. By overriding the default behavior, you can add custom elements to the message list, change the way messages are grouped, add custom separators between messages, etc.
+
+If you provide a custom `renderMessages` function, it's your responsibility to render each message type correctly. You can use the <GHComponentLink text='default implementation' path='/MessageList/renderMessages.tsx'/> as a reference. Or, if you just want to tweak a few things here and there, you can call `defaultRenderMessages` from your custom `renderMessages` function and build from there.
+
+In this example, we use the default implementation for rendering a message list, and we add a custom element at the bottom of the list:
+
+```tsx
+const customRenderMessages: MessageRenderer<StreamChatGenerics> = (options) => {
+  const elements = defaultRenderMessages(options);
+  elements.push(<li key='caught-up'>You're all caught up!</li>);
+  return elements;
+};
+
+const CustomMessageList = () => (
+  <MessageList renderMessages={customRenderMessages}/>
+);
+```
+
+Make sure that the elements you return have `key`, as they will be rendered as an array. It's also a good idea to wrap each element with `<li>` to keep your markup semantically correct.
+
+:::note
+`MessageList` will re-render every time `renderMessages` function changes. For best performance, make sure that you don't recreate `renderMessages` function on every render: either move it to the global or module scope, or wrap it with `useCallback`.
+:::
+
+Custom message list rendering is only supported in `MessageList` and is currently not supported in `VirtualizedMessageList`.
+
 ## Props
 
 ### additionalMessageInputProps
@@ -504,9 +532,35 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 
 Custom function to render message text content.
 
+| Type     | Default                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
+| function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
+
+### renderMessages
+
+Custom function to render message text content.
+
 | Type     | Default                                                                                |
 | -------- | -------------------------------------------------------------------------------------- |
-| function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
+| function | <GHComponentLink text='defaultRenderMessages' path='/MessageList/renderMessages.tsx'/> |
+
+#### Parameters
+
+The function receives a single object with the following properties:
+
+| Name                  | Type                                                                                          | Description                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| components            | [ComponentContextValue](../contexts/component-context.mdx)                                    | UI components, including possible overrides                                                                                                        |
+| customClasses         | object                                                                                        | Object containing [custom CSS classnames](../../components/core-components/chat.mdx#customclasses) to override the library's default container CSS |
+| lastReceivedMessageId | string                                                                                        | The latest message ID in the current channel                                                                                                       |
+| messageGroupStyles    | string[]                                                                                      | An array of potential styles to apply to a grouped message (ex: top, bottom, single)                                                               |
+| messages              | Array<[ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages)> | The messages to render in the list                                                                                                                 |
+| readData              | object                                                                                        | The read state for for messages submitted by the user themselves                                                                                   |
+| sharedMessageProps    | object                                                                                        | Object containing props that can be directly passed to the `Message` component                                                                     |
+
+#### Return value
+
+The function is expected to return an array of valid React nodes: `Array<ReactNode>`. For best performance, each node should have a `key`.
 
 ### retrySendMessage
 
