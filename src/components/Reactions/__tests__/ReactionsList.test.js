@@ -53,6 +53,14 @@ describe('ReactionsList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should not break when reaction counts are not defined', async () => {
+    const { container } = renderComponent({
+      reaction_counts: undefined,
+    });
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should render an emoji for each type of reaction', async () => {
     const reaction_counts = {
       haha: 2,

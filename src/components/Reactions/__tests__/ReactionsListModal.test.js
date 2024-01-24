@@ -80,11 +80,47 @@ describe('ReactionsListModal', () => {
     expect(getAllByTestId('reaction-user-username')).toHaveLength(2);
 
     await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-love'));
+      fireEvent.click(getByTestId('reaction-details-selector-love'));
     });
     expect(getAllByTestId('reaction-user-username')).toHaveLength(5);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should close reactions list modal when close button is clicked', async () => {
+    const reactionCounts = {
+      haha: 2,
+      love: 5,
+    };
+    const { getByTestId, getByTitle, queryByTestId } = renderComponent({
+      reaction_counts: reactionCounts,
+      reactions: generateReactionsFromReactionCounts(reactionCounts),
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+    expect(getByTestId('reactions-list-modal')).toBeInTheDocument();
+    await act(() => {
+      fireEvent.click(getByTitle('Close'));
+    });
+    expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
+  });
+
+  it('should not allow opening reactions list modal when the reactions count is too high', async () => {
+    const reactionCounts = {
+      haha: 2000,
+      love: 5000,
+    };
+    const { getByTestId, queryByTestId } = renderComponent({
+      reaction_counts: reactionCounts,
+      reactions: generateReactionsFromReactionCounts(reactionCounts),
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+    expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
   });
 });
