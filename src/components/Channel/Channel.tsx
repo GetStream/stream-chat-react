@@ -598,6 +598,7 @@ const ChannelInner = <
   // Adds a temporary notification to message list, will be removed after 5 seconds
   const addNotification = makeAddNotifications(setNotifications, notificationTimeouts);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
     debounce(
       (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
@@ -900,6 +901,7 @@ const ChannelInner = <
     dispatch({ type: 'closeThread' });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreThreadFinished = useCallback(
     debounce(
       (
