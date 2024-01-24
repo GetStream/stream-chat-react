@@ -17,6 +17,7 @@
   "Error adding flag": "ध्वज जोड़ने में त्रुटि",
   "Error connecting to chat, refresh the page to try again.": "चैट से कनेक्ट करने में त्रुटि, पेज को रिफ्रेश करें",
   "Error deleting message": "संदेश हटाने में त्रुटि",
+  "Error fetching reactions": "प्रतिक्रियाएँ लोड करने में त्रुटि",
   "Error muting a user ...": "यूजर को म्यूट करने का प्रयास फेल हुआ",
   "Error pinning message": "संदेश को पिन करने में त्रुटि",
   "Error removing message pin": "संदेश पिन निकालने में त्रुटि",
