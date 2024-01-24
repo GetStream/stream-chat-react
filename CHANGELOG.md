@@ -1,3 +1,18 @@
+## [11.4.0](https://github.com/GetStream/stream-chat-react/compare/v11.3.0...v11.4.0) (2024-01-24)
+
+
+### Bug Fixes
+
+* get rid of positioning wrapper for message actions box ([#2246](https://github.com/GetStream/stream-chat-react/issues/2246)) ([32c0180](https://github.com/GetStream/stream-chat-react/commit/32c01806d6755e8402740b9828269845330153f0)), closes [#2241](https://github.com/GetStream/stream-chat-react/issues/2241) [#2241](https://github.com/GetStream/stream-chat-react/issues/2241)
+* hasMore limitations ([#2242](https://github.com/GetStream/stream-chat-react/issues/2242)) ([24e294b](https://github.com/GetStream/stream-chat-react/commit/24e294be85dd2384eef0c646481d4f6e5cdd18a6)), closes [/github.com/petyosi/react-virtuoso/blob/efdf50b8c4ee18e1c9d2fa4866e47ae9fd64cae1/src/listStateSystem.ts#L386](https://github.com/GetStream//github.com/petyosi/react-virtuoso/blob/efdf50b8c4ee18e1c9d2fa4866e47ae9fd64cae1/src/listStateSystem.ts/issues/L386)
+* use popper to properly position message actions box ([#2241](https://github.com/GetStream/stream-chat-react/issues/2241)) ([651d3e7](https://github.com/GetStream/stream-chat-react/commit/651d3e727abe52a1e2650be54375ede06cc51904))
+
+
+### Features
+
+* allow overriding the way MessageList renders messages ([#2243](https://github.com/GetStream/stream-chat-react/issues/2243)) ([dba63e8](https://github.com/GetStream/stream-chat-react/commit/dba63e8ac515a1e455429c257a963313b15e42f4))
+* enable exhaustive-deps, but ignore all current errors ([#2244](https://github.com/GetStream/stream-chat-react/issues/2244)) ([d07861f](https://github.com/GetStream/stream-chat-react/commit/d07861ffddbf151fc4e98940490e4348845bd491))
+
 ## [11.3.0](https://github.com/GetStream/stream-chat-react/compare/v11.2.1...v11.3.0) (2024-01-09)
 
 
