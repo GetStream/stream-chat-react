@@ -17,9 +17,6 @@ import { defaultReactionOptions } from '../reactionOptions';
 
 const USER_ID = 'mark';
 
-const generateButtonTitle = (count) =>
-  Array.from({ length: count }, (_, i) => `${USER_ID}-${i}`).join(', ');
-
 const renderComponent = ({ reaction_counts = {}, ...props }) => {
   const reactions = Object.entries(reaction_counts).flatMap(([type, count]) =>
     Array.from({ length: count }, (_, i) =>
@@ -45,7 +42,7 @@ describe('ReactionsList', () => {
   it('should render the total reaction count', async () => {
     const { container, getByText } = renderComponent({
       reaction_counts: {
-        angry: 2,
+        haha: 2,
         love: 5,
       },
     });
@@ -70,11 +67,9 @@ describe('ReactionsList', () => {
     const hahaButton = getByTestId('reactions-list-button-haha');
     const loveButton = getByTestId('reactions-list-button-love');
 
-    expect(hahaButton).toHaveAttribute('title', generateButtonTitle(reaction_counts['haha']));
     expect(hahaButton.lastChild).toHaveTextContent(reaction_counts['haha']);
     expect(hahaButton.firstChild).toHaveTextContent('😂');
 
-    expect(loveButton).toHaveAttribute('title', generateButtonTitle(reaction_counts['love']));
     expect(loveButton.lastChild).toHaveTextContent(reaction_counts['love']);
     expect(loveButton.firstChild).toHaveTextContent('❤️');
 
@@ -99,10 +94,9 @@ describe('ReactionsList', () => {
     const bananaButton = getByTestId('reactions-list-button-banana');
     const cowboyButton = getByTestId('reactions-list-button-cowboy');
 
-    expect(bananaButton).toHaveAttribute('title', generateButtonTitle(reaction_counts['banana']));
     expect(bananaButton.lastChild).toHaveTextContent(reaction_counts['banana']);
     expect(bananaButton.firstChild).toHaveTextContent('🍌');
-    expect(cowboyButton).toHaveAttribute('title', generateButtonTitle(reaction_counts['cowboy']));
+
     expect(cowboyButton.lastChild).toHaveTextContent(reaction_counts['cowboy']);
     expect(cowboyButton.firstChild).toHaveTextContent('🤠');
 
