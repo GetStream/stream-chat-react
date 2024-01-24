@@ -45,7 +45,7 @@ export function ReactionsListModal({
 
   return (
     <Modal {...modalProps}>
-      <div className='str-chat__message-reactions-details'>
+      <div className='str-chat__message-reactions-details' data-testid='reactions-list-modal'>
         <div className='str-chat__message-reactions-details-reaction-types'>
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
@@ -83,11 +83,11 @@ export function ReactionsListModal({
             currentReactions.map(({ user }) => (
               <div className='str-chat__message-reactions-details-reacting-user' key={user?.id}>
                 <Avatar
-                  data-testclass='avatar'
+                  data-testid='avatar'
                   image={user?.image as string | undefined}
                   name={user?.name || user?.id}
                 />
-                <span className='str-chat__user-item--name' data-testclass='reaction-user-username'>
+                <span className='str-chat__user-item--name' data-testid='reaction-user-username'>
                   {user?.name || user?.id}
                 </span>
               </div>

@@ -15,15 +15,15 @@ export function useReactionsFetcher<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   message: StreamMessage<StreamChatGenerics>,
-  notifications: FetchMessageReactionsNotifications<StreamChatGenerics>,
+  notifications: FetchMessageReactionsNotifications<StreamChatGenerics> = {},
 ) {
   const { channel } = useChannelStateContext<StreamChatGenerics>('useReactionFetcher');
   const { t } = useTranslationContext('useReactionFetcher');
   const { getErrorNotification, notify } = notifications;
 
-  return () => {
+  return async () => {
     try {
-      return fetchMessageReactions(channel, message.id);
+      return await fetchMessageReactions(channel, message.id);
     } catch (e) {
       const errorMessage = getErrorNotification?.(message);
       notify?.(errorMessage || t('Error fetching reactions'), 'error');
