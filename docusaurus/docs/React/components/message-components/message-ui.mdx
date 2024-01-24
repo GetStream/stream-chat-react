@@ -295,6 +295,8 @@ Function that loads all reactions for a message (overrides the function stored i
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleFetchReactions']](../contexts/message-context.mdx#handlhandlefetchreactions) |
 
+This function limits the number of loaded reactions to 1200. To customize this behavior, you can pass [a custom `ReactionsList` component](./reactions.mdx#handlefetchreactions).
+
 ### handleFlag
 
 Function that flags a message (overrides the function stored in `MessageContext`).
@@ -360,6 +362,7 @@ Function that returns whether a message belongs to the current user (overrides t
 | () => boolean |
 
 ### isReactionEnabled (deprecated)
+
 If true, sending reactions is enabled in the currently active channel (overrides the value stored in `MessageContext`).
 
 | Type    | Default |
@@ -466,8 +469,8 @@ An array of users that have read the current message (overrides the value stored
 
 Custom function to render message text content (overrides the function stored in `MessageContext`).
 
-| Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+| Type     | Default                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
 | function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
 
 ### setEditingState

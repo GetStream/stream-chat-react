@@ -212,6 +212,21 @@ Function that loads all message reactions (overrides the function stored in `Mes
 | -------------------- | --------------------------------------------------------------------------------------------------- |
 | () => Promise<void\> | [MessageContextValue['handleFetchReactions']](../contexts/message-context.mdx#handlefetchreactions) |
 
+The default implementation of `handleFetchReactions`, provided via the [`MessageContext`](../contexts/message-context.mdx#handlefetchreactions), limits the number of loaded reactions to 1200. Use this prop to provide your own loading implementation:
+
+```jsx
+const MyCustomReactionsList = (props) => {
+  const { channel } = useChannelStateContext();
+  const { message } = useMessageContext();
+
+  function fetchReactions() {
+    return channel.getReactions(message.id, { limit: 42 });
+  }
+
+  return <ReactionsList handleFetchReactions={fetchReactions} />;
+};
+```
+
 ### onClick
 
 Custom on click handler for an individual reaction in the list (overrides the function stored in `MessageContext`).
