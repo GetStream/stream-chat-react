@@ -44,7 +44,7 @@ export type MessageContextValue<
   handleDelete: ReactEventHandler;
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
-  /** Function to fetch all message reactions */
+  /** Function to fetch the message reactions */
   handleFetchReactions: () => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
