@@ -29,9 +29,10 @@ export function ReactionsListModal({
     ({ reactionType }) => reactionType === selectedReactionType,
   );
   const SelectedEmojiComponent = selectedReaction?.EmojiComponent ?? null;
-  const { isLoading: areReactionsLoading, reactions: allReactions } = useFetchReactions(
+  const { isLoading: areReactionsLoading, reactions: allReactions } = useFetchReactions({
     handleFetchReactions,
-  );
+    shouldFetch: modalProps.open,
+  });
   const currentReactions = useMemo(() => {
     if (!selectedReactionType) {
       return [];

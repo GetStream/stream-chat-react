@@ -3,17 +3,29 @@ import { ReactionResponse } from 'stream-chat';
 import { MessageContextValue, useMessageContext } from '../../../context';
 import { DefaultStreamChatGenerics } from '../../../types/types';
 
+export interface FetchReactionsOptions<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> {
+  shouldFetch: boolean;
+  handleFetchReactions?: MessageContextValue<StreamChatGenerics>['handleFetchReactions'];
+}
+
 export function useFetchReactions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(propHandleFetchReactions?: MessageContextValue<StreamChatGenerics>['handleFetchReactions']) {
+>(options: FetchReactionsOptions) {
   const {
     handleFetchReactions: contextHandleFetchReactions,
   } = useMessageContext<StreamChatGenerics>('useFetchReactions');
   const [isLoading, setIsLoading] = useState(false);
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
+  const { handleFetchReactions: propHandleFetchReactions, shouldFetch } = options;
   const handleFetchReactions = propHandleFetchReactions ?? contextHandleFetchReactions;
 
   useEffect(() => {
+    if (!shouldFetch) {
+      return;
+    }
+
     let cancel = false;
 
     (async () => {
@@ -38,7 +50,7 @@ export function useFetchReactions<
     return () => {
       cancel = true;
     };
-  }, [handleFetchReactions]);
+  }, [handleFetchReactions, shouldFetch]);
 
   return { isLoading, reactions };
 }
