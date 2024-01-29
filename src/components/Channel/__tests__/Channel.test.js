@@ -322,6 +322,28 @@ describe('Channel', () => {
     });
   });
 
+  // this will only happen if we:
+  // load with channel A
+  // switch to channel B and paginate (loadMore - older)
+  // switch back to channel A (reset hasMore)
+  // switch back to channel B - messages are already cached and there's more than page size amount
+  it('should set hasMore state to true if the initial channel query returns more messages than the default initial page size', async () => {
+    const { channel, chatClient } = await initClient();
+    useMockedApis(chatClient, [
+      queryChannelWithNewMessages(Array.from({ length: 26 }, generateMessage), channel),
+    ]);
+    let hasMore;
+    await act(() => {
+      renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
+        hasMore = contextHasMore;
+      });
+    });
+
+    await waitFor(() => {
+      expect(hasMore).toBe(true);
+    });
+  });
+
   it('should set hasMore state to true if the initial channel query returns count of messages equal to the default initial page size', async () => {
     const { channel, chatClient } = await initClient();
     useMockedApis(chatClient, [

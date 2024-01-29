@@ -151,7 +151,6 @@ const VirtualizedMessageListWithContext = <
     defaultItemHeight,
     disableDateSeparator = true,
     groupStyles,
-    hasMore,
     hasMoreNewer,
     head,
     hideDeletedMessages = false,
@@ -333,21 +332,14 @@ const VirtualizedMessageListWithContext = <
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
-    if (isAtBottom && newMessagesNotification) {
-      setNewMessagesNotification(false);
+
+    if (isAtBottom) {
+      loadMoreNewer?.(messageLimit);
+      setNewMessagesNotification?.(false);
     }
   };
-
-  const startReached = () => {
-    if (hasMore && loadMore) {
-      loadMore(messageLimit);
-    }
-  };
-
-  const endReached = () => {
-    if (hasMoreNewer && loadMoreNewer) {
-      loadMoreNewer(messageLimit);
-    }
+  const atTopStateChange = (isAtTop: boolean) => {
+    if (isAtTop) loadMore?.(messageLimit);
   };
 
   useEffect(() => {
@@ -368,7 +360,9 @@ const VirtualizedMessageListWithContext = <
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
           <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
             atBottomStateChange={atBottomStateChange}
-            atBottomThreshold={200}
+            atBottomThreshold={100}
+            atTopStateChange={atTopStateChange}
+            atTopThreshold={100}
             className='str-chat__message-list-scroll'
             components={{
               EmptyPlaceholder,
@@ -399,7 +393,6 @@ const VirtualizedMessageListWithContext = <
               threadList,
               virtuosoRef: virtuoso,
             }}
-            endReached={endReached}
             firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
             followOutput={followOutput}
             increaseViewportBy={{ bottom: 200, top: 0 }}
@@ -412,7 +405,6 @@ const VirtualizedMessageListWithContext = <
             key={messageSetKey}
             overscan={overscan}
             ref={virtuoso}
-            startReached={startReached}
             style={{ overflowX: 'hidden' }}
             totalCount={processedMessages.length}
             {...overridingVirtuosoProps}

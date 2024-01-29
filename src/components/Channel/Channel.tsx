@@ -92,6 +92,8 @@ import {
   defaultReactionOptions,
   ReactionOptions,
 } from '../../components/Reactions/reactionOptions';
+import { EventComponent } from '../EventComponent';
+import { DateSeparator } from '../DateSeparator';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -185,6 +187,13 @@ type ChannelPropsForwardedToComponentContext<
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
+
+const isUserResponseArray = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  output: string[] | UserResponse<StreamChatGenerics>[],
+): output is UserResponse<StreamChatGenerics>[] =>
+  (output as UserResponse<StreamChatGenerics>[])[0]?.id != null;
 
 export type ChannelProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -589,16 +598,17 @@ const ChannelInner = <
   // Adds a temporary notification to message list, will be removed after 5 seconds
   const addNotification = makeAddNotifications(setNotifications, notificationTimeouts);
 
-  const loadMoreFinished = debounce(
-    (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
-      if (!isMounted.current) return;
-      dispatch({ hasMore, messages, type: 'loadMoreFinished' });
-    },
-    2000,
-    {
-      leading: true,
-      trailing: true,
-    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadMoreFinished = useCallback(
+    debounce(
+      (hasMore: boolean, messages: ChannelState<StreamChatGenerics>['messages']) => {
+        if (!isMounted.current) return;
+        dispatch({ hasMore, messages, type: 'loadMoreFinished' });
+      },
+      2000,
+      { leading: true, trailing: true },
+    ),
+    [],
   );
 
   const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
@@ -635,7 +645,7 @@ const ChannelInner = <
   };
 
   const loadMoreNewer = async (limit = 100) => {
-    if (!online.current || !window.navigator.onLine) return 0;
+    if (!online.current || !window.navigator.onLine || !state.hasMoreNewer) return 0;
 
     const newestMessage = state?.messages?.[state?.messages?.length - 1];
     if (state.loadingMore || state.loadingMoreNewer) return 0;
@@ -657,9 +667,13 @@ const ChannelInner = <
       return 0;
     }
 
-    const hasMoreNewer = channel.state.messages !== channel.state.latestMessages;
+    const hasMoreNewerMessages = channel.state.messages !== channel.state.latestMessages;
 
-    dispatch({ hasMoreNewer, messages: channel.state.messages, type: 'loadMoreNewerFinished' });
+    dispatch({
+      hasMoreNewer: hasMoreNewerMessages,
+      messages: channel.state.messages,
+      type: 'loadMoreNewerFinished',
+    });
     return queryResponse.messages.length;
   };
 
@@ -736,11 +750,6 @@ const ChannelInner = <
     });
   };
 
-  const isUserResponseArray = (
-    output: string[] | UserResponse<StreamChatGenerics>[],
-  ): output is UserResponse<StreamChatGenerics>[] =>
-    (output as UserResponse<StreamChatGenerics>[])[0]?.id != null;
-
   const doSendMessage = async (
     message: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
@@ -749,7 +758,7 @@ const ChannelInner = <
     const { attachments, id, mentioned_users = [], parent_id, text } = message;
 
     // channel.sendMessage expects an array of user id strings
-    const mentions = isUserResponseArray(mentioned_users)
+    const mentions = isUserResponseArray<StreamChatGenerics>(mentioned_users)
       ? mentioned_users.map(({ id }) => id)
       : mentioned_users;
 
@@ -892,19 +901,23 @@ const ChannelInner = <
     dispatch({ type: 'closeThread' });
   };
 
-  const loadMoreThreadFinished = debounce(
-    (
-      threadHasMore: boolean,
-      threadMessages: Array<ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>>,
-    ) => {
-      dispatch({
-        threadHasMore,
-        threadMessages,
-        type: 'loadMoreThreadFinished',
-      });
-    },
-    2000,
-    { leading: true, trailing: true },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadMoreThreadFinished = useCallback(
+    debounce(
+      (
+        threadHasMore: boolean,
+        threadMessages: Array<ReturnType<ChannelState<StreamChatGenerics>['formatMessage']>>,
+      ) => {
+        dispatch({
+          threadHasMore,
+          threadMessages,
+          type: 'loadMoreThreadFinished',
+        });
+      },
+      2000,
+      { leading: true, trailing: true },
+    ),
+    [],
   );
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
@@ -912,23 +925,23 @@ const ChannelInner = <
     if (state.threadLoadingMore || !state.thread) return;
 
     dispatch({ type: 'startLoadingThread' });
-    const parentID = state.thread.id;
+    const parentId = state.thread.id;
 
-    if (!parentID) {
+    if (!parentId) {
       return dispatch({ type: 'closeThread' });
     }
 
-    const oldMessages = channel.state.threads[parentID] || [];
-    const oldestMessageID = oldMessages[0]?.id;
+    const oldMessages = channel.state.threads[parentId] || [];
+    const oldestMessageId = oldMessages[0]?.id;
 
     try {
-      const queryResponse = await channel.getReplies(parentID, {
-        id_lt: oldestMessageID,
+      const queryResponse = await channel.getReplies(parentId, {
+        id_lt: oldestMessageId,
         limit,
       });
 
       const threadHasMoreMessages = hasMoreMessagesProbably(queryResponse.messages.length, limit);
-      const newThreadMessages = channel.state.threads[parentID] || [];
+      const newThreadMessages = channel.state.threads[parentId] || [];
 
       // next set loadingMore to false so we can start asking for more data
       loadMoreThreadFinished(threadHasMoreMessages, newThreadMessages);
@@ -1013,7 +1026,7 @@ const ChannelInner = <
       BaseImage: props.BaseImage,
       CooldownTimer: props.CooldownTimer,
       CustomMessageActionsList: props.CustomMessageActionsList,
-      DateSeparator: props.DateSeparator,
+      DateSeparator: props.DateSeparator || DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EmojiPicker: props.EmojiPicker,
       emojiSearchIndex: props.emojiSearchIndex,
@@ -1031,7 +1044,7 @@ const ChannelInner = <
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageStatus: props.MessageStatus,
-      MessageSystem: props.MessageSystem,
+      MessageSystem: props.MessageSystem || EventComponent,
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
