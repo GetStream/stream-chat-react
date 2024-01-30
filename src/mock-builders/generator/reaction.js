@@ -10,3 +10,19 @@ export const generateReaction = (options = {}) => {
     ...options,
   };
 };
+
+export const generateReactions = (count, options = () => ({})) => {
+  const reactions = [];
+  for (let i = 0; i < count; i++) {
+    reactions.push(generateReaction(options(i)));
+  }
+  return reactions;
+};
+
+export const countReactions = (reactions = []) => {
+  const reactionCount = {};
+  for (const reaction of reactions) {
+    reactionCount[reaction.type] = (reactionCount[reaction.type] ?? 0) + 1;
+  }
+  return reactionCount;
+};

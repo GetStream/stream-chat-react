@@ -29,6 +29,7 @@ import {
   TranslationProvider,
 } from '../../../context';
 import {
+  countReactions,
   generateChannel,
   generateMessage,
   generateReaction,
@@ -224,9 +225,10 @@ describe('<MessageSimple />', () => {
 
   // FIXME: test relying on deprecated channel config parameter
   it('should render reaction list even though sending reactions is disabled in channel config', async () => {
-    const bobReaction = generateReaction({ user: bob });
+    const reactions = [generateReaction({ user: bob })];
     const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
+      latest_reactions: reactions,
+      reaction_counts: countReactions(reactions),
       text: undefined,
     });
 
@@ -240,9 +242,10 @@ describe('<MessageSimple />', () => {
   });
 
   it('should render reaction list with custom component when one is given', async () => {
-    const bobReaction = generateReaction({ type: 'cool-reaction', user: bob });
+    const reactions = [generateReaction({ type: 'cool-reaction', user: bob })];
     const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
+      latest_reactions: reactions,
+      reaction_counts: countReactions(reactions),
       text: undefined,
     });
     const CustomReactionsList = ({ reactions = [] }) => (

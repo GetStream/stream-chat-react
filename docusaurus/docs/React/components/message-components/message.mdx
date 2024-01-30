@@ -147,6 +147,15 @@ deleted [message object](https://getstream.io/chat/docs/javascript/message_forma
 | ---------------------------------- |
 | (message: StreamMessage) => string |
 
+### getFetchReactionsErrorNotification
+
+Function that returns the notification text to be displayed when loading message reactions fails. This function receives the
+current [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
 ### getFlagMessageErrorNotification
 
 Function that returns the notification text to be displayed when a flag message request fails. This function receives the
@@ -324,8 +333,8 @@ An array of users that have read the current message.
 
 Custom function to render message text content.
 
-| Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+| Type     | Default                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
 | function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
 
 ### retrySendMessage

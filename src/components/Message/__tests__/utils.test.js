@@ -1,5 +1,9 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
-import { getTestClientWithUser, mockTranslatorFunction } from '../../../mock-builders';
+import {
+  countReactions,
+  getTestClientWithUser,
+  mockTranslatorFunction,
+} from '../../../mock-builders';
 import {
   areMessagePropsEqual,
   areMessageUIPropsEqual,
@@ -236,8 +240,10 @@ describe('Message utils', () => {
       expect(messageHasReactions(message)).toBe(false);
     });
     it('should return true if message has reactions', () => {
+      const reactions = [generateReaction()];
       const message = generateMessage({
-        latest_reactions: [generateReaction()],
+        latest_reactions: reactions,
+        reaction_counts: countReactions(reactions),
       });
       expect(messageHasReactions(message)).toBe(true);
     });

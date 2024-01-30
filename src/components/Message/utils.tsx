@@ -305,7 +305,7 @@ export const messageHasReactions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   message?: StreamMessage<StreamChatGenerics>,
-) => !!message?.latest_reactions && !!message.latest_reactions.length;
+) => Object.values(message?.reaction_counts ?? {}).some((count) => count > 0);
 
 export const messageHasAttachments = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

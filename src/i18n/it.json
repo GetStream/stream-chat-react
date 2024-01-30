@@ -17,6 +17,7 @@
   "Error adding flag": "Errore durante l'aggiunta del flag",
   "Error connecting to chat, refresh the page to try again.": "Errore di connessione alla chat, aggiorna la pagina per riprovare",
   "Error deleting message": "Errore durante l'eliminazione del messaggio",
+  "Error fetching reactions": "Errore nel caricamento delle reazioni",
   "Error muting a user ...": "Errore silenziando un utente ...",
   "Error pinning message": "Errore durante il blocco del messaggio",
   "Error removing message pin": "Errore durante la rimozione del PIN del messaggio",

@@ -159,6 +159,16 @@ Function that edits a message.
 | ----------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
 
+### handleFetchReactions
+
+Function that loads the reactions for a message.
+
+| Type                                  |
+| ------------------------------------- |
+| () => Promise<ReactionResponse[]\> \  |
+
+This function limits the number of loaded reactions to 1200. To customize this behavior, you can pass [a custom `ReactionsList` component](../message-components/reactions.mdx#handlefetchreactions).
+
 ### handleFlag
 
 Function that flags a message.
@@ -339,8 +349,8 @@ An array of users that have read the current message.
 
 Custom function to render message text content.
 
-| Type     | Default                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
+| Type     | Default                                                                        |
+| -------- | ------------------------------------------------------------------------------ |
 | function | <GHComponentLink text='renderText' path='/Message/renderText/renderText.tsx'/> |
 
 ### setEditingState

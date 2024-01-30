@@ -17,6 +17,7 @@
   "Error adding flag": "Ошибка добавления флага",
   "Error connecting to chat, refresh the page to try again.": "Ошибка подключения к чату, обновите страницу чтобы попробовать снова.",
   "Error deleting message": "Ошибка при удалении сообщения",
+  "Error fetching reactions": "Ошибка при загрузке реакций",
   "Error muting a user ...": "Ошибка отключения уведомлений от пользователя...",
   "Error pinning message": "Сообщение об ошибке при закреплении",
   "Error removing message pin": "Ошибка при удалении булавки сообщения",

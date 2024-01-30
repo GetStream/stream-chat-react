@@ -17,6 +17,7 @@
   "Error adding flag": "플래그를 추가하는 동안 오류가 발생했습니다.",
   "Error connecting to chat, refresh the page to try again.": "채팅에 연결하는 동안 오류가 발생했습니다. 페이지를 새로고침하여 다시 시도하세요.",
   "Error deleting message": "메시지를 삭제하는 중에 오류가 발생했습니다.",
+  "Error fetching reactions": "반응 로딩 오류.",
   "Error muting a user ...": "사용자를 음소거하는 중에 오류가 발생했습니다...",
   "Error pinning message": "메시지를 핀하는 중에 오류가 발생했습니다.",
   "Error removing message pin": "메시지 핀을 제거하는 중에 오류가 발생했습니다.",

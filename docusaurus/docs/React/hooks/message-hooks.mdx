@@ -179,6 +179,37 @@ const MyCustomMessageComponent = () => {
 };
 ```
 
+### useReactionsFetcher
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useReactionsFetcher.ts) to handle loading message reactions. Returns an async function that loads and returns message reactions.
+
+```jsx
+import { useQuery } from 'react-query';
+
+const MyCustomReactionsList = () => {
+  const { message } = useMessageContext();
+  const { addNotification } = useChannelActionContext();
+  const handleFetchReactions = useReactionsFetcher(message, { notify: addNotification });
+  // This example relies on react-query - but you can use you preferred method
+  // of fetching data instead
+  const { data } = useQuery(['message', message.id, 'reactions'], handleFetchReactions);
+
+  if (!data) {
+    return null;
+  }
+
+  return (
+    <>
+      {data.map((reaction) => (
+        <span key={reaction.type}>reaction.type</span>
+      ))}
+    </>
+  );
+};
+```
+
+This function limits the number of loaded reactions to 1200. To customize this behavior, provide [your own loader function](../message-components/reactions.mdx#handlefetchreactions) instead.
+
 ### useRetryHandler
 
 A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/hooks/useRetryHandler.ts) to handle the retry of sending a message.
