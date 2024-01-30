@@ -340,6 +340,35 @@ describe('MessageList', () => {
       expect(screen.getByText(customUnreadMessagesSeparatorText)).toBeInTheDocument();
     });
 
+    it('should not display custom unread messages separator when last read message is the newest channel message', async () => {
+      const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
+      const UnreadMessagesSeparator = () => <div>{customUnreadMessagesSeparatorText}</div>;
+      const { channel, client } = await initClientWithChannel();
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel, UnreadMessagesSeparator },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        const lastReadMessage = messages.slice(-1)[0];
+        dispatchMarkUnreadForChannel({
+          channel,
+          client,
+          payload: {
+            last_read: lastReadMessage.created_at,
+            last_read_message_id: lastReadMessage.id,
+          },
+        });
+      });
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+    });
+
     describe('notification', () => {
       const chatContext = { themeVersion: '2' };
       const notificationText = `${unread_messages} unread`;
