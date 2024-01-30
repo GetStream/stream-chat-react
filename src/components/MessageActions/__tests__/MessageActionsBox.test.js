@@ -270,7 +270,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as an option for message already marked unread', async () => {
+    it('should be displayed as an option for message already marked unread', async () => {
       const { channel, client } = await initClientWithChannel({
         customUser: me,
         generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
@@ -299,7 +299,7 @@ describe('MessageActionsBox', () => {
       await act(() => {
         fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
-      expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
+      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
 
     it('should not be displayed as an option for message without id', async () => {
@@ -360,7 +360,7 @@ describe('MessageActionsBox', () => {
       });
 
       const [actionsBox1, actionsBox2] = screen.getAllByTestId('message-actions-box');
-      expect(actionsBox1).not.toHaveTextContent(ACTION_TEXT);
+      expect(actionsBox1).toHaveTextContent(ACTION_TEXT);
       expect(actionsBox2).toHaveTextContent(ACTION_TEXT);
     });
 
