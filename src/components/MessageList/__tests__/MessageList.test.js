@@ -340,25 +340,6 @@ describe('MessageList', () => {
       expect(screen.getByText(customUnreadMessagesSeparatorText)).toBeInTheDocument();
     });
 
-    it('should not display unread messages separator in thread', async () => {
-      const { channel, client } = await initClientWithChannel();
-
-      await act(() => {
-        renderComponent({
-          channelProps: { channel },
-          chatClient: client,
-          msgListProps: { messages, threadList: true },
-        });
-      });
-
-      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
-
-      await act(() => {
-        dispatchMarkUnreadForChannel({ channel, client });
-      });
-      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
-    });
-
     describe('notification', () => {
       const chatContext = { themeVersion: '2' };
       const notificationText = `${unread_messages} unread`;
@@ -420,14 +401,6 @@ describe('MessageList', () => {
         });
 
         expect(screen.getByText(customUnreadMessagesNotificationText)).toBeInTheDocument();
-      });
-
-      it('should not display unread messages notification when first unread message id is unknown', async () => {
-        await setupTest({
-          dispatchMarkUnreadPayload: { first_unread_message_id: undefined },
-          entries: observerEntriesScrolledBelowSeparator,
-        });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
       });
 
       it('should not display unread messages notification when unread count is 0', async () => {

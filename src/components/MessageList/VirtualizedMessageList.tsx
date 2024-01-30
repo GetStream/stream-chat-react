@@ -93,8 +93,11 @@ export type VirtuosoContext<
     processedMessages: StreamMessage<StreamChatGenerics>[];
     /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
     virtuosoRef: RefObject<VirtuosoHandle>;
-    /** Message id which was marked as unread. ALl the messages following this message are considered unread in that case.  */
-    firstUnreadMessageId?: string;
+    /**
+     * The ID of the last message considered read by the current user in the current channel.
+     * All the messages following this message are considered unread.
+     */
+    lastReadMessageId?: string;
     /** The number of unread messages in the current channel. */
     unreadMessageCount?: number;
   };
@@ -404,10 +407,7 @@ const VirtualizedMessageListWithContext = <
     <>
       <MessageListMainPanel>
         {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification
-            firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
-            unreadCount={currentUserChannelReadState?.unread_messages}
-          />
+          <UnreadMessagesNotification unreadCount={currentUserChannelReadState?.unread_messages} />
         )}
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
           <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
@@ -429,8 +429,8 @@ const VirtualizedMessageListWithContext = <
               customMessageActions,
               customMessageRenderer,
               DateSeparator,
-              firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
               head,
+              lastReadMessageId: currentUserChannelReadState?.last_read_message_id,
               lastReceivedMessageId,
               loadingMore,
               Message: MessageUIComponent,

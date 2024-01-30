@@ -93,7 +93,7 @@ const MessageListWithContext = <
   const currentUserChannelReadState = client.user && read?.[client.user.id];
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
-    firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
+    unreadCount: currentUserChannelReadState?.unread_messages,
   });
 
   const {
@@ -205,10 +205,7 @@ const MessageListWithContext = <
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
         {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification
-            firstUnreadMessageId={currentUserChannelReadState?.first_unread_message_id}
-            unreadCount={currentUserChannelReadState?.unread_messages}
-          />
+          <UnreadMessagesNotification unreadCount={currentUserChannelReadState?.unread_messages} />
         )}
         <div
           className={`${messageListClass} ${threadListClass}`}

@@ -10,18 +10,18 @@ const targetIsVisibleInContainer = (element: Element, container: Element) => {
 };
 
 export type UseUnreadMessagesNotificationParams = {
-  firstUnreadMessageId?: string;
+  unreadCount?: number;
 };
 
 export const useUnreadMessagesNotification = ({
-  firstUnreadMessageId,
+  unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
   const { messages } = useChannelStateContext('UnreadMessagesNotification');
   const [show, setShow] = useState(false);
   const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';
 
   useEffect(() => {
-    if (!(firstUnreadMessageId && intersectionObserverIsSupported)) {
+    if (!(unreadCount && intersectionObserverIsSupported)) {
       setShow(false);
       return;
     }
@@ -52,7 +52,7 @@ export const useUnreadMessagesNotification = ({
     return () => {
       observer.disconnect();
     };
-  }, [firstUnreadMessageId, intersectionObserverIsSupported, messages]);
+  }, [intersectionObserverIsSupported, messages, unreadCount]);
 
   return { show: show && intersectionObserverIsSupported };
 };

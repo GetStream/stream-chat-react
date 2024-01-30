@@ -127,7 +127,7 @@ export const messageRenderer = <
     customMessageActions,
     customMessageRenderer,
     DateSeparator,
-    firstUnreadMessageId,
+    lastReadMessageId,
     lastReceivedMessageId,
     Message: MessageUIComponent,
     messageActions,
@@ -169,13 +169,13 @@ export const messageRenderer = <
   const endOfGroup =
     shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
+  const showUnreadSeparator =
+    !!unreadMessageCount &&
+    lastReadMessageId !== lastReceivedMessageId &&
+    message.id === lastReadMessageId;
+
   return (
     <>
-      {!!unreadMessageCount && firstUnreadMessageId === message.id && (
-        <div className='str-chat__unread-messages-separator-wrapper'>
-          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
-        </div>
-      )}
       <Message
         additionalMessageInputProps={additionalMessageInputProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
@@ -190,6 +190,11 @@ export const messageRenderer = <
         messageActions={messageActions}
         readBy={ownMessagesReadByOthers[message.id] || []}
       />
+      {showUnreadSeparator && (
+        <div className='str-chat__unread-messages-separator-wrapper'>
+          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
+        </div>
+      )}
     </>
   );
 };

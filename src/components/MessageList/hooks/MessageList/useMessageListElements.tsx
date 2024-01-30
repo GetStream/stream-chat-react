@@ -73,7 +73,7 @@ export const useMessageListElements = <
 
   const elements: React.ReactNode[] = useMemo(
     () =>
-      enrichedMessages.map((message) => {
+      enrichedMessages.map((message, index) => {
         if (
           message.customType === CUSTOM_MESSAGE_TYPE.date &&
           message.date &&
@@ -109,19 +109,16 @@ export const useMessageListElements = <
         const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
         const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
         const unreadState =
-          client.user &&
-          read?.[client.user.id] &&
-          read[client.user.id].first_unread_message_id === message.id
-            ? read[client.user.id]
-            : undefined;
+          client.user && read?.[client.user.id] ? read[client.user.id] : undefined;
+
+        const isNewestMessage = index === enrichedMessages.length - 1;
+        const showUnreadMessagesSeparator =
+          !!unreadState?.unread_messages &&
+          unreadState.last_read_message_id === message.id &&
+          !isNewestMessage;
 
         return (
           <Fragment key={message.id || (message.created_at as string)}>
-            {!threadList && !!unreadState?.unread_messages && (
-              <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-                <UnreadMessagesSeparator unreadCount={unreadState.unread_messages} />
-              </li>
-            )}
             <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
               <Message
                 groupStyles={[groupStyles]} /* TODO: convert to simple string */
@@ -132,6 +129,11 @@ export const useMessageListElements = <
                 {...internalMessageProps}
               />
             </li>
+            {showUnreadMessagesSeparator && (
+              <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+                <UnreadMessagesSeparator unreadCount={unreadState.unread_messages} />
+              </li>
+            )}
           </Fragment>
         );
       }),
