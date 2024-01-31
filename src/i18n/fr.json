@@ -63,6 +63,7 @@
   "Type your message": "Saisissez votre message",
   "Unmute": "Désactiver muet",
   "Unpin": "Détacher",
+  "Unread messages": "Messages non lus",
   "Upload type: \"{{ type }}\" is not allowed": "Le type de téléchargement: \"{{ type }}\" n'est pas autorisé",
   "User uploaded content": "Contenu téléchargé par l'utilisateur",
   "Wait until all attachments have uploaded": "Attendez que toutes les pièces jointes soient téléchargées",

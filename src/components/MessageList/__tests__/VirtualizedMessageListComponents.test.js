@@ -389,7 +389,7 @@ describe('VirtualizedMessageComponents', () => {
           `);
         });
 
-        it('should not be rendered if unread count is falsy', async () => {
+        it('should be rendered if unread count is falsy', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
               lastReadMessageId: messages[0].id,
@@ -408,6 +408,15 @@ describe('VirtualizedMessageComponents', () => {
               <div
                 class="message-component"
               />
+              <div
+                class="str-chat__unread-messages-separator-wrapper"
+              >
+                <div
+                  class="str-chat__unread-messages-separator"
+                >
+                  Unread messages
+                </div>
+              </div>
             </div>
           `);
         });

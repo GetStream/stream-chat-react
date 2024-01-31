@@ -113,9 +113,7 @@ export const useMessageListElements = <
 
         const isNewestMessage = index === enrichedMessages.length - 1;
         const showUnreadMessagesSeparator =
-          !!unreadState?.unread_messages &&
-          unreadState.last_read_message_id === message.id &&
-          !isNewestMessage;
+          unreadState?.last_read_message_id === message.id && !isNewestMessage;
 
         return (
           <Fragment key={message.id || (message.created_at as string)}>

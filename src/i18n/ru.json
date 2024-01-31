@@ -63,6 +63,7 @@
   "Type your message": "Ваше сообщение",
   "Unmute": "Включить уведомления",
   "Unpin": "Открепить",
+  "Unread messages": "Непрочитанные сообщения",
   "Upload type: \"{{ type }}\" is not allowed": "Тип загрузки: \"{{ type }}\" не разрешен",
   "User uploaded content": "Пользователь загрузил контент",
   "Wait until all attachments have uploaded": "Подождите, пока все вложения загрузятся",

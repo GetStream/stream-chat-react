@@ -231,7 +231,7 @@ describe('MessageActionsBox', () => {
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should not be displayed as an option for own messages', async () => {
+    it('should be displayed as an option for own messages', async () => {
       const myMessage = { ...message, user: me };
       const { channel, client } = await initClientWithChannel({
         customUser: me,
@@ -250,7 +250,7 @@ describe('MessageActionsBox', () => {
       await act(() => {
         fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
-      expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
+      expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
 
     it('should not be displayed as an option for thread messages', async () => {

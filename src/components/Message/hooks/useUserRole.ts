@@ -49,7 +49,7 @@ export const useUserRole = <
     (isMyMessage && channelCapabilities['delete-own-message']);
 
   const canFlag = !isMyMessage && channelCapabilities['flag-message'];
-  const canMarkUnread = !isMyMessage && channelCapabilities['read-events'];
+  const canMarkUnread = channelCapabilities['read-events'];
   const canMute = !isMyMessage && channelCapabilities['mute-channel'];
   const canQuote = !disableQuotedMessages && channelCapabilities['quote-message'];
   const canReact = channelCapabilities['send-reaction'];

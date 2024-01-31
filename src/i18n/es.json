@@ -63,6 +63,7 @@
   "Type your message": "Escribe tu mensaje",
   "Unmute": "Activar sonido",
   "Unpin": "Desprender",
+  "Unread messages": "Mensajes no leídos",
   "Upload type: \"{{ type }}\" is not allowed": "Tipo de carga: \"{{ type }}\" no está permitido",
   "User uploaded content": "Contenido subido por el usuario",
   "Wait until all attachments have uploaded": "Espere hasta que se hayan cargado todos los archivos adjuntos",

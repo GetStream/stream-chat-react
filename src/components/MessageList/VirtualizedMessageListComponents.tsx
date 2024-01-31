@@ -170,9 +170,7 @@ export const messageRenderer = <
     shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
   const showUnreadSeparator =
-    !!unreadMessageCount &&
-    lastReadMessageId !== lastReceivedMessageId &&
-    message.id === lastReadMessageId;
+    lastReadMessageId !== lastReceivedMessageId && message.id === lastReadMessageId;
 
   return (
     <>
