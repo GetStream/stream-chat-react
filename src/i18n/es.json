@@ -17,6 +17,7 @@
   "Error adding flag": "Error al agregar la bandera",
   "Error connecting to chat, refresh the page to try again.": "Error al conectarse al chat, actualice la página para volver a intentarlo.",
   "Error deleting message": "Error al eliminar el mensaje",
+  "Error fetching reactions": "Error al cargar las reacciones",
   "Error marking message unread": "Error al marcar el mensaje como no leído",
   "Error muting a user ...": "Error al silenciar a un usuario ...",
   "Error pinning message": "Mensaje de error al fijar",

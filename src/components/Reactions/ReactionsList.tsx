@@ -1,21 +1,20 @@
-import React, { ComponentProps, useState } from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import type { ReactionResponse } from 'stream-chat';
 
-import { useMessageContext } from '../../context/MessageContext';
-import { useChatContext } from '../../context/ChatContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
-import { PopperTooltip } from '../Tooltip';
-import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import type { ReactEventHandler } from '../Message/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
+import { ReactionsListModal } from './ReactionsListModal';
+import { MessageContextValue } from '../../context';
+import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 export type ReactionsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+> = Partial<Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions'>> & {
   /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
   onClick?: ReactEventHandler;
   /** An array of the own reaction objects to distinguish own reactions visually */
@@ -30,113 +29,79 @@ export type ReactionsListProps<
   reverse?: boolean;
 };
 
-const ButtonWithTooltip = ({
-  children,
-  onMouseEnter,
-  onMouseLeave,
-  ...rest
-}: Omit<ComponentProps<'button'>, 'ref'>) => {
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-
-  const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers({
-    onMouseEnter,
-    onMouseLeave,
-  });
-
-  const { themeVersion } = useChatContext('ButtonWithTooltip');
-
-  return (
-    <>
-      {themeVersion === '2' && (
-        <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
-          {rest.title}
-        </PopperTooltip>
-      )}
-      <button
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
-        ref={setReferenceElement}
-        {...rest}
-      >
-        {children}
-      </button>
-    </>
-  );
-};
-
 const UnMemoizedReactionsList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: ReactionsListProps<StreamChatGenerics>,
 ) => {
-  const { onClick, reverse = false, ...rest } = props;
+  const { handleFetchReactions, reverse = false, ...rest } = props;
+  const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
+  const [selectedReactionType, setSelectedReactionType] = useState<string | null>(null);
 
-  const { onReactionListClick } = useMessageContext<StreamChatGenerics>('ReactionsList');
+  const handleReactionButtonClick = (reactionType: string) => {
+    if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
+      return;
+    }
 
-  const {
-    aggregatedUserNamesByType,
-    getEmojiByReactionType,
-    iHaveReactedWithReaction,
-    latestReactions,
-    latestReactionTypes,
-    reactionCounts,
-    supportedReactionsArePresent,
-    totalReactionCount,
-  } = useProcessReactions(rest);
+    setSelectedReactionType(reactionType);
+  };
 
-  if (!latestReactions.length) return null;
-
-  if (!supportedReactionsArePresent) return null;
+  if (!hasReactions) return null;
 
   return (
-    <div
-      aria-label='Reaction list'
-      className={clsx('str-chat__reaction-list str-chat__message-reactions-container', {
-        'str-chat__reaction-list--reverse': reverse,
-      })}
-      data-testid='reaction-list'
-      onClick={onClick || onReactionListClick}
-      onKeyUp={onClick || onReactionListClick}
-      role='figure'
-    >
-      <ul className='str-chat__message-reactions'>
-        {latestReactionTypes.map((reactionType) => {
-          const ReactionOption = getEmojiByReactionType(reactionType);
-          const isOwnReaction = iHaveReactedWithReaction(reactionType);
-          return (
-            ReactionOption && (
-              <li
-                className={clsx('str-chat__message-reaction', {
-                  'str-chat__message-reaction-own': isOwnReaction,
-                })}
-                key={reactionType}
-              >
-                <ButtonWithTooltip
-                  aria-label={`Reactions: ${reactionType}`}
-                  data-testid={`reactions-list-button-${reactionType}`}
-                  title={aggregatedUserNamesByType[reactionType].join(', ')}
-                  type='button'
-                >
-                  <span className='str-chat__message-reaction-emoji'>
-                    <ReactionOption.Component />
-                  </span>
-                  &nbsp;
-                  <span
-                    className='str-chat__message-reaction-count'
-                    data-testclass='reaction-list-reaction-count'
-                  >
-                    {reactionCounts[reactionType]}
-                  </span>
-                </ButtonWithTooltip>
-              </li>
-            )
-          );
+    <>
+      <div
+        aria-label='Reaction list'
+        className={clsx('str-chat__reaction-list str-chat__message-reactions-container', {
+          'str-chat__reaction-list--reverse': reverse,
         })}
-        <li>
-          <span className='str-chat__reaction-list--counter'>{totalReactionCount}</span>
-        </li>
-      </ul>
-    </div>
+        data-testid='reaction-list'
+        role='figure'
+      >
+        <ul className='str-chat__message-reactions'>
+          {existingReactions.map(
+            ({ EmojiComponent, isOwnReaction, reactionCount, reactionType }) =>
+              EmojiComponent && (
+                <li
+                  className={clsx('str-chat__message-reaction', {
+                    'str-chat__message-reaction-own': isOwnReaction,
+                  })}
+                  key={reactionType}
+                >
+                  <button
+                    aria-label={`Reactions: ${reactionType}`}
+                    data-testid={`reactions-list-button-${reactionType}`}
+                    onClick={() => handleReactionButtonClick(reactionType)}
+                    type='button'
+                  >
+                    <span className='str-chat__message-reaction-emoji'>
+                      <EmojiComponent />
+                    </span>
+                    &nbsp;
+                    <span
+                      className='str-chat__message-reaction-count'
+                      data-testclass='reaction-list-reaction-count'
+                    >
+                      {reactionCount}
+                    </span>
+                  </button>
+                </li>
+              ),
+          )}
+          <li>
+            <span className='str-chat__reaction-list--counter'>{totalReactionCount}</span>
+          </li>
+        </ul>
+      </div>
+      <ReactionsListModal
+        handleFetchReactions={handleFetchReactions}
+        onClose={() => setSelectedReactionType(null)}
+        onSelectedReactionTypeChange={setSelectedReactionType}
+        open={selectedReactionType !== null}
+        reactions={existingReactions}
+        selectedReactionType={selectedReactionType}
+      />
+    </>
   );
 };
 

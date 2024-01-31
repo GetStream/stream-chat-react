@@ -12,6 +12,7 @@ import {
   usePinHandler,
   useReactionClick,
   useReactionHandler,
+  useReactionsFetcher,
   useRetryHandler,
   useUserHandler,
   useUserRole,
@@ -41,6 +42,7 @@ type MessageContextPropsToPick =
   | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
+  | 'handleFetchReactions'
   | 'handleRetry'
   | 'isReactionEnabled'
   | 'mutes'
@@ -190,6 +192,7 @@ export const Message = <
     closeReactionSelectorOnClick,
     disableQuotedMessages,
     getDeleteMessageErrorNotification,
+    getFetchReactionsErrorNotification,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
     getMarkMessageUnreadErrorNotification,
@@ -216,6 +219,11 @@ export const Message = <
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
+
+  const handleFetchReactions = useReactionsFetcher(message, {
+    getErrorNotification: getFetchReactionsErrorNotification,
+    notify: addNotification,
+  });
 
   const handleDelete = useDeleteHandler(message, {
     getErrorNotification: getDeleteMessageErrorNotification,
@@ -273,6 +281,7 @@ export const Message = <
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
+      handleFetchReactions={handleFetchReactions}
       handleFlag={handleFlag}
       handleMarkUnread={handleMarkUnread}
       handleMute={handleMute}

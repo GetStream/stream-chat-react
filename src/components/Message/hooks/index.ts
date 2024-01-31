@@ -11,3 +11,4 @@ export * from './useReactionHandler';
 export * from './useRetryHandler';
 export * from './useUserHandler';
 export * from './useUserRole';
+export * from './useReactionsFetcher';

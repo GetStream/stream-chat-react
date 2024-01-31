@@ -14,6 +14,7 @@ import {
   TranslationProvider,
 } from '../../../context';
 import {
+  countReactions,
   generateChannel,
   generateMessage,
   generateReaction,
@@ -101,7 +102,6 @@ async function renderMessageText({
 }
 
 const messageTextTestId = 'message-text-inner-wrapper';
-const reactionSelectorTestId = 'reaction-selector';
 
 describe('<MessageText />', () => {
   beforeEach(jest.clearAllMocks);
@@ -230,9 +230,10 @@ describe('<MessageText />', () => {
   });
 
   it('should show reaction list if message has reactions and detailed reactions are not displayed', async () => {
-    const bobReaction = generateReaction({ user: bob });
+    const reactions = [generateReaction({ user: bob })];
     const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
+      latest_reactions: reactions,
+      reaction_counts: countReactions(reactions),
     });
 
     let container;
@@ -248,9 +249,10 @@ describe('<MessageText />', () => {
 
   // FIXME: test relying on deprecated channel config parameter
   it('should show reaction list even though sending reactions is disabled in channelConfig', async () => {
-    const bobReaction = generateReaction({ user: bob });
+    const reactions = [generateReaction({ user: bob })];
     const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
+      latest_reactions: reactions,
+      reaction_counts: countReactions(reactions),
     });
     const { container, queryByTestId } = await renderMessageText({
       channelCapabilitiesOverrides: { 'send-reaction': false },
@@ -258,24 +260,6 @@ describe('<MessageText />', () => {
     });
 
     expect(queryByTestId('reaction-list')).toBeInTheDocument();
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-  });
-
-  it('should show reaction selector when message has reaction and reaction list is clicked', async () => {
-    const bobReaction = generateReaction({ user: bob });
-    const message = generateAliceMessage({
-      latest_reactions: [bobReaction],
-    });
-    const { container, getByTestId, queryByTestId } = await renderMessageText({
-      customProps: { message },
-    });
-    expect(queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
-    await act(() => {
-      fireEvent.click(getByTestId('reaction-list'));
-    });
-
-    expect(getByTestId(reactionSelectorTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

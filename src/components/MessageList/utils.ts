@@ -316,7 +316,7 @@ export const getGroupStyles = <
 //  The MessageList should have configurable the limit for performing the requests.
 //  This parameter would then be used within these functions
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
-  returnedCountMessages === limit;
+  returnedCountMessages >= limit;
 
 // @deprecated
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>

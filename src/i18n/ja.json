@@ -17,6 +17,7 @@
   "Error adding flag": "フラグを追加のエラーが発生しました",
   "Error connecting to chat, refresh the page to try again.": "チャットへの接続ができませんでした。ページを更新してください。",
   "Error deleting message": "メッセージを削除するエラーが発生しました",
+  "Error fetching reactions": "反応の読み込みエラー",
   "Error marking message unread": "メッセージを未読にする際のエラー",
   "Error muting a user ...": "ユーザーを無音するエラーが発生しました...",
   "Error pinning message": "メッセージをピンのエラーが発生しました",

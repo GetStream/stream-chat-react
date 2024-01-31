@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Mute, UserResponse } from 'stream-chat';
+import type { Mute, ReactionResponse, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
 import type { StreamMessage } from './ChannelStateContext';
@@ -44,6 +44,8 @@ export type MessageContextValue<
   handleDelete: ReactEventHandler;
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
+  /** Function to fetch the message reactions */
+  handleFetchReactions: () => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
   /** Function to mark message and the messages that follow it as unread in a Channel */

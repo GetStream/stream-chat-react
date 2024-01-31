@@ -8,4 +8,5 @@ export * from './UnreadMessagesNotification';
 export * from './UnreadMessagesSeparator';
 export * from './VirtualizedMessageList';
 export * from './hooks';
+export * from './renderMessages';
 export * from './utils';

@@ -250,6 +250,61 @@ describe('MessageList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should render intro messages', async () => {
+    const intro = generateMessage({ customType: 'message.intro' });
+    const headerText = 'header is rendered';
+    const Header = () => <div>{headerText}</div>;
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel, HeaderComponent: Header },
+        chatClient,
+        msgListProps: {
+          messages: [intro],
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(headerText)).toBeInTheDocument();
+    });
+  });
+
+  it('should render system messages', async () => {
+    const system = generateMessage({ text: 'system message is rendered', type: 'system' });
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: {
+          messages: [system],
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(system.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should use custom message list renderer if provided', async () => {
+    const customRenderMessages = ({ messages }) =>
+      messages.map((msg) => <li key={msg.id}>prefixed {msg.text}</li>);
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { renderMessages: customRenderMessages },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(`prefixed ${message1.text}`)).toBeInTheDocument();
+    });
+  });
+
   describe('unread messages', () => {
     const messages = Array.from({ length: 5 }, generateMessage);
     const unread_messages = 2;
