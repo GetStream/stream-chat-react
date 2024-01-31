@@ -9,6 +9,7 @@ import { renderText as defaultRenderText } from './renderText';
 import type { TranslationLanguages } from 'stream-chat';
 import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { MessageErrorText } from './MessageErrorText';
 
 export type MessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -50,7 +51,7 @@ const UnMemoizedMessageTextComponent = <
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
-  const { t, userLanguage } = useTranslationContext('MessageText');
+  const { userLanguage } = useTranslationContext('MessageText');
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
 
@@ -86,22 +87,7 @@ const UnMemoizedMessageTextComponent = <
         onMouseOver={onMentionsHoverMessage}
       >
         {message.quoted_message && <QuotedMessage />}
-        {message.type === 'error' && (
-          <div
-            className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
-          >
-            {t<string>('Error · Unsent')}
-          </div>
-        )}
-        {message.status === 'failed' && (
-          <div
-            className={`str-chat__${theme}-message--error-message str-chat__message--error-message`}
-          >
-            {message.errorStatusCode !== 403
-              ? t<string>('Message Failed · Click to try again')
-              : t<string>('Message Failed · Unauthorized')}
-          </div>
-        )}
+        <MessageErrorText message={message} theme={theme} />
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />
         ) : (

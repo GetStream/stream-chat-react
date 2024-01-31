@@ -50,6 +50,7 @@
   "Search": "Search",
   "Searching...": "Searching...",
   "Send": "Send",
+  "Send Anyway": "Send Anyway",
   "Send message request failed": "Send message request failed",
   "Sending...": "Sending...",
   "Shuffle": "Shuffle",
@@ -82,5 +83,6 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
-  "🏙 Attachment...": "🏙 Attachment..."
+  "🏙 Attachment...": "🏙 Attachment...",
+  "This message did not meet our content guidelines": "This message did not meet our content guidelines"
 }
