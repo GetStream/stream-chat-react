@@ -54,6 +54,8 @@ export const useMessageListElements = <
     enrichedMessages,
   ]);
 
+  const ownReadState = client.user && read?.[client.user.id] ? read[client.user.id] : undefined;
+
   const elements: React.ReactNode[] = useMemo(
     () =>
       renderMessages({
@@ -62,6 +64,7 @@ export const useMessageListElements = <
         lastReceivedMessageId,
         messageGroupStyles,
         messages: enrichedMessages,
+        ownReadState,
         readData,
         sharedMessageProps: { ...internalMessageProps, threadList },
       }),
@@ -71,6 +74,7 @@ export const useMessageListElements = <
       internalMessageProps,
       lastReceivedMessageId,
       messageGroupStyles,
+      ownReadState,
       readData,
       renderMessages,
       threadList,

@@ -26,10 +26,7 @@ import { MessageListNotifications as DefaultMessageListNotifications } from './M
 import { MessageListMainPanel } from './MessageListMainPanel';
 import { getGroupStyles, getLastReceived, GroupStyle, processMessages } from './utils';
 import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
-import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
-import { EventComponent } from '../EventComponent';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
-import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
 import {
   calculateFirstItemIndex,
   calculateItemIndex,
@@ -207,13 +204,13 @@ const VirtualizedMessageListWithContext = <
   useCaptureResizeObserverExceededError();
 
   const {
-    DateSeparator = DefaultDateSeparator,
+    DateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
-    MessageSystem = EventComponent,
+    MessageSystem,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-    UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
+    UnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;

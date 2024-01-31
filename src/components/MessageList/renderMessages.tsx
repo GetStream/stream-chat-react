@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 
 import { MessageProps } from '../Message/types';
 import { StreamMessage } from '../../context/ChannelStateContext';
@@ -7,7 +7,7 @@ import { ComponentContextValue, CustomClasses, isDate } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { GroupStyle } from './utils';
 import { Message } from '../Message/Message';
-import { UserResponse } from 'stream-chat';
+import { ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
 
 export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -16,9 +16,20 @@ export interface RenderMessagesOptions<
   lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<StreamMessage<StreamChatGenerics>>;
+  /**
+   * Object mapping message IDs of own messages to the users who read those messages.
+   */
   readData: Record<string, Array<UserResponse<StreamChatGenerics>>>;
+  /**
+   * Props forwarded to the Message component.
+   */
   sharedMessageProps: SharedMessageProps<StreamChatGenerics>;
   customClasses?: CustomClasses;
+  /**
+   * Current user's read status.
+   * Useful to determine, when a channel has been marked read the last time, the last read message, count of unread messages.
+   */
+  ownReadState?: StreamChannelState<StreamChatGenerics>['read'][keyof StreamChannelState<StreamChatGenerics>['read']];
 }
 
 export type SharedMessageProps<
@@ -45,18 +56,14 @@ export function defaultRenderMessages<
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
   messages,
+  ownReadState,
   readData,
   sharedMessageProps: messageProps,
 }: RenderMessagesOptions<StreamChatGenerics>) {
-  const { DateSeparator, HeaderComponent, MessageSystem } = components;
+  const { DateSeparator, HeaderComponent, MessageSystem, UnreadMessagesSeparator } = components;
 
-  return messages.map((message) => {
-    if (
-      message.customType === CUSTOM_MESSAGE_TYPE.date &&
-      message.date &&
-      isDate(message.date) &&
-      DateSeparator
-    ) {
+  return messages.map((message, index) => {
+    if (message.customType === CUSTOM_MESSAGE_TYPE.date && message.date && isDate(message.date)) {
       return (
         <li key={`${message.date.toISOString()}-i`}>
           <DateSeparator
@@ -76,7 +83,7 @@ export function defaultRenderMessages<
       );
     }
 
-    if (message.type === 'system' && MessageSystem) {
+    if (message.type === 'system') {
       return (
         <li key={message.id || (message.created_at as string)}>
           <MessageSystem message={message} />
@@ -87,21 +94,27 @@ export function defaultRenderMessages<
     const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
     const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
+    const isNewestMessage = index === messages.length - 1;
+    const showUnreadMessagesSeparator =
+      ownReadState?.last_read_message_id === message.id && !isNewestMessage;
+
     return (
-      <li
-        className={messageClass}
-        data-message-id={message.id}
-        data-testid={messageClass}
-        key={message.id || (message.created_at as string)}
-      >
-        <Message
-          groupStyles={[groupStyles]} /* TODO: convert to simple string */
-          lastReceivedId={lastReceivedId}
-          message={message}
-          readBy={readData[message.id] || []}
-          {...messageProps}
-        />
-      </li>
+      <Fragment key={message.id || (message.created_at as string)}>
+        <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
+          <Message
+            groupStyles={[groupStyles]} /* TODO: convert to simple string */
+            lastReceivedId={lastReceivedId}
+            message={message}
+            readBy={readData[message.id] || []}
+            {...messageProps}
+          />
+        </li>
+        {showUnreadMessagesSeparator && UnreadMessagesSeparator && (
+          <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+            <UnreadMessagesSeparator unreadCount={ownReadState.unread_messages} />
+          </li>
+        )}
+      </Fragment>
     );
   });
 }

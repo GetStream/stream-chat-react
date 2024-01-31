@@ -66,7 +66,7 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList';
+import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
@@ -1134,7 +1134,7 @@ const ChannelInner = <
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
-      UnreadMessagesSeparator: props.UnreadMessagesSeparator,
+      UnreadMessagesSeparator: props.UnreadMessagesSeparator || UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
