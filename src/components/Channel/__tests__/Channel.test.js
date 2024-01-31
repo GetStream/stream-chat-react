@@ -20,6 +20,7 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  initClientWithChannel,
   sendMessageApi,
   threadRepliesApi,
   useMockedApis,
@@ -86,7 +87,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 
 const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
 
-// create a full message state so we can properly test `loadMore`
+// create a full message state so that we can properly test `loadMore`
 const messages = Array.from({ length: 25 }, () => generateMessage({ user }));
 
 const pinnedMessages = [generateMessage({ pinned: true, user })];
@@ -882,6 +883,293 @@ describe('Channel', () => {
           );
           expect(contextMessageCount).toBe(firstPageMessages.length + secondPageMessages.length);
         });
+      });
+    });
+
+    describe('jump to first unread message', () => {
+      const defaultQueryLimit = 100;
+      const user = generateUser();
+      const last_read_message_id = 'X';
+      const errorNotificationText = 'Failed to jump to the first unread message';
+
+      afterEach(jest.resetAllMocks);
+
+      it('should not query messages around the last read message if the last read message is unknown', async () => {
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages: [generateMessage()],
+            read: [{ last_read: new Date().toISOString(), user }],
+          },
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation();
+
+        let hasJumped;
+        let notifications;
+        await renderComponent(
+          { channel, chatClient },
+          ({ jumpToFirstUnreadMessage, notifications: contextNotifications }) => {
+            if (hasJumped) {
+              notifications = contextNotifications;
+              return;
+            }
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).not.toHaveBeenCalled();
+          expect(notifications).toHaveLength(1);
+          expect(notifications[0].text).toBe(errorNotificationText);
+        });
+      });
+
+      it('should not query messages around last read message if the message is already loaded in state', async () => {
+        const lastReadMessage = generateMessage({ id: last_read_message_id });
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages: [lastReadMessage, generateMessage()],
+            read: [
+              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+            ],
+          },
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation();
+        let hasJumped;
+        let notifications;
+        await renderComponent(
+          { channel, chatClient },
+          ({ jumpToFirstUnreadMessage, notifications: contextNotifications }) => {
+            if (hasJumped) {
+              notifications = contextNotifications;
+              return;
+            }
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).not.toHaveBeenCalled();
+          expect(notifications).toHaveLength(0);
+        });
+      });
+
+      it('should query messages around the last read message if the message is not loaded in state', async () => {
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages: [generateMessage()],
+            read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+          },
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation();
+        let hasJumped;
+        await renderComponent({ channel, chatClient }, ({ jumpToFirstUnreadMessage }) => {
+          if (hasJumped) return;
+          jumpToFirstUnreadMessage();
+          hasJumped = true;
+        });
+
+        await waitFor(() =>
+          expect(loadMessageIntoState).toHaveBeenCalledWith(
+            last_read_message_id,
+            undefined,
+            defaultQueryLimit,
+          ),
+        );
+      });
+
+      const first_unread_message_id = 'Y';
+      it.each([
+        [
+          false,
+          'last page',
+          'first unread message',
+          [
+            generateMessage(),
+            generateMessage({ id: last_read_message_id }),
+            generateMessage({ id: first_unread_message_id }),
+            generateMessage(),
+          ],
+          first_unread_message_id,
+        ],
+        [
+          true,
+          'other than last page',
+          'first unread message',
+          [
+            generateMessage(),
+            generateMessage(),
+            generateMessage({ id: last_read_message_id }),
+            generateMessage({ id: first_unread_message_id }),
+          ],
+          first_unread_message_id,
+        ],
+        [
+          true,
+          'other than last page',
+          'last read message',
+          [
+            generateMessage(),
+            generateMessage(),
+            generateMessage(),
+            generateMessage({ id: last_read_message_id }),
+          ],
+          last_read_message_id,
+        ],
+      ])(
+        'should set pagination flag hasMore to %s when messages query returns %s and chooses jump-to message id from %s',
+        async (expectedHasMore, _, __, jumpToPage, expectedJumpToId) => {
+          const { channel, client: chatClient } = await initClientWithChannel({
+            customUser: user,
+            generateChannelOptions: {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+            },
+          });
+          let hasJumped;
+          let hasMoreMessages;
+          let highlightedMessageId;
+          let notifications;
+          await renderComponent(
+            { channel, chatClient },
+            ({
+              hasMore,
+              highlightedMessageId: contextHighlightedMessageId,
+              jumpToFirstUnreadMessage,
+              notifications: contextNotifications,
+            }) => {
+              if (hasJumped) {
+                hasMoreMessages = hasMore;
+                highlightedMessageId = contextHighlightedMessageId;
+                notifications = contextNotifications;
+                return;
+              }
+              useMockedApis(chatClient, [queryChannelWithNewMessages(jumpToPage, channel)]);
+              jumpToFirstUnreadMessage(jumpToPage.length);
+              hasJumped = true;
+            },
+          );
+
+          await waitFor(() => {
+            expect(hasMoreMessages).toBe(expectedHasMore);
+            expect(highlightedMessageId).toBe(expectedJumpToId);
+            expect(notifications).toHaveLength(0);
+          });
+        },
+      );
+
+      it('should add notification on failure to load messages', async () => {
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages: [generateMessage()],
+            read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+          },
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockRejectedValueOnce();
+        let hasJumped;
+        let notifications;
+        let messages;
+        let hasMoreMessages;
+        let highlightedMessageId;
+        await renderComponent(
+          { channel, chatClient },
+          ({
+            hasMore,
+            highlightedMessageId: contextHighlightedMessageId,
+            jumpToFirstUnreadMessage,
+            messages: contextMessages,
+            notifications: contextNotifications,
+          }) => {
+            if (hasJumped) {
+              notifications = contextNotifications;
+              messages = contextMessages;
+              hasMoreMessages = hasMore;
+              highlightedMessageId = contextHighlightedMessageId;
+              return;
+            }
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).toHaveBeenCalledTimes(1);
+          expect(notifications[0].text).toBe(errorNotificationText);
+          expect(messages).toHaveLength(1);
+          expect(hasMoreMessages).toBe(true);
+          expect(highlightedMessageId).toBeUndefined();
+        });
+      });
+
+      it('should jump to the first message following immediately the last read message', async () => {
+        const lastReadMessage = generateMessage({ id: last_read_message_id });
+        const messages = [generateMessage(), lastReadMessage, generateMessage(), generateMessage()];
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages,
+            read: [
+              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+            ],
+          },
+        });
+        let hasJumped;
+        let highlightedMessageId;
+        await renderComponent(
+          { channel, chatClient },
+          ({ highlightedMessageId: contextHighlightedMessageId, jumpToFirstUnreadMessage }) => {
+            if (hasJumped) {
+              highlightedMessageId = contextHighlightedMessageId;
+              return;
+            }
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
+
+        await waitFor(() => expect(highlightedMessageId).toBe(messages.slice(-2)[0].id));
+      });
+
+      it('should jump to the last read message if the message is not followed by any other message', async () => {
+        const lastReadMessage = generateMessage({ id: last_read_message_id });
+        const messages = [generateMessage(), generateMessage(), lastReadMessage];
+        const { channel, client: chatClient } = await initClientWithChannel({
+          customUser: user,
+          generateChannelOptions: {
+            messages,
+            read: [
+              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+            ],
+          },
+        });
+        let hasJumped;
+        let highlightedMessageId;
+        await renderComponent(
+          { channel, chatClient },
+          ({ highlightedMessageId: contextHighlightedMessageId, jumpToFirstUnreadMessage }) => {
+            if (hasJumped) {
+              highlightedMessageId = contextHighlightedMessageId;
+              return;
+            }
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
+
+        await waitFor(() => expect(highlightedMessageId).toBe(messages.slice(-1)[0].id));
       });
     });
 

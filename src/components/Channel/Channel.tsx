@@ -706,6 +706,73 @@ const ChannelInner = <
     });
   };
 
+  const jumpToFirstUnreadMessage = useCallback(
+    async (queryMessageLimit = 100) => {
+      if (!client.user) return;
+      const readState = channel.state.read[client.user.id];
+      if (!readState?.last_read_message_id) {
+        addNotification(t('Failed to jump to the first unread message'), 'error');
+        return;
+      }
+
+      let indexOfLastReadMessage;
+
+      const currentMessageSet = channel.state.messages;
+      for (let i = currentMessageSet.length - 1; i >= 0; i--) {
+        const { id } = currentMessageSet[i];
+        if (id === readState.last_read_message_id) {
+          indexOfLastReadMessage = i;
+          break;
+        }
+      }
+
+      if (typeof indexOfLastReadMessage === 'undefined') {
+        dispatch({ loadingMore: true, type: 'setLoadingMore' });
+        let hasMoreMessages = true;
+        try {
+          await channel.state.loadMessageIntoState(
+            readState.last_read_message_id,
+            undefined,
+            queryMessageLimit,
+          );
+          /**
+           * if the index of the last read message on the page is beyond the half of the page,
+           * we have arrived to the oldest page of the channel
+           */
+          indexOfLastReadMessage = channel.state.messages.findIndex(
+            (message) => message.id === readState.last_read_message_id,
+          ) as number;
+          hasMoreMessages = indexOfLastReadMessage >= Math.floor(queryMessageLimit / 2);
+        } catch (e) {
+          addNotification(t('Failed to jump to the first unread message'), 'error');
+          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          return;
+        }
+
+        loadMoreFinished(hasMoreMessages, channel.state.messages);
+      }
+
+      const firstUnreadMessage = channel.state.messages[indexOfLastReadMessage + 1];
+      const jumpToMessageId = firstUnreadMessage?.id ?? readState.last_read_message_id;
+
+      dispatch({
+        hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+        highlightedMessageId: jumpToMessageId,
+        type: 'jumpToMessageFinished',
+      });
+
+      if (clearHighlightedMessageTimeoutId.current) {
+        clearTimeout(clearHighlightedMessageTimeoutId.current);
+      }
+
+      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+        clearHighlightedMessageTimeoutId.current = null;
+        dispatch({ type: 'clearHighlightedMessage' });
+      }, 500);
+    },
+    [addNotification, channel, client, loadMoreFinished, t],
+  );
+
   const deleteMessage = useCallback(
     async (
       message: StreamMessage<StreamChatGenerics>,
@@ -976,6 +1043,7 @@ const ChannelInner = <
       deleteMessage,
       dispatch,
       editMessage,
+      jumpToFirstUnreadMessage,
       jumpToLatestMessage,
       jumpToMessage,
       loadMore,
@@ -1002,6 +1070,7 @@ const ChannelInner = <
       loadMoreNewer,
       markRead,
       quotedMessage,
+      jumpToFirstUnreadMessage,
       jumpToMessage,
       jumpToLatestMessage,
     ],
