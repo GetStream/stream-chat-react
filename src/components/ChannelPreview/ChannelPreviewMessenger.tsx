@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { useChatContext } from '../../context';
 
+import type { Event } from 'stream-chat';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { Event } from '../../../../stream-chat-js';
-import { useChatContext } from '../../context';
 
 const UnMemoizedChannelPreviewMessenger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
