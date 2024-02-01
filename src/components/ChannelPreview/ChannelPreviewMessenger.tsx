@@ -82,7 +82,6 @@ const UnMemoizedChannelPreviewMessenger = <
       if (active) return;
       if (channel.cid !== event.cid) return;
       if (event.type === 'notification.mark_unread' && event.user?.id !== client.user?.id) return;
-      if (event.type === 'message.new' && event.user?.id === client.user?.id) return;
       previouslyClicked.current = false;
     };
     channel.on('notification.mark_unread', handleEvent);
