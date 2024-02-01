@@ -15,7 +15,7 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
-  initClientWithChannel,
+  initClientWithChannels,
   useMockedApis,
 } from '../../../mock-builders';
 
@@ -348,7 +348,10 @@ describe('MessageList', () => {
     it('should display unread messages separator when channel is marked unread and remove it when marked read', async () => {
       jest.useFakeTimers();
 
-      const { channel, client } = await initClientWithChannel();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
 
       await act(() => {
         renderComponent({
@@ -377,7 +380,10 @@ describe('MessageList', () => {
     it('should display custom unread messages separator when channel is marked unread', async () => {
       const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
       const UnreadMessagesSeparator = () => <div>{customUnreadMessagesSeparatorText}</div>;
-      const { channel, client } = await initClientWithChannel();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
 
       await act(() => {
         renderComponent({
@@ -398,7 +404,10 @@ describe('MessageList', () => {
     it('should not display custom unread messages separator when last read message is the newest channel message', async () => {
       const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
       const UnreadMessagesSeparator = () => <div>{customUnreadMessagesSeparatorText}</div>;
-      const { channel, client } = await initClientWithChannel();
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
 
       await act(() => {
         renderComponent({
@@ -437,7 +446,10 @@ describe('MessageList', () => {
         entries,
         msgListProps = {},
       }) => {
-        const { channel, client } = await initClientWithChannel();
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
 
         await act(() => {
           renderComponent({
@@ -518,7 +530,10 @@ describe('MessageList', () => {
       );
 
       it('reflects the channel unread state', async () => {
-        const { channel, client } = await initClientWithChannel();
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
 
         await act(() => {
           renderComponent({
@@ -545,7 +560,10 @@ describe('MessageList', () => {
       });
 
       it('does not reflect the channel unread state in a thread', async () => {
-        const { channel, client } = await initClientWithChannel();
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
 
         await act(() => {
           renderComponent({

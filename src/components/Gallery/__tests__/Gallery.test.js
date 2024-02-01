@@ -4,7 +4,7 @@ import renderer from 'react-test-renderer';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { getTestClientWithUser, initClientWithChannel } from '../../../mock-builders';
+import { getTestClientWithUser, initClientWithChannels } from '../../../mock-builders';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -165,7 +165,10 @@ describe('Gallery', () => {
       return null;
     };
 
-    const { channel, client } = await initClientWithChannel();
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
     const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
     const images = Array.from({ length: 2 }, (_, i) => ({
       fallback: `fallback-${i}`,

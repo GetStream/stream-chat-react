@@ -13,7 +13,7 @@ import {
   dispatchNotificationMarkUnread,
   generateMessage,
   generateUser,
-  initClientWithChannel,
+  initClientWithChannels,
 } from '../../../mock-builders';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
@@ -30,7 +30,7 @@ const defaultMessageContextValue = {
 };
 
 async function renderComponent(boxProps, messageContext = {}) {
-  const { client } = await initClientWithChannel();
+  const { client } = await initClientWithChannels();
   return render(
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t: (key) => key }}>
@@ -211,13 +211,18 @@ describe('MessageActionsBox', () => {
       });
 
     it('should not be displayed as an option in channels without "read-events" capability', async () => {
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: { own_capabilities: own_capabilities.filter((c) => c !== 'read-events') },
+            messages: [message],
+            read,
+          },
+        ],
         customUser: me,
-        generateChannelOptions: {
-          channel: { own_capabilities: own_capabilities.filter((c) => c !== 'read-events') },
-          messages: [message],
-          read,
-        },
       });
 
       await renderMarkUnreadUI({
@@ -233,13 +238,18 @@ describe('MessageActionsBox', () => {
 
     it('should be displayed as an option for own messages', async () => {
       const myMessage = { ...message, user: me };
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: { own_capabilities },
+            messages: [myMessage],
+            read,
+          },
+        ],
         customUser: me,
-        generateChannelOptions: {
-          channel: { own_capabilities },
-          messages: [myMessage],
-          read,
-        },
       });
 
       await renderMarkUnreadUI({
@@ -254,9 +264,12 @@ describe('MessageActionsBox', () => {
     });
 
     it('should not be displayed as an option for thread messages', async () => {
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
       });
 
       await renderMarkUnreadUI({
@@ -271,9 +284,12 @@ describe('MessageActionsBox', () => {
     });
 
     it('should be displayed as an option for message already marked unread', async () => {
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
       });
 
       await renderMarkUnreadUI({
@@ -305,13 +321,18 @@ describe('MessageActionsBox', () => {
     it('should not be displayed as an option for message without id', async () => {
       jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
       const messageWithoutID = { ...message, id: undefined };
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: { own_capabilities },
+            messages: [messageWithoutID],
+            read,
+          },
+        ],
         customUser: me,
-        generateChannelOptions: {
-          channel: { own_capabilities },
-          messages: [messageWithoutID],
-          read,
-        },
       });
       jest.spyOn(channel, 'markUnread');
 
@@ -339,13 +360,18 @@ describe('MessageActionsBox', () => {
           user: me,
         },
       ];
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: { own_capabilities },
+            messages: [message, otherMsg],
+            read,
+          },
+        ],
         customUser: me,
-        generateChannelOptions: {
-          channel: { own_capabilities },
-          messages: [message, otherMsg],
-          read,
-        },
       });
 
       await act(() => {
@@ -365,9 +391,12 @@ describe('MessageActionsBox', () => {
     });
 
     it('should be displayed and execute API request', async () => {
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
       });
       jest.spyOn(channel, 'markUnread');
 
@@ -387,9 +416,12 @@ describe('MessageActionsBox', () => {
 
     it('should allow mark message unread and notify with custom success notification', async () => {
       const getMarkMessageUnreadSuccessNotification = jest.fn();
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
       });
       jest.spyOn(channel, 'markUnread');
 
@@ -409,9 +441,12 @@ describe('MessageActionsBox', () => {
 
     it('should allow mark message unread and notify with custom error notification', async () => {
       const getMarkMessageUnreadErrorNotification = jest.fn();
-      const { channel, client } = await initClientWithChannel({
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
-        generateChannelOptions: { channel: { own_capabilities }, messages: [message], read },
       });
       jest.spyOn(channel, 'markUnread').mockRejectedValueOnce();
 

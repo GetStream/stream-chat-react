@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import {
   generateChannel,
   generateUser,
@@ -15,6 +13,16 @@ import {
 } from 'mock-builders';
 
 import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
+import { Chat } from '../../Chat';
+import { ChatProvider, useChatContext } from '../../../context';
+import {
+  dispatchMessageNewEvent,
+  dispatchNotificationMarkUnread,
+  generateMessage,
+  initClientWithChannels,
+} from '../../../mock-builders';
+
+expect.extend(toHaveNoViolations);
 
 const PREVIEW_TEST_ID = 'channel-preview-button';
 
@@ -23,17 +31,19 @@ describe('ChannelPreviewMessenger', () => {
   let chatClient;
   let channel;
   const renderComponent = (props) => (
-    <div aria-label='Select Channel' role='listbox'>
-      <ChannelPreviewMessenger
-        channel={channel}
-        displayImage='https://randomimage.com/src.jpg'
-        displayTitle='Channel name'
-        latestMessage='Latest message!'
-        setActiveChannel={jest.fn()}
-        unread={10}
-        {...props}
-      />
-    </div>
+    <ChatProvider value={{ client: { user: { id: 'id' } } }}>
+      <div aria-label='Select Channel' role='listbox'>
+        <ChannelPreviewMessenger
+          channel={channel}
+          displayImage='https://randomimage.com/src.jpg'
+          displayTitle='Channel name'
+          latestMessage='Latest message!'
+          setActiveChannel={jest.fn()}
+          unread={10}
+          {...props}
+        />
+      </div>
+    </ChatProvider>
   );
 
   const initializeChannel = async (c) => {
@@ -94,87 +104,335 @@ describe('ChannelPreviewMessenger', () => {
   });
 
   describe('mark active channel read', () => {
-    let activeChannel;
-    let otherChannel;
-    let markRead;
-    const renderComponent = ({
-      activeChannel,
-      activePreviewProps = {},
-      otherChannel,
-      otherPreviewProps = {},
-    }) => {
-      render(
-        <div aria-label='Select Channel' role='listbox'>
+    const ActiveChannelSetter = ({ activeChannel: activeChannelInit, otherChannel, props }) => {
+      const { channel: activeChannel, setActiveChannel } = useChatContext();
+      useEffect(() => {
+        setActiveChannel(activeChannelInit);
+      }, [activeChannelInit, setActiveChannel]);
+
+      if (!activeChannel) return null;
+      return (
+        <div>
           <ChannelPreviewMessenger
+            active={activeChannel?.cid === activeChannelInit.cid}
             activeChannel={activeChannel}
-            channel={activeChannel}
+            channel={activeChannelInit}
             latestMessage='Latest message!'
-            setActiveChannel={jest.fn()}
-            {...activePreviewProps}
+            markActiveChannelReadOnReenter
+            setActiveChannel={setActiveChannel}
+            {...props}
           />
           <ChannelPreviewMessenger
+            active={activeChannel?.cid === otherChannel.cid}
             activeChannel={activeChannel}
             channel={otherChannel}
             latestMessage='Latest message!'
-            setActiveChannel={jest.fn()}
-            {...otherPreviewProps}
+            markActiveChannelReadOnReenter
+            setActiveChannel={setActiveChannel}
+            {...props}
           />
-        </div>,
+        </div>
+      );
+    };
+    const renderComponent = async ({ channels, client, props }) => {
+      await act(() =>
+        render(
+          <Chat client={client}>
+            <ActiveChannelSetter
+              activeChannel={channels[0]}
+              otherChannel={channels[1]}
+              props={props}
+            />
+          </Chat>,
+        ),
       );
     };
 
-    beforeEach(() => {
-      activeChannel = chatClient.channel('type', '1');
-      otherChannel = chatClient.channel('type', '2');
-      activeChannel.initialized = true;
-      otherChannel.initialized = true;
-      activeChannel.state.unreadCount = 1;
-      markRead = jest.spyOn(activeChannel, 'markRead');
-    });
+    const setup = async ({ getReadData } = {}) => {
+      const user = generateUser();
+      const channelCount = 2;
+      const messageCount = 5;
 
-    afterEach(jest.resetAllMocks);
+      return await initClientWithChannels({
+        channelsData: Array.from({ length: channelCount }, (_, channelIndex) => {
+          const messages = Array.from({ length: messageCount }, (_, index) =>
+            generateMessage({ created_at: new Date(index * 1000).toISOString() }),
+          );
+          return {
+            channel: { id: channelIndex + 1, type: 'type' },
+            messages,
+            read: [
+              getReadData?.(messages, channelIndex, user) ?? {
+                last_read: new Date(channelIndex * 1000).toISOString(),
+                last_read_message_id: messages[channelIndex].id,
+                unread_messages: messageCount - channelIndex - 1,
+                user,
+              },
+            ],
+          };
+        }),
+        customUser: user,
+      });
+    };
 
-    it('should mark active channel being left read when enabled', async () => {
-      renderComponent({
-        activeChannel,
-        otherChannel,
-        otherPreviewProps: { markActiveChannelReadOnClick: true },
-      });
-      // eslint-disable-next-line no-unused-vars
-      const [_, inactiveChannelPreview] = screen.getAllByTestId(PREVIEW_TEST_ID);
-      await act(() => {
-        fireEvent.click(inactiveChannelPreview);
-      });
-      expect(markRead).toHaveBeenCalledTimes(1);
-    });
+    it.each([
+      ['mark', 'enabled', undefined],
+      ['not mark', 'disabled', false],
+    ])(
+      'should %s channel read when re-entered a channel with non-zero unread count and markActiveChannelReadOnReenter %s',
+      async (_, __, markActiveChannelReadOnReenter) => {
+        const { channels, client } = await setup();
+        await renderComponent({ channels, client, props: { markActiveChannelReadOnReenter } });
+        const [channel1, channel2] = channels;
+        jest.spyOn(channel1, 'markRead');
+        jest.spyOn(channel2, 'markRead');
+        const [activeChannelPreview, inactiveChannelPreview] = screen.getAllByTestId(
+          PREVIEW_TEST_ID,
+        );
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        expect(channel1.markRead).not.toHaveBeenCalled();
+        expect(channel2.markRead).not.toHaveBeenCalled();
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnReenter === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnReenter === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+          expect(channel2.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+          expect(channel2.markRead).not.toHaveBeenCalled();
+        }
+      },
+    );
 
-    it('should not mark active channel being left read when enabled but without unread messages', async () => {
-      activeChannel.state.unreadCount = 0;
-      renderComponent({
-        activeChannel,
-        otherChannel,
-        otherPreviewProps: { markActiveChannelReadOnClick: true },
-      });
-      // eslint-disable-next-line no-unused-vars
-      const [_, inactiveChannelPreview] = screen.getAllByTestId(PREVIEW_TEST_ID);
-      await act(() => {
-        fireEvent.click(inactiveChannelPreview);
-      });
-      expect(markRead).not.toHaveBeenCalled();
-    });
+    it.each([
+      ['mark', 'enabled', undefined],
+      ['not mark', 'disabled', false],
+    ])(
+      'should %s channel read when re-entered a channel with zero unread count but existing unread message and markActiveChannelReadOnReenter %s',
+      async (_, __, markActiveChannelReadOnReenter) => {
+        const { channels, client } = await setup({
+          getReadData: (messages, channelIndex, user) => ({
+            first_unread_message_id: messages[channelIndex + 1].id,
+            last_read: new Date(channelIndex * 1000).toISOString(),
+            last_read_message_id: messages[channelIndex].id,
+            unread_messages: 0,
+            user,
+          }),
+        });
+        const [channel1, channel2] = channels;
+        jest.spyOn(channel1, 'markRead');
+        jest.spyOn(channel2, 'markRead');
 
-    it('should not mark active channel being left read when disabled', async () => {
-      renderComponent({
-        activeChannel,
-        otherChannel,
-        otherPreviewProps: { markActiveChannelReadOnClick: false },
-      });
-      // eslint-disable-next-line no-unused-vars
-      const [_, inactiveChannelPreview] = screen.getAllByTestId(PREVIEW_TEST_ID);
-      await act(() => {
-        fireEvent.click(inactiveChannelPreview);
-      });
-      expect(markRead).not.toHaveBeenCalled();
-    });
+        await renderComponent({ channels, client, props: { markActiveChannelReadOnReenter } });
+
+        await act(() => {
+          dispatchNotificationMarkUnread({
+            channel: channel1,
+            client,
+            payload: {
+              ...channel1.state.read[client.user],
+              first_unread_message_id: channel1.state.messages[1].id,
+              total_unread_count: 0,
+              unread_channels: 0,
+              unread_count: 0,
+            },
+            user: client.user,
+          });
+        });
+
+        const [activeChannelPreview, inactiveChannelPreview] = screen.getAllByTestId(
+          PREVIEW_TEST_ID,
+        );
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        expect(channel1.markRead).not.toHaveBeenCalled();
+        expect(channel2.markRead).not.toHaveBeenCalled();
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnReenter === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      ['mark', 'enabled', undefined],
+      ['not mark', 'disabled', false],
+    ])(
+      'should %s channel read when re-entered a channel with that received a new message in the meantime and markActiveChannelReadOnReenter %s',
+      async (_, __, markActiveChannelReadOnReenter) => {
+        const { channels, client } = await setup({
+          getReadData: (messages, channelIndex, user) => ({
+            last_read: messages[messages.length - 1].created_at,
+            last_read_message_id: messages[messages.length - 1].id,
+            unread_messages: 0,
+            user,
+          }),
+        });
+        const [channel1, channel2] = channels;
+        jest.spyOn(channel1, 'markRead');
+        jest.spyOn(channel2, 'markRead');
+
+        await renderComponent({ channels, client, props: { markActiveChannelReadOnReenter } });
+
+        const [activeChannelPreview, inactiveChannelPreview] = screen.getAllByTestId(
+          PREVIEW_TEST_ID,
+        );
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        expect(channel1.markRead).not.toHaveBeenCalled();
+        expect(channel2.markRead).not.toHaveBeenCalled();
+
+        await act(() => {
+          dispatchMessageNewEvent(client, generateMessage({ user: generateUser() }), channel1);
+        });
+
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        expect(channel1.markRead).not.toHaveBeenCalled();
+        expect(channel2.markRead).not.toHaveBeenCalled();
+
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        expect(channel1.markRead).not.toHaveBeenCalled();
+        expect(channel2.markRead).not.toHaveBeenCalled();
+
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnReenter === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      ['mark', 'enabled', undefined],
+      ['not mark', 'disabled', false],
+    ])(
+      'should %s channel read when active channel with non-zero unread count is left and markActiveChannelReadOnLeave %s',
+      async (_, __, markActiveChannelReadOnLeave) => {
+        const { channels, client } = await setup();
+        await renderComponent({
+          channels,
+          client,
+          props: { markActiveChannelReadOnLeave, markActiveChannelReadOnReenter: false },
+        });
+        const [channel1, channel2] = channels;
+        jest.spyOn(channel1, 'markRead');
+        jest.spyOn(channel2, 'markRead');
+        const [activeChannelPreview, inactiveChannelPreview] = screen.getAllByTestId(
+          PREVIEW_TEST_ID,
+        );
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+          expect(channel2.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+          expect(channel2.markRead).not.toHaveBeenCalled();
+        }
+      },
+    );
+
+    it.each([
+      ['mark', 'enabled', undefined],
+      ['not mark', 'disabled', false],
+    ])(
+      'should %s channel read when active channel with zero unread count but existing unread message and markActiveChannelReadOnLeave %s',
+      async (_, __, markActiveChannelReadOnLeave) => {
+        const { channels, client } = await setup({
+          getReadData: (messages, channelIndex, user) => ({
+            first_unread_message_id: messages[channelIndex + 1].id,
+            last_read: new Date(channelIndex * 1000).toISOString(),
+            last_read_message_id: messages[channelIndex].id,
+            unread_messages: 0,
+            user,
+          }),
+        });
+        const [channel1, channel2] = channels;
+        jest.spyOn(channel1, 'markRead');
+        jest.spyOn(channel2, 'markRead');
+
+        await renderComponent({
+          channels,
+          client,
+          props: { markActiveChannelReadOnLeave, markActiveChannelReadOnReenter: false },
+        });
+
+        await act(() => {
+          dispatchNotificationMarkUnread({
+            channel: channel1,
+            client,
+            payload: {
+              ...channel1.state.read[client.user],
+              first_unread_message_id: channel1.state.messages[1].id,
+              total_unread_count: 0,
+              unread_channels: 0,
+              unread_count: 0,
+            },
+            user: client.user,
+          });
+        });
+
+        const [activeChannelPreview, inactiveChannelPreview] = screen.getAllByTestId(
+          PREVIEW_TEST_ID,
+        );
+        await act(() => {
+          fireEvent.click(inactiveChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+
+        await act(() => {
+          fireEvent.click(activeChannelPreview);
+        });
+        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+          expect(channel1.markRead).toHaveBeenCalledTimes(1);
+        } else {
+          expect(channel1.markRead).not.toHaveBeenCalled();
+        }
+        expect(channel2.markRead).not.toHaveBeenCalled();
+      },
+    );
   });
 });

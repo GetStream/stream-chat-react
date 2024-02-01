@@ -127,6 +127,7 @@ export const messageRenderer = <
     customMessageActions,
     customMessageRenderer,
     DateSeparator,
+    firstUnreadMessageId,
     lastReadMessageId,
     lastReceivedMessageId,
     Message: MessageUIComponent,
@@ -136,7 +137,7 @@ export const messageRenderer = <
     ownMessagesReadByOthers,
     processedMessages: messageList,
     shouldGroupByUser,
-    unreadMessageCount,
+    unreadMessageCount = 0,
     UnreadMessagesSeparator,
     virtuosoRef,
   } = virtuosoContext;
@@ -169,9 +170,10 @@ export const messageRenderer = <
   const endOfGroup =
     shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
+  const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
+  const isLastReadMessage = message.id === lastReadMessageId;
   const showUnreadSeparator =
-    lastReadMessageId !== lastReceivedMessageId && message.id === lastReadMessageId;
-
+    isLastReadMessage && !isNewestMessage && (firstUnreadMessageId || unreadMessageCount > 0); // unread count can be 0 if the user marks unread only own messages
   return (
     <>
       <Message

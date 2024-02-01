@@ -20,7 +20,7 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
-  initClientWithChannel,
+  initClientWithChannels,
   sendMessageApi,
   threadRepliesApi,
   useMockedApis,
@@ -917,12 +917,17 @@ describe('Channel', () => {
       afterEach(jest.resetAllMocks);
 
       it('should not query messages around the last read message if the last read message is unknown', async () => {
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), user }],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages: [generateMessage()],
-            read: [{ last_read: new Date().toISOString(), user }],
-          },
         });
         const loadMessageIntoState = jest
           .spyOn(channel.state, 'loadMessageIntoState')
@@ -951,14 +956,19 @@ describe('Channel', () => {
 
       it('should not query messages around last read message if the message is already loaded in state', async () => {
         const lastReadMessage = generateMessage({ id: last_read_message_id });
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [lastReadMessage, generateMessage()],
+              read: [
+                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+              ],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages: [lastReadMessage, generateMessage()],
-            read: [
-              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
-            ],
-          },
         });
         const loadMessageIntoState = jest
           .spyOn(channel.state, 'loadMessageIntoState')
@@ -984,12 +994,17 @@ describe('Channel', () => {
       });
 
       it('should query messages around the last read message if the message is not loaded in state', async () => {
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages: [generateMessage()],
-            read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
-          },
         });
         const loadMessageIntoState = jest
           .spyOn(channel.state, 'loadMessageIntoState')
@@ -1051,12 +1066,17 @@ describe('Channel', () => {
       ])(
         'should set pagination flag hasMore to %s when messages query returns %s and chooses jump-to message id from %s',
         async (expectedHasMore, _, __, jumpToPage, expectedJumpToId) => {
-          const { channel, client: chatClient } = await initClientWithChannel({
+          const {
+            channels: [channel],
+            client: chatClient,
+          } = await initClientWithChannels({
+            channelsData: [
+              {
+                messages: [generateMessage()],
+                read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+              },
+            ],
             customUser: user,
-            generateChannelOptions: {
-              messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
-            },
           });
           let hasJumped;
           let hasMoreMessages;
@@ -1091,12 +1111,17 @@ describe('Channel', () => {
       );
 
       it('should add notification on failure to load messages', async () => {
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages: [generateMessage()],
-            read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
-          },
         });
         const loadMessageIntoState = jest
           .spyOn(channel.state, 'loadMessageIntoState')
@@ -1139,14 +1164,19 @@ describe('Channel', () => {
       it('should jump to the first message following immediately the last read message', async () => {
         const lastReadMessage = generateMessage({ id: last_read_message_id });
         const messages = [generateMessage(), lastReadMessage, generateMessage(), generateMessage()];
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages,
+              read: [
+                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+              ],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages,
-            read: [
-              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
-            ],
-          },
         });
         let hasJumped;
         let highlightedMessageId;
@@ -1168,14 +1198,19 @@ describe('Channel', () => {
       it('should jump to the last read message if the message is not followed by any other message', async () => {
         const lastReadMessage = generateMessage({ id: last_read_message_id });
         const messages = [generateMessage(), generateMessage(), lastReadMessage];
-        const { channel, client: chatClient } = await initClientWithChannel({
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages,
+              read: [
+                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+              ],
+            },
+          ],
           customUser: user,
-          generateChannelOptions: {
-            messages,
-            read: [
-              { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
-            ],
-          },
         });
         let hasJumped;
         let highlightedMessageId;

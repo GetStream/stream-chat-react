@@ -95,8 +95,11 @@ export function defaultRenderMessages<
     const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
     const isNewestMessage = index === messages.length - 1;
-    const showUnreadMessagesSeparator =
-      ownReadState?.last_read_message_id === message.id && !isNewestMessage;
+    const isLastReadMessage = ownReadState?.last_read_message_id === message.id;
+    const showUnreadSeparator =
+      isLastReadMessage &&
+      !isNewestMessage &&
+      (ownReadState?.first_unread_message_id || ownReadState?.unread_messages > 0); // unread count can be 0 if the user marks unread only own messages
 
     return (
       <Fragment key={message.id || (message.created_at as string)}>
@@ -109,7 +112,7 @@ export function defaultRenderMessages<
             {...messageProps}
           />
         </li>
-        {showUnreadMessagesSeparator && UnreadMessagesSeparator && (
+        {showUnreadSeparator && UnreadMessagesSeparator && (
           <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
             <UnreadMessagesSeparator unreadCount={ownReadState.unread_messages} />
           </li>

@@ -13,7 +13,7 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
-  initClientWithChannel,
+  initClientWithChannels,
 } from '../../../mock-builders';
 import {
   ChannelActionProvider,
@@ -318,7 +318,10 @@ describe('VirtualizedMessageComponents', () => {
         const Message = () => <div className='message-component' />;
 
         const renderMarkUnread = async ({ virtuosoContext, virtuosoIndex } = {}) => {
-          const { channel, client } = await initClientWithChannel();
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
           return render(
             <ChatProvider value={{ client }}>
               <TranslationProvider value={{ t: (v) => v }}>
@@ -334,7 +337,7 @@ describe('VirtualizedMessageComponents', () => {
           );
         };
 
-        it('should be rendered below the last read message', async () => {
+        it('should be rendered below the last read message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
               lastReadMessageId: messages[0].id,
@@ -389,9 +392,10 @@ describe('VirtualizedMessageComponents', () => {
           `);
         });
 
-        it('should be rendered if unread count is falsy', async () => {
+        it('should be rendered if unread count is falsy and first unread message is known', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
+              firstUnreadMessageId: messages[1].id,
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
@@ -417,6 +421,29 @@ describe('VirtualizedMessageComponents', () => {
                   Unread messages
                 </div>
               </div>
+            </div>
+          `);
+        });
+
+        it('should not be rendered if unread count is falsy and first unread messages is unknown', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadMessageId: messages[0].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 0,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
             </div>
           `);
         });

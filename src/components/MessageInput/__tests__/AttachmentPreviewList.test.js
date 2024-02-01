@@ -12,7 +12,7 @@ import { AttachmentPreviewList, ImagePreviewItem } from '../AttachmentPreviewLis
 import { ComponentProvider, useChatContext } from '../../../context';
 import { MessageInputContextProvider } from '../../../context/MessageInputContext';
 
-import { generateUpload, initClientWithChannel } from '../../../mock-builders';
+import { generateUpload, initClientWithChannels } from '../../../mock-builders';
 
 const uploadsReducer = (pv, cv) => {
   pv[cv.id] = cv;
@@ -127,7 +127,10 @@ describe('AttachmentPreviewList', () => {
       return null;
     };
 
-    const { channel, client } = await initClientWithChannel();
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
 
     const names = ['image-upload-1', 'image-upload-2'];
     const images = names.map((name, id) =>
