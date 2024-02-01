@@ -23,7 +23,7 @@ export function MessageBounceOptions<
   }
 
   return (
-    <div className='str-chat__message-bounce-options'>
+    <div className='str-chat__message-bounce-options' data-testid='message-bounce-options'>
       <div className='str-chat__message-bounce-options-header'>
         {children ?? t<string>('This message did not meet our content guidelines')}
       </div>
