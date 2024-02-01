@@ -383,14 +383,19 @@ const VirtualizedMessageListWithContext = <
   };
 
   useEffect(() => {
+    let scrollTimeout: ReturnType<typeof setTimeout>;
     if (highlightedMessageId) {
       const index = findMessageIndex(processedMessages, highlightedMessageId);
       if (index !== -1) {
-        virtuoso.current?.scrollToIndex({ align: 'center', index });
+        scrollTimeout = setTimeout(() => {
+          virtuoso.current?.scrollToIndex({ align: 'center', index });
+        }, 0);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlightedMessageId]);
+    return () => {
+      clearTimeout(scrollTimeout);
+    };
+  }, [highlightedMessageId, processedMessages]);
 
   if (!processedMessages) return null;
 
