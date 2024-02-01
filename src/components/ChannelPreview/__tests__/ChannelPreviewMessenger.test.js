@@ -330,7 +330,7 @@ describe('ChannelPreviewMessenger', () => {
     );
 
     it.each([
-      ['mark', 'enabled', undefined],
+      ['mark', 'enabled', true],
       ['not mark', 'disabled', false],
     ])(
       'should %s channel read when active channel with non-zero unread count is left and markActiveChannelReadOnLeave %s',
@@ -350,7 +350,7 @@ describe('ChannelPreviewMessenger', () => {
         await act(() => {
           fireEvent.click(inactiveChannelPreview);
         });
-        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+        if (markActiveChannelReadOnLeave) {
           expect(channel1.markRead).toHaveBeenCalledTimes(1);
         } else {
           expect(channel1.markRead).not.toHaveBeenCalled();
@@ -360,7 +360,7 @@ describe('ChannelPreviewMessenger', () => {
         await act(() => {
           fireEvent.click(activeChannelPreview);
         });
-        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+        if (markActiveChannelReadOnLeave) {
           expect(channel1.markRead).toHaveBeenCalledTimes(1);
           expect(channel2.markRead).toHaveBeenCalledTimes(1);
         } else {
@@ -371,7 +371,7 @@ describe('ChannelPreviewMessenger', () => {
     );
 
     it.each([
-      ['mark', 'enabled', undefined],
+      ['mark', 'enabled', true],
       ['not mark', 'disabled', false],
     ])(
       'should %s channel read when active channel with zero unread count but existing unread message and markActiveChannelReadOnLeave %s',
@@ -416,7 +416,7 @@ describe('ChannelPreviewMessenger', () => {
         await act(() => {
           fireEvent.click(inactiveChannelPreview);
         });
-        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+        if (markActiveChannelReadOnLeave) {
           expect(channel1.markRead).toHaveBeenCalledTimes(1);
         } else {
           expect(channel1.markRead).not.toHaveBeenCalled();
@@ -426,7 +426,7 @@ describe('ChannelPreviewMessenger', () => {
         await act(() => {
           fireEvent.click(activeChannelPreview);
         });
-        if (typeof markActiveChannelReadOnLeave === 'undefined') {
+        if (markActiveChannelReadOnLeave) {
           expect(channel1.markRead).toHaveBeenCalledTimes(1);
         } else {
           expect(channel1.markRead).not.toHaveBeenCalled();
