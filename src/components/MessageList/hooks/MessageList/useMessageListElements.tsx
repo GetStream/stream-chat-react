@@ -1,4 +1,3 @@
-/* eslint-disable no-continue */
 import React, { useMemo } from 'react';
 
 import { useLastReadData } from '../useLastReadData';
@@ -7,8 +6,7 @@ import { getLastReceived, GroupStyle } from '../../utils';
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
-import type { UserResponse } from 'stream-chat';
-
+import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
@@ -23,7 +21,7 @@ type UseMessageListElementsProps<
   renderMessages: MessageRenderer<StreamChatGenerics>;
   returnAllReadData: boolean;
   threadList: boolean;
-  read?: Record<string, { last_read: Date; user: UserResponse<StreamChatGenerics> }>;
+  read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
 export const useMessageListElements = <
@@ -56,6 +54,8 @@ export const useMessageListElements = <
     enrichedMessages,
   ]);
 
+  const ownReadState = client.user && read?.[client.user.id] ? read[client.user.id] : undefined;
+
   const elements: React.ReactNode[] = useMemo(
     () =>
       renderMessages({
@@ -64,6 +64,7 @@ export const useMessageListElements = <
         lastReceivedMessageId,
         messageGroupStyles,
         messages: enrichedMessages,
+        ownReadState,
         readData,
         sharedMessageProps: { ...internalMessageProps, threadList },
       }),
@@ -73,6 +74,7 @@ export const useMessageListElements = <
       internalMessageProps,
       lastReceivedMessageId,
       messageGroupStyles,
+      ownReadState,
       readData,
       renderMessages,
       threadList,

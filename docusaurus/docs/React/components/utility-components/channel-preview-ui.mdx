@@ -109,6 +109,22 @@ Latest message preview to display. Will be either a string or a JSX.Element rend
 | --------------------- |
 | string \| JSX.Element |
 
+### markActiveChannelReadOn
+
+Configuration that determines when and whether a channel is marked read upon clicking ChannelPreview.
+1. `MarkChannelReadOn.never`: Prevents a channel from being marked read when any ChannelPreview is clicked.
+2. `MarkChannelReadOn.leave`: Marks active channel read before switching the active channel state to the clicked preview's channel.
+This means that active channel being left is marked read before navigating to another channel.
+3. `MarkChannelReadOn.reenter`: Channel, which is re-entered by clicking the preview, is marked read. That means:
+- an active channel can be marked unread, left and on return marked read.
+- a non-active channel receives a new message, is entered, left and re-entered and marked read.
+
+The default configuration is set to `MarkChannelReadOn.reenter`.
+
+| Type | Default                     |
+|------|-----------------------------|
+| enum | `MarkChannelReadOn.reenter` |
+
 ### messageDeliveryStatus
 
 Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. The value is calculated from `channel.read` data on mount and updated on every `message.new` resp. `message.read` WS event.

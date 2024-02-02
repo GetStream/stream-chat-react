@@ -266,7 +266,7 @@ If true, picking a reaction from the `ReactionSelector` component will close the
 
 ### customMessageActions
 
-An object containing custom message actions (key) and function handlers (value). For each custom action a dedicated item (button) in [`MessageActionsBox`](../message-components/message_ui/#message-actions-box) is rendered. The key is used as a display text inside the button. Therefore, it should not be cryptic but rather bear the end user in mind when formulating it.
+An object containing custom message actions (key) and function handlers (value). For each custom action a dedicated item (button) in [`MessageActionsBox`](../message-components/message_ui#message-actions-box) is rendered. The key is used as a display text inside the button. Therefore, it should not be cryptic but rather bear the end user in mind when formulating it.
 
 ```jsx
 const customActions = {
@@ -345,6 +345,24 @@ flagged [message object](https://getstream.io/chat/docs/javascript/message_forma
 
 Function that returns the notification text to be displayed when a flag message request succeeds. This function receives the
 flagged [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getMarkMessageUnreadErrorNotification
+
+Function that returns the notification text to be displayed when a mark message unread request fails. This function receives the
+marked [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
+
+| Type                               |
+| ---------------------------------- |
+| (message: StreamMessage) => string |
+
+### getMarkMessageUnreadSuccessNotification
+
+Function that returns the notification text to be displayed when a mark message unread request succeeds. This function receives the
+marked [message object](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) as its argument.
 
 | Type                               |
 | ---------------------------------- |
@@ -440,6 +458,14 @@ Function called when more messages are to be loaded, provide your own function t
 | Type     | Default                                                                                  |
 | -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
+
+### markReadOnScrolledToBottom
+
+When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
 
 ### Message
 

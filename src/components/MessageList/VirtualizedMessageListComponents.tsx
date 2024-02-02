@@ -1,14 +1,18 @@
-import { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { isDate, useComponentContext } from '../../context';
-import React from 'react';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { Message } from '../Message';
-import { ItemProps } from 'react-virtuoso';
-import { GroupStyle } from './utils';
 import clsx from 'clsx';
-import { VirtuosoContext } from './VirtualizedMessageList';
+import throttle from 'lodash.throttle';
+import React from 'react';
+import { ItemProps, ListItem } from 'react-virtuoso';
+
+import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
+import { Message } from '../Message';
+
+import { isDate, StreamMessage, useComponentContext } from '../../context';
+import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
+
+import type { GroupStyle } from './utils';
+import type { VirtuosoContext } from './VirtualizedMessageList';
+import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -19,6 +23,24 @@ export function calculateItemIndex(virtuosoIndex: number, numItemsPrepended: num
 export function calculateFirstItemIndex(numItemsPrepended: number) {
   return PREPEND_OFFSET - numItemsPrepended;
 }
+
+export const makeItemsRenderedHandler = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  renderedItemsActions: Array<(msg: StreamMessage<StreamChatGenerics>[]) => void>,
+  processedMessages: StreamMessage<StreamChatGenerics>[],
+) =>
+  throttle((items: ListItem<UnknownType>[]) => {
+    const renderedMessages = items
+      .map((item) => {
+        if (!item.originalIndex) return undefined;
+        return processedMessages[calculateItemIndex(item.originalIndex, PREPEND_OFFSET)];
+      })
+      .filter((msg) => !!msg);
+    renderedItemsActions.forEach((action) =>
+      action(renderedMessages as StreamMessage<StreamChatGenerics>[]),
+    );
+  }, 200);
 
 type CommonVirtuosoComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -105,6 +127,8 @@ export const messageRenderer = <
     customMessageActions,
     customMessageRenderer,
     DateSeparator,
+    firstUnreadMessageId,
+    lastReadMessageId,
     lastReceivedMessageId,
     Message: MessageUIComponent,
     messageActions,
@@ -113,6 +137,8 @@ export const messageRenderer = <
     ownMessagesReadByOthers,
     processedMessages: messageList,
     shouldGroupByUser,
+    unreadMessageCount = 0,
+    UnreadMessagesSeparator,
     virtuosoRef,
   } = virtuosoContext;
 
@@ -144,20 +170,31 @@ export const messageRenderer = <
   const endOfGroup =
     shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
 
+  const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
+  const isLastReadMessage = message.id === lastReadMessageId;
+  const showUnreadSeparator =
+    isLastReadMessage && !isNewestMessage && (firstUnreadMessageId || unreadMessageCount > 0); // unread count can be 0 if the user marks unread only own messages
   return (
-    <Message
-      additionalMessageInputProps={additionalMessageInputProps}
-      autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
-      closeReactionSelectorOnClick={closeReactionSelectorOnClick}
-      customMessageActions={customMessageActions}
-      endOfGroup={endOfGroup}
-      firstOfGroup={firstOfGroup}
-      groupedByUser={groupedByUser}
-      lastReceivedId={lastReceivedMessageId}
-      message={message}
-      Message={MessageUIComponent}
-      messageActions={messageActions}
-      readBy={ownMessagesReadByOthers[message.id] || []}
-    />
+    <>
+      <Message
+        additionalMessageInputProps={additionalMessageInputProps}
+        autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
+        closeReactionSelectorOnClick={closeReactionSelectorOnClick}
+        customMessageActions={customMessageActions}
+        endOfGroup={endOfGroup}
+        firstOfGroup={firstOfGroup}
+        groupedByUser={groupedByUser}
+        lastReceivedId={lastReceivedMessageId}
+        message={message}
+        Message={MessageUIComponent}
+        messageActions={messageActions}
+        readBy={ownMessagesReadByOthers[message.id] || []}
+      />
+      {showUnreadSeparator && (
+        <div className='str-chat__unread-messages-separator-wrapper'>
+          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
+        </div>
+      )}
+    </>
   );
 };

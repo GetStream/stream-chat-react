@@ -4,10 +4,13 @@ import {
   useEnrichedMessages,
   useMessageListElements,
   useScrollLocationLogic,
+  useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import { useMarkRead } from './hooks/useMarkRead';
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
+import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import {
   ChannelActionContextValue,
@@ -63,6 +66,7 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
+    markReadOnScrolledToBottom,
     renderMessages = defaultRenderMessages,
     messageLimit = 100,
     loadMore: loadMoreCallback,
@@ -76,7 +80,7 @@ const MessageListWithContext = <
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
   const [ulElement, setUlElement] = React.useState<HTMLUListElement | null>(null);
 
-  const { customClasses } = useChatContext<StreamChatGenerics>('MessageList');
+  const { client, customClasses } = useChatContext<StreamChatGenerics>('MessageList');
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -84,9 +88,15 @@ const MessageListWithContext = <
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
+    UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
   const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
+  const currentUserChannelReadState = client.user && read?.[client.user.id];
+
+  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
+    unreadCount: currentUserChannelReadState?.unread_messages,
+  });
 
   const {
     hasNewMessages,
@@ -101,6 +111,13 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
+  });
+
+  useMarkRead({
+    isMessageListScrolledToBottom,
+    markReadOnScrolledToBottom,
+    messageListIsThread: threadList,
+    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -125,6 +142,8 @@ const MessageListWithContext = <
       getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
       getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
       getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
+      getMarkMessageUnreadErrorNotification: props.getMarkMessageUnreadErrorNotification,
+      getMarkMessageUnreadSuccessNotification: props.getMarkMessageUnreadSuccessNotification,
       getMuteUserErrorNotification: props.getMuteUserErrorNotification,
       getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
       getPinMessageErrorNotification: props.getPinMessageErrorNotification,
@@ -188,6 +207,9 @@ const MessageListWithContext = <
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
+        {!threadList && showUnreadMessagesNotification && (
+          <UnreadMessagesNotification unreadCount={currentUserChannelReadState?.unread_messages} />
+        )}
         <div
           className={`${messageListClass} ${threadListClass}`}
           onScroll={onScroll}
@@ -235,6 +257,7 @@ const MessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottomFromNotification}
         threadList={threadList}
+        unreadCount={threadList ? undefined : currentUserChannelReadState?.unread_messages}
       />
     </MessageListContextProvider>
   );
@@ -249,6 +272,8 @@ type PropsDrilledToMessage =
   | 'getDeleteMessageErrorNotification'
   | 'getFlagMessageErrorNotification'
   | 'getFlagMessageSuccessNotification'
+  | 'getMarkMessageUnreadErrorNotification'
+  | 'getMarkMessageUnreadSuccessNotification'
   | 'getMuteUserErrorNotification'
   | 'getMuteUserSuccessNotification'
   | 'getPinMessageErrorNotification'
@@ -299,6 +324,8 @@ export type MessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
+  /** When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list. */
+  markReadOnScrolledToBottom?: boolean;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */

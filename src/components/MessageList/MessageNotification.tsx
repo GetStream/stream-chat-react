@@ -9,6 +9,8 @@ export type MessageNotificationProps = PropsWithChildren<{
   showNotification?: boolean;
   /** informs the component whether it is rendered inside a thread message list */
   threadList?: boolean;
+  /** */
+  unreadCount?: number;
 }>;
 
 const UnMemoizedMessageNotification = (props: MessageNotificationProps) => {

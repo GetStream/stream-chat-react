@@ -26,6 +26,7 @@ import type {
   SuggestionItemProps,
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
+import { UnreadMessagesSeparatorProps } from '../components/MessageList/UnreadMessagesSeparator';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
@@ -39,14 +40,18 @@ import type {
 } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
+import { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
   Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
   Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  MessageSystem: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   reactionOptions: ReactionOptions;
+  UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
   AttachmentPreviewList?: React.ComponentType;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
@@ -55,7 +60,6 @@ export type ComponentContextValue<
   BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps<StreamChatGenerics>>;
-  DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
   EmojiPicker?: React.ComponentType;
   emojiSearchIndex?: EmojiSearchIndex;
@@ -72,7 +76,6 @@ export type ComponentContextValue<
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageStatus?: React.ComponentType<MessageStatusProps>;
-  MessageSystem?: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<StreamChatGenerics>>;
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
@@ -87,6 +90,7 @@ export type ComponentContextValue<
   ThreadStart?: React.ComponentType;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };
 

@@ -66,9 +66,10 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import { hasMoreMessagesProbably } from '../MessageList/utils';
+import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
+import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { makeAddNotifications } from './utils';
-import { getChannel } from '../../utils/getChannel';
+import { getChannel } from '../../utils';
 
 import type { MessageProps } from '../Message/types';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
@@ -82,16 +83,13 @@ import type {
   UpdateMessageOptions,
   VideoAttachmentSizeHandler,
 } from '../../types/types';
-import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import {
   getImageAttachmentConfiguration,
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import {
-  defaultReactionOptions,
-  ReactionOptions,
-} from '../../components/Reactions/reactionOptions';
+import { defaultReactionOptions, ReactionOptions } from '../Reactions';
+import type { UnreadMessagesNotificationProps } from '../MessageList';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator } from '../DateSeparator';
 
@@ -184,6 +182,10 @@ type ChannelPropsForwardedToComponentContext<
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
   TypingIndicator?: ComponentContextValue<StreamChatGenerics>['TypingIndicator'];
+  /** Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to UnreadMessagesSeparator. Defaults to and accepts same props as: [UnreadMessagesNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesNotification.tsx) */
+  UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
+  /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
+  UnreadMessagesSeparator?: ComponentContextValue<StreamChatGenerics>['UnreadMessagesSeparator'];
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
   VirtualMessage?: ComponentContextValue<StreamChatGenerics>['VirtualMessage'];
 };
@@ -201,7 +203,7 @@ export type ChannelProps<
 > = ChannelPropsForwardedToComponentContext<StreamChatGenerics> & {
   /** List of accepted file types */
   acceptedFiles?: string[];
-  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running on a separate browser tab) */
+  /** Custom handler function that runs when the active channel has unread messages (i.e., when chat is running in a separate browser tab) */
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** The connected and active channel */
   channel?: StreamChannel<StreamChatGenerics>;
@@ -254,6 +256,8 @@ export type ChannelProps<
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is not marked read on mount. */
+  markReadOnMount?: boolean;
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
   /** Whether to allow multiple attachment uploads */
@@ -348,6 +352,7 @@ const ChannelInner = <
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
+    markReadOnMount,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,
@@ -401,27 +406,33 @@ const ChannelInner = <
     },
   );
 
-  const markRead = () => {
-    if (channel.disconnected || !channelConfig?.read_events) {
-      return;
-    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const markRead = useCallback(
+    throttle(
+      () => {
+        if (channel.disconnected || !channelConfig?.read_events) {
+          return;
+        }
 
-    lastRead.current = new Date();
+        lastRead.current = new Date();
 
-    if (doMarkReadRequest) {
-      doMarkReadRequest(channel);
-    } else {
-      logChatPromiseExecution(channel.markRead(), 'mark read');
-    }
+        if (doMarkReadRequest) {
+          doMarkReadRequest(channel);
+        } else {
+          logChatPromiseExecution(channel.markRead(), 'mark read');
+        }
 
-    if (activeUnreadHandler) {
-      activeUnreadHandler(0, originalTitle.current);
-    } else if (originalTitle.current) {
-      document.title = originalTitle.current;
-    }
-  };
-
-  const markReadThrottled = throttle(markRead, 500, { leading: true, trailing: true });
+        if (activeUnreadHandler) {
+          activeUnreadHandler(0, originalTitle.current);
+        } else if (originalTitle.current) {
+          document.title = originalTitle.current;
+        }
+      },
+      500,
+      { leading: true, trailing: false },
+    ),
+    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest],
+  );
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
     if (event.message) {
@@ -450,9 +461,7 @@ const ChannelInner = <
       }
 
       if (mainChannelUpdated) {
-        if (!document.hidden) {
-          markReadThrottled();
-        } else if (channelConfig?.read_events && !channel.muteStatus().muted) {
+        if (document.hidden && channelConfig?.read_events && !channel.muteStatus().muted) {
           const unread = channel.countUnread(lastRead.current);
 
           if (activeUnreadHandler) {
@@ -500,10 +509,6 @@ const ChannelInner = <
   useLayoutEffect(() => {
     let errored = false;
     let done = false;
-
-    const onVisibilityChange = () => {
-      if (!document.hidden) markRead();
-    };
 
     (async () => {
       if (!channel.initialized && initializeOnMount) {
@@ -555,9 +560,8 @@ const ChannelInner = <
          *
          * const lastRead = channel.state.read[client.userID as string].last_read;
          */
-        if (channel.countUnread() > 0) markRead();
+        if (channel.countUnread() > 0 && markReadOnMount) markRead();
         // The more complex sync logic is done in Chat
-        document.addEventListener('visibilitychange', onVisibilityChange);
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
         client.on('user.updated', handleEvent);
@@ -568,7 +572,6 @@ const ChannelInner = <
 
     return () => {
       if (errored || !done) return;
-      document.removeEventListener('visibilitychange', onVisibilityChange);
       channel?.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
@@ -717,6 +720,73 @@ const ChannelInner = <
     });
   };
 
+  const jumpToFirstUnreadMessage = useCallback(
+    async (queryMessageLimit = 100) => {
+      if (!client.user) return;
+      const readState = channel.state.read[client.user.id];
+      if (!readState?.last_read_message_id) {
+        addNotification(t('Failed to jump to the first unread message'), 'error');
+        return;
+      }
+
+      let indexOfLastReadMessage;
+
+      const currentMessageSet = channel.state.messages;
+      for (let i = currentMessageSet.length - 1; i >= 0; i--) {
+        const { id } = currentMessageSet[i];
+        if (id === readState.last_read_message_id) {
+          indexOfLastReadMessage = i;
+          break;
+        }
+      }
+
+      if (typeof indexOfLastReadMessage === 'undefined') {
+        dispatch({ loadingMore: true, type: 'setLoadingMore' });
+        let hasMoreMessages = true;
+        try {
+          await channel.state.loadMessageIntoState(
+            readState.last_read_message_id,
+            undefined,
+            queryMessageLimit,
+          );
+          /**
+           * if the index of the last read message on the page is beyond the half of the page,
+           * we have arrived to the oldest page of the channel
+           */
+          indexOfLastReadMessage = channel.state.messages.findIndex(
+            (message) => message.id === readState.last_read_message_id,
+          ) as number;
+          hasMoreMessages = indexOfLastReadMessage >= Math.floor(queryMessageLimit / 2);
+        } catch (e) {
+          addNotification(t('Failed to jump to the first unread message'), 'error');
+          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          return;
+        }
+
+        loadMoreFinished(hasMoreMessages, channel.state.messages);
+      }
+
+      const firstUnreadMessage = channel.state.messages[indexOfLastReadMessage + 1];
+      const jumpToMessageId = firstUnreadMessage?.id ?? readState.last_read_message_id;
+
+      dispatch({
+        hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+        highlightedMessageId: jumpToMessageId,
+        type: 'jumpToMessageFinished',
+      });
+
+      if (clearHighlightedMessageTimeoutId.current) {
+        clearTimeout(clearHighlightedMessageTimeoutId.current);
+      }
+
+      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+        clearHighlightedMessageTimeoutId.current = null;
+        dispatch({ type: 'clearHighlightedMessage' });
+      }, 500);
+    },
+    [addNotification, channel, client, loadMoreFinished, t],
+  );
+
   const deleteMessage = useCallback(
     async (
       message: StreamMessage<StreamChatGenerics>,
@@ -784,7 +854,7 @@ const ChannelInner = <
       let existingMessage;
       for (let i = channel.state.messages.length - 1; i >= 0; i--) {
         const msg = channel.state.messages[i];
-        if (msg.id === messageData.id) {
+        if (msg.id && msg.id === messageData.id) {
           existingMessage = msg;
           break;
         }
@@ -986,11 +1056,13 @@ const ChannelInner = <
       deleteMessage,
       dispatch,
       editMessage,
+      jumpToFirstUnreadMessage,
       jumpToLatestMessage,
       jumpToMessage,
       loadMore,
       loadMoreNewer,
       loadMoreThread,
+      markRead,
       onMentionsClick: onMentionsHoverOrClick,
       onMentionsHover: onMentionsHoverOrClick,
       openThread,
@@ -1009,7 +1081,9 @@ const ChannelInner = <
       enrichURLForPreviewConfig?.onLinkPreviewDismissed,
       loadMore,
       loadMoreNewer,
+      markRead,
       quotedMessage,
+      jumpToFirstUnreadMessage,
       jumpToMessage,
       jumpToLatestMessage,
     ],
@@ -1059,6 +1133,8 @@ const ChannelInner = <
       ThreadStart: props.ThreadStart,
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
+      UnreadMessagesNotification: props.UnreadMessagesNotification,
+      UnreadMessagesSeparator: props.UnreadMessagesSeparator || UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
