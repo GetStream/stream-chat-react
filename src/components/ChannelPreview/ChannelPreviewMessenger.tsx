@@ -9,6 +9,12 @@ import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
+export enum MarkChannelReadOn {
+  'never',
+  'leave',
+  'reenter',
+}
+
 const UnMemoizedChannelPreviewMessenger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -23,8 +29,7 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
-    markActiveChannelReadOnLeave,
-    markActiveChannelReadOnReenter = true,
+    markActiveChannelReadOn = MarkChannelReadOn.reenter,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
@@ -64,10 +69,15 @@ const UnMemoizedChannelPreviewMessenger = <
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else if (setActiveChannel) {
-      if (markActiveChannelReadOnReenter) {
-        handleMarkReadOnReenter();
-      } else if (markActiveChannelReadOnLeave) {
-        handleMarkReadOnLeave();
+      // eslint-disable-next-line default-case
+      switch (markActiveChannelReadOn) {
+        case MarkChannelReadOn.never:
+          break;
+        case MarkChannelReadOn.leave:
+          handleMarkReadOnLeave();
+          break;
+        case MarkChannelReadOn.reenter:
+          handleMarkReadOnReenter();
       }
       setActiveChannel(channel, watchers);
     }
@@ -77,7 +87,7 @@ const UnMemoizedChannelPreviewMessenger = <
   };
 
   useEffect(() => {
-    if (markActiveChannelReadOnLeave) return;
+    if (markActiveChannelReadOn !== MarkChannelReadOn.reenter) return;
     const handleEvent = (event: Event) => {
       if (active) return;
       if (channel.cid !== event.cid) return;
@@ -90,7 +100,7 @@ const UnMemoizedChannelPreviewMessenger = <
       channel.off('notification.mark_unread', handleEvent);
       channel.off('message.new', handleEvent);
     };
-  }, [active, channel, client, markActiveChannelReadOnLeave, previouslyClicked]);
+  }, [active, channel, client, markActiveChannelReadOn, previouslyClicked]);
 
   return (
     <button

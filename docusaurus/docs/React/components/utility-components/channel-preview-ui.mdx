@@ -109,26 +109,21 @@ Latest message preview to display. Will be either a string or a JSX.Element rend
 | --------------------- |
 | string \| JSX.Element |
 
-### markActiveChannelReadOnLeave
+### markActiveChannelReadOn
 
-Marks active channel read before switching the active channel state to the clicked preview's channel. This means that active channel being left is marked read before navigating to another channel. Disabled if markActiveChannelReadOnReenter is enabled.
+Configuration that determines when and whether a channel is marked read upon clicking ChannelPreview.
+1. `MarkChannelReadOn.never`: Prevents a channel from being marked read when any ChannelPreview is clicked.
+2. `MarkChannelReadOn.leave`: Marks active channel read before switching the active channel state to the clicked preview's channel.
+This means that active channel being left is marked read before navigating to another channel.
+3. `MarkChannelReadOn.reenter`: Channel, which is re-entered by clicking the preview, is marked read. That means:
+- an active channel can be marked unread, left and on return marked read.
+- a non-active channel receives a new message, is entered, left and re-entered and marked read.
 
-| Type    | Default |
-|---------|---------|
-| boolean | false    |
+The default configuration is set to `MarkChannelReadOn.reenter`.
 
-### markActiveChannelReadOnReenter
-
-Channel, which is re-entered by clicking the preview, is marked read.
-That means:
-1. an active channel is be marked unread, left and on return marked read.
-2. a non-active channel receives a new message, is entered, left and re-entered and marked read.
-
-By default, this is enabled.
-
-| Type    | Default |
-|---------|---------|
-| boolean | true    |
+| Type | Default                     |
+|------|-----------------------------|
+| enum | `MarkChannelReadOn.reenter` |
 
 ### messageDeliveryStatus
 

@@ -64,7 +64,7 @@ The default components included in **marking a channel read**:
 | Component                                                                                                                                     | Description                                                                                                                                                                                                                                                                                                                                                    |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`Channel`](../../components/core-components/channel)                                                                                         | Can be configured to mark active channel read when mounted. This can be done through its prop `markReadOnMount`. By default disabled.                                                                                                                                                                                                                          |
-| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | Can be configured to mark active channel read when re-entered (view unread messages, leave, re-enter, mark read). This can be done through a props `markActiveChannelReadOnReenter` (by default enabled).<br/>Can be configured to mark active channel read when leaving the active channel through `markActiveChannelReadOnLeave` prop (by default disabled). |
+| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | Can be configured to mark active channel read when re-entered or left or disabled. This can be done through the prop `markActiveChannelReadOn`. By default channel is marked read on re-enter. |
 | [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | Can be configured to mark channel read when message list is scrolled to the bottom. This can be done through the list's prop `markReadOnScrolledToBottom`. By default disabled.                                                                                                                                                                                |
 | [`UnreadMessagesNotification`](../../components/contexts/component_context#unreadmessagesnotification)                                        | Floating notification rendered in the message list. Contains a button, which when clicked, marks the channel read.                                                                                                                                                                                                                                             |
 
@@ -109,7 +109,7 @@ There is a possibility to configure when a channel is marked read by tweaking th
 | Component                                                                                                                                     | Prop                                                |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
 | [`Channel`](../../components/core-components/channel)                                                                                         | `markReadOnMount` (by default disabled)             |
-| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | `markActiveChannelReadOnReenter` (by default enabled), `markActiveChannelReadOnLeave` (by default disabled) |
+| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | `markActiveChannelReadOn` (`MarkActiveChannelOn.reenter`) |
 | [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | `markReadOnScrolledToBottom` (by default disabled)  |
 
 And so instead of marking a channel read on re-enter or when leaving the given channel, the channel can be marked read when scrolled to the bottom or immediately when mounted.
@@ -120,11 +120,12 @@ To disable marking a channel read when `ChannelPreview` is clicked, we need to p
 import {
     ChannelList,
     ChannelPreviewMessenger,
-    ChannelPreviewUIComponentProps
+    ChannelPreviewUIComponentProps,
+    MarkActiveChannelReadOn,
 } from 'stream-chat-react';
 
 const Preview = (props: ChannelPreviewUIComponentProps) =>
-    <ChannelPreviewMessenger {...props} markActiveChannelReadOnReenter={false}/>
+    <ChannelPreviewMessenger {...props} markActiveChannelReadOn={MarkActiveChannelReadOn.never}/>
 
 const Sidebar = () => (
     <ChannelList filters={filters} sort={sort} options={options} Preview={Preview}/>
