@@ -42,7 +42,13 @@ export const useMarkUnreadHandler = <
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
       if (getErrorNotification && !errorMessage) return;
-      notify(errorMessage || t('Error marking message unread'), 'error');
+      notify(
+        errorMessage ||
+          t(
+            'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
+          ),
+        'error',
+      );
     }
   };
 };

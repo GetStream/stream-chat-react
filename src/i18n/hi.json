@@ -19,6 +19,7 @@
   "Error deleting message": "संदेश हटाने में त्रुटि",
   "Error fetching reactions": "प्रतिक्रियाएँ लोड करने में त्रुटि",
   "Error marking message unread": "संदेश को अपठित चिह्नित करने में त्रुटि",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "संदेश को अपठित मार्क करने में त्रुटि। सबसे नए 100 चैनल संदेश से पहले के सभी अपठित संदेशों को अपठित मार्क नहीं किया जा सकता है।",
   "Error muting a user ...": "यूजर को म्यूट करने का प्रयास फेल हुआ",
   "Error pinning message": "संदेश को पिन करने में त्रुटि",
   "Error removing message pin": "संदेश पिन निकालने में त्रुटि",

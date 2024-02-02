@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "Fout bij het verbinden, ververs de pagina om nogmaals te proberen",
   "Error deleting message": "Fout bij verwijderen van bericht",
   "Error fetching reactions": "Fout bij het laden van reacties",
-  "Error marking message unread": "Fout bij markeren van bericht als ongelezen",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "Fout bij markeren van bericht als ongelezen. Kan geen oudere ongelezen berichten markeren dan de nieuwste 100 kanaalberichten.",
   "Error muting a user ...": "Fout bij het muten van de gebruiker",
   "Error pinning message": "Fout bij vastzetten van bericht",
   "Error removing message pin": "Fout bij verwijderen van berichtpin",

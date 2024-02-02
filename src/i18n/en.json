@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "Error connecting to chat, refresh the page to try again.",
   "Error deleting message": "Error deleting message",
   "Error fetching reactions": "Error loading reactions",
-  "Error marking message unread": "Error marking message unread",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.",
   "Error muting a user ...": "Error muting a user ...",
   "Error pinning message": "Error pinning message",
   "Error removing message pin": "Error removing message pin",

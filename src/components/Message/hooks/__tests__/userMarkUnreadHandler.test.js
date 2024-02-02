@@ -87,7 +87,10 @@ describe('useMarkUnreadHandler', () => {
       notifications,
     });
     await handleMarkUnread(event);
-    expect(notifications.notify).toHaveBeenCalledWith('Error marking message unread', 'error');
+    expect(notifications.notify).toHaveBeenCalledWith(
+      'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
+      'error',
+    );
   });
   it('registers the custom error notification if available getErrorNotification generates one', async () => {
     channel.markUnread.mockRejectedValueOnce();

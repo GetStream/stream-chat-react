@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "Erro ao conectar ao bate-papo, atualize a página para tentar novamente.",
   "Error deleting message": "Erro ao deletar mensagem",
   "Error fetching reactions": "Erro ao carregar reacções",
-  "Error marking message unread": "Erro ao marcar mensagem como não lida",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "Erro ao marcar a mensagem como não lida. Não é possível marcar mensagens não lidas mais antigas do que as 100 mensagens mais recentes do canal.",
   "Error muting a user ...": "Erro ao silenciar um usuário...",
   "Error pinning message": "Erro ao fixar mensagem",
   "Error removing message pin": "Erro ao remover o PIN da mensagem",

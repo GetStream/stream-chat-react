@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "Bağlantı hatası, sayfayı yenileyip tekrar deneyin.",
   "Error deleting message": "Mesaj silinirken hata oluştu",
   "Error fetching reactions": "Reaksiyonlar alınırken hata oluştu",
-  "Error marking message unread": "Mesajı okunmamış olarak işaretleme hatası",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "Mesajı okunmamış olarak işaretleme hatası. En yeni 100 kanal mesajından daha eski okunmamış mesajları işaretleme yapılamaz.",
   "Error muting a user ...": "Kullanıcıyı sessize alırken hata oluştu ...",
   "Error pinning message": "Mesaj sabitlenirken hata oluştu",
   "Error removing message pin": "Mesaj PIN'i kaldırılırken hata oluştu",

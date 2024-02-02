@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "Erreur de connexion au chat, rafraîchissez la page pour réessayer.",
   "Error deleting message": "Erreur lors de la suppression du message",
   "Error fetching reactions": "Erreur de chargement des réactions",
-  "Error marking message unread": "Erreur lors du marquage du message comme non lu",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "Erreur lors de la marque du message comme non lu. Impossible de marquer des messages non lus plus anciens que les 100 derniers messages du canal.",
   "Error muting a user ...": "Erreur de mise en sourdine d'un utilisateur ...",
   "Error pinning message": "Erreur d'épinglage du message",
   "Error removing message pin": "Erreur lors de la suppression du code PIN du message",

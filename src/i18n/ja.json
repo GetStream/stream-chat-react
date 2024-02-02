@@ -18,7 +18,7 @@
   "Error connecting to chat, refresh the page to try again.": "チャットへの接続ができませんでした。ページを更新してください。",
   "Error deleting message": "メッセージを削除するエラーが発生しました",
   "Error fetching reactions": "反応の読み込みエラー",
-  "Error marking message unread": "メッセージを未読にする際のエラー",
+  "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": "メッセージを未読にする際にエラーが発生しました。最新の100件のチャンネルメッセージより古い未読メッセージはマークできません。",
   "Error muting a user ...": "ユーザーを無音するエラーが発生しました...",
   "Error pinning message": "メッセージをピンのエラーが発生しました",
   "Error removing message pin": "メッセージのピンを削除のエラーが発生しました",
