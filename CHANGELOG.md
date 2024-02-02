@@ -1,3 +1,11 @@
+## [11.5.0](https://github.com/GetStream/stream-chat-react/compare/v11.4.0...v11.5.0) (2024-02-02)
+
+
+### Features
+
+* mark channel unread ([#2238](https://github.com/GetStream/stream-chat-react/issues/2238)) ([8f87b2b](https://github.com/GetStream/stream-chat-react/commit/8f87b2b2db9aab8cab2c4fbc634bafe5974b3fcc))
+* show full list of reactions in a modal ([#2249](https://github.com/GetStream/stream-chat-react/issues/2249)) ([0ebdbc6](https://github.com/GetStream/stream-chat-react/commit/0ebdbc62bc263c9ce7f0150b3c2ab6d488132807))
+
 ## [11.4.0](https://github.com/GetStream/stream-chat-react/compare/v11.3.0...v11.4.0) (2024-01-24)
 
 
