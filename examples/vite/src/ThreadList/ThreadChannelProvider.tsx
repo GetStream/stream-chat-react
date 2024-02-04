@@ -1,15 +1,17 @@
-import React, { PropsWithChildren, useCallback, useContext } from 'react';
+/* eslint-disable import/no-extraneous-dependencies */
+import React, { PropsWithChildren, useCallback, useState } from 'react';
 import {
   Attachment,
   ChannelActionContextValue,
   ChannelActionProvider,
+  ChannelNotifications,
   ChannelStateContextValue,
   ChannelStateProvider,
   ComponentContextValue,
   ComponentProvider,
-  CustomTrigger,
   defaultReactionOptions,
   DefaultStreamChatGenerics,
+  makeAddNotifications,
   MessageSimple,
   MessageToSend,
   StreamMessage,
@@ -18,34 +20,30 @@ import {
   useChannelContainerClasses,
   useChatContext,
 } from 'stream-chat-react';
-import {
-  Message,
-  MessageResponse,
-  SendMessageOptions,
-  Channel as StreamChannel,
-  UserResponse,
-} from 'stream-chat';
+import { Message, MessageResponse, SendMessageOptions, Thread, UserResponse } from 'stream-chat';
 
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
+import { useThreadListContext } from './ThreadListContext';
 
-export type ChannelProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+export type Props<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  channel: StreamChannel<StreamChatGenerics>;
+  thread: Thread<StreamChatGenerics>;
 };
-const unimplemented = () => {
-  throw new Error('unimplemented');
+const NotSupported = () => {
+  throw new Error('Not Supported');
 };
-const UnMemoizedChannel = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  V extends CustomTrigger = CustomTrigger
+
+const UnMemoizedThreadChannel = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: PropsWithChildren<ChannelProps<StreamChatGenerics, V>>,
+  props: PropsWithChildren<Props<StreamChatGenerics>>,
 ) => {
   const { client } = useChatContext<StreamChatGenerics>();
-  const { channel, children } = props;
+  const { children, thread } = props;
+  const channel = client.channel('messaging', thread.channel.id);
+  const { setThreads } = useThreadListContext();
   const {
     channelClass,
     chatClass,
@@ -53,6 +51,11 @@ const UnMemoizedChannel = <
     windowsEmojiClass,
   } = useChannelContainerClasses({});
   const className = clsx(chatClass, null, channelClass);
+  const [notifications, setNotifications] = useState<ChannelNotifications>([]);
+
+  const notificationTimeouts: Array<NodeJS.Timeout> = [];
+  // Adds a temporary notification to message list, will be removed after 5 seconds
+  const addNotification = makeAddNotifications(setNotifications, notificationTimeouts);
 
   const deleteMessage = useCallback(
     async (
@@ -73,8 +76,8 @@ const UnMemoizedChannel = <
     if (!updatedMessage.id) {
       throw new Error('Cannot update a message - missing message ID.');
     }
-
-    // TODO: Implement optimistic update
+    thread.addReply(updatedMessage as MessageResponse<StreamChatGenerics>);
+    setThreads((threads) => [...threads]);
   };
 
   const isUserResponseArray = (
@@ -99,8 +102,6 @@ const UnMemoizedChannel = <
       id,
       mentioned_users: mentions,
       parent_id,
-      // We don't support quoted message on threads.
-      // quoted_message_id: parent_id === quotedMessage?.parent_id ? quotedMessage?.id : undefined,
       text,
       ...customMessageData,
     } as Message<StreamChatGenerics>;
@@ -109,8 +110,8 @@ const UnMemoizedChannel = <
       const messageResponse = await channel.sendMessage(messageData, options);
 
       let existingMessage;
-      for (let i = channel.state.messages.length - 1; i >= 0; i--) {
-        const msg = channel.state.messages[i];
+      for (let i = thread.latestReplies.length - 1; i >= 0; i--) {
+        const msg = thread.latestReplies[i];
         if (msg.id === messageData.id) {
           existingMessage = msg;
           break;
@@ -133,8 +134,6 @@ const UnMemoizedChannel = <
           status: 'received',
         });
       }
-
-      // if (quotedMessage && parent_id === quotedMessage?.parent_id) setQuotedMessage(undefined);
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
@@ -196,46 +195,37 @@ const UnMemoizedChannel = <
     await doSendMessage(message);
   };
 
-  // const removeMessage = (message: StreamMessage<StreamChatGenerics>) => {
-  //   channel.state.removeMessage(message);
-
-  //   dispatch({
-  //     channel,
-  //     parentId: state.thread && message.parent_id,
-  //     type: 'copyMessagesFromChannel',
-  //   });
-  // };
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
   const channelCapabilities = {} as Record<string, boolean>;
   channelCapabilitiesArray?.forEach((capability) => {
     channelCapabilities[capability] = true;
   });
-  // initialize all the context values
-  // @ts-ignore
+
   const channelStateContextValue = {
     channel,
     channelCapabilities,
+    notifications,
     suppressAutoscroll: false,
   } as ChannelStateContextValue<StreamChatGenerics>;
 
   const channelActionContextValue = {
-    addNotification: unimplemented,
-    closeThread: unimplemented,
+    addNotification,
+    closeThread: NotSupported,
     deleteMessage,
-    dispatch: unimplemented,
-    editMessage: unimplemented,
-    jumpToLatestMessage: unimplemented,
-    jumpToMessage: unimplemented,
-    loadMore: () => Promise.resolve(0),
-    loadMoreNewer: () => Promise.resolve(0),
-    loadMoreThread: unimplemented,
-    onMentionsClick: unimplemented,
-    onMentionsHover: unimplemented,
-    openThread: unimplemented,
-    removeMessage: unimplemented,
-    retrySendMessage: unimplemented,
+    dispatch: NotSupported,
+    editMessage: NotSupported,
+    jumpToLatestMessage: NotSupported,
+    jumpToMessage: NotSupported,
+    loadMore: NotSupported,
+    loadMoreNewer: NotSupported,
+    loadMoreThread: NotSupported,
+    onMentionsClick: NotSupported,
+    onMentionsHover: NotSupported,
+    openThread: NotSupported,
+    removeMessage: NotSupported,
+    retrySendMessage,
     sendMessage,
-    setQuotedMessage: unimplemented,
+    setQuotedMessage: NotSupported,
     updateMessage,
   } as ChannelActionContextValue<StreamChatGenerics>;
 
@@ -264,12 +254,6 @@ const UnMemoizedChannel = <
   );
 };
 
-/**
- * A wrapper component that provides channel data and renders children.
- * The Channel component provides the following contexts:
- * - [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/)
- * - [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/)
- * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
- */
-export const ThreadChannelProvider = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;
+export const ThreadChannelProvider = React.memo(
+  UnMemoizedThreadChannel,
+) as typeof UnMemoizedThreadChannel;

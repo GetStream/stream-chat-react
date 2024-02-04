@@ -4,7 +4,6 @@ import React, {
   SetStateAction,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -46,12 +45,7 @@ export const ThreadListContextProvider = <
 >({
   children,
 }: React.PropsWithChildren<unknown>) => {
-  const {
-    client,
-    setActiveChannel,
-    setThreadListOpen,
-    threadListOpen,
-  } = useChatContext<StreamChatGenerics>();
+  const { client, setActiveChannel, setThreadListOpen } = useChatContext<StreamChatGenerics>();
 
   const [threads, setThreads] = useState<Thread<StreamChatGenerics>[]>([]);
   const [nextCursor, setNextCursor] = useState<string | undefined>(undefined);
@@ -59,44 +53,29 @@ export const ThreadListContextProvider = <
   useNotificationThreadMessageNew(threads, setThreads);
   useMessageUpdated(threads, setThreads);
 
-  useEffect(() => {
-    const loadThreads = async () => {
-      const { next, threads } = await client.queryThreads();
-      console.log('loadThreads', next);
-      setThreads(threads);
-      setNextCursor(next);
-
+  const markThreadsRead = useCallback(
+    (threads: Thread<StreamChatGenerics>[]) => {
+      const clientUserId = client.user?.id;
+      if (!clientUserId) return;
       threads.forEach((thread) => {
-        const unreadCount = thread.read[client.user?.id] || 0;
-
-        if (unreadCount > 0) {
+        if (thread.read[clientUserId].unread_messages > 0) {
           // eslint-disable-next-line no-underscore-dangle
           thread._channel.markRead({ thread_id: thread.id });
         }
       });
-    };
-
-    if (threadListOpen) {
-      setActiveChannel?.(undefined);
-      loadThreads();
-    }
-  }, [threadListOpen]);
+    },
+    [client.user?.id, threads],
+  );
 
   const reloadThreads = useCallback(async () => {
+    setActiveChannel?.(undefined);
     setThreadListOpen?.(true);
     const { next, threads } = await client.queryThreads();
     setThreads(threads);
     setNextCursor(next);
 
-    threads.forEach((thread) => {
-      const unreadCount = thread.read[client.user?.id] || 0;
-
-      if (unreadCount > 0) {
-        // eslint-disable-next-line no-underscore-dangle
-        thread._channel.markRead({ thread_id: thread.id });
-      }
-    });
-  }, []);
+    markThreadsRead(threads);
+  }, [markThreadsRead]);
 
   const loadNextPage = useCallback(async () => {
     if (!nextCursor) return;
@@ -107,16 +86,8 @@ export const ThreadListContextProvider = <
 
     setThreads((threads) => [...threads, ...newThreads]);
     setNextCursor(next);
-
-    newThreads.forEach((thread) => {
-      const unreadCount = thread.read[client.user?.id] || 0;
-
-      if (unreadCount > 0) {
-        // eslint-disable-next-line no-underscore-dangle
-        thread._channel.markRead({ thread_id: thread.id });
-      }
-    });
-  }, [nextCursor]);
+    markThreadsRead(threads);
+  }, [nextCursor, markThreadsRead]);
 
   const loadMoreReplies = useCallback(
     async (thread: Thread<StreamChatGenerics>, channel: Channel<StreamChatGenerics>) => {

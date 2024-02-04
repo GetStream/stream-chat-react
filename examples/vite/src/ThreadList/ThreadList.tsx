@@ -14,8 +14,8 @@ export const ThreadList = <
   if (!threadListOpen) return null;
 
   return (
-    <div className='str-chat__thread-list'>
-      <h1>Thread List</h1>
+    <div className='str-chat str-chat__thread-list'>
+      <h2>Thread List</h2>
       {threads?.map((thread) => (
         <ThreadListItem<StreamChatGenerics>
           client={client}
@@ -43,12 +43,7 @@ const ThreadListItem = <
   ) => void;
   thread: Thread<StreamChatGenerics>;
 }) => {
-  const [channel, setChannel] = useState<StreamChannel<StreamChatGenerics> | undefined>(undefined);
-
-  useEffect(() => {
-    const channel = client.channel(thread.channel.type, thread.channel.id);
-    setChannel(channel);
-  }, []);
+  const channel = thread.channel;
 
   const moreReplies = thread.replyCount - thread.latestReplies.length;
   if (!channel) return null;
@@ -56,7 +51,7 @@ const ThreadListItem = <
   // We are wrapping the list item with Channel component. But I think ideally
   // we should build a context provider component explicitely for the whole list.
   return (
-    <ThreadChannelProvider channel={channel} key={`${channel.id}-${thread.message.id}`}>
+    <ThreadChannelProvider key={`${thread.channel.id}-${thread.message.id}`} thread={thread}>
       <ul className='str-chat__list'>
         <h3>Channel name: {thread.channel.name}</h3>
         <p>
@@ -74,10 +69,10 @@ const ThreadListItem = <
         </p>
         <Message message={thread.message} />
         {/* horizontal line */}
-        <div style={{ borderBottom: '0.5px solid grey', margin: 10 }} />
+        <div style={{ borderBottom: '0.2px solid grey', margin: 10 }} />
         {moreReplies > 0 && (
           <button
-            onClick={() => loadMoreReplies(thread, channel)}
+            onClick={loadMoreReplies.bind(null, thread, channel)}
             style={{
               marginBottom: 10,
             }}

@@ -59,23 +59,34 @@ const OpenThreadButton = () => {
   const { reloadThreads } = useThreadListContext();
 
   return (
-    <button onClick={reloadThreads} style={{ height: 50 }} type='button'>
-      <span style={{ fontSize: 20, fontWeight: unreadThreadCount > 0 ? 'bold' : 'initial' }}>
+    <button
+      onClick={reloadThreads}
+      style={{
+        alignItems: 'center',
+        display: 'flex',
+        height: 50,
+        justifyContent: 'center',
+      }}
+      type='button'
+    >
+      <span style={{ fontSize: 15, fontWeight: unreadThreadCount > 0 ? 'bold' : 'initial' }}>
         Open Thread{' '}
-        {unreadThreadCount > 0 && (
-          <span
-            style={{
-              backgroundColor: 'red',
-              borderRadius: 20,
-              color: 'white',
-              fontSize: 10,
-              padding: 10,
-            }}
-          >
-            {unreadThreadCount}
-          </span>
-        )}
       </span>
+      {unreadThreadCount > 0 && (
+        <span
+          style={{
+            backgroundColor: 'red',
+            borderRadius: 15,
+            color: 'white',
+            fontSize: 10,
+            marginLeft: 5,
+            paddingBlock: 5,
+            paddingInline: 7,
+          }}
+        >
+          {unreadThreadCount}
+        </span>
+      )}
     </button>
   );
 };
