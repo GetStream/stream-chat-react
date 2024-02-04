@@ -68,6 +68,7 @@ export type ChannelListProps<
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** An object containing channel query filters */
   filters?: ChannelFilters<StreamChatGenerics>;
+  HeaderComponent?: React.ComponentType;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
@@ -161,6 +162,7 @@ const UnMemoizedChannelList = <
     Avatar = DefaultAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
+    HeaderComponent,
     ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -279,6 +281,7 @@ const UnMemoizedChannelList = <
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
   useMessageNewListener(
+    channels,
     setChannels,
     onMessageNewHandler,
     lockChannelOrder,
@@ -350,6 +353,7 @@ const UnMemoizedChannelList = <
   return (
     <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
+        {HeaderComponent && <HeaderComponent />}
         {showChannelSearch && (
           <ChannelSearch
             onSearch={onSearch}

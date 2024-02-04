@@ -20,8 +20,10 @@ export const useCreateChatContext = <
     navOpen,
     openMobileNav,
     setActiveChannel,
+    setThreadListOpen,
     theme,
     themeVersion,
+    threadListOpen,
     useImageFlagEmojisOnWindows,
   } = value;
 
@@ -47,8 +49,10 @@ export const useCreateChatContext = <
       navOpen,
       openMobileNav,
       setActiveChannel,
+      setThreadListOpen,
       theme,
       themeVersion,
+      threadListOpen,
       useImageFlagEmojisOnWindows,
     }),
     [
@@ -58,6 +62,7 @@ export const useCreateChatContext = <
       clientValues,
       getAppSettings,
       mutedUsersLength,
+      threadListOpen,
       navOpen,
     ],
   );

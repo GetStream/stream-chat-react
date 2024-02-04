@@ -279,6 +279,7 @@ const UnMemoizedChannel = <
     channelsQueryState,
     customClasses,
     theme,
+    threadListOpen,
   } = useChatContext<StreamChatGenerics>('Channel');
   const { channelClass, chatClass } = useChannelContainerClasses({
     customClasses,
@@ -302,6 +303,10 @@ const UnMemoizedChannel = <
         <LoadingErrorIndicator error={channelsQueryState.error} />
       </div>
     );
+  }
+
+  if (!channel?.cid && threadListOpen) {
+    return null;
   }
 
   if (!channel?.cid) {

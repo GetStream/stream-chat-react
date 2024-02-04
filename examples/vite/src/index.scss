@@ -40,6 +40,31 @@ $stream-chat-theme-version: '2';
       z-index: 1;
     }
 
+    .str-chat__thread-list {
+      width: 100%;
+      overflow: scroll;
+      margin-inline: 50px;
+
+      .str-chat-channel {
+        width: 100%;
+        height: unset;
+      }
+      .str-chat__list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+      .str-chat__li {
+      }
+      .str-chat__li .str-chat__message-simple__actions {
+        display: flex;
+        opacity: 0;
+      }
+      .str-chat__li:hover .str-chat__message-simple__actions {
+        opacity: 1;
+      }      
+    }
+
     .str-chat__channel-header .str-chat__header-hamburger {
       width: 30px;
       height: 38px;

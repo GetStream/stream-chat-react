@@ -37,6 +37,8 @@ export const useChat = <
   });
 
   const [channel, setChannel] = useState<Channel<StreamChatGenerics>>();
+  // eslint-disable-next-line no-unused-vars
+  const [threadListOpen, setThreadListOpen] = useState(false);
   const [mutes, setMutes] = useState<Array<Mute<StreamChatGenerics>>>([]);
   const [navOpen, setNavOpen] = useState(initialNavOpen);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
@@ -106,7 +108,9 @@ export const useChat = <
       event?: React.BaseSyntheticEvent,
     ) => {
       if (event && event.preventDefault) event.preventDefault();
-
+      if (activeChannel) {
+        setThreadListOpen(false);
+      }
       if (activeChannel && Object.keys(watchers).length) {
         await activeChannel.query({ watch: true, watchers });
       }
@@ -130,6 +134,8 @@ export const useChat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
+    setThreadListOpen,
+    threadListOpen,
     translators,
   };
 };

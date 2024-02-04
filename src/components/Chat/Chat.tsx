@@ -94,6 +94,8 @@ export const Chat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
+    setThreadListOpen,
+    threadListOpen,
     translators,
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
@@ -120,8 +122,10 @@ export const Chat = <
     navOpen,
     openMobileNav,
     setActiveChannel,
+    setThreadListOpen,
     theme,
     themeVersion,
+    threadListOpen,
     useImageFlagEmojisOnWindows,
   });
 

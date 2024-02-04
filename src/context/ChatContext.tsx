@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useContext } from 'react';
+import React, { Dispatch, PropsWithChildren, SetStateAction, useContext } from 'react';
 
 import type { AppSettingsAPIResponse, Channel, Mute } from 'stream-chat';
 
@@ -48,10 +48,12 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
+  setThreadListOpen: Dispatch<SetStateAction<boolean>>;
   /**
    * Allows to opt out of the use of legacy CSS (version "1") and opt into the use of the latest SDK's CSS (version "2").
    */
   themeVersion: ThemeVersion;
+  threadListOpen: boolean;
   useImageFlagEmojisOnWindows: boolean;
   /**
    * Active channel used to render the contents of the Channel component.

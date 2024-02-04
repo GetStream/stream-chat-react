@@ -3,7 +3,7 @@ import emojiRegex from 'emoji-regex';
 
 import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
-import type { PinPermissions } from './hooks';
+import type { PinPermissions, useUserRole } from './hooks';
 import type { MessageProps } from './types';
 import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -232,10 +232,12 @@ export const areMessagePropsEqual = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   prevProps: MessageProps<StreamChatGenerics> & {
+    userRoles: ReturnType<typeof useUserRole>;
     mutes?: Mute<StreamChatGenerics>[];
     showDetailedReactions?: boolean;
   },
   nextProps: MessageProps<StreamChatGenerics> & {
+    userRoles: ReturnType<typeof useUserRole>;
     mutes?: Mute<StreamChatGenerics>[];
     showDetailedReactions?: boolean;
   },
@@ -259,7 +261,8 @@ export const areMessagePropsEqual = <
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
     deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
     deepequal(nextProps.mutes, prevProps.mutes) &&
-    deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
+    deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId) &&
+    deepequal(nextProps.userRoles, prevProps.userRoles);
 
   if (!deepEqualProps) return false;
 
