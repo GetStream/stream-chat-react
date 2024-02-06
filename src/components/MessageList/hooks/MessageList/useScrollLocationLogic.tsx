@@ -37,14 +37,12 @@ export const useScrollLocationLogic = <
   const [isMessageListScrolledToBottom, setIsMessageListScrolledToBottom] = useState(true);
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
-  const scrollCounter = useRef({ autoScroll: 0, scroll: 0 });
 
   const scrollToBottom = useCallback(() => {
     if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
       return;
     }
 
-    scrollCounter.current.autoScroll += 1;
     listElement.scrollTo({
       top: listElement.scrollHeight,
     });
