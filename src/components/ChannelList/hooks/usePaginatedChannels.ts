@@ -8,9 +8,25 @@ import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, StreamChat }
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { ChannelsQueryState } from '../../Chat/hooks/useChannelsQueryState';
 
 const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
 const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
+
+type AllowedQueryType = Extract<ChannelsQueryState['queryInProgress'], 'reload' | 'load-more'>;
+
+export type CustomQueryChannelParams<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  currentChannels: Array<Channel<StreamChatGenerics>>;
+  queryType: AllowedQueryType;
+  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+  setHasNextPage: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export type CustomQueryChannelsFn<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = (params: CustomQueryChannelParams<StreamChatGenerics>) => Promise<void>;
 
 export const usePaginatedChannels = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -24,6 +40,7 @@ export const usePaginatedChannels = <
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
   ) => void,
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
+  customQueryChannels?: CustomQueryChannelsFn<StreamChatGenerics>,
 ) => {
   const {
     channelsQueryState: { error, setError, setQueryInProgress },
@@ -43,38 +60,45 @@ export const usePaginatedChannels = <
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const queryChannels = async (queryType?: string) => {
+  const queryChannels = async (queryType = 'load-more') => {
     setError(null);
 
     if (queryType === 'reload') {
       setChannels([]);
-      setQueryInProgress('reload');
-    } else {
-      setQueryInProgress('load-more');
     }
-
-    const offset = queryType === 'reload' ? 0 : channels.length;
-
-    const newOptions = {
-      limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
-      offset,
-      ...options,
-    };
+    setQueryInProgress(queryType as AllowedQueryType);
 
     try {
-      const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
+      if (customQueryChannels) {
+        await customQueryChannels({
+          currentChannels: channels,
+          queryType: queryType as AllowedQueryType,
+          setChannels,
+          setHasNextPage,
+        });
+      } else {
+        const offset = queryType === 'reload' ? 0 : channels.length;
 
-      const newChannels =
-        queryType === 'reload'
-          ? channelQueryResponse
-          : uniqBy([...channels, ...channelQueryResponse], 'cid');
+        const newOptions = {
+          limit: options?.limit ?? MAX_QUERY_CHANNELS_LIMIT,
+          offset,
+          ...options,
+        };
 
-      setChannels(newChannels);
-      setHasNextPage(channelQueryResponse.length >= newOptions.limit);
+        const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
 
-      // Set active channel only on load of first page
-      if (!offset && activeChannelHandler) {
-        activeChannelHandler(newChannels, setChannels);
+        const newChannels =
+          queryType === 'reload'
+            ? channelQueryResponse
+            : uniqBy([...channels, ...channelQueryResponse], 'cid');
+
+        setChannels(newChannels);
+        setHasNextPage(channelQueryResponse.length >= newOptions.limit);
+
+        // Set active channel only on load of first page
+        if (!offset && activeChannelHandler) {
+          activeChannelHandler(newChannels, setChannels);
+        }
       }
     } catch (err) {
       console.warn(err);

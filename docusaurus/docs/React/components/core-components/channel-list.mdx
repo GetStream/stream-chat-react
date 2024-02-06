@@ -219,6 +219,83 @@ Set a channel (with this ID) to active and force it to move to the top of the li
 | ------ |
 | string |
 
+### customQueryChannels
+
+Custom function that handles the channel pagination.
+
+Takes parameters:
+
+| Parameter         | Description                                                                                                                                                           |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `currentChannels` | The state of loaded `Channel` objects queried thus far. Has to be set with `setChannels` (see below).                                                                 |
+| `queryType`       | A string indicating, whether the channels state has to be reset to the first page ('reload') or newly queried channels should be appended to the `currentChannels`.   |
+| `setChannels`     | Function that allows us to set the channels state reflected in `currentChannels`.                                                                                     |
+| `setHasNextPage`  | Flag indicating whether there are more items to be loaded from the API. Should be infered from the comparison of the query result length and the query options limit. |
+
+The function has to:
+1. build / provide own query filters, sort and options parameters
+2. query and append channels to the current channels state
+3. update the `hasNext` pagination flag after each query with `setChannels` function
+
+An example below implements a custom query function that uses different filters sequentially once a preceding filter is exhausted:
+
+```ts
+import uniqBy from "lodash.uniqby";
+import throttle from 'lodash.throttle';
+import { useRef } from 'react';
+import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
+import {
+  CustomQueryChannelParams,
+  useChatContext,
+} from 'stream-chat-react';
+
+export const useCustomQueryChannels = () => {
+    const {client} = useChatContext();
+    const filters1: ChannelFilters = { member_count: {$gt: 10}, members: {$in: [client.user.id]}, type: 'messaging'};
+    const filters2: ChannelFilters = { type: 'messaging', members: { $in: [client.user.id] } };
+    const options: ChannelOptions = { state: true, presence: true, limit: 10 };
+    const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+
+    const filtersArray = [filters1, filters2];
+    const appliedFilterIndex = useRef(0);
+
+    const customQueryChannels = throttle(async ({currentChannels, queryType, setChannels, setHasNextPage}: CustomQueryChannelParams) => {
+      const offset = queryType === 'reload' ? 0 : currentChannels.length;
+
+      const newOptions = {
+        limit: options.limit ?? 30,
+        offset,
+        ...options,
+      };
+
+      const filters = filtersArray[appliedFilterIndex.current];
+      const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
+
+      const newChannels =
+          queryType === 'reload'
+              ? channelQueryResponse
+              : uniqBy([...currentChannels, ...channelQueryResponse], 'cid');
+
+      setChannels(newChannels);
+      const lastPageForCurrentFilter = channelQueryResponse.length < newOptions.limit;
+      const isLastPageForAllFilters = lastPageForCurrentFilter && appliedFilterIndex.current === filtersArray.length - 1;
+      setHasNextPage(!isLastPageForAllFilters);
+      if (lastPageForCurrentFilter) {
+        appliedFilterIndex.current += 1;
+      }
+
+    }, 500, {leading: true, trailing: false});
+
+    return customQueryChannels;
+};
+```
+
+It is recommended to control for duplicate requests by throttling the custom function calls.
+
+| Type                    |
+|-------------------------|
+| `CustomQueryChannelsFn` |
+
 ### EmptyStateIndicator
 
 Custom UI component for rendering an empty list.
