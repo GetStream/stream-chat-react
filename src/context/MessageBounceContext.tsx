@@ -23,7 +23,7 @@ export function useMessageBounceContext<
 
   if (!contextValue) {
     console.warn(
-      `The useMessageInputContext hook was called outside of the MessageInputContext provider. Make sure this hook is called within the MessageInput's UI component. The errored call is located in the ${componentName} component.`,
+      `The useMessageBounceContext hook was called outside of the MessageBounceContext provider. The errored call is located in the ${componentName} component.`,
     );
 
     return {} as MessageBounceContextValue<StreamChatGenerics>;
