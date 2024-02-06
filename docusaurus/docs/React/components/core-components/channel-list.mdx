@@ -242,59 +242,79 @@ An example below implements a custom query function that uses different filters 
 ```ts
 import uniqBy from "lodash.uniqby";
 import throttle from 'lodash.throttle';
-import { useRef } from 'react';
-import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
+import {useCallback, useRef} from 'react';
+import {ChannelFilters, ChannelOptions, ChannelSort, StreamChat} from 'stream-chat';
 import {
-  CustomQueryChannelParams,
-  useChatContext,
+    CustomQueryChannelParams,
+    useChatContext,
 } from 'stream-chat-react';
 
+const DEFAULT_PAGE_SIZE = 30 as const;
+
 export const useCustomQueryChannels = () => {
-    const {client} = useChatContext();
-    const filters1: ChannelFilters = { member_count: {$gt: 10}, members: {$in: [client.user.id]}, type: 'messaging'};
-    const filters2: ChannelFilters = { type: 'messaging', members: { $in: [client.user.id] } };
-    const options: ChannelOptions = { state: true, presence: true, limit: 10 };
-    const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+  const { client } = useChatContext();
+  const filters1: ChannelFilters = {
+    member_count: { $gt: 10 },
+    members: { $in: [client.user?.id || ''] },
+    type: 'messaging',
+  };
+  const filters2: ChannelFilters = { members: { $in: [client.user?.id || ''] }, type: 'messaging' };
+  const options: ChannelOptions = { limit: 10, presence: true, state: true };
+  const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
-    const filtersArray = [filters1, filters2];
-    const appliedFilterIndex = useRef(0);
+  const filtersArray = [filters1, filters2];
+  const appliedFilterIndex = useRef(0);
 
-    const customQueryChannels = throttle(async ({currentChannels, queryType, setChannels, setHasNextPage}: CustomQueryChannelParams) => {
-      const offset = queryType === 'reload' ? 0 : currentChannels.length;
+  const customQueryChannels = useCallback(
+    throttle(
+      async ({
+        currentChannels,
+        queryType,
+        setChannels,
+        setHasNextPage,
+      }: CustomQueryChannelParams) => {
+        const offset = queryType === 'reload' ? 0 : currentChannels.length;
 
-      const newOptions = {
-        limit: options.limit ?? 30,
-        offset,
-        ...options,
-      };
+        const newOptions = {
+          limit: options.limit ?? DEFAULT_PAGE_SIZE,
+          offset,
+          ...options,
+        };
 
-      const filters = filtersArray[appliedFilterIndex.current];
-      const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
+        const filters = filtersArray[appliedFilterIndex.current];
+        const channelQueryResponse = await client.queryChannels(filters, sort || {}, newOptions);
 
-      const newChannels =
+        const newChannels =
           queryType === 'reload'
-              ? channelQueryResponse
-              : uniqBy([...currentChannels, ...channelQueryResponse], 'cid');
+            ? channelQueryResponse
+            : uniqBy([...currentChannels, ...channelQueryResponse], 'cid');
 
-      setChannels(newChannels);
-      const lastPageForCurrentFilter = channelQueryResponse.length < newOptions.limit;
-      const isLastPageForAllFilters = lastPageForCurrentFilter && appliedFilterIndex.current === filtersArray.length - 1;
-      setHasNextPage(!isLastPageForAllFilters);
-      if (lastPageForCurrentFilter) {
-        appliedFilterIndex.current += 1;
-      }
+        setChannels(newChannels);
 
-    }, 500, {leading: true, trailing: false});
+        const lastPageForCurrentFilter = channelQueryResponse.length < newOptions.limit;
+        const isLastPageForAllFilters =
+          lastPageForCurrentFilter && appliedFilterIndex.current === filtersArray.length - 1;
 
-    return customQueryChannels;
+        setHasNextPage(!isLastPageForAllFilters);
+        if (lastPageForCurrentFilter) {
+          appliedFilterIndex.current += 1;
+        }
+      },
+      500,
+      { leading: true, trailing: false },
+    ),
+    [client, filtersArray],
+  );
+
+  return customQueryChannels;
 };
 ```
 
 It is recommended to control for duplicate requests by throttling the custom function calls.
 
-| Type                    |
-|-------------------------|
-| `CustomQueryChannelsFn` |
+| Type                                                                                              |
+|---------------------------------------------------------------------------------------------------|
+| <GHComponentLink text='CustomQueryChannelsFn' path='/ChannelList/hooks/usePaginatedChannels.ts'/> |
 
 ### EmptyStateIndicator
 
