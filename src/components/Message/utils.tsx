@@ -51,6 +51,7 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   edit: 'edit',
   flag: 'flag',
+  markUnread: 'markUnread',
   mute: 'mute',
   pin: 'pin',
   quote: 'quote',
@@ -125,6 +126,7 @@ export type Capabilities = {
   canDelete?: boolean;
   canEdit?: boolean;
   canFlag?: boolean;
+  canMarkUnread?: boolean;
   canMute?: boolean;
   canPin?: boolean;
   canQuote?: boolean;
@@ -134,7 +136,17 @@ export type Capabilities = {
 
 export const getMessageActions = (
   actions: MessageActionsArray | boolean,
-  { canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply }: Capabilities,
+  {
+    canDelete,
+    canEdit,
+    canFlag,
+    canMarkUnread,
+    canMute,
+    canPin,
+    canQuote,
+    canReact,
+    canReply,
+  }: Capabilities,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -160,6 +172,10 @@ export const getMessageActions = (
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
   }
 
+  if (canMarkUnread && messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.markUnread);
+  }
+
   if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
   }
@@ -183,7 +199,12 @@ export const getMessageActions = (
   return messageActionsAfterPermission;
 };
 
-const ACTIONS_NOT_WORKING_IN_THREAD = ['pin', 'react', 'reply'];
+export const ACTIONS_NOT_WORKING_IN_THREAD = [
+  MESSAGE_ACTIONS.pin,
+  MESSAGE_ACTIONS.react,
+  MESSAGE_ACTIONS.reply,
+  MESSAGE_ACTIONS.markUnread,
+];
 
 export const showMessageActionsBox = (
   actions: MessageActionsArray,

@@ -13,14 +13,17 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  initClientWithChannels,
 } from '../../../mock-builders';
 import {
   ChannelActionProvider,
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  TranslationProvider,
 } from '../../../context';
 import { MessageSimple } from '../../Message';
+import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 
 const prependOffset = 0;
 const user1 = generateUser();
@@ -305,6 +308,168 @@ describe('VirtualizedMessageComponents', () => {
                     />
                   </div>
               `);
+      });
+
+      describe('UnreadMessagesSeparator', () => {
+        const messages = Array.from({ length: 2 }, (_, i) =>
+          generateMessage({ created_at: new Date(i).toISOString(), id: i + 1 }),
+        );
+
+        const Message = () => <div className='message-component' />;
+
+        const renderMarkUnread = async ({ virtuosoContext, virtuosoIndex } = {}) => {
+          const {
+            channels: [channel],
+            client,
+          } = await initClientWithChannels();
+          return render(
+            <ChatProvider value={{ client }}>
+              <TranslationProvider value={{ t: (v) => v }}>
+                <ComponentProvider value={{}}>
+                  <ChannelActionProvider value={{}}>
+                    <ChannelStateProvider value={{ channel }}>
+                      {messageRenderer(virtuosoIndex ?? PREPEND_OFFSET, undefined, virtuosoContext)}
+                    </ChannelStateProvider>
+                  </ChannelActionProvider>
+                </ComponentProvider>
+              </TranslationProvider>
+            </ChatProvider>,
+          );
+        };
+
+        it('should be rendered below the last read message if unread count is non-zero', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadMessageId: messages[0].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 1,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
+              <div
+                class="str-chat__unread-messages-separator-wrapper"
+              >
+                <div
+                  class="str-chat__unread-messages-separator"
+                >
+                  unreadMessagesSeparatorText
+                </div>
+              </div>
+            </div>
+          `);
+        });
+
+        it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadMessageId: messages[1].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended: 1,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 1,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
+            </div>
+          `);
+        });
+
+        it('should be rendered if unread count is falsy and first unread message is known', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              firstUnreadMessageId: messages[1].id,
+              lastReadMessageId: messages[0].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 0,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
+              <div
+                class="str-chat__unread-messages-separator-wrapper"
+              >
+                <div
+                  class="str-chat__unread-messages-separator"
+                >
+                  Unread messages
+                </div>
+              </div>
+            </div>
+          `);
+        });
+
+        it('should not be rendered if unread count is falsy and first unread messages is unknown', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadMessageId: messages[0].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 0,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
+            </div>
+          `);
+        });
+
+        it('should not be rendered if rendering other message than the last read one', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadMessageId: messages[0].id,
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended: 1,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: 1,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="message-component"
+              />
+            </div>
+          `);
+        });
       });
 
       it.each([

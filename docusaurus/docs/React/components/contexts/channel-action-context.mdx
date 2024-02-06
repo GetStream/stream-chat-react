@@ -50,6 +50,14 @@ A function that takes a message to be edited, returns a Promise.
 | -------- |
 | function |
 
+### jumpToFirstUnreadMessage
+
+Jumps to the first unread message in the channel, if such message exists. If the message is not found, jumps to last read message. Does not jump if the last read message is not defined. The parameter `queryMessageLimit` specifies the message page size around the first unread message in case it is not found in the local app state and has to be retrieved through and API call.
+
+| Type                  |
+| --------------------- |
+| `(queryMessageLimit?: number) => Promise<void>` |
+
 ### jumpToLatestMessage
 
 Used in conjunction with `jumpToMessage`. Restores the position of the message list back to the most recent messages.

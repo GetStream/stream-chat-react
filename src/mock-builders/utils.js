@@ -32,18 +32,27 @@ export async function createClientWithChannel(
   return { channel, client, users };
 }
 
-export const initClientWithChannel = async ({ customUser, generateChannelOptions } = {}) => {
+export const initClientWithChannels = async ({ channelsData, customUser } = {}) => {
   const user = customUser || generateUser();
-  const members = [generateMember({ user })];
-  const mockedChannel = generateChannel({
-    members,
-    ...generateChannelOptions,
-  });
   const client = await getTestClientWithUser(user);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-  const channel = client.channel('messaging', mockedChannel.channel.id);
+  const defaultGenerateChannelOptions = {
+    members: [generateMember({ user })],
+  };
+  const channels = await Promise.all(
+    (channelsData ?? [defaultGenerateChannelOptions]).map(async (channelData) => {
+      const mockedChannelData = generateChannel({
+        ...defaultGenerateChannelOptions,
+        ...channelData,
+      });
 
-  jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
-  return { channel, client };
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
+      const channel = client.channel(mockedChannelData.channel.type, mockedChannelData.channel.id);
+      await channel.watch();
+      jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannelData.channel.config);
+      return channel;
+    }),
+  );
+
+  return { channels, client };
 };

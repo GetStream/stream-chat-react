@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
+import { ChannelPreviewMessenger, MarkChannelReadOn } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import { getLatestMessagePreview } from './utils';
@@ -30,6 +30,21 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /**
+   * Configuration that determines when and whether a channel is marked read upon clicking ChannelPreview.
+   * 1. MarkChannelReadOn.never:
+   * Prevents a channel from being marked read when any ChannelPreview is clicked.
+   * 2. MarkChannelReadOn.leave:
+   * Marks active channel read before switching the active channel state to the clicked preview's channel.
+   * This means that active channel being left is marked read before navigating to another channel.
+   * 3. MarkChannelReadOn.reenter:
+   * Channel, which is re-entered by clicking the preview, is marked read.
+   * That means
+   *  1. an active channel can be marked unread, left and on return marked read.
+   *  2. a non-active channel receives a new message, is entered, left and re-entered and marked read.
+   * The default configuration is set to MarkChannelReadOn.reenter.
+   */
+  markActiveChannelReadOn?: MarkChannelReadOn;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
@@ -95,13 +110,25 @@ export const ChannelPreview = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const handleEvent = (event: Event) => {
+      if (channel.cid !== event.cid) return;
+      if (event.user?.id !== client.user?.id) return;
+      setUnread(channel.countUnread());
+    };
+    channel.on('notification.mark_unread', handleEvent);
+    return () => {
+      channel.off('notification.mark_unread', handleEvent);
+    };
+  }, [channel, client]);
+
   const refreshUnreadCount = useCallback(() => {
-    if (isActive || muted) {
+    if (muted) {
       setUnread(0);
     } else {
       setUnread(channel.countUnread());
     }
-  }, [channel, isActive, muted]);
+  }, [channel, muted]);
 
   useEffect(() => {
     refreshUnreadCount();

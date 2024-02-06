@@ -1,11 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { useChatContext } from '../../context';
 
+import type { Event } from 'stream-chat';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+
+export enum MarkChannelReadOn {
+  'never',
+  'leave',
+  'reenter',
+}
 
 const UnMemoizedChannelPreviewMessenger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -14,33 +22,85 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
+    activeChannel,
     Avatar = DefaultAvatar,
     channel,
     className: customClassName = '',
     displayImage,
     displayTitle,
     latestMessage,
+    markActiveChannelReadOn = MarkChannelReadOn.reenter,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
     watchers,
   } = props;
 
+  const { client } = useChatContext<StreamChatGenerics>('ChannelPreviewMessenger');
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
-
   const avatarName =
     displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
+
+  const previouslyClicked = useRef(active);
+
+  const handleMarkReadOnReenter = () => {
+    if (!client.user) return;
+    const ownReadState = channel.state.read[client.user.id];
+    if (!previouslyClicked.current) {
+      previouslyClicked.current = true;
+    } else if (
+      !active &&
+      (ownReadState?.first_unread_message_id || ownReadState?.unread_messages > 0) &&
+      previouslyClicked.current
+    ) {
+      channel.markRead();
+    }
+  };
+
+  const handleMarkReadOnLeave = () => {
+    if (!(client.user && activeChannel)) return;
+    const ownReadState = activeChannel.state.read[client.user.id];
+    if (ownReadState?.first_unread_message_id || ownReadState?.unread_messages > 0) {
+      activeChannel.markRead();
+    }
+  };
 
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else if (setActiveChannel) {
+      // eslint-disable-next-line default-case
+      switch (markActiveChannelReadOn) {
+        case MarkChannelReadOn.never:
+          break;
+        case MarkChannelReadOn.leave:
+          handleMarkReadOnLeave();
+          break;
+        case MarkChannelReadOn.reenter:
+          handleMarkReadOnReenter();
+      }
       setActiveChannel(channel, watchers);
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();
     }
   };
+
+  useEffect(() => {
+    if (markActiveChannelReadOn !== MarkChannelReadOn.reenter) return;
+    const handleEvent = (event: Event) => {
+      if (active) return;
+      if (channel.cid !== event.cid) return;
+      if (event.type === 'notification.mark_unread' && event.user?.id !== client.user?.id) return;
+      previouslyClicked.current = false;
+    };
+    channel.on('notification.mark_unread', handleEvent);
+    channel.on('message.new', handleEvent);
+    return () => {
+      channel.off('notification.mark_unread', handleEvent);
+      channel.off('message.new', handleEvent);
+    };
+  }, [active, channel, client, markActiveChannelReadOn, previouslyClicked]);
 
   return (
     <button

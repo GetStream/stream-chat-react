@@ -469,6 +469,14 @@ export const MessageInput = (props: MessageInputProps) => {
 | ------- | ------- |
 | boolean | true    |
 
+### markReadOnMount
+
+Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is not marked read on mount.
+
+| Type    | Default |
+|---------|---------|
+| boolean | false   |
+
 ### Input
 
 Custom UI component handling how the message input is rendered.
@@ -740,6 +748,23 @@ Custom UI component for the typing indicator.
 | Type      | Default                                                                               |
 | --------- | ------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='TypingIndicator' path='/TypingIndicator/TypingIndicator.tsx'/> |
+
+### UnreadMessagesNotification
+
+Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to `UnreadMessagesSeparator`.
+
+| Type      | Default                                                                               |
+| --------- | ------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='UnreadMessagesNotification' path='/MessageList/UnreadMessagesNotification.tsx'/> |
+
+
+### UnreadMessagesSeparator
+
+Custom UI component inserted before the first message marked unread.
+
+| Type      | Default                                                                               |
+| --------- | ------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='UnreadMessagesSeparator' path='/MessageList/UnreadMessagesSeparator.tsx'/> |
 
 ### videoAttachmentSizeHandler
 

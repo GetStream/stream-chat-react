@@ -47,6 +47,10 @@ export type MessageProps<
   getFlagMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
   getFlagMessageSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when mark channel messages unread request fails */
+  getMarkMessageUnreadErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when mark channel messages unread request succeeds */
+  getMarkMessageUnreadSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request fails */
   getMuteUserErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request succeeds */
@@ -83,7 +87,7 @@ export type MessageProps<
   openThread?: ChannelActionContextValue<StreamChatGenerics>['openThread'];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
-  /** A list of users that have read this Message */
+  /** A list of users that have read this Message if the message is the last one and was posted by my user */
   readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (

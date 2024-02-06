@@ -11,7 +11,7 @@ import { Channel } from '../../Channel';
 import { useChatContext } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
-import { initClientWithChannel } from '../../../mock-builders';
+import { initClientWithChannels } from '../../../mock-builders';
 
 const mockImageAssets = 'https://placeimg.com/640/480/any';
 
@@ -93,7 +93,10 @@ describe('Image', () => {
       return null;
     };
 
-    const { channel, client } = await initClientWithChannel();
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
     const CustomBaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
     let result;
     await act(() => {

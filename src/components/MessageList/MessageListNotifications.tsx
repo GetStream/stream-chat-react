@@ -17,6 +17,7 @@ export type MessageListNotificationsProps = {
   notifications: ChannelNotifications;
   scrollToBottom: () => void;
   threadList?: boolean;
+  unreadCount?: number;
 };
 
 export const MessageListNotifications = (props: MessageListNotificationsProps) => {
@@ -28,6 +29,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
     notifications,
     scrollToBottom,
     threadList,
+    unreadCount,
   } = props;
 
   const { t } = useTranslationContext('MessageListNotifications');
@@ -45,6 +47,7 @@ export const MessageListNotifications = (props: MessageListNotificationsProps) =
         onClick={scrollToBottom}
         showNotification={hasNewMessages || isNotAtLatestMessageSet}
         threadList={threadList}
+        unreadCount={unreadCount}
       >
         {isNotAtLatestMessageSet ? t<string>('Latest Messages') : t<string>('New Messages!')}
       </MessageNotification>

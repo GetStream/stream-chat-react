@@ -3,6 +3,7 @@ export * from './useDeleteHandler';
 export * from './useEditHandler';
 export * from './useFlagHandler';
 export * from './useMentionsHandler';
+export * from './useMarkUnreadHandler';
 export * from './useMuteHandler';
 export * from './useOpenThreadHandler';
 export * from './usePinHandler';

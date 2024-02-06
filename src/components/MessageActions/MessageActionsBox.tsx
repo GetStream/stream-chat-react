@@ -19,6 +19,7 @@ type PropsDrilledToMessageActionsBox =
   | 'getMessageActions'
   | 'handleDelete'
   | 'handleEdit'
+  | 'handleMarkUnread'
   | 'handleFlag'
   | 'handleMute'
   | 'handlePin';
@@ -41,11 +42,10 @@ const UnMemoizedMessageActionsBox = React.forwardRef(
       handleDelete,
       handleEdit,
       handleFlag,
+      handleMarkUnread,
       handleMute,
       handlePin,
       isUserMuted,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      mine,
       open = false,
       ...restDivProps
     } = props;
@@ -54,7 +54,7 @@ const UnMemoizedMessageActionsBox = React.forwardRef(
       CustomMessageActionsList = DefaultCustomMessageActionsList,
     } = useComponentContext<StreamChatGenerics>('MessageActionsBox');
     const { setQuotedMessage } = useChannelActionContext<StreamChatGenerics>('MessageActionsBox');
-    const { customMessageActions, message } = useMessageContext<StreamChatGenerics>(
+    const { customMessageActions, message, threadList } = useMessageContext<StreamChatGenerics>(
       'MessageActionsBox',
     );
 
@@ -103,6 +103,16 @@ const UnMemoizedMessageActionsBox = React.forwardRef(
               role='option'
             >
               {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
+            </button>
+          )}
+          {messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1 && !threadList && !!message.id && (
+            <button
+              aria-selected='false'
+              className={buttonClassName}
+              onClick={handleMarkUnread}
+              role='option'
+            >
+              {t<string>('Mark as unread')}
             </button>
           )}
           {messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1 && (
