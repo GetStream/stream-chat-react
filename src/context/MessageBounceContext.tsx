@@ -3,6 +3,7 @@ import { useMessageContext } from './MessageContext';
 import { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../types/types';
 import { StreamMessage } from './ChannelStateContext';
 import { useChannelActionContext } from './ChannelActionContext';
+import { isMessageBounced } from '../components';
 
 export interface MessageBounceContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -39,6 +40,13 @@ export function MessageBounceProvider<
     message,
     setEditingState,
   } = useMessageContext<StreamChatGenerics>('MessageBounceProvider');
+
+  if (!isMessageBounced(message)) {
+    console.warn(
+      `The MessageBounceProvider was rendered for a message that is not bounced. Have you missed the "isMessageBounced" check?`,
+    );
+  }
+
   const { removeMessage } = useChannelActionContext('MessageBounceProvider');
 
   const handleDelete: ReactEventHandler = useCallback(() => {
