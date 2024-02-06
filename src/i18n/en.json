@@ -56,6 +56,7 @@
   "Shuffle": "Shuffle",
   "Slow Mode ON": "Slow Mode ON",
   "Some of the files will not be accepted": "Some of the files will not be accepted",
+  "This message did not meet our content guidelines": "This message did not meet our content guidelines",
   "This message was deleted...": "This message was deleted...",
   "Thread": "Thread",
   "Type your message": "Type your message",
@@ -83,6 +84,5 @@
   "{{ users }} and more are typing...": "{{ users }} and more are typing...",
   "{{ users }} and {{ user }} are typing...": "{{ users }} and {{ user }} are typing...",
   "{{ watcherCount }} online": "{{ watcherCount }} online",
-  "🏙 Attachment...": "🏙 Attachment...",
-  "This message did not meet our content guidelines": "This message did not meet our content guidelines"
+  "🏙 Attachment...": "🏙 Attachment..."
 }
