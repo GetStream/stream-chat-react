@@ -1,0 +1,144 @@
+{
+  "docs": [
+    { "Basics": ["basics/getting_started", "basics/installation"] },
+    {
+      "UI Components": [
+        {
+          "Channel List": [
+            "components/core-components/channel_list",
+            "components/utility-components/channel_preview_ui",
+            "components/utility-components/channel_preview",
+            "components/utility-components/channel_search"
+          ]
+        },
+        {
+          "Message Input": [
+            "components/message-input-components/input_ui",
+            "components/message-input-components/ui_components",
+            "components/message-input-components/message_input"
+          ]
+        },
+        {
+          "Message List": [
+            "components/core-components/message_list",
+            "components/core-components/virtualized_list"
+          ]
+        },
+        {
+          "Message": [
+            "components/utility-components/date_separator",
+            "components/message-components/ui-components",
+            "components/message-components/message_ui",
+            "components/message-components/message"
+          ]
+        },
+        "components/message-components/attachment",
+        "components/utility-components/avatar",
+        "components/utility-components/base-image",
+        "components/utility-components/channel_header",
+        "components/core-components/channel",
+        "components/core-components/chat",
+        "components/utility-components/indicators",
+        "components/message-components/reactions",
+        "components/core-components/thread",
+        "components/utility-components/window"
+      ]
+    },
+    {
+      "Contexts": [
+        "components/contexts/channel_action_context",
+        "components/contexts/channel_list_context",
+        "components/contexts/channel_state_context",
+        "components/contexts/chat_context",
+        "components/contexts/component_context",
+        "components/contexts/emoji_context",
+        "components/contexts/message_context",
+        "components/contexts/message_input_context",
+        "components/contexts/message_list_context",
+        "components/contexts/translation_context",
+        "components/contexts/typing_context"
+      ]
+    },
+    {
+      "Hooks": ["hooks/channel_list_hooks", "hooks/message_hooks", "hooks/message_input_hooks"]
+    },
+    {
+      "UI Cookbook": [
+        {
+          "Attachment": [
+            "guides/theming/actions/attachment_actions",
+            "guides/customization/image_gallery",
+            "guides/theming/actions/geolocation_attachment",
+            "guides/customization/giphy_preview"
+          ]
+        },
+        {
+          "Channel List": [
+            "guides/channel-list-infinite-scroll",
+            "guides/customization/channel_list_preview",
+            "guides/customization/channel_search",
+            "guides/channel-user-lists",
+            "guides/multiple_channel_lists"
+          ]
+        },
+        {
+          "Emojis": ["guides/customization/emoji_picker"]
+        },
+        {
+          "Message Input": [
+            "guides/theming/input_ui",
+            "guides/customization/link-previews",
+            "guides/customization/override_submit_handler",
+            "guides/customization/persist_input_text_in_localstorage",
+            "guides/customization/suggestion_list",
+            "guides/customization/typing_indicator"
+          ]
+        },
+        {
+          "Message List": ["guides/theming/connection_status"]
+        },
+        {
+          "Message": [
+            "guides/theming/actions/mentions_actions",
+            "guides/theming/actions/message_actions",
+            "guides/theming/message_ui",
+            "guides/customization/pin_indicator",
+            "guides/customization/system_message"
+          ]
+        },
+        {
+          "Misc": ["guides/customization/channel_header", "guides/customization/thread_header"]
+        },
+        {
+          "Notification": ["guides/customization/adding_messagelist_notification"]
+        },
+        { "Reactions": ["guides/theming/reactions"] }
+      ]
+    },
+    {
+      "Guides": [
+        "guides/livestream-setup",
+        "guides/theming/translations",
+        "guides/typescript_and_generics",
+        "guides/channel_read_state"
+      ]
+    },
+    {
+      "Theming": [
+        "guides/theming/theming-overview",
+        { "V1": ["guides/theming/css_and_theming"] },
+        {
+          "V2": [
+            "theming/themingv2",
+            "theming/palette-variables",
+            "theming/component-variables",
+            "theming/global-variables"
+          ]
+        }
+      ]
+    },
+    { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },
+    "troubleshooting/troubleshooting",
+    "resources/resources"
+  ]
+}
