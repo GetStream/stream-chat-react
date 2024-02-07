@@ -1,3 +1,15 @@
+## [11.6.0](https://github.com/GetStream/stream-chat-react/compare/v11.5.0...v11.6.0) (2024-02-07)
+
+
+### Bug Fixes
+
+* avatar alignment ([#2264](https://github.com/GetStream/stream-chat-react/issues/2264)) ([1c88fdd](https://github.com/GetStream/stream-chat-react/commit/1c88fdd766f8c995271e0c5c6f5d2c31783dbac4)), closes [#2263](https://github.com/GetStream/stream-chat-react/issues/2263)
+
+
+### Features
+
+* use lint-staged for lint and fixes ([#2258](https://github.com/GetStream/stream-chat-react/issues/2258)) ([9ce6c66](https://github.com/GetStream/stream-chat-react/commit/9ce6c66941b0cc7eece2a3e9b7da038b72acf83f))
+
 ## [11.5.0](https://github.com/GetStream/stream-chat-react/compare/v11.4.0...v11.5.0) (2024-02-02)
 
 
