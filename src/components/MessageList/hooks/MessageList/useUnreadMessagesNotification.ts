@@ -70,6 +70,7 @@ export const useUnreadMessagesNotification = ({
 
     if (unreadCount && isMessageListScrolledToBottom && isScrolledAboveTargetTop.current) {
       setShow(true);
+      isScrolledAboveTargetTop.current = false;
     }
   }, [isMessageListScrolledToBottom, unreadCount]);
 
