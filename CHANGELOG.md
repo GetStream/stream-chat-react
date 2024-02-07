@@ -1,3 +1,15 @@
+## [11.7.0](https://github.com/GetStream/stream-chat-react/compare/v11.6.0...v11.7.0) (2024-02-07)
+
+
+### Bug Fixes
+
+* show UnreadMessagesNotification when MessageList is scrolled to bottom via Element.scrollTo ([#2261](https://github.com/GetStream/stream-chat-react/issues/2261)) ([b51f846](https://github.com/GetStream/stream-chat-react/commit/b51f8466cbfabe885352b2d6094ba8a5d9436429))
+
+
+### Features
+
+* allow to pass custom function customQueryChannels to ChannelList to query channels ([#2260](https://github.com/GetStream/stream-chat-react/issues/2260)) ([5dfa493](https://github.com/GetStream/stream-chat-react/commit/5dfa493fcdd80c615c17fb674a691521f6456102))
+
 ## [11.6.0](https://github.com/GetStream/stream-chat-react/compare/v11.5.0...v11.6.0) (2024-02-07)
 
 
