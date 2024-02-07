@@ -13,7 +13,7 @@ import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { useNotificationAddedToChannelListener } from './hooks/useNotificationAddedToChannelListener';
 import { useNotificationMessageNewListener } from './hooks/useNotificationMessageNewListener';
 import { useNotificationRemovedFromChannelListener } from './hooks/useNotificationRemovedFromChannelListener';
-import { usePaginatedChannels } from './hooks/usePaginatedChannels';
+import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
@@ -64,6 +64,8 @@ export type ChannelListProps<
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
+  /** Custom function that handles the channel pagination. Has to build query filters, sort and options and query and append channels to the current channels state and update the hasNext pagination flag after each query. */
+  customQueryChannels?: CustomQueryChannelsFn<StreamChatGenerics>;
   /** Custom UI component for rendering an empty list, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** An object containing channel query filters */
@@ -163,6 +165,7 @@ const UnMemoizedChannelList = <
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
+    customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
     LoadingErrorIndicator = ChatDown,
@@ -274,6 +277,7 @@ const UnMemoizedChannelList = <
     options || DEFAULT_OPTIONS,
     activeChannelHandler,
     recoveryThrottleIntervalMs,
+    customQueryChannels,
   );
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;

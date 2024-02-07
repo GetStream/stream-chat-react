@@ -9,9 +9,9 @@ type ChannelQueryState =
 
 export interface ChannelsQueryState {
   error: ErrorFromResponse<APIErrorResponse> | null;
-  queryInProgress: ChannelQueryState | null;
+  queryInProgress: ChannelQueryState;
   setError: Dispatch<SetStateAction<ErrorFromResponse<APIErrorResponse> | null>>;
-  setQueryInProgress: Dispatch<SetStateAction<ChannelQueryState | null>>;
+  setQueryInProgress: Dispatch<SetStateAction<ChannelQueryState>>;
 }
 
 export const useChannelsQueryState = (): ChannelsQueryState => {
