@@ -94,10 +94,6 @@ const MessageListWithContext = <
   const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
   const currentUserChannelReadState = client.user && read?.[client.user.id];
 
-  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
-    unreadCount: currentUserChannelReadState?.unread_messages,
-  });
-
   const {
     hasNewMessages,
     isMessageListScrolledToBottom,
@@ -111,6 +107,11 @@ const MessageListWithContext = <
     messages,
     scrolledUpThreshold: props.scrolledUpThreshold,
     suppressAutoscroll,
+  });
+
+  const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
+    isMessageListScrolledToBottom,
+    unreadCount: currentUserChannelReadState?.unread_messages,
   });
 
   useMarkRead({
