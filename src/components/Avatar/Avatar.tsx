@@ -80,6 +80,7 @@ export const Avatar = <
           onLoad={() => setLoaded(true)}
           src={image}
           style={{
+            display: 'block',
             flexBasis: `${size}px`,
             height: `${size}px`,
             objectFit: 'cover',
