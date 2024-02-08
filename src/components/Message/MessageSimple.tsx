@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
-import { MessageBounceOptions as DefaultMessageBounceOptions } from '../MessageBounce';
+import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
@@ -73,7 +73,7 @@ const MessageSimpleWithContext = <
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
-    MessageBounceOptions = DefaultMessageBounceOptions,
+    MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
@@ -152,7 +152,7 @@ const MessageSimpleWithContext = <
       )}
       {isBounceDialogOpen && (
         <MessageBounceModal
-          MessageBounceOptions={MessageBounceOptions}
+          MessageBouncePrompt={MessageBouncePrompt}
           onClose={() => setIsBounceDialogOpen(false)}
           open={isBounceDialogOpen}
         />

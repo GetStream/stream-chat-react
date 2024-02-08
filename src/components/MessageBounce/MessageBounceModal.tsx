@@ -1,22 +1,22 @@
 import React, { ComponentType, PropsWithChildren } from 'react';
 import { Modal, ModalProps } from '../Modal';
 import { MessageBounceProvider } from '../../context';
-import { MessageBounceOptionsProps } from './MessageBounceOptions';
+import { MessageBouncePromptProps } from './MessageBouncePrompt';
 
 export type MessageBounceModalProps = PropsWithChildren<
   ModalProps & {
-    MessageBounceOptions: ComponentType<MessageBounceOptionsProps>;
+    MessageBouncePrompt: ComponentType<MessageBouncePromptProps>;
   }
 >;
 
 export function MessageBounceModal({
-  MessageBounceOptions,
+  MessageBouncePrompt,
   ...modalProps
 }: MessageBounceModalProps) {
   return (
     <Modal {...modalProps}>
       <MessageBounceProvider>
-        <MessageBounceOptions onClose={modalProps.onClose} />
+        <MessageBouncePrompt onClose={modalProps.onClose} />
       </MessageBounceProvider>
     </Modal>
   );

@@ -8,7 +8,7 @@ The `MessageBounceContext` is available inside the modal rendered by the default
 
 ## Basic Usage
 
-In most cases when using the default Message UI component implementation you are not going to deal with the `MessageBounceContext` directly. However if you are customizing the Message UI component, or providing a custom `MessageBounceOptions`, the callbacks provided by this context come in handy.
+In most cases when using the default Message UI component implementation you are not going to deal with the `MessageBounceContext` directly. However if you are customizing the Message UI component, or providing a custom `MessageBouncePrompt`, the callbacks provided by this context come in handy.
 
 Get values from context with our custom hook:
 
@@ -16,12 +16,12 @@ Get values from context with our custom hook:
 const { message, handleEdit, handleSend, handleDelete } = useMessageBounceContext();
 ```
 
-Use these callbacks to implement your custom `MessageBounceOptions`. Normally this component displays three options: edit the message before sending it again, send the message again without changes (this can be useful if you are using the "Bounce then flag" moderation flow), and delete the message.
+Use these callbacks to implement your custom `MessageBouncePrompt`. Normally this component displays three options: edit the message before sending it again, send the message again without changes (this can be useful if you are using the "Bounce then flag" moderation flow), and delete the message.
 
 ```jsx
 import { useMessageBounceContext } from 'stream-chat-react';
 
-function MyCustomMessageBounceOptions({ onClose }) {
+function MyCustomMessageBouncePrompt({ onClose }) {
   const { message, handleEdit, handleSend, handleDelete } = useMessageBounceContext();
   return (
     <>
@@ -42,10 +42,10 @@ function MyCustomMessageBounceOptions({ onClose }) {
 }
 ```
 
-Then override the default `MessageBounceOptions` component with your custom one:
+Then override the default `MessageBouncePrompt` component with your custom one:
 
 ```jsx
-<Channel MessageBounceOptions={MyCustomMessageBounceOptions}>
+<Channel MessageBouncePrompt={MyCustomMessageBouncePrompt}>
   <Window>
     <ChannelHeader />
     <MessageList />
@@ -87,14 +87,14 @@ function MyCustomMessage() {
       <MessageStatus />
       {isBounced && (
         <MessageBounceProvider>
-          <MyCustomMessageBounceOptions />
+          <MyCustomMessageBouncePrompt />
         </MessageBounceProvider>
       )}
     </div>
   );
 }
 
-function MyCustomMessageBounceOptions({ onClose }) {
+function MyCustomMessageBouncePrompt({ onClose }) {
   const { message, handleEdit, handleSend, handleDelete } = useMessageBounceContext();
   return (
     <>

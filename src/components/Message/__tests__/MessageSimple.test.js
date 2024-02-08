@@ -36,7 +36,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { MessageBounceOptions } from '../../MessageBounce';
+import { MessageBouncePrompt } from '../../MessageBounce';
 
 Dayjs.extend(calendar);
 
@@ -662,7 +662,7 @@ describe('<MessageSimple />', () => {
       const message = generateAliceMessage(bouncedMessageOptions);
       const { getByTestId, queryByTestId } = await renderMessageSimple({ message });
       fireEvent.click(getByTestId('message-inner'));
-      expect(queryByTestId('message-bounce-options')).toBeInTheDocument();
+      expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
     });
 
     it('should switch to message editing', async () => {
@@ -705,27 +705,25 @@ describe('<MessageSimple />', () => {
 
     it('should use overriden modal content component', async () => {
       const message = generateAliceMessage(bouncedMessageOptions);
-      const CustomMessageBounceOptions = () => (
-        <div data-testid='custom-message-bounce-options'>Overriden</div>
+      const CustomMessageBouncePrompt = () => (
+        <div data-testid='custom-message-bounce-prompt'>Overriden</div>
       );
       const { getByTestId, queryByTestId } = await renderMessageSimple({
         components: {
-          MessageBounceOptions: CustomMessageBounceOptions,
+          MessageBouncePrompt: CustomMessageBouncePrompt,
         },
         message,
       });
       fireEvent.click(getByTestId('message-inner'));
-      expect(queryByTestId('custom-message-bounce-options')).toBeInTheDocument();
+      expect(queryByTestId('custom-message-bounce-prompt')).toBeInTheDocument();
     });
 
     it('should use overriden modal content text', async () => {
       const message = generateAliceMessage(bouncedMessageOptions);
-      const CustomMessageBounceOptions = () => (
-        <MessageBounceOptions>Overriden</MessageBounceOptions>
-      );
+      const CustomMessageBouncePrompt = () => <MessageBouncePrompt>Overriden</MessageBouncePrompt>;
       const { getByTestId, queryByText } = await renderMessageSimple({
         components: {
-          MessageBounceOptions: CustomMessageBounceOptions,
+          MessageBouncePrompt: CustomMessageBouncePrompt,
         },
         message,
       });

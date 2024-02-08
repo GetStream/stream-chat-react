@@ -1,2 +1,2 @@
 export * from './MessageBounceModal';
-export * from './MessageBounceOptions';
+export * from './MessageBouncePrompt';
