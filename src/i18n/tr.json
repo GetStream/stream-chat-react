@@ -28,6 +28,7 @@
   "Error · Unsent": "Hata · Gönderilemedi",
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
   "Failed to jump to the first unread message": "İlk okunmamış mesaja atlamada hata oluştu",
+  "Failed to mark channel as read": "Kanalı okundu olarak işaretleme başarısız oldu",
   "Flag": "Bayrak",
   "Latest Messages": "Son Mesajlar",
   "Load more": "Daha fazla yükle",

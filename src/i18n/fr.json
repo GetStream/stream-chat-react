@@ -28,6 +28,7 @@
   "Error · Unsent": "Erreur - Non envoyé",
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Failed to jump to the first unread message": "Échec de saut vers le premier message non lu",
+  "Failed to mark channel as read": "Échec de la marque du canal comme lu",
   "Flag": "Signaler",
   "Latest Messages": "Derniers messages",
   "Load more": "Charger plus",

@@ -28,6 +28,7 @@
   "Error · Unsent": "Error · Unsent",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
   "Failed to jump to the first unread message": "Failed to jump to the first unread message",
+  "Failed to mark channel as read": "Failed to mark channel as read",
   "Flag": "Flag",
   "Latest Messages": "Latest Messages",
   "Load more": "Load more",

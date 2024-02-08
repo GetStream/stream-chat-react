@@ -10,7 +10,6 @@ import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export enum MarkChannelReadOn {
-  'never',
   'leave',
   'reenter',
 }
@@ -29,7 +28,7 @@ const UnMemoizedChannelPreviewMessenger = <
     displayImage,
     displayTitle,
     latestMessage,
-    markActiveChannelReadOn = MarkChannelReadOn.reenter,
+    markActiveChannelReadOn,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
@@ -71,8 +70,6 @@ const UnMemoizedChannelPreviewMessenger = <
     } else if (setActiveChannel) {
       // eslint-disable-next-line default-case
       switch (markActiveChannelReadOn) {
-        case MarkChannelReadOn.never:
-          break;
         case MarkChannelReadOn.leave:
           handleMarkReadOnLeave();
           break;

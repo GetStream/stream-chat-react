@@ -48,6 +48,7 @@ export const useCreateChannelStateContext = <
     threadHasMore,
     threadLoadingMore,
     threadMessages = [],
+    ownChannelReadState,
     videoAttachmentSizeHandler,
     watcherCount,
     watcher_count,
@@ -122,6 +123,7 @@ export const useCreateChannelStateContext = <
       mutes,
       notifications,
       onLinkPreviewDismissed,
+      ownChannelReadState,
       pinnedMessages,
       quotedMessage,
       read,
@@ -164,6 +166,7 @@ export const useCreateChannelStateContext = <
       threadHasMore,
       threadLoadingMore,
       threadMessagesLength,
+      ownChannelReadState,
       watcherCount,
     ],
   );

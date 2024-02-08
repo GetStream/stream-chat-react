@@ -44,6 +44,7 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
+  ChannelStateContextValue,
   StreamMessage,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
@@ -111,6 +112,7 @@ type VirtualizedMessageListWithContextProps<
   loadingMore: boolean;
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
+  ownChannelReadState?: ChannelStateContextValue['ownChannelReadState'];
   read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
@@ -185,6 +187,7 @@ const VirtualizedMessageListWithContext = <
     notifications,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
+    ownChannelReadState,
     read,
     returnAllReadData = false,
     scrollSeekPlaceHolder,
@@ -222,14 +225,13 @@ const VirtualizedMessageListWithContext = <
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
-  const currentUserChannelReadState = client.user && read?.[client.user.id];
 
   const {
     show: showUnreadMessagesNotification,
     toggleShowUnreadMessagesNotification,
   } = useUnreadMessagesNotificationVirtualized({
-    lastRead: currentUserChannelReadState?.last_read,
-    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
+    lastRead: ownChannelReadState?.last_read,
+    unreadCount: ownChannelReadState?.unread_messages ?? 0,
   });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
@@ -312,7 +314,7 @@ const VirtualizedMessageListWithContext = <
     isMessageListScrolledToBottom,
     markReadOnScrolledToBottom,
     messageListIsThread: !!threadList,
-    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
+    unreadCount: ownChannelReadState?.unread_messages ?? 0,
   });
 
   const scrollToBottom = useCallback(async () => {
@@ -403,7 +405,7 @@ const VirtualizedMessageListWithContext = <
     <>
       <MessageListMainPanel>
         {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification unreadCount={currentUserChannelReadState?.unread_messages} />
+          <UnreadMessagesNotification unreadCount={ownChannelReadState?.unread_messages} />
         )}
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
           <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
@@ -427,9 +429,9 @@ const VirtualizedMessageListWithContext = <
               customMessageActions,
               customMessageRenderer,
               DateSeparator,
-              firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
+              firstUnreadMessageId: ownChannelReadState?.first_unread_message_id,
               head,
-              lastReadMessageId: currentUserChannelReadState?.last_read_message_id,
+              lastReadMessageId: ownChannelReadState?.last_read_message_id,
               lastReceivedMessageId,
               loadingMore,
               Message: MessageUIComponent,
@@ -441,7 +443,7 @@ const VirtualizedMessageListWithContext = <
               processedMessages,
               shouldGroupByUser,
               threadList,
-              unreadMessageCount: currentUserChannelReadState?.unread_messages,
+              unreadMessageCount: ownChannelReadState?.unread_messages,
               UnreadMessagesSeparator,
               virtuosoRef: virtuoso,
             }}
@@ -474,7 +476,7 @@ const VirtualizedMessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottom}
         threadList={threadList}
-        unreadCount={threadList ? undefined : currentUserChannelReadState?.unread_messages}
+        unreadCount={threadList ? undefined : ownChannelReadState?.unread_messages}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
@@ -600,6 +602,7 @@ export function VirtualizedMessageList<
     loadingMoreNewer,
     messages: contextMessages,
     notifications,
+    ownChannelReadState,
     read,
     suppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('VirtualizedMessageList');
@@ -619,6 +622,7 @@ export function VirtualizedMessageList<
       loadMoreNewer={loadMoreNewer}
       messages={messages}
       notifications={notifications}
+      ownChannelReadState={ownChannelReadState}
       read={read}
       suppressAutoscroll={suppressAutoscroll}
       {...props}

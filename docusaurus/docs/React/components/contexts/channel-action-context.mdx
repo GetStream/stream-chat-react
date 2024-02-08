@@ -136,6 +136,19 @@ The function to load next page/batch of `messages` in a currently active/open `T
 | -------- |
 | function |
 
+### markRead
+
+Throttled function that executes the API request and updates the local channel read state for own user. The behavior can be configured via the single `options` parameter of type `MarkReadWrapperOptions`. The `options` parameter has the following structure:
+
+| Field                  | Type      | Optional | Description                                                                                                                                                                                                                                                                                                                 |
+|------------------------|-----------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `updateLocalReadState` | `boolean` | yes      | Signal, whether the `ownChannelReadState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateLocalReadState` is not provided, the state is updated. |
+ |
+
+| Type     |
+| -------- |
+| `(options?: MarkReadWrapperOptions) => void` |
+
 ### onMentionsClick
 
 Custom action handler function to execute when @mention is clicked, takes a DOM click event object and an array of mentioned users.

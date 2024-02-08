@@ -2,12 +2,12 @@ import React, { Fragment, ReactNode } from 'react';
 
 import { MessageProps } from '../Message/types';
 import { StreamMessage } from '../../context/ChannelStateContext';
-import { DefaultStreamChatGenerics } from '../../types/types';
+import { DefaultStreamChatGenerics, OwnChannelReadState } from '../../types/types';
 import { ComponentContextValue, CustomClasses, isDate } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { GroupStyle } from './utils';
 import { Message } from '../Message/Message';
-import { ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
+import { UserResponse } from 'stream-chat';
 
 export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -29,7 +29,7 @@ export interface RenderMessagesOptions<
    * Current user's read status.
    * Useful to determine, when a channel has been marked read the last time, the last read message, count of unread messages.
    */
-  ownReadState?: StreamChannelState<StreamChatGenerics>['read'][keyof StreamChannelState<StreamChatGenerics>['read']];
+  ownReadState?: OwnChannelReadState<StreamChatGenerics>;
 }
 
 export type SharedMessageProps<

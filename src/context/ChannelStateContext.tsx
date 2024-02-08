@@ -12,6 +12,7 @@ import type {
   DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
+  OwnChannelReadState,
   UnknownType,
   VideoAttachmentSizeHandler,
 } from '../types/types';
@@ -75,6 +76,7 @@ export type ChannelStateContextValue<
   maxNumberOfFiles?: number;
   mutes?: Array<Mute<StreamChatGenerics>>;
   onLinkPreviewDismissed?: URLEnrichmentConfig['onLinkPreviewDismissed'];
+  ownChannelReadState?: OwnChannelReadState<StreamChatGenerics>;
   watcher_count?: number;
 };
 

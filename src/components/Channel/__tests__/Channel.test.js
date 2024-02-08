@@ -485,14 +485,14 @@ describe('Channel', () => {
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is enabled (default)', async () => {
+  it('should mark the channel as read when the channel is mounted', async () => {
     const { channel, chatClient } = await initClient();
     jest.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
     const markReadSpy = jest.spyOn(channel, 'markRead');
 
     await renderComponent({ channel, chatClient });
 
-    await waitFor(() => expect(markReadSpy).not.toHaveBeenCalledWith());
+    await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
   });
 
   it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
@@ -977,11 +977,16 @@ describe('Channel', () => {
         let notifications;
         await renderComponent(
           { channel, chatClient },
-          ({ jumpToFirstUnreadMessage, notifications: contextNotifications }) => {
+          ({
+            jumpToFirstUnreadMessage,
+            notifications: contextNotifications,
+            ownChannelReadState,
+          }) => {
             if (hasJumped) {
               notifications = contextNotifications;
               return;
             }
+            if (!ownChannelReadState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1010,11 +1015,14 @@ describe('Channel', () => {
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation();
         let hasJumped;
-        await renderComponent({ channel, chatClient }, ({ jumpToFirstUnreadMessage }) => {
-          if (hasJumped) return;
-          jumpToFirstUnreadMessage();
-          hasJumped = true;
-        });
+        await renderComponent(
+          { channel, chatClient },
+          ({ jumpToFirstUnreadMessage, ownChannelReadState }) => {
+            if (hasJumped || !ownChannelReadState) return;
+            jumpToFirstUnreadMessage();
+            hasJumped = true;
+          },
+        );
 
         await waitFor(() =>
           expect(loadMessageIntoState).toHaveBeenCalledWith(
@@ -1089,6 +1097,7 @@ describe('Channel', () => {
               highlightedMessageId: contextHighlightedMessageId,
               jumpToFirstUnreadMessage,
               notifications: contextNotifications,
+              ownChannelReadState,
             }) => {
               if (hasJumped) {
                 hasMoreMessages = hasMore;
@@ -1096,6 +1105,7 @@ describe('Channel', () => {
                 notifications = contextNotifications;
                 return;
               }
+              if (!ownChannelReadState) return;
               useMockedApis(chatClient, [queryChannelWithNewMessages(jumpToPage, channel)]);
               jumpToFirstUnreadMessage(jumpToPage.length);
               hasJumped = true;
@@ -1139,6 +1149,7 @@ describe('Channel', () => {
             jumpToFirstUnreadMessage,
             messages: contextMessages,
             notifications: contextNotifications,
+            ownChannelReadState,
           }) => {
             if (hasJumped) {
               notifications = contextNotifications;
@@ -1147,6 +1158,7 @@ describe('Channel', () => {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
+            if (!ownChannelReadState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1182,11 +1194,16 @@ describe('Channel', () => {
         let highlightedMessageId;
         await renderComponent(
           { channel, chatClient },
-          ({ highlightedMessageId: contextHighlightedMessageId, jumpToFirstUnreadMessage }) => {
+          ({
+            highlightedMessageId: contextHighlightedMessageId,
+            jumpToFirstUnreadMessage,
+            ownChannelReadState,
+          }) => {
             if (hasJumped) {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
+            if (!ownChannelReadState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1216,11 +1233,16 @@ describe('Channel', () => {
         let highlightedMessageId;
         await renderComponent(
           { channel, chatClient },
-          ({ highlightedMessageId: contextHighlightedMessageId, jumpToFirstUnreadMessage }) => {
+          ({
+            highlightedMessageId: contextHighlightedMessageId,
+            jumpToFirstUnreadMessage,
+            ownChannelReadState,
+          }) => {
             if (hasJumped) {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
+            if (!ownChannelReadState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },

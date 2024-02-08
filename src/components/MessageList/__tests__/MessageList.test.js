@@ -1,13 +1,10 @@
 import React, { useEffect } from 'react';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import {
   dispatchMessageNewEvent,
-  dispatchMessageReadEvent,
   dispatchNotificationMarkUnread,
   generateChannel,
   generateMember,
@@ -16,16 +13,25 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
+  markReadApi,
   useMockedApis,
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-import { ChatProvider, useChatContext, useMessageContext } from '../../../context';
+import {
+  ChatProvider,
+  useChannelActionContext,
+  useChatContext,
+  useMessageContext,
+} from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { ScrollToBottomButton } from '../ScrollToBottomButton';
 import { MessageListNotifications } from '../MessageListNotifications';
+import { mockedApiResponse } from '../../../mock-builders/api/utils';
+
+expect.extend(toHaveNoViolations);
 
 jest.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: jest.fn(),
@@ -345,9 +351,92 @@ describe('MessageList', () => {
     afterEach(jest.clearAllMocks);
     afterAll(jest.restoreAllMocks);
 
-    it('should display unread messages separator when channel is marked unread and remove it when marked read', async () => {
-      jest.useFakeTimers();
+    it('should keep displaying the unread messages separator when an unread channel is marked read on mount', async () => {
+      const user = generateUser();
+      const last_read_message_id = 'X';
+      const lastReadMessage = generateMessage({ id: last_read_message_id });
+      const messages = [lastReadMessage, generateMessage(), generateMessage()];
+      const {
+        channels: [channel],
+        client: chatClient,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: lastReadMessage.created_at.toISOString(),
+                last_read_message_id,
+                unread_messages: 2,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
 
+      const markReadMock = jest
+        .spyOn(channel, 'markRead')
+        .mockReturnValueOnce(markReadApi(channel));
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(markReadMock).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText(separatorText)).toBeInTheDocument();
+    });
+
+    it('should display unread messages separator when a channel is marked unread and remove it when marked read by markRead()', async () => {
+      jest.useFakeTimers();
+      const markReadBtnTestId = 'test-mark-read';
+      const MarkReadButton = () => {
+        const { markRead } = useChannelActionContext();
+        return (
+          <button data-testid={markReadBtnTestId} onClick={markRead}>
+            MarkRead
+          </button>
+        );
+      };
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <MarkReadButton />
+              <MessageList messages={messages} />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        dispatchMarkUnreadForChannel({ channel, client });
+      });
+      expect(screen.getByText(separatorText)).toBeInTheDocument();
+
+      jest.runAllTimers();
+      useMockedApis(client, [mockedApiResponse(markReadApi(channel), 'post')]);
+      await act(() => {
+        fireEvent.click(screen.getByTestId(markReadBtnTestId));
+      });
+
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
+      jest.useRealTimers();
+    });
+
+    it('should not display unread messages separator when the last read message is the newest channel message', async () => {
       const {
         channels: [channel],
         client,
@@ -361,20 +450,18 @@ describe('MessageList', () => {
         });
       });
 
-      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
-
       await act(() => {
-        dispatchMarkUnreadForChannel({ channel, client });
+        const lastReadMessage = messages.slice(-1)[0];
+        dispatchMarkUnreadForChannel({
+          channel,
+          client,
+          payload: {
+            last_read: lastReadMessage.created_at,
+            last_read_message_id: lastReadMessage.id,
+          },
+        });
       });
-      expect(screen.getByText(separatorText)).toBeInTheDocument();
-
-      jest.runAllTimers();
-      await act(() => {
-        dispatchMessageReadEvent(client, client.user, channel);
-      });
-
-      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
-      jest.useRealTimers();
+      expect(screen.queryByTestId('unread-messages-separator')).not.toBeInTheDocument();
     });
 
     it('should display custom unread messages separator when channel is marked unread', async () => {

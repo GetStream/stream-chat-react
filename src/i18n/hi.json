@@ -29,6 +29,7 @@
   "Error · Unsent": "फेल",
   "Error: {{ errorMessage }}": "फेल: {{ errorMessage }}",
   "Failed to jump to the first unread message": "पहले अपठित संदेश पर जाने में विफल",
+  "Failed to mark channel as read": "चैनल को पढ़ा हुआ चिह्नित करने में विफल।",
   "Flag": "फ्लैग करे",
   "Latest Messages": "नवीनतम संदेश",
   "Load more": "और लोड करें",

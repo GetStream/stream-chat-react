@@ -17,7 +17,7 @@ import {
   ChannelQueryOptions,
   ChannelState,
   Event,
-  logChatPromiseExecution,
+  EventAPIResponse,
   Message,
   MessageResponse,
   SendMessageAPIResponse,
@@ -48,6 +48,7 @@ import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 import {
   ChannelActionContextValue,
   ChannelActionProvider,
+  MarkReadWrapperOptions,
   MessageToSend,
 } from '../../context/ChannelActionContext';
 import {
@@ -66,6 +67,7 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
+import type { UnreadMessagesNotificationProps } from '../MessageList';
 import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { makeAddNotifications } from './utils';
@@ -79,6 +81,7 @@ import type {
   DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
+  OwnChannelReadState,
   SendMessageOptions,
   UpdateMessageOptions,
   VideoAttachmentSizeHandler,
@@ -89,7 +92,6 @@ import {
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { defaultReactionOptions, ReactionOptions } from '../Reactions';
-import type { UnreadMessagesNotificationProps } from '../MessageList';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator } from '../DateSeparator';
 
@@ -221,7 +223,8 @@ export type ChannelProps<
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel<StreamChatGenerics>,
-  ) => Promise<MessageResponse<StreamChatGenerics>> | void;
+    setOwnChannelReadState?: (state: OwnChannelReadState) => void,
+  ) => Promise<EventAPIResponse<StreamChatGenerics>> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel<StreamChatGenerics>,
@@ -256,7 +259,7 @@ export type ChannelProps<
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
-  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is not marked read on mount. */
+  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
   markReadOnMount?: boolean;
   /** Maximum number of attachments allowed per message */
   maxNumberOfFiles?: number;
@@ -352,7 +355,7 @@ const ChannelInner = <
     initializeOnMount = true,
     LoadingErrorIndicator = DefaultLoadingErrorIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
-    markReadOnMount,
+    markReadOnMount = true,
     maxNumberOfFiles,
     multipleUploads = true,
     onMentionsClick,
@@ -379,6 +382,7 @@ const ChannelInner = <
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
+  const [ownChannelReadState, setOwnChannelReadState] = useState<OwnChannelReadState>();
 
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
@@ -409,29 +413,42 @@ const ChannelInner = <
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const markRead = useCallback(
     throttle(
-      () => {
+      async (options?: MarkReadWrapperOptions) => {
+        const { updateLocalReadState = true } = options ?? {};
         if (channel.disconnected || !channelConfig?.read_events) {
           return;
         }
 
         lastRead.current = new Date();
 
-        if (doMarkReadRequest) {
-          doMarkReadRequest(channel);
-        } else {
-          logChatPromiseExecution(channel.markRead(), 'mark read');
-        }
+        try {
+          if (doMarkReadRequest) {
+            doMarkReadRequest(channel, updateLocalReadState ? setOwnChannelReadState : undefined);
+          } else {
+            const markReadResponse = await channel.markRead();
+            console.log('markReadResponse', updateLocalReadState, markReadResponse);
+            if (updateLocalReadState && markReadResponse) {
+              setOwnChannelReadState({
+                last_read: lastRead.current,
+                last_read_message_id: markReadResponse.event.last_read_message_id,
+                unread_messages: 0,
+              });
+            }
+          }
 
-        if (activeUnreadHandler) {
-          activeUnreadHandler(0, originalTitle.current);
-        } else if (originalTitle.current) {
-          document.title = originalTitle.current;
+          if (activeUnreadHandler) {
+            activeUnreadHandler(0, originalTitle.current);
+          } else if (originalTitle.current) {
+            document.title = originalTitle.current;
+          }
+        } catch (e) {
+          console.error(t<string>('Failed to mark channel as read'));
         }
       },
       500,
       { leading: true, trailing: false },
     ),
-    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest],
+    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest, t, setOwnChannelReadState],
   );
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
@@ -502,6 +519,17 @@ const ChannelInner = <
       });
     }
 
+    if (event.type === 'notification.mark_unread')
+      setOwnChannelReadState((prev) => {
+        if (!(event.last_read_at && event.user)) return prev;
+        return {
+          first_unread_message_id: event.first_unread_message_id,
+          last_read: new Date(event.last_read_at),
+          last_read_message_id: event.last_read_message_id,
+          unread_messages: event.unread_messages ?? 0,
+        };
+      });
+
     throttledCopyStateFromChannel();
   };
 
@@ -553,6 +581,11 @@ const ChannelInner = <
           type: 'initStateFromChannel',
         });
 
+        if (client.user?.id && channel.state.read[client.user.id]) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { user, ...ownReadState } = channel.state.read[client.user.id];
+          setOwnChannelReadState(ownReadState);
+        }
         /**
          * TODO: maybe pass last_read to the countUnread method to get proper value
          * combined with channel.countUnread adjustment (_countMessageAsUnread)
@@ -560,7 +593,7 @@ const ChannelInner = <
          *
          * const lastRead = channel.state.read[client.userID as string].last_read;
          */
-        if (channel.countUnread() > 0 && markReadOnMount) markRead();
+        if (channel.countUnread() > 0 && markReadOnMount) markRead({ updateLocalReadState: false });
         // The more complex sync logic is done in Chat
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
@@ -723,8 +756,7 @@ const ChannelInner = <
   const jumpToFirstUnreadMessage = useCallback(
     async (queryMessageLimit = 100) => {
       if (!client.user) return;
-      const readState = channel.state.read[client.user.id];
-      if (!readState?.last_read_message_id) {
+      if (!ownChannelReadState?.last_read_message_id) {
         addNotification(t('Failed to jump to the first unread message'), 'error');
         return;
       }
@@ -734,7 +766,7 @@ const ChannelInner = <
       const currentMessageSet = channel.state.messages;
       for (let i = currentMessageSet.length - 1; i >= 0; i--) {
         const { id } = currentMessageSet[i];
-        if (id === readState.last_read_message_id) {
+        if (id === ownChannelReadState.last_read_message_id) {
           indexOfLastReadMessage = i;
           break;
         }
@@ -745,7 +777,7 @@ const ChannelInner = <
         let hasMoreMessages = true;
         try {
           await channel.state.loadMessageIntoState(
-            readState.last_read_message_id,
+            ownChannelReadState.last_read_message_id,
             undefined,
             queryMessageLimit,
           );
@@ -754,7 +786,7 @@ const ChannelInner = <
            * we have arrived to the oldest page of the channel
            */
           indexOfLastReadMessage = channel.state.messages.findIndex(
-            (message) => message.id === readState.last_read_message_id,
+            (message) => message.id === ownChannelReadState.last_read_message_id,
           ) as number;
           hasMoreMessages = indexOfLastReadMessage >= Math.floor(queryMessageLimit / 2);
         } catch (e) {
@@ -767,7 +799,7 @@ const ChannelInner = <
       }
 
       const firstUnreadMessage = channel.state.messages[indexOfLastReadMessage + 1];
-      const jumpToMessageId = firstUnreadMessage?.id ?? readState.last_read_message_id;
+      const jumpToMessageId = firstUnreadMessage?.id ?? ownChannelReadState.last_read_message_id;
 
       dispatch({
         hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
@@ -784,7 +816,7 @@ const ChannelInner = <
         dispatch({ type: 'clearHighlightedMessage' });
       }, 500);
     },
-    [addNotification, channel, client, loadMoreFinished, t],
+    [addNotification, channel, client, loadMoreFinished, t, ownChannelReadState],
   );
 
   const deleteMessage = useCallback(
@@ -1026,7 +1058,7 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
-  const channelStateContextValue = useCreateChannelStateContext({
+  const channelStateContextValue = useCreateChannelStateContext<StreamChatGenerics>({
     ...restState,
     acceptedFiles,
     channel,
@@ -1043,6 +1075,7 @@ const ChannelInner = <
     mutes,
     notifications,
     onLinkPreviewDismissed: enrichURLForPreviewConfig?.onLinkPreviewDismissed,
+    ownChannelReadState,
     quotedMessage,
     shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
     videoAttachmentSizeHandler: props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,

@@ -9,7 +9,7 @@ import { useComponentContext } from '../../../../context/ComponentContext';
 import type { ChannelState as StreamChannelState } from 'stream-chat';
 import type { StreamMessage } from '../../../../context/ChannelStateContext';
 
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { DefaultStreamChatGenerics, OwnChannelReadState } from '../../../../types/types';
 import { MessageRenderer, SharedMessageProps } from '../../renderMessages';
 
 type UseMessageListElementsProps<
@@ -21,6 +21,7 @@ type UseMessageListElementsProps<
   renderMessages: MessageRenderer<StreamChatGenerics>;
   returnAllReadData: boolean;
   threadList: boolean;
+  ownReadState?: OwnChannelReadState<StreamChatGenerics>;
   read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
@@ -33,6 +34,7 @@ export const useMessageListElements = <
     enrichedMessages,
     internalMessageProps,
     messageGroupStyles,
+    ownReadState,
     read,
     renderMessages,
     returnAllReadData,
@@ -53,8 +55,6 @@ export const useMessageListElements = <
   const lastReceivedMessageId = useMemo(() => getLastReceived(enrichedMessages), [
     enrichedMessages,
   ]);
-
-  const ownReadState = client.user && read?.[client.user.id] ? read[client.user.id] : undefined;
 
   const elements: React.ReactNode[] = useMemo(
     () =>
