@@ -39,16 +39,6 @@ export type DefaultChannelType = UnknownType & {
   subtitle?: string;
 };
 
-export type DefaultStreamChatGenerics = ExtendableGenerics & {
-  attachmentType: DefaultAttachmentType;
-  channelType: DefaultChannelType;
-  commandType: LiteralStringForUnion;
-  eventType: UnknownType;
-  messageType: DefaultMessageType;
-  reactionType: UnknownType;
-  userType: DefaultUserType;
-};
-
 export type DefaultMessageType<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UnknownType & {
@@ -71,6 +61,16 @@ export type DefaultUserType<
   DefaultUserTypeInternal & {
     mutes?: Array<Mute<StreamChatGenerics>>;
   };
+
+export type DefaultStreamChatGenerics = ExtendableGenerics & {
+  attachmentType: DefaultAttachmentType;
+  channelType: DefaultChannelType;
+  commandType: LiteralStringForUnion;
+  eventType: UnknownType;
+  messageType: DefaultMessageType;
+  reactionType: UnknownType;
+  userType: DefaultUserType;
+};
 
 export type GiphyVersions =
   | 'original'

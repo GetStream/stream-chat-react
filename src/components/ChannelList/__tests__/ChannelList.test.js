@@ -38,6 +38,7 @@ import {
 
 import { ChatContext, useChannelListContext, useChatContext } from '../../../context';
 import { ChannelListMessenger } from '../ChannelListMessenger';
+import { initClientWithChannels } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
@@ -201,6 +202,66 @@ describe('ChannelList', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should use custom query channels function instead of default channels query', async () => {
+    const { channels, client } = await initClientWithChannels({
+      channelsData: [testChannel1],
+    });
+    const props = {
+      customQueryChannels: jest
+        .fn()
+        .mockImplementationOnce(({ currentChannels, setChannels, setHasNextPage }) => {
+          if (!currentChannels.length) setChannels([channels[0]]);
+          setHasNextPage(true);
+        }),
+      filters: {},
+    };
+    const queryChannelsMock = jest.spyOn(client, 'queryChannels').mockImplementationOnce();
+
+    let rerender;
+    await act(async () => {
+      const result = await render(
+        <Chat client={client}>
+          <ChannelList {...props} />
+        </Chat>,
+      );
+      rerender = result.rerender;
+    });
+
+    expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+    expect(props.customQueryChannels).toHaveBeenCalledTimes(1);
+    expect(props.customQueryChannels).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentChannels: [],
+        queryType: 'reload',
+        setChannels: expect.any(Function),
+        setHasNextPage: expect.any(Function),
+      }),
+    );
+
+    await act(async () => {
+      await rerender(
+        <Chat client={client}>
+          <ChannelList {...props} />
+        </Chat>,
+      );
+    });
+    await act(() => {
+      fireEvent.click(screen.getByTestId('load-more-button'));
+    });
+
+    expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+    expect(props.customQueryChannels).toHaveBeenCalledTimes(2);
+    expect(props.customQueryChannels).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentChannels: [channels[0]],
+        queryType: 'load-more',
+        setChannels: expect.any(Function),
+        setHasNextPage: expect.any(Function),
+      }),
+    );
+    queryChannelsMock.mockRestore();
   });
 
   it('should only show filtered channels when a filter function prop is provided', async () => {
