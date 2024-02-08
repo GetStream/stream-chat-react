@@ -3,75 +3,61 @@
     { "Basics": ["basics/getting_started", "basics/installation"] },
     {
       "UI Components": [
+        { "Chat": ["components/core-components/chat", "components/contexts/chat_context"] },
+        {
+          "Channel": [
+            "components/core-components/channel",
+            "components/utility-components/channel_header",
+            "components/contexts/channel_action_context",
+            "components/contexts/channel_state_context",
+            "components/contexts/component_context"
+          ]
+        },
         {
           "Channel List": [
             "components/core-components/channel_list",
+            "components/contexts/channel_list_context",
+            "hooks/channel_list_hooks",
             "components/utility-components/channel_preview_ui",
             "components/utility-components/channel_preview",
             "components/utility-components/channel_search"
           ]
         },
         {
-          "Message Input": [
-            "components/message-input-components/input_ui",
-            "components/message-input-components/ui_components",
-            "components/message-input-components/message_input"
-          ]
-        },
-        {
           "Message List": [
             "components/core-components/message_list",
-            "components/core-components/virtualized_list"
+            "components/core-components/virtualized_list",
+            "components/contexts/message_list_context",
+            "components/core-components/thread",
+            "components/message-components/message",
+            "components/contexts/message_context",
+            "hooks/message_hooks",
+            "components/message-components/message_ui",
+            "components/message-components/ui-components",
+            "components/utility-components/avatar",
+            "components/utility-components/base-image",
+            "components/message-components/attachment",
+            "components/message-components/reactions",
+            "components/utility-components/date_separator"
           ]
         },
         {
-          "Message": [
-            "components/utility-components/date_separator",
-            "components/message-components/ui-components",
-            "components/message-components/message_ui",
-            "components/message-components/message"
+          "Message Input": [
+            "components/message-input-components/message_input",
+            "components/contexts/message_input_context",
+            "hooks/message_input_hooks",
+            "components/message-input-components/input_ui",
+            "components/message-input-components/ui_components",
+            "components/contexts/typing_context"
           ]
         },
-        "components/message-components/attachment",
-        "components/utility-components/avatar",
-        "components/utility-components/base-image",
-        "components/utility-components/channel_header",
-        "components/core-components/channel",
-        "components/core-components/chat",
         "components/utility-components/indicators",
-        "components/message-components/reactions",
-        "components/core-components/thread",
-        "components/utility-components/window"
+        "components/utility-components/window",
+        "components/contexts/translation_context"
       ]
-    },
-    {
-      "Contexts": [
-        "components/contexts/channel_action_context",
-        "components/contexts/channel_list_context",
-        "components/contexts/channel_state_context",
-        "components/contexts/chat_context",
-        "components/contexts/component_context",
-        "components/contexts/emoji_context",
-        "components/contexts/message_context",
-        "components/contexts/message_input_context",
-        "components/contexts/message_list_context",
-        "components/contexts/translation_context",
-        "components/contexts/typing_context"
-      ]
-    },
-    {
-      "Hooks": ["hooks/channel_list_hooks", "hooks/message_hooks", "hooks/message_input_hooks"]
     },
     {
       "UI Cookbook": [
-        {
-          "Attachment": [
-            "guides/theming/actions/attachment_actions",
-            "guides/customization/image_gallery",
-            "guides/theming/actions/geolocation_attachment",
-            "guides/customization/giphy_preview"
-          ]
-        },
         {
           "Channel List": [
             "guides/channel-list-infinite-scroll",
@@ -82,7 +68,16 @@
           ]
         },
         {
-          "Emojis": ["guides/customization/emoji_picker"]
+          "Message List": [
+            "guides/theming/message_ui",
+            "guides/theming/reactions",
+            "guides/theming/actions/mentions_actions",
+            "guides/theming/actions/message_actions",
+            "guides/customization/pin_indicator",
+            "guides/customization/system_message",
+            "guides/customization/adding_messagelist_notification",
+            "guides/theming/connection_status"
+          ]
         },
         {
           "Message Input": [
@@ -95,24 +90,19 @@
           ]
         },
         {
-          "Message List": ["guides/theming/connection_status"]
-        },
-        {
-          "Message": [
-            "guides/theming/actions/mentions_actions",
-            "guides/theming/actions/message_actions",
-            "guides/theming/message_ui",
-            "guides/customization/pin_indicator",
-            "guides/customization/system_message"
+          "Attachment": [
+            "guides/theming/actions/attachment_actions",
+            "guides/customization/image_gallery",
+            "guides/theming/actions/geolocation_attachment",
+            "guides/customization/giphy_preview"
           ]
         },
         {
-          "Misc": ["guides/customization/channel_header", "guides/customization/thread_header"]
+          "Emojis": ["guides/customization/emoji_picker"]
         },
         {
-          "Notification": ["guides/customization/adding_messagelist_notification"]
-        },
-        { "Reactions": ["guides/theming/reactions"] }
+          "Misc": ["guides/customization/channel_header", "guides/customization/thread_header"]
+        }
       ]
     },
     {
@@ -126,7 +116,7 @@
     {
       "Theming": [
         "guides/theming/theming-overview",
-        { "V1": ["guides/theming/css_and_theming"] },
+        { "V1 (deprecated)": ["guides/theming/css_and_theming"] },
         {
           "V2": [
             "theming/themingv2",
