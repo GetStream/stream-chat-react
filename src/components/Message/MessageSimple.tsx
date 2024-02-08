@@ -25,6 +25,7 @@ import {
   ReactionsList as DefaultReactionList,
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
+import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -33,7 +34,6 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 import type { MessageUIComponentProps } from './types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

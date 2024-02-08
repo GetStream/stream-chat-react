@@ -423,7 +423,7 @@ The side of the message list to render MML components.
 
 This component is rendered in a modal dialog for messages that got bounced by the moderation rules.
 
-### children
+### MessageBouncePrompt children
 
 | Type      | Default                                                                 |
 | --------- | ----------------------------------------------------------------------- |
@@ -435,7 +435,7 @@ Use this prop to easily override the text displayed in the modal dialog for the 
 import { MessageBouncePrompt } from 'stream-react-chat';
 
 function MyCustomMessageBouncePrompt(props) {
-  return <MessageBouncePrompt {...props} text='My custom text' />;
+  return <MessageBouncePrompt {...props}>My custom text</MessageBouncePrompt>;
 }
 ```
 

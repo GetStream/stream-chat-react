@@ -5,11 +5,11 @@ import { isOnlyEmojis, messageHasAttachments } from './utils';
 
 import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
 import { renderText as defaultRenderText } from './renderText';
+import { MessageErrorText } from './MessageErrorText';
 
 import type { TranslationLanguages } from 'stream-chat';
 import type { MessageContextValue, StreamMessage } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { MessageErrorText } from './MessageErrorText';
 
 export type MessageTextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

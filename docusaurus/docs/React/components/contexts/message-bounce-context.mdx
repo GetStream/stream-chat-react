@@ -100,9 +100,9 @@ function MyCustomMessageBouncePrompt({ onClose }) {
     <>
       <button
         type='button'
-        onClick={() => {
-          handleEdit();
-          onClose();
+        onClick={(e) => {
+          handleEdit(e);
+          onClose(e);
         }}
       >
         Edit message
