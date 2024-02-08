@@ -40,8 +40,8 @@ import type {
 } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
-import { MessageBouncePromptProps } from '../components/MessageBounce';
-import { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
+import type { MessageBouncePromptProps } from '../components/MessageBounce';
+import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

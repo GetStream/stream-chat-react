@@ -1,22 +1,19 @@
-import React, { MouseEventHandler, PropsWithChildren } from 'react';
-import { DefaultStreamChatGenerics } from '../../types/types';
-import { ModalProps } from '../Modal';
+import React from 'react';
 import { useMessageBounceContext, useTranslationContext } from '../../context';
-import { QuotedMessagePreview } from '../MessageInput';
+
+import type { MouseEventHandler, PropsWithChildren } from 'react';
+import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { ModalProps } from '../Modal';
 
 export type MessageBouncePromptProps = PropsWithChildren<Pick<ModalProps, 'onClose'>>;
 
 export function MessageBouncePrompt<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({ children, onClose }: MessageBouncePromptProps) {
-  const {
-    handleDelete,
-    handleEdit,
-    handleRetry,
-    message,
-  } = useMessageBounceContext<StreamChatGenerics>('MessageBouncePrompt');
+  const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext<StreamChatGenerics>(
+    'MessageBouncePrompt',
+  );
   const { t } = useTranslationContext('MessageBouncePrompt');
-  const messagePreview = { ...message, user: null };
 
   function createHandler(
     handle: MouseEventHandler<HTMLButtonElement>,
@@ -29,7 +26,6 @@ export function MessageBouncePrompt<
 
   return (
     <div className='str-chat__message-bounce-prompt' data-testid='message-bounce-prompt'>
-      <QuotedMessagePreview quotedMessage={messagePreview} />
       <div className='str-chat__message-bounce-prompt-header'>
         {children ?? t<string>('This message did not meet our content guidelines')}
       </div>
