@@ -42,13 +42,25 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
+const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey, {
+  baseURL: import.meta.env.VITE_BASE_URL,
+});
 
 if (import.meta.env.VITE_CHAT_SERVER_ENDPOINT) {
   chatClient.setBaseURL(import.meta.env.VITE_CHAT_SERVER_ENDPOINT as string);
 }
 
-chatClient.connectUser({ id: userId }, userToken);
+chatClient.connectUser({ id: userId }, async () => {
+  const expInSeconds = 3 * 60;
+  const response = await fetch(
+    `${
+      import.meta.env.VITE_TOKEN_URL
+    }/api/auth/create-token?user_id=${userId}&environment=pronto-legacy&exp=${expInSeconds}`,
+  );
+  const payload = await response.json();
+
+  return payload.token;
+});
 
 const App = () => (
   <Chat client={chatClient}>
