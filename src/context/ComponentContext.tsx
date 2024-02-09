@@ -40,7 +40,8 @@ import type {
 } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
-import { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
+import type { MessageBouncePromptProps } from '../components/MessageBounce';
+import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -70,6 +71,7 @@ export type ComponentContextValue<
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;

@@ -189,7 +189,7 @@ export const useSubmitHandler = <
       ((!someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0) ||
         someLinkPreviewsDismissed);
     const sendOptions = linkPreviewsEnabled ? { skip_enrich_url } : undefined;
-    if (message) {
+    if (message && message.type !== 'error') {
       delete message.i18n;
 
       try {

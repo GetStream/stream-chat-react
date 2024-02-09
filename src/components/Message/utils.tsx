@@ -434,3 +434,11 @@ export const isOnlyEmojis = (text?: string) => {
 
   return !noSpace;
 };
+
+export const isMessageBounced = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  message: Pick<StreamMessage<StreamChatGenerics>, 'type' | 'moderation_details'>,
+) =>
+  message.type === 'error' &&
+  message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE';
