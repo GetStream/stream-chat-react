@@ -1,8 +1,9 @@
 {
   "docs": [
-    { "Basics": ["basics/getting_started", "basics/installation"] },
+    { "Basics": ["basics/overview", "basics/installation"] },
     {
       "UI Components": [
+        "basics/getting_started",
         { "Chat": ["components/core-components/chat", "components/contexts/chat_context"] },
         {
           "Channel": [
@@ -28,7 +29,11 @@
             "components/core-components/message_list",
             "components/core-components/virtualized_list",
             "components/contexts/message_list_context",
-            "components/core-components/thread",
+            "components/core-components/thread"
+          ]
+        },
+        {
+          "Message": [
             "components/message-components/message",
             "components/contexts/message_context",
             "hooks/message_hooks",
@@ -69,14 +74,18 @@
         },
         {
           "Message List": [
+            "guides/customization/adding_messagelist_notification",
+            "guides/theming/connection_status"
+          ]
+        },
+        {
+          "Message": [
             "guides/theming/message_ui",
             "guides/theming/reactions",
             "guides/theming/actions/mentions_actions",
             "guides/theming/actions/message_actions",
             "guides/customization/pin_indicator",
-            "guides/customization/system_message",
-            "guides/customization/adding_messagelist_notification",
-            "guides/theming/connection_status"
+            "guides/customization/system_message"
           ]
         },
         {
