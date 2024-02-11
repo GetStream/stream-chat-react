@@ -36,6 +36,7 @@
           "Message": [
             "components/message-components/message",
             "components/contexts/message_context",
+            "components/contexts/message_bounce_context",
             "hooks/message_hooks",
             "components/message-components/message_ui",
             "components/message-components/ui-components",
