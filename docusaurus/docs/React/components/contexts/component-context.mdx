@@ -74,8 +74,10 @@ Custom UI component to display a user's avatar.
 Custom UI component to display image resp. a fallback in case of load error, in `<img/>` element. The default resp. custom (from `ComponentContext`) `BaseImage` component is rendered by:
 
 - <GHComponentLink text='Image' path='/Gallery/Image.tsx' /> - single image attachment in message list
-- <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx' /> - group of image attachments in message list
-- <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx' /> - image uploads preview in message input (composer)
+- <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx' /> - group of image attachments in message
+  list
+- <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx' /> - image
+  uploads preview in message input (composer)
 
 The `BaseImage` component accepts the same props as `<img/>` element.
 
@@ -261,6 +263,14 @@ Custom UI component to display a timestamp on a message.
 | --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageTimestamp' path='/Message/MessageTimestamp.tsx'/> |
 
+### MessageBouncePrompt
+
+Custom UI component for the content of the modal dialog for messages that got bounced by the moderation rules.
+
+| Type      | Default                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageBouncePrompt' path='/MessageBounce/MessageBouncePrompt.tsx'/> |
+
 ### ModalGallery
 
 Custom UI component for viewing message's image attachments.
@@ -369,16 +379,16 @@ Custom UI component for the typing indicator.
 
 Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to `UnreadMessagesSeparator`.
 
-| Type      | Default                                                                               |
-| --------- | ------------------------------------------------------------------------------------- |
+| Type      | Default                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='UnreadMessagesNotification' path='/MessageList/UnreadMessagesNotification.tsx'/> |
 
 ### UnreadMessagesSeparator
 
 Custom UI component inserted before the first message marked unread.
 
-| Type      | Default                                                                               |
-| --------- | ------------------------------------------------------------------------------------- |
+| Type      | Default                                                                                           |
+| --------- | ------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='UnreadMessagesSeparator' path='/MessageList/UnreadMessagesSeparator.tsx'/> |
 
 ### VirtualMessage

@@ -37,6 +37,9 @@ The following UI components are available for use:
 - [`QuotedMessage`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) - shows a quoted
   message UI wrapper when the sent message quotes a previous message
 
+- [`MessageBouncePrompt`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) -
+  presents options to deal with a message that got bounced by the moderation rules.
+
 Besides the above there are also components that render reaction list and reaction selector. You can find more about them in [dedicated chapter](./reactions.mdx).
 
 ## MessageActions Props
@@ -415,3 +418,46 @@ The side of the message list to render MML components.
 :::note
 `QuotedMessage` only consumes context and does not accept any optional props.
 :::
+
+## MessageBouncePrompt
+
+This component is rendered in a modal dialog for messages that got bounced by the moderation rules.
+
+### MessageBouncePrompt children
+
+| Type      | Default                                                                 |
+| --------- | ----------------------------------------------------------------------- |
+| ReactNode | Localized string for "This message did not meet our content guidelines" |
+
+Use this prop to easily override the text displayed in the modal dialog for the bounced messages, without fully implementing a custom `MessageBouncePrompt` component:
+
+```jsx
+import { MessageBouncePrompt } from 'stream-react-chat';
+
+function MyCustomMessageBouncePrompt(props) {
+  return <MessageBouncePrompt {...props}>My custom text</MessageBouncePrompt>;
+}
+```
+
+Then override the default `MessageBouncePrompt` component with your custom one:
+
+```jsx
+<Channel MessageBouncePrompt={MyCustomMessageBouncePrompt}>
+  <Window>
+    <ChannelHeader />
+    <MessageList />
+    <MessageInput />
+  </Window>
+  <Thread />
+</Channel>
+```
+
+If you need deeper customization, refer to the [`MessageBounceContext`](../contexts/message-bounce-context.mdx) documentation.
+
+### onClose
+
+The Message UI component will pass this callback to close the modal dialog `MessageBouncePrompt` are rendered in.
+
+| Type              |
+| ----------------- |
+| ReactEventHandler |

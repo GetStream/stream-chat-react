@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
+import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
-import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
+import {
+  areMessageUIPropsEqual,
+  isMessageBounced,
+  messageHasAttachments,
+  messageHasReactions,
+} from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -19,6 +25,7 @@ import {
   ReactionsList as DefaultReactionList,
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
+import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -59,11 +66,14 @@ const MessageSimpleWithContext = <
     threadList,
   } = props;
 
+  const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
+
   const {
     Attachment,
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
@@ -95,6 +105,15 @@ const MessageSimpleWithContext = <
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+  const isBounced = isMessageBounced(message);
+
+  let handleClick: (() => void) | undefined = undefined;
+
+  if (allowRetry) {
+    handleClick = () => handleRetry(message);
+  } else if (isBounced) {
+    handleClick = () => setIsBounceDialogOpen(true);
+  }
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -131,6 +150,13 @@ const MessageSimpleWithContext = <
           />
         </Modal>
       )}
+      {isBounceDialogOpen && (
+        <MessageBounceModal
+          MessageBouncePrompt={MessageBouncePrompt}
+          onClose={() => setIsBounceDialogOpen(false)}
+          open={isBounceDialogOpen}
+        />
+      )}
       {
         <div className={rootClassName} key={message.id}>
           {themeVersion === '1' && <MessageStatus />}
@@ -145,11 +171,11 @@ const MessageSimpleWithContext = <
           )}
           <div
             className={clsx('str-chat__message-inner', {
-              'str-chat__simple-message--error-failed': allowRetry,
+              'str-chat__simple-message--error-failed': allowRetry || isBounced,
             })}
             data-testid='message-inner'
-            onClick={allowRetry ? () => handleRetry(message) : undefined}
-            onKeyUp={allowRetry ? () => handleRetry(message) : undefined}
+            onClick={handleClick}
+            onKeyUp={handleClick}
           >
             <MessageOptions />
             <div className='str-chat__message-reactions-host'>

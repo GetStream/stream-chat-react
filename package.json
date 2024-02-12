@@ -100,7 +100,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
-    "stream-chat": "^8.0.0"
+    "stream-chat": "^8.15.0"
   },
   "peerDependenciesMeta": {
     "emoji-mart": {
@@ -144,7 +144,7 @@
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
-    "@stream-io/stream-chat-css": "^4.6.3",
+    "@stream-io/stream-chat-css": "^4.7.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/react-hooks": "^8.0.0",

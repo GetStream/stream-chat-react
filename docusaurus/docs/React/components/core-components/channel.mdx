@@ -474,7 +474,7 @@ export const MessageInput = (props: MessageInputProps) => {
 Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### Input
@@ -588,6 +588,14 @@ Custom UI component to display a timestamp on a message.
 | Type      | Default                                                                         |
 | --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageTimestamp' path='/Message/MessageTimestamp.tsx'/> |
+
+### MessageBouncePrompt
+
+Custom UI component for the content of the modal dialog for messages that got bounced by the moderation rules.
+
+| Type      | Default                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageBouncePrompt' path='/MessageBounce/MessageBouncePrompt.tsx'/> |
 
 ### ModalGallery
 
@@ -745,17 +753,16 @@ Custom UI component for the typing indicator.
 
 Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to `UnreadMessagesSeparator`.
 
-| Type      | Default                                                                               |
-| --------- | ------------------------------------------------------------------------------------- |
+| Type      | Default                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='UnreadMessagesNotification' path='/MessageList/UnreadMessagesNotification.tsx'/> |
-
 
 ### UnreadMessagesSeparator
 
 Custom UI component inserted before the first message marked unread.
 
-| Type      | Default                                                                               |
-| --------- | ------------------------------------------------------------------------------------- |
+| Type      | Default                                                                                           |
+| --------- | ------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='UnreadMessagesSeparator' path='/MessageList/UnreadMessagesSeparator.tsx'/> |
 
 ### videoAttachmentSizeHandler

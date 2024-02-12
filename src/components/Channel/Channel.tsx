@@ -142,6 +142,8 @@ type ChannelPropsForwardedToComponentContext<
   LoadingIndicator?: ComponentContextValue<StreamChatGenerics>['LoadingIndicator'];
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   Message?: ComponentContextValue<StreamChatGenerics>['Message'];
+  /** Custom UI component to display the contents of a bounced message modal. Usually it allows to retry, edit, or delete the message. Defaults to and accepts the same props as: [MessageBouncePrompt](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) */
+  MessageBouncePrompt?: ComponentContextValue<StreamChatGenerics>['MessageBouncePrompt'];
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
   MessageDeleted?: ComponentContextValue<StreamChatGenerics>['MessageDeleted'];
   /** Custom UI component that displays message and connection status notifications in the `MessageList`, defaults to and accepts same props as [DefaultMessageListNotifications](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageListNotifications.tsx) */
@@ -1145,6 +1147,7 @@ const ChannelInner = <
       LinkPreviewList: props.LinkPreviewList,
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message || MessageSimple,
+      MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
       MessageListNotifications: props.MessageListNotifications,
       MessageNotification: props.MessageNotification,

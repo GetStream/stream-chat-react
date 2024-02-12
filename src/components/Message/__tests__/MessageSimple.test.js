@@ -36,6 +36,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { MessageBouncePrompt } from '../../MessageBounce';
 
 Dayjs.extend(calendar);
 
@@ -44,8 +45,8 @@ jest.mock('../MessageText', () => ({ MessageText: jest.fn(() => <div />) }));
 jest.mock('../../MML', () => ({ MML: jest.fn(() => <div />) }));
 jest.mock('../../Avatar', () => ({ Avatar: jest.fn(() => <div />) }));
 jest.mock('../../MessageInput', () => ({
-  EditMessageForm: jest.fn(() => <div />),
-  MessageInput: jest.fn(() => <div />),
+  EditMessageForm: jest.fn(() => <div data-testid='edit-message-form' />),
+  MessageInput: jest.fn(() => <div data-testid='message-input' />),
 }));
 jest.mock('../../Modal', () => ({ Modal: jest.fn((props) => <div>{props.children}</div>) }));
 
@@ -55,6 +56,7 @@ const carol = generateUser();
 const openThreadMock = jest.fn();
 const tDateTimeParserMock = jest.fn((date) => Dayjs(date));
 const retrySendMessageMock = jest.fn();
+const removeMessageMock = jest.fn();
 
 async function renderMessageSimple({
   message,
@@ -63,6 +65,7 @@ async function renderMessageSimple({
   channelCapabilities = { 'send-reaction': true },
   components = {},
   renderer = render,
+  themeVersion = '1',
 }) {
   const channel = generateChannel({
     getConfig: () => channelConfigOverrides,
@@ -73,10 +76,14 @@ async function renderMessageSimple({
   const client = await getTestClientWithUser(alice);
 
   return renderer(
-    <ChatProvider value={{ client, themeVersion: '1' }}>
+    <ChatProvider value={{ client, themeVersion }}>
       <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
-          value={{ openThread: openThreadMock, retrySendMessage: retrySendMessageMock }}
+          value={{
+            openThread: openThreadMock,
+            removeMessage: removeMessageMock,
+            retrySendMessage: retrySendMessageMock,
+          }}
         >
           <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
             <ComponentProvider
@@ -635,5 +642,93 @@ describe('<MessageSimple />', () => {
     expect(getByText('12/12/2019')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  describe('bounced message', () => {
+    const bouncedMessageOptions = {
+      moderation_details: {
+        action: 'MESSAGE_RESPONSE_ACTION_BOUNCE',
+      },
+      type: 'error',
+    };
+
+    it('should render error badge for bounced messages', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const { queryByTestId } = await renderMessageSimple({ message, themeVersion: '2' });
+      expect(queryByTestId('error')).toBeInTheDocument();
+    });
+
+    it('should render open bounce modal on click', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const { getByTestId, queryByTestId } = await renderMessageSimple({ message });
+      fireEvent.click(getByTestId('message-inner'));
+      expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
+    });
+
+    it('should switch to message editing', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const { getByTestId, queryByTestId } = await renderMessageSimple({
+        message,
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      fireEvent.click(getByTestId('message-bounce-edit'));
+      expect(queryByTestId('message-input')).toBeInTheDocument();
+    });
+
+    it('should retry sending message', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const { getByTestId } = await renderMessageSimple({
+        message,
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      fireEvent.click(getByTestId('message-bounce-send'));
+      expect(retrySendMessageMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: message.id,
+        }),
+      );
+    });
+
+    it('should remove message', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const { getByTestId } = await renderMessageSimple({
+        message,
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      fireEvent.click(getByTestId('message-bounce-delete'));
+      expect(removeMessageMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: message.id,
+        }),
+      );
+    });
+
+    it('should use overriden modal content component', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const CustomMessageBouncePrompt = () => (
+        <div data-testid='custom-message-bounce-prompt'>Overriden</div>
+      );
+      const { getByTestId, queryByTestId } = await renderMessageSimple({
+        components: {
+          MessageBouncePrompt: CustomMessageBouncePrompt,
+        },
+        message,
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      expect(queryByTestId('custom-message-bounce-prompt')).toBeInTheDocument();
+    });
+
+    it('should use overriden modal content text', async () => {
+      const message = generateAliceMessage(bouncedMessageOptions);
+      const CustomMessageBouncePrompt = () => <MessageBouncePrompt>Overriden</MessageBouncePrompt>;
+      const { getByTestId, queryByText } = await renderMessageSimple({
+        components: {
+          MessageBouncePrompt: CustomMessageBouncePrompt,
+        },
+        message,
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      expect(queryByText('Overriden')).toBeInTheDocument();
+    });
   });
 });
