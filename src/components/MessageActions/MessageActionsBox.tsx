@@ -46,6 +46,7 @@ const UnMemoizedMessageActionsBox = React.forwardRef(
       handleMute,
       handlePin,
       isUserMuted,
+      mine,
       open = false,
       ...restDivProps
     } = props;
