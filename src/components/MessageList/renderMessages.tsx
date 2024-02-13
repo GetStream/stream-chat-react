@@ -2,12 +2,12 @@ import React, { Fragment, ReactNode } from 'react';
 
 import { MessageProps } from '../Message/types';
 import { StreamMessage } from '../../context/ChannelStateContext';
-import { DefaultStreamChatGenerics } from '../../types/types';
+import { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../types/types';
 import { ComponentContextValue, CustomClasses, isDate } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { GroupStyle } from './utils';
 import { Message } from '../Message/Message';
-import { ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
+import { UserResponse } from 'stream-chat';
 
 export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -24,12 +24,13 @@ export interface RenderMessagesOptions<
    * Props forwarded to the Message component.
    */
   sharedMessageProps: SharedMessageProps<StreamChatGenerics>;
-  customClasses?: CustomClasses;
   /**
-   * Current user's read status.
-   * Useful to determine, when a channel has been marked read the last time, the last read message, count of unread messages.
+   * Current user's channel read state used to render components reflecting unread state.
+   * It does not reflect the back-end state if a channel is marked read on mount.
+   * This is in order to keep the unread UI when an unread channel is open.
    */
-  ownReadState?: StreamChannelState<StreamChatGenerics>['read'][keyof StreamChannelState<StreamChatGenerics>['read']];
+  channelUnreadUiState?: ChannelUnreadUiState<StreamChatGenerics>;
+  customClasses?: CustomClasses;
 }
 
 export type SharedMessageProps<
@@ -51,12 +52,12 @@ type MessagePropsToOmit =
 export function defaultRenderMessages<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
+  channelUnreadUiState,
   components,
   customClasses,
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
   messages,
-  ownReadState,
   readData,
   sharedMessageProps: messageProps,
 }: RenderMessagesOptions<StreamChatGenerics>) {
@@ -95,11 +96,11 @@ export function defaultRenderMessages<
     const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
     const isNewestMessage = index === messages.length - 1;
-    const isLastReadMessage = ownReadState?.last_read_message_id === message.id;
+    const isLastReadMessage = channelUnreadUiState?.last_read_message_id === message.id;
     const showUnreadSeparator =
       isLastReadMessage &&
       !isNewestMessage &&
-      (ownReadState?.first_unread_message_id || ownReadState?.unread_messages > 0); // unread count can be 0 if the user marks unread only own messages
+      (channelUnreadUiState?.first_unread_message_id || channelUnreadUiState?.unread_messages > 0); // unread count can be 0 if the user marks unread only own messages
 
     return (
       <Fragment key={message.id || (message.created_at as string)}>
@@ -114,7 +115,7 @@ export function defaultRenderMessages<
         </li>
         {showUnreadSeparator && UnreadMessagesSeparator && (
           <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-            <UnreadMessagesSeparator unreadCount={ownReadState.unread_messages} />
+            <UnreadMessagesSeparator unreadCount={channelUnreadUiState.unread_messages} />
           </li>
         )}
       </Fragment>

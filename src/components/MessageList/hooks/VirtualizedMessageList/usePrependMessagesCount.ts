@@ -39,8 +39,9 @@ export function usePrependedMessagesCount<
     // That in turn leads to incorrect index calculation in VirtualizedMessageList trying to access a message
     // at non-existent index. Therefore, we ignore messages of status "sending" / "failed" in order they are
     // not considered as prepended messages.
-    const firstMsgMovedAfterMessagesInExcludedStatus =
-      currentFirstMessage?.status && STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessage.status];
+    const firstMsgMovedAfterMessagesInExcludedStatus = !!(
+      currentFirstMessage?.status && STATUSES_EXCLUDED_FROM_PREPEND[currentFirstMessage.status]
+    );
 
     if (noNewMessages || firstMsgMovedAfterMessagesInExcludedStatus) {
       return previousNumItemsPrepended.current;
@@ -61,8 +62,8 @@ export function usePrependedMessagesCount<
         messages[prependedMessageCount].id === firstMessageOnFirstLoadedPage.current?.id;
 
       if (messageIsFirstOnFirstLoadedPage) {
-        previousNumItemsPrepended.current = prependedMessageCount;
-        return prependedMessageCount;
+        previousNumItemsPrepended.current = prependedMessageCount - firstRealMessageIndex;
+        return previousNumItemsPrepended.current;
       }
     }
 

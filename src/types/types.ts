@@ -8,6 +8,7 @@ import type {
   ExtendableGenerics,
   LiteralStringForUnion,
   Mute,
+  ChannelState as StreamChannelState,
 } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
@@ -130,6 +131,10 @@ export type VideoAttachmentSizeHandler = (
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
 
+export type ChannelUnreadUiState<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
+
 // todo: fix export from stream-chat - for some reason not exported
 export type SendMessageOptions = {
   force_moderation?: boolean;
@@ -150,3 +155,5 @@ export type Readable<T> = {
   [key in keyof T]: T[key];
   // eslint-disable-next-line @typescript-eslint/ban-types
 } & {};
+
+export type ValuesType<T> = T[keyof T];

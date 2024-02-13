@@ -10,7 +10,7 @@ export type UnreadMessagesSeparatorProps = {
 export const UnreadMessagesSeparator = ({ unreadCount }: UnreadMessagesSeparatorProps) => {
   const { t } = useTranslationContext('UnreadMessagesSeparator');
   return (
-    <div className={UNREAD_MESSAGE_SEPARATOR_CLASS}>
+    <div className={UNREAD_MESSAGE_SEPARATOR_CLASS} data-testid='unread-messages-separator'>
       {unreadCount
         ? t<string>('unreadMessagesSeparatorText', { count: unreadCount })
         : t<string>('Unread messages')}

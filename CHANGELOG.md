@@ -1,3 +1,19 @@
+## [11.8.0](https://github.com/GetStream/stream-chat-react/compare/v11.7.0...v11.8.0) (2024-02-13)
+
+
+### Bug Fixes
+
+* adjust the first message rendering for DateSeparator in empty VirtualizedMessageList ([#2271](https://github.com/GetStream/stream-chat-react/issues/2271)) ([8f490fa](https://github.com/GetStream/stream-chat-react/commit/8f490fa292cc2d41a49d1f2a94b22aa8feb53fe3))
+* export DefaultStreamChatGenerics ([#2266](https://github.com/GetStream/stream-chat-react/issues/2266)) ([6a928f6](https://github.com/GetStream/stream-chat-react/commit/6a928f68261f3e3f67182a8658c7fc9ae6572814))
+* prevent mine attr from spreading on message actions box div ([#2270](https://github.com/GetStream/stream-chat-react/issues/2270)) ([1625471](https://github.com/GetStream/stream-chat-react/commit/16254718d59754ae03dde93ea10abaacdff6e31d))
+* remove mark read functionality from ChannelPreview ([#2273](https://github.com/GetStream/stream-chat-react/issues/2273)) ([3be1ec5](https://github.com/GetStream/stream-chat-react/commit/3be1ec5d94d49f871c12e51804b97418c1d8cfc9))
+
+
+### Features
+
+* implement message bounce flow ([#2254](https://github.com/GetStream/stream-chat-react/issues/2254)) ([3878e2f](https://github.com/GetStream/stream-chat-react/commit/3878e2f3148f70dd78da623da3c4b3f2ee012cb7))
+* keep unread channel UI when unread channel is marked read on mount ([#2267](https://github.com/GetStream/stream-chat-react/issues/2267)) ([2abe352](https://github.com/GetStream/stream-chat-react/commit/2abe352839e89e4899dec469f9de3b0f1cc109c3))
+
 ## [11.7.0](https://github.com/GetStream/stream-chat-react/compare/v11.6.0...v11.7.0) (2024-02-07)
 
 

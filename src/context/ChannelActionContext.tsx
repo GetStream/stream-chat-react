@@ -23,6 +23,15 @@ import type {
   UpdateMessageOptions,
 } from '../types/types';
 
+export type MarkReadWrapperOptions = {
+  /**
+   * Signal, whether the `channelUnreadUiState` should be updated.
+   * By default, the local state update is prevented when the Channel component is mounted.
+   * This is in order to keep the UI indicating the original unread state, when the user opens a channel.
+   */
+  updateChannelUiUnreadState?: boolean;
+};
+
 export type MessageAttachments<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Array<Attachment<StreamChatGenerics>>;
@@ -64,7 +73,7 @@ export type ChannelActionContextValue<
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
-  markRead: () => void;
+  markRead: (options?: MarkReadWrapperOptions) => void;
   onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
   onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
   openThread: (
