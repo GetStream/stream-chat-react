@@ -9,7 +9,7 @@ This guide intends to provide an overview how channel read state is handled by d
 
 ## The model
 
-The React SDK maintains channel read state for UI components inside `Channel` componet in a separate variable `channelUnreadUiState`. Channel read state reflecting the back-end state, can be accessed via `channel.state.read` mapping.
+The React SDK maintains channel read state for UI components inside `Channel` component in a separate variable `channelUnreadUiState`. Channel read state reflecting the back-end state, can be accessed via `channel.state.read` mapping.
 
 ### Channel UI unread state
 
@@ -69,7 +69,7 @@ import { useChannelActionContext } from 'stream-chat-react';
 const MarkReadButton = (props) => {
     const { markRead } = useChannelActionContext();
 
-    return <button {...props} onClick={markRead}>Mark read</button>
+    return <button {...props} onClick={() => markRead()}>Mark read</button>
 };
 ```
 
@@ -91,7 +91,6 @@ The default components included in **marking a channel read**:
 | Component                                                                                                                                     | Description                                                                                                                                                                                    |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [`Channel`](../../components/core-components/channel)                                                                                         | Can be configured to mark active channel read when mounted. This can be done through its prop `markReadOnMount`. By default disabled.                                                          |
-| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | Can be configured to mark active channel read when re-entered or left or disabled. This can be done through the prop `markActiveChannelReadOn`. By default channel is marked read on re-enter. |
 | [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | Can be configured to mark channel read when message list is scrolled to the bottom. This can be done through the list's prop `markReadOnScrolledToBottom`. By default disabled.                |
 | [`UnreadMessagesNotification`](../../components/contexts/component_context#unreadmessagesnotification)                                        | Floating notification rendered in the message list. Contains a button, which when clicked, marks the channel read.                                                                             |
 
@@ -118,7 +117,7 @@ Message threads do not participate in handling read state of a channel. Thread r
 
 The channel is marked read in the following scenarios:
 
-1. User enters a channel with unread messages, leaves and when returns back the channel is marked read.
+1. User enters a channel with unread messages if `Channel` prop `markReadOnMount` is enabled (default behavior).
 2. User clicks the button on the default `UnreadMessagesNotification` component to mark channel read.
 
 The channel is marked unread in the following scenarios:
@@ -136,32 +135,13 @@ There is a possibility to configure when a channel is marked read by tweaking th
 | Component                                                                                                                                     | Prop                                                |
 |-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------|
 | [`Channel`](../../components/core-components/channel)                                                                                         | `markReadOnMount` (by default disabled)             |
-| [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | `markActiveChannelReadOn` (`MarkActiveChannelOn.reenter`) |
 | [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | `markReadOnScrolledToBottom` (by default disabled)  |
 
-And so instead of marking a channel read on re-enter or when leaving the given channel, the channel can be marked read when scrolled to the bottom or immediately when mounted.
-
-To disable marking a channel read when `ChannelPreview` is clicked, we need to provide a custom `Preview` component that renders the default:
-
-```tsx
-import {
-    ChannelList,
-    ChannelPreviewMessenger,
-    ChannelPreviewUIComponentProps,
-    MarkActiveChannelReadOn,
-} from 'stream-chat-react';
-
-const Preview = (props: ChannelPreviewUIComponentProps) =>
-    <ChannelPreviewMessenger {...props} markActiveChannelReadOn={MarkActiveChannelReadOn.never}/>
-
-const Sidebar = () => (
-    <ChannelList filters={filters} sort={sort} options={options} Preview={Preview}/>
-);
-```
+And so instead of marking a channel read on `Channel` component mount, the channel can be marked read when scrolled to the bottom.
 
 ### Customization through custom components
 
-Aside from the custom `Preview` component, we can override the following components via `Channel`'s component context:
+We can override the following components via `Channel`'s component context:
 
 #### Custom `UnreadMessagesSeparator` component
 
