@@ -52,6 +52,14 @@ Beware that sixth reaction type `angry` has been removed in this update, if you 
 
 ### Custom reaction types and components
 
+The default <GHComponentLink text='StreamEmoji' path='/Reactions/StreamEmoji.tsx'/> component is rendered with the fixed size. You can change the size of the rendered emoji using `--str-chat__stream-emoji-size` CSS variable:
+
+```tsx
+<div style={{ '--str-chat__stream-emoji-size': '2em' }}>
+  <StreamEmoji fallback='😂' type='haha' />
+</div>
+```
+
 It's possible to supply your own reaction types and components to represent such reactions - let's implement reaction of type `rick_roll` to render a Rick Roll GIF and define override for default type `love`:
 
 ```tsx

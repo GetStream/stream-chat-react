@@ -29,7 +29,11 @@ export const StreamEmoji = ({
       position={position}
       rows={3}
       spriteUrl={STREAM_SPRITE_URL}
-      style={{ '--sprite-image-height': 'var(--stream-emoji-size, 18px)' } as React.CSSProperties}
+      style={
+        {
+          '--str-chat__sprite-image-height': 'var(--str-chat__stream-emoji-size, 18px)',
+        } as React.CSSProperties
+      }
     />
   );
 };
