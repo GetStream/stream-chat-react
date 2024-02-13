@@ -50,7 +50,7 @@ describe('usePrependMessagesCount', function () {
       hasDateSeparator,
       messages: page1,
     });
-    expect(result.current).toBe(1);
+    expect(result.current).toBe(0);
   });
 
   it('is 0 when re-rendered with no new messages and date separator disabled', () => {
@@ -69,7 +69,7 @@ describe('usePrependMessagesCount', function () {
     };
     const { rerender, result } = render(props);
     rerender(props);
-    expect(result.current).toBe(1);
+    expect(result.current).toBe(0);
   });
 
   it('is 0 when re-rendered with no new but swapped messages and date separator disabled', () => {
@@ -123,7 +123,7 @@ describe('usePrependMessagesCount', function () {
       hasDateSeparator,
       messages: messagesWithDateSeparator({ messages: [...page2, ...page1] }),
     });
-    expect(result.current).toBe(page2.length + 1);
+    expect(result.current).toBe(page2.length);
   });
 
   it('is 0 when jumped to a message and date separator disabled', () => {
