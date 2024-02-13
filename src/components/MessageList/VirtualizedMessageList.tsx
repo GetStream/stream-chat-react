@@ -44,6 +44,7 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
+  ChannelStateContextValue,
   StreamMessage,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
@@ -111,6 +112,7 @@ type VirtualizedMessageListWithContextProps<
   loadingMore: boolean;
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
+  channelUnreadUiState?: ChannelStateContextValue['channelUnreadUiState'];
   read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
@@ -162,6 +164,7 @@ const VirtualizedMessageListWithContext = <
     additionalMessageInputProps,
     additionalVirtuosoProps = {},
     channel,
+    channelUnreadUiState,
     closeReactionSelectorOnClick,
     customMessageActions,
     customMessageRenderer,
@@ -222,14 +225,13 @@ const VirtualizedMessageListWithContext = <
   const virtuoso = useRef<VirtuosoHandle>(null);
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
-  const currentUserChannelReadState = client.user && read?.[client.user.id];
 
   const {
     show: showUnreadMessagesNotification,
     toggleShowUnreadMessagesNotification,
   } = useUnreadMessagesNotificationVirtualized({
-    lastRead: currentUserChannelReadState?.last_read,
-    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
+    lastRead: channelUnreadUiState?.last_read,
+    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
   });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
@@ -312,7 +314,7 @@ const VirtualizedMessageListWithContext = <
     isMessageListScrolledToBottom,
     markReadOnScrolledToBottom,
     messageListIsThread: !!threadList,
-    unreadCount: currentUserChannelReadState?.unread_messages ?? 0,
+    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
   });
 
   const scrollToBottom = useCallback(async () => {
@@ -403,7 +405,7 @@ const VirtualizedMessageListWithContext = <
     <>
       <MessageListMainPanel>
         {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification unreadCount={currentUserChannelReadState?.unread_messages} />
+          <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
         )}
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
           <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
@@ -427,9 +429,9 @@ const VirtualizedMessageListWithContext = <
               customMessageActions,
               customMessageRenderer,
               DateSeparator,
-              firstUnreadMessageId: currentUserChannelReadState?.first_unread_message_id,
+              firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
               head,
-              lastReadMessageId: currentUserChannelReadState?.last_read_message_id,
+              lastReadMessageId: channelUnreadUiState?.last_read_message_id,
               lastReceivedMessageId,
               loadingMore,
               Message: MessageUIComponent,
@@ -441,7 +443,7 @@ const VirtualizedMessageListWithContext = <
               processedMessages,
               shouldGroupByUser,
               threadList,
-              unreadMessageCount: currentUserChannelReadState?.unread_messages,
+              unreadMessageCount: channelUnreadUiState?.unread_messages,
               UnreadMessagesSeparator,
               virtuosoRef: virtuoso,
             }}
@@ -474,7 +476,7 @@ const VirtualizedMessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottom}
         threadList={threadList}
-        unreadCount={threadList ? undefined : currentUserChannelReadState?.unread_messages}
+        unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
@@ -593,6 +595,7 @@ export function VirtualizedMessageList<
   } = useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
   const {
     channel,
+    channelUnreadUiState,
     hasMore,
     hasMoreNewer,
     highlightedMessageId,
@@ -609,6 +612,7 @@ export function VirtualizedMessageList<
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
+      channelUnreadUiState={channelUnreadUiState}
       hasMore={!!hasMore}
       hasMoreNewer={!!hasMoreNewer}
       highlightedMessageId={highlightedMessageId}

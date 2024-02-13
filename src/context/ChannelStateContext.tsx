@@ -9,6 +9,7 @@ import type {
 } from 'stream-chat';
 
 import type {
+  ChannelUnreadUiState,
   DefaultStreamChatGenerics,
   GiphyVersions,
   ImageAttachmentSizeHandler,
@@ -67,6 +68,7 @@ export type ChannelStateContextValue<
   shouldGenerateVideoThumbnail: boolean;
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   acceptedFiles?: string[];
+  channelUnreadUiState?: ChannelUnreadUiState<StreamChatGenerics>;
   debounceURLEnrichmentMs?: URLEnrichmentConfig['debounceURLEnrichmentMs'];
   dragAndDropWindow?: boolean;
   enrichURLForPreview?: URLEnrichmentConfig['enrichURLForPreview'];

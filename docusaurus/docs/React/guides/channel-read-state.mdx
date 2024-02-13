@@ -9,24 +9,42 @@ This guide intends to provide an overview how channel read state is handled by d
 
 ## The model
 
-The read state is extracted from the channel query response, specifically from each `ChannelResponse` object's `read` attribute. This is internally transformed from an array of users' read statuses into and object indexed by user id. Each value of the `read` state object has then the following structure:
+The React SDK maintains channel read state for UI components inside `Channel` componet in a separate variable `channelUnreadUiState`. Channel read state reflecting the back-end state, can be accessed via `channel.state.read` mapping.
 
-| Property                    | Type                    | Description                                                                                                                                                                                                                                                                                                                                   |
-|-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **last_read**               | `Date`                  | Date when the channel was marked read the last time. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                                                                                                                                                                    |
-| **unread_messages**         | `number`                | The count of unread messages in a given channel for a given user. Unread count refers only to foreign (not own) unread messages. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                                                                                                                                                        |
-| **user**                    | `user`                  | Data of a user, whose read state is described in this object. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                                                                                                                                                            |
+### Channel UI unread state
+
+The state is maintained by `Channel` component and shared with its children via `ChannelStateContext` as `channelUnreadUiState`. The state format is as follows:
+
+| Property                    | Type                    | Description                                                                                                                                                                                               |
+|-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **last_read**               | `Date`                  | Date when the channel was marked read the last time.                                                                                                                                                      |
+| **unread_messages**         | `number`                | The count of unread messages in a given channel. Unread count refers only to foreign (not own) unread messages.                                                                                           |
 | **first_unread_message_id** | `string` or `undefined` | The ID of the message that was marked unread (`notification.mark_unread` event). The value is available only when a message is marked unread. Therefore, cannot be relied on to place unread messages UI. |
-| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                                                                                                                   |
+| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message.                                                                                                                                                 |
 
-In the SDK, the `read` state can be accessed via [`useChannelStateContext` consumer](../../components/contexts/channel_state_context#read):
+
+### Channel read state for all users
+
+The read state is extracted from the channel query response, specifically from each `ChannelResponse` object's `read` attribute This is internally transformed from an array of users' read statuses into and object indexed by user id. The read state is updated upon receiving WS events like `message.read`, `notification.mark_unread`. Each value of the `read` state object has then the following structure:
+
+| Property                    | Type                    | Description                                                                                                                                                                                                                                  |
+|-----------------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **last_read**               | `Date`                  | Date when the channel was marked read the last time. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                             |
+| **unread_messages**         | `number`                | The count of unread messages in a given channel for a given user. Unread count refers only to foreign (not own) unread messages. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event. |
+| **user**                    | `user`                  | Data of a user, whose read state is described in this object. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                    |
+| **first_unread_message_id** | `string` or `undefined` | The ID of the message that was marked unread (`notification.mark_unread` event). The value is available only when a message is marked unread. Therefore, cannot be relied on to place unread messages UI.                                    |
+| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message. The value is provided with `ChannelResponse` when querying channels or on `notification.mark_unread` event.                                                                        |
+
+### Access the read state
+
+In the SDK, the `read` and `channelUnreadUiState` can be accessed via [`useChannelStateContext` consumer](../../components/contexts/channel_state_context#read):
 
 ```tsx
 import { useChannelStateContext, useChatContext } from 'stream-chat-react';
 
 const Component = (props) => {
     const { client } = useChatContext();
-    const { read, channel } = useChannelStateContext();
+    const { read, channel, channelUnreadUiState } = useChannelStateContext();
 
     // channel read state for some user
     const channelReadStateForAUser = read[props.user.id];
@@ -41,6 +59,8 @@ const Component = (props) => {
 };
 ```
 
+### Mark a channel read
+
 Channel can be marked read using the `markRead()` function provided via `ChannelActionContext`:
 
 ```tsx
@@ -53,6 +73,13 @@ const MarkReadButton = (props) => {
 };
 ```
 
+The function accepts a single `options` parameter of the following format:
+
+| Field                  | Type      | Optional | Description                                                                                                                                                                                                                                                                                                                 |
+|------------------------|-----------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `updateChannelUiUnreadState` | `boolean` | yes      | Signal, whether the `channelUnreadUiState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateChannelUiUnreadState` is not provided, the state is updated. |
+|
+
 :::important
 Please, prefer using the `markRead()` function everywhere in the `Channel` context as this function throttles the API calls thus preventing you from hitting the API limit of mark-read calls.
 :::
@@ -61,12 +88,12 @@ Please, prefer using the `markRead()` function everywhere in the `Channel` conte
 
 The default components included in **marking a channel read**:
 
-| Component                                                                                                                                     | Description                                                                                                                                                                                                                                                                                                                                                    |
-|-----------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [`Channel`](../../components/core-components/channel)                                                                                         | Can be configured to mark active channel read when mounted. This can be done through its prop `markReadOnMount`. By default disabled.                                                                                                                                                                                                                          |
+| Component                                                                                                                                     | Description                                                                                                                                                                                    |
+|-----------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`Channel`](../../components/core-components/channel)                                                                                         | Can be configured to mark active channel read when mounted. This can be done through its prop `markReadOnMount`. By default disabled.                                                          |
 | [`ChannelPreviewMessenger`](../../components/utility-components/channel_preview_ui)                                                           | Can be configured to mark active channel read when re-entered or left or disabled. This can be done through the prop `markActiveChannelReadOn`. By default channel is marked read on re-enter. |
-| [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | Can be configured to mark channel read when message list is scrolled to the bottom. This can be done through the list's prop `markReadOnScrolledToBottom`. By default disabled.                                                                                                                                                                                |
-| [`UnreadMessagesNotification`](../../components/contexts/component_context#unreadmessagesnotification)                                        | Floating notification rendered in the message list. Contains a button, which when clicked, marks the channel read.                                                                                                                                                                                                                                             |
+| [`MessageList`](../../components/core-components/message_list), [`VirtualizedMessageList`](../../components/core-components/virtualized_list) | Can be configured to mark channel read when message list is scrolled to the bottom. This can be done through the list's prop `markReadOnScrolledToBottom`. By default disabled.                |
+| [`UnreadMessagesNotification`](../../components/contexts/component_context#unreadmessagesnotification)                                        | Floating notification rendered in the message list. Contains a button, which when clicked, marks the channel read.                                                                             |
 
 The default components included in **marking a channel unread**:
 

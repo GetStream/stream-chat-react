@@ -258,7 +258,13 @@ const App = () => (
 
 ### doMarkReadRequest
 
-Custom action handler to override the default `channel.markRead` request function (advanced usage only).
+Custom action handler to override the default `channel.markRead` request function (advanced usage only). The function takes two arguments:
+
+
+| Argument                  | Type                                    | Description                                                                                             |
+|---------------------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `channel`                 | `Channel`                               | The current channel object instance                                                                     |
+| `setChannelUnreadUiState` | `(state: ChannelUnreadUiState) => void` | Function that allows us to set the unread state for the components reflecting the unread message state. |
 
 | Type     |
 | -------- |
@@ -471,7 +477,7 @@ export const MessageInput = (props: MessageInputProps) => {
 
 ### markReadOnMount
 
-Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is not marked read on mount.
+Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount.
 
 | Type    | Default |
 | ------- | ------- |

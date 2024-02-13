@@ -48,6 +48,7 @@ export const useCreateChannelStateContext = <
     threadHasMore,
     threadLoadingMore,
     threadMessages = [],
+    channelUnreadUiState,
     videoAttachmentSizeHandler,
     watcherCount,
     watcher_count,
@@ -103,6 +104,7 @@ export const useCreateChannelStateContext = <
       channel,
       channelCapabilities,
       channelConfig,
+      channelUnreadUiState,
       debounceURLEnrichmentMs,
       dragAndDropWindow,
       enrichURLForPreview,
@@ -139,6 +141,7 @@ export const useCreateChannelStateContext = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channelId,
+      channelUnreadUiState,
       debounceURLEnrichmentMs,
       enrichURLForPreview,
       error,

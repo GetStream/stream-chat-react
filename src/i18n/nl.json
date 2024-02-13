@@ -28,6 +28,7 @@
   "Error · Unsent": "Error: · niet verzonden",
   "Error: {{ errorMessage }}": "Error: {{ errorMessage }}",
   "Failed to jump to the first unread message": "Niet gelukt om naar het eerste ongelezen bericht te springen",
+  "Failed to mark channel as read": "Kanaal kon niet als gelezen worden gemarkeerd",
   "Flag": "Markeer",
   "Latest Messages": "Laatste berichten",
   "Load more": "Meer laden",
