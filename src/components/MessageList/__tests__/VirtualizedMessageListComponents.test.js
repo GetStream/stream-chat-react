@@ -361,6 +361,7 @@ describe('VirtualizedMessageComponents', () => {
               >
                 <div
                   class="str-chat__unread-messages-separator"
+                  data-testid="unread-messages-separator"
                 >
                   unreadMessagesSeparatorText
                 </div>
@@ -417,6 +418,7 @@ describe('VirtualizedMessageComponents', () => {
               >
                 <div
                   class="str-chat__unread-messages-separator"
+                  data-testid="unread-messages-separator"
                 >
                   Unread messages
                 </div>

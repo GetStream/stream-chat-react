@@ -17,11 +17,14 @@ export const UnreadMessagesNotification = ({
   const { t } = useTranslationContext('UnreadMessagesNotification');
 
   return (
-    <div className='str-chat__unread-messages-notification'>
+    <div
+      className='str-chat__unread-messages-notification'
+      data-testid='unread-messages-notification'
+    >
       <button onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}>
         {t<string>('{{count}} unread', { count: unreadCount ?? 0 })}
       </button>
-      <button onClick={markRead}>
+      <button onClick={() => markRead()}>
         <CloseIcon />
       </button>
     </div>

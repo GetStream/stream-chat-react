@@ -210,6 +210,21 @@ Custom function to react to link preview dismissal. See the guide [Link Previews
 | ------------------------------------ |
 | `(linkPreview: LinkPreview) => void` |
 
+### channelUnreadUiState
+
+The read state maintained for use by components representing channel unread state (for example `UnreadMessagesSeparator`, `UnreadMessagesNotification`).
+
+| Property                    | Type                    | Description                                                                                                                                                                                               |
+|-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **last_read**               | `Date`                  | Date when the channel was marked read the last time.                                                                                                                                                      |
+| **unread_messages**         | `number`                | The count of unread messages in a given channel. Unread count refers only to foreign (not own) unread messages.                                                                                           |
+| **first_unread_message_id** | `string` or `undefined` | The ID of the message that was marked unread (`notification.mark_unread` event). The value is available only when a message is marked unread. Therefore, cannot be relied on to place unread messages UI. |
+| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message.                                                                                                                                                 |
+
+| Type                  |
+|-----------------------|
+| `ChannelUnreadUiState` |
+
 ### pinnedMessages
 
 The messages that are pinned in the `channel`.
