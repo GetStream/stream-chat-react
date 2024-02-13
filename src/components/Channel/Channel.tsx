@@ -61,11 +61,7 @@ import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 
-import {
-  DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
-  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-  DEFAULT_THREAD_PAGE_SIZE,
-} from '../../constants/limits';
+import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE, DEFAULT_THREAD_PAGE_SIZE } from '../../constants/limits';
 
 import type { UnreadMessagesNotificationProps } from '../MessageList';
 import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
@@ -578,10 +574,7 @@ const ChannelInner = <
       if (!errored) {
         dispatch({
           channel,
-          hasMore: hasMoreMessagesProbably(
-            channel.state.messages.length,
-            channelQueryOptions?.messages?.limit ?? DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
-          ),
+          hasMore: true,
           type: 'initStateFromChannel',
         });
 
