@@ -9,11 +9,11 @@ This guide intends to provide an overview how channel read state is handled by d
 
 ## The model
 
-The React SDK maintains channel read state for own user in separate variable `ownChannelReadState`. Channel read for all the users can be accessed via `channel.state.read` mapping.
+The React SDK maintains channel read state for UI components inside `Channel` componet in a separate variable `channelUnreadUiState`. Channel read state reflecting the back-end state, can be accessed via `channel.state.read` mapping.
 
-### Own user's read state
+### Channel UI unread state
 
-The read state is maintained by `Channel` component and shared with its children via `ChannelStateContext` as `ownChannelReadState`. The state format is as follows:
+The state is maintained by `Channel` component and shared with its children via `ChannelStateContext` as `channelUnreadUiState`. The state format is as follows:
 
 | Property                    | Type                    | Description                                                                                                                                                                                               |
 |-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -25,7 +25,7 @@ The read state is maintained by `Channel` component and shared with its children
 
 ### Channel read state for all users
 
-The read state is extracted from the channel query response, specifically from each `ChannelResponse` object's `read` attribute. This is internally transformed from an array of users' read statuses into and object indexed by user id. Each value of the `read` state object has then the following structure:
+The read state is extracted from the channel query response, specifically from each `ChannelResponse` object's `read` attribute This is internally transformed from an array of users' read statuses into and object indexed by user id. The read state is updated upon receiving WS events like `message.read`, `notification.mark_unread`. Each value of the `read` state object has then the following structure:
 
 | Property                    | Type                    | Description                                                                                                                                                                                                                                  |
 |-----------------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -37,17 +37,20 @@ The read state is extracted from the channel query response, specifically from e
 
 ### Access the read state
 
-In the SDK, the `read` and `ownChannelReadState` state can be accessed via [`useChannelStateContext` consumer](../../components/contexts/channel_state_context#read):
+In the SDK, the `read` and `channelUnreadUiState` can be accessed via [`useChannelStateContext` consumer](../../components/contexts/channel_state_context#read):
 
 ```tsx
 import { useChannelStateContext, useChatContext } from 'stream-chat-react';
 
 const Component = (props) => {
     const { client } = useChatContext();
-    const { read, channel, ownChannelReadState } = useChannelStateContext();
+    const { read, channel, channelUnreadUiState } = useChannelStateContext();
 
     // channel read state for some user
     const channelReadStateForAUser = read[props.user.id];
+
+    // channel read state for own user
+    const channelReadStateForMyUser = client.user && read[client.user.id];
 
     // easier way to access own user's unread count for a given channel
     const unreadCount = channel.unreadCount();
@@ -74,7 +77,7 @@ The function accepts a single `options` parameter of the following format:
 
 | Field                  | Type      | Optional | Description                                                                                                                                                                                                                                                                                                                 |
 |------------------------|-----------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `updateLocalReadState` | `boolean` | yes      | Signal, whether the `ownChannelReadState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateLocalReadState` is not provided, the state is updated. |
+| `updateChannelUiUnreadState` | `boolean` | yes      | Signal, whether the `channelUnreadUiState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateChannelUiUnreadState` is not provided, the state is updated. |
 |
 
 :::important

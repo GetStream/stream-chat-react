@@ -51,6 +51,7 @@ const MessageListWithContext = <
 ) => {
   const {
     channel,
+    channelUnreadUiState,
     disableDateSeparator = false,
     groupStyles,
     hideDeletedMessages = false,
@@ -75,7 +76,6 @@ const MessageListWithContext = <
     suppressAutoscroll,
     highlightedMessageId,
     jumpToLatestMessage = () => Promise.resolve(),
-    ownChannelReadState,
   } = props;
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
@@ -111,14 +111,14 @@ const MessageListWithContext = <
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
-    unreadCount: ownChannelReadState?.unread_messages,
+    unreadCount: channelUnreadUiState?.unread_messages,
   });
 
   useMarkRead({
     isMessageListScrolledToBottom,
     markReadOnScrolledToBottom,
     messageListIsThread: threadList,
-    unreadCount: ownChannelReadState?.unread_messages ?? 0,
+    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -133,6 +133,7 @@ const MessageListWithContext = <
   });
 
   const elements = useMessageListElements({
+    channelUnreadUiState,
     enrichedMessages,
     internalMessageProps: {
       additionalMessageInputProps: props.additionalMessageInputProps,
@@ -163,7 +164,6 @@ const MessageListWithContext = <
       unsafeHTML,
     },
     messageGroupStyles,
-    ownReadState: ownChannelReadState,
     read,
     renderMessages,
     returnAllReadData,
@@ -210,7 +210,7 @@ const MessageListWithContext = <
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
         {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification unreadCount={ownChannelReadState?.unread_messages} />
+          <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
         )}
         <div
           className={`${messageListClass} ${threadListClass}`}
@@ -259,7 +259,7 @@ const MessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottomFromNotification}
         threadList={threadList}
-        unreadCount={threadList ? undefined : ownChannelReadState?.unread_messages}
+        unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
       />
     </MessageListContextProvider>
   );

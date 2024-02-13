@@ -210,9 +210,9 @@ Custom function to react to link preview dismissal. See the guide [Link Previews
 | ------------------------------------ |
 | `(linkPreview: LinkPreview) => void` |
 
-### ownChannelReadState
+### channelUnreadUiState
 
-The read state maintained for our own user. The state is then reflected in the UI elements.
+The read state maintained for use by components representing channel unread state (for example `UnreadMessagesSeparator`, `UnreadMessagesNotification`).
 
 | Property                    | Type                    | Description                                                                                                                                                                                               |
 |-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -223,7 +223,7 @@ The read state maintained for our own user. The state is then reflected in the U
 
 | Type                  |
 |-----------------------|
-| `OwnChannelReadState` |
+| `ChannelUnreadUiState` |
 
 ### pinnedMessages
 

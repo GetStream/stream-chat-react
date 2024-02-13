@@ -75,6 +75,7 @@ const UnMemoizedChannelPreviewMessenger = <
           break;
         case MarkChannelReadOn.reenter:
           handleMarkReadOnReenter();
+          break;
       }
       setActiveChannel(channel, watchers);
     }

@@ -131,7 +131,7 @@ export type VideoAttachmentSizeHandler = (
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
 
-export type OwnChannelReadState<
+export type ChannelUnreadUiState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
 

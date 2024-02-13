@@ -25,11 +25,11 @@ import type {
 
 export type MarkReadWrapperOptions = {
   /**
-   * Signal, whether the `ownChannelReadState` should be updated.
+   * Signal, whether the `channelUnreadUiState` should be updated.
    * By default, the local state update is prevented when the Channel component is mounted.
    * This is in order to keep the UI indicating the original unread state, when the user opens a channel.
    */
-  updateLocalReadState?: boolean;
+  updateChannelUiUnreadState?: boolean;
 };
 
 export type MessageAttachments<

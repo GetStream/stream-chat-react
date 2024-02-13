@@ -142,7 +142,7 @@ Throttled function that executes the API request and updates the local channel r
 
 | Field                  | Type      | Optional | Description                                                                                                                                                                                                                                                                                                                 |
 |------------------------|-----------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `updateLocalReadState` | `boolean` | yes      | Signal, whether the `ownChannelReadState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateLocalReadState` is not provided, the state is updated. |
+| `updateChannelUiUnreadState` | `boolean` | yes      | Signal, whether the `channelUnreadUiState` should be updated. The local state update is prevented when the Channel component is mounted. This is in order to keep the UI indicating the original unread state, when the user opens a channel. If the value for `updateChannelUiUnreadState` is not provided, the state is updated. |
  |
 
 | Type     |

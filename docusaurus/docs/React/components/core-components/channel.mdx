@@ -258,7 +258,13 @@ const App = () => (
 
 ### doMarkReadRequest
 
-Custom action handler to override the default `channel.markRead` request function (advanced usage only).
+Custom action handler to override the default `channel.markRead` request function (advanced usage only). The function takes two arguments:
+
+
+| Argument                  | Type                                    | Description                                                                                             |
+|---------------------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `channel`                 | `Channel`                               | The current channel object instance                                                                     |
+| `setChannelUnreadUiState` | `(state: ChannelUnreadUiState) => void` | Function that allows us to set the unread state for the components reflecting the unread message state. |
 
 | Type     |
 | -------- |

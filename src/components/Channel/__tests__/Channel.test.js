@@ -978,15 +978,15 @@ describe('Channel', () => {
         await renderComponent(
           { channel, chatClient },
           ({
+            channelUnreadUiState,
             jumpToFirstUnreadMessage,
             notifications: contextNotifications,
-            ownChannelReadState,
           }) => {
             if (hasJumped) {
               notifications = contextNotifications;
               return;
             }
-            if (!ownChannelReadState) return;
+            if (!channelUnreadUiState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1017,8 +1017,8 @@ describe('Channel', () => {
         let hasJumped;
         await renderComponent(
           { channel, chatClient },
-          ({ jumpToFirstUnreadMessage, ownChannelReadState }) => {
-            if (hasJumped || !ownChannelReadState) return;
+          ({ channelUnreadUiState, jumpToFirstUnreadMessage }) => {
+            if (hasJumped || !channelUnreadUiState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1093,11 +1093,11 @@ describe('Channel', () => {
           await renderComponent(
             { channel, chatClient },
             ({
+              channelUnreadUiState,
               hasMore,
               highlightedMessageId: contextHighlightedMessageId,
               jumpToFirstUnreadMessage,
               notifications: contextNotifications,
-              ownChannelReadState,
             }) => {
               if (hasJumped) {
                 hasMoreMessages = hasMore;
@@ -1105,7 +1105,7 @@ describe('Channel', () => {
                 notifications = contextNotifications;
                 return;
               }
-              if (!ownChannelReadState) return;
+              if (!channelUnreadUiState) return;
               useMockedApis(chatClient, [queryChannelWithNewMessages(jumpToPage, channel)]);
               jumpToFirstUnreadMessage(jumpToPage.length);
               hasJumped = true;
@@ -1144,12 +1144,12 @@ describe('Channel', () => {
         await renderComponent(
           { channel, chatClient },
           ({
+            channelUnreadUiState,
             hasMore,
             highlightedMessageId: contextHighlightedMessageId,
             jumpToFirstUnreadMessage,
             messages: contextMessages,
             notifications: contextNotifications,
-            ownChannelReadState,
           }) => {
             if (hasJumped) {
               notifications = contextNotifications;
@@ -1158,7 +1158,7 @@ describe('Channel', () => {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
-            if (!ownChannelReadState) return;
+            if (!channelUnreadUiState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1195,15 +1195,15 @@ describe('Channel', () => {
         await renderComponent(
           { channel, chatClient },
           ({
+            channelUnreadUiState,
             highlightedMessageId: contextHighlightedMessageId,
             jumpToFirstUnreadMessage,
-            ownChannelReadState,
           }) => {
             if (hasJumped) {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
-            if (!ownChannelReadState) return;
+            if (!channelUnreadUiState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
@@ -1234,15 +1234,15 @@ describe('Channel', () => {
         await renderComponent(
           { channel, chatClient },
           ({
+            channelUnreadUiState,
             highlightedMessageId: contextHighlightedMessageId,
             jumpToFirstUnreadMessage,
-            ownChannelReadState,
           }) => {
             if (hasJumped) {
               highlightedMessageId = contextHighlightedMessageId;
               return;
             }
-            if (!ownChannelReadState) return;
+            if (!channelUnreadUiState) return;
             jumpToFirstUnreadMessage();
             hasJumped = true;
           },
