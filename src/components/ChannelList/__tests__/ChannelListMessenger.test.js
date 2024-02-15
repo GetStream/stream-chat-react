@@ -4,21 +4,25 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
 import { ChannelListMessenger } from '../ChannelListMessenger';
+import { TranslationProvider } from '../../../context';
+import { mockTranslationContext } from '../../../mock-builders';
 
 // Weird hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
 const Component = ({ error = false, loading = false }) => (
-  <ChannelListMessenger
-    error={error}
-    loading={loading}
-    LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
-    LoadingIndicator={() => <div>Loading Indicator</div>}
-  >
-    <div>children 1</div>
-    <div>children 2</div>
-  </ChannelListMessenger>
+  <TranslationProvider value={mockTranslationContext}>
+    <ChannelListMessenger
+      error={error}
+      loading={loading}
+      LoadingErrorIndicator={() => <div>Loading Error Indicator</div>}
+      LoadingIndicator={() => <div>Loading Indicator</div>}
+    >
+      <div>children 1</div>
+      <div>children 2</div>
+    </ChannelListMessenger>
+  </TranslationProvider>
 );
 
 describe('ChannelListMessenger', () => {

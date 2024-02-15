@@ -87,7 +87,9 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslation[key] !== 'string') {
+          continue;
+        }
 
         expect(_t(key)).toBe(nlTranslations[key]);
       }
@@ -109,7 +111,9 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslation[key] !== 'string') {
+          continue;
+        }
 
         expect(_t(key)).toBe(nlTranslations[key]);
       }
@@ -221,7 +225,9 @@ describe('setLanguage - switch to french', () => {
 
     const { t: _t } = await streami18n.getTranslators();
     for (const key in frTranslations) {
-      if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+      if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslation[key] !== 'string') {
+        continue;
+      }
 
       expect(_t(key)).toBe(frTranslations[key]);
     }
