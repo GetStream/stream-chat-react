@@ -53,6 +53,7 @@ const UnMemoizedMessageOptions = <
     initialMessage,
     message,
     onReactionListClick,
+    showDetailedReactions,
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
@@ -99,6 +100,7 @@ const UnMemoizedMessageOptions = <
       )}
       {shouldShowReactions && (
         <button
+          aria-expanded={showDetailedReactions}
           aria-label={t('aria/Open Reaction Selector')}
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
           data-testid='message-reaction-action'

@@ -100,6 +100,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         </Tooltip>
       )}
       <button
+        aria-expanded={displayPicker}
         aria-label={t('aria/Emoji picker')}
         className={props.buttonClassName ?? buttonClassName}
         onClick={() => setDisplayPicker((cv) => !cv)}
