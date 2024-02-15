@@ -34,7 +34,7 @@ const UnMemoizedLoadMoreButton = ({
   return (
     <div className='str-chat__load-more-button'>
       <button
-        aria-label='Load More Channels'
+        aria-label={t('aria/Load More Channels')}
         className='str-chat__load-more-button__button str-chat__cta-button'
         data-testid='load-more-button'
         disabled={loading}

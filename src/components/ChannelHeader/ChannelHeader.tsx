@@ -50,7 +50,11 @@ const UnMemoizedChannelHeader = <
 
   return (
     <div className='str-chat__header-livestream str-chat__channel-header'>
-      <button aria-label='Menu' className='str-chat__header-hamburger' onClick={openMobileNav}>
+      <button
+        aria-label={t('aria/Menu')}
+        className='str-chat__header-hamburger'
+        onClick={openMobileNav}
+      >
         <MenuIcon />
       </button>
       <Avatar

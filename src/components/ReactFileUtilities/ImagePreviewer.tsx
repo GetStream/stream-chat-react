@@ -7,6 +7,7 @@ import { RetryIcon } from './icons';
 
 import type { ImageUpload } from './types';
 import clsx from 'clsx';
+import { useTranslationContext } from '../../context';
 
 type CustomMouseEvent = (id: string, event: MouseEvent<HTMLButtonElement>) => void;
 
@@ -34,6 +35,8 @@ export const ImagePreviewer = ({
   imageUploads,
   multiple = true,
 }: ImagePreviewerProps) => {
+  const { t } = useTranslationContext('ImagePreviewer');
+
   const onClose: CustomMouseEvent = useCallback(
     (id, event) => {
       if (!id) return console.warn(`image.id of closed image was "null", this shouldn't happen`);
@@ -56,7 +59,7 @@ export const ImagePreviewer = ({
           >
             {image.state === 'failed' && (
               <button
-                aria-label='Retry upload'
+                aria-label={t('aria/Retry upload')}
                 className='rfu-image-previewer__retry'
                 onClick={(event) => handleRetry?.(image.id, event)}
                 type='button'
