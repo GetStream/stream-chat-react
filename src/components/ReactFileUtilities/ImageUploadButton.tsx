@@ -22,18 +22,20 @@ export const ImageUploadButton = ({
   resetOnChange = false,
 }: PropsWithChildren<ImageUploadButtonProps>) => {
   const { t } = useTranslationContext('ImageUploadButton');
-  <div className='rfu-image-upload-button'>
-    <label>
-      <UploadButton
-        accept='image/*'
-        aria-label={t('aria/Image input')}
-        className='rfu-image-input'
-        disabled={disabled}
-        multiple={multiple}
-        onFileChange={handleFiles}
-        resetOnChange={resetOnChange}
-      />
-      {children}
-    </label>
-  </div>;
+  return (
+    <div className='rfu-image-upload-button'>
+      <label>
+        <UploadButton
+          accept='image/*'
+          aria-label={t('aria/Image input')}
+          className='rfu-image-input'
+          disabled={disabled}
+          multiple={multiple}
+          onFileChange={handleFiles}
+          resetOnChange={resetOnChange}
+        />
+        {children}
+      </label>
+    </div>
+  );
 };
