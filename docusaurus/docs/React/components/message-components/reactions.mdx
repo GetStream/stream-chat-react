@@ -8,10 +8,10 @@ import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
 import ReactionsListAndReactionSelector from '../../assets/reactions-list-and-reaction-selector.png';
 import ReactionsListModal from '../../assets/reactions-list-modal.png';
 
-The SDK comes with built-in support for adding reactions to messages. The component library provides thre default components to enable reaction selection and display:
+The SDK comes with built-in support for adding reactions to messages. The component library provides three default components to enable reaction selection and display:
 
 - [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows the connected user to select a reaction on a message
-- [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) - displays the reactions added to a message (and [`ReactionsListModal`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx))
+- [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx) (and [`ReactionsListModal`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsListModal.tsx)) - displays the reactions added to a message
 - [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays a minimal list of the reactions added to a message
 
 <ImageShowcase
@@ -263,4 +263,4 @@ An array of the reaction objects to display in the list (overrides `message.late
 
 ## Customization
 
-See [Custom Reactions](../../guides/theming/reactions.mdx) guide on how to change default reactions or how to change default behavior of `ReactionsList` and `ReactionSelector` components.
+See [Reactions Customization](../../guides/theming/reactions.mdx) guide on how to change default reactions or how to replace default `ReactionsList` and `ReactionSelector` components.
