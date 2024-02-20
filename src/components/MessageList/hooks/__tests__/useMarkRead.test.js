@@ -357,6 +357,30 @@ describe('useMarkRead', () => {
         const channelUnreadUiState = channelUnreadUiStateCb();
         expect(channelUnreadUiState.unread_messages).toBe(1);
       });
+      it('should be performed when document is hidden and is scrolled to the bottom', async () => {
+        let channelUnreadUiStateCb;
+        setChannelUnreadUiState.mockImplementationOnce((cb) => (channelUnreadUiStateCb = cb));
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+
+        await render({
+          channel,
+          client,
+          params: shouldMarkReadParams,
+        });
+
+        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        await act(() => {
+          dispatchMessageNewEvent(client, generateMessage(), channel);
+        });
+
+        expect(setChannelUnreadUiState).toHaveBeenCalledTimes(1);
+        const channelUnreadUiState = channelUnreadUiStateCb();
+        expect(channelUnreadUiState.unread_messages).toBe(1);
+        docHiddenSpy.mockRestore();
+      });
     });
 
     describe('update unread UI state last_read', () => {
@@ -438,6 +462,44 @@ describe('useMarkRead', () => {
         );
         channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
+      });
+
+      it('should be performed when document is hidden and is scrolled to the bottom', async () => {
+        let channelUnreadUiStateCb;
+        setChannelUnreadUiState.mockImplementation((cb) => (channelUnreadUiStateCb = cb));
+        const channelsData = [generateChannel({ messages: [generateMessage()] })];
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels({
+          channelsData,
+        });
+
+        await render({
+          channel,
+          client,
+          params: shouldMarkReadParams,
+        });
+
+        const docHiddenSpy = jest.spyOn(document, 'hidden', 'get').mockReturnValueOnce(true);
+        await act(async () => {
+          await dispatchMessageNewEvent(client, generateMessage(), channel);
+        });
+
+        const prevLastRead = 'X';
+        let channelUnreadUiState = channelUnreadUiStateCb({ last_read: prevLastRead });
+        expect(channelUnreadUiState.last_read).toBe(prevLastRead);
+        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
+        expect(channelUnreadUiState.last_read.getTime()).toBe(
+          channelsData[0].messages[0].created_at.getTime(),
+        );
+        channelUnreadUiState = channelUnreadUiStateCb();
+        expect(channelUnreadUiState.last_read.getTime()).toBe(
+          channelsData[0].messages[0].created_at.getTime(),
+        );
+        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
+        expect(channelUnreadUiState.last_read.getTime()).toBe(0);
+        docHiddenSpy.mockRestore();
       });
     });
   });

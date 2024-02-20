@@ -55,7 +55,7 @@ export const useMarkRead = <
       const isOwnMessage = event.user?.id && event.user.id === client.user?.id;
       const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
       if (isOwnMessage) return;
-      if (!isMessageListScrolledToBottom || wasMarkedUnread) {
+      if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
         setChannelUnreadUiState((prev) => {
           const previousUnreadCount = prev?.unread_messages ?? 0;
           const previousLastMessage = getPreviousLastMessage<StreamChatGenerics>(
