@@ -315,7 +315,7 @@ describe('MessageList', () => {
     const messages = Array.from({ length: 5 }, generateMessage);
     const unread_messages = 2;
     const lastReadMessage = messages[unread_messages];
-    const separatorText = `${unread_messages} unread messages`;
+    const separatorText = `Unread messages`;
     const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }) => {
       dispatchNotificationMarkUnread({
         channel,
@@ -388,7 +388,7 @@ describe('MessageList', () => {
         });
       });
 
-      expect(markReadMock).toHaveBeenCalledTimes(1);
+      expect(markReadMock).toHaveBeenCalledTimes(2);
       expect(screen.queryByText(separatorText)).toBeInTheDocument();
     });
 
@@ -522,9 +522,12 @@ describe('MessageList', () => {
 
     describe('notification', () => {
       const chatContext = { themeVersion: '2' };
-      const notificationText = `${unread_messages} unread`;
+      const UNREAD_MESSAGES_NOTIFICATION_TEST_ID = 'unread-messages-notification';
       const observerEntriesScrolledBelowSeparator = [
-        { boundingClientRect: { top: 10 }, isIntersecting: false, rootBounds: { bottom: 11 } },
+        { boundingClientRect: { bottom: -1 }, isIntersecting: false },
+      ];
+      const observerEntriesScrolledAboveSeparator = [
+        { boundingClientRect: { bottom: 1 }, isIntersecting: false },
       ];
 
       const setupTest = async ({
@@ -558,22 +561,50 @@ describe('MessageList', () => {
 
       it('should not display unread messages notification when scrolled to unread messages separator', async () => {
         await setupTest({ entries: [{ isIntersecting: true }] });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
       });
 
-      it("should not display unread messages notification when unread messages separator top edge is above container's bottom", async () => {
-        await setupTest({
-          entries: [
-            { boundingClientRect: { top: 11 }, isIntersecting: false, rootBounds: { bottom: 10 } },
-          ],
-        });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
-      });
-
-      it("should display unread messages notification when unread messages separator top edge is below container's bottom", async () => {
-        await setupTest({ entries: observerEntriesScrolledBelowSeparator });
-        expect(screen.getByText(notificationText)).toBeInTheDocument();
-      });
+      it.each([
+        [
+          'should',
+          "top edge is below container's visible bottom",
+          observerEntriesScrolledAboveSeparator,
+          undefined,
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top",
+          observerEntriesScrolledBelowSeparator,
+          undefined,
+        ],
+        [
+          'should not',
+          "top edge is below container's visible bottom when disabled",
+          observerEntriesScrolledAboveSeparator,
+          { showUnreadNotificationAlways: false },
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top when",
+          observerEntriesScrolledBelowSeparator,
+          { showUnreadNotificationAlways: false },
+        ],
+      ])(
+        '%s display unread messages notification when unread messages separator %s',
+        async (expected, __, entries, msgListProps) => {
+          await setupTest({
+            entries,
+            msgListProps,
+          });
+          if (expected === 'should') {
+            expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).toBeInTheDocument();
+          } else {
+            expect(
+              screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
+            ).not.toBeInTheDocument();
+          }
+        },
+      );
 
       it('should display custom unread messages notification', async () => {
         const customUnreadMessagesNotificationText = 'customUnreadMessagesNotificationText';
@@ -591,13 +622,13 @@ describe('MessageList', () => {
           dispatchMarkUnreadPayload: { unread_messages: 0 },
           entries: observerEntriesScrolledBelowSeparator,
         });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
       });
 
       it('should not display unread messages notification IntersectionObserver is undefined', async () => {
         window.IntersectionObserver = undefined;
         await setupTest({ entries: observerEntriesScrolledBelowSeparator });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
       });
 
       it('should not display unread messages notification in thread', async () => {
@@ -605,7 +636,7 @@ describe('MessageList', () => {
           entries: observerEntriesScrolledBelowSeparator,
           msgListProps: { threadList: true },
         });
-        expect(screen.queryByText(notificationText)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
       });
     });
 
@@ -616,7 +647,7 @@ describe('MessageList', () => {
         <MessageListNotifications {...props} isMessageListScrolledToBottom={false} />
       );
 
-      it('reflects the channel unread state', async () => {
+      it('does not reflect the channel unread  UI state', async () => {
         const {
           channels: [channel],
           client,
@@ -641,9 +672,7 @@ describe('MessageList', () => {
           dispatchMarkUnreadForChannel({ channel, client });
         });
 
-        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).toHaveTextContent(
-          unread_messages,
-        );
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
       });
 
       it('does not reflect the channel unread state in a thread', async () => {

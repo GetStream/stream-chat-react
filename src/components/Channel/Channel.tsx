@@ -384,7 +384,7 @@ const ChannelInner = <
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
-  const [channelUnreadUiState, setChannelUnreadUiState] = useState<ChannelUnreadUiState>();
+  const [channelUnreadUiState, _setChannelUnreadUiState] = useState<ChannelUnreadUiState>();
 
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
 
@@ -398,7 +398,7 @@ const ChannelInner = <
   const isMounted = useIsMounted();
 
   const originalTitle = useRef('');
-  const lastRead = useRef(new Date());
+  const lastRead = useRef<Date | undefined>();
   const online = useRef(true);
 
   const channelCapabilitiesArray = channel.data?.own_capabilities as string[];
@@ -412,47 +412,56 @@ const ChannelInner = <
     },
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const markRead = useCallback(
-    throttle(
-      async (options?: MarkReadWrapperOptions) => {
-        const { updateChannelUiUnreadState = true } = options ?? {};
-        if (channel.disconnected || !channelConfig?.read_events) {
-          return;
-        }
+  const setChannelUnreadUiState = useMemo(
+    () =>
+      throttle(_setChannelUnreadUiState, 200, {
+        leading: true,
+        trailing: false,
+      }),
+    [],
+  );
 
-        lastRead.current = new Date();
+  const markRead = useMemo(
+    () =>
+      throttle(
+        async (options?: MarkReadWrapperOptions) => {
+          const { updateChannelUiUnreadState = true } = options ?? {};
+          if (channel.disconnected || !channelConfig?.read_events) {
+            return;
+          }
 
-        try {
-          if (doMarkReadRequest) {
-            doMarkReadRequest(
-              channel,
-              updateChannelUiUnreadState ? setChannelUnreadUiState : undefined,
-            );
-          } else {
-            const markReadResponse = await channel.markRead();
-            if (updateChannelUiUnreadState && markReadResponse) {
-              setChannelUnreadUiState({
-                last_read: lastRead.current,
-                last_read_message_id: markReadResponse.event.last_read_message_id,
-                unread_messages: 0,
-              });
+          lastRead.current = new Date();
+
+          try {
+            if (doMarkReadRequest) {
+              doMarkReadRequest(
+                channel,
+                updateChannelUiUnreadState ? setChannelUnreadUiState : undefined,
+              );
+            } else {
+              const markReadResponse = await channel.markRead();
+              if (updateChannelUiUnreadState && markReadResponse) {
+                _setChannelUnreadUiState({
+                  last_read: lastRead.current,
+                  last_read_message_id: markReadResponse.event.last_read_message_id,
+                  unread_messages: 0,
+                });
+              }
             }
-          }
 
-          if (activeUnreadHandler) {
-            activeUnreadHandler(0, originalTitle.current);
-          } else if (originalTitle.current) {
-            document.title = originalTitle.current;
+            if (activeUnreadHandler) {
+              activeUnreadHandler(0, originalTitle.current);
+            } else if (originalTitle.current) {
+              document.title = originalTitle.current;
+            }
+          } catch (e) {
+            console.error(t<string>('Failed to mark channel as read'));
           }
-        } catch (e) {
-          console.error(t<string>('Failed to mark channel as read'));
-        }
-      },
-      500,
-      { leading: true, trailing: false },
-    ),
-    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest, t],
+        },
+        500,
+        { leading: true, trailing: false },
+      ),
+    [activeUnreadHandler, channel, channelConfig, doMarkReadRequest, setChannelUnreadUiState, t],
   );
 
   const handleEvent = async (event: Event<StreamChatGenerics>) => {
@@ -475,11 +484,7 @@ const ChannelInner = <
     }
 
     if (event.type === 'message.new') {
-      let mainChannelUpdated = true;
-
-      if (event.message?.parent_id && !event.message?.show_in_channel) {
-        mainChannelUpdated = false;
-      }
+      const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
 
       if (mainChannelUpdated) {
         if (document.hidden && channelConfig?.read_events && !channel.muteStatus().muted) {
@@ -524,7 +529,7 @@ const ChannelInner = <
     }
 
     if (event.type === 'notification.mark_unread')
-      setChannelUnreadUiState((prev) => {
+      _setChannelUnreadUiState((prev) => {
         if (!(event.last_read_at && event.user)) return prev;
         return {
           first_unread_message_id: event.first_unread_message_id,
@@ -588,7 +593,7 @@ const ChannelInner = <
         if (client.user?.id && channel.state.read[client.user.id]) {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { user, ...ownReadState } = channel.state.read[client.user.id];
-          setChannelUnreadUiState(ownReadState);
+          _setChannelUnreadUiState(ownReadState);
         }
         /**
          * TODO: maybe pass last_read to the countUnread method to get proper value
@@ -760,7 +765,7 @@ const ChannelInner = <
 
   const jumpToFirstUnreadMessage = useCallback(
     async (queryMessageLimit = 100) => {
-      if (!client.user) return;
+      if (!(client.user && channelUnreadUiState?.unread_messages)) return;
       if (!channelUnreadUiState?.last_read_message_id) {
         addNotification(t('Failed to jump to the first unread message'), 'error');
         return;
@@ -1107,6 +1112,7 @@ const ChannelInner = <
       removeMessage,
       retrySendMessage,
       sendMessage,
+      setChannelUnreadUiState,
       setQuotedMessage,
       skipMessageDataMemoization,
       updateMessage,
@@ -1124,6 +1130,7 @@ const ChannelInner = <
       jumpToFirstUnreadMessage,
       jumpToMessage,
       jumpToLatestMessage,
+      setChannelUnreadUiState,
     ],
   );
 

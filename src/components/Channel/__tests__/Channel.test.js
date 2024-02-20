@@ -788,6 +788,7 @@ describe('Channel', () => {
           expect(contextMessageCount).toBe(firstPageOfMessages.length);
         });
       });
+
       it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
         const { channel, chatClient } = await initClient();
         const firstPageMessages = Array.from({ length: 25 }, generateMessage);
@@ -916,7 +917,7 @@ describe('Channel', () => {
 
       afterEach(jest.resetAllMocks);
 
-      it('should not query messages around the last read message if the last read message is unknown', async () => {
+      it('should not query messages around the last read message if the unread count is falsy', async () => {
         const {
           channels: [channel],
           client: chatClient,
@@ -925,6 +926,38 @@ describe('Channel', () => {
             {
               messages: [generateMessage()],
               read: [{ last_read: new Date().toISOString(), user }],
+              unread_messages: 0,
+            },
+          ],
+          customUser: user,
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation();
+
+        let hasJumped;
+        await renderComponent({ channel, chatClient }, ({ jumpToFirstUnreadMessage }) => {
+          if (hasJumped) {
+            return;
+          }
+          jumpToFirstUnreadMessage();
+          hasJumped = true;
+        });
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).not.toHaveBeenCalled();
+        });
+      });
+
+      it('should not query messages around the last read message if the last read message is unknown', async () => {
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), unread_messages: 1, user }],
             },
           ],
           customUser: user,
@@ -937,8 +970,12 @@ describe('Channel', () => {
         let notifications;
         await renderComponent(
           { channel, chatClient },
-          ({ jumpToFirstUnreadMessage, notifications: contextNotifications }) => {
-            if (hasJumped) {
+          ({
+            channelUnreadUiState,
+            jumpToFirstUnreadMessage,
+            notifications: contextNotifications,
+          }) => {
+            if (hasJumped || !channelUnreadUiState) {
               notifications = contextNotifications;
               return;
             }
@@ -946,6 +983,50 @@ describe('Channel', () => {
             hasJumped = true;
           },
         );
+
+        await waitFor(() => {
+          expect(loadMessageIntoState).not.toHaveBeenCalled();
+          expect(notifications).toHaveLength(1);
+          expect(notifications[0].text).toBe(errorNotificationText);
+        });
+      });
+
+      it('should not query messages around the last read message if the last read message is unknown and show error notification', async () => {
+        const {
+          channels: [channel],
+          client: chatClient,
+        } = await initClientWithChannels({
+          channelsData: [
+            {
+              messages: [generateMessage()],
+              read: [{ last_read: new Date().toISOString(), unread_messages: 1, user }],
+            },
+          ],
+          customUser: user,
+        });
+        const loadMessageIntoState = jest
+          .spyOn(channel.state, 'loadMessageIntoState')
+          .mockImplementation();
+
+        let hasJumped;
+        let notifications;
+        await act(async () => {
+          await renderComponent(
+            { channel, chatClient },
+            ({
+              channelUnreadUiState,
+              jumpToFirstUnreadMessage,
+              notifications: contextNotifications,
+            }) => {
+              if (hasJumped || !channelUnreadUiState) {
+                notifications = contextNotifications;
+                return;
+              }
+              jumpToFirstUnreadMessage();
+              hasJumped = true;
+            },
+          );
+        });
 
         await waitFor(() => {
           expect(loadMessageIntoState).not.toHaveBeenCalled();
@@ -964,7 +1045,12 @@ describe('Channel', () => {
             {
               messages: [lastReadMessage, generateMessage()],
               read: [
-                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+                {
+                  last_read: lastReadMessage.created_at.toISOString(),
+                  last_read_message_id,
+                  unread_messages: 1,
+                  user,
+                },
               ],
             },
           ],
@@ -1006,7 +1092,14 @@ describe('Channel', () => {
           channelsData: [
             {
               messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+              read: [
+                {
+                  last_read: new Date().toISOString(),
+                  last_read_message_id,
+                  unread_messages: 1,
+                  user,
+                },
+              ],
             },
           ],
           customUser: user,
@@ -1015,14 +1108,17 @@ describe('Channel', () => {
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation();
         let hasJumped;
-        await renderComponent(
-          { channel, chatClient },
-          ({ channelUnreadUiState, jumpToFirstUnreadMessage }) => {
-            if (hasJumped || !channelUnreadUiState) return;
-            jumpToFirstUnreadMessage();
-            hasJumped = true;
-          },
-        );
+
+        await act(async () => {
+          await renderComponent(
+            { channel, chatClient },
+            ({ channelUnreadUiState, jumpToFirstUnreadMessage }) => {
+              if (hasJumped || !channelUnreadUiState) return;
+              jumpToFirstUnreadMessage();
+              hasJumped = true;
+            },
+          );
+        });
 
         await waitFor(() =>
           expect(loadMessageIntoState).toHaveBeenCalledWith(
@@ -1081,7 +1177,14 @@ describe('Channel', () => {
             channelsData: [
               {
                 messages: [generateMessage()],
-                read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+                read: [
+                  {
+                    last_read: new Date().toISOString(),
+                    last_read_message_id,
+                    unread_messages: 1,
+                    user,
+                  },
+                ],
               },
             ],
             customUser: user,
@@ -1128,7 +1231,14 @@ describe('Channel', () => {
           channelsData: [
             {
               messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), last_read_message_id, user }],
+              read: [
+                {
+                  last_read: new Date().toISOString(),
+                  last_read_message_id,
+                  unread_messages: 1,
+                  user,
+                },
+              ],
             },
           ],
           customUser: user,
@@ -1184,7 +1294,12 @@ describe('Channel', () => {
             {
               messages,
               read: [
-                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+                {
+                  last_read: lastReadMessage.created_at.toISOString(),
+                  last_read_message_id,
+                  unread_messages: 1,
+                  user,
+                },
               ],
             },
           ],
@@ -1223,7 +1338,12 @@ describe('Channel', () => {
             {
               messages,
               read: [
-                { last_read: lastReadMessage.created_at.toISOString(), last_read_message_id, user },
+                {
+                  last_read: lastReadMessage.created_at.toISOString(),
+                  last_read_message_id,
+                  unread_messages: 1,
+                  user,
+                },
               ],
             },
           ],

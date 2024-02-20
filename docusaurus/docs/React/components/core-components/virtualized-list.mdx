@@ -174,14 +174,6 @@ Function called when more messages are to be loaded, provide your own function t
 | -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
 
-### markReadOnScrolledToBottom
-
-When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list.
-
-| Type    | Default |
-|---------|---------|
-| boolean | false   |
-
 ### Message
 
 Custom UI component to display an individual message.
@@ -252,6 +244,15 @@ If true, the Giphy preview will render as a separate component above the `Messag
 
 | Type    | Default |
 | ------- | ------- |
+| boolean | false   |
+
+### showUnreadNotificationAlways
+
+The floating notification informing about unread messages will be shown when the `UnreadMessagesSeparator` is not visible. The default is false, that means the notification
+is shown only when viewing unread messages.
+
+| Type    | Default |
+|---------|---------|
 | boolean | false   |
 
 ### stickToBottomScrollBehavior

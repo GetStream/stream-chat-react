@@ -3,6 +3,7 @@ import { StreamMessage } from '../../../../context';
 import type { DefaultStreamChatGenerics } from '../../../../types/types';
 
 export type UseUnreadMessagesNotificationParams = {
+  showAlways: boolean;
   unreadCount: number;
   lastRead?: Date | null;
 };
@@ -16,25 +17,36 @@ export type UseUnreadMessagesNotificationParams = {
  * `UnreadMessagesNotification` component is rendered. This is an approximate equivalent to being
  * scrolled below the `UnreadMessagesNotification` component.
  * @param lastRead
+ * @param showAlways
  * @param unreadCount
  */
 export const useUnreadMessagesNotificationVirtualized = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   lastRead,
+  showAlways,
   unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
   const [show, setShow] = useState(false);
 
   const toggleShowUnreadMessagesNotification = useCallback(
     (renderedMessages: StreamMessage<StreamChatGenerics>[]) => {
-      if (!renderedMessages.length) return;
-      const firstRenderedMessageTimestamp = renderedMessages[0].created_at
-        ? new Date(renderedMessages[0].created_at).getTime()
-        : 0;
-      setShow(unreadCount > 0 && !!lastRead && firstRenderedMessageTimestamp > lastRead.getTime());
+      if (!unreadCount) return;
+      const firstRenderedMessage = renderedMessages[0];
+      const lastRenderedMessage = renderedMessages.slice(-1)[0];
+      if (!(firstRenderedMessage && lastRenderedMessage)) return;
+      const scrolledBelowSeparator =
+        !!lastRead &&
+        new Date(firstRenderedMessage.created_at as string | Date).getTime() > lastRead.getTime();
+      const scrolledAboveSeparator =
+        !!lastRead &&
+        new Date(lastRenderedMessage.created_at as string | Date).getTime() < lastRead.getTime();
+
+      setShow(
+        showAlways ? scrolledBelowSeparator || scrolledAboveSeparator : scrolledBelowSeparator,
+      );
     },
-    [unreadCount, lastRead],
+    [lastRead, showAlways, unreadCount],
   );
 
   useEffect(() => {
