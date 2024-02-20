@@ -72,7 +72,7 @@ const MessageListWithContext = <
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
-    showUnreadNotificationAlways = true,
+    showUnreadNotificationAlways,
     suppressAutoscroll,
     highlightedMessageId,
     jumpToLatestMessage = () => Promise.resolve(),
@@ -111,7 +111,7 @@ const MessageListWithContext = <
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
-    showAlways: showUnreadNotificationAlways,
+    showAlways: !!showUnreadNotificationAlways,
     unreadCount: channelUnreadUiState?.unread_messages,
   });
 

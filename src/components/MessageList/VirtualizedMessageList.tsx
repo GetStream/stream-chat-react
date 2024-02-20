@@ -193,7 +193,7 @@ const VirtualizedMessageListWithContext = <
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     shouldGroupByUser = false,
-    showUnreadNotificationAlways = true,
+    showUnreadNotificationAlways,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
     threadList,
@@ -231,7 +231,7 @@ const VirtualizedMessageListWithContext = <
     toggleShowUnreadMessagesNotification,
   } = useUnreadMessagesNotificationVirtualized({
     lastRead: channelUnreadUiState?.last_read,
-    showAlways: showUnreadNotificationAlways,
+    showAlways: !!showUnreadNotificationAlways,
     unreadCount: channelUnreadUiState?.unread_messages ?? 0,
   });
 
