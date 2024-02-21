@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import throttle from 'lodash.throttle';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -107,13 +108,17 @@ export const ChannelPreview = <
     };
   }, [channel, client]);
 
-  const refreshUnreadCount = useCallback(() => {
-    if (muted) {
-      setUnread(0);
-    } else {
-      setUnread(channel.countUnread());
-    }
-  }, [channel, muted]);
+  const refreshUnreadCount = useMemo(
+    () =>
+      throttle(() => {
+        if (muted) {
+          setUnread(0);
+        } else {
+          setUnread(channel.countUnread());
+        }
+      }, 400),
+    [channel, muted],
+  );
 
   useEffect(() => {
     refreshUnreadCount();

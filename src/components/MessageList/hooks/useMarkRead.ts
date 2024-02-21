@@ -1,11 +1,18 @@
-import { useEffect } from 'react';
-import { useChannelActionContext } from '../../../context';
+import { useEffect, useRef } from 'react';
+import {
+  StreamMessage,
+  useChannelActionContext,
+  useChannelStateContext,
+  useChatContext,
+} from '../../../context';
+import { Event, MessageResponse } from 'stream-chat';
+import { DefaultStreamChatGenerics } from '../../../types';
 
 type UseMarkReadParams = {
   isMessageListScrolledToBottom: boolean;
   messageListIsThread: boolean;
   unreadCount: number;
-  markReadOnScrolledToBottom?: boolean;
+  wasMarkedUnread?: boolean;
 };
 
 /**
@@ -18,37 +25,100 @@ type UseMarkReadParams = {
  * @param unreadCount
  * @param wasChannelMarkedUnread
  */
-export const useMarkRead = ({
+export const useMarkRead = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   isMessageListScrolledToBottom,
-  markReadOnScrolledToBottom,
   messageListIsThread,
   unreadCount,
+  wasMarkedUnread,
 }: UseMarkReadParams) => {
-  const { markRead } = useChannelActionContext('useMarkRead');
+  const { client } = useChatContext<StreamChatGenerics>('useMarkRead');
+  const { markRead, setChannelUnreadUiState } = useChannelActionContext('useMarkRead');
+  const { channel } = useChannelStateContext('useMarkRead');
+  const previousRenderMessageListScrolledToBottom = useRef(isMessageListScrolledToBottom);
 
   useEffect(() => {
-    const shouldMarkRead =
+    const shouldMarkRead = (unreadMessages: number) =>
+      !document.hidden &&
+      !wasMarkedUnread &&
       !messageListIsThread &&
       isMessageListScrolledToBottom &&
-      markReadOnScrolledToBottom &&
-      unreadCount > 0;
+      unreadMessages > 0;
 
     const onVisibilityChange = () => {
-      if (!document.hidden && shouldMarkRead) markRead();
+      if (shouldMarkRead(unreadCount)) markRead();
     };
 
+    const handleMessageNew = (event: Event<StreamChatGenerics>) => {
+      const newMessageToCurrentChannel = event.cid === channel.cid;
+      const isOwnMessage = event.user?.id && event.user.id === client.user?.id;
+      const mainChannelUpdated = !event.message?.parent_id || event.message?.show_in_channel;
+      if (isOwnMessage) return;
+      if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
+        setChannelUnreadUiState((prev) => {
+          const previousUnreadCount = prev?.unread_messages ?? 0;
+          const previousLastMessage = getPreviousLastMessage<StreamChatGenerics>(
+            channel.state.messages,
+            event.message,
+          );
+          return {
+            ...(prev || {}),
+            last_read:
+              prev?.last_read ??
+              (previousUnreadCount === 0 && previousLastMessage?.created_at
+                ? new Date(previousLastMessage.created_at)
+                : new Date(0)), // not having information about the last read message means the whole channel is unread,
+            unread_messages: previousUnreadCount + 1,
+          };
+        });
+      } else if (
+        newMessageToCurrentChannel &&
+        mainChannelUpdated &&
+        !isOwnMessage &&
+        shouldMarkRead(channel.countUnread())
+      ) {
+        markRead();
+      }
+    };
+
+    client.on('message.new', handleMessageNew);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    if (shouldMarkRead) markRead();
+    const hasScrolledToBottom =
+      previousRenderMessageListScrolledToBottom.current !== isMessageListScrolledToBottom &&
+      isMessageListScrolledToBottom;
+    if (shouldMarkRead(hasScrolledToBottom ? channel.countUnread() : unreadCount)) markRead();
+    previousRenderMessageListScrolledToBottom.current = isMessageListScrolledToBottom;
 
     return () => {
+      client.off('message.new', handleMessageNew);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [
+    channel,
+    client,
     isMessageListScrolledToBottom,
     markRead,
     messageListIsThread,
+    setChannelUnreadUiState,
     unreadCount,
-    markReadOnScrolledToBottom,
+    wasMarkedUnread,
   ]);
 };
+
+function getPreviousLastMessage<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(messages: StreamMessage<StreamChatGenerics>[], newMessage?: MessageResponse<StreamChatGenerics>) {
+  if (!newMessage) return;
+  let previousLastMessage;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const msg = messages[i];
+    if (!msg?.id) break;
+    if (msg.id !== newMessage.id) {
+      previousLastMessage = msg;
+      break;
+    }
+  }
+  return previousLastMessage;
+}

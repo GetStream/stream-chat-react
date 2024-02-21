@@ -456,6 +456,8 @@ Function called when more messages are to be loaded, provide your own function t
 | -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
 
+<<<<<<< HEAD
+
 ### markReadOnScrolledToBottom
 
 When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list.
@@ -463,6 +465,10 @@ When enabled, the channel will be marked read when a user scrolls to the bottom.
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+=======
+
+> > > > > > > @{-1}
 
 ### Message
 
@@ -619,6 +625,15 @@ channel, the `MessageNotification` component displays when new messages arrive.
 | Type   | Default |
 | ------ | ------- |
 | number | 200     |
+
+### showUnreadNotificationAlways
+
+The floating notification informing about unread messages will be shown when the `UnreadMessagesSeparator` is not visible. The default is false, that means the notification
+is shown only when viewing unread messages.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
 
 ### sortReactions
 

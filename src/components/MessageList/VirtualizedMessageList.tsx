@@ -181,7 +181,6 @@ const VirtualizedMessageListWithContext = <
     loadingMore,
     loadMore,
     loadMoreNewer,
-    markReadOnScrolledToBottom,
     Message: MessageUIComponentFromProps,
     messageActions,
     messageLimit = 100,
@@ -195,6 +194,7 @@ const VirtualizedMessageListWithContext = <
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     shouldGroupByUser = false,
+    showUnreadNotificationAlways,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
@@ -233,6 +233,7 @@ const VirtualizedMessageListWithContext = <
     toggleShowUnreadMessagesNotification,
   } = useUnreadMessagesNotificationVirtualized({
     lastRead: channelUnreadUiState?.last_read,
+    showAlways: !!showUnreadNotificationAlways,
     unreadCount: channelUnreadUiState?.unread_messages ?? 0,
   });
 
@@ -314,9 +315,9 @@ const VirtualizedMessageListWithContext = <
 
   useMarkRead({
     isMessageListScrolledToBottom,
-    markReadOnScrolledToBottom,
     messageListIsThread: !!threadList,
     unreadCount: channelUnreadUiState?.unread_messages ?? 0,
+    wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
   });
 
   const scrollToBottom = useCallback(async () => {
@@ -540,8 +541,6 @@ export type VirtualizedMessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when new messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
-  /** When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list. */
-  markReadOnScrolledToBottom?: boolean;
   /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   /** The limit to use when paginating messages */
@@ -577,6 +576,12 @@ export type VirtualizedMessageListProps<
   separateGiphyPreview?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
+  /**
+   * The floating notification informing about unread messages will be shown when the
+   * UnreadMessagesSeparator is not visible. The default is false, that means the notification
+   * is shown only when viewing unread messages.
+   */
+  showUnreadNotificationAlways?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** stops the list from autoscrolling when new messages are loaded */

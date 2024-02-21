@@ -113,29 +113,28 @@ describe('ChannelList', () => {
       useMockedApis(chatClient, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      let result;
-      await act(() => {
-        result = render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              closeMobileNav,
-              navOpen: true,
-            }}
-          >
-            <ChannelList {...props} />
-            <div data-testid='outside-channellist' />
-          </ChatContext.Provider>,
-        );
-      });
-      const { container, getByRole, getByTestId } = result;
+      const { container, getByRole, getByTestId } = await render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            closeMobileNav,
+            navOpen: true,
+          }}
+        >
+          <ChannelList {...props} />
+          <div data-testid='outside-channellist' />
+        </ChatContext.Provider>,
+      );
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      fireEvent.click(getByTestId('outside-channellist'));
+      await act(() => {
+        fireEvent.click(getByTestId('outside-channellist'));
+      });
+
       await waitFor(() => {
         expect(closeMobileNav).toHaveBeenCalledTimes(1);
       });
@@ -144,30 +143,28 @@ describe('ChannelList', () => {
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      let result;
-      await act(() => {
-        result = render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClient,
-              closeMobileNav,
-              navOpen: false,
-            }}
-          >
-            <ChannelList {...props} />
-            <div data-testid='outside-channellist' />
-          </ChatContext.Provider>,
-        );
-      });
-      const { container, getByRole, getByTestId } = result;
+      const { container, getByRole, getByTestId } = await render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            closeMobileNav,
+            navOpen: false,
+          }}
+        >
+          <ChannelList {...props} />
+          <div data-testid='outside-channellist' />
+        </ChatContext.Provider>,
+      );
 
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      fireEvent.click(getByTestId('outside-channellist'));
+      await act(() => {
+        fireEvent.click(getByTestId('outside-channellist'));
+      });
       await waitFor(() => {
         expect(closeMobileNav).toHaveBeenCalledTimes(0);
       });
@@ -224,48 +221,52 @@ describe('ChannelList', () => {
     };
     const queryChannelsMock = jest.spyOn(client, 'queryChannels').mockImplementationOnce();
 
-    let rerender;
-    await act(async () => {
-      const result = await render(
-        <Chat client={client}>
-          <ChannelList {...props} />
-        </Chat>,
-      );
-      rerender = result.rerender;
-    });
-
-    expect(queryChannelsMock).toHaveBeenCalledTimes(0);
-    expect(props.customQueryChannels).toHaveBeenCalledTimes(1);
-    expect(props.customQueryChannels).toHaveBeenCalledWith(
-      expect.objectContaining({
-        currentChannels: [],
-        queryType: 'reload',
-        setChannels: expect.any(Function),
-        setHasNextPage: expect.any(Function),
-      }),
+    const { rerender } = render(
+      <Chat client={client}>
+        <ChannelList {...props} />
+      </Chat>,
     );
 
-    await act(async () => {
-      await rerender(
-        <Chat client={client}>
-          <ChannelList {...props} />
-        </Chat>,
+    await waitFor(() => {
+      expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+      expect(props.customQueryChannels).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(props.customQueryChannels).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentChannels: [],
+          queryType: 'reload',
+          setChannels: expect.any(Function),
+          setHasNextPage: expect.any(Function),
+        }),
       );
     });
-    await act(() => {
+
+    rerender(
+      <Chat client={client}>
+        <ChannelList {...props} />
+      </Chat>,
+    );
+
+    act(() => {
       fireEvent.click(screen.getByTestId('load-more-button'));
     });
 
-    expect(queryChannelsMock).toHaveBeenCalledTimes(0);
-    expect(props.customQueryChannels).toHaveBeenCalledTimes(2);
-    expect(props.customQueryChannels).toHaveBeenCalledWith(
-      expect.objectContaining({
-        currentChannels: [channels[0]],
-        queryType: 'load-more',
-        setChannels: expect.any(Function),
-        setHasNextPage: expect.any(Function),
-      }),
-    );
+    await waitFor(() => {
+      expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+      expect(props.customQueryChannels).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(props.customQueryChannels).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentChannels: [channels[0]],
+          queryType: 'load-more',
+          setChannels: expect.any(Function),
+          setHasNextPage: expect.any(Function),
+        }),
+      );
+    });
+
     queryChannelsMock.mockRestore();
   });
 
@@ -339,24 +340,24 @@ describe('ChannelList', () => {
       return <ChannelListMessenger {...props} />;
     };
 
-    await act(() => {
-      render(
-        <Chat client={chatClient}>
-          <QueryStateInterceptor>
-            <ChannelList List={ChannelListMessengerPropsInterceptor} />
-          </QueryStateInterceptor>
-        </Chat>,
-      );
-    });
+    await render(
+      <Chat client={chatClient}>
+        <QueryStateInterceptor>
+          <ChannelList List={ChannelListMessengerPropsInterceptor} />
+        </QueryStateInterceptor>
+      </Chat>,
+    );
 
-    expect(channelsQueryStatesHistory).toHaveLength(3);
-    expect(channelListMessengerLoadingHistory).toHaveLength(3);
-    expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
-    expect(channelListMessengerLoadingHistory[0]).toBe(true);
-    expect(channelsQueryStatesHistory[1]).toBe('reload');
-    expect(channelListMessengerLoadingHistory[1]).toBe(true);
-    expect(channelsQueryStatesHistory[2]).toBeNull();
-    expect(channelListMessengerLoadingHistory[2]).toBe(false);
+    await waitFor(() => {
+      expect(channelsQueryStatesHistory).toHaveLength(3);
+      expect(channelListMessengerLoadingHistory).toHaveLength(3);
+      expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
+      expect(channelListMessengerLoadingHistory[0]).toBe(true);
+      expect(channelsQueryStatesHistory[1]).toBe('reload');
+      expect(channelListMessengerLoadingHistory[1]).toBe(true);
+      expect(channelsQueryStatesHistory[2]).toBeNull();
+      expect(channelListMessengerLoadingHistory[2]).toBe(false);
+    });
   });
 
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
@@ -878,12 +879,12 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
         Preview: ChannelPreviewComponent,
       };
-      const sendNewMessageOnChannel3 = () => {
+      const sendNewMessageOnChannel3 = async () => {
         const newMessage = generateMessage({
           user: generateUser(),
         });
 
-        act(() => dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel));
+        await act(() => dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel));
         return newMessage;
       };
 
@@ -903,7 +904,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newMessage = sendNewMessageOnChannel3();
+        const newMessage = await sendNewMessageOnChannel3();
         await waitFor(() => {
           expect(getByText(newMessage.text)).toBeInTheDocument();
         });
@@ -929,7 +930,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newMessage = sendNewMessageOnChannel3();
+        const newMessage = await sendNewMessageOnChannel3();
 
         await waitFor(() => {
           expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -946,14 +947,12 @@ describe('ChannelList', () => {
 
       it('should execute custom event handler', async () => {
         const onMessageNewEvent = jest.fn();
-        await act(() => {
-          render(
-            <Chat client={chatClient}>
-              <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
-            </Chat>,
-          );
-        });
-        const message = sendNewMessageOnChannel3();
+        render(
+          <Chat client={chatClient}>
+            <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
+          </Chat>,
+        );
+        const message = await sendNewMessageOnChannel3();
         await waitFor(() => {
           expect(onMessageNewEvent.mock.calls[0][0]).toStrictEqual(expect.any(Function));
           expect(onMessageNewEvent.mock.calls[0][1]).toStrictEqual(
@@ -1559,7 +1558,9 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('should reload the channels on connection.recovered', async () => {
@@ -1573,10 +1574,12 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
     });
 
     it('should execute recovery queries outside throttle interval', async () => {
@@ -1594,10 +1597,12 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
       await act(() => {
         chatClient.dispatchEvent({
@@ -1605,10 +1610,12 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-      expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
       dateNowSpy.mockRestore();
     });
@@ -1622,22 +1629,24 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
       dateNowSpy.mockRestore();
     });
@@ -1659,7 +1668,9 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
 
       await act(() => {
         chatClient.dispatchEvent({
@@ -1667,10 +1678,12 @@ describe('ChannelList', () => {
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-      expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
       dateNowSpy.mockRestore();
     });
@@ -1687,30 +1700,38 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
 
-      await act(() => {
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
+
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+      });
       dateNowSpy.mockRestore();
     });
 
@@ -1726,32 +1747,38 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(recoveryThrottleIntervalMs + 1)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-        expect.objectContaining({ offset: 0 }),
-      );
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
 
-      await act(() => {
+      act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
 
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+      });
       dateNowSpy.mockRestore();
     });
   });
@@ -1780,23 +1807,26 @@ describe('ChannelList', () => {
 
       useMockedApis(chatClient, [queryChannelsApi(channelsToBeLoaded)]);
 
-      await act(async () => {
-        await render(
-          <Chat client={chatClient}>
-            <ChannelList {...props} />
-          </Chat>,
-        );
-      });
+      await render(
+        <Chat client={chatClient}>
+          <ChannelList {...props} />
+        </Chat>,
+      );
 
-      expect(screen.getByText(channelsDataToIdString(channelsToBeLoaded))).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(channelsDataToIdString(channelsToBeLoaded))).toBeInTheDocument();
+      });
 
       await act(() => {
         setChannelsFromOutside(chatClient.hydrateActiveChannels(channelsToBeSet));
       });
-      expect(
-        screen.queryByText(channelsDataToIdString(channelsToBeLoaded)),
-      ).not.toBeInTheDocument();
-      expect(screen.getByText(channelsDataToIdString(channelsToBeSet))).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(channelsDataToIdString(channelsToBeLoaded)),
+        ).not.toBeInTheDocument();
+        expect(screen.getByText(channelsDataToIdString(channelsToBeSet))).toBeInTheDocument();
+      });
     });
   });
 });
