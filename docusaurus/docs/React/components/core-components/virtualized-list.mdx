@@ -179,7 +179,7 @@ Function called when more messages are to be loaded, provide your own function t
 When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### Message
@@ -262,6 +262,14 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | Type               | Default  |
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
+
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as the `sort` method for a string array.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
 
 ### threadList
 

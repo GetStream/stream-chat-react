@@ -50,7 +50,8 @@ type MessageContextPropsToPick =
   | 'onMentionsHoverMessage'
   | 'onReactionListClick'
   | 'reactionSelectorRef'
-  | 'showDetailedReactions';
+  | 'showDetailedReactions'
+  | 'sortReactions';
 
 type MessageWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -207,6 +208,7 @@ export const Message = <
     openThread: propOpenThread,
     pinPermissions,
     retrySendMessage: propRetrySendMessage,
+    sortReactions,
   } = props;
 
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
@@ -308,6 +310,7 @@ export const Message = <
       readBy={props.readBy}
       renderText={props.renderText}
       showDetailedReactions={showDetailedReactions}
+      sortReactions={sortReactions}
       threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}
       userRoles={userRoles}

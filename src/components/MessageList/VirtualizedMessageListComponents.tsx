@@ -137,6 +137,7 @@ export const messageRenderer = <
     ownMessagesReadByOthers,
     processedMessages: messageList,
     shouldGroupByUser,
+    sortReactions,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
     virtuosoRef,
@@ -189,6 +190,7 @@ export const messageRenderer = <
         Message={MessageUIComponent}
         messageActions={messageActions}
         readBy={ownMessagesReadByOthers[message.id] || []}
+        sortReactions={sortReactions}
       />
       {showUnreadSeparator && (
         <div className='str-chat__unread-messages-separator-wrapper'>

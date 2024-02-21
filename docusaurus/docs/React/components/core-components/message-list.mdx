@@ -73,6 +73,7 @@ The default `remark` plugins used by SDK are:
 1. [`remark-gfm`](https://github.com/remarkjs/remark-gfm) - a third party plugin to add GitHub-like markdown support
 
 The default `rehype` plugins (both specific to this SDK) are:
+
 1. plugin to render user mentions
 2. plugin to render emojis
 
@@ -166,28 +167,25 @@ If you would like to extend the array of plugins used to parse the markdown, you
 It is important to understand what constitutes a rehype or remark plugin. A good start is to learn about the library called [`react-remark`](https://github.com/remarkjs/react-remark) which is used under the hood in our `renderText()` function.
 :::
 
-
 ```tsx
 import { renderText, RenderTextPluginConfigurator } from 'stream-chat-react';
-import {customRehypePlugin} from './rehypePlugins';
-import {customRemarkPlugin} from './remarkPlugins';
+import { customRehypePlugin } from './rehypePlugins';
+import { customRemarkPlugin } from './remarkPlugins';
 
 const getRehypePlugins: RenderTextPluginConfigurator = (plugins) => {
-    return [customRehypePlugin, ...plugins];
-}
+  return [customRehypePlugin, ...plugins];
+};
 const getRemarkPlugins: RenderTextPluginConfigurator = (plugins) => {
-    return [customRemarkPlugin, ...plugins];
-}
+  return [customRemarkPlugin, ...plugins];
+};
 
 const customRenderText = (text, mentionedUsers) =>
   renderText(text, mentionedUsers, {
     getRehypePlugins,
-    getRemarkPlugins
+    getRemarkPlugins,
   });
 
-const CustomMessageList = () => (
-  <MessageList renderText={customRenderText}/>
-);
+const CustomMessageList = () => <MessageList renderText={customRenderText} />;
 ```
 
 It is also possible to define your custom set of allowed tag names for the elements rendered from the parsed markdown. To perform the tree transformations, you will need to use libraries like [`unist-builder`](https://github.com/syntax-tree/unist-builder) to build the trees and [`unist-util-visit`](https://github.com/syntax-tree/unist-util-visit-parents) or [`hast-util-find-and-replace`](https://github.com/syntax-tree/hast-util-find-and-replace) to traverse the tree:
@@ -195,7 +193,11 @@ It is also possible to define your custom set of allowed tag names for the eleme
 ```tsx
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
-import { defaultAllowedTagNames, renderText, RenderTextPluginConfigurator } from 'stream-chat-react';
+import {
+  defaultAllowedTagNames,
+  renderText,
+  RenderTextPluginConfigurator,
+} from 'stream-chat-react';
 
 // wraps every letter b in <xxx></xxx> tags
 const customTagName = 'xxx';
@@ -203,9 +205,8 @@ const replace = (match) => u('element', { tagName: customTagName }, [u('text', m
 const customRehypePlugin = () => (tree) => findAndReplace(tree, /b/, replace);
 
 const getRehypePlugins: RenderTextPluginConfigurator = (plugins) => {
-    return [customRehypePlugin, ...plugins];
-}
-
+  return [customRehypePlugin, ...plugins];
+};
 
 const customRenderText = (text, mentionedUsers) =>
   renderText(text, mentionedUsers, {
@@ -213,9 +214,7 @@ const customRenderText = (text, mentionedUsers) =>
     getRehypePlugins,
   });
 
-const CustomMessageList = () => (
-  <MessageList renderText={customRenderText}/>
-);
+const CustomMessageList = () => <MessageList renderText={customRenderText} />;
 ```
 
 #### Custom message list rendering
@@ -233,9 +232,7 @@ const customRenderMessages: MessageRenderer<StreamChatGenerics> = (options) => {
   return elements;
 };
 
-const CustomMessageList = () => (
-  <MessageList renderMessages={customRenderMessages}/>
-);
+const CustomMessageList = () => <MessageList renderMessages={customRenderMessages} />;
 ```
 
 Make sure that the elements you return have `key`, as they will be rendered as an array. It's also a good idea to wrap each element with `<li>` to keep your markup semantically correct.
@@ -464,7 +461,7 @@ Function called when more messages are to be loaded, provide your own function t
 When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### Message
@@ -622,6 +619,14 @@ channel, the `MessageNotification` component displays when new messages arrive.
 | Type   | Default |
 | ------ | ------- |
 | number | 200     |
+
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as the `sort` method for a string array.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
 
 ### threadList
 

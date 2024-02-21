@@ -7,3 +7,5 @@ export interface ReactionSummary {
   reactionCount: number;
   reactionType: string;
 }
+
+export type ReactionsComparator = (a: ReactionSummary, b: ReactionSummary) => number;
