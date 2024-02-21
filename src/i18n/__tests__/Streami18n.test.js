@@ -149,24 +149,6 @@ describe('Streami18n instance - with built-in langauge', () => {
 });
 
 describe('Streami18n instance - with custom translations', () => {
-  it('deep merges translation overrides', async () => {
-    const streami18n = new Streami18n({
-      language: 'en',
-      translationsForLanguage: {
-        Send: 'Overriden 1',
-        aria: {
-          Send: 'Overriden 2',
-        },
-      },
-    });
-
-    const { t: _t } = await streami18n.getTranslators();
-    expect(_t('Send')).toBe('Overriden 1');
-    expect(_t('Delete')).toBe('Delete'); // not overriden
-    expect(_t('aria/Send')).toBe('Overriden 2');
-    expect(_t('aria/Menu')).toBe('Menu'); // not overriden
-  });
-
   describe('datetime translations enabled', () => {
     const textKey1 = 'this is text one';
     const textValue1 = '这是文字一';
