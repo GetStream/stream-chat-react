@@ -149,15 +149,13 @@ const Component = () => {
 };
 ```
 
-To override the default translations, pass an `aria` object inside the `translationsForLanguage` object:
+To override the default translations, add an `aria`-prefixed key to the `translationsForLanguage` object:
 
 ```jsx
 const i18nInstance = new Streami18n({
   language: 'en',
   translationsForLanguage: {
-    aria: {
-      Send: 'Send Message',
-    },
+    'aria/Send': 'Send Message',
   },
 });
 
