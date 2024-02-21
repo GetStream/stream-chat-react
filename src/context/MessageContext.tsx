@@ -11,7 +11,7 @@ import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
-import type { ReactionsComparator } from '../components/Reactions/types';
+import type { ReactionDetailsComparator, ReactionsComparator } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
@@ -123,6 +123,9 @@ export type MessageContextValue<
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
+  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  sortReactionDetails?: ReactionDetailsComparator;
+  /** Comparator function to sort reactions, defaults to alphabetical order */
   sortReactions?: ReactionsComparator;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;

@@ -152,7 +152,7 @@ describe('ReactionsListModal', () => {
     ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  it('should use custom comparator if provided', async () => {
+  it('should use custom reactions comparator if provided', async () => {
     const reactionCounts = {
       haha: 2,
       like: 8,
@@ -178,6 +178,57 @@ describe('ReactionsListModal', () => {
       getByTestId('reaction-details-selector-love').compareDocumentPosition(
         getByTestId('reaction-details-selector-haha'),
       ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('should order reacted users alphabetically by default', async () => {
+    const reactionCounts = {
+      haha: 3,
+    };
+    const reactions = generateReactionsFromReactionCounts(reactionCounts).reverse();
+    const fetchReactions = jest.fn(() => Promise.resolve(reactions));
+    const { getByTestId, getByText } = renderComponent({
+      handleFetchReactions: fetchReactions,
+      reaction_counts: reactionCounts,
+      reactions,
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+
+    expect(
+      getByText('Mark Number 0').compareDocumentPosition(getByText('Mark Number 1')),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByText('Mark Number 1').compareDocumentPosition(getByText('Mark Number 2')),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('should use custom reaction details comparator if provided', async () => {
+    const reactionCounts = {
+      haha: 3,
+    };
+    const reactions = generateReactionsFromReactionCounts(reactionCounts).reverse();
+    const fetchReactions = jest.fn(() => Promise.resolve(reactions));
+    const { getByTestId, getByText } = renderComponent({
+      handleFetchReactions: fetchReactions,
+      reaction_counts: reactionCounts,
+      reactions,
+      sortReactionDetails: (a, b) => -a.user.name.localeCompare(b.user.name),
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+
+    expect(
+      getByText('Mark Number 2').compareDocumentPosition(getByText('Mark Number 1')),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByText('Mark Number 1').compareDocumentPosition(getByText('Mark Number 0')),
     ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 });

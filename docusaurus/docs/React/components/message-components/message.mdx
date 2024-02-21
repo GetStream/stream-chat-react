@@ -363,6 +363,14 @@ Custom action handler to retry sending a message after a failed request.
 | -------- | -------------------------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
+### sortReactionDetails
+
+Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method.
+
+| Type                                                       | Default            |
+| ---------------------------------------------------------- | ------------------ |
+| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
+
 ### sortReactions
 
 Comparator function to sort reactions. Should have the same signature as the `sort` method for a string array.
