@@ -17,6 +17,7 @@ import type { ChannelStateReducerAction } from '../components/Channel/channelSta
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
 import type {
+  ChannelUnreadUiState,
   DefaultStreamChatGenerics,
   SendMessageOptions,
   UnknownType,
@@ -87,6 +88,7 @@ export type ChannelActionContextValue<
     customMessageData?: Partial<Message<StreamChatGenerics>>,
     options?: SendMessageOptions,
   ) => Promise<void>;
+  setChannelUnreadUiState: React.Dispatch<React.SetStateAction<ChannelUnreadUiState | undefined>>;
   setQuotedMessage: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;

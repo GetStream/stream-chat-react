@@ -52,9 +52,7 @@ export const usePaginatedChannels = <
   const recoveryThrottleInterval =
     recoveryThrottleIntervalMs < MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
       ? MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS
-      : recoveryThrottleIntervalMs
-      ? recoveryThrottleIntervalMs
-      : RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS;
+      : recoveryThrottleIntervalMs ?? RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS;
   // memoize props
   const filterString = useMemo(() => JSON.stringify(filters), [filters]);
   const sortString = useMemo(() => JSON.stringify(sort), [sort]);

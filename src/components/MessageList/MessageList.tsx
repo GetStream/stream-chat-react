@@ -67,12 +67,12 @@ const MessageListWithContext = <
     unsafeHTML = false,
     headerPosition,
     read,
-    markReadOnScrolledToBottom,
     renderMessages = defaultRenderMessages,
     messageLimit = 100,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
+    showUnreadNotificationAlways,
     suppressAutoscroll,
     highlightedMessageId,
     jumpToLatestMessage = () => Promise.resolve(),
@@ -111,14 +111,15 @@ const MessageListWithContext = <
 
   const { show: showUnreadMessagesNotification } = useUnreadMessagesNotification({
     isMessageListScrolledToBottom,
+    showAlways: !!showUnreadNotificationAlways,
     unreadCount: channelUnreadUiState?.unread_messages,
   });
 
   useMarkRead({
     isMessageListScrolledToBottom,
-    markReadOnScrolledToBottom,
     messageListIsThread: threadList,
     unreadCount: channelUnreadUiState?.unread_messages ?? 0,
+    wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
   });
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
@@ -326,8 +327,6 @@ export type MessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
-  /** When enabled, the channel will be marked read when a user scrolls to the bottom. Ignored when scrolled to the bottom of a thread message list. */
-  markReadOnScrolledToBottom?: boolean;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
@@ -344,6 +343,12 @@ export type MessageListProps<
    * Defaults to 200px
    */
   scrolledUpThreshold?: number;
+  /**
+   * The floating notification informing about unread messages will be shown when the
+   * UnreadMessagesSeparator is not visible. The default is false, that means the notification
+   * is shown only when viewing unread messages.
+   */
+  showUnreadNotificationAlways?: boolean;
   /** If true, indicates the message list is a thread  */
   threadList?: boolean; // todo: refactor needed - message list should have a state in which among others it would be optionally flagged as thread
 };
