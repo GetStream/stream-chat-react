@@ -1,3 +1,18 @@
+## [11.9.0](https://github.com/GetStream/stream-chat-react/compare/v11.8.0...v11.9.0) (2024-02-21)
+
+
+### Bug Fixes
+
+* add aria-expanded attribute to emoji picker and reactions selector ([#2274](https://github.com/GetStream/stream-chat-react/issues/2274)) ([b15cdd5](https://github.com/GetStream/stream-chat-react/commit/b15cdd572004b0a7abf3623dbb66782fcede9f80))
+* mark channel read on scroll to bottom of the main message list ([#2283](https://github.com/GetStream/stream-chat-react/issues/2283)) ([d04d0ab](https://github.com/GetStream/stream-chat-react/commit/d04d0ab6a08cf52c5fc55fadcb2687b23f5ab312))
+* prevent layout shifts in reactions modal ([#2272](https://github.com/GetStream/stream-chat-react/issues/2272)) ([706cf3d](https://github.com/GetStream/stream-chat-react/commit/706cf3ddf9d4329b869f8058f041ec6595b51a9e))
+* trap focus in opened modal ([#2278](https://github.com/GetStream/stream-chat-react/issues/2278)) ([8f48b52](https://github.com/GetStream/stream-chat-react/commit/8f48b52f8efbf91a5bf355beff36c151390102d8))
+
+
+### Features
+
+* make aria-labels localizable ([#2282](https://github.com/GetStream/stream-chat-react/issues/2282)) ([7867677](https://github.com/GetStream/stream-chat-react/commit/7867677f2b17d3649324cc80f43c459e9b30bf95)), closes [#1931](https://github.com/GetStream/stream-chat-react/issues/1931) [#1994](https://github.com/GetStream/stream-chat-react/issues/1994)
+
 ## [11.8.0](https://github.com/GetStream/stream-chat-react/compare/v11.7.0...v11.8.0) (2024-02-13)
 
 
