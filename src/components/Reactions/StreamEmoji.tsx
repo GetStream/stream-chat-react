@@ -26,10 +26,14 @@ export const StreamEmoji = ({
     <SpriteImage
       columns={2}
       fallback={fallback}
-      height={18}
       position={position}
       rows={3}
       spriteUrl={STREAM_SPRITE_URL}
+      style={
+        {
+          '--str-chat__sprite-image-height': 'var(--str-chat__stream-emoji-size, 18px)',
+        } as React.CSSProperties
+      }
     />
   );
 };

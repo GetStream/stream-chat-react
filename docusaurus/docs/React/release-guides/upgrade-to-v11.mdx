@@ -9,7 +9,7 @@ import GHComponentLink from '../_docusaurus-components/GHComponentLink';
 
 ## Introducing new reactions
 
-When it came to developer experience regarding customization of the reaction components our team noticed that our integrators generally strugled to make more advanced adjustments to reactions without having to rebuild the whole [component set](../components/message-components/reactions.mdx). The whole process has been quite unintuitive and that's why this update aims at making adjusting your reactions much easier.
+When it came to developer experience regarding customization of the reaction components our team noticed that our integrators generally struggled to make more advanced adjustments to reactions without having to rebuild the whole [component set](../components/message-components/reactions.mdx). The whole process has been quite unintuitive and that's why this update aims at making adjusting your reactions much easier.
 
 ### Main reasons for a revamp
 
@@ -51,6 +51,14 @@ Beware that sixth reaction type `angry` has been removed in this update, if you 
 :::
 
 ### Custom reaction types and components
+
+The default <GHComponentLink text='StreamEmoji' path='/Reactions/StreamEmoji.tsx'/> component is rendered with the fixed size. You can change the size of the rendered emoji using `--str-chat__stream-emoji-size` CSS variable:
+
+```tsx
+<div style={{ '--str-chat__stream-emoji-size': '2em' }}>
+  <StreamEmoji fallback='😂' type='haha' />
+</div>
+```
 
 It's possible to supply your own reaction types and components to represent such reactions - let's implement reaction of type `rick_roll` to render a Rick Roll GIF and define override for default type `love`:
 

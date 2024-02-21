@@ -59,7 +59,7 @@ export function ReactionsListModal({
                   key={reactionType}
                   onClick={() => onSelectedReactionTypeChange?.(reactionType)}
                 >
-                  <span className='emoji str-chat__message-reaction-emoji'>
+                  <span className='emoji str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
                     <EmojiComponent />
                   </span>
                   &nbsp;
@@ -69,7 +69,7 @@ export function ReactionsListModal({
           )}
         </div>
         {SelectedEmojiComponent && (
-          <div className='emoji str-chat__message-reaction-emoji str-chat__message-reaction-emoji-big'>
+          <div className='emoji str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback str-chat__message-reaction-emoji-big'>
             <SelectedEmojiComponent />
           </div>
         )}
