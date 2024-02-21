@@ -566,7 +566,7 @@ describe('MessageList', () => {
 
       it.each([
         [
-          'should',
+          'should not',
           "top edge is below container's visible bottom",
           observerEntriesScrolledAboveSeparator,
           undefined,
@@ -578,16 +578,28 @@ describe('MessageList', () => {
           undefined,
         ],
         [
+          'should',
+          "top edge is below container's visible bottom when showUnreadNotificationAlways enabled",
+          observerEntriesScrolledAboveSeparator,
+          { showUnreadNotificationAlways: true },
+        ],
+        [
           'should not',
-          "top edge is below container's visible bottom when disabled",
+          "top edge is below container's visible bottom when showUnreadNotificationAlways disabled",
           observerEntriesScrolledAboveSeparator,
           { showUnreadNotificationAlways: false },
         ],
         [
           'should',
-          "bottom edge is above container's visible top when",
+          "bottom edge is above container's visible top when showUnreadNotificationAlways disabled",
           observerEntriesScrolledBelowSeparator,
           { showUnreadNotificationAlways: false },
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top when showUnreadNotificationAlways enabled",
+          observerEntriesScrolledBelowSeparator,
+          { showUnreadNotificationAlways: true },
         ],
       ])(
         '%s display unread messages notification when unread messages separator %s',
