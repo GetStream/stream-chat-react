@@ -9,7 +9,7 @@ import type { ReactEventHandler } from '../Message/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 import { ReactionsListModal } from './ReactionsListModal';
-import { MessageContextValue } from '../../context';
+import { MessageContextValue, useTranslationContext } from '../../context';
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 export type ReactionsListProps<
@@ -37,6 +37,7 @@ const UnMemoizedReactionsList = <
   const { handleFetchReactions, reverse = false, ...rest } = props;
   const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
   const [selectedReactionType, setSelectedReactionType] = useState<string | null>(null);
+  const { t } = useTranslationContext('ReactionsList');
 
   const handleReactionButtonClick = (reactionType: string) => {
     if (totalReactionCount > MAX_MESSAGE_REACTIONS_TO_FETCH) {
@@ -51,7 +52,7 @@ const UnMemoizedReactionsList = <
   return (
     <>
       <div
-        aria-label='Reaction list'
+        aria-label={t('aria/Reaction list')}
         className={clsx('str-chat__reaction-list str-chat__message-reactions-container', {
           'str-chat__reaction-list--reverse': reverse,
         })}

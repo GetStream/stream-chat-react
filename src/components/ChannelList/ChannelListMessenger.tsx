@@ -6,6 +6,7 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useTranslationContext } from '../../context';
 
 export type ChannelListMessengerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -39,6 +40,7 @@ export const ChannelListMessenger = <
     LoadingErrorIndicator = ChatDown,
     LoadingIndicator = LoadingChannels,
   } = props;
+  const { t } = useTranslationContext('ChannelListMessenger');
 
   if (error) {
     return <LoadingErrorIndicator type='Connection Error' />;
@@ -51,7 +53,7 @@ export const ChannelListMessenger = <
   return (
     <div className='str-chat__channel-list-messenger str-chat__channel-list-messenger-react'>
       <div
-        aria-label='Channel list'
+        aria-label={t('aria/Channel list')}
         className='str-chat__channel-list-messenger__main str-chat__channel-list-messenger-react__main'
         role='listbox'
       >

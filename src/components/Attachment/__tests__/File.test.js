@@ -5,10 +5,14 @@ import renderer from 'react-test-renderer';
 import { FileAttachment } from '../FileAttachment';
 
 import { ChatContext } from '../../../context/ChatContext';
+import { TranslationContext } from '../../../context';
+import { mockTranslationContext } from '../../../mock-builders';
 
 const getComponent = ({ attachment, chatContext }) => (
   <ChatContext.Provider value={chatContext}>
-    <FileAttachment attachment={attachment} />
+    <TranslationContext.Provider value={mockTranslationContext}>
+      <FileAttachment attachment={attachment} />
+    </TranslationContext.Provider>
   </ChatContext.Provider>
 );
 

@@ -84,7 +84,11 @@ const UnMemoizedMessageActionsBox = React.forwardRef(
 
     return (
       <div {...restDivProps} className={rootClassName} data-testid='message-actions-box' ref={ref}>
-        <div aria-label='Message Options' className='str-chat__message-actions-list' role='listbox'>
+        <div
+          aria-label={t('aria/Message Options')}
+          className='str-chat__message-actions-list'
+          role='listbox'
+        >
           <CustomMessageActionsList customMessageActions={customMessageActions} message={message} />
           {messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1 && (
             <button

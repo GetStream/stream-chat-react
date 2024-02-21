@@ -4,13 +4,19 @@ import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import { LoadMoreButton } from '../LoadMoreButton';
+import { TranslationProvider } from '../../../context';
+import { mockTranslationContext } from '../../../mock-builders';
 
 describe('LoadMoreButton', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
     const tree = renderer
-      .create(<LoadMoreButton isLoading={false} onClick={() => null} />)
+      .create(
+        <TranslationProvider value={mockTranslationContext}>
+          <LoadMoreButton isLoading={false} onClick={() => null} />
+        </TranslationProvider>,
+      )
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div

@@ -237,10 +237,11 @@ export const SendButton = <
   ...rest
 }: SendButtonProps<StreamChatGenerics>) => {
   const { themeVersion } = useChatContext('SendButton');
+  const { t } = useTranslationContext('SendButton');
 
   return (
     <button
-      aria-label='Send'
+      aria-label={t('aria/Send')}
       className='str-chat__send-button'
       data-testid='send-button'
       onClick={sendMessage}

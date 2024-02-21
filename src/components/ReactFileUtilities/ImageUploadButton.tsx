@@ -2,6 +2,7 @@ import React, { PropsWithChildren } from 'react';
 
 import { PictureIcon } from './icons';
 import { UploadButton } from './UploadButton';
+import { useTranslationContext } from '../../context';
 
 export type ImageUploadButtonProps = {
   handleFiles: (files: File[]) => void;
@@ -19,19 +20,22 @@ export const ImageUploadButton = ({
   handleFiles,
   children = <PictureIcon />,
   resetOnChange = false,
-}: PropsWithChildren<ImageUploadButtonProps>) => (
-  <div className='rfu-image-upload-button'>
-    <label>
-      <UploadButton
-        accept='image/*'
-        aria-label='Image input'
-        className='rfu-image-input'
-        disabled={disabled}
-        multiple={multiple}
-        onFileChange={handleFiles}
-        resetOnChange={resetOnChange}
-      />
-      {children}
-    </label>
-  </div>
-);
+}: PropsWithChildren<ImageUploadButtonProps>) => {
+  const { t } = useTranslationContext('ImageUploadButton');
+  return (
+    <div className='rfu-image-upload-button'>
+      <label>
+        <UploadButton
+          accept='image/*'
+          aria-label={t('aria/Image input')}
+          className='rfu-image-input'
+          disabled={disabled}
+          multiple={multiple}
+          onFileChange={handleFiles}
+          resetOnChange={resetOnChange}
+        />
+        {children}
+      </label>
+    </div>
+  );
+};

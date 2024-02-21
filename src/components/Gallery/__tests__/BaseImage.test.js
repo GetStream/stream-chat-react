@@ -4,18 +4,18 @@ import '@testing-library/jest-dom';
 
 import { BaseImage } from '../BaseImage';
 import { TranslationProvider } from '../../../context';
+import { mockTranslationContext } from '../../../mock-builders';
 
 const props = {
   alt: 'alt',
   src: 'src',
 };
-const t = (val) => val;
 const BASE_IMAGE_TEST_ID = 'str-chat__base-image';
 const getImage = () => screen.queryByTestId(BASE_IMAGE_TEST_ID);
 
 const renderComponent = (props = {}) =>
   render(
-    <TranslationProvider value={{ t }}>
+    <TranslationProvider value={mockTranslationContext}>
       <BaseImage {...props} />
     </TranslationProvider>,
   );
@@ -92,7 +92,7 @@ describe('BaseImage', () => {
     fireEvent.error(getImage());
 
     rerender(
-      <TranslationProvider value={{ t }}>
+      <TranslationProvider value={mockTranslationContext}>
         <BaseImage src={'new-src'} />
       </TranslationProvider>,
     );

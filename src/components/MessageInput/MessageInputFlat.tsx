@@ -233,7 +233,7 @@ const MessageInputV2 = <
           <div className='str-chat__file-input-container' data-testid='file-upload-button'>
             <UploadButton
               accept={acceptedFiles?.join(',')}
-              aria-label='File upload'
+              aria-label={t('aria/File upload')}
               className='str-chat__file-input'
               data-testid='file-input'
               disabled={!isUploadEnabled || maxFilesLeft === 0}
