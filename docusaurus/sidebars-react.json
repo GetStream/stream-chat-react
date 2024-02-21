@@ -64,6 +64,7 @@
     },
     {
       "UI Cookbook": [
+        "guides/customization/customization-overview",
         {
           "Channel List": [
             "guides/channel-list-infinite-scroll",
@@ -125,16 +126,11 @@
     },
     {
       "Theming": [
-        "guides/theming/theming-overview",
-        { "V1 (deprecated)": ["guides/theming/css_and_theming"] },
-        {
-          "V2": [
-            "theming/themingv2",
-            "theming/palette-variables",
-            "theming/component-variables",
-            "theming/global-variables"
-          ]
-        }
+        "theming/themingv2",
+        "theming/palette-variables",
+        "theming/component-variables",
+        "theming/global-variables",
+        "guides/theming/css_and_theming"
       ]
     },
     { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },

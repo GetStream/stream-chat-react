@@ -123,14 +123,9 @@ const { client } = useChatContext();
 The [`Channel`](../components/core-components/channel.mdx) component is a React Context provider that wraps all of the logic, functionality, and UI for an individual chat channel.
 It provides five separate contexts to its children:
 
-:::caution
-`EmojiContext` has been removed in version `11.0.0`, see related release guides ([Introducing new reactions](../release-guides/upgrade-to-v11.mdx#introducing-new-reactions), [Dropping support for built-in `EmojiPicker`](../release-guides/upgrade-to-v11.mdx#dropping-support-for-built-in-emojipicker) and [Dropping support for built-in `EmojiIndex`](../release-guides/upgrade-to-v11.mdx#dropping-support-for-built-in-emojiindex)) to adjust your integration to this new change.
-:::
-
 - [`ChannelStateContext`](../components/contexts/channel-state-context.mdx) - stateful data (ex: `messages` or `members`)
 - [`ChannelActionContext`](../components/contexts/channel-action-context.mdx) - action handlers (ex: `sendMessage` or `openThread`)
 - [`ComponentContext`](../components/contexts/component-context.mdx) - custom component UI overrides (ex: `Avatar` or `Message`)
-- [`EmojiContext`](../components/contexts/emoji-context.mdx) - emoji UI components and data (ex: `EmojiPicker` or `emojiConfig`) - removed in `11.0.0`
 - [`TypingContext`](../components/contexts/typing-context.mdx) - object of currently typing users (i.e., `typing`)
 
 ### ChannelList
@@ -188,7 +183,7 @@ Make sure to read ["Dropping support for built-in `EmojiPicker`"](../release-gui
 In addition to the above referenced UI components, client instantiation, and user connection, you need little other code to get a fully functioning chat application up and running. See below for an example of the complete code.
 
 :::note
-Remember our [Theming](../guides/theming/overview.mdx) and [Customizing Components](../guides/customization/overview.mdx) sections in our guides. They offer you a lot of flexibility when adopting our SDK.
+Remember our [Theming](../theming/introduction.mdx) and [Customizing Components](../guides/customization/overview.mdx) sections in our guides. They offer you a lot of flexibility when adopting our SDK.
 :::
 
 ```tsx
