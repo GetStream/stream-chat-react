@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import { FocusScope } from '@react-aria/focus';
 
 import { CloseIconRound } from './icons';
 
@@ -42,24 +43,26 @@ export const Modal = ({ children, onClose, open }: PropsWithChildren<ModalProps>
 
   return (
     <div className='str-chat__modal str-chat__modal--open' onClick={handleClick}>
-      <button className='str-chat__modal__close-button' ref={closeRef} title={t<string>('Close')}>
-        {themeVersion === '2' && <CloseIconRound />}
+      <FocusScope autoFocus contain>
+        <button className='str-chat__modal__close-button' ref={closeRef} title={t<string>('Close')}>
+          {themeVersion === '2' && <CloseIconRound />}
 
-        {themeVersion === '1' && (
-          <>
-            {t<string>('Close')}
-            <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
-              <path
-                d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
-                fillRule='evenodd'
-              />
-            </svg>
-          </>
-        )}
-      </button>
-      <div className='str-chat__modal__inner str-chat-react__modal__inner' ref={innerRef}>
-        {children}
-      </div>
+          {themeVersion === '1' && (
+            <>
+              {t<string>('Close')}
+              <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
+                <path
+                  d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
+                  fillRule='evenodd'
+                />
+              </svg>
+            </>
+          )}
+        </button>
+        <div className='str-chat__modal__inner str-chat-react__modal__inner' ref={innerRef}>
+          {children}
+        </div>
+      </FocusScope>
     </div>
   );
 };
