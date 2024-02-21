@@ -36,9 +36,14 @@ import {
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
-import { ChatContext, useChannelListContext, useChatContext } from '../../../context';
+import {
+  ChatContext,
+  TranslationContext,
+  useChannelListContext,
+  useChatContext,
+} from '../../../context';
 import { ChannelListMessenger } from '../ChannelListMessenger';
-import { initClientWithChannels } from '../../../mock-builders';
+import { initClientWithChannels, mockTranslationContext } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
@@ -604,12 +609,14 @@ describe('ChannelList', () => {
               ...chatContext,
             }}
           >
-            <ChannelList
-              filters={{}}
-              options={{ presence: true, state: true }}
-              showChannelSearch
-              {...channeListProps}
-            />
+            <TranslationContext.Provider value={mockTranslationContext}>
+              <ChannelList
+                filters={{}}
+                options={{ presence: true, state: true }}
+                showChannelSearch
+                {...channeListProps}
+              />
+            </TranslationContext.Provider>
           </ChatContext.Provider>,
         );
 

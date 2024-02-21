@@ -24,7 +24,7 @@ export const QuotedMessagePreviewHeader = <
         {t<string>('Reply to Message')}
       </div>
       <button
-        aria-label='Cancel Reply'
+        aria-label={t('aria/Cancel Reply')}
         className='str-chat__square-button str-chat__quoted-message-remove'
         onClick={() => setQuotedMessage(undefined)}
       >

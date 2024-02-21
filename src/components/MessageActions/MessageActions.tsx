@@ -17,6 +17,7 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 import { useMessageActionsBoxPopper } from './hooks';
+import { useTranslationContext } from '../../context';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -75,6 +76,8 @@ export const MessageActions = <
     message: contextMessage,
     setEditingState,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
+
+  const { t } = useTranslationContext('MessageActions');
 
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
@@ -156,7 +159,7 @@ export const MessageActions = <
       <button
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
-        aria-label='Open Message Actions Menu'
+        aria-label={t('aria/Open Message Actions Menu')}
         className='str-chat__message-actions-box-button'
         ref={actionsBoxButtonRef}
       >

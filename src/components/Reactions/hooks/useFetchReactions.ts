@@ -16,9 +16,9 @@ export function useFetchReactions<
   const {
     handleFetchReactions: contextHandleFetchReactions,
   } = useMessageContext<StreamChatGenerics>('useFetchReactions');
-  const [isLoading, setIsLoading] = useState(false);
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const { handleFetchReactions: propHandleFetchReactions, shouldFetch } = options;
+  const [isLoading, setIsLoading] = useState(shouldFetch);
   const handleFetchReactions = propHandleFetchReactions ?? contextHandleFetchReactions;
 
   useEffect(() => {

@@ -101,7 +101,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
       )}
       <button
         aria-expanded={displayPicker}
-        aria-label='Emoji picker'
+        aria-label={t('aria/Emoji picker')}
         className={props.buttonClassName ?? buttonClassName}
         onClick={() => setDisplayPicker((cv) => !cv)}
         ref={setReferenceElement}
