@@ -123,4 +123,61 @@ describe('ReactionsListModal', () => {
     });
     expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
   });
+
+  it('should order reactions alphabetically by default', async () => {
+    const reactionCounts = {
+      haha: 2,
+      like: 8,
+      love: 5,
+    };
+    const { getByTestId } = renderComponent({
+      reaction_counts: reactionCounts,
+      reactions: generateReactionsFromReactionCounts(reactionCounts),
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+
+    expect(
+      getByTestId('reaction-details-selector-haha').compareDocumentPosition(
+        getByTestId('reaction-details-selector-like'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByTestId('reaction-details-selector-like').compareDocumentPosition(
+        getByTestId('reaction-details-selector-love'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('should use custom comparator if provided', async () => {
+    const reactionCounts = {
+      haha: 2,
+      like: 8,
+      love: 5,
+    };
+    const { getByTestId } = renderComponent({
+      reaction_counts: reactionCounts,
+      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      sortReactions: (a, b) => b.reactionCount - a.reactionCount,
+    });
+
+    await act(() => {
+      fireEvent.click(getByTestId('reactions-list-button-haha'));
+    });
+
+    expect(
+      getByTestId('reaction-details-selector-like').compareDocumentPosition(
+        getByTestId('reaction-details-selector-love'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByTestId('reaction-details-selector-love').compareDocumentPosition(
+        getByTestId('reaction-details-selector-haha'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
 });
