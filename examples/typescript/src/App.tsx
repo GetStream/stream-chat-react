@@ -14,13 +14,8 @@ import {
 import './App.css';
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
-let userId = process.env.REACT_APP_USER_ID as string;
-let userToken = process.env.REACT_APP_USER_TOKEN as string;
-
-const userOverride = new URLSearchParams(window.location.search).get('user');
-if (userOverride) {
-  [userId, userToken] = userOverride.split(':');
-}
+const userId = process.env.REACT_APP_USER_ID as string;
+const userToken = process.env.REACT_APP_USER_TOKEN as string;
 
 const filters: ChannelFilters = { type: 'messaging', members: { $in: [userId] } };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
@@ -58,12 +53,7 @@ const App = () => (
     <Channel>
       <Window>
         <ChannelHeader />
-        <MessageList
-          sortReactions={(a, b) => {
-            console.log([a, b]);
-            return 0;
-          }}
-        />
+        <MessageList />
         <MessageInput focus />
       </Window>
       <Thread />
