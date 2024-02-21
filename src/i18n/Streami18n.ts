@@ -7,7 +7,6 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import defaultsDeep from 'lodash.defaultsdeep';
 
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
@@ -252,11 +251,7 @@ export type Streami18nOptions = {
   logger?: (message?: string) => void;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
-  translationsForLanguage?: DeepPartial<typeof enTranslations>;
-};
-
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends Record<string, unknown> ? DeepPartial<T[P]> : T[P];
+  translationsForLanguage?: Partial<typeof enTranslations>;
 };
 
 /**
@@ -537,10 +532,10 @@ export class Streami18n {
         [defaultNS]:
           this.translations[this.currentLanguage] &&
           this.translations[this.currentLanguage][defaultNS]
-            ? defaultsDeep(
-                translationsForLanguage,
-                this.translations[this.currentLanguage][defaultNS],
-              )
+            ? {
+                ...this.translations[this.currentLanguage][defaultNS],
+                ...translationsForLanguage,
+              }
             : translationsForLanguage,
       };
     }
