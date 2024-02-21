@@ -465,7 +465,7 @@ export class Streami18n {
     debug: boolean;
     fallbackLng: false;
     interpolation: { escapeValue: boolean };
-    keySeparator: string | false;
+    keySeparator: false;
     lng: string;
     nsSeparator: false;
     parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
@@ -551,7 +551,7 @@ export class Streami18n {
       debug: finalOptions.debug,
       fallbackLng: false,
       interpolation: { escapeValue: false },
-      keySeparator: '/',
+      keySeparator: false,
       lng: this.currentLanguage,
       nsSeparator: false,
     };
