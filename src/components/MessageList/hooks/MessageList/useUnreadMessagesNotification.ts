@@ -72,7 +72,13 @@ export const useUnreadMessagesNotification = ({
     return () => {
       observer.disconnect();
     };
-  }, [intersectionObserverIsSupported, messages, showAlways, unreadCount]);
+  }, [
+    intersectionObserverIsSupported,
+    isMessageListScrolledToBottom,
+    messages,
+    showAlways,
+    unreadCount,
+  ]);
 
   useEffect(() => {
     /**
