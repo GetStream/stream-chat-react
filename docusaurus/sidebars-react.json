@@ -19,8 +19,8 @@
             "components/core-components/channel_list",
             "components/contexts/channel_list_context",
             "hooks/channel_list_hooks",
-            "components/utility-components/channel_preview_ui",
             "components/utility-components/channel_preview",
+            "components/utility-components/channel_preview_ui",
             "components/utility-components/channel_search"
           ]
         },
