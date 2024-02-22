@@ -119,6 +119,31 @@ const CustomReactionsList = (props) => {
 </Chat>;
 ```
 
+## Sorting reactions
+
+By default, reactions are sorted alphabetically by type. You can change this behavior by passing a `sortReactions` prop to the `MessageList` (or `VirtualizedMessageList`).
+
+In this example, we sort the reactions in the descending order by the number of users:
+
+```jsx
+function sortByReactionCount(a, b) {
+  return b.reactionCount - a.reactionCount;
+}
+
+<Chat client={client}>
+  <Channel
+    channel={channel}
+    ReactionSelector={CustomReactionSelector}
+    ReactionsList={CustomReactionsList}
+  >
+    <MessageList sortReactions={sortByReactionCount} />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+For better performance, keep this function memoized with `useCallback`, or declare it in either global or module scope.
+
 ## ReactionSelector Props
 
 ### additionalEmojiProps (removed in `11.0.0`)
@@ -275,6 +300,14 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 | Type    | Default |
 | ------- | ------- |
 | boolean | false   |
+
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as an array's `sort` method. This prop overrides the function stored in `MessageContext`.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
 
 ## SimpleReactionsList Props
 

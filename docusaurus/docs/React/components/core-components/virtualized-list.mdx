@@ -252,7 +252,7 @@ The floating notification informing about unread messages will be shown when the
 is shown only when viewing unread messages.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### stickToBottomScrollBehavior
@@ -263,6 +263,14 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | Type               | Default  |
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
+
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as an array's `sort` method.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
 
 ### threadList
 

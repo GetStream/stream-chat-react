@@ -4,7 +4,7 @@ import { useComponentContext, useMessageContext } from '../../../context';
 
 import type { ReactionsListProps } from '../ReactionsList';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
-import { ReactionSummary } from '../types';
+import type { ReactionsComparator, ReactionSummary } from '../types';
 
 type SharedReactionListProps =
   | 'own_reactions'
@@ -12,7 +12,12 @@ type SharedReactionListProps =
   | 'reactionOptions'
   | 'reactions';
 
-type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps>;
+type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> & {
+  sortReactions?: ReactionsComparator;
+};
+
+export const defaultReactionsSort: ReactionsComparator = (a, b) =>
+  a.reactionType.localeCompare(b.reactionType, 'en');
 
 export const useProcessReactions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -24,13 +29,17 @@ export const useProcessReactions = <
     reaction_counts: propReactionCounts,
     reactionOptions: propReactionOptions,
     reactions: propReactions,
+    sortReactions: propSortReactions,
   } = params;
-  const { message } = useMessageContext<StreamChatGenerics>('useProcessReactions');
+  const { message, sortReactions: contextSortReactions } = useMessageContext<StreamChatGenerics>(
+    'useProcessReactions',
+  );
   const { reactionOptions: contextReactionOptions } = useComponentContext<StreamChatGenerics>(
     'useProcessReactions',
   );
 
   const reactionOptions = propReactionOptions ?? contextReactionOptions;
+  const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
   const latestReactions = propReactions || message.latest_reactions;
   const ownReactions = propOwnReactions || message?.own_reactions;
   const reactionCounts = propReactionCounts || message.reaction_counts;
@@ -70,27 +79,32 @@ export const useProcessReactions = <
       return [];
     }
 
-    return Object.entries(reactionCounts).flatMap(([reactionType, reactionCount]) => {
-      if (reactionCount === 0 || !isSupportedReaction(reactionType)) {
-        return [];
-      }
+    const unsortedReactions = Object.entries(reactionCounts).flatMap(
+      ([reactionType, reactionCount]) => {
+        if (reactionCount === 0 || !isSupportedReaction(reactionType)) {
+          return [];
+        }
 
-      return [
-        {
-          EmojiComponent: getEmojiByReactionType(reactionType),
-          isOwnReaction: isOwnReaction(reactionType),
-          latestReactedUserNames: getLatestReactedUserNames(reactionType),
-          reactionCount,
-          reactionType,
-        },
-      ];
-    });
+        return [
+          {
+            EmojiComponent: getEmojiByReactionType(reactionType),
+            isOwnReaction: isOwnReaction(reactionType),
+            latestReactedUserNames: getLatestReactedUserNames(reactionType),
+            reactionCount,
+            reactionType,
+          },
+        ];
+      },
+    );
+
+    return unsortedReactions.sort(sortReactions);
   }, [
     getEmojiByReactionType,
     getLatestReactedUserNames,
     isOwnReaction,
     isSupportedReaction,
     reactionCounts,
+    sortReactions,
   ]);
 
   const hasReactions = existingReactions.length > 0;

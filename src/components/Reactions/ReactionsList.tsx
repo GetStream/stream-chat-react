@@ -8,6 +8,7 @@ import { useProcessReactions } from './hooks/useProcessReactions';
 import type { ReactEventHandler } from '../Message/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
+import type { ReactionsComparator } from './types';
 import { ReactionsListModal } from './ReactionsListModal';
 import { MessageContextValue, useTranslationContext } from '../../context';
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
@@ -27,6 +28,8 @@ export type ReactionsListProps<
   reactions?: ReactionResponse<StreamChatGenerics>[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
+  /** Comparator function to sort reactions, defaults to alphabetical order */
+  sortReactions?: ReactionsComparator;
 };
 
 const UnMemoizedReactionsList = <

@@ -134,4 +134,49 @@ describe('ReactionsList', () => {
       ),
     ).not.toBeInTheDocument();
   });
+
+  it('should order reactions alphabetically by default', () => {
+    const { getByTestId } = renderComponent({
+      reaction_counts: {
+        haha: 2,
+        like: 8,
+        love: 5,
+      },
+    });
+
+    expect(
+      getByTestId('reactions-list-button-haha').compareDocumentPosition(
+        getByTestId('reactions-list-button-like'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByTestId('reactions-list-button-like').compareDocumentPosition(
+        getByTestId('reactions-list-button-love'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('should use custom comparator if provided', () => {
+    const { getByTestId } = renderComponent({
+      reaction_counts: {
+        haha: 2,
+        like: 8,
+        love: 5,
+      },
+      sortReactions: (a, b) => b.reactionCount - a.reactionCount,
+    });
+
+    expect(
+      getByTestId('reactions-list-button-like').compareDocumentPosition(
+        getByTestId('reactions-list-button-love'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(
+      getByTestId('reactions-list-button-love').compareDocumentPosition(
+        getByTestId('reactions-list-button-haha'),
+      ),
+    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
 });

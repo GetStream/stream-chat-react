@@ -363,6 +363,14 @@ Custom action handler to retry sending a message after a failed request.
 | -------- | -------------------------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['retrySendMessage']](../contexts/channel-action-context.mdx#retrysendmessage) |
 
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as the `sort` method for a string array.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
+
 ### threadList
 
 If true, indicates that the current `MessageList` component is part of a `Thread`.

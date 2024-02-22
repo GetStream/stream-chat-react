@@ -11,6 +11,7 @@ import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
+import type { ReactionsComparator } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
@@ -122,6 +123,7 @@ export type MessageContextValue<
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
+  sortReactions?: ReactionsComparator;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */

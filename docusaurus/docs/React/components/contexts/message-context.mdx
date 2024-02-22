@@ -377,6 +377,14 @@ When true, show the reactions list component.
 | ------- |
 | boolean |
 
+### sortReactions
+
+Comparator function to sort reactions. Should have the same signature as an array's `sort` method.
+
+| Type                                                     | Default            |
+| -------------------------------------------------------- | ------------------ |
+| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
+
 ### threadList
 
 If true, indicates that the current `MessageList` component is part of a `Thread`.

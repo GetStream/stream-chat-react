@@ -291,6 +291,7 @@ type PropsDrilledToMessage =
   | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'renderText'
   | 'retrySendMessage'
+  | 'sortReactions'
   | 'unsafeHTML';
 
 export type MessageListProps<
