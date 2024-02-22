@@ -8,7 +8,7 @@ import { useProcessReactions } from './hooks/useProcessReactions';
 import type { ReactEventHandler } from '../Message/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
-import type { ReactionsComparator } from './types';
+import type { ReactionDetailsComparator, ReactionsComparator } from './types';
 import { ReactionsListModal } from './ReactionsListModal';
 import { MessageContextValue, useTranslationContext } from '../../context';
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
@@ -28,6 +28,8 @@ export type ReactionsListProps<
   reactions?: ReactionResponse<StreamChatGenerics>[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
+  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to alphabetical order */
   sortReactions?: ReactionsComparator;
 };
@@ -37,7 +39,7 @@ const UnMemoizedReactionsList = <
 >(
   props: ReactionsListProps<StreamChatGenerics>,
 ) => {
-  const { handleFetchReactions, reverse = false, ...rest } = props;
+  const { handleFetchReactions, reverse = false, sortReactionDetails, ...rest } = props;
   const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
   const [selectedReactionType, setSelectedReactionType] = useState<string | null>(null);
   const { t } = useTranslationContext('ReactionsList');
@@ -104,6 +106,7 @@ const UnMemoizedReactionsList = <
         open={selectedReactionType !== null}
         reactions={existingReactions}
         selectedReactionType={selectedReactionType}
+        sortReactionDetails={sortReactionDetails}
       />
     </>
   );

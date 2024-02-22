@@ -6,7 +6,7 @@ import type { MessageActionsArray } from './utils';
 
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
-import type { ReactionsComparator } from '../Reactions/types';
+import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
 
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -98,6 +98,8 @@ export type MessageProps<
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
+  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to alphabetical order */
   sortReactions?: ReactionsComparator;
   /** Whether the Message is in a Thread */

@@ -65,6 +65,7 @@ type VirtualizedMessageListPropsForContext =
   | 'messageActions'
   | 'shouldGroupByUser'
   | 'sortReactions'
+  | 'sortReactionDetails'
   | 'threadList';
 
 /**
@@ -195,6 +196,7 @@ const VirtualizedMessageListWithContext = <
     separateGiphyPreview = false,
     shouldGroupByUser = false,
     showUnreadNotificationAlways,
+    sortReactionDetails,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
@@ -445,6 +447,7 @@ const VirtualizedMessageListWithContext = <
               ownMessagesReadByOthers,
               processedMessages,
               shouldGroupByUser,
+              sortReactionDetails,
               sortReactions,
               threadList,
               unreadMessageCount: channelUnreadUiState?.unread_messages,
@@ -491,7 +494,8 @@ type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'customMessageActions'
   | 'messageActions'
-  | 'sortReactions';
+  | 'sortReactions'
+  | 'sortReactionDetails';
 
 export type VirtualizedMessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

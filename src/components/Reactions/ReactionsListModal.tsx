@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx';
 
+import type { ReactionDetailsComparator, ReactionSummary } from './types';
+
 import { Modal, ModalProps } from '../Modal';
-import { ReactionSummary } from './types';
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { LoadingIndicator } from '../Loading';
 import { Avatar } from '../Avatar';
-import { MessageContextValue } from '../../context';
+import { MessageContextValue, useMessageContext } from '../../context';
 import { DefaultStreamChatGenerics } from '../../types/types';
 
 type ReactionsListModalProps<
@@ -16,13 +17,21 @@ type ReactionsListModalProps<
     reactions: ReactionSummary[];
     selectedReactionType: string | null;
     onSelectedReactionTypeChange?: (reactionType: string) => void;
+    sortReactionDetails?: ReactionDetailsComparator;
   };
+
+const defaultSortReactionDetails: ReactionDetailsComparator = (a, b) => {
+  const aName = a.user?.name ?? a.user?.id;
+  const bName = b.user?.name ?? b.user?.id;
+  return aName ? (bName ? aName.localeCompare(bName, 'en') : -1) : 1;
+};
 
 export function ReactionsListModal({
   handleFetchReactions,
   onSelectedReactionTypeChange,
   reactions,
   selectedReactionType,
+  sortReactionDetails: propSortReactionDetails,
   ...modalProps
 }: ReactionsListModalProps) {
   const selectedReaction = reactions.find(
@@ -33,15 +42,22 @@ export function ReactionsListModal({
     handleFetchReactions,
     shouldFetch: modalProps.open,
   });
+  const { sortReactionDetails: contextSortReactionDetails } = useMessageContext(
+    'ReactionsListModal',
+  );
+  const sortReactionDetails =
+    propSortReactionDetails ?? contextSortReactionDetails ?? defaultSortReactionDetails;
   const currentReactions = useMemo(() => {
     if (!selectedReactionType) {
       return [];
     }
 
-    return allReactions.filter(
+    const unsortedCurrentReactions = allReactions.filter(
       (reaction) => reaction.type === selectedReactionType && reaction.user,
     );
-  }, [allReactions, selectedReactionType]);
+
+    return unsortedCurrentReactions.sort(sortReactionDetails);
+  }, [allReactions, selectedReactionType, sortReactionDetails]);
 
   return (
     <Modal {...modalProps}>

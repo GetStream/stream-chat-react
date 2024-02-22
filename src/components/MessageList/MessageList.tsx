@@ -292,6 +292,7 @@ type PropsDrilledToMessage =
   | 'renderText'
   | 'retrySendMessage'
   | 'sortReactions'
+  | 'sortReactionDetails'
   | 'unsafeHTML';
 
 export type MessageListProps<

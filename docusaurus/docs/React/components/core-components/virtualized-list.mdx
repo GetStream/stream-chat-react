@@ -264,6 +264,14 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
 
+### sortReactionDetails
+
+Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method.
+
+| Type                                                       | Default            |
+| ---------------------------------------------------------- | ------------------ |
+| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
+
 ### sortReactions
 
 Comparator function to sort reactions. Should have the same signature as an array's `sort` method.

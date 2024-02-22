@@ -1,4 +1,5 @@
-import { ComponentType } from 'react';
+import type { ComponentType } from 'react';
+import type { ReactionResponse } from 'stream-chat';
 
 export interface ReactionSummary {
   EmojiComponent: ComponentType | null;
@@ -9,3 +10,5 @@ export interface ReactionSummary {
 }
 
 export type ReactionsComparator = (a: ReactionSummary, b: ReactionSummary) => number;
+
+export type ReactionDetailsComparator = (a: ReactionResponse, b: ReactionResponse) => number;
