@@ -46,7 +46,6 @@ if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
 }
 
 chatClient.connectUser({ id: userId }, userToken);
-// const channel = chatClient.channel('messaging', 'infinitescroll');
 
 const App = () => (
   <Chat client={chatClient}>
