@@ -28,7 +28,6 @@
     "declaration": true,
     "declarationDir": "./dist",
     "declarationMap": true,
-    "sourceMap": true,
     "importHelpers": true
   },
   "include": ["./src/**/*"],
