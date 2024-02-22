@@ -23,7 +23,7 @@ type ReactionsListModalProps<
 const defaultSortReactionDetails: ReactionDetailsComparator = (a, b) => {
   const aName = a.user?.name ?? a.user?.id;
   const bName = b.user?.name ?? b.user?.id;
-  return aName ? (bName ? aName.localeCompare(bName, 'en') : 1) : -1;
+  return aName ? (bName ? aName.localeCompare(bName, 'en') : -1) : 1;
 };
 
 export function ReactionsListModal({
