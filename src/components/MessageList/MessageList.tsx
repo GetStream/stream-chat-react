@@ -38,6 +38,7 @@ import type { MessageProps } from '../Message/types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 
 type MessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -68,7 +69,7 @@ const MessageListWithContext = <
     headerPosition,
     read,
     renderMessages = defaultRenderMessages,
-    messageLimit = 100,
+    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
