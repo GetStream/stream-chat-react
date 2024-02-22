@@ -317,3 +317,7 @@ export const getGroupStyles = <
 //  This parameter would then be used within these functions
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages >= limit;
+
+// @deprecated
+export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
+  returnedCountMessages < limit;
