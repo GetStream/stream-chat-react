@@ -53,6 +53,7 @@ import { ComponentContextValue, useComponentContext } from '../../context/Compon
 
 import type { Channel, ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
+import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 
 type VirtualizedMessageListPropsForContext =
   | 'additionalMessageInputProps'
@@ -184,7 +185,7 @@ const VirtualizedMessageListWithContext = <
     loadMoreNewer,
     Message: MessageUIComponentFromProps,
     messageActions,
-    messageLimit = 100,
+    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages,
     notifications,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
@@ -386,7 +387,9 @@ const VirtualizedMessageListWithContext = <
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
-    if (isAtTop) loadMore?.(messageLimit);
+    if (isAtTop) {
+      loadMore?.(messageLimit);
+    }
   };
 
   useEffect(() => {

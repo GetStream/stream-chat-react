@@ -186,6 +186,10 @@ Custom UI component to display an individual message.
 
 The limit to use when paginating messages (the page size).
 
+:::caution
+After mounting, the `VirtualizedMessageList` component checks if the list is completely filled with messages. If there is some space left in the list, `VirtualizedMessageList` will load the next page of messages, but it will do so _only once_. This means that if your `messageLimit` is too low, or if your viewport is very large, the list will not be completely filled. Set the limit with this in mind.
+:::
+
 | Type   | Default |
 | ------ | ------- |
 | number | 100     |

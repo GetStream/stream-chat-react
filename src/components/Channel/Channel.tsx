@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import debounce from 'lodash.debounce';
+import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
 import {
   ChannelAPIResponse,
@@ -346,7 +347,7 @@ const ChannelInner = <
     acceptedFiles,
     activeUnreadHandler,
     channel,
-    channelQueryOptions,
+    channelQueryOptions: propChannelQueryOptions,
     children,
     doDeleteMessageRequest,
     doMarkReadRequest,
@@ -365,6 +366,16 @@ const ChannelInner = <
     optionalMessageInputProps = {},
     skipMessageDataMemoization,
   } = props;
+
+  const channelQueryOptions: ChannelQueryOptions<StreamChatGenerics> & {
+    messages: { limit: number };
+  } = useMemo(
+    () =>
+      defaultsDeep(propChannelQueryOptions, {
+        messages: { limit: DEFAULT_INITIAL_CHANNEL_PAGE_SIZE },
+      }),
+    [propChannelQueryOptions],
+  );
 
   const {
     client,
@@ -546,6 +557,7 @@ const ChannelInner = <
   useLayoutEffect(() => {
     let errored = false;
     let done = false;
+    let channelInitializedExternally = true;
 
     (async () => {
       if (!channel.initialized && initializeOnMount) {
@@ -571,6 +583,7 @@ const ChannelInner = <
           await getChannel({ channel, client, members, options: channelQueryOptions });
           const config = channel.getConfig();
           setChannelConfig(config);
+          channelInitializedExternally = false;
         } catch (e) {
           dispatch({ error: e as Error, type: 'setError' });
           errored = true;
@@ -583,10 +596,12 @@ const ChannelInner = <
       if (!errored) {
         dispatch({
           channel,
-          hasMore: hasMoreMessagesProbably(
-            channel.state.messages.length,
-            channelQueryOptions?.messages?.limit ?? DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
-          ),
+          hasMore:
+            channelInitializedExternally ||
+            hasMoreMessagesProbably(
+              channel.state.messages.length,
+              channelQueryOptions.messages.limit,
+            ),
           type: 'initStateFromChannel',
         });
 
