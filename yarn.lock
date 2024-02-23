@@ -13298,9 +13298,9 @@ stream-browserify@^2.0.1:
     readable-stream "^2.0.2"
 
 stream-chat@^8.15.0:
-  version "8.16.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.16.0.tgz#3718812815251315b28f75c4002f0a0d62f73bb8"
-  integrity sha512-j5GDgCmae4k59titjzePvihfVoVSlRW8NvP7uXfxbfMlsmGfcbYl08IaAwSsW6NC44doZyIjOt7v/v2QyCcP4A==
+  version "8.18.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.18.0.tgz#84f7625cda854122aaac2e45148eb951c0f415ca"
+  integrity sha512-RDRHUZ6+eWUV+4kZT8V2HdL8hgsgANQb9GaOKnegCRbK6i5WP4jnHmjmE+QRB4kz5wcRcpX0oCqdvfYruADmGw==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "~9.0.0"
