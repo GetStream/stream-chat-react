@@ -39,6 +39,7 @@
             "components/contexts/message_bounce_context",
             "hooks/message_hooks",
             "components/message-components/message_ui",
+            "components/message-components/render-text",
             "components/message-components/ui-components",
             "components/utility-components/avatar",
             "components/utility-components/base-image",
