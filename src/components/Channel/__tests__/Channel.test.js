@@ -12,6 +12,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
+  dispatchChannelTruncatedEvent,
   generateChannel,
   generateFileAttachment,
   generateMember,
@@ -1994,6 +1995,76 @@ describe('Channel', () => {
           });
         });
       });
+
+      it.each([
+        ['should', 'active'],
+        ['should not', 'another'],
+      ])(
+        '%s reset channel unread UI state on channel.truncated for the %s channel',
+        async (expected, forChannel) => {
+          const unread_messages = 20;
+          const NO_UNREAD_TEXT = 'no-unread-text';
+          const UNREAD_TEXT = `unread-text-${unread_messages}`;
+          const {
+            channels: [activeChannel, anotherChannel],
+            client: chatClient,
+          } = await initClientWithChannels({
+            channelsData: [
+              {
+                messages: [generateMessage()],
+                read: [
+                  {
+                    last_read: new Date().toISOString(),
+                    last_read_message_id: 'last_read_message_id-1',
+                    unread_messages,
+                    user,
+                  },
+                ],
+              },
+              {
+                messages: [generateMessage()],
+                read: [
+                  {
+                    last_read: new Date().toISOString(),
+                    last_read_message_id: 'last_read_message_id-2',
+                    unread_messages,
+                    user,
+                  },
+                ],
+              },
+            ],
+            customUser: user,
+          });
+
+          const Component = () => {
+            const { channelUnreadUiState } = useChannelStateContext();
+            if (!channelUnreadUiState) return <div>{NO_UNREAD_TEXT}</div>;
+            return <div>{`unread-text-${channelUnreadUiState.unread_messages}`}</div>;
+          };
+
+          await act(async () => {
+            await renderComponent({ channel: activeChannel, chatClient, children: <Component /> });
+          });
+
+          expect(screen.queryByText(UNREAD_TEXT)).toBeInTheDocument();
+          expect(screen.queryByText(NO_UNREAD_TEXT)).not.toBeInTheDocument();
+
+          act(() => {
+            dispatchChannelTruncatedEvent(
+              chatClient,
+              forChannel === 'active' ? activeChannel : anotherChannel,
+            );
+          });
+
+          if (forChannel === 'active') {
+            expect(screen.queryByText(UNREAD_TEXT)).not.toBeInTheDocument();
+            expect(screen.queryByText(NO_UNREAD_TEXT)).toBeInTheDocument();
+          } else {
+            expect(screen.queryByText(UNREAD_TEXT)).toBeInTheDocument();
+            expect(screen.queryByText(NO_UNREAD_TEXT)).not.toBeInTheDocument();
+          }
+        },
+      );
     });
   });
 

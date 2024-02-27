@@ -539,6 +539,10 @@ const ChannelInner = <
         };
       });
 
+    if (event.type === 'channel.truncated' && event.cid === channel.cid) {
+      _setChannelUnreadUiState(undefined);
+    }
+
     throttledCopyStateFromChannel();
   };
 
