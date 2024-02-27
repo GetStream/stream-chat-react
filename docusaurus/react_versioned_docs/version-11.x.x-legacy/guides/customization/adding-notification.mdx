@@ -1,0 +1,81 @@
+---
+id: adding_messagelist_notification
+sidebar_position: 7
+title: Message List Notifications
+---
+
+import CustomNotification from '../../assets/CustomNotification.png';
+
+In this example, we demonstrate how to use the method `addNotification` pulled from the
+[`ChannelActionContext`](../../components/contexts/channel-action-context.mdx#addNotification) in order to add a custom
+notification message to the `MessageList` at our desired time specification.
+
+## addNotification Method
+
+This method receives two arguments: text and type. The text parameter is the notification text, and the type
+argument is of type string and is either 'success' or 'error'. The type determines the style added.
+These messages are temporary in the list and are removed after five seconds.
+
+This method is used extensively in the library by handler functions to notify of success or failure and are
+usually used in conjunction with JavaScript event listeners or API event listeners.
+
+```jsx
+const addNotification = (text: string, type: 'success' | 'error') => {
+  /// the rest of the method established in `Channel`
+};
+```
+
+## Implementation
+
+In this quick implementation we will listen for the 'message.updated' client event and add our custom notification
+when this happens. Editing or pinning a message will cause this event to occur.
+
+:::note
+Since `addNotification` is drawn from the `ChannelActionContext`, we must create an inner component that is a child
+of `Channel` and call the `useChannelActionContext` custom hook.
+:::
+
+## The Code
+
+```jsx
+const ChannelInner = () => {
+  const { addNotification } = useChannelActionContext();
+  const { channel } = useChannelStateContext();
+
+  useEffect(() => {
+    const clickToAddNotification = () => {
+      addNotification('A message has been edited!', 'success');
+    };
+
+    channel.on('message.updated', clickToAddNotification);
+
+    return () => {
+      channel.off('message.updated', clickToAddNotification);
+    };
+  }, [addNotification, channel]);
+
+  return (
+    <>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </>
+  );
+};
+
+const App = () => (
+  <Chat client={chatClient}>
+    <ChannelList />
+    <Channel>
+      <ChannelInner />
+    </Channel>
+  </Chat>
+);
+```
+
+## The Result
+
+<img src={CustomNotification} alt='Custom Notification in the Message List' width='700' />
