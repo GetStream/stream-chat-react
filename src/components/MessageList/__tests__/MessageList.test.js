@@ -84,6 +84,7 @@ describe('MessageList', () => {
       channelProps: { channel },
       chatClient,
     });
+    const markReadMock = jest.spyOn(channel, 'markRead').mockReturnValueOnce(markReadApi(channel));
     await waitFor(() => {
       expect(getByTestId('reverse-infinite-scroll')).toBeInTheDocument();
     });
@@ -96,6 +97,7 @@ describe('MessageList', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+    markReadMock.mockRestore();
   });
 
   it('should render the thread head if provided', async () => {
@@ -189,6 +191,8 @@ describe('MessageList', () => {
 
   it('should accept a custom group style function', async () => {
     const classNameSuffix = 'msg-list-test';
+    const markReadMock = jest.spyOn(channel, 'markRead').mockReturnValueOnce(markReadApi(channel));
+
     let renderResult;
     await act(() => {
       renderResult = renderComponent({
@@ -217,6 +221,7 @@ describe('MessageList', () => {
     });
     const results = await axe(renderResult.container);
     expect(results).toHaveNoViolations();
+    markReadMock.mockRestore();
   });
 
   it('should render DateSeparator by default', async () => {
@@ -388,8 +393,55 @@ describe('MessageList', () => {
         });
       });
 
-      expect(markReadMock).toHaveBeenCalledTimes(2);
+      expect(markReadMock).toHaveBeenCalledTimes(1);
       expect(screen.queryByText(separatorText)).toBeInTheDocument();
+    });
+
+    it('should display unread messages separator before the first message', async () => {
+      const user = generateUser();
+      const messages = [generateMessage(), generateMessage()];
+      const {
+        channels: [channel],
+        client: chatClient,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: new Date(1).toISOString(),
+                unread_messages: messages.length,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      const markReadMock = jest.spyOn(channel, 'markRead').mockReturnValue(markReadApi(channel));
+      const Message = () => <div className='message-ui' />;
+      let container;
+
+      await act(() => {
+        const result = renderComponent({
+          channelProps: { channel, Message },
+          chatClient,
+          msgListProps: { messages },
+        });
+        container = result.container;
+      });
+      const listItems = container.querySelectorAll('.str-chat__ul > *');
+      expect(listItems).toHaveLength(4);
+      expect(listItems[1].firstChild).toMatchInlineSnapshot(`
+        <div
+          class="str-chat__unread-messages-separator"
+          data-testid="unread-messages-separator"
+        >
+          Unread messages
+        </div>
+      `);
+      markReadMock.mockRestore();
     });
 
     it('should display unread messages separator when a channel is marked unread and remove it when marked read by markRead()', async () => {

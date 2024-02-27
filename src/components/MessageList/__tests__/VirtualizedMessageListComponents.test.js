@@ -312,7 +312,7 @@ describe('VirtualizedMessageComponents', () => {
 
       describe('UnreadMessagesSeparator', () => {
         const messages = Array.from({ length: 2 }, (_, i) =>
-          generateMessage({ created_at: new Date(i).toISOString(), id: i + 1 }),
+          generateMessage({ created_at: new Date(i + 2).toISOString(), id: i + 1 }),
         );
 
         const Message = () => <div className='message-component' />;
@@ -366,6 +366,39 @@ describe('VirtualizedMessageComponents', () => {
                   Unread messages
                 </div>
               </div>
+            </div>
+          `);
+        });
+
+        it('should be rendered above the last first unread message', async () => {
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadDate: new Date(1),
+              lastReceivedMessageId: messages[1].id,
+              Message,
+              numItemsPrepended,
+              ownMessagesReadByOthers: {},
+              processedMessages: messages,
+              unreadMessageCount: messages.length,
+              UnreadMessagesSeparator,
+              virtuosoRef: { current: {} },
+            },
+          });
+          expect(container).toMatchInlineSnapshot(`
+            <div>
+              <div
+                class="str-chat__unread-messages-separator-wrapper"
+              >
+                <div
+                  class="str-chat__unread-messages-separator"
+                  data-testid="unread-messages-separator"
+                >
+                  Unread messages
+                </div>
+              </div>
+              <div
+                class="message-component"
+              />
             </div>
           `);
         });

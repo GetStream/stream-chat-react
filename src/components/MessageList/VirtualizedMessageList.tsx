@@ -94,6 +94,7 @@ export type VirtuosoContext<
     virtuosoRef: RefObject<VirtuosoHandle>;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId?: string;
+    lastReadDate?: Date;
     /**
      * The ID of the last message considered read by the current user in the current channel.
      * All the messages following this message are considered unread.
@@ -434,6 +435,7 @@ const VirtualizedMessageListWithContext = <
               DateSeparator,
               firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
               head,
+              lastReadDate: channelUnreadUiState?.last_read,
               lastReadMessageId: channelUnreadUiState?.last_read_message_id,
               lastReceivedMessageId,
               loadingMore,

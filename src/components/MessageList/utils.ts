@@ -5,10 +5,8 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import { isDate } from '../../context/TranslationContext';
 
-import type { UserResponse } from 'stream-chat';
-
+import type { MessageLabel, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 type ProcessMessagesParams<
@@ -321,3 +319,17 @@ export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: nu
 // @deprecated
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages < limit;
+
+type DateSeparatorMessage = {
+  customType: typeof CUSTOM_MESSAGE_TYPE.date;
+  date: Date;
+  id: string;
+  type: MessageLabel;
+  unread: boolean;
+};
+
+export function isDateSeparatorMessage<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
+  return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
+}
