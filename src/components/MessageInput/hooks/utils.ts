@@ -136,12 +136,13 @@ export const checkUploadPermissions = async <
     allowed_mime_types,
     blocked_file_extensions,
     blocked_mime_types,
+    size_limit,
   } =
     ((uploadType === 'image'
       ? appSettings?.app?.image_upload_config
       : appSettings?.app?.file_upload_config) as FileUploadConfig) || {};
 
-  const sendErrorNotification = () =>
+  const sendNotAllowedErrorNotification = () =>
     addNotification(
       t(`Upload type: "{{ type }}" is not allowed`, { type: file.type || 'unknown type' }),
       'error',
@@ -153,7 +154,7 @@ export const checkUploadPermissions = async <
     );
 
     if (!allowed) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -164,7 +165,7 @@ export const checkUploadPermissions = async <
     );
 
     if (blocked) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -175,7 +176,7 @@ export const checkUploadPermissions = async <
     );
 
     if (!allowed) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -186,10 +187,28 @@ export const checkUploadPermissions = async <
     );
 
     if (blocked) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
 
+  if (file.size && size_limit && file.size > size_limit) {
+    addNotification(
+      t('File is too large: {{ size }}, maximum upload size is {{ limit }}', {
+        limit: prettifyFileSize(size_limit),
+        size: prettifyFileSize(file.size),
+      }),
+      'error',
+    );
+    return false;
+  }
+
   return true;
 };
+
+function prettifyFileSize(bytes: number) {
+  const units = ['B', 'kB', 'MB', 'GB'];
+  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const mantissa = bytes / 1024 ** exponent;
+  return `${mantissa.toPrecision(3)} ${units[exponent]}`;
+}
