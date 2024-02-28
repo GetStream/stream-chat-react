@@ -1,12 +1,10 @@
-import React, { useMemo } from 'react';
-
-import { useMessageContext } from '../../context/MessageContext';
-import { isDate, useTranslationContext } from '../../context/TranslationContext';
+import React from 'react';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { getDateString } from '../../i18n/utils';
+
+import { useMessageContext } from '../../context/MessageContext';
+import { Timestamp } from './Timestamp';
 
 export const defaultTimestampFormat = 'h:mmA';
 
@@ -28,37 +26,10 @@ const UnMemoizedMessageTimestamp = <
 >(
   props: MessageTimestampProps<StreamChatGenerics>,
 ) => {
-  const {
-    calendar = false,
-    customClass = '',
-    format = defaultTimestampFormat,
-    message: propMessage,
-  } = props;
-
-  const { formatDate, message: contextMessage } = useMessageContext<StreamChatGenerics>(
-    'MessageTimestamp',
-  );
-  const { tDateTimeParser } = useTranslationContext('MessageTimestamp');
-
+  const { message: propMessage, ...timestampProps } = props;
+  const { message: contextMessage } = useMessageContext<StreamChatGenerics>('MessageTimestamp');
   const message = propMessage || contextMessage;
-
-  const messageCreatedAt =
-    message.created_at && isDate(message.created_at)
-      ? message.created_at.toISOString()
-      : message.created_at;
-
-  const when = useMemo(
-    () => getDateString({ calendar, format, formatDate, messageCreatedAt, tDateTimeParser }),
-    [formatDate, calendar, tDateTimeParser, format, messageCreatedAt],
-  );
-
-  if (!when) return null;
-
-  return (
-    <time className={customClass} dateTime={messageCreatedAt} title={messageCreatedAt}>
-      {when}
-    </time>
-  );
+  return <Timestamp timestamp={message.created_at} {...timestampProps} />;
 };
 
 export const MessageTimestamp = React.memo(

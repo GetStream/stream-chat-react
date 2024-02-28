@@ -34,6 +34,8 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 import type { MessageUIComponentProps } from './types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useTranslationContext } from '../../context';
+import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -66,7 +68,9 @@ const MessageSimpleWithContext = <
     threadList,
   } = props;
 
+  const { t } = useTranslationContext('MessageSimple');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
+  const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
 
   const {
     Attachment,
@@ -106,6 +110,7 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
+  const isEdited = !!message.message_text_updated_at;
 
   let handleClick: (() => void) | undefined = undefined;
 
@@ -113,6 +118,8 @@ const MessageSimpleWithContext = <
     handleClick = () => handleRetry(message);
   } else if (isBounced) {
     handleClick = () => setIsBounceDialogOpen(true);
+  } else if (isEdited) {
+    handleClick = () => setEditedTimestampOpen((prev) => !prev);
   }
 
   const rootClassName = clsx(
@@ -228,6 +235,10 @@ const MessageSimpleWithContext = <
                 </span>
               )}
               <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
+              {isEdited && (
+                <span className='str-chat__mesage-simple-edited'>{t<string>('Edited')}</span>
+              )}
+              {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
             </div>
           )}
         </div>
