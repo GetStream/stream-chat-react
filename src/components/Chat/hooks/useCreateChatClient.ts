@@ -22,12 +22,17 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
   userData: OwnUserResponse<SCG> | UserResponse<SCG>;
 }) => {
   const [chatClient, setChatClient] = useState<StreamChat<SCG> | null>(null);
+  const [cachedUserData, setCachedUserData] = useState(userData);
+
+  if (userData.id !== cachedUserData.id) {
+    setCachedUserData(userData);
+  }
 
   useEffect(() => {
     const client = new StreamChat<SCG>(apiKey);
     let didUserConnectInterrupt = false;
 
-    const connectionPromise = client.connectUser(userData, tokenOrProvider).then(() => {
+    const connectionPromise = client.connectUser(cachedUserData, tokenOrProvider).then(() => {
       if (!didUserConnectInterrupt) setChatClient(client);
     });
 
@@ -37,11 +42,10 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
       connectionPromise
         .then(() => client.disconnectUser())
         .then(() => {
-          console.log(`Connection for user "${userData.id}" has been closed`);
+          console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, userData.id, tokenOrProvider]);
+  }, [apiKey, cachedUserData, tokenOrProvider]);
 
   return chatClient;
 };
