@@ -10,6 +10,8 @@ This section provides a high level overview of the library setup, core component
 Before starting, make sure you have installed `stream-chat-react` (and `stream-chat`), as directed in the
 [Installation](./installation.mdx) section.
 
+You'll also need to [register](https://getstream.io/chat/trial/) and create a free tier (for up to 25 MAU) Stream application to access credentials from which you'll be able to [generate a token](https://getstream.io/chat/docs/react/token_generator/) for a user which can access your chat application.
+
 The example below is all the code you'll need to launch a fully functioning chat experience. The [`Chat`](../components/core-components/chat.mdx) and [`Channel`](../components/core-components/channel.mdx) components are React context providers that pass a variety of values to their children, including UI components, stateful data, and action handler functions.
 
 ```jsx
@@ -60,7 +62,7 @@ const App = () => {
 
 ## Chat Client & Connecting User
 
-To communicate with the Stream Chat API the SDK requires a connected client. The hook mentioned in the code above (`useCreateChatClient`) handles client instantiation, establishes proper connection and handles cleanups and disconnects for you. If you wish to have more control over how all of the previously mentioned is being handled see [Client and User](../guides/client-and-user.mdx) guide.
+To communicate with the Stream Chat API the SDK requires a client with an established connection. The hook mentioned in the code above (`useCreateChatClient`) handles client instantiation, establishes proper connection and handles cleanups and disconnects for you. If you wish to have more control over how all of the previously mentioned is being handled see [Client and User](../guides/client-and-user.mdx) guide.
 
 ## Creating a Channel
 
