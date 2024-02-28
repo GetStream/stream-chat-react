@@ -4,6 +4,15 @@
     {
       "UI Components": [
         "basics/getting_started",
+        {
+          "Theming": [
+            "theming/themingv2",
+            "theming/palette-variables",
+            "theming/component-variables",
+            "theming/global-variables",
+            "guides/theming/css_and_theming"
+          ]
+        },
         { "Chat": ["components/core-components/chat", "components/contexts/chat_context"] },
         {
           "Channel": [
@@ -119,19 +128,11 @@
     },
     {
       "Guides": [
+        "guides/client-and-user",
         "guides/livestream-setup",
         "guides/theming/translations",
         "guides/typescript_and_generics",
         "guides/channel_read_state"
-      ]
-    },
-    {
-      "Theming": [
-        "theming/themingv2",
-        "theming/palette-variables",
-        "theming/component-variables",
-        "theming/global-variables",
-        "guides/theming/css_and_theming"
       ]
     },
     { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },
