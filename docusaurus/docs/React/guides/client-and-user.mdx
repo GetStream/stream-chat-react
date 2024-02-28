@@ -39,7 +39,7 @@ const connectionPromise = client.connectUser(
 );
 ```
 
-To dispose of the active connection (upon component cleanup for example) you'd call `disconnectUser` method. It's generally recommended to wait for the connection promise to resolve before disconnecting.
+To dispose of the active connection (upon component cleanup, for example) you'd call `disconnectUser` method. It's generally recommended to wait for the connection promise to resolve before disconnecting.
 
 ```tsx
 await connectionPromise;
