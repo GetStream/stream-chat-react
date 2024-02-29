@@ -2,9 +2,10 @@ import React from 'react';
 import clsx from 'clsx';
 import ReactPlayer from 'react-player';
 
-import { AudioProps, PlayButton, ProgressBar } from './Audio';
+import { AudioProps } from './Audio';
 import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
+import { PlayButton, ProgressBar } from './components';
 import { useAudioController } from './hooks/useAudioController';
 
 import { useChatContext } from '../../context/ChatContext';
