@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, useEffect, useLayoutEffect, useRef } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
+import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
 /**
  * Prevents Chrome hangups
@@ -61,7 +62,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     loadMoreNewer,
     loadNextPage,
     loadPreviousPage,
-    threshold = 250,
+    threshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
     useCapture = false,
     ...elementProps
   } = props;
