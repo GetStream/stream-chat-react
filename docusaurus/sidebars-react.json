@@ -132,7 +132,8 @@
         "guides/livestream-setup",
         "guides/theming/translations",
         "guides/typescript_and_generics",
-        "guides/channel_read_state"
+        "guides/channel_read_state",
+        "guides/3rd-party-video/video-integration-stream"
       ]
     },
     { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },
