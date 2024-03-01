@@ -1,0 +1,119 @@
+---
+id: channel-user-lists
+sidebar_position: 21
+title: Channel Members and Online Status
+keywords: [example, channel members, online status]
+---
+
+In this example, we will demonstrate how to render the current channel members and their online status.
+
+## Render the Channel Members List
+
+Let's start the example by creating a simple members list component. To access the members list of the current channel, we will get the current channel using `useChannelStateContext` hook.
+The example is a bit more convoluted, since we will add online presence updates at the next step.
+
+:::note
+In order for the client to receive updates for user presence, ensure that you are watching the channel with `channel.watch({ presence: true })`. More details can be found in the [&nearr; LLC documentation](https://getstream.io/chat/docs/javascript/watch_channel/?language=javascript).
+:::
+
+```tsx
+const Users = () => {
+  const { channel } = useChannelStateContext();
+  const [channelUsers, setChannelUsers] = useState<Array<{ name: string; online: boolean }>>([]);
+
+  useEffect(() => {
+    const updateChannelUsers = () => {
+      setChannelUsers(
+        Object.values(channel.state.members).map((user) => ({
+          name: user.user_id!,
+          online: !!user.user!.online,
+        })),
+      );
+    };
+
+    updateChannelUsers();
+  }, [client, channel]);
+
+  return (
+    <ul className='users-list'>
+      {channelUsers.map((member) => (
+        <li key={member.name}>
+          {member.name} - {member.online ? 'online' : 'offline'}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+We can place the component as a child of the `Channel` component:
+
+```tsx
+<Channel>
+  <Window>
+    <Users />
+    <ChannelHeader />
+    <MessageList />
+    <MessageInput focus />
+  </Window>
+  <Thread />
+</Channel>
+```
+
+## Real-Time Updates
+
+So far, our list looks good, but there's a catch: for performance purposes, the `useChannelStateContext` does not refresh when user presence changes.
+To make the list update accordingly, we need to attach an additional listener to the `user.presence.changed` event of the chat client.
+Let's also add some basic CSS to complete the look of the list. The class is already applied to the JSX, just add a CSS file and be sure to import into your file.
+
+```css
+.users-list {
+  background: #ffffff;
+  padding: 20px;
+  padding-left: 30px;
+  border-radius: calc(16px / 2) 16px 0 0;
+  border: 1px solid #ecebeb;
+}
+```
+
+```tsx
+const Users = () => {
+  const { client } = useChatContext();
+  const { channel } = useChannelStateContext();
+  const [channelUsers, setChannelUsers] = useState<Array<{ name: string; online: boolean }>>([]);
+  useEffect(() => {
+    const updateChannelUsers = (event?: Event) => {
+      // test if the updated user is a member of this channel
+      if (!event || channel.state.members[event.user!.id] !== undefined) {
+        setChannelUsers(
+          Object.values(channel.state.members).map((user) => ({
+            name: user.user_id!,
+            online: !!user.user!.online,
+          })),
+        );
+      }
+    };
+
+    updateChannelUsers();
+
+    //
+    client.on('user.presence.changed', updateChannelUsers);
+
+    return () => {
+      client.off('user.presence.changed', updateChannelUsers);
+    };
+  }, [client, channel]);
+
+  return (
+    <ul className='users-list'>
+      {channelUsers.map((member) => (
+        <li key={member.name}>
+          {member.name} - {member.online ? 'online' : 'offline'}
+        </li>
+      ))}
+    </ul>
+  );
+};
+```
+
+With the above addition, `channelUsers` will be updated each time user comes online or goes offline.

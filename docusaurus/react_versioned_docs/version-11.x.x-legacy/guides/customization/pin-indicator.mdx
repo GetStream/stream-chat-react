@@ -1,0 +1,263 @@
+---
+id: pin_indicator
+sidebar_position: 19
+title: Pin Indicator and Permissions
+---
+
+import CustomPinMessage from '../../assets/CustomPinMessage.png';
+import CustomPinMessagePinned from '../../assets/CustomPinMessagePinned.png';
+import CustomPinMessagePinnedHover from '../../assets/CustomPinMessagePinnedHover.png';
+
+In this example, we will demonstrate how to create a custom pin indicator component for pinned messages, as well as set custom permissions for pinning.
+
+## Pin Permissions
+
+Stream provides a default set of pin permissions for each user type within each channel type:
+
+```tsx
+export const defaultPinPermissions: PinPermissions = {
+  commerce: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  gaming: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: false,
+    user: false,
+  },
+  livestream: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  messaging: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+  team: {
+    admin: true,
+    anonymous: false,
+    channel_member: true,
+    channel_moderator: true,
+    guest: false,
+    member: true,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+};
+```
+
+:::important
+When using a custom channel type, these permissions must be set for each user role.
+:::
+
+If you want to use different user permissions or create a custom channel type, the new permissions would need to be passed to `MessageList` using the `pinPermissions` prop.
+
+```tsx
+const CustomPermissions = {
+  customChannelType: {
+    admin: true,
+    anonymous: false,
+    channel_member: false,
+    channel_moderator: true,
+    guest: false,
+    member: false,
+    moderator: true,
+    owner: true,
+    user: false,
+  },
+};
+```
+
+```tsx
+<MessageList pinPermissions={CustomPermissions} />
+```
+
+## Custom Pin Indicator
+
+To utilize pinned messages, we will create a basic message component as well as a custom pin indicator to display when a message has been pinned. The custom pin indicator component will simply display the text 'pinned'. This is where you could get creative with custom icons and styles.
+
+```tsx
+export const CustomPinIndicator = () => {
+  return (
+    <div>
+      <div className='pin-text'>pinned</div>
+    </div>
+  );
+};
+```
+
+```css
+.pin-text {
+  font-style: italic;
+  color: grey;
+}
+```
+
+This component can now be passed to `Channel` and later pulled from the `ComponentContext` when used.
+
+```tsx
+<Channel PinIndicator={CustomPinIndicator}>{/* children of Channel component */}</Channel>
+```
+
+Now we will build a message component that changes its background from turquoise to yellow when a message is pinned. Our custom pin indicator will also replace the `MessageOptions` component unless the message is currently being hovered.
+
+```tsx
+export const CustomMessage = () => {
+  const [hovering, setHovering] = useState(false);
+
+  const { message } = useMessageContext();
+  const { PinIndicator = DefaultPinIndicator } = useComponentContext();
+
+  const messageWrapperRef = useRef<HTMLDivElement>(null);
+
+  const { pinned } = message;
+
+  return (
+    <div
+      className={pinned ? 'pinned-custom-message-wrapper' : 'custom-message-wrapper'}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+    >
+      <div className='custom-message-wrapper-content'>
+        <div className='custom-message-header'>
+          <div className='custom-message-header-name'>{message.user?.name || message.user?.id}</div>
+        </div>
+        <MessageText />
+        <MessageRepliesCountButton reply_count={message.reply_count} />
+      </div>
+      <div className='custom-message-right-wrapper'>
+        {hovering ? (
+          <MessageOptions messageWrapperRef={messageWrapperRef} />
+        ) : (
+          pinned && <PinIndicator />
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.custom-message-wrapper {
+  display: flex;
+  padding: 12px;
+  width: fit-content;
+  border-radius: 16px;
+}
+
+.custom-message-wrapper-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.right-wrapper {
+  margin-left: 80px;
+  margin-right: 16px;
+  width: 48px;
+}
+
+.custom-message-header-name {
+  color: black;
+  font-weight: bold;
+  font-size: 14;
+}
+
+.str-chat__message-text-inner {
+  color: grey;
+  background: white;
+  border: none;
+  padding: 0;
+}
+
+.str-chat__message-simple__actions {
+  display: flex;
+}
+
+.custom-message-wrapper {
+  background: turquoise;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+}
+
+.custom-message-wrapper:hover .str-chat__message-text-inner {
+  background: turquoise;
+}
+
+.str-chat__message-replies-count-button {
+  align-self: flex-start;
+}
+
+/** Pinned Message */
+
+.pinned-custom-message-wrapper {
+  display: flex;
+  padding: 12px;
+  width: fit-content;
+  border-radius: 16px;
+}
+
+.pinned-custom-message-wrapper {
+  background: papayawhip;
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
+}
+
+.pinned-custom-message-wrapper:hover .str-chat__message-text-inner {
+  background: papayawhip;
+}
+
+.pinned-custom-message-wrapper .str-chat__message-text-inner {
+  background: papayawhip;
+}
+```
+
+From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+
+```tsx
+<Channel Message={CustomMessage}>{/* children of Channel component */}</Channel>
+```
+
+## The Result
+
+Unpinned Message:
+
+<img src={CustomPinMessage} alt='Custom Pin Indicator UI Component for Chat' width='650' />
+
+Pinned Message (not hovered):
+
+<img src={CustomPinMessagePinned} alt='Custom Pin Indicator UI Component for Chat' width='650' />
+
+Pinned Message (hovered):
+
+<img
+  src={CustomPinMessagePinnedHover}
+  alt='Custom Pin Indicator UI Component for Chat'
+  width='700'
+/>
