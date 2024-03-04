@@ -69,7 +69,7 @@ jobs:
       - name: Merge shared "@stream-io/stream-chat-css" docs
         run: yarn docs:copy-css-docs
       - name: Push to stream-chat-docusaurus
-        uses: GetStream/push-stream-chat-docusaurus-action@main
+        uses: GetStream/push-stream-chat-docusaurus-action@fix-reactnative-condition
         with:
           target-branch: ${{ inputs.docs_env }}
         env:
