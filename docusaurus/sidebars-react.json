@@ -52,7 +52,12 @@
             "components/message-components/ui-components",
             "components/utility-components/avatar",
             "components/utility-components/base-image",
-            "components/message-components/attachment",
+            {
+              "Attachment": [
+              "components/message-components/attachment",
+              "components/message-components/attachment/voice-recording"
+              ]
+            },
             "components/message-components/reactions",
             "components/utility-components/date_separator"
           ]
