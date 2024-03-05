@@ -37,6 +37,7 @@ export function MessageEditedTimestamp<
           ? 'str-chat__message-edited-timestamp--open'
           : 'str-chat__message-edited-timestamp--collapsed',
       )}
+      data-testid='message-edited-timestamp'
     >
       {t<string>('Edited')}{' '}
       <Timestamp timestamp={message.message_text_updated_at} {...timestampProps} />
