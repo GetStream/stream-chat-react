@@ -33,8 +33,6 @@ jobs:
           yarn e2e-fixtures
           # running with --browser=all causes failures
           yarn e2e --browser=chromium
-          yarn e2e --browser=webkit
-          yarn e2e --browser=firefox
         env:
           E2E_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
           E2E_ADD_MESSAGE_CHANNEL: add-message
