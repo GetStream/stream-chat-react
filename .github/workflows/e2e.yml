@@ -6,22 +6,27 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     name: End-to-end tests
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ./pw-browsers
     steps:
       - uses: actions/checkout@v3
 
       - name: 💾 Cache Dependencies
         uses: actions/cache@v3
         with:
-          path: ./node_modules
+          path: |
+            ./node_modules
+            ./pw-browsers
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: 🔨 Install Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+        run: |
+          yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+          npx playwright install
+          npx playwright install-deps
 
       - name: ⚗️ End-to-end tests
         run: |
-          npx playwright install
-          npx playwright install-deps
           yarn e2e-fixtures
           # running with --browser=all causes failures
           yarn e2e --browser=chromium
