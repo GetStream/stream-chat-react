@@ -7,6 +7,7 @@ const config: PlaywrightTestConfig = {
       maxDiffPixels: 100,
     },
   },
+  maxFailures: 1,
   retries: 2,
   testDir: './e2e',
   use: {
@@ -20,7 +21,6 @@ const config: PlaywrightTestConfig = {
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
-
   workers: 1,
 };
 
