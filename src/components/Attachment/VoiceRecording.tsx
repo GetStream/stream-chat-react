@@ -10,7 +10,6 @@ import { useTranslationContext } from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
-const FALLBACK_TITLE = 'Voice message';
 
 export type VoiceRecordingPlayerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -25,7 +24,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
     asset_url,
     duration,
     mime_type,
-    title = t<string>(FALLBACK_TITLE),
+    title = t<string>('Voice message'),
     waveform_data,
   } = attachment;
 
@@ -89,7 +88,7 @@ export type QuotedVoiceRecordingProps<
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { t } = useTranslationContext();
-  const title = attachment.title || t<string>(FALLBACK_TITLE);
+  const title = attachment.title || t<string>('Voice message');
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
