@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
     viewport: { height: 920, width: 1280 },
   },
   webServer: {
-    command: 'ladle serve --open none',
+    command: 'npx ladle serve --open none',
     port: 61000,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
