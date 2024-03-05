@@ -7,7 +7,7 @@ import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
 import { useTranslationContext } from '../../context';
 
-import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 const rootClassName = 'str-chat__message-attachment__audio-recording-widget';
 
@@ -47,7 +47,7 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
   return (
     <div className={rootClassName} data-testid='audio-recording-widget'>
       <audio ref={audioRef}>
-        <source data-testid='audio-source' src={asset_url} type='audio/mp3' />
+        <source data-testid='audio-source' src={asset_url} type={mime_type} />
       </audio>
       <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
       <div className='str-chat__message-attachment__audio-recording-widget__metadata'>
