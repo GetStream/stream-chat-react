@@ -166,11 +166,18 @@ export const messageRenderer = <
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
     message.user?.id === messageList[streamMessageIndex - 1].user?.id;
+  const maybePrevMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex - 1];
+  const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex + 1];
   const firstOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybePrevMessage?.user?.id ||
+      !!maybePrevMessage?.message_text_updated_at);
 
   const endOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybeNextMessage?.user?.id || !!message.message_text_updated_at);
 
   const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
   const isLastReadMessage = message.id === lastReadMessageId;
