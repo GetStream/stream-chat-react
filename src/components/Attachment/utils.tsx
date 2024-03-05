@@ -344,13 +344,4 @@ export const displayDuration = (totalSeconds?: number) => {
   const minSec = `${prependMinZero}${minutes}:${prependSecZero}${roundedSeconds}`;
 
   return hours ? `${prependHrsZero}${hours}:` + minSec : minSec;
-  // const noDuration = '00:00';
-  // if (!totalSeconds || totalSeconds < 0) return noDuration;
-  //
-  // const durationString = new Date(Math.round(totalSeconds) * 1000)
-  //   .toISOString()
-  //   .match(/\d{2}:\d{2}:\d{2}/)?.[0];
-  // if (!durationString) return noDuration;
-  //
-  // return durationString.startsWith('00:') ? durationString.slice(3) : durationString;
 };
