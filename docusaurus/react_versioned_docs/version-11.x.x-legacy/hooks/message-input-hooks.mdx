@@ -1,0 +1,47 @@
+---
+id: message_input_hooks
+sidebar_position: 3
+title: MessageInput Hooks
+---
+
+The `MessageInput` component uses a variety of custom hooks to assemble the [`MessageInputContext`](../components/contexts/message-input-context.mdx).
+These hooks can also be useful when building a custom [Input UI](../components/message-input-components/input-ui.mdx) component.
+
+The main provided hook, [`useMessageInputState`](#usemessageinputstate), uses a group of smaller, helper hooks which are segmented by functionality. Other hooks provided include [`useCooldownTimer`](#usecooldowntimer)
+and the several hooks used by the [`DefaultTriggerProvider`](../components/message-input-components/ui-components.mdx/#defaulttriggerprovider).
+
+## Hooks
+
+### useMessageInputState
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useMessageInputState.ts) that is a reducer hook and compiles all of the state information for the input and returns the current state and a dispatch method.
+This dispatch method is then used within the many smaller hooks that each compile and process a specific section of the state, and these are outlined below.
+
+- [useAttachments](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useAttachments.ts) - sets the state for attachments and returns this data and related functions.
+  Utilizes two hooks within it, [useFileUploads](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useFileUploads.ts) and [useImageUploads](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useImageUploads.ts).
+
+- [useEmojiIndex](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useEmojiIndex.ts) - returns the NimbleEmojiIndex. Added to the state under the `emojiIndex` key.
+
+- [useEmojiPicker](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useEmojiPicker.ts) - sets state logic and returns this data (including info on whether the picker is open or closed) and related handler functions.
+
+- [useMessageInputText](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useMessageInputText.ts) - processes the state for the text in the input and returns handlers for text change and insertion.
+
+- [usePasteHandler](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/usePasteHandler.ts) - returns a handler function that processes items that are pasted into the input.
+
+- [useSubmitHandler](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts) - processes the items in the input and then will send, clears the state after. Returns the handleSubmit handler function.
+
+### useCooldownTimer
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCooldownTimer.tsx) where the `CooldownTimer` component is established. Handles the state logic for the timer and returns this data and the related handler.
+
+### useCommandTrigger
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useCommandTrigger.ts) used within the `DefaultTriggerProvider` component. Returns an object of trigger settings related to the `/` command.
+
+### useEmojiTrigger
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useEmojiTrigger.ts) used within the `DefaultTriggerProvider` component. Returns an object of trigger settings related to the `:` command.
+
+### useUserTrigger
+
+A [custom hook](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useUserTrigger.ts) used within the `DefaultTriggerProvider` component. Returns an object of trigger settings related to the `@` command.

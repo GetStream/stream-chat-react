@@ -10,7 +10,7 @@ If you are introducing changes impacting the API or behavior of the SDK parts, y
 
 
 ```bash
-yarn docs-run
+yarn docs:run
 ```
 
 ## Documentation patterns

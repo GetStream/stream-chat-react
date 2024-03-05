@@ -2238,9 +2238,9 @@
     process-es6 "^0.11.2"
 
 "@stream-io/stream-chat-css@^4.7.1":
-  version "4.7.1"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-4.7.1.tgz#82e058a3cf9031852875266f4c7cc1029e8cb193"
-  integrity sha512-Vshgw6VyZU/TtxfXb/gAxWhfgq3Pc0yTPutqHXWCI1qvFfma+ZgyA0AlAu3zqwHP60ubeUJZ0W01/qL/9u7Avg==
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-4.7.4.tgz#0f2c4fd6005e1c2cd18ebeb21cc013535ee9bb6a"
+  integrity sha512-mDOJupQ7vLCtaDBgkBP+jq1Zw/PCg+MKR5FPg/95GRp5KF4p/id6DYPZUZ0OIOnbraAFuyfs156vrd8qzMRwag==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
@@ -13310,9 +13310,9 @@ stream-browserify@^2.0.1:
     readable-stream "^2.0.2"
 
 stream-chat@^8.15.0:
-  version "8.16.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.16.0.tgz#3718812815251315b28f75c4002f0a0d62f73bb8"
-  integrity sha512-j5GDgCmae4k59titjzePvihfVoVSlRW8NvP7uXfxbfMlsmGfcbYl08IaAwSsW6NC44doZyIjOt7v/v2QyCcP4A==
+  version "8.19.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.19.0.tgz#ea674f26e5c5115bb4ea46eff78545e1dc40bb6f"
+  integrity sha512-7PkTNN+2+RRqE/lVcQo9p4/IxU398RNbET7+v0a8FRbqMcfuVlKKzJPnp23MiNKyus+25OZl64ZVNB4e4iwgPg==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "~9.0.0"

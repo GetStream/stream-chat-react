@@ -1,0 +1,105 @@
+---
+id: thread_header
+sidebar_position: 12
+title: Thread Header
+---
+
+import CustomThreadHeader from '../../assets/CustomThreadHeader.png';
+
+In this example we will demonstrate how to make a custom `ThreadHeader` component utilizing the props that are passed to an open `Thread`.
+
+## Create the Component
+
+The default `ThreadHeader` shows the number of replies alongside a button to close the thread. In our example we will use the `Avatar` component to render pictures of the current participants in the thread. We will also change the look of the button and show the number of replies. All of this data and more can be easily pulled from the `thread` prop, which represents the parent message. The last thing we will utilize is the `closeThread` function, which is also passed to `Thread` as a prop.
+
+```tsx
+export const CustomThreadHeader = ({ closeThread, thread }) => {
+  const replyCount = thread.reply_count;
+  const threadParticipants = thread.thread_participants;
+
+  return (
+    <div className='wrapper'>
+      <div className='participants-wrapper'>
+        {threadParticipants.map((participant) => (
+          <div className='participant'>
+            <Avatar image={participant.image} name={participant.name} />
+          </div>
+        ))}
+        <div className='reply-count'>{replyCount} Replies</div>
+      </div>
+      <div onClick={closeThread} className='close-button'>
+        <div className='left'>
+          <div className='right'></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: var(--sm-p);
+  background: var(--white);
+  box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
+}
+
+.participants-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.participant:first-child {
+  margin: 0;
+}
+
+.participant {
+  margin-left: calc(var(--md-m) * -1);
+  border-radius: var(--border-radius-round);
+  border: 2px solid var(--white);
+  padding-right: 0;
+}
+
+.reply-count {
+  margin-left: var(--sm-m);
+  font-weight: var(--font-weight-semi-bold);
+}
+
+.close-button {
+  width: 24px;
+  height: 24px;
+}
+
+.left {
+  height: 24px;
+  width: 3px;
+  border-radius: var(--border-radius-sm);
+  margin-left: 12px;
+  background-color: var(--primary-color);
+  transform: rotate(45deg);
+  z-index: 1;
+}
+
+.right {
+  height: 24px;
+  width: 3px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--primary-color);
+  transform: rotate(90deg);
+  z-index: 2;
+}
+```
+
+From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+
+```tsx
+<Channel ThreadHeader={CustomThreadHeader}>{/* children of Channel component */}</Channel>
+```
+
+## The Result
+
+<img src={CustomThreadHeader} alt='Custom Thread Header UI Component for Chat' width='700' />

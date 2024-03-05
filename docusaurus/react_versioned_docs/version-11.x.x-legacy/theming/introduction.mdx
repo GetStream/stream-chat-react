@@ -1,0 +1,546 @@
+---
+id: themingv2
+sidebar_position: 1
+title: Introduction
+keywords: [v2, theme-v2, theming-v2, theming, introduction]
+---
+
+import SDKSpecific from './SDKSpecific';
+import ChatUiScreenshot from '../assets/stream-chat-css-chat-ui-screenshot.png';
+import DarkUiScreenshot from '../assets/stream-chat-css-dark-ui-screenshot.png';
+import CustomDarkUiScreenshot from '../assets/stream-chat-css-custom-dark-theme-screenshot.png';
+import ChatUiThemeCustomizationScreenshot from '../assets/stream-chat-css-chat-ui-theme-customization-screenshot.png';
+import ChatUiLayoutScreenshot from '../assets/stream-chat-css-chat-ui-layout-screenshot.png';
+import CustomAvatarColorScreenshot from '../assets/stream-chat-css-custom-avatar-color-screenshot.png';
+import MessageScreenshot from '../assets/stream-chat-css-message-color-screenshot.png';
+import MessageCustomColorScreenshot from '../assets/stream-chat-css-message-color-customization-screenshot.png';
+import MessageCustomColor2Screenshot from '../assets/stream-chat-css-message-color-customization2-screenshot.png';
+import ChatUiSquareThemeScreenshot from '../assets/stream-chat-css-square-theme-screenshot.png';
+import ChatUiRtlScreenshot from '../assets/stream-chat-css-rtl-layout-screenshot.png';
+
+The SDK has a new theming and customization system. This page contains information about the new version (refered to as version 2 or v2). The most significant improvements of the new version:
+
+- Refreshed design
+- Better customization through CSS variables
+- Support for RTL layout
+
+<SDKSpecific name="angular">
+
+The [old theme](../concepts/theming-and-css.mdx) (also refered to as version 1 or v1) can still be used with the latest SDK versions, but it's now deprecated, won't be receiving further updates and will be removed in a future major release.
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+The [old theme](../customization/css-and-theming.mdx) (also refered to as version 1 or v1) can still be used with the latest SDK versions, but it's now deprecated, won't be receiving further updates and will be removed in a future major release.
+
+</SDKSpecific>
+
+New theming system (v2) utilises updated markup and new class names in certain components which are being rendered based on which of the two systems you use. Most of the new components (and/or markup) aren't available in the old version (v1) due to compatibility reasons.
+
+<SDKSpecific name="angular">
+
+To use the new theme, please upgrade [`stream-chat-angular`](https://www.npmjs.com/package/stream-chat-angular) to version 4 and follow the instructions below.
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+To use the new theme, please upgrade [`stream-chat-react`](https://www.npmjs.com/package/stream-chat-react) to version `10.0.2` and follow the instructions below.
+
+</SDKSpecific>
+
+## Using theme-v2
+
+If you're using SCSS:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.scss';
+```
+
+</SDKSpecific>
+
+If you're using CSS:
+
+<SDKSpecific name="angular">
+
+```css
+@import '~stream-chat-angular/src/assets/styles/v2/css/index.css';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```css
+@import '~stream-chat-react/dist/css/v2/index.css';
+```
+
+</SDKSpecific>
+
+## Customization
+
+Our theming system has various customization options allowing for both smaller and large-scale UI changes. This document guides you through the different customization options.
+
+### CSS variables
+
+CSS variables are the easiest way to customize the theme. The variables are organized into two layers:
+
+- global
+- component
+
+#### Global variables
+
+You can use global variables to apply changes to the whole chat UI (as opposed to changing the design of individual components).
+
+The [full list of global variables](./global-variables.mdx) can be found in our global variables guide.
+
+Here is the default chat UI:
+
+<img src={ChatUiScreenshot} width='500' />
+
+Here is how you can customize global variables:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.scss';
+```
+
+</SDKSpecific>
+
+```scss
+.str-chat {
+  --str-chat__primary-color: #009688;
+  --str-chat__active-primary-color: #004d40;
+  --str-chat__surface-color: #f5f5f5;
+  --str-chat__secondary-surface-color: #fafafa;
+  --str-chat__primary-surface-color: #e0f2f1;
+  --str-chat__primary-surface-color-low-emphasis: #edf7f7;
+  --str-chat__border-radius-circle: 6px;
+}
+```
+
+Here is the result:
+
+<img src={ChatUiThemeCustomizationScreenshot} width='500' />
+
+<SDKSpecific name="angular">
+
+:::note
+The `str-chat` class is applied to the [channel list](../components/ChannelListComponent.mdx) and [channel](../components/ChannelComponent.mdx) component, all CSS variables are declared on this level, if you don't use those components in your chat application you'll have apply this class manually.
+:::
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+:::note
+The `str-chat` class is applied to the [`ChannelList`](../core-components/channel-list.mdx) and [`Channel`](../core-components/channel.mdx) components, all CSS variables are declared on this level.
+:::
+
+</SDKSpecific>
+
+#### Component variables
+
+You can use component layer variables to change the design of individual components. The [full list of component variables](./component-variables.mdx) can be found in our component variables guide.
+
+In the above example we set the avatar background color by setting the `--str-chat__primary-color` variable which also sets the color of other UI elements. If we want to change the background color only for the avatar component we can use the `--str-chat__avatar-background-color` variable:
+
+```scss
+.str-chat {
+  --str-chat__primary-color: #009688;
+  --str-chat__active-primary-color: #004d40;
+  --str-chat__surface-color: #f5f5f5;
+  --str-chat__secondary-surface-color: #fafafa;
+  --str-chat__primary-surface-color: #e0f2f1;
+  --str-chat__primary-surface-color-low-emphasis: #edf7f7;
+  --str-chat__border-radius-circle: 6px;
+  --str-chat__avatar-background-color: #bf360c; // Only changes the background color of the avatar component
+}
+```
+
+Here is the result:
+
+<img src={CustomAvatarColorScreenshot} width='500' />
+
+Component variables don't inherit. Let's see an example of this.
+
+Here is the message component without custom color:
+
+<img src={MessageScreenshot} width='500' />
+
+Setting custom text color inside message bubble:
+
+```scss
+.str-chat {
+  --str-chat__primary-color: #009688;
+  --str-chat__active-primary-color: #004d40;
+  --str-chat__surface-color: #f5f5f5;
+  --str-chat__secondary-surface-color: #fafafa;
+  --str-chat__primary-surface-color: #e0f2f1;
+  --str-chat__primary-surface-color-low-emphasis: #edf7f7;
+  --str-chat__border-radius-circle: 6px;
+  --str-chat__avatar-background-color: #bf360c;
+  --str-chat__message-bubble-color: #00695c; // Custom text color only for the message bubble
+}
+```
+
+<img src={MessageCustomColorScreenshot} width='500' />
+
+We can see that setting the text color of the message bubble won't change the color of the link attachments.
+
+To solve this we also have to set the text color for the link attachment component:
+
+```scss
+.str-chat {
+  --str-chat__primary-color: #009688;
+  --str-chat__active-primary-color: #004d40;
+  --str-chat__surface-color: #f5f5f5;
+  --str-chat__secondary-surface-color: #fafafa;
+  --str-chat__primary-surface-color: #e0f2f1;
+  --str-chat__primary-surface-color-low-emphasis: #edf7f7;
+  --str-chat__border-radius-circle: 6px;
+  --str-chat__avatar-background-color: #bf360c;
+  --str-chat__message-bubble-color: #00695c;
+  --str-chat__card-attachment-color: #00695c; // Setting text color of link attachments
+}
+```
+
+<img src={MessageCustomColor2Screenshot} width='500' />
+
+### CSS overrides
+
+If you'd like to add customizations that are not supported by CSS variables, you can override parts of the default CSS:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.scss';
+```
+
+</SDKSpecific>
+
+```scss
+// Provide your overrides after the stream-chat-angular stylesheet imports
+.str-chat__channel-preview-messenger--last-message {
+  font-weight: 500;
+}
+```
+
+Just make sure that you add the customization rules after the stylesheet import.
+
+If you're using SCSS it's also possible to import component stylesheets separately (instead of our bundled stylesheet):
+
+<SDKSpecific name="angular">
+
+```scss
+// Use default theme for channel list and channel preview components
+@import '~stream-chat-angular/src/assets/styles/v2/scss/ChannelList/ChannelList-layout.scss';
+@import '~stream-chat-angular/src/assets/styles/v2/scss/ChannelList/ChannelList-theme.scss';
+@import '~stream-chat-angular/src/assets/styles/v2/scss/ChannelPreview/ChannelPreview-layout.scss';
+@import '~stream-chat-angular/src/assets/styles/v2/scss/ChannelPreview/ChannelPreview-theme.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+// Use default theme for channel list and channel preview components
+@import '~stream-chat-react/dist/scss/v2/ChannelList/ChannelList-layout.scss';
+@import '~stream-chat-react/dist/scss/v2/ChannelList/ChannelList-theme.scss';
+@import '~stream-chat-react/dist/scss/v2/ChannelPreview/ChannelPreview-layout.scss';
+@import '~stream-chat-react/dist/scss/v2/ChannelPreview/ChannelPreview-theme.scss';
+```
+
+</SDKSpecific>
+
+```scss
+.str-chat__avatar {
+  // Custom CSS for avatar component
+}
+```
+
+### Apply your own look and feel
+
+If you want to create a truly custom look and feel, it can be exhausting to override the default styling. In that case, it's possible only to apply layout rules from the default theme.
+
+Here is how you can import the layout stylesheet:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.layout.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.layout.scss';
+```
+
+</SDKSpecific>
+
+or if you're using CSS:
+
+<SDKSpecific name="angular">
+
+```css
+@import '~stream-chat-angular/src/assets/styles/v2/css/index.layout.css';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```css
+@import '~stream-chat-react/dist/css/v2/index.layout.css';
+```
+
+</SDKSpecific>
+
+<img src={ChatUiLayoutScreenshot} width='500' />
+
+The result will be a minimalistic UI without
+
+- coloring
+- fonts
+- borders
+- shadows
+
+Please note that if you're only using the layout rules, you can only use the layout CSS variables.
+
+## Dark and light themes
+
+The default theme has dark and light variants. Here is how you can switch between the different themes:
+
+<SDKSpecific name="angular">
+
+Use the [`ThemeService`](../services/ThemeService.mdx):
+
+```typescript
+import { ThemeService } from 'stream-chat-angular';
+
+constructor(themeService: ThemeService) {
+  themeService.theme$.next('dark'); // or light
+}
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```tsx
+<Chat client={client} theme='str-chat__theme-dark'>
+  {/* ... */}
+</Chat>
+```
+
+or only to a specific component (`Channel` or/and `ChannelList`):
+
+:::note
+Using the `customClasses` approach for either of the components will override default class names. Don't forget to add those to your theme class names (as defined in the snippet) for the styling to work properly.
+:::
+
+```tsx
+<Chat
+  client={client}
+  customClasses={{
+    channelList: 'str-chat__theme-dark str-chat__channel-list',
+    channel: 'str-chat__theme-light str-chat__channel',
+  }}
+>
+  {/* ... */}
+</Chat>
+```
+
+</SDKSpecific>
+
+Here is what the dark theme looks like:
+
+<img src={DarkUiScreenshot} width='500' />
+
+<SDKSpecific name="angular">
+
+:::note
+The `str-chat__theme-dark`/`str-chat__theme-light` class is applied to the [channel list](../components/ChannelListComponent.mdx) and [channel](../components/ChannelComponent.mdx) components, these classes are responsible for switching between the dark and light theme color combinations, if you don't use those components in your chat application you'll have apply the theme classes manually.
+:::
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+:::note
+The `str-chat__theme-dark`/`str-chat__theme-light` class is applied to the [ChannelList](../core-components/channel-list.mdx) and [Channel](../core-components/channel.mdx) components, these classes are responsible for switching between the dark and light theme color combinations.
+:::
+
+</SDKSpecific>
+
+Here is how you can provide different color configurations for the dark and light themes:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.scss';
+```
+
+</SDKSpecific>
+
+```scss
+.str-chat {
+  --str-chat__border-radius-circle: 6px;
+}
+
+.str-chat__theme-light {
+  --str-chat__primary-color: #009688;
+  --str-chat__active-primary-color: #004d40;
+  --str-chat__surface-color: #f5f5f5;
+  --str-chat__secondary-surface-color: #fafafa;
+  --str-chat__primary-surface-color: #e0f2f1;
+  --str-chat__primary-surface-color-low-emphasis: #edf7f7;
+  --str-chat__avatar-background-color: #bf360c;
+}
+
+.str-chat__theme-dark {
+  --str-chat__primary-color: #26a69a;
+  --str-chat__active-primary-color: #00796b;
+  --str-chat__surface-color: #424242;
+  --str-chat__secondary-surface-color: #212121;
+  --str-chat__primary-surface-color: #00695c;
+  --str-chat__primary-surface-color-low-emphasis: #004d40;
+  --str-chat__avatar-background-color: #ff7043;
+}
+```
+
+Here is the custom dark theme:
+
+<img src={CustomDarkUiScreenshot} width='500' />
+
+### Creating your own theme
+
+It's possible to extend the existing themes with your own themes.
+
+Here is an example creating 'round' and 'square' themes:
+
+<SDKSpecific name="angular">
+
+```scss
+@import '~stream-chat-angular/src/assets/styles/v2/scss/index.scss';
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```scss
+@import '~stream-chat-react/dist/scss/v2/index.scss';
+```
+
+</SDKSpecific>
+
+```scss
+// Make sure to use the proper naming convention: str-chat__theme-<your theme>
+.str-chat__theme-round {
+  // You can use the predefined theme and component layer variables
+  --str-chat__border-radius-circle: 999px;
+}
+
+.str-chat__theme-square {
+  --str-chat__border-radius-circle: 6px;
+}
+```
+
+<SDKSpecific name="angular">
+
+Set the theme using the [`ThemeService`](../services/ThemeService.mdx):
+
+```typescript
+import { ThemeService } from 'stream-chat-angular';
+
+constructor(themeService: ThemeService) {
+  themeService.theme$.next('square');
+}
+```
+
+</SDKSpecific>
+
+<SDKSpecific name="react">
+
+```tsx
+<Chat client={client} theme='str-chat__theme-square'>
+  {/* ... */}
+</Chat>
+```
+
+or only to a specific component (`Channel` or/and `ChannelList`):
+
+:::note
+Using the `customClasses` approach for either of the components will override default class names. Don't forget to add those to your theme class names (as defined in the snippet) for the styling to work properly.
+:::
+
+```tsx
+<Chat
+  client={client}
+  customClasses={{
+    channelList: 'str-chat__theme-square str-chat__channel-list',
+    channel: 'str-chat__theme-round str-chat__channel',
+  }}
+>
+  {/* ... */}
+</Chat>
+```
+
+</SDKSpecific>
+
+<img src={ChatUiSquareThemeScreenshot} width='500' />
+
+## RTL support
+
+The layout was built with RTL support in mind. You can use the RTL layout by providing the `dir` attribute in your HTML:
+
+```html
+<html dir="rtl">
+  <!-- ... -->
+</html>
+```
+
+Here is the result:
+
+<img src={ChatUiRtlScreenshot} width='500' />
