@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import { divMode } from '../utils';
 
-import type { ProgressBarProps } from './ProgressBar';
-
-type WaveProgressBarProps = ProgressBarProps & {
+type WaveProgressBarProps = Pick<React.ComponentProps<'div'>, 'onClick'> & {
   /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveformData: number[];
   /** Allows to specify the number of bars into which the original waveformData array should be resampled */
   amplitudesCount?: number;
+  /** Progress expressed in fractional number value btw 0 and 100. */
+  progress?: number;
 };
 export const WaveProgressBar = ({
   amplitudesCount = 40,
@@ -31,7 +31,7 @@ export const WaveProgressBar = ({
   return (
     <div
       className='str-chat__wave-progress-bar__track'
-      data-testid='audio-recording-progress'
+      data-testid='wave-progress-bar-track'
       onClick={onClick}
       role='progressbar'
     >
@@ -55,7 +55,7 @@ export const WaveProgressBar = ({
       {0 < progress && progress < 100 && (
         <div
           className='str-chat__wave-progress-bar__progress-indicator'
-          data-testid='progress-indicator'
+          data-testid='wave-progress-bar-progress-indicator'
           style={{ left: `${progress}%` }}
         />
       )}

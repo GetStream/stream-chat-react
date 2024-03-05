@@ -12,6 +12,9 @@ const FALLBACK_TITLE = 'Voice message';
 
 const attachment = generateAudioRecordingAttachment();
 
+jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+
 describe('AudioRecording', () => {
   it('should render AudioRecording with player if not quoted', () => {
     const { queryByTestId } = render(<AudioRecording attachment={attachment} />);

@@ -1,24 +1,49 @@
-import { downSample, upSample } from '../components';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { downSample, upSample, WaveProgressBar } from '../components';
 
+jest.spyOn(console, 'warn').mockImplementation();
+const originalSample = Array.from({ length: 10 }, (_, i) => i);
+
+const PROGRESS_INDICATOR_TEST_ID = 'wave-progress-bar-progress-indicator';
 describe('WaveProgressBar', () => {
-  describe('amplitude sampling', () => {
-    afterEach(jest.restoreAllMocks);
-    const originalSample = Array.from({ length: 10 }, (_, i) => i);
+  describe('component', () => {
+    it('is not rendered if waveform data is missing', () => {
+      render(<WaveProgressBar waveformData={[]} />);
+      expect(screen.queryByTestId('wave-progress-bar-track')).not.toBeInTheDocument();
+    });
+    it('is rendered with zero progress by default if waveform data is available', () => {
+      const { container } = render(
+        <WaveProgressBar amplitudesCount={5} waveformData={originalSample} />,
+      );
+      expect(container).toMatchSnapshot();
+      expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).not.toBeInTheDocument();
+    });
+    it('is rendered with highlighted bars with non-zero progress', () => {
+      const { container } = render(
+        <WaveProgressBar amplitudesCount={5} progress={20} waveformData={originalSample} />,
+      );
+      expect(
+        container.querySelectorAll('.str-chat__wave-progress-bar__amplitude-bar--active'),
+      ).toHaveLength(1);
+      expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
+      expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle('left: 20%');
+    });
+  });
 
+  describe('amplitude sampling', () => {
     describe('upSample', () => {
       afterEach(jest.restoreAllMocks);
       it('should return original values if target size is smaller than the original sample size', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(upSample(originalSample, 5)).toHaveLength(originalSample.length);
       });
 
       it('should return original values if the original sample size is empty', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(upSample([], 5)).toHaveLength(0);
       });
 
       it('should return original values if the original sample size equals the target', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(upSample(originalSample, originalSample.length)).toHaveLength(originalSample.length);
       });
 
@@ -31,17 +56,14 @@ describe('WaveProgressBar', () => {
 
     describe('downSample', () => {
       it('should return original values if target size is greater than the original sample size', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(downSample(originalSample, 20)).toHaveLength(originalSample.length);
       });
 
       it('should return original values if the original sample size is empty', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(downSample([], 5)).toHaveLength(0);
       });
 
       it('should return original values if the original sample size equals the target', () => {
-        jest.spyOn(console, 'warn').mockImplementation();
         expect(downSample(originalSample, originalSample.length)).toHaveLength(
           originalSample.length,
         );

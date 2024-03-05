@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { Audio } from '../Audio';
 import { PROGRESS_UPDATE_INTERVAL } from '../hooks/useAudioController';
 
-import { ChatContext } from '../../../context/ChatContext';
+import { ChannelActionProvider, ChatContext } from '../../../context';
 
 import { generateAudioAttachment } from 'mock-builders';
 
@@ -20,7 +20,9 @@ const renderComponent = (
 ) =>
   render(
     <ChatContext.Provider value={props.chatContext}>
-      <Audio og={props.og} />
+      <ChannelActionProvider value={{}}>
+        <Audio og={props.og} />
+      </ChannelActionProvider>
     </ChatContext.Provider>,
   );
 
@@ -86,23 +88,28 @@ describe('Audio', () => {
     });
 
     it('should show the correct button if the song is paused/playing', async () => {
-      const { queryByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
-
+      const { container, queryByTestId } = renderComponent({
+        chatContext: { themeVersion },
+        og: AUDIO,
+      });
+      const audioPausedMock = jest.spyOn(container.querySelector('audio'), 'paused', 'get');
       const playButton = () => queryByTestId(playButtonTestId);
       const pauseButton = () => queryByTestId(pauseButtonTestId);
-
       expect(await playButton()).toBeInTheDocument();
       expect(await pauseButton()).not.toBeInTheDocument();
 
+      audioPausedMock.mockReturnValueOnce(true);
       fireEvent.click(playButton());
 
       expect(await playButton()).not.toBeInTheDocument();
       expect(await pauseButton()).toBeInTheDocument();
 
+      audioPausedMock.mockReturnValueOnce(false);
       fireEvent.click(pauseButton());
 
       expect(await playButton()).toBeInTheDocument();
       expect(await pauseButton()).not.toBeInTheDocument();
+      audioPausedMock.mockRestore();
     });
 
     it(`should poll for progress every ${PROGRESS_UPDATE_INTERVAL}ms if the file is played, and stop doing that when it is paused`, () => {
