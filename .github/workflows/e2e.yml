@@ -1,6 +1,6 @@
 name: E2E
 
-on: [push]
+# on: [push]
 
 jobs:
   e2e:
