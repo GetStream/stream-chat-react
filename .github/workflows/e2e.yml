@@ -6,6 +6,9 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     name: End-to-end tests
+    concurrency:
+      group: react-e2e
+      cancel-in-progress: false
     env:
       PLAYWRIGHT_BROWSERS_PATH: ./pw-browsers
     steps:

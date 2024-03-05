@@ -9,7 +9,6 @@ const config: PlaywrightTestConfig = {
   },
   retries: 2,
   testDir: './e2e',
-  timeout: 15 * 1000,
   use: {
     headless: true,
     screenshot: 'only-on-failure',
