@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { MouseEventHandler, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { divMode } from '../utils';
 
-type WaveProgressBarProps = Pick<React.ComponentProps<'div'>, 'onClick'> & {
+type WaveProgressBarProps = {
+  /** Function that allows to change the track progress */
+  seek: MouseEventHandler<HTMLDivElement>;
   /** The array of fractional number values between 0 and 1 representing the height of amplitudes */
   waveformData: number[];
   /** Allows to specify the number of bars into which the original waveformData array should be resampled */
@@ -12,10 +14,30 @@ type WaveProgressBarProps = Pick<React.ComponentProps<'div'>, 'onClick'> & {
 };
 export const WaveProgressBar = ({
   amplitudesCount = 40,
-  onClick,
   progress = 0,
+  seek,
   waveformData,
 }: WaveProgressBarProps) => {
+  const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
+  const isDragging = useRef(false);
+
+  const handleMouseDown = () => {
+    if (!progressIndicator) return;
+    isDragging.current = true;
+    progressIndicator.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove: MouseEventHandler<HTMLDivElement> = (event) => {
+    if (!isDragging.current) return;
+    seek(event);
+  };
+
+  const handleMouseUp = () => {
+    if (!progressIndicator) return;
+    isDragging.current = false;
+    progressIndicator.style.removeProperty('cursor');
+  };
+
   const resampledWaveformData = useMemo(
     () =>
       waveformData.length === amplitudesCount
@@ -32,7 +54,11 @@ export const WaveProgressBar = ({
     <div
       className='str-chat__wave-progress-bar__track'
       data-testid='wave-progress-bar-track'
-      onClick={onClick}
+      onClick={seek}
+      onMouseDown={handleMouseDown}
+      onMouseLeave={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
       role='progressbar'
     >
       {resampledWaveformData.map((amplitude, i) => (
@@ -52,13 +78,12 @@ export const WaveProgressBar = ({
           }
         />
       ))}
-      {0 < progress && progress < 100 && (
-        <div
-          className='str-chat__wave-progress-bar__progress-indicator'
-          data-testid='wave-progress-bar-progress-indicator'
-          style={{ left: `${progress}%` }}
-        />
-      )}
+      <div
+        className='str-chat__wave-progress-bar__progress-indicator'
+        data-testid='wave-progress-bar-progress-indicator'
+        ref={setProgressIndicator}
+        style={{ left: `${progress < 0 ? 0 : progress > 100 ? 100 : progress}%` }}
+      />
     </div>
   );
 };

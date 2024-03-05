@@ -68,7 +68,7 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
               <FileSizeIndicator fileSize={attachment.file_size} maximumFractionDigits={0} />
             )}
           </div>
-          <WaveProgressBar onClick={seek} progress={progress} waveformData={waveform_data || []} />
+          <WaveProgressBar progress={progress} seek={seek} waveformData={waveform_data || []} />
         </div>
       </div>
       <div className='str-chat__message-attachment__audio-recording-widget__right-section'>
