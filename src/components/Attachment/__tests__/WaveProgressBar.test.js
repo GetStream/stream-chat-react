@@ -10,19 +10,24 @@ const PROGRESS_INDICATOR_TEST_ID = 'wave-progress-bar-progress-indicator';
 describe('WaveProgressBar', () => {
   describe('component', () => {
     it('is not rendered if waveform data is missing', () => {
-      render(<WaveProgressBar waveformData={[]} />);
+      render(<WaveProgressBar seek={jest.fn()} waveformData={[]} />);
       expect(screen.queryByTestId('wave-progress-bar-track')).not.toBeInTheDocument();
     });
     it('is rendered with zero progress by default if waveform data is available', () => {
       const { container } = render(
-        <WaveProgressBar amplitudesCount={5} waveformData={originalSample} />,
+        <WaveProgressBar amplitudesCount={5} seek={jest.fn()} waveformData={originalSample} />,
       );
       expect(container).toMatchSnapshot();
-      expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
     });
     it('is rendered with highlighted bars with non-zero progress', () => {
       const { container } = render(
-        <WaveProgressBar amplitudesCount={5} progress={20} waveformData={originalSample} />,
+        <WaveProgressBar
+          amplitudesCount={5}
+          progress={20}
+          seek={jest.fn()}
+          waveformData={originalSample}
+        />,
       );
       expect(
         container.querySelectorAll('.str-chat__wave-progress-bar__amplitude-bar--active'),

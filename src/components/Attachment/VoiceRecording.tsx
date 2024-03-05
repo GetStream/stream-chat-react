@@ -9,22 +9,23 @@ import { useTranslationContext } from '../../context';
 
 import type { DefaultStreamChatGenerics } from '../../types';
 
-const rootClassName = 'str-chat__message-attachment__audio-recording-widget';
+const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
+const FALLBACK_TITLE = 'Voice message';
 
-type AudioRecordingPlayerProps<
+export type VoiceRecordingPlayerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<AudioRecordingProps<StreamChatGenerics>, 'attachment'> & {
+> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'> & {
   /** An array of fractional numeric values of playback speed to override the defaults (1.0, 1.5, 2.0) */
   playbackRates?: number[];
 };
 
-export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordingPlayerProps) => {
-  const { t } = useTranslationContext('AudioRecording');
+export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordingPlayerProps) => {
+  const { t } = useTranslationContext('VoiceRecordingPlayer');
   const {
     asset_url,
     duration,
     mime_type,
-    title = t<string>('Voice message'),
+    title = t<string>(FALLBACK_TITLE),
     waveform_data,
   } = attachment;
 
@@ -45,23 +46,21 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
   if (!asset_url) return null;
 
   return (
-    <div className={rootClassName} data-testid='audio-recording-widget'>
+    <div className={rootClassName} data-testid='voice-recording-widget'>
       <audio ref={audioRef}>
         <source data-testid='audio-source' src={asset_url} type={mime_type} />
       </audio>
       <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
-      <div className='str-chat__message-attachment__audio-recording-widget__metadata'>
-        {title && (
-          <div
-            className='str-chat__message-attachment__audio-recording-widget__title'
-            data-testid='audio-recording-title'
-            title={title}
-          >
-            {title}
-          </div>
-        )}
-        <div className='str-chat__message-attachment__audio-recording-widget__audio-state'>
-          <div className='str-chat__message-attachment__audio-recording-widget__timer'>
+      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
+        <div
+          className='str-chat__message-attachment__voice-recording-widget__title'
+          data-testid='voice-recording-title'
+          title={title}
+        >
+          {title}
+        </div>
+        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
+          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {attachment.duration ? (
               displayDuration(secondsElapsed)
             ) : (
@@ -71,7 +70,7 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
           <WaveProgressBar progress={progress} seek={seek} waveformData={waveform_data || []} />
         </div>
       </div>
-      <div className='str-chat__message-attachment__audio-recording-widget__right-section'>
+      <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         {isPlaying ? (
           <PlaybackRateButton disabled={!audioRef.current} onClick={increasePlaybackRate}>
             {playbackRate.toFixed(1)}x
@@ -84,27 +83,27 @@ export const AudioRecordingPlayer = ({ attachment, playbackRates }: AudioRecordi
   );
 };
 
-export type QuotedAudioRecordingProps<
+export type QuotedVoiceRecordingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<AudioRecordingProps<StreamChatGenerics>, 'attachment'>;
+> = Pick<VoiceRecordingProps<StreamChatGenerics>, 'attachment'>;
 
-export const QuotedAudioRecording = ({ attachment }: QuotedAudioRecordingProps) => {
+export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { t } = useTranslationContext();
-  const title = attachment.title || t<string>('Voice message');
+  const title = attachment.title || t<string>(FALLBACK_TITLE);
   return (
-    <div className={rootClassName} data-testid='quoted-audio-recording-widget'>
-      <div className='str-chat__message-attachment__audio-recording-widget__metadata'>
+    <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
+      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         {title && (
           <div
-            className='str-chat__message-attachment__audio-recording-widget__title'
-            data-testid='audio-recording-title'
+            className='str-chat__message-attachment__voice-recording-widget__title'
+            data-testid='voice-recording-title'
             title={title}
           >
             {title}
           </div>
         )}
-        <div className='str-chat__message-attachment__audio-recording-widget__audio-state'>
-          <div className='str-chat__message-attachment__audio-recording-widget__timer'>
+        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
+          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {attachment.duration ? (
               displayDuration(attachment.duration)
             ) : (
@@ -118,7 +117,7 @@ export const QuotedAudioRecording = ({ attachment }: QuotedAudioRecordingProps) 
   );
 };
 
-export type AudioRecordingProps<
+export type VoiceRecordingProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   /** The attachment object from the message's attachment list. */
@@ -127,13 +126,13 @@ export type AudioRecordingProps<
   isQuoted?: boolean;
 };
 
-const UnMemoizedAudioRecording = ({ attachment, isQuoted }: AudioRecordingProps) =>
+const UnMemoizedVoiceRecording = ({ attachment, isQuoted }: VoiceRecordingProps) =>
   isQuoted ? (
-    <QuotedAudioRecording attachment={attachment} />
+    <QuotedVoiceRecording attachment={attachment} />
   ) : (
-    <AudioRecordingPlayer attachment={attachment} />
+    <VoiceRecordingPlayer attachment={attachment} />
   );
 
-export const AudioRecording = React.memo(
-  UnMemoizedAudioRecording,
-) as typeof UnMemoizedAudioRecording;
+export const VoiceRecording = React.memo(
+  UnMemoizedVoiceRecording,
+) as typeof UnMemoizedVoiceRecording;

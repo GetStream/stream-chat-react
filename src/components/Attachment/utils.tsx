@@ -68,7 +68,7 @@ export const isAudioAttachment = <
   attachment: Attachment<StreamChatGenerics>,
 ) => attachment.type === 'audio';
 
-export const isAudioRecordingAttachment = <
+export const isVoiceRecordingAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: Attachment<StreamChatGenerics>,

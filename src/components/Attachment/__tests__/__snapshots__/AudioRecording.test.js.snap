@@ -1,26 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`QuotedAudioRecording should render the component 1`] = `
+exports[`QuotedVoiceRecording should render the component 1`] = `
 <div>
   <div
-    class="str-chat__message-attachment__audio-recording-widget"
-    data-testid="quoted-audio-recording-widget"
+    class="str-chat__message-attachment__voice-recording-widget"
+    data-testid="quoted-voice-recording-widget"
   >
     <div
-      class="str-chat__message-attachment__audio-recording-widget__metadata"
+      class="str-chat__message-attachment__voice-recording-widget__metadata"
     >
       <div
-        class="str-chat__message-attachment__audio-recording-widget__title"
-        data-testid="audio-recording-title"
+        class="str-chat__message-attachment__voice-recording-widget__title"
+        data-testid="voice-recording-title"
         title="audio_recording_Mon Feb 05 16:21:34 PST 2024"
       >
         audio_recording_Mon Feb 05 16:21:34 PST 2024
       </div>
       <div
-        class="str-chat__message-attachment__audio-recording-widget__audio-state"
+        class="str-chat__message-attachment__voice-recording-widget__audio-state"
       >
         <div
-          class="str-chat__message-attachment__audio-recording-widget__timer"
+          class="str-chat__message-attachment__voice-recording-widget__timer"
         >
           00:44
         </div>
