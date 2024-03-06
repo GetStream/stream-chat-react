@@ -37,14 +37,14 @@ export const useAudioController = ({
     }
   }, []);
 
-  const increasePlaybackRate = useCallback(() => {
+  const increasePlaybackRate = () => {
     setPlaybackRateIndex((prev) => {
       if (!audioRef.current) return prev;
       const nextIndex = prev === playbackRates.length - 1 ? 0 : prev + 1;
       audioRef.current.playbackRate = playbackRates[nextIndex];
       return nextIndex;
     });
-  }, [playbackRates]);
+  };
 
   const seek = useCallback<React.MouseEventHandler<HTMLDivElement>>(
     ({ clientX, currentTarget }) => {
