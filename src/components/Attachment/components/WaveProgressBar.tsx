@@ -1,6 +1,6 @@
 import React, { MouseEventHandler, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { divMode } from '../utils';
+import { divMod } from '../utils';
 
 type WaveProgressBarProps = {
   /** Function that allows to change the track progress */
@@ -180,7 +180,7 @@ export const upSample = (values: number[], targetSize: number) => {
   if (targetSize === values.length) return values;
 
   // eslint-disable-next-line prefer-const
-  let [bucketSize, remainder] = divMode(targetSize, values.length);
+  let [bucketSize, remainder] = divMod(targetSize, values.length);
   const result: number[] = [];
 
   for (let i = 0; i < values.length; i++) {

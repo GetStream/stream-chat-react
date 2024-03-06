@@ -329,13 +329,13 @@ export const renderMedia = <
   });
 };
 
-export const divMode = (num: number, divisor: number) => [Math.floor(num / divisor), num % divisor];
+export const divMod = (num: number, divisor: number) => [Math.floor(num / divisor), num % divisor];
 
 export const displayDuration = (totalSeconds?: number) => {
   if (!totalSeconds || totalSeconds < 0) return '00:00';
 
-  const [hours, hoursLeftover] = divMode(totalSeconds, 3600);
-  const [minutes, seconds] = divMode(hoursLeftover, 60);
+  const [hours, hoursLeftover] = divMod(totalSeconds, 3600);
+  const [minutes, seconds] = divMod(hoursLeftover, 60);
   const roundedSeconds = Math.ceil(seconds);
 
   const prependHrsZero = hours.toString().length === 1 ? '0' : '';
