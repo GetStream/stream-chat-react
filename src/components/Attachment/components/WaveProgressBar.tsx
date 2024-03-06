@@ -71,7 +71,7 @@ export const WaveProgressBar = ({
           key={`amplitude-${i}`}
           style={
             {
-              '--str-cha__wave-progress-bar__amplitude-bar-height': amplitude
+              '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
                 ? amplitude * 100 + '%'
                 : '0%',
             } as React.CSSProperties
