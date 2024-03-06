@@ -12,15 +12,11 @@ export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
     data-testid='audio-progress'
     onClick={onClick}
     role='progressbar'
-    style={{
-      background: `linear-gradient(
-		 to right,
-		 var(--str-chat__primary-color),
-		 var(--str-chat__primary-color) ${progress}%,
-		 var(--str-chat__disabled-color) ${progress}%,
-		 var(--str-chat__disabled-color)
-	  )`,
-    }}
+    style={
+      {
+        '--str-chat__message-attachment-audio-widget-progress': progress + '%',
+      } as React.CSSProperties
+    }
   >
     <div
       className='str-chat__message-attachment-audio-widget--progress-slider'
