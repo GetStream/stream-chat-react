@@ -17,8 +17,10 @@ const params = (new Proxy(new URLSearchParams(window.location.search), {
 }) as unknown) as Record<string, string | null>;
 
 const apiKey = import.meta.env.VITE_STREAM_KEY as string;
-const userId = params.uid ?? (import.meta.env.VITE_USER_ID as string);
-const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
+const urlParams = new URLSearchParams(window.location.search);
+const userNumber = urlParams.get('userNumber');
+const userId = params.uid ?? (import.meta.env[`VITE_USER_ID-${userNumber}`] as string);
+const userToken = params.ut ?? (import.meta.env[`VITE_USER_TOKEN-${userNumber}`] as string);
 
 const filters: ChannelFilters = { members: { $in: [userId] }, type: 'messaging' };
 const options: ChannelOptions = { limit: 10, presence: true, state: true };
