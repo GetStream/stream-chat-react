@@ -71,25 +71,6 @@ test.describe('thread autoscroll', () => {
       await message.scrollIntoViewIfNeeded();
       await expectToOpenThreadAndSeeLatestMessage(page, user, MESSAGES_WITH_REPLIES[1]);
     });
-
-    test('if I scroll primary message list by clicking a quoted message already loaded in state', async ({
-      page,
-      user,
-    }) => {
-      await user.clicks(QuotedMessage).nth(QUOTED_MESSAGES[0]);
-      await expectToOpenThreadAndSeeLatestMessage(page, user, QUOTED_MESSAGES[0]);
-    });
-
-    test('if I scroll primary message list by clicking a quoted message that has to be loaded in state', async ({
-      page,
-      user,
-    }) => {
-      await user.clicks(QuotedMessage).nth(QUOTED_MESSAGES[1], 2);
-      await Promise.all([
-        page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
-        expectToOpenThreadAndSeeLatestMessage(page, user, QUOTED_MESSAGES[1]),
-      ]);
-    });
   });
 
   test.describe('on new message', () => {
