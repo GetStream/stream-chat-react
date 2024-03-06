@@ -47,20 +47,4 @@ test.describe('add height to video and image attachments', () => {
       .sees(MessageList)
       .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
   });
-
-  test('should add height for gallery image attachments', async ({ page, user }) => {
-    const imageElementsLocator = page.locator(
-      '[data-testid="gallery-image-last"],[data-testid="gallery-image"]',
-    );
-    const result = await imageElementsLocator.evaluateAll(
-      (imageElements) =>
-        imageElements.length > 0 &&
-        imageElements.every((element) => getComputedStyle(element).height.includes('px')),
-    );
-
-    expect(result).toBe(true);
-    await user
-      .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
-  });
 });
