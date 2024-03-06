@@ -125,13 +125,9 @@ export type VoiceRecordingProps<
   isQuoted?: boolean;
 };
 
-const UnMemoizedVoiceRecording = ({ attachment, isQuoted }: VoiceRecordingProps) =>
+export const VoiceRecording = ({ attachment, isQuoted }: VoiceRecordingProps) =>
   isQuoted ? (
     <QuotedVoiceRecording attachment={attachment} />
   ) : (
     <VoiceRecordingPlayer attachment={attachment} />
   );
-
-export const VoiceRecording = React.memo(
-  UnMemoizedVoiceRecording,
-) as typeof UnMemoizedVoiceRecording;
