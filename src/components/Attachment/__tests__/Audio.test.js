@@ -1,6 +1,6 @@
 import React from 'react';
 import prettybytes from 'pretty-bytes';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
@@ -65,9 +65,12 @@ describe('Audio', () => {
       .mockImplementationOnce(() => ({ width: 120, x: 0 }));
 
     jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'set').mockImplementationOnce(() => {});
+    jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockReturnValue(120);
 
-    fireEvent.click(getByTestId('audio-progress'), {
-      clientX: 60,
+    act(() => {
+      fireEvent.click(getByTestId('audio-progress'), {
+        clientX: 60,
+      });
     });
 
     await waitFor(() => {

@@ -20,8 +20,7 @@ export const useAudioController = ({
   const { addNotification } = useChannelActionContext('useAudioController');
   const { t } = useTranslationContext('useAudioController');
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [secondsElapsed, setSecondsElapsed] = useState(durationSeconds);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
   const [playbackRateIndex, setPlaybackRateIndex] = useState<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -54,8 +53,6 @@ export const useAudioController = ({
 
       const ratio = (clientX - x) / width;
 
-      if (!elementIsPlaying(audioRef.current)) setProgress(ratio * 100);
-
       const currentTime = ratio * audioRef.current.duration;
       setSecondsElapsed(currentTime);
       audioRef.current.currentTime = currentTime;
@@ -68,7 +65,7 @@ export const useAudioController = ({
     const audioElement = audioRef.current;
 
     const handleEnded = () => {
-      setSecondsElapsed(durationSeconds);
+      setSecondsElapsed(audioElement?.duration ?? durationSeconds ?? 0);
       setIsPlaying(false);
     };
     audioElement.addEventListener('ended', handleEnded);
@@ -79,9 +76,7 @@ export const useAudioController = ({
     audioElement.addEventListener('error', handleError);
 
     const handleTimeupdate = () => {
-      const { currentTime, duration } = audioElement;
-      setProgress((currentTime / duration) * 100);
-      setSecondsElapsed(currentTime);
+      setSecondsElapsed(audioElement?.currentTime);
     };
     audioElement.addEventListener('timeupdate', handleTimeupdate);
 
@@ -98,7 +93,8 @@ export const useAudioController = ({
     increasePlaybackRate,
     isPlaying,
     playbackRate: playbackRates[playbackRateIndex],
-    progress,
+    progress:
+      audioRef.current && secondsElapsed ? (secondsElapsed / audioRef.current.duration) * 100 : 0,
     secondsElapsed,
     seek,
     togglePlay,
