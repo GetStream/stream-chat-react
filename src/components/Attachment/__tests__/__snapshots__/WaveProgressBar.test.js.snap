@@ -10,27 +10,27 @@ exports[`WaveProgressBar component is rendered with zero progress by default if 
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-cha__wave-progress-bar__amplitude-bar-height: 0%;"
+      style="--str-chat__wave-progress-bar__amplitude-bar-height: 0%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-cha__wave-progress-bar__amplitude-bar-height: 200%;"
+      style="--str-chat__wave-progress-bar__amplitude-bar-height: 200%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-cha__wave-progress-bar__amplitude-bar-height: 500%;"
+      style="--str-chat__wave-progress-bar__amplitude-bar-height: 500%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-cha__wave-progress-bar__amplitude-bar-height: 700%;"
+      style="--str-chat__wave-progress-bar__amplitude-bar-height: 700%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-cha__wave-progress-bar__amplitude-bar-height: 900%;"
+      style="--str-chat__wave-progress-bar__amplitude-bar-height: 900%;"
     />
     <div
       class="str-chat__wave-progress-bar__progress-indicator"
