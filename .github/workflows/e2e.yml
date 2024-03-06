@@ -20,18 +20,17 @@ jobs:
           path: |
             ./node_modules
             ./pw-browsers
-          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('./yarn.lock') }}
 
       - name: 🔨 Install Dependencies
         run: |
           yarn install --frozen-lockfile --ignore-engines --ignore-scripts
-          npx playwright install
+          npx playwright install chromium
           npx playwright install-deps
 
       - name: ⚗️ End-to-end tests
         run: |
           yarn e2e-fixtures
-          # running with --browser=all causes failures
           yarn e2e --browser=chromium
         env:
           E2E_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
