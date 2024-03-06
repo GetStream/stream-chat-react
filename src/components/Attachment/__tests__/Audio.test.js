@@ -1,10 +1,9 @@
 import React from 'react';
 import prettybytes from 'pretty-bytes';
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
-import { PROGRESS_UPDATE_INTERVAL } from '../hooks/useAudioController';
 
 import { ChannelActionProvider, ChatContext } from '../../../context';
 
@@ -112,53 +111,16 @@ describe('Audio', () => {
       audioPausedMock.mockRestore();
     });
 
-    it(`should poll for progress every ${PROGRESS_UPDATE_INTERVAL}ms if the file is played, and stop doing that when it is paused`, () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
-
-      let intervalId;
-      const setIntervalSpy = jest.spyOn(window, 'setInterval').mockImplementationOnce(() => {
-        intervalId = 'something';
-        return intervalId;
-      });
-      const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
-
-      fireEvent.click(getByTestId(playButtonTestId));
-      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), PROGRESS_UPDATE_INTERVAL);
-
-      fireEvent.click(getByTestId(pauseButtonTestId));
-      expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
-    });
-
-    it('should clean up the progress interval if the component is unmounted while the file is playing', () => {
-      const { getByTestId, unmount = cleanup } = renderComponent({
-        chatContext: { themeVersion },
-        og: AUDIO,
-      });
-
-      let intervalId;
-      jest.spyOn(window, 'setInterval').mockImplementationOnce(() => {
-        intervalId = 'something';
-        return intervalId;
-      });
-      fireEvent.click(getByTestId(playButtonTestId));
-
-      const clearIntervalSpy = jest.spyOn(window, 'clearInterval');
-
-      unmount();
-
-      expect(clearIntervalSpy).toHaveBeenCalledWith(intervalId);
-    });
-
     it('should show the correct progress', async () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
+      const { container } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
 
       jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
       jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
-
-      fireEvent.click(getByTestId(playButtonTestId));
+      const audioElement = container.querySelector('audio');
+      fireEvent.timeUpdate(audioElement);
 
       await waitFor(() => {
-        expect(getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
+        expect(screen.getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
       });
     });
   });

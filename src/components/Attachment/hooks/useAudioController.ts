@@ -4,8 +4,6 @@ import { useChannelActionContext, useTranslationContext } from '../../../context
 export const elementIsPlaying = (audioElement: HTMLAudioElement | null) =>
   audioElement && !(audioElement.paused || audioElement.ended);
 
-export const PROGRESS_UPDATE_INTERVAL = 100;
-
 const DEFAULT_PLAYBACK_RATES = [1.0, 1.5, 2.0];
 
 type AudioControllerParams = {
@@ -15,31 +13,23 @@ type AudioControllerParams = {
   playbackRates?: number[];
 };
 
-export const useAudioController = (params: AudioControllerParams = {}) => {
+export const useAudioController = ({
+  durationSeconds,
+  playbackRates = DEFAULT_PLAYBACK_RATES,
+}: AudioControllerParams = {}) => {
   const { addNotification } = useChannelActionContext('useAudioController');
   const { t } = useTranslationContext('useAudioController');
-  const { durationSeconds } = params;
-  const playbackRates = params.playbackRates || DEFAULT_PLAYBACK_RATES;
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [secondsElapsed, setSecondsElapsed] = useState(durationSeconds);
   const [playbackRateIndex, setPlaybackRateIndex] = useState<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const playInterval = useRef<number>();
 
   const togglePlay = useCallback(() => {
     if (!audioRef.current) return;
-    clearInterval(playInterval.current);
     if (!elementIsPlaying(audioRef.current)) {
       audioRef.current.play();
-
-      playInterval.current = window.setInterval(() => {
-        if (!audioRef.current) return;
-        const { currentTime, duration } = audioRef.current;
-        setProgress((currentTime / duration) * 100);
-        setSecondsElapsed(currentTime);
-      }, PROGRESS_UPDATE_INTERVAL);
       setIsPlaying(true);
     } else {
       audioRef.current.pause();
@@ -78,7 +68,6 @@ export const useAudioController = (params: AudioControllerParams = {}) => {
     const audioElement = audioRef.current;
 
     const handleEnded = () => {
-      window.clearInterval(playInterval.current);
       setSecondsElapsed(durationSeconds);
       setIsPlaying(false);
     };
@@ -89,11 +78,18 @@ export const useAudioController = (params: AudioControllerParams = {}) => {
     };
     audioElement.addEventListener('error', handleError);
 
+    const handleTimeupdate = () => {
+      const { currentTime, duration } = audioElement;
+      setProgress((currentTime / duration) * 100);
+      setSecondsElapsed(currentTime);
+    };
+    audioElement.addEventListener('timeupdate', handleTimeupdate);
+
     return () => {
       audioElement.pause();
       audioElement.removeEventListener('ended', handleEnded);
       audioElement.removeEventListener('error', handleError);
-      window.clearInterval(playInterval.current);
+      audioElement.removeEventListener('timeupdate', handleTimeupdate);
     };
   }, [addNotification, durationSeconds, t]);
 
