@@ -163,22 +163,6 @@ If the `waveform_data` is an empty array, then no progress bar is rendered.
     ]}
 />
 
-
-## Audio player controller
-
-The API to control the voice recording player is provided by <GHComponentLink text='useAudioController' path='/Attachment/hooks/useAudioController.tsx'/>. The `VoiceRecordingPlayer` makes use of the following memoized functions:
-
-1. `togglePlay` - to start and stop playing the record
-2. `seek` - to change audio progress
-3. `increasePlaybackRate` - to change the playback rate in the round-robin manner
-
-Besides the above actions, the controller maintains state in the following form:
-
-1. `isPlaying` - boolean flag informing the UI, whether the reproduction is in flight
-2. `progress` - numeric fractional value between 0 and 100 representing the progress of the audio reproduction
-3. `playbackRate` - currently selected playback rate value
-4. `secondsElapsed` - related to `progress`, but representing the amount of seconds elapsed since the audio beginning
-
 ## Default components customization
 
 The pattern of customization applied to the default `VoiceRecording` component will be the same:
