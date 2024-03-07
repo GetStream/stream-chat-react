@@ -1,8 +1,8 @@
-import type { Dispatch, SetStateAction } from 'react';
-import type { ChannelNotifications } from '../../context/ChannelStateContext';
 import { nanoid } from 'nanoid';
-import { ChannelState, MessageResponse } from '../../../../stream-chat-js';
-import { DefaultStreamChatGenerics } from '../../types';
+import type { Dispatch, SetStateAction } from 'react';
+import type { ChannelState, MessageResponse } from 'stream-chat';
+import type { ChannelNotifications } from '../../context/ChannelStateContext';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 export const makeAddNotifications = (
   setNotifications: Dispatch<SetStateAction<ChannelNotifications>>,
