@@ -36,6 +36,9 @@ The following UI components are available for use:
 - [`QuotedMessage`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) - shows a quoted
   message UI wrapper when the sent message quotes a previous message
 
+- [`Timestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Timestmap.tsx) - formats and displays a date,
+  used by `MessageTimestamp` and for edited message timestamps.
+
 - [`MessageBouncePrompt`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) -
   presents options to deal with a message that got bounced by the moderation rules.
 
@@ -350,6 +353,8 @@ Theme string to be added to CSS class names.
 
 ## MessageTimestamp Props
 
+This component has all of the same props as the underlying [`Timestamp`](#timestamp-props), except that instead of `timestamp` it uses `message.created_at` value from the `MessageContext`.
+
 ### calendar
 
 If true, call the `Day.js` calendar function to get the date string to display.
@@ -418,7 +423,7 @@ The side of the message list to render MML components.
 `QuotedMessage` only consumes context and does not accept any optional props.
 :::
 
-## MessageBouncePrompt
+## MessageBouncePrompt props
 
 This component is rendered in a modal dialog for messages that got bounced by the moderation rules.
 
@@ -460,3 +465,41 @@ The Message UI component will pass this callback to close the modal dialog `Mess
 | Type              |
 | ----------------- |
 | ReactEventHandler |
+
+## Timestamp props
+
+### calendar
+
+If true, call the `Day.js` calendar function to get the date string to display.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### customClass
+
+If provided, adds a CSS class name to the component's outer `time` container.
+
+```jsx
+<time className={customClass} />
+```
+
+| Type   |
+| ------ |
+| string |
+
+### format
+
+If provided, overrides the default timestamp format.
+
+| Type   | Default |
+| ------ | ------- |
+| string | 'h:mmA' |
+
+### timestamp
+
+Either an ISO string with a date, or a Date object with a date to display.
+
+| Type           |
+| -------------- |
+| Date \| string |

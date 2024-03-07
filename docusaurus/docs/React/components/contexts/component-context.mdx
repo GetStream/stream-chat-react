@@ -32,8 +32,8 @@ Custom UI component to display attachment in an individual message.
 
 Custom UI component to display a attachment previews in `MessageInput`.
 
-| Type      | Default                                                                             |
-| --------- | ----------------------------------------------------------------------------------- |
+| Type      | Default                                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx'/> |
 
 ### AutocompleteSuggestionHeader
@@ -256,11 +256,13 @@ Custom UI component to display system messages.
 
 ### MessageTimestamp
 
-Custom UI component to display a timestamp on a message.
+Custom UI component to display a timestamp on a message. This does not include a timestamp for edited messages.
 
 | Type      | Default                                                                         |
 | --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageTimestamp' path='/Message/MessageTimestamp.tsx'/> |
+
+See also [`Timestamp`](#timestamp).
 
 ### MessageBouncePrompt
 
@@ -357,6 +359,14 @@ Custom UI component to display the start of a threaded `MessageList`.
 | Type      | Default                                                                |
 | --------- | ---------------------------------------------------------------------- |
 | component | <GHComponentLink text='DefaultThreadStart' path='/Thread/Thread.tsx'/> |
+
+### Timestamp
+
+Custom UI component to display a date used in timestamps. It's used internally by the default `MessageTimestamp`, and to display a timestamp for edited messages.
+
+| Type      | Default                                                           |
+| --------- | ----------------------------------------------------------------- |
+| component | <GHComponentLink text='Timestamp' path='/Message/Timestamp.tsx'/> |
 
 ### TriggerProvider
 

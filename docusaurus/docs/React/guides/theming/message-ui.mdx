@@ -49,6 +49,9 @@ The custom Message UI component built below imports and uses the following UI co
 - [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
   a minimal list of the reactions added to a message (alternate option to [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)).
 
+- [`Timestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Timestmap.tsx) - formats and displays a date,
+  used by `MessageTimestamp` and for edited message timestamps.
+
 ### How it Fits Together
 
 The sample code below assembles the above UI building blocks into a fully featured Message UI component. The UI components allow you to
@@ -105,9 +108,7 @@ export const CustomMessage = () => {
             <MessageTimestamp />
           </div>
         </div>
-        {showDetailedReactions && canReact && (
-          <ReactionSelector ref={reactionSelectorRef} />
-        )}
+        {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
         <MessageText />
         <MessageStatus />
         {hasAttachments && <Attachment attachments={message.attachments} />}
