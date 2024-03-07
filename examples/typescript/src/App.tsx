@@ -50,7 +50,7 @@ chatClient.connectUser({ id: userId }, userToken);
 const App = () => (
   <Chat client={chatClient}>
     <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
-    <Channel>
+    <Channel Timestamp={() => <>Lol no</>}>
       <Window>
         <ChannelHeader />
         <MessageList />

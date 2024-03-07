@@ -4,7 +4,8 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 import { useMessageContext } from '../../context/MessageContext';
-import { Timestamp } from './Timestamp';
+import { Timestamp as DefaultTimestamp } from './Timestamp';
+import { useComponentContext } from '../../context';
 
 export const defaultTimestampFormat = 'h:mmA';
 
@@ -28,6 +29,7 @@ const UnMemoizedMessageTimestamp = <
 ) => {
   const { message: propMessage, ...timestampProps } = props;
   const { message: contextMessage } = useMessageContext<StreamChatGenerics>('MessageTimestamp');
+  const { Timestamp = DefaultTimestamp } = useComponentContext('MessageTimestamp');
   const message = propMessage || contextMessage;
   return <Timestamp timestamp={message.created_at} {...timestampProps} />;
 };
