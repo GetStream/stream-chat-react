@@ -30,6 +30,7 @@ exports[`File should render File component in V1 1`] = `
     </a>
     <span
       className="str-chat__message-attachment-file--item-size"
+      data-testid="file-size-indicator"
     >
       1.34 kB
     </span>
@@ -110,6 +111,7 @@ exports[`File should render File component in V2 1`] = `
     </div>
     <span
       className="str-chat__message-attachment-file--item-size"
+      data-testid="file-size-indicator"
     >
       1.34 kB
     </span>

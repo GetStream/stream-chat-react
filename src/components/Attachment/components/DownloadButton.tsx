@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { DownloadIcon } from './icons';
-import { SafeAnchor } from '../SafeAnchor';
+import { DownloadIcon } from '../icons';
+import { SafeAnchor } from '../../SafeAnchor';
 
 type DownloadButtonProps = {
   assetUrl?: string;

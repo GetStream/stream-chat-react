@@ -6,6 +6,7 @@ import * as linkify from 'linkifyjs';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
+import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
@@ -233,6 +234,20 @@ export const AudioContainer = <
   <AttachmentWithinContainer attachment={attachment} componentType='audio'>
     <div className='str-chat__attachment'>
       <Audio og={attachment} />
+    </div>
+  </AttachmentWithinContainer>
+);
+
+export const VoiceRecordingContainer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  attachment,
+  VoiceRecording = DefaultVoiceRecording,
+  isQuoted,
+}: RenderAttachmentProps<StreamChatGenerics>) => (
+  <AttachmentWithinContainer attachment={attachment} componentType='voiceRecording'>
+    <div className='str-chat__attachment'>
+      <VoiceRecording attachment={attachment} isQuoted={isQuoted} />
     </div>
   </AttachmentWithinContainer>
 );

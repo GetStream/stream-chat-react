@@ -78,7 +78,9 @@ export const QuotedMessagePreview = <
           />
         )}
         <div className='quoted-message-preview-content-inner str-chat__quoted-message-bubble'>
-          {!!quotedMessageAttachment.length && <Attachment attachments={quotedMessageAttachment} />}
+          {!!quotedMessageAttachment.length && (
+            <Attachment attachments={quotedMessageAttachment} isQuoted />
+          )}
           <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
             {themeVersion === '2' && <p>{quotedMessageText}</p>}
             {themeVersion === '1' && <>{quotedMessageText}</>}

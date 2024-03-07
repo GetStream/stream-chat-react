@@ -59,6 +59,7 @@ exports[`Card theme V2 (1) should render card without caption if attachment type
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
@@ -282,6 +283,7 @@ exports[`Card theme V2 (7) should render audio with caption using og_scrape_url 
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
@@ -493,6 +495,7 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
@@ -689,6 +692,7 @@ exports[`Card theme V2 (13) should render audio without title and with caption u
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
@@ -872,6 +876,7 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"
@@ -1404,6 +1409,7 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
             data-progress="0"
             data-testid="audio-progress"
             role="progressbar"
+            style="--str-chat__message-attachment-audio-widget-progress: 0%;"
           >
             <div
               class="str-chat__message-attachment-audio-widget--progress-slider"

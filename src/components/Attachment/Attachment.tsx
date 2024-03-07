@@ -9,6 +9,7 @@ import {
   isMediaAttachment,
   isScrapedContent,
   isUploadedImage,
+  isVoiceRecordingAttachment,
 } from './utils';
 
 import {
@@ -19,10 +20,12 @@ import {
   ImageContainer,
   MediaContainer,
   UnsupportedAttachmentContainer,
+  VoiceRecordingContainer,
 } from './AttachmentContainer';
 
 import type { AttachmentActionsProps } from './AttachmentActions';
 import type { AudioProps } from './Audio';
+import type { VoiceRecordingProps } from './VoiceRecording';
 import type { CardProps } from './Card';
 import type { FileAttachmentProps } from './FileAttachment';
 import type { GalleryProps, ImageProps } from '../Gallery';
@@ -37,6 +40,7 @@ const CONTAINER_MAP = {
   file: FileContainer,
   media: MediaContainer,
   unsupported: UnsupportedAttachmentContainer,
+  voiceRecording: VoiceRecordingContainer,
 } as const;
 
 export const ATTACHMENT_GROUPS_ORDER = [
@@ -45,6 +49,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'image',
   'media',
   'audio',
+  'voiceRecording',
   'file',
   'unsupported',
 ] as const;
@@ -68,10 +73,14 @@ export type AttachmentProps<
   Gallery?: React.ComponentType<GalleryProps<StreamChatGenerics>>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
+  /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
+  isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<ReactPlayerProps>;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
+  /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [VoiceRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/VoiceRecording.tsx) */
+  VoiceRecording?: React.ComponentType<VoiceRecordingProps<StreamChatGenerics>>;
 };
 
 /**
@@ -135,6 +144,7 @@ const renderGroupedAttachments = <
         image: [],
         // eslint-disable-next-line sort-keys
         gallery: [],
+        voiceRecording: [],
       },
     );
 
@@ -169,6 +179,8 @@ const getAttachmentType = <
     return 'media';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
+  } else if (isVoiceRecordingAttachment(attachment)) {
+    return 'voiceRecording';
   } else if (isFileAttachment(attachment)) {
     return 'file';
   }
