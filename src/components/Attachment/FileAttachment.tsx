@@ -2,8 +2,7 @@ import React from 'react';
 import { FileIcon } from '../ReactFileUtilities';
 import type { Attachment } from 'stream-chat';
 
-import { DownloadButton } from './DownloadButton';
-import { FileSizeIndicator } from './FileSizeIndicator';
+import { DownloadButton, FileSizeIndicator } from './components';
 import { SafeAnchor } from '../SafeAnchor/SafeAnchor';
 
 import { useChatContext } from '../../context/ChatContext';

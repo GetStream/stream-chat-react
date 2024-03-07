@@ -64,7 +64,9 @@ export const QuotedMessage = <
           className='quoted-message-inner str-chat__quoted-message-bubble'
           data-testid='quoted-message-contents'
         >
-          {quotedMessageAttachment && <Attachment attachments={[quotedMessageAttachment]} />}
+          {quotedMessageAttachment && (
+            <Attachment attachments={[quotedMessageAttachment]} isQuoted />
+          )}
           <div data-testid='quoted-message-text'>{quotedMessageText}</div>
         </div>
       </div>
