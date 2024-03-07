@@ -1,6 +1,7 @@
-import React, { PropsWithChildren, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { PropsWithChildren, useEffect, useLayoutEffect, useRef } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
+import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
 /**
  * Prevents Chrome hangups
@@ -61,7 +62,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     loadMoreNewer,
     loadNextPage,
     loadPreviousPage,
-    threshold = 250,
+    threshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
     useCapture = false,
     ...elementProps
   } = props;
@@ -73,7 +74,8 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
 
   const scrollComponent = useRef<HTMLElement>();
 
-  const scrollListener = useCallback(() => {
+  const scrollListenerRef = useRef<() => void>();
+  scrollListenerRef.current = () => {
     const element = scrollComponent.current;
 
     if (!element || element.offsetParent === null) {
@@ -103,15 +105,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     if (offset < Number(threshold) && typeof loadNextPageFn === 'function' && hasNextPageFlag) {
       loadNextPageFn();
     }
-  }, [
-    hasPreviousPageFlag,
-    hasNextPageFlag,
-    isLoading,
-    listenToScroll,
-    loadPreviousPageFn,
-    loadNextPageFn,
-    threshold,
-  ]);
+  };
 
   useEffect(() => {
     deprecationAndReplacementWarning(
@@ -130,14 +124,17 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     const scrollElement = scrollComponent.current?.parentNode;
     if (!scrollElement) return;
 
+    const scrollListener = () => scrollListenerRef.current?.();
+
     scrollElement.addEventListener('scroll', scrollListener, useCapture);
     scrollElement.addEventListener('resize', scrollListener, useCapture);
+    scrollListener();
 
     return () => {
       scrollElement.removeEventListener('scroll', scrollListener, useCapture);
       scrollElement.removeEventListener('resize', scrollListener, useCapture);
     };
-  }, [initialLoad, scrollListener, useCapture]);
+  }, [initialLoad, useCapture]);
 
   useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;

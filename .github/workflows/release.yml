@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
       - name: Merge shared "@stream-io/stream-chat-css" docs
-        run: bash scripts/merge-stream-chat-css-docs.sh node_modules/@stream-io/stream-chat-css/docs
+        run: yarn docs:copy-css-docs
       - name: Push to stream-chat-docusaurus
         uses: GetStream/push-stream-chat-docusaurus-action@main
         with:

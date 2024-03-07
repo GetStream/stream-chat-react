@@ -1,1 +1,1 @@
-export { DefaultStreamChatGenerics, ChannelUnreadUiState } from './types';
+export type { DefaultStreamChatGenerics, ChannelUnreadUiState } from './types';

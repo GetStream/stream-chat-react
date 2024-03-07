@@ -35,7 +35,7 @@ export default (page: Page) => ({
     not: {
       async displayed(text?: string, nth?: number) {
         const target = getMessage(page, text, nth);
-        await expect(target).not.toBeVisible();
+        await expect(target).not.toBeInViewport();
         return target;
       },
     },

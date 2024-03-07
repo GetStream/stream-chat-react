@@ -1,6 +1,5 @@
 ---
 id: upgrade-to-v11
-sidebar_position: 2
 title: Upgrade to v11
 keywords: [migration guide, upgrade, v11, breaking changes, emojis, reactions]
 ---
@@ -76,10 +75,10 @@ const customReactionOptions = [
     name: 'Rick Roll',
   },
   {
-    Component: () => <>❤️</>
+    Component: () => <>❤️</>,
     type: 'love',
-    name: "Heart"
-  }
+    name: 'Heart',
+  },
 ];
 ```
 
@@ -488,7 +487,7 @@ const doSendMessageRequest: ChannelProps['doSendMessageRequest'] = async (
 ## Message text rendering
 
 Optional remark plugins `htmlToTextPlugin`, `keepLineBreaksPlugin` introduced with [stream-chat-react@v10.19.0](https://github.com/GetStream/stream-chat-react/releases/tag/v10.19.0) are now included among the default remark plugins. That means that in the messages that originally contained a sequence of multiple newline characters `\n`, these will be replaced with line break elements `<br/>`. The number of line breaks equals count of newline characters minus 1.
-The dependencies used to parse the markdown with [`renderText()` function](../components/core-components/message-list.mdx#rendering-message-text-with-rendertext-function) have been upgraded as a result of that, the following changes had to be performed in stream-chat-react library:
+The dependencies used to parse the markdown with [`renderText` function](../components/message-components/render-text.mdx) have been upgraded as a result of that, the following changes had to be performed in stream-chat-react library:
 
 ### `ReactMarkdownProps` dropped from `customMarkDownRenderers`
 

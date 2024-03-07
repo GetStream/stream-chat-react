@@ -51,7 +51,8 @@ type MessageContextPropsToPick =
   | 'onReactionListClick'
   | 'reactionSelectorRef'
   | 'showDetailedReactions'
-  | 'sortReactions';
+  | 'sortReactions'
+  | 'sortReactionDetails';
 
 type MessageWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -208,6 +209,7 @@ export const Message = <
     openThread: propOpenThread,
     pinPermissions,
     retrySendMessage: propRetrySendMessage,
+    sortReactionDetails,
     sortReactions,
   } = props;
 
@@ -310,6 +312,7 @@ export const Message = <
       readBy={props.readBy}
       renderText={props.renderText}
       showDetailedReactions={showDetailedReactions}
+      sortReactionDetails={sortReactionDetails}
       sortReactions={sortReactions}
       threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}

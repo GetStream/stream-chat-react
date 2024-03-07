@@ -1,3 +1,28 @@
+## [11.11.0](https://github.com/GetStream/stream-chat-react/compare/v11.10.0...v11.11.0) (2024-03-01)
+
+
+### Bug Fixes
+
+* cleanup ML types and defaults ([#2305](https://github.com/GetStream/stream-chat-react/issues/2305)) ([b3ed81d](https://github.com/GetStream/stream-chat-react/commit/b3ed81dd7a99ed32fb47c81a7b4e0b8e41f6d823))
+
+
+### Features
+
+* introduce useCreateChatClient hook ([#1916](https://github.com/GetStream/stream-chat-react/issues/1916)) ([e086565](https://github.com/GetStream/stream-chat-react/commit/e08656592f635f25dc7f94bd1e6ec02c6d4c31d2)), closes [GetStream/stream-chat-react-issues#19](https://github.com/GetStream/stream-chat-react-issues/issues/19)
+
+## [11.10.0](https://github.com/GetStream/stream-chat-react/compare/v11.9.0...v11.10.0) (2024-02-23)
+
+
+### Bug Fixes
+
+* initial message load issues ([#2292](https://github.com/GetStream/stream-chat-react/issues/2292)) ([3685030](https://github.com/GetStream/stream-chat-react/commit/36850305435757090f28d63bed4306ec9d7481e1))
+
+
+### Features
+
+* add customizable reaction details sorting ([#2290](https://github.com/GetStream/stream-chat-react/issues/2290)) ([652e3a5](https://github.com/GetStream/stream-chat-react/commit/652e3a53ebe38ca66766687b35f370582307d279)), closes [#2289](https://github.com/GetStream/stream-chat-react/issues/2289)
+* add customizable reactions sorting ([#2289](https://github.com/GetStream/stream-chat-react/issues/2289)) ([78c6107](https://github.com/GetStream/stream-chat-react/commit/78c6107e6437a1761f3b3e69f44c5c80979c88b1))
+
 ## [11.9.0](https://github.com/GetStream/stream-chat-react/compare/v11.8.0...v11.9.0) (2024-02-21)
 
 

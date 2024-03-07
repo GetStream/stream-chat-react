@@ -1,0 +1,42 @@
+---
+id: window
+sidebar_position: 8
+title: Window
+---
+
+The `Window` component handles width changes in the main channel to ensure a seamless user experience when opening and closing a `Thread` component.
+
+## Basic Usage
+
+The `Window` component must wrap the main channel components to enable smooth mount and unmount behavior. It must be rendered at the same level as the `Thread`.
+This ensures correct width changes in the main channel when opening and closing a `Thread`.
+
+```tsx
+<Chat client={client}>
+  <Channel channel={channel}>
+    <Window>
+      <MessageList />
+      <MessageInput />
+    </Window>
+    <Thread />
+  </Channel>
+</Chat>
+```
+
+## Props
+
+### hideOnThread
+
+The boolean to show or hide the `Window` when a `Thread` is active.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | false   |
+
+### thread
+
+An optional prop to manually trigger the opening of a thread.
+
+| Type   |
+| ------ |
+| object |

@@ -1,0 +1,43 @@
+---
+id: troubleshooting
+sidebar_position: 1
+title: Troubleshooting
+---
+
+For information regarding some common troubleshooting and support issues, please see below.
+
+### Context Providers
+
+The Stream Chat React SDK uses a variety of [Context Providers](../components/contexts/chat-context.mdx) that share values and data to all their children. This is instead of prop drilling through many levels of components.
+If you're creating a custom component, utilizing our contexts via our custom hooks makes this process very straightforward.
+
+A common issue is when one of the exposed hooks from a context provider is being utilized, but not within the related Context. Each value you pull will be undefined.
+A good resource for knowing which of our components are Context Providers is within [Core Components](../components/core-components/chat.mdx).
+
+### User Roles and Permission Policies
+
+If you are seeing access to functionality for user that seems incorrect, or conversely, functionality that could be missing for a user, then this might be related to a user role or permissions.
+
+Channels are organized into groups with a set channel type (ex: livestream, messaging, team, gaming or commerce), and these are set when creating a channel.
+Each channel type comes with a default permission policy pre-configured. These can then be modified as needed to fit different use cases.
+A policy is structured by a user role being allowed or denied access to a resource (ex: user with admin role is allowed to create a channel and ban a user).
+
+Documentation on [User Permissions](https://getstream.io/chat/docs/react/chat_permission_policies/?language=js).
+Documentation on [Channel Permissions](https://getstream.io/chat/docs/react/channel_permission_policies/?language=js).
+Documentation on [User Roles](https://getstream.io/chat/docs/react/channel_user_role/?language=js)
+
+You can change/create permission policies applied to a channel type at any time through the Dashboard. You can also change a user role to admin or moderator using the API, however this must be done server side.
+
+### Watching Channels
+
+The method channel.watch() is intended for client-side use, and creates a channel if it does not already exist. If the channel already exists, it will return a more detailed version of the channel instance (including messages, watchers, and 'read'). In addition, using this method will 'watch' the channel, that is, the currently connected user will be subscribed to event updates (new message, new member, etc...).
+
+This is different than the methods channel.create() (creates a channel but does not subscribe to events) and
+channel.query() (returns certain parameters of the channel but does not subscribe to events).
+
+### Watcher vs Member
+
+A watcher is a user who is subscribed to updates on a channel (new messages, etc). This actually doesn't imply membership, for example a non-member can watch a Livestream channel-type.
+
+A member is a user role associated with a specific channel, typically granted more permissions than a non-member user.
+For example, default permissions on our "messaging" type channel allow a user to read and write to the channel, as well as receive push notifications.

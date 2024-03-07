@@ -28,7 +28,8 @@
     "declaration": true,
     "declarationDir": "./dist",
     "declarationMap": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "isolatedModules": true
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/stories", "./src/mock-builders", "./src/**/__tests__/*"]

@@ -291,7 +291,7 @@ describe('Channel', () => {
 
     await waitFor(() => {
       expect(watchSpy).toHaveBeenCalledTimes(1);
-      expect(watchSpy).toHaveBeenCalledWith(undefined);
+      expect(watchSpy).toHaveBeenCalledWith({ messages: { limit: 25 } });
     });
   });
 

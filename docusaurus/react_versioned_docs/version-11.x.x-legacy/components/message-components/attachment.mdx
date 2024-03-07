@@ -1,0 +1,234 @@
+---
+id: attachment
+sidebar_position: 3
+title: Attachments
+---
+
+import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
+import ImageSizingScreenshot1 from '../../assets/ImageSizing1.png';
+import ImageSizingScreenshot2 from '../../assets/ImageSizing2.png';
+import ImageSizingScreenshot3 from '../../assets/ImageSizing3.png';
+import AttachmentSizeWarning from '../../assets/AttachmentSizeWarning.png';
+
+The `Attachment` component takes a list of message attachments and conditionally renders the UI of each individual attachment based
+upon its type. The following table shows the attachment UI components that will be rendered for various attachment types:
+
+| Attachment Type | UI Component                                                                                                    | File type(s) (non-exhaustive)                          |
+| --------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `audio`         | [Audio](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Audio.tsx)         | MP3, WAV, M4A, FLAC, AAC                               |
+| `file`          | [File](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/FileAttachment.tsx) | DOC, DOCX, PDF, PPT, PPTX, TXT, XLS, XLSX              |
+| `gallery`       | [Gallery](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Gallery.tsx)        | when a message has more than 1 'image' type attachment |
+| `image`         | [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx)            | HEIC, GIF, JPEG, JPG, PNG, TIFF, BMP                   |
+| `video`         | [ReactPlayer](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js)                          | MP4, OGG, WEBM, Quicktime(QTFF, QT, or MOV)            |
+
+Message attachment objects that do not conform to one of the above types are considered to contain scraped content and should contain at least `og_scrape_url` or `title_link` to be rendered with the <GHComponentLink text='Card' path='/Attachment/Card.tsx'/> component. Otherwise, the attachment is not rendered.
+
+## Basic Usage
+
+By default, the `Attachment` component is included within `MessageSimple`. To render message attachment UI within a custom
+[Message UI](./message-ui.mdx) component, import the `Attachment` component and render it conditionally based upon the presence of
+message attachments.
+
+```jsx
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message } = useMessageContext();
+
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
+  return (
+    <div>
+      {hasAttachments && <Attachment attachments={message.attachments} />}
+      // render remaining custom Message UI
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+## UI Customization
+
+`Attachment` accepts component override props for each attachment UI component. Building upon the previous example, the below
+snippets show how to customize one of the individual attachment UI components with either custom Message UI component:
+
+```jsx
+const CustomImage = (props) => {
+  // render custom image component here
+};
+
+const CustomMessage = () => {
+  // consume `MessageContext`
+  const { message } = useMessageContext();
+
+  const hasAttachments = message.attachments && message.attachments.length > 0;
+
+  return (
+    <div>
+      {hasAttachments && <Attachment attachments={message.attachments} Image={CustomImage} />}
+      {/* render remaining custom Message UI */}
+    </div>
+  );
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Message={CustomMessage}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+or using wrapped `Attachment` component:
+
+```jsx
+const CustomAudioAttachment = (props) => {
+  // you can add any custom data (such as "customType" in this case)
+  if (props.og?.customType === 'voice-memo') return <div>my custom voice-memo component</div>;
+  return <Audio {...props} />;
+};
+
+const CustomAttachment = (props) => {
+  return <Attachment {...props} Audio={CustomAudioAttachment} />;
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Attachment={CustomAttachment}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+### Image and video sizing
+
+The following section details how the width and height of images and videos uploaded from files are computed.
+
+#### Maximum size
+
+You can control the maximum width and height of images and videos with the [`--str-chat__attachment-max-width`](../../theming/component-variables.mdx) CSS variable (available only in [theme-v2](../../theming/introduction.mdx)). The value of this variable must be a value that can be computed to a valid pixel value using the [`getComputedStyle`](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) method (for example: `300px`, `10rem`, `calc(300px - var(--margin))`, but not `100%`). If you provide an invalid value, the image and video sizing can break, which can lead to scrolling issues inside the message list (for example the message list isn't scrolled to the bottom when you open a channel).
+
+If you set an invalid value to the variable, you'll see a warning on the browser's console:
+
+<img src={AttachmentSizeWarning} width='800' />
+
+#### File size optimization
+
+Based on the CSS settings provided for images and videos (see [Maximum size](#maximum-size) section), the SDK will load an image (or thumbnail image in case of a video file) with a reduced file size while still providing sufficient image quality for the given dimensions. This will result in less network traffic and faster image load for users.
+
+For example if an image has `max-width` and `max-height` set to `300px` and the original image has the following dimensions: `965 × 1280` it's enough to load an image with a reduced file size, file size reduction is done by Stream's CDN.
+
+#### Aspect ratio
+
+The following description is applicable for [theme-v2](../../theming/introduction.mdx).
+
+The SDK will try to display images and videos with their original aspect ratio, however this isn't always guaranteed (in those cases a cropped image will be displayed). Three notable exceptions are:
+
+1. if a message contains multiple lines of texts and/or multiple attachments, the image/video might be stretched to its `max-width`
+
+**Example 1** - message with one line of text - image is displayed with original aspect ratio
+
+<img src={ImageSizingScreenshot1} width='200' />
+
+**Example 2** - message with multiple lines of text - image is cropped
+
+<img src={ImageSizingScreenshot2} width='200' />
+
+2. in Safari, images/videos with portrait orientation are stretched to `max-width`
+
+**Example 3** - portrait images in Safari - image is cropped
+
+<img src={ImageSizingScreenshot3} width='200' />
+
+3. if the image/video can't be rendered with the original aspect ratio given the `max-width` and `max-height` constraints of the host HTML element
+
+:::important
+**File size optimization** and maintaining **aspect ratio** uses features provided by Stream's CDN. If you're using your **own CDN** you'll likely have to provide your own implementation for this. You can do this using the [`imageAttachmentSizeHandler`](../core-components/channel.mdx/#imageattachmentsizehandler) and [`videoAttachmentSizeHandler`](../core-components/channel.mdx/#videoattachmentsizehandler) props.
+:::
+
+:::danger
+**If you're planning to rewrite attachment sizing with your own CSS code** it's important to note that:
+
+The sizing logic for images and videos (the [`imageAttachmentSizeHandler`](../core-components/channel.mdx/#imageattachmentsizehandler) and [`videoAttachmentSizeHandler`](../core-components/channel.mdx/#videoattachmentsizehandler)) requires that host elements of images and videos (ususally `img` and `video` elements) have `max-height`/`height` and `max-width` properties defined and that these values can be computed to a valid pixel value using the [`getComputedStyle`](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) (for more information refer to the [Maximum size](#maximum-size) section).
+:::
+
+## Props
+
+### <div class="label required basic">Required</div> attachments
+
+The message attachments to render, see [Attachment Format](https://getstream.io/chat/docs/javascript/message_format/?language=javascript)
+in the general JavaScript docs.
+
+| Type  |
+| ----- |
+| array |
+
+### actionHandler
+
+The handler function to call when an action is performed on an attachment, examples include canceling a /giphy command or shuffling the results.
+
+| Type                                                                                                  |
+| ----------------------------------------------------------------------------------------------------- |
+| (dataOrName?: string \| FormData, value?: string, event?: React.BaseSyntheticEvent) => Promise<void\> |
+
+### AttachmentActions
+
+Custom UI component for displaying attachment actions.
+
+| Type      | Default                                                                              |
+| --------- | ------------------------------------------------------------------------------------ |
+| component | <GHComponentLink text='AttachmentActions' path='/Attachment/AttachmentActions.tsx'/> |
+
+### Audio
+
+Custom UI component for displaying an audio type attachment.
+
+| Type      | Default                                                      |
+| --------- | ------------------------------------------------------------ |
+| component | <GHComponentLink text='Audio' path='/Attachment/Audio.tsx'/> |
+
+### Card
+
+Custom UI component for displaying a card type attachment.
+
+| Type      | Default                                                    |
+| --------- | ---------------------------------------------------------- |
+| component | <GHComponentLink text='Card' path='/Attachment/Card.tsx'/> |
+
+### File
+
+Custom UI component for displaying a file type attachment.
+
+| Type      | Default                                                              |
+| --------- | -------------------------------------------------------------------- |
+| component | <GHComponentLink text='File' path='/Attachment/FileAttachment.tsx'/> |
+
+### Gallery
+
+Custom UI component for displaying a gallery of image type attachments.
+
+| Type      | Default                                                       |
+| --------- | ------------------------------------------------------------- |
+| component | <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx'/> |
+
+### Image
+
+Custom UI component for displaying an image type attachment.
+
+| Type      | Default                                                   |
+| --------- | --------------------------------------------------------- |
+| component | <GHComponentLink text='Image' path='/Gallery/Image.tsx'/> |
+
+### Media
+
+Custom UI component for displaying a video type attachment, defaults to use the [`react-player`](https://github.com/cookpete/react-player)
+dependency.
+
+| Type      | Default                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------- |
+| component | [`ReactPlayer`](https://github.com/cookpete/react-player/blob/master/src/ReactPlayer.js) |

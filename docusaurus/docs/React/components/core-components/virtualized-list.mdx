@@ -1,6 +1,5 @@
 ---
 id: virtualized_list
-sidebar_position: 6
 title: VirtualizedMessageList
 ---
 
@@ -186,6 +185,10 @@ Custom UI component to display an individual message.
 
 The limit to use when paginating messages (the page size).
 
+:::caution
+After mounting, the `VirtualizedMessageList` component checks if the list is completely filled with messages. If there is some space left in the list, `VirtualizedMessageList` will load the next page of messages, but it will do so _only once_. This means that if your `messageLimit` is too low, or if your viewport is very large, the list will not be completely filled. Set the limit with this in mind.
+:::
+
 | Type   | Default |
 | ------ | ------- |
 | number | 100     |
@@ -263,6 +266,14 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | Type               | Default  |
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
+
+### sortReactionDetails
+
+Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method.
+
+| Type                                                       | Default            |
+| ---------------------------------------------------------- | ------------------ |
+| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
 
 ### sortReactions
 

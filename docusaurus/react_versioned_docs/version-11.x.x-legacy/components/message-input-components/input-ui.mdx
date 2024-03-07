@@ -1,0 +1,69 @@
+---
+id: input_ui
+sidebar_position: 2
+title: Input UI
+---
+
+The Input UI component consumes the [`MessageInputContext`](../contexts/message-input-context.mdx) and handles the display and functionality
+for the message input in a channel. The Input UI component is typically a combination of subcomponents that each consume
+context and are responsible for one aspect of the message input (ex: text input or emoji picker).
+
+## Basic Usage
+
+To use your own custom Input UI component, utilize the `Input` prop on either the `Channel` or `MessageInput` component. Adding the
+prop to `Channel` will inject your component into the `ComponentContext` and adding to `MessageInput` will override
+any value stored in context. So if both props are added, the value delivered to `MessageInput` will take precedence.
+
+```jsx
+const CustomInput = () => {
+  // consume `MessageInputContext` and render custom component here
+};
+
+<Chat client={client}>
+  <Channel channel={channel} Input={CustomInput}>
+    <MessageList />
+    <MessageInput />
+  </Channel>
+</Chat>;
+```
+
+:::note
+If an `Input` prop is not provided, the `MessageInput` component will render [`MessageInputFlat`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx)
+as its Input UI component by default.
+:::
+
+## UI Customization
+
+`MessageInputFlat` is designed to serve as a guide in helping build a custom Input UI component. At a high level, this
+pre-built, default component wraps a subset of composable components that each serve specific logic and design-based purposes.
+
+For example, if we strip `MessageInputFlat` down to its core pieces, the component return resembles the following snippet:
+
+```jsx
+<div>
+  <ImageDropzone>
+    <QuotedMessagePreview />
+    <UploadsPreview />
+    <EmojiPicker />
+    <ChatAutoComplete />
+    <FileUploadButton />
+    <SendButton />
+  </ImageDropzone>
+</div>
+```
+
+:::note
+`ImageDropzone` and `FileUploadButton` are imported from ['react-file-utils'](https://www.npmjs.com/package/react-file-utils).
+:::
+
+We recommend building an Input UI component in a similar way. You can mix and match any of the UI subcomponents and arrange
+in a layout that meets your design specifications. All of these UI subcomponents are exported by the library and may be used within
+your custom Input UI component. Each subcomponent consumes the `MessageInputContext` and requires no/minimal props to run.
+
+For a detailed example, review the [Input UI Customization](../../guides/theming/input-ui.mdx) example.
+
+## Props
+
+:::note
+The Input UI component only consumes context and does not accept any optional props.
+:::

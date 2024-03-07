@@ -38,6 +38,10 @@ import type { MessageProps } from '../Message/types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import {
+  DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
+  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
+} from '../../constants/limits';
 
 type MessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -56,7 +60,10 @@ const MessageListWithContext = <
     groupStyles,
     hideDeletedMessages = false,
     hideNewMessageSeparator = false,
-    internalInfiniteScrollProps,
+    internalInfiniteScrollProps: {
+      threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
+      ...restInternalInfiniteScrollProps
+    } = {},
     messageActions = Object.keys(MESSAGE_ACTIONS),
     messages = [],
     notifications,
@@ -68,7 +75,7 @@ const MessageListWithContext = <
     headerPosition,
     read,
     renderMessages = defaultRenderMessages,
-    messageLimit = 100,
+    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
@@ -91,8 +98,6 @@ const MessageListWithContext = <
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext<StreamChatGenerics>('MessageList');
-
-  const loadMoreScrollThreshold = internalInfiniteScrollProps?.threshold || 250;
 
   const {
     hasNewMessages,
@@ -239,8 +244,8 @@ const MessageListWithContext = <
               }
               loadNextPage={loadMoreNewer}
               loadPreviousPage={loadMore}
-              {...props.internalInfiniteScrollProps}
               threshold={loadMoreScrollThreshold}
+              {...restInternalInfiniteScrollProps}
             >
               <ul className='str-chat__ul' ref={setUlElement}>
                 {elements}
@@ -292,6 +297,7 @@ type PropsDrilledToMessage =
   | 'renderText'
   | 'retrySendMessage'
   | 'sortReactions'
+  | 'sortReactionDetails'
   | 'unsafeHTML';
 
 export type MessageListProps<
@@ -317,7 +323,7 @@ export type MessageListProps<
   /** Hides the DateSeparator component when new messages are received in a channel that's watched but not active, defaults to false */
   hideNewMessageSeparator?: boolean;
   /** Overrides the default props passed to [InfiniteScroll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) */
-  internalInfiniteScrollProps?: InfiniteScrollProps;
+  internalInfiniteScrollProps?: Partial<InfiniteScrollProps>;
   /** Function called when latest messages should be loaded, after the list has jumped at an earlier message set */
   jumpToLatestMessage?: () => Promise<void>;
   /** Whether or not the list is currently loading more items */

@@ -1,0 +1,65 @@
+---
+id: installation
+sidebar_position: 1
+slug: /
+title: Overview
+---
+
+Building on top of the Stream Chat API, the Stream Chat React component library includes everything you need to build feature-rich and high-functioning chat user experiences out of the box.
+The library includes an extensive set of performant and customizable React components which allow you to get started quickly with little to no plumbing required.
+Use cases include team and social messaging, virtual events, livestream gaming, and customer support. The library supports:
+
+- Rich media messages
+- Reactions
+- Threads and quoted replies
+- Text input commands (ex: Giphy and @mentions)
+- Image and file uploads
+- Video playback
+- Read state and typing indicators
+- Channel and message lists
+
+## Where to get started
+
+If you are new to our SDK it is best to go through a of our [tutorial](https://getstream.io/chat/react-chat/tutorial/).
+
+After that, our [getting started page](./getting-started.mdx) is a great next step.
+
+:::tip
+If you are integrating our SDK, please pay attention to our [Theming](../guides/theming/overview.mdx) and [Customizing Components](../guides/customization/overview.mdx) sections in our guides. We see that most of our users can get very far by utilizing the flexibility of our SDKs.
+:::
+
+## Architecture
+
+A common pattern in the library is the use of context provider hooks (see [Contexts](./contexts/chat_context)). These custom hooks allow for effective value sharing between parent components and their children.
+This makes customization straightforward, as you can use our exported hooks in your custom components to receive the exact values needed, while also subscribing to context changes.
+
+The left navigation will guide you to the various documentation sections for information on everything regarding our robust component library. Check out the instructions below for adding the library to your React project.
+
+## Installation
+
+We recommended using the component library through a package manager. Stream Chat React is based on top of Stream's [JavaScript Client](https://getstream.io/chat/docs/javascript/?language=javascript).
+
+### Install with NPM
+
+```bash
+npm install stream-chat stream-chat-react
+```
+
+### Install with Yarn
+
+```bash
+yarn add stream-chat stream-chat-react
+```
+
+### Install via CDN
+
+In case you are not using a package manager, or you wish to build a simple proof of concept in CodePen for example, you can load the library through a direct script link.
+If you choose to do this, make sure you explicitly specify the version of the library to prevent breaking releases from affecting your app.
+
+```html
+<!-- Replace VERSION with the version of stream-chat and stream-chat-react -->
+<script src="https://cdn.jsdelivr.net/npm/stream-chat@VERSION"></script>
+<script src="https://cdn.jsdelivr.net/npm/stream-chat-react@VERSION"></script>
+```
+
+With the installation out of the way, let's get started exploring the basics of the library.

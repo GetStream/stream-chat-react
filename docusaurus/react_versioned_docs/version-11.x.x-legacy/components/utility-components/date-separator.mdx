@@ -1,0 +1,97 @@
+---
+id: date_separator
+sidebar_position: 6
+title: DateSeparator
+---
+
+A simple date separator UI component for between messages. This component is rendered via the `VirtualizedMessageList` and `MessageList` components. See the render method
+[processMessages](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/utils.ts) for more info on the conditions for when the component is injected into the UI.
+
+## Basic Usage
+
+Since this component is added to the message lists within those components by default, you typically won't need to import and use this component individually unless it's in a date separator custom component.
+If you would like to disable the `DateSeparator` from appearing in the UI, utilize the
+`disableDateSeparator` prop on either the `VirtualizedMessageList` or `MessageList` components.
+You can also hide the component when new messages are received via the `hideNewMessageSeparator` prop on the same two list components.
+
+**Example 1** - Here's what it looks like for today's date:
+
+```tsx
+const date = new Date();
+
+<DateSeparator date={date} />;
+```
+
+**Example 2** - A date in the past:
+
+```tsx
+const date = new Date('December 17, 1995 03:24:00');
+
+<React.Fragment>
+  <DateSeparator date={date} />
+  <DateSeparator date={date} position='center' />
+  <DateSeparator date={date} position='left' />
+</React.Fragment>;
+```
+
+## UI Customization
+
+This component may be overridden via the `DateSeparator` prop on `Channel`, which injects the new value into the `ComponentContext`. This value is then pulled for use in the rendering method in the list components.
+
+**Example 1** - An example of a custom date separator:
+
+```tsx
+export const YourCustomDateSeparator = (props: DateSeparatorProps) => {
+    const { date } = props
+
+    function formatDate(d: Date) {
+        return `The message date is: ${d.toDateString()}`;
+    }
+
+    return (
+        <DateSeparator
+            formatDate={formatDate}
+            date={date}
+            position={'center'}
+        />
+    )
+};
+
+<Channel DateSeparator={YourCustomDateSeparator}>
+    // the Channel children components
+/>
+```
+
+## Props
+
+### date
+
+The date to format, required.
+
+| Type |
+| ---- |
+| Date |
+
+### formatDate
+
+Function to override the default formatting of the date. Has access to the original date object.
+
+| Type                   |
+| ---------------------- |
+| (date: Date) => string |
+
+### position 'left' | 'center' | 'right';
+
+Set the position of the date in the separator, options are 'left', 'center', 'right'.
+
+| Type                          | Default |
+| ----------------------------- | ------- |
+| 'left' \| 'center' \| 'right' | 'right' |
+
+## unread
+
+Boolean for if the following messages are not new.
+
+| Type    |
+| ------- |
+| boolean |
