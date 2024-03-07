@@ -442,3 +442,9 @@ export const isMessageBounced = <
 ) =>
   message.type === 'error' &&
   message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE';
+
+export const isMessageEdited = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  message: Pick<StreamMessage<StreamChatGenerics>, 'message_text_updated_at'>,
+) => !!message.message_text_updated_at;

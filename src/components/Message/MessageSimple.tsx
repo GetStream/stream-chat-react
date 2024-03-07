@@ -12,6 +12,7 @@ import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp'
 import {
   areMessageUIPropsEqual,
   isMessageBounced,
+  isMessageEdited,
   messageHasAttachments,
   messageHasReactions,
 } from './utils';
@@ -110,7 +111,7 @@ const MessageSimpleWithContext = <
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
   const isBounced = isMessageBounced(message);
-  const isEdited = !!message.message_text_updated_at;
+  const isEdited = isMessageEdited(message);
 
   let handleClick: (() => void) | undefined = undefined;
 

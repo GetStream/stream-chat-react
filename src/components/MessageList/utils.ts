@@ -10,6 +10,7 @@ import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import { isMessageEdited } from '../Message/utils';
 
 type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -283,7 +284,7 @@ export const getGroupStyles = <
     previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
     (message.reaction_counts && Object.keys(message.reaction_counts).length > 0) ||
-    !!previousMessage.message_text_updated_at;
+    isMessageEdited(previousMessage);
 
   const isBottomMessage =
     !nextMessage ||
@@ -295,7 +296,7 @@ export const getGroupStyles = <
     nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
     (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0) ||
-    !!message.message_text_updated_at;
+    isMessageEdited(message);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';

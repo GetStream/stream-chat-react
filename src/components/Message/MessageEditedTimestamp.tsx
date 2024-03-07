@@ -2,9 +2,11 @@ import React from 'react';
 
 import clsx from 'clsx';
 import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
-import { DefaultStreamChatGenerics } from '../../types';
-import { MessageTimestampProps } from './MessageTimestamp';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
+import { isMessageEdited } from './utils';
+
+import type { DefaultStreamChatGenerics } from '../../types';
+import type { MessageTimestampProps } from './MessageTimestamp';
 
 export type MessageEditedTimestampProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -26,7 +28,7 @@ export function MessageEditedTimestamp<
   const { Timestamp = DefaultTimestamp } = useComponentContext('MessageEditedTimestamp');
   const message = propMessage || contextMessage;
 
-  if (!message.message_text_updated_at) {
+  if (!isMessageEdited(message)) {
     return null;
   }
 

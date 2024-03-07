@@ -5,7 +5,7 @@ import { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { Message } from '../Message';
+import { isMessageEdited, Message } from '../Message';
 
 import { isDate, StreamMessage, useComponentContext } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -173,11 +173,11 @@ export const messageRenderer = <
   const firstOfGroup =
     shouldGroupByUser &&
     (message.user?.id !== maybePrevMessage?.user?.id ||
-      !!maybePrevMessage?.message_text_updated_at);
+      (maybePrevMessage && isMessageEdited(maybePrevMessage)));
 
   const endOfGroup =
     shouldGroupByUser &&
-    (message.user?.id !== maybeNextMessage?.user?.id || !!message.message_text_updated_at);
+    (message.user?.id !== maybeNextMessage?.user?.id || isMessageEdited(message));
 
   const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
   const isLastReadMessage = message.id === lastReadMessageId;
