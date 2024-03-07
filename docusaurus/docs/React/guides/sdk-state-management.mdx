@@ -1,0 +1,119 @@
+---
+id: sdk-state-management
+title: SDK State Management
+---
+
+Most of the application state which is the main driver behind the UI changes of our chat SDK lives within our LLC ([`StreamChat`](https://github.com/GetStream/stream-chat-js)) - more specifically client and channel instances and is _NOT REACTIVE_ - our React SDK makes these states reactive by listening to the same events client does and copies it with the help of `useState` API after it has been changed.
+
+This is how the SDK state pipeline looks like behind the scenes:
+
+```txt
+client attaches WS event listeners -> React SDK attaches WS event listeners -> WS event received -> client/channel instance updates its own state -> React SDK pulls the updated state and updates it locally
+```
+
+Optimistic updates - if applicable - are handled by the React SDK.
+
+TODO: link to optimistic update tutorial?
+
+## Active Channel & Channel State
+
+Before you can access the _reactive_ channel state you'll need to make one of the available channels active either through the use of the [`ChannelList`](../components/core-components/channel-list.mdx) component which handles this for you ([default setup](../basics/getting-started.mdx#your-first-app-with-stream-chat-react)) or by passing the `channel` instance to a [`Channel`](../components/core-components/channel.mdx) component as a prop or lastly, by calling `setActiveChannel`.
+
+The SDK comes with [`ChatContext`](../components/contexts/chat-context.mdx) which holds (among other things) currently active channel and forwards LLC instance passed to the [`Chat`](../components/core-components/chat.mdx) component.
+
+:::note
+You can use either `channel` prop on the `Channel` component or `setActiveChannel` function. You cannot use both at the same time.
+:::
+
+Channel as a prop example:
+
+```tsx
+import { useState, useEffect } from 'react';
+import { Channel, useChatContext } from 'stream-chat-react';
+
+export const ChannelWrapper = ({ channelId, channelType = 'messaging', children }) => {
+  const [activeChannel, setActiveChannel] = useState(undefined);
+  const { client } = useChatContext();
+
+  useEffect(() => {
+    if (!channelId) return;
+
+    const channel = client.channel(channelId, channelType);
+
+    setActiveChannel(channel);
+  }, [channelId, channelType]);
+
+  return <Channel channel={activeChannel}>{children}</Channel>;
+};
+```
+
+Example with `setActiveChannel` function:
+
+```tsx
+import { useEffect } from 'react';
+import { useCreateChatClient, useChatContext, Chat, Channel } from 'stream-chat-react';
+
+const ActiveChannelSetter = ({ channelId, channelType }) => {
+  const { client, setActiveChannel } = useChatContext();
+
+  useEffect(() => {
+    const channel = client.channel(channelId, channelType);
+    setActiveChannel(channel);
+  }, [channelType, channelId]);
+
+  return null;
+};
+
+const App = () => {
+  const client = useCreateChatClient(userData);
+
+  if (!client) return <div>Loading...</div>;
+
+  return (
+    <Chat client={client}>
+      <ActiveChannelSetter channelId='random' channelType='messaging' />
+      <Channel>{/** ...other components... */}</Channel>
+    </Chat>
+  );
+};
+```
+
+Afterwards - to access currently active channel you can use `useChatContext` hook as well from any component (or custom hook) which is either direct or indirect child of a Chat component:
+
+```tsx
+import { useChatContext } from 'stream-chat-react';
+
+export const useActiveChannel = () => {
+  const { channel } = useChatContext();
+
+  return channel;
+};
+```
+
+Currently active [channel state](https://github.com/GetStream/stream-chat-react/blob/master/src/context/ChannelStateContext.tsx#L36-L56) can be accessed through the [`ChannelStateContext`](../components/contexts/channel-state-context.mdx) with the help of the `useChannelStateContext` hook - meaning any component which is either direct or indirect child of the `Channel` component can access such state.
+
+The example bellow shows how to reach `members` property coming from the channel state:
+
+```tsx
+import { Channel, useChannelStateContext } from 'stream-chat-react';
+
+const MembersCount = () => {
+  const { members } = useChannelStateContext();
+
+  return <div>{Object.keys(members).length}</div>;
+};
+
+const ChannelWrapper = () => (
+  <Channel>
+    <MembersCount />
+  </Channel>
+);
+```
+
+## Channel List State
+
+TODO: channel list state
+
+## Conclusion
+
+This guide covers the biggest and most important state stores, see other React stateful contexts exported by our SDK for more information.
