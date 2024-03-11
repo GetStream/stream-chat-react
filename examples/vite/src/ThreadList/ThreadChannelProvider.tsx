@@ -18,6 +18,7 @@ import {
   TypingContextValue,
   TypingProvider,
   useChannelContainerClasses,
+  useChannelEditMessageHandler,
   useChatContext,
 } from 'stream-chat-react';
 import { Message, MessageResponse, SendMessageOptions, Thread, UserResponse } from 'stream-chat';
@@ -42,7 +43,7 @@ const UnMemoizedThreadChannel = <
 ) => {
   const { client } = useChatContext<StreamChatGenerics>();
   const { children, thread } = props;
-  const channel = client.channel('messaging', thread.channel.id);
+  const channel = client.channel(thread.channel.type, thread.channel.id);
   const { setThreads } = useThreadListContext();
   const {
     channelClass,
@@ -52,6 +53,7 @@ const UnMemoizedThreadChannel = <
   } = useChannelContainerClasses({});
   const className = clsx(chatClass, null, channelClass);
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
+  const editMessage = useChannelEditMessageHandler();
 
   const notificationTimeouts: Array<NodeJS.Timeout> = [];
   // Adds a temporary notification to message list, will be removed after 5 seconds
@@ -213,7 +215,7 @@ const UnMemoizedThreadChannel = <
     closeThread: NotSupported,
     deleteMessage,
     dispatch: NotSupported,
-    editMessage: NotSupported,
+    editMessage,
     jumpToLatestMessage: NotSupported,
     jumpToMessage: NotSupported,
     loadMore: NotSupported,

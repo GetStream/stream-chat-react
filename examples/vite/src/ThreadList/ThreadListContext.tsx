@@ -58,7 +58,10 @@ export const ThreadListContextProvider = <
       const clientUserId = client.user?.id;
       if (!clientUserId) return;
       threads.forEach((thread) => {
-        if (thread.read[clientUserId].unread_messages > 0) {
+        const read = thread.read[clientUserId];
+        if (!read) return;
+
+        if (read.unread_messages > 0) {
           // eslint-disable-next-line no-underscore-dangle
           thread._channel.markRead({ thread_id: thread.id });
         }
