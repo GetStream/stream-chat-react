@@ -2253,20 +2253,9 @@ space-separated-tokens@^2.0.0:
   version "0.0.0"
   uid ""
 
-stream-chat@^8.23.0:
-  version "8.23.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.23.0.tgz#9cfce40e9b16bf60b469edd31b8b28b1a2fe374d"
-  integrity sha512-N04yEEHDMarLaFmeMttMzm04otCuSF4jDn7baUjYnZA2h/KP/mPXcD/LnzCVIbxd928hB9OgrLJ80ujJQTRd2A==
-  dependencies:
-    "@babel/runtime" "^7.16.3"
-    "@types/jsonwebtoken" "~9.0.0"
-    "@types/ws" "^7.4.0"
-    axios "^1.6.0"
-    base64-js "^1.5.1"
-    form-data "^4.0.0"
-    isomorphic-ws "^4.0.1"
-    jsonwebtoken "~9.0.0"
-    ws "^7.4.4"
+"stream-chat@link:../../node_modules/stream-chat":
+  version "0.0.0"
+  uid ""
 
 stringify-entities@^4.0.0:
   version "4.0.3"
