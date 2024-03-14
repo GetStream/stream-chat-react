@@ -1,1 +1,1 @@
-export const version = '$PACKAGE_VERSION';
+export const version = '0.0.0-development';
