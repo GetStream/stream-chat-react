@@ -3,6 +3,7 @@
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import { globalExternals } from '@fal-works/esbuild-plugin-global-externals';
 
 // import.meta.dirname is not available before Node 20
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,6 +45,27 @@ const browserBundleConfig = {
   bundle: true,
   format: 'iife',
   external: ['react', 'react-dom', 'stream-chat'],
+  plugins: [
+    globalExternals({
+      react: {
+        varName: 'React',
+        type: 'cjs',
+      },
+      'react/jsx-runtime': {
+        varName: 'React',
+        type: 'cjs',
+      },
+      'react-dom': {
+        varName: 'ReactDOM',
+        type: 'cjs',
+      },
+      'stream-chat': {
+        varName: 'StreamChat',
+        type: 'cjs',
+      },
+    }),
+  ],
+  globalName: 'StreamChatReact',
   outfile: resolve(outDir, 'browser.full-bundle.js'),
   sourcemap: 'linked',
 };
