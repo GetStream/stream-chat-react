@@ -133,6 +133,7 @@
     "@commitlint/config-conventional": "^18.4.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
+    "@fal-works/esbuild-plugin-global-externals": "^2.1.2",
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.2",
