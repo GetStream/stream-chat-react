@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
-import { resolve } from 'node:path';
-import { readFile, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
 
-const sdkEntrypoint = resolve(import.meta.dirname, '../src/index.ts');
-const emojiEntrypoint = resolve(import.meta.dirname, '../src/components/Emojis/index.ts');
-const browserBundleEntrypoint = resolve(import.meta.dirname, '../src/index_UMD.ts');
-const outDir = resolve(import.meta.dirname, '../dist');
+// import.meta.dirname is not available before Node 20
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const sdkEntrypoint = resolve(__dirname, '../src/index.ts');
+const emojiEntrypoint = resolve(__dirname, '../src/components/Emojis/index.ts');
+const browserBundleEntrypoint = resolve(__dirname, '../src/index_UMD.ts');
+const outDir = resolve(__dirname, '../dist');
 
 const cjsBundleConfig = {
   entryPoints: [sdkEntrypoint, emojiEntrypoint],
