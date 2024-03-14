@@ -12,11 +12,28 @@ const emojiEntrypoint = resolve(__dirname, '../src/components/Emojis/index.ts');
 const browserBundleEntrypoint = resolve(__dirname, '../src/index_UMD.ts');
 const outDir = resolve(__dirname, '../dist');
 
+// Those dependencies are distributed as ES modules, and cannot be externalized
+// in our CJS bundle. We convert them to CJS and bundle them instead.
+const bundledDeps = [
+  'hast-util-find-and-replace',
+  'unist-builder',
+  'unist-util-visit',
+  'react-markdown',
+  'remark-gfm',
+];
+
+const packageJson = await import(resolve(__dirname, '../package.json'), {
+  assert: { type: 'json' },
+});
+const deps = Object.keys(packageJson.default.dependencies);
+const external = deps.filter((dep) => !bundledDeps.includes(dep));
+
 const cjsBundleConfig = {
   entryPoints: [sdkEntrypoint, emojiEntrypoint],
   bundle: true,
   format: 'cjs',
-  packages: 'external',
+  platform: 'node',
+  external,
   outdir: outDir,
   entryNames: '[dir]/[name].cjs',
   sourcemap: 'linked',
