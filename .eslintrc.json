@@ -4,7 +4,6 @@
     "babel",
     "jest-dom",
     "jest",
-    "markdown",
     "prettier",
     "react-hooks",
     "import",
@@ -156,7 +155,6 @@
       "plugins": [
         "@typescript-eslint",
         "babel",
-        "markdown",
         "prettier",
         "react",
         "typescript-sort-keys",
