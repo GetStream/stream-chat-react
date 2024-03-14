@@ -36,8 +36,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      - name: Install dependencies & Build
+        run: |
+          yarn install --frozen-lockfile
+          yarn run build
       - name: Validate CommonJS bundle
         run: yarn validate-cjs
       - name: Release
