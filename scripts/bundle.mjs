@@ -34,6 +34,7 @@ const cjsBundleConfig = {
   bundle: true,
   format: 'cjs',
   platform: 'node',
+  target: 'es2020',
   external,
   outdir: outDir,
   entryNames: '[dir]/[name].cjs',
@@ -44,6 +45,7 @@ const browserBundleConfig = {
   entryPoints: [browserBundleEntrypoint],
   bundle: true,
   format: 'iife',
+  target: 'es2020',
   external: ['react', 'react-dom', 'stream-chat'],
   plugins: [
     globalExternals({
