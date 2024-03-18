@@ -26,7 +26,10 @@ const bundledDeps = [
 const packageJson = await import(resolve(__dirname, '../package.json'), {
   assert: { type: 'json' },
 });
-const deps = Object.keys(packageJson.default.dependencies);
+const deps = Object.keys({
+  ...packageJson.default.dependencies,
+  ...packageJson.default.peerDependencies,
+});
 const external = deps.filter((dep) => !bundledDeps.includes(dep));
 
 const cjsBundleConfig = {
