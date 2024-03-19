@@ -221,7 +221,7 @@
     "prettier": "prettier --list-different '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
     "prettier-fix": "prettier --write '**/*.{js,ts,tsx,md,json}' .eslintrc.json .prettierrc babel.config.js",
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
-    "start": "tsc --watch --declarationMap",
+    "start": "tsc --watch --sourceMap --declarationMap",
     "prepare": "husky install",
     "preversion": "yarn install",
     "test": "jest",
