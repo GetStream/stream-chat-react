@@ -835,7 +835,7 @@ const ChannelInner = <
           }
 
           const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
-          if (!(messages.length && firstMessageWithCreationDate)) {
+          if (!firstMessageWithCreationDate) {
             addNotification(t('Failed to jump to the first unread message'), 'error');
             loadMoreFinished(hasMoreMessages, channel.state.messages);
             return;
