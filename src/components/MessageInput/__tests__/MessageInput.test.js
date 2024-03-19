@@ -826,7 +826,7 @@ function axeNoViolations(container) {
           }),
         );
 
-        act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+        await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
         expect(submitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
