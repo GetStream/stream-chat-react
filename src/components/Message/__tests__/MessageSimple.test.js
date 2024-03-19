@@ -731,4 +731,29 @@ describe('<MessageSimple />', () => {
       expect(queryByText('Overriden')).toBeInTheDocument();
     });
   });
+
+  describe('edited label', () => {
+    const editedMessageOptions = {
+      message_text_updated_at: '2024-03-05T09:56:22.487729Z',
+    };
+
+    it('should render error badge for bounced messages', async () => {
+      const message = generateAliceMessage(editedMessageOptions);
+      const { queryAllByText } = await renderMessageSimple({ message, themeVersion: '2' });
+      expect(queryAllByText('Edited', { exact: true })).not.toHaveLength(0);
+    });
+
+    it('should render open bounce modal on click', async () => {
+      const message = generateAliceMessage(editedMessageOptions);
+      const { getByTestId, queryByTestId } = await renderMessageSimple({
+        message,
+        themeVersion: '2',
+      });
+      fireEvent.click(getByTestId('message-inner'));
+      expect(queryByTestId('message-edited-timestamp')).toBeInTheDocument();
+      expect(queryByTestId('message-edited-timestamp')).toHaveClass(
+        'str-chat__message-edited-timestamp--open',
+      );
+    });
+  });
 });

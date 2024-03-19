@@ -5,7 +5,7 @@ import { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { Message } from '../Message';
+import { isMessageEdited, Message } from '../Message';
 
 import { StreamMessage, useComponentContext } from '../../context';
 import { isDateSeparatorMessage } from './utils';
@@ -167,11 +167,18 @@ export const messageRenderer = <
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
     message.user?.id === messageList[streamMessageIndex - 1].user?.id;
+  const maybePrevMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex - 1];
+  const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex + 1];
   const firstOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybePrevMessage?.user?.id ||
+      (maybePrevMessage && isMessageEdited(maybePrevMessage)));
 
   const endOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybeNextMessage?.user?.id || isMessageEdited(message));
 
   const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
   const lastReadTimestamp = lastReadDate?.getTime();
