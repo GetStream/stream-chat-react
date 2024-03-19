@@ -1,3 +1,11 @@
+## [11.12.2](https://github.com/GetStream/stream-chat-react/compare/v11.12.1...v11.12.2) (2024-03-19)
+
+
+### Bug Fixes
+
+* jump to first unread message when the last read and first unread message id is unknown ([#2315](https://github.com/GetStream/stream-chat-react/issues/2315)) ([d40ab64](https://github.com/GetStream/stream-chat-react/commit/d40ab646a18bbd90f78a66623f0cf6c433e30e1a))
+* mark retryable duplicated messages as received ([#2331](https://github.com/GetStream/stream-chat-react/issues/2331)) ([e098ef1](https://github.com/GetStream/stream-chat-react/commit/e098ef1f3682f5c19ae111305575bd2c896a60b9))
+
 ## [11.12.1](https://github.com/GetStream/stream-chat-react/compare/v11.12.0...v11.12.1) (2024-03-19)
 
 
