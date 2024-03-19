@@ -787,7 +787,7 @@ const ChannelInner = <
 
   const jumpToFirstUnreadMessage = useCallback(
     async (queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
-      if (!(client.user && channelUnreadUiState?.unread_messages)) return;
+      if (!channelUnreadUiState?.unread_messages) return;
       let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
       let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
       let isInCurrentMessageSet = false;
@@ -907,7 +907,7 @@ const ChannelInner = <
         dispatch({ type: 'clearHighlightedMessage' });
       }, 500);
     },
-    [addNotification, channel, client, loadMoreFinished, t, channelUnreadUiState],
+    [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
   );
 
   const deleteMessage = useCallback(
