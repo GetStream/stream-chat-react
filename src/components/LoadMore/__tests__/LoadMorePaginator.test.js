@@ -29,7 +29,7 @@ describe('LoadMorePaginator', () => {
       )
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      Array [
+      [
         "children",
         <div
           data-testid="load-more-button"
@@ -51,7 +51,7 @@ describe('LoadMorePaginator', () => {
       )
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      Array [
+      [
         "children",
         <div>
           custom load more button
@@ -73,7 +73,7 @@ describe('LoadMorePaginator', () => {
       )
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      Array [
+      [
         "children",
         <div>
           load more button
@@ -96,7 +96,7 @@ describe('LoadMorePaginator', () => {
       )
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
-      Array [
+      [
         <div>
           load more button
         </div>,

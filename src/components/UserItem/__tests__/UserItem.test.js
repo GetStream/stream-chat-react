@@ -23,7 +23,7 @@ describe('UserItem', () => {
           onClick={[Function]}
           onMouseOver={[Function]}
           style={
-            Object {
+            {
               "flexBasis": "20px",
               "fontSize": "10px",
               "height": "20px",
