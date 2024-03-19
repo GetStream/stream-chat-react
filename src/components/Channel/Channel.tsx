@@ -64,6 +64,7 @@ import { TypingProvider } from '../../context/TypingContext';
 
 import {
   DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+  DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
@@ -711,7 +712,7 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const loadMoreNewer = async (limit = 100) => {
+  const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (!online.current || !window.navigator.onLine || !state.hasMoreNewer) return 0;
 
     const newestMessage = state?.messages?.[state?.messages?.length - 1];
@@ -746,7 +747,7 @@ const ChannelInner = <
 
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const jumpToMessage = async (messageId: string, messageLimit = 100) => {
+  const jumpToMessage = async (messageId: string, messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
     await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
@@ -785,7 +786,7 @@ const ChannelInner = <
   };
 
   const jumpToFirstUnreadMessage = useCallback(
-    async (queryMessageLimit = 100) => {
+    async (queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
       if (!(client.user && channelUnreadUiState?.unread_messages)) return;
       let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
       let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
