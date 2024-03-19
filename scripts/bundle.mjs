@@ -49,7 +49,7 @@ const browserBundleConfig = {
   bundle: true,
   format: 'iife',
   target: 'es2020',
-  external: ['react', 'react-dom', 'stream-chat'],
+  external: ['react', 'react-dom', 'stream-chat', '@emoji-mart'],
   plugins: [
     globalExternals({
       react: {
