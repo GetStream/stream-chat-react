@@ -47,7 +47,7 @@ export const useMarkRead = <
       unreadMessages > 0;
 
     const onVisibilityChange = () => {
-      if (shouldMarkRead(unreadCount)) markRead();
+      if (shouldMarkRead(channel.countUnread())) markRead();
     };
 
     const handleMessageNew = (event: Event<StreamChatGenerics>) => {
@@ -75,7 +75,6 @@ export const useMarkRead = <
       } else if (
         newMessageToCurrentChannel &&
         mainChannelUpdated &&
-        !isOwnMessage &&
         shouldMarkRead(channel.countUnread())
       ) {
         markRead();
@@ -88,7 +87,8 @@ export const useMarkRead = <
     const hasScrolledToBottom =
       previousRenderMessageListScrolledToBottom.current !== isMessageListScrolledToBottom &&
       isMessageListScrolledToBottom;
-    if (shouldMarkRead(hasScrolledToBottom ? channel.countUnread() : unreadCount)) markRead();
+
+    if (hasScrolledToBottom && shouldMarkRead(channel.countUnread())) markRead();
     previousRenderMessageListScrolledToBottom.current = isMessageListScrolledToBottom;
 
     return () => {

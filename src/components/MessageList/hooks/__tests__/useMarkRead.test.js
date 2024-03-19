@@ -157,10 +157,26 @@ describe('useMarkRead', () => {
     });
 
     it('should mark channel read from non-thread message list scrolled to the bottom not previously marked unread', async () => {
+      const user = generateUser();
+      const messages = [generateMessage(), generateMessage()];
       const {
         channels: [channel],
         client,
-      } = await initClientWithChannels();
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: new Date(1).toISOString(),
+                unread_messages: messages.length,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
 
       await render({
         channel,
@@ -168,16 +184,18 @@ describe('useMarkRead', () => {
         params: shouldMarkReadParams,
       });
       if (scenario === visibilityChangeScenario) {
-        document.dispatchEvent(new Event('visibilitychange'));
-        expect(markRead).toHaveBeenCalledTimes(2);
+        await act(() => {
+          document.dispatchEvent(new Event('visibilitychange'));
+        });
+        expect(markRead).toHaveBeenCalledTimes(1);
       } else if (scenario === 'message.new') {
         await act(() => {
           dispatchMessageNewEvent(client, generateMessage(), channel);
         });
-        expect(markRead).toHaveBeenCalledTimes(2);
+        expect(markRead).toHaveBeenCalledTimes(1);
         expect(setChannelUnreadUiState).not.toHaveBeenCalled();
       } else {
-        expect(markRead).toHaveBeenCalledTimes(1);
+        expect(markRead).toHaveBeenCalledTimes(0);
       }
     });
   });

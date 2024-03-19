@@ -12,6 +12,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
+  dispatchChannelTruncatedEvent,
   generateChannel,
   generateFileAttachment,
   generateMember,
@@ -910,14 +911,52 @@ describe('Channel', () => {
     });
 
     describe('jump to first unread message', () => {
-      const defaultQueryLimit = 100;
       const user = generateUser();
+      const last_read = new Date(1000);
       const last_read_message_id = 'X';
+      const first_unread_message_id = 'Y';
+      const lastReadMessage = generateMessage({ created_at: last_read, id: last_read_message_id });
+      const firstUnreadMessage = generateMessage({ id: first_unread_message_id });
+      const currentMessageSetLastReadLoadedFirstUnreadNotLoaded = [
+        generateMessage({ created_at: new Date(100) }),
+        lastReadMessage,
+      ];
+      const currentMessageSetLastReadFirstUnreadLoaded = [lastReadMessage, firstUnreadMessage];
+      const currentMessageSetLastReadNotLoadedFirstUnreadLoaded = [
+        firstUnreadMessage,
+        generateMessage(),
+      ];
+      const currentMessageSetFirstUnreadLastReadNotLoaded = [generateMessage(), generateMessage()];
       const errorNotificationText = 'Failed to jump to the first unread message';
+      const ownReadStateBase = {
+        last_read,
+        unread_messages: 1,
+        user,
+      };
+      const ownReadStateLastReadMsgIdKnown = {
+        last_read,
+        last_read_message_id,
+        unread_messages: 1,
+        user,
+      };
+      const ownReadStateFirstUnreadMsgIdKnown = {
+        first_unread_message_id,
+        last_read,
+        last_read_message_id,
+        unread_messages: 1,
+        user,
+      };
 
       afterEach(jest.resetAllMocks);
-
-      it('should not query messages around the last read message if the unread count is falsy', async () => {
+      /**
+       * {channelUnreadUiState: {first_unread_message_id: 'Y', last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // marked channel unread
+       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // incoming new messages while being scrolled up / open an already read channel with unread messages
+       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(0), last_read_message_id: undefined, unread_messages: 10, }, messages: Array.from({length: 10})} // open a new channel with existing messages
+       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(10), last_read_message_id: 'Z', unread_messages: 0, }, messages: Array.from({length: 10})} // open a fully read channel
+       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(0), last_read_message_id: undefined, unread_messages: 0, }, messages: Array.from({length: 0})} // open an empty unread channel
+       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(1), last_read_message_id: undefined, unread_messages: 0, }, messages: Array.from({length: 0})} // open an empty read channel
+       */
+      it('should exit early if the unread count is falsy', async () => {
         const {
           channels: [channel],
           client: chatClient,
@@ -925,8 +964,15 @@ describe('Channel', () => {
           channelsData: [
             {
               messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), user }],
-              unread_messages: 0,
+              read: [
+                {
+                  first_unread_message_id: 'Y',
+                  last_read: new Date().toISOString(),
+                  last_read_message_id: 'X',
+                  unread_messages: 0,
+                  user,
+                },
+              ],
             },
           ],
           customUser: user,
@@ -935,48 +981,15 @@ describe('Channel', () => {
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation();
 
-        let hasJumped;
-        await renderComponent({ channel, chatClient }, ({ jumpToFirstUnreadMessage }) => {
-          if (hasJumped) {
-            return;
-          }
-          jumpToFirstUnreadMessage();
-          hasJumped = true;
-        });
-
-        await waitFor(() => {
-          expect(loadMessageIntoState).not.toHaveBeenCalled();
-        });
-      });
-
-      it('should not query messages around the last read message if the last read message is unknown', async () => {
-        const {
-          channels: [channel],
-          client: chatClient,
-        } = await initClientWithChannels({
-          channelsData: [
-            {
-              messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), unread_messages: 1, user }],
-            },
-          ],
-          customUser: user,
-        });
-        const loadMessageIntoState = jest
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation();
+        const channelQuerySpy = jest.spyOn(channel, 'query').mockImplementation();
 
         let hasJumped;
-        let notifications;
+        let highlightedMessageId;
         await renderComponent(
           { channel, chatClient },
-          ({
-            channelUnreadUiState,
-            jumpToFirstUnreadMessage,
-            notifications: contextNotifications,
-          }) => {
-            if (hasJumped || !channelUnreadUiState) {
-              notifications = contextNotifications;
+          ({ highlightedMessageId: highlightedMessageIdContext, jumpToFirstUnreadMessage }) => {
+            if (hasJumped) {
+              highlightedMessageId = highlightedMessageIdContext;
               return;
             }
             jumpToFirstUnreadMessage();
@@ -986,40 +999,75 @@ describe('Channel', () => {
 
         await waitFor(() => {
           expect(loadMessageIntoState).not.toHaveBeenCalled();
-          expect(notifications).toHaveLength(1);
-          expect(notifications[0].text).toBe(errorNotificationText);
+          expect(channelQuerySpy).not.toHaveBeenCalled();
+          expect(highlightedMessageId).toBeUndefined();
         });
       });
 
-      it('should not query messages around the last read message if the last read message is unknown and show error notification', async () => {
+      const runTest = async ({
+        channelQueryResolvedValue,
+        currentMsgSet,
+        loadScenario,
+        ownReadState,
+      }) => {
         const {
           channels: [channel],
           client: chatClient,
         } = await initClientWithChannels({
           channelsData: [
             {
-              messages: [generateMessage()],
-              read: [{ last_read: new Date().toISOString(), unread_messages: 1, user }],
+              messages: currentMsgSet,
+              read: [ownReadState],
             },
           ],
           customUser: user,
         });
-        const loadMessageIntoState = jest
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation();
+        let loadMessageIntoState;
+        let channelQuerySpy;
+        if (['already loaded', 'query fails'].includes(loadScenario)) {
+          channelQuerySpy = jest.spyOn(channel, 'query').mockImplementation();
+        } else {
+          // eslint-disable-next-line react-hooks/rules-of-hooks
+          useMockedApis(chatClient, [
+            queryChannelWithNewMessages(channelQueryResolvedValue, channel),
+          ]);
+        }
+        if (!loadScenario.startsWith('query by')) {
+          loadMessageIntoState = jest
+            .spyOn(channel.state, 'loadMessageIntoState')
+            .mockImplementation();
+
+          if (loadScenario === 'query fails') {
+            loadMessageIntoState.mockRejectedValue('Query failed');
+          }
+        }
 
         let hasJumped;
         let notifications;
+        let highlightedMessageId;
+        let channelUnreadUiStateAfterJump;
         await act(async () => {
           await renderComponent(
             { channel, chatClient },
             ({
               channelUnreadUiState,
+              highlightedMessageId: highlightedMessageIdContext,
               jumpToFirstUnreadMessage,
               notifications: contextNotifications,
+              setChannelUnreadUiState,
             }) => {
-              if (hasJumped || !channelUnreadUiState) {
+              if (!channelUnreadUiState) return;
+              if (
+                ownReadState.first_unread_message_id &&
+                !channelUnreadUiState.first_unread_message_id
+              ) {
+                setChannelUnreadUiState(ownReadState); // needed as the first_unread_message_id is not available on channels load
+                return;
+              }
+              if (hasJumped) {
                 notifications = contextNotifications;
+                highlightedMessageId = highlightedMessageIdContext;
+                channelUnreadUiStateAfterJump = channelUnreadUiState;
                 return;
               }
               jumpToFirstUnreadMessage();
@@ -1029,107 +1077,116 @@ describe('Channel', () => {
         });
 
         await waitFor(() => {
-          expect(loadMessageIntoState).not.toHaveBeenCalled();
-          expect(notifications).toHaveLength(1);
-          expect(notifications[0].text).toBe(errorNotificationText);
-        });
-      });
+          if (loadScenario === 'already loaded') {
+            expect(loadMessageIntoState).not.toHaveBeenCalled();
+            expect(channelQuerySpy).not.toHaveBeenCalled();
+          }
 
-      it('should not query messages around last read message if the message is already loaded in state', async () => {
-        const lastReadMessage = generateMessage({ id: last_read_message_id });
-        const {
-          channels: [channel],
-          client: chatClient,
-        } = await initClientWithChannels({
-          channelsData: [
-            {
-              messages: [lastReadMessage, generateMessage()],
-              read: [
-                {
-                  last_read: lastReadMessage.created_at.toISOString(),
-                  last_read_message_id,
-                  unread_messages: 1,
-                  user,
-                },
-              ],
-            },
-          ],
-          customUser: user,
-        });
-        const loadMessageIntoState = jest
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation();
-        let hasJumped;
-        let notifications;
-        await renderComponent(
-          { channel, chatClient },
-          ({
-            channelUnreadUiState,
-            jumpToFirstUnreadMessage,
-            notifications: contextNotifications,
-          }) => {
-            if (hasJumped) {
-              notifications = contextNotifications;
-              return;
+          if (loadScenario.match('query fails')) {
+            expect(notifications).toHaveLength(1);
+            expect(notifications[0].text).toBe(errorNotificationText);
+            expect(highlightedMessageId).toBeUndefined();
+          } else {
+            expect(notifications).toHaveLength(0);
+            expect(highlightedMessageId).toBe(first_unread_message_id);
+            if (!ownReadState.first_unread_message_id) {
+              expect(channelUnreadUiStateAfterJump.first_unread_message_id).toBe(
+                first_unread_message_id,
+              );
             }
-            if (!channelUnreadUiState) return;
-            jumpToFirstUnreadMessage();
-            hasJumped = true;
-          },
-        );
+          }
+        });
+      };
 
-        await waitFor(() => {
-          expect(loadMessageIntoState).not.toHaveBeenCalled();
-          expect(notifications).toHaveLength(0);
+      it('should not query messages around the first unread message if it is already loaded in state', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
+          loadScenario: 'already loaded',
+          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
         });
       });
 
-      it('should query messages around the last read message if the message is not loaded in state', async () => {
-        const {
-          channels: [channel],
-          client: chatClient,
-        } = await initClientWithChannels({
-          channelsData: [
-            {
-              messages: [generateMessage()],
-              read: [
-                {
-                  last_read: new Date().toISOString(),
-                  last_read_message_id,
-                  unread_messages: 1,
-                  user,
-                },
-              ],
-            },
-          ],
-          customUser: user,
+      it('should query messages around the first unread message if it is not loaded in state', async () => {
+        await runTest({
+          channelQueryResolvedValue: currentMessageSetLastReadFirstUnreadLoaded,
+          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
+          loadScenario: 'query by id',
+          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
         });
-        const loadMessageIntoState = jest
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation();
-        let hasJumped;
-
-        await act(async () => {
-          await renderComponent(
-            { channel, chatClient },
-            ({ channelUnreadUiState, jumpToFirstUnreadMessage }) => {
-              if (hasJumped || !channelUnreadUiState) return;
-              jumpToFirstUnreadMessage();
-              hasJumped = true;
-            },
-          );
-        });
-
-        await waitFor(() =>
-          expect(loadMessageIntoState).toHaveBeenCalledWith(
-            last_read_message_id,
-            undefined,
-            defaultQueryLimit,
-          ),
-        );
       });
 
-      const first_unread_message_id = 'Y';
+      it('should handle query error if the first unread message is not found after channel query by message id', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
+          loadScenario: 'query fails',
+          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
+        });
+      });
+
+      it('should not query messages around the last read message if it is already loaded in state', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetLastReadFirstUnreadLoaded,
+          loadScenario: 'already loaded',
+          ownReadState: ownReadStateLastReadMsgIdKnown,
+        });
+      });
+
+      it('should query messages around the last read message if it is not loaded in state', async () => {
+        await runTest({
+          channelQueryResolvedValue: currentMessageSetLastReadFirstUnreadLoaded,
+          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
+          loadScenario: 'query by id',
+          ownReadState: ownReadStateLastReadMsgIdKnown,
+        });
+      });
+
+      it('should handle the query error if the last read message is not found after channel query by message id', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
+          loadScenario: 'query fails',
+          ownReadState: ownReadStateLastReadMsgIdKnown,
+        });
+      });
+
+      it('should not query messages by the last read date if the first unread message found in local state by last read date', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetLastReadFirstUnreadLoaded,
+          loadScenario: 'already loaded',
+          ownReadState: ownReadStateBase,
+        });
+      });
+
+      it('should try to load messages into state and fail as first unread id is unknown and last read message is already in state', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetLastReadLoadedFirstUnreadNotLoaded,
+          loadScenario: 'query fails',
+          ownReadState: ownReadStateBase,
+        });
+      });
+
+      it.each([
+        ['is returned in query', currentMessageSetLastReadFirstUnreadLoaded],
+        ['is not returned in query', currentMessageSetLastReadNotLoadedFirstUnreadLoaded],
+      ])(
+        'should query messages by last read date if the last read & first unread message not found in the local message list state and both ids are unknown and last read message %s',
+        async (queryScenario, channelQueryResolvedValue) => {
+          await runTest({
+            channelQueryResolvedValue,
+            currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
+            loadScenario: 'query by date',
+            ownReadState: ownReadStateBase,
+          });
+        },
+      );
+
+      it('should handle query messages by last read date query error', async () => {
+        await runTest({
+          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
+          loadScenario: 'query by date query fails',
+          ownReadState: ownReadStateBase,
+        });
+      });
+
       it.each([
         [
           false,
@@ -1165,7 +1222,7 @@ describe('Channel', () => {
             generateMessage(),
             generateMessage({ id: last_read_message_id }),
           ],
-          last_read_message_id,
+          undefined,
         ],
       ])(
         'should set pagination flag hasMore to %s when messages query returns %s and chooses jump-to message id from %s',
@@ -1218,7 +1275,7 @@ describe('Channel', () => {
           await waitFor(() => {
             expect(hasMoreMessages).toBe(expectedHasMore);
             expect(highlightedMessageId).toBe(expectedJumpToId);
-            expect(notifications).toHaveLength(0);
+            expect(notifications).toHaveLength(!expectedJumpToId ? 1 : 0);
           });
         },
       );
@@ -1886,6 +1943,76 @@ describe('Channel', () => {
           });
         });
       });
+
+      it.each([
+        ['should', 'active'],
+        ['should not', 'another'],
+      ])(
+        '%s reset channel unread UI state on channel.truncated for the %s channel',
+        async (expected, forChannel) => {
+          const unread_messages = 20;
+          const NO_UNREAD_TEXT = 'no-unread-text';
+          const UNREAD_TEXT = `unread-text-${unread_messages}`;
+          const {
+            channels: [activeChannel, anotherChannel],
+            client: chatClient,
+          } = await initClientWithChannels({
+            channelsData: [
+              {
+                messages: [generateMessage()],
+                read: [
+                  {
+                    last_read: new Date().toISOString(),
+                    last_read_message_id: 'last_read_message_id-1',
+                    unread_messages,
+                    user,
+                  },
+                ],
+              },
+              {
+                messages: [generateMessage()],
+                read: [
+                  {
+                    last_read: new Date().toISOString(),
+                    last_read_message_id: 'last_read_message_id-2',
+                    unread_messages,
+                    user,
+                  },
+                ],
+              },
+            ],
+            customUser: user,
+          });
+
+          const Component = () => {
+            const { channelUnreadUiState } = useChannelStateContext();
+            if (!channelUnreadUiState) return <div>{NO_UNREAD_TEXT}</div>;
+            return <div>{`unread-text-${channelUnreadUiState.unread_messages}`}</div>;
+          };
+
+          await act(async () => {
+            await renderComponent({ channel: activeChannel, chatClient, children: <Component /> });
+          });
+
+          expect(screen.queryByText(UNREAD_TEXT)).toBeInTheDocument();
+          expect(screen.queryByText(NO_UNREAD_TEXT)).not.toBeInTheDocument();
+
+          act(() => {
+            dispatchChannelTruncatedEvent(
+              chatClient,
+              forChannel === 'active' ? activeChannel : anotherChannel,
+            );
+          });
+
+          if (forChannel === 'active') {
+            expect(screen.queryByText(UNREAD_TEXT)).not.toBeInTheDocument();
+            expect(screen.queryByText(NO_UNREAD_TEXT)).toBeInTheDocument();
+          } else {
+            expect(screen.queryByText(UNREAD_TEXT)).toBeInTheDocument();
+            expect(screen.queryByText(NO_UNREAD_TEXT)).not.toBeInTheDocument();
+          }
+        },
+      );
     });
   });
 

@@ -1,13 +1,13 @@
 import React, { Fragment, ReactNode } from 'react';
 
-import { MessageProps } from '../Message/types';
-import { StreamMessage } from '../../context/ChannelStateContext';
-import { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../types/types';
-import { ComponentContextValue, CustomClasses, isDate } from '../../context';
+import { GroupStyle, isDateSeparatorMessage } from './utils';
+import { Message, MessageProps } from '../Message';
+import { ComponentContextValue, CustomClasses } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { GroupStyle } from './utils';
-import { Message } from '../Message/Message';
-import { UserResponse } from 'stream-chat';
+
+import type { UserResponse } from 'stream-chat';
+import type { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../types';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 
 export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -62,63 +62,88 @@ export function defaultRenderMessages<
   sharedMessageProps: messageProps,
 }: RenderMessagesOptions<StreamChatGenerics>) {
   const { DateSeparator, HeaderComponent, MessageSystem, UnreadMessagesSeparator } = components;
-
-  return messages.map((message, index) => {
-    if (message.customType === CUSTOM_MESSAGE_TYPE.date && message.date && isDate(message.date)) {
-      return (
+  const renderedMessages = [];
+  let firstMessage;
+  for (let index = 0; index < messages.length; index++) {
+    const message = messages[index];
+    if (isDateSeparatorMessage(message)) {
+      renderedMessages.push(
         <li key={`${message.date.toISOString()}-i`}>
           <DateSeparator
             date={message.date}
             formatDate={messageProps.formatDate}
             unread={message.unread}
           />
-        </li>
+        </li>,
       );
-    }
-
-    if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
-      return (
+    } else if (message.customType === CUSTOM_MESSAGE_TYPE.intro && HeaderComponent) {
+      renderedMessages.push(
         <li key='intro'>
           <HeaderComponent />
-        </li>
+        </li>,
       );
-    }
-
-    if (message.type === 'system') {
-      return (
+    } else if (message.type === 'system') {
+      renderedMessages.push(
         <li key={message.id || (message.created_at as string)}>
           <MessageSystem message={message} />
-        </li>
+        </li>,
+      );
+    } else {
+      if (!firstMessage) {
+        firstMessage = message;
+      }
+      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+      const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
+
+      const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
+      const lastReadTimestamp = channelUnreadUiState?.last_read.getTime();
+      const isFirstMessage = firstMessage?.id && firstMessage.id === message.id;
+      const isNewestMessage = index === messages.length - 1;
+
+      const isLastReadMessage =
+        channelUnreadUiState?.last_read_message_id === message.id ||
+        (!channelUnreadUiState?.unread_messages && createdAtTimestamp === lastReadTimestamp);
+
+      const isFirstUnreadMessage =
+        channelUnreadUiState?.first_unread_message_id === message.id ||
+        (!!channelUnreadUiState?.unread_messages &&
+          !!createdAtTimestamp &&
+          !!lastReadTimestamp &&
+          createdAtTimestamp > lastReadTimestamp &&
+          isFirstMessage);
+
+      const showUnreadSeparatorAbove =
+        !channelUnreadUiState?.last_read_message_id && isFirstUnreadMessage;
+
+      const showUnreadSeparatorBelow =
+        isLastReadMessage &&
+        !isNewestMessage &&
+        (channelUnreadUiState?.first_unread_message_id || !!channelUnreadUiState?.unread_messages); // this part has to be here as we do not mark channel read when sending a message
+
+      renderedMessages.push(
+        <Fragment key={message.id || (message.created_at as string)}>
+          {showUnreadSeparatorAbove && UnreadMessagesSeparator && (
+            <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+              <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
+            </li>
+          )}
+          <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
+            <Message
+              groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              lastReceivedId={lastReceivedId}
+              message={message}
+              readBy={readData[message.id] || []}
+              {...messageProps}
+            />
+          </li>
+          {showUnreadSeparatorBelow && UnreadMessagesSeparator && (
+            <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+              <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
+            </li>
+          )}
+        </Fragment>,
       );
     }
-
-    const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
-    const messageClass = customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
-
-    const isNewestMessage = index === messages.length - 1;
-    const isLastReadMessage = channelUnreadUiState?.last_read_message_id === message.id;
-    const showUnreadSeparator =
-      isLastReadMessage &&
-      !isNewestMessage &&
-      (channelUnreadUiState?.first_unread_message_id || channelUnreadUiState?.unread_messages > 0); // unread count can be 0 if the user marks unread only own messages
-
-    return (
-      <Fragment key={message.id || (message.created_at as string)}>
-        <li className={messageClass} data-message-id={message.id} data-testid={messageClass}>
-          <Message
-            groupStyles={[groupStyles]} /* TODO: convert to simple string */
-            lastReceivedId={lastReceivedId}
-            message={message}
-            readBy={readData[message.id] || []}
-            {...messageProps}
-          />
-        </li>
-        {showUnreadSeparator && UnreadMessagesSeparator && (
-          <li className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-            <UnreadMessagesSeparator unreadCount={channelUnreadUiState.unread_messages} />
-          </li>
-        )}
-      </Fragment>
-    );
-  });
+  }
+  return renderedMessages;
 }
