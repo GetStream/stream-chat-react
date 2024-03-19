@@ -1,3 +1,11 @@
+## [11.12.1](https://github.com/GetStream/stream-chat-react/compare/v11.12.0...v11.12.1) (2024-03-19)
+
+
+### Bug Fixes
+
+* await word replace before submitting message ([#2332](https://github.com/GetStream/stream-chat-react/issues/2332)) ([f396a81](https://github.com/GetStream/stream-chat-react/commit/f396a814723a49fdc4b828ea62354946f6815a86))
+* link-breaking typos ([#2322](https://github.com/GetStream/stream-chat-react/issues/2322)) ([17f6b0d](https://github.com/GetStream/stream-chat-react/commit/17f6b0d6bc4f81e1e8272481ce3cd7da1c58ecba))
+
 ## [11.12.0](https://github.com/GetStream/stream-chat-react/compare/v11.11.0...v11.12.0) (2024-03-07)
 
 
