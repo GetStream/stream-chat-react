@@ -1,0 +1,110 @@
+---
+id: avatar
+sidebar_position: 1
+title: Avatar
+---
+
+The `Avatar` component displays a user's image, with fallback to the first letter of the optional name prop.
+
+## Basic Usage
+
+A typical use case for the `Avatar` component would be to import and use in your custom components that will completely override a header component, preview component, or similar.
+
+**Example 1** - Here's an example of using the `Avatar` component within a custom preview component:
+
+```tsx
+import { Avatar } from 'stream-chat-react';
+
+const YourCustomChannelPreview = (props) => {
+  return (
+    <Avatar name={name} shape='square' size={35} />;
+    <div> Other channel info needed in the preview </div>
+  )
+};
+
+<ChannelList
+  Preview={YourCustomChannelPreview}
+/>
+```
+
+**Example 2** - a basic example with rounded shape:
+
+```tsx
+import { Avatar } from './Avatar';
+const image = 'https://pbs.twimg.com/profile_images/897621870069112832/dFGq6aiE_400x400.jpg';
+const name = 'roy';
+
+<Avatar image={image} name={name} shape='rounded' size={35} />;
+```
+
+## UI Customization
+
+You can also take advantage of the `Avatar` props on the `ChannelHeader` and `ChannelList` components to override just that aspect of these components specifically, see the example below.
+
+**Example 3** - an example of overriding just the `Avatar` component in the default `ChannelPreviewMessenger` component.
+
+```tsx
+const CustomAvatar = (props) => {
+  return <Avatar image={props.image} shape='square' size={50} />;
+};
+
+<ChannelList Preview={(props) => <ChannelPreviewMessenger {...props} Avatar={CustomAvatar} />} />;
+```
+
+## Props
+
+### image
+
+The image URL or default is an image of the first initial of the name if there is one.
+
+| Type           | Default                   |
+| -------------- | ------------------------- |
+| string \| null | first initial of the name |
+
+### name
+
+An optional name of the image, used for title tag fallback.
+
+| Type           |
+| -------------- |
+| string \| null |
+
+### onClick
+
+The click event handler.
+
+| Type                                      |
+| ----------------------------------------- |
+| (event: React.BaseSyntheticEvent) => void |
+
+### onMouseOver
+
+The mouseOver event handler.
+
+| Type                                      |
+| ----------------------------------------- |
+| (event: React.BaseSyntheticEvent) => void |
+
+### shape
+
+The shape of the avatar image.
+
+| Type                              | Default |
+| --------------------------------- | ------- |
+| 'circle' \| 'rounded' \| 'square' | circle  |
+
+### size
+
+The size in pixels of the avatar image.
+
+| Type   | Default |
+| ------ | ------- |
+| number | 32px    |
+
+### user
+
+The entire user object for the chat user displayed in the component.
+
+| Type   |
+| ------ |
+| Object |

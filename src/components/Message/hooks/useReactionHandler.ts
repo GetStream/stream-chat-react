@@ -20,7 +20,9 @@ export const useReactionHandler = <
   message?: StreamMessage<StreamChatGenerics>,
 ) => {
   const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useReactionHandler');
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useReactionHandler');
+  const { channel, channelCapabilities } = useChannelStateContext<StreamChatGenerics>(
+    'useReactionHandler',
+  );
   const { client } = useChatContext<StreamChatGenerics>('useReactionHandler');
 
   const createMessagePreview = useCallback(
@@ -61,10 +63,11 @@ export const useReactionHandler = <
         reaction_scores: newReactionCounts,
       } as StreamMessage<StreamChatGenerics>;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [client.user, client.userID],
   );
 
-  const creatReactionPreview = (type: string) => ({
+  const createReactionPreview = (type: string) => ({
     message_id: message?.id,
     score: 1,
     type,
@@ -73,9 +76,9 @@ export const useReactionHandler = <
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message || channel.data?.frozen) return;
+    if (!message || !channelCapabilities['send-reaction']) return;
 
-    const newReaction = creatReactionPreview(type) as ReactionResponse<StreamChatGenerics>;
+    const newReaction = createReactionPreview(type) as ReactionResponse<StreamChatGenerics>;
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
@@ -137,20 +140,15 @@ export const useReactionClick = <
   messageWrapperRef?: RefObject<HTMLDivElement | null>,
   closeReactionSelectorOnClick?: boolean,
 ) => {
-  const {
-    channel,
-    channelCapabilities = {},
-    channelConfig,
-  } = useChannelStateContext<StreamChatGenerics>('useReactionClick');
+  const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
+    'useReactionClick',
+  );
 
   const [showDetailedReactions, setShowDetailedReactions] = useState(false);
 
   const hasListener = useRef(false);
 
-  const isFrozen = !!channel.data?.frozen;
-
-  const isReactionEnabled =
-    (channelConfig?.reactions !== false && channelCapabilities['send-reaction']) || isFrozen;
+  const isReactionEnabled = channelCapabilities['send-reaction'];
 
   const messageDeleted = !!message?.deleted_at;
 
@@ -166,6 +164,7 @@ export const useReactionClick = <
 
       setShowDetailedReactions(false);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setShowDetailedReactions, reactionSelectorRef],
   );
 
@@ -219,9 +218,7 @@ export const useReactionClick = <
   }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
 
   const onReactionListClick: ReactEventHandler = (event) => {
-    if (event?.stopPropagation) {
-      event.stopPropagation();
-    }
+    event?.stopPropagation?.();
     setShowDetailedReactions((prev) => !prev);
   };
 

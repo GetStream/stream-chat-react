@@ -1,4 +1,11 @@
-import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import React, {
+  ElementRef,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -9,11 +16,14 @@ import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
+import { useMessageActionsBoxPopper } from './hooks';
+import { useTranslationContext } from '../../context';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
   | 'handleDelete'
   | 'handleFlag'
+  | 'handleMarkUnread'
   | 'handleMute'
   | 'handlePin'
   | 'message';
@@ -44,6 +54,7 @@ export const MessageActions = <
     getMessageActions: propGetMessageActions,
     handleDelete: propHandleDelete,
     handleFlag: propHandleFlag,
+    handleMarkUnread: propHandleMarkUnread,
     handleMute: propHandleMute,
     handlePin: propHandlePin,
     inline,
@@ -58,6 +69,7 @@ export const MessageActions = <
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
+    handleMarkUnread: contextHandleMarkUnread,
     handleMute: contextHandleMute,
     handlePin: contextHandlePin,
     isMyMessage,
@@ -65,12 +77,16 @@ export const MessageActions = <
     setEditingState,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
 
+  const { t } = useTranslationContext('MessageActions');
+
   const getMessageActions = propGetMessageActions || contextGetMessageActions;
   const handleDelete = propHandleDelete || contextHandleDelete;
   const handleFlag = propHandleFlag || contextHandleFlag;
+  const handleMarkUnread = propHandleMarkUnread || contextHandleMarkUnread;
   const handleMute = propHandleMute || contextHandleMute;
   const handlePin = propHandlePin || contextHandlePin;
   const message = propMessage || contextMessage;
+  const isMine = mine ? mine() : isMyMessage();
 
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
@@ -109,6 +125,14 @@ export const MessageActions = <
     };
   }, [actionsBoxOpen, hideOptions]);
 
+  const actionsBoxButtonRef = useRef<ElementRef<'button'>>(null);
+
+  const { attributes, popperElementRef, styles } = useMessageActionsBoxPopper<HTMLDivElement>({
+    open: actionsBoxOpen,
+    placement: isMine ? 'top-end' : 'top-start',
+    referenceElement: actionsBoxButtonRef.current,
+  });
+
   if (!messageActions.length && !customMessageActions) return null;
 
   return (
@@ -118,21 +142,26 @@ export const MessageActions = <
       setActionsBoxOpen={setActionsBoxOpen}
     >
       <MessageActionsBox
+        {...attributes.popper}
         getMessageActions={getMessageActions}
         handleDelete={handleDelete}
         handleEdit={setEditingState}
         handleFlag={handleFlag}
+        handleMarkUnread={handleMarkUnread}
         handleMute={handleMute}
         handlePin={handlePin}
         isUserMuted={isMuted}
-        mine={mine ? mine() : isMyMessage()}
+        mine={isMine}
         open={actionsBoxOpen}
+        ref={popperElementRef}
+        style={styles.popper}
       />
       <button
         aria-expanded={actionsBoxOpen}
         aria-haspopup='true'
-        aria-label='Open Message Actions Menu'
+        aria-label={t('aria/Open Message Actions Menu')}
         className='str-chat__message-actions-box-button'
+        ref={actionsBoxButtonRef}
       >
         <ActionsIcon className='str-chat__message-action-icon' />
       </button>

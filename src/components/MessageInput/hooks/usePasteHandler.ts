@@ -1,10 +1,17 @@
 import { useCallback } from 'react';
-import { dataTransferItemsHaveFiles, dataTransferItemsToFiles, FileLike } from 'react-file-utils';
+import {
+  dataTransferItemsHaveFiles,
+  dataTransferItemsToFiles,
+  FileLike,
+} from '../../ReactFileUtilities';
+import type { EnrichURLsController } from './useLinkPreviews';
+import { SetLinkPreviewMode } from '../types';
 
 export const usePasteHandler = (
   uploadNewFiles: (files: FileList | FileLike[] | File[]) => void,
   insertText: (textToInsert: string) => void,
   isUploadEnabled: boolean,
+  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
@@ -41,9 +48,12 @@ export const usePasteHandler = (
         if (plainTextPromise) {
           const pastedText = await plainTextPromise;
           insertText(pastedText);
+          findAndEnqueueURLsToEnrich?.(pastedText, SetLinkPreviewMode.UPSERT);
+          findAndEnqueueURLsToEnrich?.flush();
         }
       })(clipboardEvent);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [insertText, uploadNewFiles],
   );
 

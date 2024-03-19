@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -36,7 +36,14 @@ import {
   ChannelPreviewMessenger,
 } from '../../ChannelPreview';
 
-import { ChatContext } from '../../../context/ChatContext';
+import {
+  ChatContext,
+  TranslationContext,
+  useChannelListContext,
+  useChatContext,
+} from '../../../context';
+import { ChannelListMessenger } from '../ChannelListMessenger';
+import { initClientWithChannels, mockTranslationContext } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
@@ -48,7 +55,7 @@ const channelsQueryStateMock = {
 };
 
 /**
- * We are gonna use following custom UI components for preview and list.
+ * We use the following custom UI components for preview and list.
  * If we use ChannelPreviewMessenger or ChannelPreviewLastMessage here, then changes
  * to those components might end up breaking tests for ChannelList, which will be quite painful
  * to debug then.
@@ -78,13 +85,13 @@ const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__channel-search-result-list';
 const CHANNEL_LIST_SELECTOR = '.str-chat__channel-list-messenger';
 
 describe('ChannelList', () => {
-  let chatClientUthred;
+  let chatClient;
   let testChannel1;
   let testChannel2;
   let testChannel3;
 
   beforeEach(async () => {
-    chatClientUthred = await getTestClientWithUser({ id: 'uthred' });
+    chatClient = await getTestClientWithUser({ id: 'uthred' });
     testChannel1 = generateChannel();
     testChannel2 = generateChannel();
     testChannel3 = generateChannel();
@@ -103,32 +110,31 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
         Preview: ChannelPreviewComponent,
       };
-      useMockedApis(chatClientUthred, [queryChannelsApi([])]);
+      useMockedApis(chatClient, [queryChannelsApi([])]);
     });
     it('should call `closeMobileNav` prop function, when clicked outside ChannelList', async () => {
-      let result;
-      await act(() => {
-        result = render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClientUthred,
-              closeMobileNav,
-              navOpen: true,
-            }}
-          >
-            <ChannelList {...props} />
-            <div data-testid='outside-channellist' />
-          </ChatContext.Provider>,
-        );
-      });
-      const { container, getByRole, getByTestId } = result;
+      const { container, getByRole, getByTestId } = await render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            closeMobileNav,
+            navOpen: true,
+          }}
+        >
+          <ChannelList {...props} />
+          <div data-testid='outside-channellist' />
+        </ChatContext.Provider>,
+      );
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      fireEvent.click(getByTestId('outside-channellist'));
+      await act(() => {
+        fireEvent.click(getByTestId('outside-channellist'));
+      });
+
       await waitFor(() => {
         expect(closeMobileNav).toHaveBeenCalledTimes(1);
       });
@@ -137,30 +143,28 @@ describe('ChannelList', () => {
     });
 
     it('should not call `closeMobileNav` prop function on click, if ChannelList is collapsed', async () => {
-      let result;
-      await act(() => {
-        result = render(
-          <ChatContext.Provider
-            value={{
-              channelsQueryState: channelsQueryStateMock,
-              client: chatClientUthred,
-              closeMobileNav,
-              navOpen: false,
-            }}
-          >
-            <ChannelList {...props} />
-            <div data-testid='outside-channellist' />
-          </ChatContext.Provider>,
-        );
-      });
-      const { container, getByRole, getByTestId } = result;
+      const { container, getByRole, getByTestId } = await render(
+        <ChatContext.Provider
+          value={{
+            channelsQueryState: channelsQueryStateMock,
+            client: chatClient,
+            closeMobileNav,
+            navOpen: false,
+          }}
+        >
+          <ChannelList {...props} />
+          <div data-testid='outside-channellist' />
+        </ChatContext.Provider>,
+      );
 
       // Wait for list of channels to load in DOM.
       await waitFor(() => {
         expect(getByRole('list')).toBeInTheDocument();
       });
 
-      fireEvent.click(getByTestId('outside-channellist'));
+      await act(() => {
+        fireEvent.click(getByTestId('outside-channellist'));
+      });
       await waitFor(() => {
         expect(closeMobileNav).toHaveBeenCalledTimes(0);
       });
@@ -176,10 +180,10 @@ describe('ChannelList', () => {
       Preview: ChannelPreviewComponent,
     };
 
-    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
     const { container, getByRole, getByTestId, rerender } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList {...props} />
       </Chat>,
     );
@@ -189,9 +193,9 @@ describe('ChannelList', () => {
       expect(getByRole('list')).toBeInTheDocument();
     });
 
-    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel2])]);
+    useMockedApis(chatClient, [queryChannelsApi([testChannel2])]);
     rerender(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList {...props} filters={{ dummyFilter: true }} />
       </Chat>,
     );
@@ -200,6 +204,70 @@ describe('ChannelList', () => {
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should use custom query channels function instead of default channels query', async () => {
+    const { channels, client } = await initClientWithChannels({
+      channelsData: [testChannel1],
+    });
+    const props = {
+      customQueryChannels: jest
+        .fn()
+        .mockImplementationOnce(({ currentChannels, setChannels, setHasNextPage }) => {
+          if (!currentChannels.length) setChannels([channels[0]]);
+          setHasNextPage(true);
+        }),
+      filters: {},
+    };
+    const queryChannelsMock = jest.spyOn(client, 'queryChannels').mockImplementationOnce();
+
+    const { rerender } = render(
+      <Chat client={client}>
+        <ChannelList {...props} />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+      expect(props.customQueryChannels).toHaveBeenCalledTimes(1);
+    });
+    await waitFor(() => {
+      expect(props.customQueryChannels).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentChannels: [],
+          queryType: 'reload',
+          setChannels: expect.any(Function),
+          setHasNextPage: expect.any(Function),
+        }),
+      );
+    });
+
+    rerender(
+      <Chat client={client}>
+        <ChannelList {...props} />
+      </Chat>,
+    );
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('load-more-button'));
+    });
+
+    await waitFor(() => {
+      expect(queryChannelsMock).toHaveBeenCalledTimes(0);
+      expect(props.customQueryChannels).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(props.customQueryChannels).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentChannels: [channels[0]],
+          queryType: 'load-more',
+          setChannels: expect.any(Function),
+          setHasNextPage: expect.any(Function),
+        }),
+      );
+    });
+
+    queryChannelsMock.mockRestore();
   });
 
   it('should only show filtered channels when a filter function prop is provided', async () => {
@@ -215,10 +283,10 @@ describe('ChannelList', () => {
       Preview: ChannelPreviewComponent,
     };
 
-    useMockedApis(chatClientUthred, [queryChannelsApi([filteredChannel, testChannel1])]);
+    useMockedApis(chatClient, [queryChannelsApi([filteredChannel, testChannel1])]);
 
     const { container, getByRole, queryAllByRole } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList {...props} />
       </Chat>,
     );
@@ -234,11 +302,11 @@ describe('ChannelList', () => {
   });
 
   it('should render `LoadingErrorIndicator` when queryChannels api throws error', async () => {
-    useMockedApis(chatClientUthred, [erroredPostApi()]);
+    useMockedApis(chatClient, [erroredPostApi()]);
     jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
     const { container, getByTestId } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList
           filters={{}}
           List={ChannelListComponent}
@@ -256,11 +324,47 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should render loading indicator before the first channel list load and on reload', async () => {
+    const channelsQueryStatesHistory = [];
+    const channelListMessengerLoadingHistory = [];
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+
+    const QueryStateInterceptor = ({ children }) => {
+      const { channelsQueryState } = useChatContext();
+      channelsQueryStatesHistory.push(channelsQueryState.queryInProgress);
+      return children;
+    };
+
+    const ChannelListMessengerPropsInterceptor = (props) => {
+      channelListMessengerLoadingHistory.push(props.loading);
+      return <ChannelListMessenger {...props} />;
+    };
+
+    await render(
+      <Chat client={chatClient}>
+        <QueryStateInterceptor>
+          <ChannelList List={ChannelListMessengerPropsInterceptor} />
+        </QueryStateInterceptor>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(channelsQueryStatesHistory).toHaveLength(3);
+      expect(channelListMessengerLoadingHistory).toHaveLength(3);
+      expect(channelsQueryStatesHistory[0]).toBe('uninitialized');
+      expect(channelListMessengerLoadingHistory[0]).toBe(true);
+      expect(channelsQueryStatesHistory[1]).toBe('reload');
+      expect(channelListMessengerLoadingHistory[1]).toBe(true);
+      expect(channelsQueryStatesHistory[2]).toBeNull();
+      expect(channelListMessengerLoadingHistory[2]).toBe(false);
+    });
+  });
+
   it('ChannelPreview UI components should render `Avatar` when the custom prop is provided', async () => {
-    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
     const { getByTestId, rerender } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-compact'>Avatar</div>}
           List={ChannelListComponent}
@@ -273,7 +377,7 @@ describe('ChannelList', () => {
     });
 
     rerender(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-last'>Avatar</div>}
           List={ChannelListComponent}
@@ -287,7 +391,7 @@ describe('ChannelList', () => {
     });
 
     rerender(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList
           Avatar={() => <div data-testid='custom-avatar-messenger'>Avatar</div>}
           List={ChannelListComponent}
@@ -302,12 +406,12 @@ describe('ChannelList', () => {
   });
 
   it('when queryChannels api returns no channels, `EmptyStateIndicator` should be rendered', async () => {
-    useMockedApis(chatClientUthred, [queryChannelsApi([])]);
+    useMockedApis(chatClient, [queryChannelsApi([])]);
 
     const EmptyStateIndicator = () => <div data-testid='empty-state-indicator' role='listitem' />;
 
     const { container, getByTestId } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList
           EmptyStateIndicator={EmptyStateIndicator}
           filters={{}}
@@ -324,6 +428,35 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should show unique channels', async () => {
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
+    const ChannelPreview = (props) => <div data-testid={props.channel.id} role='listitem' />;
+    render(
+      <Chat client={chatClient}>
+        <ChannelList filters={{}} options={{ limit: 2 }} Preview={ChannelPreview} />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+      expect(screen.getAllByRole('listitem')).toHaveLength(2);
+    });
+
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel3])]);
+
+    await act(() => {
+      fireEvent.click(screen.getByTestId('load-more-button'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel3.channel.id)).toBeInTheDocument();
+      expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    });
+  });
+
   describe('Default and custom active channel', () => {
     let setActiveChannel;
     const watchersConfig = { limit: 20, offset: 0 };
@@ -336,7 +469,7 @@ describe('ChannelList', () => {
 
     beforeEach(() => {
       setActiveChannel = jest.fn();
-      useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+      useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
     });
 
     it('should call `setActiveChannel` prop function with first channel as param', async () => {
@@ -344,7 +477,7 @@ describe('ChannelList', () => {
         <ChatContext.Provider
           value={{
             channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
+            client: chatClient,
             setActiveChannel,
           }}
         >
@@ -362,7 +495,7 @@ describe('ChannelList', () => {
         </ChatContext.Provider>,
       );
 
-      const channelInstance = chatClientUthred.channel(
+      const channelInstance = chatClient.channel(
         testChannel1.channel.type,
         testChannel1.channel.id,
       );
@@ -375,7 +508,7 @@ describe('ChannelList', () => {
         <ChatContext.Provider
           value={{
             channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
+            client: chatClient,
             setActiveChannel,
           }}
         >
@@ -391,7 +524,7 @@ describe('ChannelList', () => {
         </ChatContext.Provider>,
       );
 
-      const channelInstance = chatClientUthred.channel(
+      const channelInstance = chatClient.channel(
         testChannel2.channel.type,
         testChannel2.channel.id,
       );
@@ -404,7 +537,7 @@ describe('ChannelList', () => {
         <ChatContext.Provider
           value={{
             channelsQueryState: channelsQueryStateMock,
-            client: chatClientUthred,
+            client: chatClient,
             setActiveChannel,
           }}
         >
@@ -438,6 +571,7 @@ describe('ChannelList', () => {
     });
 
     describe('channel search', () => {
+      const defaultSearchDebounceInterval = 300;
       const inputText = 'xxxxxxxxxx';
       const user1 = generateUser();
       const user2 = generateUser();
@@ -475,12 +609,14 @@ describe('ChannelList', () => {
               ...chatContext,
             }}
           >
-            <ChannelList
-              filters={{}}
-              options={{ presence: true, state: true }}
-              showChannelSearch
-              {...channeListProps}
-            />
+            <TranslationContext.Provider value={mockTranslationContext}>
+              <ChannelList
+                filters={{}}
+                options={{ presence: true, state: true }}
+                showChannelSearch
+                {...channeListProps}
+              />
+            </TranslationContext.Provider>
           </ChatContext.Provider>,
         );
 
@@ -551,11 +687,13 @@ describe('ChannelList', () => {
       ])(
         'theme v%s %s unmount search results on result click, if configured',
         async (themeVersion, _, clearSearchOnClickOutside) => {
+          jest.useFakeTimers('modern');
+          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
           const { container } = await renderComponents(
             { channel, client, themeVersion },
             { additionalChannelSearchProps: { clearSearchOnClickOutside } },
           );
-          const input = screen.queryByTestId('search-input');
+          const input = screen.getByTestId('search-input');
           await act(() => {
             fireEvent.change(input, {
               target: {
@@ -563,8 +701,10 @@ describe('ChannelList', () => {
               },
             });
           });
-
-          const searchResults = screen.queryAllByRole('option');
+          await act(() => {
+            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+          });
+          const searchResults = screen.queryAllByTestId('channel-search-result-user');
           useMockedApis(client, [getOrCreateChannelApi(generateChannel())]);
           await act(() => {
             fireEvent.click(searchResults[0]);
@@ -577,6 +717,7 @@ describe('ChannelList', () => {
               expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).toBeInTheDocument();
             }
           });
+          jest.useRealTimers();
         },
       );
 
@@ -645,6 +786,8 @@ describe('ChannelList', () => {
       it.each([['1'], ['2']])(
         'theme v%s should add the selected result to the top of the channel list',
         async (themeVersion) => {
+          jest.useFakeTimers('modern');
+          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
           const getComputedStyleMock = jest.spyOn(window, 'getComputedStyle');
           getComputedStyleMock.mockReturnValue({
             getPropertyValue: jest.fn().mockReturnValue(themeVersion),
@@ -679,8 +822,11 @@ describe('ChannelList', () => {
               },
             });
           });
+          await act(() => {
+            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+          });
 
-          const targetChannelPreview = screen.queryByText(channelNotInTheList.channel.name);
+          const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
           expect(targetChannelPreview).toBeInTheDocument();
           await act(() => {
             fireEvent.click(targetChannelPreview);
@@ -693,13 +839,14 @@ describe('ChannelList', () => {
             }
           });
           getComputedStyleMock.mockClear();
+          jest.useRealTimers();
         },
       );
     });
   });
 
   it('should call `renderChannels` function prop, if provided', async () => {
-    useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
     const renderChannels = jest.fn();
     const channelListProps = {
       filters: {},
@@ -708,7 +855,7 @@ describe('ChannelList', () => {
       renderChannels,
     };
     const { container, getByRole } = render(
-      <Chat client={chatClientUthred}>
+      <Chat client={chatClient}>
         <ChannelList {...channelListProps} />
       </Chat>,
     );
@@ -732,24 +879,22 @@ describe('ChannelList', () => {
         List: ChannelListComponent,
         Preview: ChannelPreviewComponent,
       };
-      const sendNewMessageOnChannel3 = () => {
+      const sendNewMessageOnChannel3 = async () => {
         const newMessage = generateMessage({
           user: generateUser(),
         });
 
-        act(() => dispatchMessageNewEvent(chatClientUthred, newMessage, testChannel3.channel));
+        await act(() => dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel));
         return newMessage;
       };
 
       beforeEach(() => {
-        useMockedApis(chatClientUthred, [
-          queryChannelsApi([testChannel1, testChannel2, testChannel3]),
-        ]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2, testChannel3])]);
       });
 
       it('should move channel to top of the list', async () => {
         const { container, getAllByRole, getByRole, getByText } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...props} />
           </Chat>,
         );
@@ -759,7 +904,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newMessage = sendNewMessageOnChannel3();
+        const newMessage = await sendNewMessageOnChannel3();
         await waitFor(() => {
           expect(getByText(newMessage.text)).toBeInTheDocument();
         });
@@ -775,7 +920,7 @@ describe('ChannelList', () => {
 
       it('should not alter order if `lockChannelOrder` prop is true', async () => {
         const { container, getAllByRole, getByRole, getByText } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...props} lockChannelOrder />
           </Chat>,
         );
@@ -785,7 +930,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        const newMessage = sendNewMessageOnChannel3();
+        const newMessage = await sendNewMessageOnChannel3();
 
         await waitFor(() => {
           expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -799,14 +944,36 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      it('should execute custom event handler', async () => {
+        const onMessageNewEvent = jest.fn();
+        render(
+          <Chat client={chatClient}>
+            <ChannelList {...props} onMessageNewHandler={onMessageNewEvent} />
+          </Chat>,
+        );
+        const message = await sendNewMessageOnChannel3();
+        await waitFor(() => {
+          expect(onMessageNewEvent.mock.calls[0][0]).toStrictEqual(expect.any(Function));
+          expect(onMessageNewEvent.mock.calls[0][1]).toStrictEqual(
+            expect.objectContaining({
+              channel: testChannel3.channel,
+              cid: testChannel3.channel.cid,
+              message,
+              type: 'message.new',
+              user: message.user,
+            }),
+          );
+        });
+      });
     });
 
     describe('notification.message_new', () => {
       it('should move channel to top of the list by default', async () => {
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
 
         const { container, getAllByRole, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList
               filters={{}}
               List={ChannelListComponent}
@@ -821,9 +988,9 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
+        useMockedApis(chatClient, [getOrCreateChannelApi(testChannel3)]);
 
-        act(() => dispatchNotificationMessageNewEvent(chatClientUthred, testChannel3.channel));
+        act(() => dispatchNotificationMessageNewEvent(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
@@ -841,10 +1008,10 @@ describe('ChannelList', () => {
       it('should call `onMessageNew` function prop, if provided', async () => {
         const onMessageNew = jest.fn();
 
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1])]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
 
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList
               filters={{}}
               List={ChannelListComponent}
@@ -860,9 +1027,9 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel2)]);
+        useMockedApis(chatClient, [getOrCreateChannelApi(testChannel2)]);
 
-        act(() => dispatchNotificationMessageNewEvent(chatClientUthred, testChannel2.channel));
+        act(() => dispatchNotificationMessageNewEvent(chatClient, testChannel2.channel));
 
         await waitFor(() => {
           expect(onMessageNew).toHaveBeenCalledTimes(1);
@@ -881,13 +1048,13 @@ describe('ChannelList', () => {
       };
 
       beforeEach(async () => {
-        chatClientUthred = await getTestClientWithUser({ id: 'vishal' });
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        chatClient = await getTestClientWithUser({ id: 'vishal' });
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
       });
 
       it('should move channel to top of the list by default', async () => {
         const { container, getAllByRole, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -897,9 +1064,9 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
+        useMockedApis(chatClient, [getOrCreateChannelApi(testChannel3)]);
 
-        act(() => dispatchNotificationAddedToChannelEvent(chatClientUthred, testChannel3.channel));
+        act(() => dispatchNotificationAddedToChannelEvent(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
@@ -917,7 +1084,7 @@ describe('ChannelList', () => {
       it('should call `onAddedToChannel` function prop, if provided', async () => {
         const onAddedToChannel = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onAddedToChannel={onAddedToChannel} />
           </Chat>,
         );
@@ -927,7 +1094,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchNotificationAddedToChannelEvent(chatClientUthred, testChannel3.channel));
+        act(() => dispatchNotificationAddedToChannelEvent(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(onAddedToChannel).toHaveBeenCalledTimes(1);
@@ -945,14 +1112,12 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(chatClientUthred, [
-          queryChannelsApi([testChannel1, testChannel2, testChannel3]),
-        ]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2, testChannel3])]);
       });
 
       it('should remove the channel from list by default', async () => {
         const { container, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -962,7 +1127,7 @@ describe('ChannelList', () => {
         });
         const nodeToBeRemoved = getByTestId(testChannel3.channel.id);
 
-        act(() => dispatchNotificationRemovedFromChannel(chatClientUthred, testChannel3.channel));
+        act(() => dispatchNotificationRemovedFromChannel(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
@@ -974,7 +1139,7 @@ describe('ChannelList', () => {
       it('should call `onRemovedFromChannel` function prop, if provided', async () => {
         const onRemovedFromChannel = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onRemovedFromChannel={onRemovedFromChannel} />
           </Chat>,
         );
@@ -983,7 +1148,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchNotificationRemovedFromChannel(chatClientUthred, testChannel3.channel));
+        act(() => dispatchNotificationRemovedFromChannel(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(onRemovedFromChannel).toHaveBeenCalledTimes(1);
@@ -1001,12 +1166,12 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
       });
 
       it('should update the channel in list, by default', async () => {
         const { container, getByRole, getByText } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -1018,7 +1183,7 @@ describe('ChannelList', () => {
 
         const newChannelName = nanoid();
         act(() =>
-          dispatchChannelUpdatedEvent(chatClientUthred, {
+          dispatchChannelUpdatedEvent(chatClient, {
             ...testChannel2.channel,
             name: newChannelName,
           }),
@@ -1034,7 +1199,7 @@ describe('ChannelList', () => {
       it('should call `onChannelUpdated` function prop, if provided', async () => {
         const onChannelUpdated = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelUpdated={onChannelUpdated} />
           </Chat>,
         );
@@ -1047,7 +1212,7 @@ describe('ChannelList', () => {
         const newChannelName = nanoid();
 
         act(() =>
-          dispatchChannelUpdatedEvent(chatClientUthred, {
+          dispatchChannelUpdatedEvent(chatClient, {
             ...testChannel2.channel,
             name: newChannelName,
           }),
@@ -1069,12 +1234,12 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
       });
 
       it('should remove channel from list, by default', async () => {
         const { container, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -1085,7 +1250,7 @@ describe('ChannelList', () => {
         });
 
         const nodeToBeRemoved = getByTestId(testChannel2.channel.id);
-        act(() => dispatchChannelDeletedEvent(chatClientUthred, testChannel2.channel));
+        act(() => dispatchChannelDeletedEvent(chatClient, testChannel2.channel));
 
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
@@ -1097,7 +1262,7 @@ describe('ChannelList', () => {
       it('should call `onChannelDeleted` function prop, if provided', async () => {
         const onChannelDeleted = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelDeleted={onChannelDeleted} />
           </Chat>,
         );
@@ -1107,7 +1272,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchChannelDeletedEvent(chatClientUthred, testChannel2.channel));
+        act(() => dispatchChannelDeletedEvent(chatClient, testChannel2.channel));
 
         await waitFor(() => {
           expect(onChannelDeleted).toHaveBeenCalledTimes(1);
@@ -1122,7 +1287,7 @@ describe('ChannelList', () => {
           <ChatContext.Provider
             value={{
               channelsQueryState: channelsQueryStateMock,
-              client: chatClientUthred,
+              client: chatClient,
               setActiveChannel,
             }}
           >
@@ -1139,7 +1304,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchChannelDeletedEvent(chatClientUthred, testChannel1.channel));
+        act(() => dispatchChannelDeletedEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
@@ -1157,12 +1322,12 @@ describe('ChannelList', () => {
       };
 
       beforeEach(() => {
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
       });
 
       it('should remove channel from list, by default', async () => {
         const { container, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -1173,7 +1338,7 @@ describe('ChannelList', () => {
         });
 
         const nodeToBeRemoved = getByTestId(testChannel2.channel.id);
-        act(() => dispatchChannelHiddenEvent(chatClientUthred, testChannel2.channel));
+        act(() => dispatchChannelHiddenEvent(chatClient, testChannel2.channel));
 
         await waitFor(() => {
           expect(nodeToBeRemoved).not.toBeInTheDocument();
@@ -1188,7 +1353,7 @@ describe('ChannelList', () => {
           <ChatContext.Provider
             value={{
               channelsQueryState: channelsQueryStateMock,
-              client: chatClientUthred,
+              client: chatClient,
               setActiveChannel,
             }}
           >
@@ -1205,7 +1370,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchChannelHiddenEvent(chatClientUthred, testChannel1.channel));
+        act(() => dispatchChannelHiddenEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
@@ -1224,13 +1389,13 @@ describe('ChannelList', () => {
       };
 
       beforeEach(async () => {
-        chatClientUthred = await getTestClientWithUser({ id: 'jaap' });
-        useMockedApis(chatClientUthred, [queryChannelsApi([testChannel1, testChannel2])]);
+        chatClient = await getTestClientWithUser({ id: 'jaap' });
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
       });
 
       it('should move channel to top of the list by default', async () => {
         const { container, getAllByRole, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -1240,9 +1405,9 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        useMockedApis(chatClientUthred, [getOrCreateChannelApi(testChannel3)]);
+        useMockedApis(chatClient, [getOrCreateChannelApi(testChannel3)]);
 
-        act(() => dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel));
+        act(() => dispatchChannelVisibleEvent(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
@@ -1260,7 +1425,7 @@ describe('ChannelList', () => {
       it('should call `onChannelVisible` function prop, if provided', async () => {
         const onChannelVisible = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelVisible={onChannelVisible} />
           </Chat>,
         );
@@ -1270,7 +1435,7 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchChannelVisibleEvent(chatClientUthred, testChannel3.channel));
+        act(() => dispatchChannelVisibleEvent(chatClient, testChannel3.channel));
 
         await waitFor(() => {
           expect(onChannelVisible).toHaveBeenCalledTimes(1);
@@ -1290,10 +1455,10 @@ describe('ChannelList', () => {
           Preview: ChannelPreviewComponent,
         };
 
-        useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
+        useMockedApis(chatClient, [queryChannelsApi([channel1])]);
 
         const { container, getByRole, getByTestId } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} />
           </Chat>,
         );
@@ -1305,8 +1470,8 @@ describe('ChannelList', () => {
 
         const updateCount = parseInt(getByTestId('channelUpdateCount').textContent, 10);
 
-        useMockedApis(chatClientUthred, [queryChannelsApi([channel2])]);
-        act(() => dispatchConnectionRecoveredEvent(chatClientUthred));
+        useMockedApis(chatClient, [queryChannelsApi([channel2])]);
+        act(() => dispatchConnectionRecoveredEvent(chatClient));
 
         await waitFor(() => {
           expect(parseInt(getByTestId('channelUpdateCount').textContent, 10)).toBe(updateCount + 1);
@@ -1334,13 +1499,13 @@ describe('ChannelList', () => {
         message2 = generateMessage({ user: user1 });
         channel1 = generateChannel({ messages: [message1, message2] });
 
-        useMockedApis(chatClientUthred, [queryChannelsApi([channel1])]);
+        useMockedApis(chatClient, [queryChannelsApi([channel1])]);
       });
 
       it('should call `onChannelTruncated` function prop, if provided', async () => {
         const onChannelTruncated = jest.fn();
         const { container, getByRole } = render(
-          <Chat client={chatClientUthred}>
+          <Chat client={chatClient}>
             <ChannelList {...channelListProps} onChannelTruncated={onChannelTruncated} />
           </Chat>,
         );
@@ -1350,13 +1515,317 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
-        act(() => dispatchChannelTruncatedEvent(chatClientUthred, channel1.channel));
+        act(() => dispatchChannelTruncatedEvent(chatClient, channel1.channel));
 
         await waitFor(() => {
           expect(onChannelTruncated).toHaveBeenCalledTimes(1);
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
+      });
+    });
+  });
+
+  describe('on connection recovery', () => {
+    const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
+    const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
+    let queryChannelsMock;
+
+    beforeEach(() => {
+      chatClient.recoverStateOnReconnect = false;
+      queryChannelsMock = jest.spyOn(chatClient, 'queryChannels');
+    });
+
+    afterEach(() => {
+      queryChannelsMock.mockClear();
+    });
+
+    const renderUI = (client, channelListProps) =>
+      render(
+        <Chat client={client}>
+          <ChannelList filters={{}} options={{ limit: 2 }} {...channelListProps} />
+        </Chat>,
+      );
+
+    it('should not reload the channels on connection.recovered if client state recovery is enabled (default)', async () => {
+      chatClient.recoverStateOnReconnect = true;
+      renderUI(chatClient);
+
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should reload the channels on connection.recovered', async () => {
+      renderUI(chatClient);
+
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+    });
+
+    it('should execute recovery queries outside throttle interval', async () => {
+      renderUI(chatClient);
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
+
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      dateNowSpy.mockRestore();
+    });
+
+    it('should throttle channel queries', async () => {
+      renderUI(chatClient);
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      dateNowSpy.mockRestore();
+    });
+
+    it('should circumvent the throttle interval if the last query failed', async () => {
+      renderUI(chatClient);
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+      queryChannelsMock.mockRejectedValueOnce(new Error());
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
+
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
+
+      await act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      dateNowSpy.mockRestore();
+    });
+
+    it('should allow custom recovery request throttle interval', async () => {
+      renderUI(chatClient, {
+        recoveryThrottleIntervalMs: MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
+      });
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS)
+        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+      });
+      dateNowSpy.mockRestore();
+    });
+
+    it('should not allow recovery request throttle interval smaller than 2000ms', async () => {
+      const recoveryThrottleIntervalMs = MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS - 1;
+
+      renderUI(chatClient, { recoveryThrottleIntervalMs });
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(recoveryThrottleIntervalMs + 1)
+        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+      });
+
+      act(() => {
+        chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
+      });
+      dateNowSpy.mockRestore();
+    });
+  });
+
+  describe('context', () => {
+    it('allows to set the new list of channels', async () => {
+      let setChannelsFromOutside;
+      const channelsToBeLoaded = Array.from({ length: 5 }, generateChannel);
+      const channelsToBeSet = Array.from({ length: 5 }, generateChannel);
+      const channelsToIdString = (channels) => channels.map(({ id }) => id).join();
+      const channelsDataToIdString = (channels) => channels.map(({ channel: { id } }) => id).join();
+
+      const ChannelListCustom = () => {
+        const { channels, setChannels } = useChannelListContext();
+        useEffect(() => {
+          setChannelsFromOutside = setChannels;
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+        return <div>{channelsToIdString(channels)}</div>;
+      };
+      const props = {
+        filters: {},
+        List: ChannelListCustom,
+        Preview: ChannelPreviewComponent,
+      };
+
+      useMockedApis(chatClient, [queryChannelsApi(channelsToBeLoaded)]);
+
+      await render(
+        <Chat client={chatClient}>
+          <ChannelList {...props} />
+        </Chat>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(channelsDataToIdString(channelsToBeLoaded))).toBeInTheDocument();
+      });
+
+      await act(() => {
+        setChannelsFromOutside(chatClient.hydrateActiveChannels(channelsToBeSet));
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText(channelsDataToIdString(channelsToBeLoaded)),
+        ).not.toBeInTheDocument();
+        expect(screen.getByText(channelsDataToIdString(channelsToBeSet))).toBeInTheDocument();
       });
     });
   });

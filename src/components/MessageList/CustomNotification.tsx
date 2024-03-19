@@ -18,6 +18,7 @@ const UnMemoizedCustomNotification = (props: PropsWithChildren<CustomNotificatio
       className={clsx(
         `str-chat__custom-notification notification-${type}`,
         `str-chat__notification`,
+        `str-chat-react__notification`,
         className,
       )}
       data-testid='custom-notification'

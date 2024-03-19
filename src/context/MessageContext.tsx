@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Mute, UserResponse } from 'stream-chat';
+import type { Mute, ReactionResponse, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
 import type { StreamMessage } from './ChannelStateContext';
@@ -11,8 +11,9 @@ import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
-import type { RenderTextOptions } from '../utils';
+import type { ReactionDetailsComparator, ReactionsComparator } from '../components/Reactions/types';
 
+import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
 
 export type CustomMessageActions<
@@ -44,8 +45,12 @@ export type MessageContextValue<
   handleDelete: ReactEventHandler;
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
+  /** Function to fetch the message reactions */
+  handleFetchReactions: () => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
+  /** Function to mark message and the messages that follow it as unread in a Channel */
+  handleMarkUnread: ReactEventHandler;
   /** Function to mute a user in a Channel */
   handleMute: ReactEventHandler;
   /** Function to open a Thread on a Message */
@@ -56,12 +61,16 @@ export type MessageContextValue<
   handleReaction: (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void>;
   /** Function to retry sending a Message */
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /** Function that returns whether or not the Message belongs to the current user */
+  /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
-  /** Whether or not reactions are enabled for the active channel */
+  /** @deprecated will be removed in the next major release.
+   *  Whether sending reactions is enabled for the active channel.
+   */
   isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
+  /** Indicates whether a message has not been read yet or has been marked unread */
+  messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
@@ -114,6 +123,10 @@ export type MessageContextValue<
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
+  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  sortReactionDetails?: ReactionDetailsComparator;
+  /** Comparator function to sort reactions, defaults to alphabetical order */
+  sortReactions?: ReactionsComparator;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */

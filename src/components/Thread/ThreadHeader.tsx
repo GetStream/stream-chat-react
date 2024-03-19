@@ -43,7 +43,7 @@ export const ThreadHeader = <
         <div className='str-chat__thread-header-subtitle'>{displayTitle}</div>
       </div>
       <button
-        aria-label='Close thread'
+        aria-label={t('aria/Close thread')}
         className='str-chat__square-button str-chat__close-thread-button'
         data-testid='close-button'
         onClick={closeThread}

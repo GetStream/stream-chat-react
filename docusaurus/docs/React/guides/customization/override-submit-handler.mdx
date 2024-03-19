@@ -1,6 +1,5 @@
 ---
 id: override_submit_handler
-sidebar_position: 5
 title: Input Submit Handler
 ---
 
@@ -17,7 +16,7 @@ conclusion of the underlying `textarea` element's [`handleSubmit`](https://githu
 function.
 
 :::note
-You do not have to implement your custom submit handler, if the only thing you need is to pass custom message data to the underlying API call. In that case you can use the [`handleSubmit`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts) function from the [`MessageInputContext`](../../components/contexts/message-input-context.mdx). The `handleSubmit` function allows you to pass custom message data through its second parameter `customMessageData`. This applies to sending a new message as well as updating an existing one. In order for this to work, you will have to implement custom message input components and pass them to [`Channel`](../../components/core-components/channel.mdx)  props `EditMessageInput` or `Input` respectively.
+You do not have to implement your custom submit handler, if the only thing you need is to pass custom message data to the underlying API call. In that case you can use the [`handleSubmit`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts) function from the [`MessageInputContext`](../../components/contexts/message-input-context.mdx). The `handleSubmit` function allows you to pass custom message data through its second parameter `customMessageData`. This applies to sending a new message as well as updating an existing one. In order for this to work, you will have to implement custom message input components and pass them to [`Channel`](../../components/core-components/channel.mdx) props `EditMessageInput` or `Input` respectively.
 :::
 
 The `overrideSubmitHandler` function receives three arguments, the message to be sent, the `cid` (channel type prepended to channel id)
@@ -109,7 +108,6 @@ const App = () => (
 
 <img src={SubmitHandler} alt='Override Submit Handler' width='700' />
 
-
 ## Adding custom message data
 
 If you would like to store custom data on your message objects, you can pass additional parameters to the [`sendMessage`](../../components/contexts/channel-action-context.mdx#sendmessage) function you retrieve from `ChannelActionContext`.
@@ -138,10 +136,10 @@ const ChannelInner = () => {
     <Window>
       <ChannelHeader />
       <MessageList />
-      <MessageInput focus overrideSubmitHandler={overrideSubmitHandler}/>
+      <MessageInput focus overrideSubmitHandler={overrideSubmitHandler} />
     </Window>
-  )
-}
+  );
+};
 ```
 
 In your browser's Developer tools Network tab you can now observe, that the message payload includes the custom field:

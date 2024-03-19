@@ -1,15 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FileUploadButton, ImageDropzone, UploadButton } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone, UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
-import { usePopper } from 'react-popper';
 import { useDropzone } from 'react-dropzone';
 import { nanoid } from 'nanoid';
 
-import { EmojiPicker } from './EmojiPicker';
 import {
-  EmojiIconLarge as DefaultEmojiIcon,
-  EmojiPickerIcon as DefaultEmojiPickerIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
   UploadIcon as DefaultUploadIcon,
@@ -18,7 +14,8 @@ import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { AttachmentPreviewList } from './AttachmentPreviewList';
+import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
+import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -59,6 +56,7 @@ export const MessageInputFlat = <
       channel?.off('message.deleted', handleQuotedMessageUpdate);
       channel?.off('message.updated', handleQuotedMessageUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel, quotedMessage]);
 
   return themeVersion === '2' ? (
@@ -78,24 +76,23 @@ const MessageInputV1 = <
   } = useChannelStateContext<StreamChatGenerics>('MessageInputFlat');
   const { t } = useTranslationContext('MessageInputFlat');
   const {
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
     handleSubmit,
+    hideSendButton,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
-    openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputFlat');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
+    AttachmentPreviewList = UploadsPreview,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputFlat');
 
   return (
@@ -117,32 +114,17 @@ const MessageInputV1 = <
           <QuotedMessagePreview quotedMessage={quotedMessage} />
         )}
         <div className='str-chat__input-flat-wrapper'>
-          {isUploadEnabled && <UploadsPreview />}
+          {isUploadEnabled && <AttachmentPreviewList />}
           <div className='str-chat__input-flat--textarea-wrapper'>
-            <div className='str-chat__emojiselect-wrapper'>
-              <Tooltip>
-                {emojiPickerIsOpen
-                  ? t<string>('Close emoji picker')
-                  : t<string>('Open emoji picker')}
-              </Tooltip>
-              <button
-                aria-label='Emoji picker'
-                className='str-chat__input-flat-emojiselect'
-                onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-              >
-                {cooldownRemaining ? (
-                  <div className='str-chat__input-flat-cooldown'>
-                    <CooldownTimer
-                      cooldownInterval={cooldownRemaining}
-                      setCooldownRemaining={setCooldownRemaining}
-                    />
-                  </div>
-                ) : (
-                  <EmojiIcon />
-                )}
-              </button>
-            </div>
-            <EmojiPicker />
+            {EmojiPicker && <EmojiPicker />}
+            {!!cooldownRemaining && (
+              <div className='str-chat__input-flat-cooldown'>
+                <CooldownTimer
+                  cooldownInterval={cooldownRemaining}
+                  setCooldownRemaining={setCooldownRemaining}
+                />
+              </div>
+            )}
             <ChatAutoComplete />
             {isUploadEnabled && !cooldownRemaining && (
               <div className='str-chat__fileupload-wrapper' data-testid='fileinput'>
@@ -164,7 +146,7 @@ const MessageInputV1 = <
               </div>
             )}
           </div>
-          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
+          {!(cooldownRemaining || hideSendButton) && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>
@@ -183,34 +165,31 @@ const MessageInputV2 = <
   const { t } = useTranslationContext('MessageInputV2');
 
   const {
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
+    findAndEnqueueURLsToEnrich,
     handleSubmit,
+    hideSendButton,
     isUploadEnabled,
+    linkPreviews,
     maxFilesLeft,
     message,
     numberOfUploads,
-    openEmojiPicker,
     setCooldownRemaining,
     text,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
+    AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiPickerIcon,
     FileUploadIcon = DefaultUploadIcon,
+    LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     SendButton = DefaultSendButton,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
 
   const [creatingPoll, setCreatingPoll] = useState(false);
-  const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-  const { attributes, styles } = usePopper(referenceElement, popperElement, {
-    placement: 'top-end',
-  });
 
   const id = useMemo(() => nanoid(), []);
 
@@ -243,6 +222,9 @@ const MessageInputV2 = <
         </Modal>
       )}
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {findAndEnqueueURLsToEnrich && (
+          <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
+        )}
         {isDragActive && (
           <div
             className={clsx('str-chat__dropzone-container', {
@@ -260,7 +242,7 @@ const MessageInputV2 = <
           <div className='str-chat__file-input-container' data-testid='file-upload-button'>
             <UploadButton
               accept={acceptedFiles?.join(',')}
-              aria-label='File upload'
+              aria-label={t('aria/File upload')}
               className='str-chat__file-input'
               data-testid='file-input'
               disabled={!isUploadEnabled || maxFilesLeft === 0}
@@ -274,38 +256,15 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-
             {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
 
-              <div className='str-chat__message-textarea-emoji-picker'>
-                {emojiPickerIsOpen && (
-                  <div
-                    className='str-chat__message-textarea-emoji-picker-container'
-                    style={styles.popper}
-                    {...attributes.popper}
-                    ref={setPopperElement}
-                  >
-                    <EmojiPicker />
-                  </div>
-                )}
-
-                <button
-                  aria-label='Emoji picker'
-                  className='str-chat__emoji-picker-button'
-                  onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                  ref={setReferenceElement}
-                  type='button'
-                >
-                  <EmojiIcon />
-                </button>
-              </div>
+              {EmojiPicker && <EmojiPicker />}
             </div>
           </div>
-          {/* hide SendButton if this component is rendered in the edit message form */}
-          {!message && (
+          {!hideSendButton && (
             <>
               {cooldownRemaining ? (
                 <CooldownTimer

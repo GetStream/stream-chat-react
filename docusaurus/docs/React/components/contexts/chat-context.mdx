@@ -1,6 +1,5 @@
 ---
 id: chat_context
-sidebar_position: 1
 title: ChatContext
 ---
 
@@ -33,12 +32,32 @@ The currently active channel, which populates the [`Channel`](../core-components
 | ------- |
 | Channel |
 
+### channelsQueryState
+
+Exposes API that:
+
+- indicates, whether and what channels query has been triggered within [`ChannelList` component](../core-components/channel-list.mdx) by its channels pagination controller - `queryInProgress` of type `ChannelQueryState`
+- allows to set the `queryInProgress` state with `setQueryInProgress` state setter
+- keeps track of error response from the channels query - `error`
+- allows to set the `error` state with `setError`
+
+The `queryInProgress` values are:
+
+- `uninitialized` - the initial state before the first channels query is triggered
+- `reload` - the initial channels query (loading the first page) is in progress
+- `load-more` - loading the next page of channels
+- `null` - at least one channels page has been loaded and there is no query in progress at the moment
+
+| Type                 |
+|----------------------|
+| `ChannelsQueryState` |
+
 ### closeMobileNav
 
 The function to close mobile navigation.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### customClasses
@@ -55,7 +74,7 @@ for implementation assistance.
 The callback function used to get available client-side app settings, includes image and file upload config.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### latestMessageDatesByChannel
@@ -79,7 +98,7 @@ An array of users that have been muted by the connected user.
 When the screen width is at a mobile breakpoint, whether the mobile navigation menu is open.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | true    |
 
 ### openMobileNav
@@ -87,7 +106,7 @@ When the screen width is at a mobile breakpoint, whether the mobile navigation m
 The function to open mobile navigation.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### setActiveChannel
@@ -96,7 +115,7 @@ A function to set the currently active channel. This is used in the `ChannelList
 You can override the default behavior by pulling it from context and then utilizing the function.
 
 | Type     |
-|----------|
+| -------- |
 | function |
 
 ### theme
@@ -111,9 +130,9 @@ Deprecated and to be removed in a future major release. Use the `customStyles` p
 
 Stream chat theme version 2 has been introduced with the release of stream-chat-react v10.0.0. This flag is used internally by some UI components of the SDK and the integrators shouldn't need to use it. The value is extracted from a CSS variable `--str-chat__theme-version`. You can set it to values `'1'` or `'2'` in your stylesheets and import the corresponding v2 stylesheet from `stream-chat-react/dist`. Find out more about benefits that the theme version 2 brings to the integrators with [the theming guide](../../theming/introduction.mdx).
 
-|   Type         |  Default  |
-| -------------- | --------- |
-| `'1'` \| `'2'` |   `'1'`   |
+| Type           | Default |
+| -------------- | ------- |
+| `'1'` \| `'2'` | `'1'`   |
 
 ### useImageFlagEmojisOnWindow
 

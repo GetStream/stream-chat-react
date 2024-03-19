@@ -1,0 +1,201 @@
+---
+id: mentions_actions
+sidebar_position: 13
+title: Mentions Actions
+---
+
+import MentionClick from '../../../assets/MentionClick.png';
+import MentionHover from '../../../assets/MentionHover.png';
+
+In this example, we will demonstrate how to utilize custom functions that run on hover and click of a mentioned user in a message.
+We pass `onMentionsHover` and `onMentionsClick` functions as props to the `Channel` component to achieve the desired result.
+
+## Mention Hover Action
+
+For a simple on hover example, we will randomly change the color of the mentioned user text. Our custom function receives the
+`event` object as a parameter. Through DOM manipulation, we can use the `target` field on the `event` to change the color.
+
+### The Code
+
+```tsx
+const onMentionsHover = (event: React.BaseSyntheticEvent) => {
+  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  event.target.style.color = `#${randomColor}`;
+};
+```
+
+From here, all we need to do is override the default component in `Channel`:
+
+```tsx
+<Channel onMentionsHover={onMentionsHover}>{/* children of Channel component */}</Channel>
+```
+
+### The Result
+
+<img src={MentionHover} alt='Mention Hover' width='700' />
+
+## Mention Click Action
+
+For this example, we will go more in-depth to show how an on click function can be used to navigate to a user details component.
+
+### The Code
+
+To start, we will create a state variable to hold our clicked user object. Our custom mention click function will set this user in state.
+
+```tsx
+const [clickedUser, setClickedUser] = useState<UserResponse | undefined>();
+
+const onMentionsClick = (event: React.BaseSyntheticEvent, user: UserResponse) => {
+  event.stopPropagation();
+  setClickedUser(user);
+};
+```
+
+We can now create a custom component that takes `clickedUser` and `setClickedUser` as props and renders the user's info in a sidebar. The user object passed to
+our function will allow us to show things such as the user's Avatar and online status.
+
+```tsx
+type ClickedUserProps = {
+  clickedUser: UserResponse;
+  setClickedUser: React.Dispatch<React.SetStateAction<UserResponse | undefined>>;
+};
+
+export const ClickedUser: React.FC<ClickedUserProps> = (props) => {
+  const { clickedUser, setClickedUser } = props;
+
+  return (
+    <div className='wrapper'>
+      <div className='header'>
+        {clickedUser.online ? (
+          <div className='online'>Online</div>
+        ) : (
+          <div className='offline'>Offline</div>
+        )}
+        <button className='str-chat__square-button' onClick={() => setClickedUser(undefined)}>
+          <svg height='10' width='10' xmlns='http://www.w3.org/2000/svg'>
+            <path
+              d='M9.916 1.027L8.973.084 5 4.058 1.027.084l-.943.943L4.058 5 .084 8.973l.943.943L5 5.942l3.973 3.974.943-.943L5.942 5z'
+              fillRule='evenodd'
+            />
+          </svg>
+        </button>
+      </div>
+      <div className='inner'>
+        {clickedUser.image && <Avatar image={clickedUser.image} size={240} />}
+        <div className='name'>Name: {<p>{clickedUser.name}</p>}</div>
+        <div className='id'>ID: {<p>{clickedUser.id}</p>}</div>
+        <div className='role'>Role: {<p>{clickedUser.role}</p>}</div>
+      </div>
+    </div>
+  );
+};
+```
+
+```css
+.wrapper {
+  width: fit-content;
+  margin-top: var(--sm-m);
+  margin-right: var(--xs-m);
+  background: var(--white);
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+.header {
+  height: 70px;
+  display: flex;
+  padding: 0 var(--sm-p);
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 7px 9px 0 var(--border), 0 1px 0 0 var(--border);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-top: var(--lg-m);
+  padding: var(--sm-p);
+}
+
+.inner .str-chat__avatar {
+  margin: 0;
+}
+
+.online {
+  font-weight: var(--font-weight-bold);
+  color: var(--green);
+}
+
+.offline {
+  font-weight: var(--font-weight-bold);
+  color: var(--grey);
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  font-size: var(--xl-font);
+}
+
+.name p {
+  color: var(--grey);
+  font-size: var(--xl-font);
+  margin: 0;
+  margin: var(--xs-m);
+}
+
+.id {
+  display: flex;
+  align-items: center;
+}
+
+.id p {
+  color: var(--grey);
+  margin: 0;
+  margin: var(--xs-m);
+}
+
+.role {
+  display: flex;
+  align-items: center;
+}
+
+.role p {
+  color: var(--grey);
+  margin: 0;
+  margin: var(--xs-m);
+}
+```
+
+Lastly, we plug our custom function and component into our app to tie it all together:
+
+```tsx
+const App = () => {
+  const [clickedUser, setClickedUser] = useState<UserResponse | undefined>();
+
+  const onMentionsClick = (event: React.BaseSyntheticEvent, user: UserResponse) => {
+    setClickedUser(user);
+  };
+
+  return (
+    <Chat client={client}>
+      <ChannelList />
+      <Channel onMentionsClick={onMentionsClick}>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput />
+        </Window>
+        <Thread />
+        {clickedUser && <ClickedUser clickedUser={clickedUser} setClickedUser={setClickedUser} />}
+      </Channel>
+    </Chat>
+  );
+};
+```
+
+### The Result
+
+<img src={MentionClick} alt='Mention Click' width='500' />

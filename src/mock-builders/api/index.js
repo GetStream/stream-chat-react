@@ -17,6 +17,7 @@ export * from './queryChannels';
 export * from './queryMembers';
 export * from './queryUsers';
 export * from './getOrCreateChannel';
+export * from './markRead';
 export * from './threadReplies';
 export * from './sendMessage';
 export * from './error';

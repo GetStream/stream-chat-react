@@ -1,6 +1,5 @@
 ---
 id: channel-list-infinite-scroll
-sidebar_position: 24
 title: Channel List Infinite Scroll
 keywords: [channel list, infinite scroll]
 ---
@@ -14,34 +13,33 @@ This example demonstrates how to implement infinite scroll with existing SDK com
 The SDK provides own [`InfiniteScroll`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/InfiniteScrollPaginator/InfiniteScroll.tsx) component. This component implements the [`PaginatorProps`](https://github.com/GetStream/stream-chat-react/blob/master/src/types/types.ts) interface. As this interface is implemented by the [`LoadMorePaginator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/LoadMore/LoadMorePaginator.ts) too, we can just pass the `InfiniteScroll` into the `ChannelList` prop `Paginator`.
 
 ```tsx
-import {
-  ChannelList,
-  InfiniteScroll,
-} from 'stream-chat-react';
+import { ChannelList, InfiniteScroll } from 'stream-chat-react';
 
-<ChannelList filters={filters} sort={sort} options={options}
-             Paginator={InfiniteScroll}
-             showChannelSearch
-/>
+<ChannelList
+  filters={filters}
+  sort={sort}
+  options={options}
+  Paginator={InfiniteScroll}
+  showChannelSearch
+/>;
 ```
 
 If you would like to adjust the configuration parameters like `threshold`, `reverse` (`PaginatorProps`) or `useCapture`, etc. (`InfiniteScrollProps`), you can create a wrapper component where these props can be set:
 
 ```tsx
-import {
-  ChannelList,
-  InfiniteScroll,
-  InfiniteScrollProps
-} from 'stream-chat-react';
-
+import { ChannelList, InfiniteScroll, InfiniteScrollProps } from 'stream-chat-react';
 
 const Paginator = (props: InfiniteScrollProps) => <InfiniteScroll {...props} threshold={50} />;
 
-...
-<ChannelList filters={filters} sort={sort} options={options}
-             Paginator={Paginator}
-             showChannelSearch
-/>
+// ...
+
+<ChannelList
+  filters={filters}
+  sort={sort}
+  options={options}
+  Paginator={Paginator}
+  showChannelSearch
+/>;
 ```
 
 Especially the `threshold` prop may need to be set as the default is 250px. That may be too soon to load more channels.
@@ -65,8 +63,6 @@ You can change the container height so that not all channels are visible at once
 
 ```css
 .str-chat__channel-list-messenger-react__main {
-    max-height: 50%;
+  max-height: 50%;
 }
 ```
-
-

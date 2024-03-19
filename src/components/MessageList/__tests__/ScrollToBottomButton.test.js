@@ -79,6 +79,7 @@ describe.each([
     );
     expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
   });
+
   it('calls the onclick callback', async () => {
     render(
       <ChatProvider value={{ channel, client }}>

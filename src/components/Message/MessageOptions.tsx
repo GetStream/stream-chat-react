@@ -12,6 +12,7 @@ import { MessageActions } from '../MessageActions';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
+import { useTranslationContext } from '../../context';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -52,8 +53,11 @@ const UnMemoizedMessageOptions = <
     initialMessage,
     message,
     onReactionListClick,
+    showDetailedReactions,
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
+
+  const { t } = useTranslationContext('MessageOptions');
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
@@ -86,7 +90,7 @@ const UnMemoizedMessageOptions = <
       )}
       {shouldShowReplies && (
         <button
-          aria-label='Open Thread'
+          aria-label={t('aria/Open Thread')}
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread str-chat__message-reply-in-thread-button`}
           data-testid='thread-action'
           onClick={handleOpenThread}
@@ -96,7 +100,8 @@ const UnMemoizedMessageOptions = <
       )}
       {shouldShowReactions && (
         <button
-          aria-label='Open Reaction Selector'
+          aria-expanded={showDetailedReactions}
+          aria-label={t('aria/Open Reaction Selector')}
           className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
           data-testid='message-reaction-action'
           onClick={onReactionListClick}

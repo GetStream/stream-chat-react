@@ -9,8 +9,6 @@ import {
   useMessageInputContext,
 } from '../../context/MessageInputContext';
 
-import type { EmojiData } from 'emoji-mart';
-
 import type { SuggestionCommand, SuggestionUser } from '../ChatAutoComplete/ChatAutoComplete';
 import type { CommandItemProps } from '../CommandItem/CommandItem';
 import type { EmoticonItemProps } from '../EmoticonItem/EmoticonItem';
@@ -27,7 +25,7 @@ export type CommandTriggerSetting<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = TriggerSetting<CommandItemProps, SuggestionCommand<StreamChatGenerics>>;
 
-export type EmojiTriggerSetting = TriggerSetting<EmoticonItemProps, EmojiData>;
+export type EmojiTriggerSetting = TriggerSetting<EmoticonItemProps>;
 
 export type UserTriggerSetting<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -39,7 +37,7 @@ export type TriggerSetting<T extends UnknownType = UnknownType, U = UnknownType>
     query: string,
     text: string,
     onReady: (data: (U & AutocompleteMinimalData)[], token: string) => void,
-  ) => U[] | Promise<void> | void;
+  ) => U[] | PromiseLike<void> | void;
   output: (
     entity: U,
   ) =>
@@ -76,7 +74,7 @@ export const DefaultTriggerProvider = <
 
   const defaultAutocompleteTriggers: TriggerSettings<StreamChatGenerics> = {
     '/': useCommandTrigger<StreamChatGenerics>(),
-    ':': useEmojiTrigger(currentValue.emojiIndex),
+    ':': useEmojiTrigger(currentValue.emojiSearchIndex),
     '@': useUserTrigger<StreamChatGenerics>({
       disableMentions: currentValue.disableMentions,
       mentionAllAppUsers: currentValue.mentionAllAppUsers,

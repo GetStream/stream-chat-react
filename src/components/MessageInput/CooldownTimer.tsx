@@ -4,24 +4,28 @@ export type CooldownTimerProps = {
   cooldownInterval: number;
   setCooldownRemaining: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
-export const CooldownTimer = ({ cooldownInterval, setCooldownRemaining }: CooldownTimerProps) => {
-  const [seconds, setSeconds] = useState(cooldownInterval);
+export const CooldownTimer = ({ cooldownInterval }: CooldownTimerProps) => {
+  const [seconds, setSeconds] = useState<number | undefined>();
 
   useEffect(() => {
-    const countdownInterval = setInterval(() => {
-      if (seconds > 0) {
+    let countdownTimeout: ReturnType<typeof setTimeout>;
+    if (typeof seconds === 'number' && seconds > 0) {
+      countdownTimeout = setTimeout(() => {
         setSeconds(seconds - 1);
-      } else {
-        setCooldownRemaining(0);
-      }
-    }, 1000);
+      }, 1000);
+    }
+    return () => {
+      clearTimeout(countdownTimeout);
+    };
+  }, [seconds]);
 
-    return () => clearInterval(countdownInterval);
-  });
+  useEffect(() => {
+    setSeconds(cooldownInterval ?? 0);
+  }, [cooldownInterval]);
 
   return (
     <div className='str-chat__message-input-cooldown' data-testid='cooldown-timer'>
-      {seconds === 0 ? null : seconds}
+      {seconds}
     </div>
   );
 };

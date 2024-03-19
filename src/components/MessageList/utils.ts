@@ -10,6 +10,7 @@ import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import { isMessageEdited } from '../Message/utils';
 
 type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -177,7 +178,7 @@ export const getReadStates = <
 
     // loop messages sent by current user and add read data for other users in channel
     messages.forEach((msg) => {
-      if (msg.updated_at && msg.updated_at < readState.last_read) {
+      if (msg.created_at && msg.created_at < readState.last_read) {
         userLastReadMsgId = msg.id;
 
         // if true, save other user's read data for all messages they've read
@@ -282,7 +283,8 @@ export const getGroupStyles = <
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
-    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0);
+    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0) ||
+    isMessageEdited(previousMessage);
 
   const isBottomMessage =
     !nextMessage ||
@@ -293,7 +295,8 @@ export const getGroupStyles = <
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
-    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0);
+    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0) ||
+    isMessageEdited(message);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';
@@ -316,7 +319,8 @@ export const getGroupStyles = <
 //  The MessageList should have configurable the limit for performing the requests.
 //  This parameter would then be used within these functions
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
-  returnedCountMessages === limit;
+  returnedCountMessages >= limit;
 
+// @deprecated
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages < limit;

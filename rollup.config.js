@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import image from '@rollup/plugin-image';
@@ -20,8 +21,10 @@ process.env.NODE_ENV = 'production';
 
 const baseConfig = {
   cache: false,
-  inlineDynamicImports: true,
-  input: 'src/index.ts',
+  input: {
+    index: 'src/index.ts',
+    'components/Emojis/index': 'src/components/Emojis/index.ts',
+  },
   watch: {
     chokidar: false,
   },
@@ -46,11 +49,9 @@ const externalDependencies = [
   'lodash.throttle',
   'lodash.uniqby',
   'mml-react',
-  'nanoid',
   'pretty-bytes',
   'prop-types',
   'react-fast-compare',
-  /react-file-utils/,
   'react-images',
   'react-image-gallery',
   'react-is',
@@ -83,15 +84,15 @@ const basePlugins = ({ useBrowserResolve = false }) => [
   copy({
     targets: [
       { dest: 'dist/assets', src: './node_modules/@stream-io/stream-chat-css/dist/assets/*' },
-      { dest: 'dist/css', src: './node_modules/@stream-io/stream-chat-css/dist/css/*' },
+      { dest: 'dist/css', src: './node_modules/@stream-io/stream-chat-css/dist/css/*.css' },
       { dest: 'dist/scss', src: './node_modules/@stream-io/stream-chat-css/dist/scss/*' },
-      { dest: 'dist/css/v2', src: './node_modules/@stream-io/stream-chat-css/dist/v2/css/*' },
+      { dest: 'dist/css/v2', src: './node_modules/@stream-io/stream-chat-css/dist/v2/css/*.css' },
       { dest: 'dist/scss/v2', src: './node_modules/@stream-io/stream-chat-css/dist/v2/scss/*' },
     ],
     verbose: process.env.VERBOSE,
     watch: process.env.ROLLUP_WATCH,
   }),
-  // Json to ES modules conversion
+  // JSON to ES modules conversion
   json({ compact: true }),
   process.env.BUNDLE_SIZE ? visualizer() : null,
 ];
@@ -99,22 +100,25 @@ const basePlugins = ({ useBrowserResolve = false }) => [
 const normalBundle = {
   ...baseConfig,
   external: externalDependencies,
-  output: [
-    {
-      file: pkg.main,
-      format: 'cjs',
-      sourcemap: true,
-    },
-  ],
+  output: {
+    dir: 'dist',
+    format: 'cjs',
+    entryFileNames: '[name].[format].js',
+  },
   plugins: [...basePlugins({ useBrowserResolve: false })],
 };
 
+// TODO: multiple separate bundles
 const fullBrowserBundle = ({ min } = { min: false }) => ({
   ...baseConfig,
+  inlineDynamicImports: true,
+  // includes EmojiPicker
+  input: 'src/index_UMD.ts',
   output: [
     {
       file: min ? pkg.jsdelivr : pkg.jsdelivr.replace('.min', ''),
       format: 'iife',
+      // TODO: figure out emoji-mart globals
       globals: {
         react: 'React',
         'react-dom': 'ReactDOM',

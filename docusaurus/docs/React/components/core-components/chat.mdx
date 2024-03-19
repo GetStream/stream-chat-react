@@ -1,6 +1,5 @@
 ---
 id: chat
-sidebar_position: 2
 title: Chat
 ---
 
@@ -68,7 +67,7 @@ for implementation assistance.
 If true, toggles the CSS variables to the default dark mode color palette.
 
 | Type    | Default |
-|---------|---------|
+| ------- | ------- |
 | boolean | false   |
 
 ### defaultLanguage
@@ -76,7 +75,7 @@ If true, toggles the CSS variables to the default dark mode color palette.
 Sets the default fallback language for UI component translation, defaults to 'en' for English.
 
 | Type   | Default |
-|--------|---------|
+| ------ | ------- |
 | string | 'en'    |
 
 ### i18nInstance
@@ -93,8 +92,8 @@ const i18nInstance = new Streami18n({
 });
 
 <Chat client={client} i18nInstance={i18nInstance}>
-  {// children of Chat component}
-</Chat>
+  {/* children of Chat component */}
+</Chat>;
 ```
 
 | Type   |
@@ -122,6 +121,10 @@ Deprecated and to be removed in a future major release. Use the `customStyles` p
 Windows 10 does not support country flag emojis out of the box. It chooses to render these emojis as characters instead.
 Stream Chat can override this behavior by loading a custom web font that will render images instead (PNGs or SVGs depending
 on the platform). Set this prop to true if you want to use these custom emojis for Windows users.
+
+:::caution
+If you're moving from older versions to `11.0.0` then make sure to import related stylesheet from `stream-chat-react/css/v2/emoji-replacement.css` as it has been removed from our main stylesheet to reduce final bundle size for integrators who do not wish to use this feature.
+:::
 
 | Type    | Default |
 | ------- | ------- |

@@ -11,7 +11,7 @@ import { ChatProvider } from '../../../context/ChatContext';
 import { MessageProvider } from '../../../context/MessageContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 
-import { generateMessage, getTestClient } from '../../../mock-builders';
+import { generateMessage, getTestClient, mockTranslationContext } from '../../../mock-builders';
 
 jest.mock('../MessageActionsBox', () => ({
   MessageActionsBox: jest.fn(() => <div />),
@@ -46,7 +46,7 @@ function renderMessageActions(customProps, renderer = render) {
   return renderer(
     <ChatProvider value={{ client: chatClient }}>
       <ChannelStateProvider value={{}}>
-        <TranslationProvider value={{ t: (key) => key }}>
+        <TranslationProvider value={mockTranslationContext}>
           <MessageProvider value={{ ...messageContextValue }}>
             <MessageActions {...defaultProps} {...customProps} />
           </MessageProvider>
@@ -106,7 +106,7 @@ describe('<MessageActions /> component', () => {
 
   it('should open message actions box on click', () => {
     const { getByTestId } = renderMessageActions();
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
+    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );

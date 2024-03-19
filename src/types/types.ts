@@ -8,6 +8,7 @@ import type {
   ExtendableGenerics,
   LiteralStringForUnion,
   Mute,
+  ChannelState as StreamChannelState,
 } from 'stream-chat';
 
 export type UnknownType = Record<string, unknown>;
@@ -39,16 +40,6 @@ export type DefaultChannelType = UnknownType & {
   subtitle?: string;
 };
 
-export type DefaultStreamChatGenerics = ExtendableGenerics & {
-  attachmentType: DefaultAttachmentType;
-  channelType: DefaultChannelType;
-  commandType: LiteralStringForUnion;
-  eventType: UnknownType;
-  messageType: DefaultMessageType;
-  reactionType: UnknownType;
-  userType: DefaultUserType;
-};
-
 export type DefaultMessageType<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UnknownType & {
@@ -71,6 +62,16 @@ export type DefaultUserType<
   DefaultUserTypeInternal & {
     mutes?: Array<Mute<StreamChatGenerics>>;
   };
+
+export type DefaultStreamChatGenerics = ExtendableGenerics & {
+  attachmentType: DefaultAttachmentType;
+  channelType: DefaultChannelType;
+  commandType: LiteralStringForUnion;
+  eventType: UnknownType;
+  messageType: DefaultMessageType;
+  reactionType: UnknownType;
+  userType: DefaultUserType;
+};
 
 export type GiphyVersions =
   | 'original'
@@ -129,3 +130,30 @@ export type VideoAttachmentSizeHandler = (
   element: HTMLElement,
   shouldGenerateVideoThumbnail: boolean,
 ) => VideoAttachmentConfiguration;
+
+export type ChannelUnreadUiState<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Omit<ValuesType<StreamChannelState<StreamChatGenerics>['read']>, 'user'>;
+
+// todo: fix export from stream-chat - for some reason not exported
+export type SendMessageOptions = {
+  force_moderation?: boolean;
+  is_pending_message?: boolean;
+  keep_channel_hidden?: boolean;
+  pending?: boolean;
+  pending_message_metadata?: Record<string, string>;
+  skip_enrich_url?: boolean;
+  skip_push?: boolean;
+};
+
+// todo: fix export from stream-chat - for some reason not exported
+export type UpdateMessageOptions = {
+  skip_enrich_url?: boolean;
+};
+
+export type Readable<T> = {
+  [key in keyof T]: T[key];
+  // eslint-disable-next-line @typescript-eslint/ban-types
+} & {};
+
+export type ValuesType<T> = T[keyof T];

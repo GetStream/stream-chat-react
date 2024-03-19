@@ -1,23 +1,40 @@
 import React, { PropsWithChildren } from 'react';
-import type { Message } from 'stream-chat';
 
 import { DefaultTriggerProvider } from './DefaultTriggerProvider';
 import { MessageInputFlat } from './MessageInputFlat';
-
 import { useCooldownTimer } from './hooks/useCooldownTimer';
 import { useCreateMessageInputContext } from './hooks/useCreateMessageInputContext';
-import { FileUpload, ImageUpload, useMessageInputState } from './hooks/useMessageInputState';
-
+import { useMessageInputState } from './hooks/useMessageInputState';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
+import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
-import type { Channel, SendFileAPIResponse } from 'stream-chat';
+import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
 
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+  UnknownType,
+} from '../../types/types';
+import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
+import type { FileUpload, ImageUpload } from './types';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+export type EmojiSearchIndexResult = {
+  id: string;
+  name: string;
+  skins: Array<{ native: string }>;
+  emoticons?: Array<string>;
+  native?: string;
+};
+
+export interface EmojiSearchIndex<T extends UnknownType = UnknownType> {
+  search: (
+    query: string,
+  ) => PromiseLike<Array<EmojiSearchIndexResult & T>> | Array<EmojiSearchIndexResult & T> | null;
+}
 
 export type MessageInputProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -27,8 +44,6 @@ export type MessageInputProps<
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
   /** Function to clear the editing state while editing a message */
   clearEditingState?: () => void;
-  /** If true, picking an emoji from the `EmojiPicker` component will close the picker */
-  closeEmojiPickerOnClick?: boolean;
   /** If true, disables the text input */
   disabled?: boolean;
   /** If true, the suggestion list will not display and autocomplete @mentions. Default: false. */
@@ -43,6 +58,8 @@ export type MessageInputProps<
     file: ImageUpload['file'],
     channel: Channel<StreamChatGenerics>,
   ) => Promise<SendFileAPIResponse>;
+  /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** Custom error handler function to be called with a file/image upload fails */
   errorHandler?: (
     error: Error,
@@ -55,6 +72,8 @@ export type MessageInputProps<
   getDefaultValue?: () => string | string[];
   /** If true, expands the text input vertically for new lines */
   grow?: boolean;
+  /** Allows to hide MessageInput's send button. */
+  hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
@@ -72,6 +91,7 @@ export type MessageInputProps<
     message: MessageToSend<StreamChatGenerics>,
     channelCid: string,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: StreamMessage<StreamChatGenerics>;
@@ -88,6 +108,8 @@ export type MessageInputProps<
    * ```
    */
   shouldSubmit?: (event: KeyboardEvent) => boolean;
+  /** Configuration parameters for link previews. */
+  urlEnrichmentConfig?: URLEnrichmentConfig;
   useMentionsTransliteration?: boolean;
 };
 
@@ -99,11 +121,13 @@ const MessageInputProvider = <
 ) => {
   const cooldownTimerState = useCooldownTimer<StreamChatGenerics>();
   const messageInputState = useMessageInputState<StreamChatGenerics, V>(props);
+  const { emojiSearchIndex } = useComponentContext('MessageInput');
 
   const messageInputContextValue = useCreateMessageInputContext<StreamChatGenerics, V>({
     ...cooldownTimerState,
     ...messageInputState,
     ...props,
+    emojiSearchIndex: props.emojiSearchIndex ?? emojiSearchIndex,
   });
 
   return (

@@ -1,5 +1,9 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
-import { getTestClientWithUser, mockTranslatorFunction } from '../../../mock-builders';
+import {
+  countReactions,
+  getTestClientWithUser,
+  mockTranslatorFunction,
+} from '../../../mock-builders';
 import {
   areMessagePropsEqual,
   areMessageUIPropsEqual,
@@ -77,6 +81,7 @@ describe('Message utils', () => {
       canDelete: true,
       canEdit: true,
       canFlag: true,
+      canMarkUnread: true,
       canMute: true,
       canPin: true,
       canQuote: true,
@@ -105,6 +110,8 @@ describe('Message utils', () => {
       ['not allow', 'delete', 'canDelete', false],
       ['allow', 'flag', 'canFlag', true],
       ['not allow', 'flag', 'canFlag', false],
+      ['allow', 'markUnread', 'canMarkUnread', true],
+      ['not allow', 'markUnread', 'canMarkUnread', false],
       ['allow', 'mute', 'canMute', true],
       ['not allow', 'mute', 'canMute', false],
       ['allow', 'pin', 'canPin', true],
@@ -236,8 +243,10 @@ describe('Message utils', () => {
       expect(messageHasReactions(message)).toBe(false);
     });
     it('should return true if message has reactions', () => {
+      const reactions = [generateReaction()];
       const message = generateMessage({
-        latest_reactions: [generateReaction()],
+        latest_reactions: reactions,
+        reaction_counts: countReactions(reactions),
       });
       expect(messageHasReactions(message)).toBe(true);
     });

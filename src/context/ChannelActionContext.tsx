@@ -5,6 +5,7 @@ import type {
   Attachment,
   ErrorFromResponse,
   Message,
+  MessageResponse,
   UpdatedMessage,
   UpdateMessageAPIResponse,
   UserResponse,
@@ -15,7 +16,22 @@ import type { StreamMessage } from './ChannelStateContext';
 import type { ChannelStateReducerAction } from '../components/Channel/channelState';
 import type { CustomMentionHandler } from '../components/Message/hooks/useMentionsHandler';
 
-import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type {
+  ChannelUnreadUiState,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+  UnknownType,
+  UpdateMessageOptions,
+} from '../types/types';
+
+export type MarkReadWrapperOptions = {
+  /**
+   * Signal, whether the `channelUnreadUiState` should be updated.
+   * By default, the local state update is prevented when the Channel component is mounted.
+   * This is in order to keep the UI indicating the original unread state, when the user opens a channel.
+   */
+  updateChannelUiUnreadState?: boolean;
+};
 
 export type MessageAttachments<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -44,15 +60,21 @@ export type ChannelActionContextValue<
 > = {
   addNotification: (text: string, type: 'success' | 'error') => void;
   closeThread: (event?: React.BaseSyntheticEvent) => void;
+  deleteMessage: (
+    message: StreamMessage<StreamChatGenerics>,
+  ) => Promise<MessageResponse<StreamChatGenerics>>;
   dispatch: React.Dispatch<ChannelStateReducerAction<StreamChatGenerics>>;
   editMessage: (
     message: UpdatedMessage<StreamChatGenerics>,
+    options?: UpdateMessageOptions,
   ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
+  jumpToFirstUnreadMessage: (queryMessageLimit?: number) => Promise<void>;
   jumpToLatestMessage: () => Promise<void>;
   jumpToMessage: (messageId: string, limit?: number) => Promise<void>;
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
+  markRead: (options?: MarkReadWrapperOptions) => void;
   onMentionsClick: CustomMentionHandler<StreamChatGenerics>;
   onMentionsHover: CustomMentionHandler<StreamChatGenerics>;
   openThread: (
@@ -64,7 +86,9 @@ export type ChannelActionContextValue<
   sendMessage: (
     message: MessageToSend<StreamChatGenerics>,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => Promise<void>;
+  setChannelUnreadUiState: React.Dispatch<React.SetStateAction<ChannelUnreadUiState | undefined>>;
   setQuotedMessage: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;

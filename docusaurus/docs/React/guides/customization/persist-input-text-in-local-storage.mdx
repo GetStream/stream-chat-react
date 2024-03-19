@@ -1,14 +1,13 @@
 ---
 id: persist_input_text_in_localstorage
-sidebar_position: 6
 slug: /guides/persist-input-text-in-localstorage/
 title: Storing message drafts
 ---
 
 In this recipe, we would like to demonstrate how you can start storing unsent user's messages as drafts. The whole implementation turns around the use of `MessageInput`'s prop `getDefaultValue` and custom change event handler. We will store the messages in localStorage.
 
-
 ## Building the draft storage logic
+
 Below, we have a simple logic to store all the message text drafts in a localStorage object under the key `@chat/drafts`.
 
 ```ts
@@ -21,7 +20,7 @@ const removeDraft = (key: string) => {
 
   if (drafts[key]) {
     delete drafts[key];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
   }
 };
 
@@ -31,25 +30,19 @@ const updateDraft = (key: string, value: string) => {
   if (!value) {
     delete drafts[key];
   } else {
-    drafts[key] = value
+    drafts[key] = value;
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
-}
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
+};
 ```
 
 On top of this logic we build a hook that exposes the change handler functions for both thread and main `MessageInput` components as well as functions for `MessageInput`'s `getDefaultValue` prop. We also have to override the `MessageInput`'s default submit handler, because we want to remove the draft from storage when a message is sent.
 
 ```ts
 import { ChangeEvent, useCallback } from 'react';
-import {
-    MessageToSend,
-    useChannelActionContext,
-    useChannelStateContext,
-} from 'stream-chat-react';
-import type {
-    Message
-} from 'stream-chat';
+import { MessageToSend, useChannelActionContext, useChannelStateContext } from 'stream-chat-react';
+import type { Message } from 'stream-chat';
 
 const STORAGE_KEY = '@chat/drafts';
 
@@ -60,7 +53,7 @@ const removeDraft = (key: string) => {
 
   if (drafts[key]) {
     delete drafts[key];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
   }
 };
 
@@ -70,25 +63,31 @@ const updateDraft = (key: string, value: string) => {
   if (!value) {
     delete drafts[key];
   } else {
-    drafts[key] = value
+    drafts[key] = value;
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts))
-}
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
+};
 
 // highlight-start
 const useDraftAPI = () => {
   const { channel, thread } = useChannelStateContext();
   const { sendMessage } = useChannelActionContext();
 
-  const handleInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateDraft(channel.cid, e.target.value);
-  }, [channel.cid])
+  const handleInputChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      updateDraft(channel.cid, e.target.value);
+    },
+    [channel.cid],
+  );
 
-  const handleThreadInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    if (!thread) return;
-    updateDraft(`${channel.cid}:${thread.id}`, e.target.value);
-  }, [channel.cid, thread]);
+  const handleThreadInputChange = useCallback(
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
+      if (!thread) return;
+      updateDraft(`${channel.cid}:${thread.id}`, e.target.value);
+    },
+    [channel.cid, thread],
+  );
 
   const getMainInputDraft = useCallback(() => {
     const drafts = getDrafts();
@@ -102,11 +101,13 @@ const useDraftAPI = () => {
   }, [channel.cid, thread]);
 
   const overrideSubmitHandler = useCallback(
-    async (message: MessageToSend, channelCid: string, customMessageData?: Partial<Message>,) => {
-    await sendMessage(message, customMessageData);
-    const key = message.parent ? `${channelCid}:${message.parent.id}` : channelCid;
-    removeDraft(key);
-  }, [sendMessage])
+    async (message: MessageToSend, channelCid: string, customMessageData?: Partial<Message>) => {
+      await sendMessage(message, customMessageData);
+      const key = message.parent ? `${channelCid}:${message.parent.id}` : channelCid;
+      removeDraft(key);
+    },
+    [sendMessage],
+  );
 
   return {
     getMainInputDraft,
@@ -114,8 +115,8 @@ const useDraftAPI = () => {
     handleInputChange,
     handleThreadInputChange,
     overrideSubmitHandler,
-  }
-}
+  };
+};
 // highlight-end
 ```
 
@@ -135,33 +136,35 @@ const ChannelWindow = () => {
     handleInputChange,
     handleThreadInputChange,
     overrideSubmitHandler,
-  } = useDraftAPI()
+  } = useDraftAPI();
 
   return (
     <>
       <Window>
-        <TruncateButton/>
-        <ChannelHeader/>
-        <MessageList/>
+        <TruncateButton />
+        <ChannelHeader />
+        <MessageList />
         <MessageInput
-            //   highlight-start
-          additionalTextareaProps={{onChange: handleInputChange}}
+          //   highlight-start
+          additionalTextareaProps={{ onChange: handleInputChange }}
           getDefaultValue={getMainInputDraft}
           overrideSubmitHandler={overrideSubmitHandler}
-            //   highlight-end
+          //   highlight-end
           focus
         />
       </Window>
-      <Thread additionalMessageInputProps={{
-        //   highlight-start
-        additionalTextareaProps: {onChange: handleThreadInputChange},
-        getDefaultValue: getThreadInputDraft,
-        overrideSubmitHandler,
-        //   highlight-end
-      }}/>
+      <Thread
+        additionalMessageInputProps={{
+          //   highlight-start
+          additionalTextareaProps: { onChange: handleThreadInputChange },
+          getDefaultValue: getThreadInputDraft,
+          overrideSubmitHandler,
+          //   highlight-end
+        }}
+      />
     </>
-  )
-}
+  );
+};
 
 // In your application you will probably initiate the client in a React effect.
 const chatClient = StreamChat.getInstance<StreamChatGenerics>('<YOUR_API_KEY>');
@@ -174,9 +177,9 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 const App = () => {
   return (
     <Chat client={chatClient}>
-      <ChannelList filters={filters} sort={sort} options={options} showChannelSearch/>
+      <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
       <Channel>
-        <ChannelWindow/>
+        <ChannelWindow />
       </Channel>
     </Chat>
   );

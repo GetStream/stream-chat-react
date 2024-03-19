@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import clsx from 'clsx';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
-
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';

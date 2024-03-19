@@ -31,3 +31,28 @@ export async function createClientWithChannel(
 
   return { channel, client, users };
 }
+
+export const initClientWithChannels = async ({ channelsData, customUser } = {}) => {
+  const user = customUser || generateUser();
+  const client = await getTestClientWithUser(user);
+  const defaultGenerateChannelOptions = {
+    members: [generateMember({ user })],
+  };
+  const channels = await Promise.all(
+    (channelsData ?? [defaultGenerateChannelOptions]).map(async (channelData) => {
+      const mockedChannelData = generateChannel({
+        ...defaultGenerateChannelOptions,
+        ...channelData,
+      });
+
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
+      const channel = client.channel(mockedChannelData.channel.type, mockedChannelData.channel.id);
+      await channel.watch();
+      jest.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannelData.channel.config);
+      return channel;
+    }),
+  );
+
+  return { channels, client };
+};

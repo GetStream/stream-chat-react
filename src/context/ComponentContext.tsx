@@ -13,7 +13,7 @@ import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPr
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
 import type { MessageNotificationProps } from '../components/MessageList/MessageNotification';
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
-import type { MessageInputProps } from '../components/MessageInput/MessageInput';
+import type { EmojiSearchIndex, MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
 import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
@@ -26,41 +26,59 @@ import type {
   SuggestionItemProps,
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
+import { UnreadMessagesSeparatorProps } from '../components/MessageList/UnreadMessagesSeparator';
 import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type { CooldownTimerProps } from '../components';
+import type {
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
+} from '../components';
+import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
+import type { ReactionOptions } from '../components/Reactions/reactionOptions';
+import type { MessageBouncePromptProps } from '../components/MessageBounce';
+import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
+import type { TimestampProps } from '../components/Message/Timestamp';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
   Attachment: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
+  DateSeparator: React.ComponentType<DateSeparatorProps>;
   Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  MessageSystem: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
+  reactionOptions: ReactionOptions;
+  UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
+  AttachmentPreviewList?: React.ComponentType;
   AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
+  BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
-  DateSeparator?: React.ComponentType<DateSeparatorProps>;
+  CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps<StreamChatGenerics>>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
-  EmojiIcon?: React.ComponentType;
+  EmojiPicker?: React.ComponentType;
+  emojiSearchIndex?: EmojiSearchIndex;
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   FileUploadIcon?: React.ComponentType;
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
   HeaderComponent?: React.ComponentType;
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
+  LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageStatus?: React.ComponentType<MessageStatusProps>;
-  MessageSystem?: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<StreamChatGenerics>>;
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
@@ -73,8 +91,10 @@ export type ComponentContextValue<
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadStart?: React.ComponentType;
+  Timestamp?: React.ComponentType<TimestampProps>;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
+  UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };
 

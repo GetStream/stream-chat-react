@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 import { Message } from '../Message';
 import { MessageOptions } from '../MessageOptions';
 import { MessageSimple } from '../MessageSimple';
-import { MESSAGE_ACTIONS } from '../utils';
+import { ACTIONS_NOT_WORKING_IN_THREAD, MESSAGE_ACTIONS } from '../utils';
 
 import { Attachment } from '../../Attachment';
 import { MessageActions as MessageActionsMock } from '../../MessageActions';
@@ -27,6 +27,7 @@ jest.mock('../../MessageActions', () => ({
   MessageActions: jest.fn(() => <div />),
 }));
 
+const minimumCapabilitiesToRenderMessageActions = { 'delete-any-message': true };
 const alice = generateUser({ name: 'alice' });
 const defaultMessageProps = {
   initialMessage: false,
@@ -169,21 +170,135 @@ describe('<MessageOptions />', () => {
     const { getByTestId } = await renderMessageOptions({
       channelStateOpts: {
         channelCapabilities: { 'send-reaction': true },
-        channelConfig: { reactions: true },
       },
     });
     expect(getByTestId(reactionActionTestId)).toBeInTheDocument();
   });
 
   it('should not display reactions action when channel has reactions disabled', async () => {
-    const { queryByTestId } = await renderMessageOptions({ channelConfig: { reactions: false } });
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': false },
+      },
+    });
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
   });
 
   it('should render message actions', async () => {
-    const minimumCapabilitiesToRenderMessageActions = { 'delete-any-message': true };
     await renderMessageOptions({
       channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
+  });
+
+  it('should not show message actions button if actions are disabled', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: { messageActions: [] },
+    });
+    expect(MessageActionsMock).not.toHaveBeenCalled();
+  });
+
+  it('should not show actions box for message in thread if only non-thread actions are available', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: { messageActions: ACTIONS_NOT_WORKING_IN_THREAD, threadList: true },
+    });
+    expect(MessageActionsMock).not.toHaveBeenCalled();
+  });
+
+  it('should show actions box for message in thread if not only non-thread actions are available', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        messageActions: [...ACTIONS_NOT_WORKING_IN_THREAD, MESSAGE_ACTIONS.delete],
+        threadList: true,
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
+  });
+
+  it('should show actions box for a message in thread if custom actions provided are non-thread', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        customMessageActions: ACTIONS_NOT_WORKING_IN_THREAD,
+        messageActions: ACTIONS_NOT_WORKING_IN_THREAD,
+        threadList: true,
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
+  });
+
+  it('should not show actions box for message outside thread with single action "react"', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        messageActions: [MESSAGE_ACTIONS.react],
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).not.toHaveBeenCalled();
+  });
+
+  it('should show actions box for message outside thread with single action "react" if custom actions available', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        customMessageActions: [MESSAGE_ACTIONS.react],
+        messageActions: [MESSAGE_ACTIONS.react],
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
+  });
+
+  it('should not show actions box for message outside thread with single action "reply"', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        messageActions: [MESSAGE_ACTIONS.reply],
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).not.toHaveBeenCalled();
+  });
+
+  it('should show actions box for message outside thread with single action "reply" if custom actions available', async () => {
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        customMessageActions: [MESSAGE_ACTIONS.reply],
+        messageActions: [MESSAGE_ACTIONS.reply],
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).toHaveBeenCalled();
+  });
+
+  it('should not show actions box for message outside thread with two actions "react" & "reply"', async () => {
+    const actions = [MESSAGE_ACTIONS.react, MESSAGE_ACTIONS.reply];
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        messageActions: actions,
+      },
+    });
+    // eslint-disable-next-line jest/prefer-called-with
+    expect(MessageActionsMock).not.toHaveBeenCalled();
+  });
+
+  it('should show actions box for message outside thread with single actions "react" & "reply" if custom actions available', async () => {
+    const actions = [MESSAGE_ACTIONS.react, MESSAGE_ACTIONS.reply];
+    await renderMessageOptions({
+      channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
+      customMessageProps: {
+        customMessageActions: actions,
+        messageActions: actions,
+      },
     });
     // eslint-disable-next-line jest/prefer-called-with
     expect(MessageActionsMock).toHaveBeenCalled();

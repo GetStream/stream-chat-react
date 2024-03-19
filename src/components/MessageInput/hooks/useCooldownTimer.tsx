@@ -36,14 +36,28 @@ export const useCooldownTimer = <
 
   useEffect(() => {
     const timeSinceOwnLastMessage = ownLatestMessageDate
-      ? (new Date().getTime() - ownLatestMessageDate.getTime()) / 1000
+      ? // prevent negative values
+        Math.max(0, (new Date().getTime() - ownLatestMessageDate.getTime()) / 1000)
       : undefined;
 
-    setCooldownRemaining(
-      !skipCooldown && timeSinceOwnLastMessage && cooldownInterval > timeSinceOwnLastMessage
+    const remaining =
+      !skipCooldown &&
+      typeof timeSinceOwnLastMessage !== 'undefined' &&
+      cooldownInterval > timeSinceOwnLastMessage
         ? Math.round(cooldownInterval - timeSinceOwnLastMessage)
-        : 0,
-    );
+        : 0;
+
+    setCooldownRemaining(remaining);
+
+    if (!remaining) return;
+
+    const timeout = setTimeout(() => {
+      setCooldownRemaining(0);
+    }, remaining * 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [cooldownInterval, ownLatestMessageDate, skipCooldown]);
 
   return {

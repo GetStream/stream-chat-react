@@ -4,8 +4,6 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import {
   generateChannel,
   generateUser,
@@ -15,23 +13,30 @@ import {
 } from 'mock-builders';
 
 import { ChannelPreviewMessenger } from '../ChannelPreviewMessenger';
+import { ChatProvider } from '../../../context';
+
+expect.extend(toHaveNoViolations);
+
+const PREVIEW_TEST_ID = 'channel-preview-button';
 
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
   let chatClient;
   let channel;
   const renderComponent = (props) => (
-    <div aria-label='Select Channel' role='listbox'>
-      <ChannelPreviewMessenger
-        channel={channel}
-        displayImage='https://randomimage.com/src.jpg'
-        displayTitle='Channel name'
-        latestMessage='Latest message!'
-        setActiveChannel={jest.fn()}
-        unread={10}
-        {...props}
-      />
-    </div>
+    <ChatProvider value={{ client: { user: { id: 'id' } } }}>
+      <div aria-label='Select Channel' role='listbox'>
+        <ChannelPreviewMessenger
+          channel={channel}
+          displayImage='https://randomimage.com/src.jpg'
+          displayTitle='Channel name'
+          latestMessage='Latest message!'
+          setActiveChannel={jest.fn()}
+          unread={10}
+          {...props}
+        />
+      </div>
+    </ChatProvider>
   );
 
   const initializeChannel = async (c) => {
@@ -63,10 +68,10 @@ describe('ChannelPreviewMessenger', () => {
     );
 
     await waitFor(() => {
-      expect(getByTestId('channel-preview-button')).toBeInTheDocument();
+      expect(getByTestId(PREVIEW_TEST_ID)).toBeInTheDocument();
     });
 
-    fireEvent.click(getByTestId('channel-preview-button'));
+    fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
       // eslint-disable-next-line jest/prefer-called-with
@@ -86,7 +91,7 @@ describe('ChannelPreviewMessenger', () => {
   it('should call custom onSelect function', () => {
     const onSelect = jest.fn();
     render(renderComponent({ onSelect }));
-    const previewButton = screen.queryByTestId('channel-preview-button');
+    const previewButton = screen.queryByTestId(PREVIEW_TEST_ID);
     fireEvent.click(previewButton);
     expect(onSelect).toHaveBeenCalledTimes(1);
   });

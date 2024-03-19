@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SimpleReactionsList v1 should handle custom reaction options 1`] = `<div />`;
+
+exports[`SimpleReactionsList v1 should render an emoji for each type of reaction 1`] = `
+<div>
+  <div
+    class="str-chat__message-reactions-container"
+  >
+    <ul
+      class="str-chat__simple-reactions-list str-chat__message-reactions"
+      data-testid="simple-reaction-list"
+    >
+      <li
+        class="str-chat__simple-reactions-list-item"
+      >
+        <span>
+          😂
+           
+        </span>
+      </li>
+      <li
+        class="str-chat__simple-reactions-list-item"
+      >
+        <span>
+          ❤️
+           
+        </span>
+      </li>
+      <li
+        class="str-chat__simple-reactions-list-item--last-number"
+      >
+        7
+      </li>
+    </ul>
+  </div>
+</div>
+`;
+
+exports[`SimpleReactionsList v2 should handle custom reaction options 1`] = `<div />`;
+
+exports[`SimpleReactionsList v2 should render an emoji for each type of reaction 1`] = `
+<div>
+  <div
+    class="str-chat__message-reactions-container"
+  >
+    <ul
+      class="str-chat__simple-reactions-list str-chat__message-reactions"
+      data-testid="simple-reaction-list"
+    >
+      <li
+        class="str-chat__simple-reactions-list-item"
+      >
+        <span>
+          😂
+           
+        </span>
+      </li>
+      <li
+        class="str-chat__simple-reactions-list-item"
+      >
+        <span>
+          ❤️
+           
+        </span>
+      </li>
+      <li
+        class="str-chat__simple-reactions-list-item--last-number"
+      >
+        7
+      </li>
+    </ul>
+  </div>
+</div>
+`;

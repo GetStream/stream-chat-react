@@ -75,6 +75,7 @@ export const useChat = <
 
     client.on('notification.mutes_updated', handleEvent);
     return () => client.off('notification.mutes_updated', handleEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
 
   useEffect(() => {
@@ -97,6 +98,7 @@ export const useChat = <
         userLanguage: userLanguage || defaultLanguage,
       });
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18nInstance]);
 
   const setActiveChannel = useCallback(

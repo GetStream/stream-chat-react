@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
-import { getWholeChar } from '../../utils';
+import { getWholeChar } from '../../utils/getWholeChar';
 
 import type { UserResponse } from 'stream-chat';
 

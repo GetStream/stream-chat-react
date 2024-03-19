@@ -1,6 +1,5 @@
 ---
 id: multiple_channel_lists
-sidebar_position: 18
 title: Multiple Channel Lists
 ---
 
@@ -17,14 +16,14 @@ The `ChannelList` components will retrieve a `channel` from `client.activeChanne
 By using the `channelRenderFilterFn` prop we can apply custom filtering logic to the list of `channels` that are rendered. Since we have access to the entire `channel` object, we can filter on type, custom fields, or other.
 
 ```tsx
-    const customChannelFilterFunction = (channels: Channel[]) => {
-      return channels.filter(/** your custom filter logic */);
-    };
+const customChannelFilterFunction = (channels: Channel[]) => {
+  return channels.filter(/** your custom filter logic */);
+};
 
-    <ChannelList
-      channelRenderFilterFn={customChannelFilterFunction}
-      filters={filters}
-      sort={sort}
-      options={options}
-  />
+<ChannelList
+  channelRenderFilterFn={customChannelFilterFunction}
+  filters={filters}
+  sort={sort}
+  options={options}
+/>;
 ```

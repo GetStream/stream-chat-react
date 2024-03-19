@@ -30,6 +30,7 @@ export type ChannelStateReducerAction<
     }
   | {
       channel: Channel<StreamChatGenerics>;
+      hasMore: boolean;
       type: 'initStateFromChannel';
     }
   | {
@@ -132,9 +133,10 @@ export const channelReducer = <
     }
 
     case 'initStateFromChannel': {
-      const { channel } = action;
+      const { channel, hasMore } = action;
       return {
         ...state,
+        hasMore,
         loading: false,
         members: { ...channel.state.members },
         messages: [...channel.state.messages],

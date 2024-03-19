@@ -6,13 +6,14 @@ import type { MessageActionsArray } from './utils';
 
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageInputProps } from '../MessageInput/MessageInput';
+import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
 
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
-import type { RenderTextOptions } from '../../utils';
 
+import type { RenderTextOptions } from './renderText';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
@@ -41,10 +42,16 @@ export type MessageProps<
   formatDate?: (date: Date) => string;
   /** Function that returns the notification text to be displayed when a delete message request fails */
   getDeleteMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when loading message reactions fails */
+  getFetchReactionsErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request fails */
   getFlagMessageErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a flag message request succeeds */
   getFlagMessageSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when mark channel messages unread request fails */
+  getMarkMessageUnreadErrorNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
+  /** Function that returns the notification text to be displayed when mark channel messages unread request succeeds */
+  getMarkMessageUnreadSuccessNotification?: (message: StreamMessage<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request fails */
   getMuteUserErrorNotification?: (user: UserResponse<StreamChatGenerics>) => string;
   /** Function that returns the notification text to be displayed when a mute user request succeeds */
@@ -81,7 +88,7 @@ export type MessageProps<
   openThread?: ChannelActionContextValue<StreamChatGenerics>['openThread'];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
-  /** A list of users that have read this Message */
+  /** A list of users that have read this Message if the message is the last one and was posted by my user */
   readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
   renderText?: (
@@ -91,6 +98,10 @@ export type MessageProps<
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
+  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  sortReactionDetails?: ReactionDetailsComparator;
+  /** Comparator function to sort reactions, defaults to alphabetical order */
+  sortReactions?: ReactionsComparator;
   /** Whether the Message is in a Thread */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */

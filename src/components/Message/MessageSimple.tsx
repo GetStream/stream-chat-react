@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 
 import { MessageErrorIcon } from './icons';
+import { MessageBouncePrompt as DefaultMessageBouncePrompt } from '../MessageBounce';
 import { MessageDeleted as DefaultMessageDeleted } from './MessageDeleted';
 import { MessageOptions as DefaultMessageOptions } from './MessageOptions';
 import { MessageRepliesCountButton as DefaultMessageRepliesCountButton } from './MessageRepliesCountButton';
 import { MessageStatus as DefaultMessageStatus } from './MessageStatus';
 import { MessageText } from './MessageText';
 import { MessageTimestamp as DefaultMessageTimestamp } from './MessageTimestamp';
-import { areMessageUIPropsEqual, messageHasAttachments, messageHasReactions } from './utils';
+import {
+  areMessageUIPropsEqual,
+  isMessageBounced,
+  isMessageEdited,
+  messageHasAttachments,
+  messageHasReactions,
+} from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
@@ -19,6 +26,7 @@ import {
   ReactionsList as DefaultReactionList,
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
+import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -27,6 +35,8 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 import type { MessageUIComponentProps } from './types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { useTranslationContext } from '../../context';
+import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -59,11 +69,16 @@ const MessageSimpleWithContext = <
     threadList,
   } = props;
 
+  const { t } = useTranslationContext('MessageSimple');
+  const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
+  const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
+
   const {
     Attachment,
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,
+    MessageBouncePrompt = DefaultMessageBouncePrompt,
     MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
@@ -84,9 +99,29 @@ const MessageSimpleWithContext = <
     return <MessageDeleted message={message} />;
   }
 
+  /** FIXME: isReactionEnabled should be removed with next major version and a proper centralized permissions logic should be put in place
+   * With the current permissions implementation it would be sth like:
+   * const messageActions = getMessageActions();
+   * const canReact = messageActions.includes(MESSAGE_ACTIONS.react);
+   */
+  const canReact = isReactionEnabled;
+  const canShowReactions = hasReactions;
+
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
   const allowRetry = message.status === 'failed' && message.errorStatusCode !== 403;
+  const isBounced = isMessageBounced(message);
+  const isEdited = isMessageEdited(message);
+
+  let handleClick: (() => void) | undefined = undefined;
+
+  if (allowRetry) {
+    handleClick = () => handleRetry(message);
+  } else if (isBounced) {
+    handleClick = () => setIsBounceDialogOpen(true);
+  } else if (isEdited) {
+    handleClick = () => setEditedTimestampOpen((prev) => !prev);
+  }
 
   const rootClassName = clsx(
     'str-chat__message str-chat__message-simple',
@@ -100,8 +135,7 @@ const MessageSimpleWithContext = <
       'pinned-message': message.pinned,
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--highlighted': highlighted,
-      'str-chat__message--with-reactions str-chat__message-with-thread-link':
-        hasReactions && isReactionEnabled,
+      'str-chat__message--with-reactions str-chat__message-with-thread-link': canShowReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.errorStatusCode !== 403,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
@@ -117,11 +151,19 @@ const MessageSimpleWithContext = <
           <MessageInput
             clearEditingState={clearEditingState}
             grow
+            hideSendButton
             Input={EditMessageInput}
             message={message}
             {...additionalMessageInputProps}
           />
         </Modal>
+      )}
+      {isBounceDialogOpen && (
+        <MessageBounceModal
+          MessageBouncePrompt={MessageBouncePrompt}
+          onClose={() => setIsBounceDialogOpen(false)}
+          open={isBounceDialogOpen}
+        />
       )}
       {
         <div className={rootClassName} key={message.id}>
@@ -137,18 +179,16 @@ const MessageSimpleWithContext = <
           )}
           <div
             className={clsx('str-chat__message-inner', {
-              'str-chat__simple-message--error-failed': allowRetry,
+              'str-chat__simple-message--error-failed': allowRetry || isBounced,
             })}
             data-testid='message-inner'
-            onClick={allowRetry ? () => handleRetry(message) : undefined}
-            onKeyUp={allowRetry ? () => handleRetry(message) : undefined}
+            onClick={handleClick}
+            onKeyUp={handleClick}
           >
             <MessageOptions />
             <div className='str-chat__message-reactions-host'>
-              {hasReactions && isReactionEnabled && <ReactionsList reverse />}
-              {showDetailedReactions && isReactionEnabled && (
-                <ReactionSelector ref={reactionSelectorRef} />
-              )}
+              {canShowReactions && <ReactionsList reverse />}
+              {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
             </div>
             <div className='str-chat__message-bubble'>
               {message.attachments?.length && !message.quoted_message ? (
@@ -196,6 +236,10 @@ const MessageSimpleWithContext = <
                 </span>
               )}
               <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
+              {isEdited && (
+                <span className='str-chat__mesage-simple-edited'>{t<string>('Edited')}</span>
+              )}
+              {isEdited && <MessageEditedTimestamp calendar open={isEditedTimestampOpen} />}
             </div>
           )}
         </div>

@@ -1,6 +1,5 @@
 ---
 id: component_context
-sidebar_position: 4
 title: ComponentContext
 ---
 
@@ -26,15 +25,23 @@ const { Attachment, Avatar, Message } = useComponentContext();
 Custom UI component to display attachment in an individual message.
 
 | Type      | Default                                                                |
-|-----------|------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------- |
 | component | <GHComponentLink text='Attachment' path='/Attachment/Attachment.tsx'/> |
+
+### AttachmentPreviewList
+
+Custom UI component to display a attachment previews in `MessageInput`.
+
+| Type      | Default                                                                                        |
+| --------- | ---------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx'/> |
 
 ### AutocompleteSuggestionHeader
 
 Custom UI component to override the default suggestion header component.
 
 | Type      | Default                                                                  |
-|-----------|--------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------ |
 | component | <GHComponentLink text='Header' path='/AutoCompleteTextarea/Header.tsx'/> |
 
 ### AutocompleteSuggestionItem
@@ -42,7 +49,7 @@ Custom UI component to override the default suggestion header component.
 Custom UI component to override the default suggestion Item component.
 
 | Type      | Default                                                             |
-|-----------|---------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------- |
 | component | <GHComponentLink text='Item' path='/AutoCompleteTextarea/Item.js'/> |
 
 ### AutocompleteSuggestionList
@@ -50,7 +57,7 @@ Custom UI component to override the default suggestion Item component.
 Custom UI component to override the default List component that displays suggestions.
 
 | Type      | Default                                                             |
-|-----------|---------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------- |
 | component | <GHComponentLink text='List' path='/AutoCompleteTextarea/List.js'/> |
 
 ### Avatar
@@ -58,23 +65,49 @@ Custom UI component to override the default List component that displays suggest
 Custom UI component to display a user's avatar.
 
 | Type      | Default                                                    |
-|-----------|------------------------------------------------------------|
+| --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
+
+### BaseImage
+
+Custom UI component to display image resp. a fallback in case of load error, in `<img/>` element. The default resp. custom (from `ComponentContext`) `BaseImage` component is rendered by:
+
+- <GHComponentLink text='Image' path='/Gallery/Image.tsx' /> - single image attachment in message list
+- <GHComponentLink text='Gallery' path='/Gallery/Gallery.tsx' /> - group of image attachments in message
+  list
+- <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx' /> - image
+  uploads preview in message input (composer)
+
+The `BaseImage` component accepts the same props as `<img/>` element.
+
+The [default `BaseImage` component](../../utility-components/base-image) tries to load and display an image and if the load fails, then an SVG image fallback is applied to the `<img/>` element as a CSS mask targeting attached `str-chat__base-image--load-failed` class.
+
+| Type      | Default                                                           |
+| --------- | ----------------------------------------------------------------- |
+| component | <GHComponentLink text='BaseImage' path='/Gallery/BaseImage.tsx'/> |
 
 ### CooldownTimer
 
 Custom UI component to display the slow mode cooldown timer.
 
 | Type      | Default                                                                        |
-|-----------|--------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------ |
 | component | <GHComponentLink text='CooldownTimer' path='/MessageInput/CooldownTimer.tsx'/> |
+
+### CustomMessageActionsList
+
+Custom UI component to render set of buttons to be displayed in the <GHComponentLink text='MessageActionsBox' path='/MessageActions/MessageActionsBox.tsx' />.
+
+| Type      | Default                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='CustomMessageActionsList' path='/MessageActions/CustomMessageActionsList.tsx' /> |
 
 ### DateSeparator
 
 Custom UI component for date separators.
 
 | Type      | Default                                                                         |
-|-----------|---------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='DateSeparator' path='/DateSeparator/DateSeparator.tsx'/> |
 
 ### EditMessageInput
@@ -82,7 +115,7 @@ Custom UI component for date separators.
 Custom UI component to override default edit message input.
 
 | Type      | Default                                                                            |
-|-----------|------------------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='EditMessageForm' path='/MessageInput/EditMessageForm.tsx'/> |
 
 ### EmojiIcon
@@ -90,7 +123,7 @@ Custom UI component to override default edit message input.
 Custom UI component for emoji button in input.
 
 | Type      | Default                                                                 |
-|-----------|-------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------- |
 | component | <GHComponentLink text='EmojiIconSmall' path='/MessageInput/icons.tsx'/> |
 
 ### EmptyStateIndicator
@@ -98,7 +131,7 @@ Custom UI component for emoji button in input.
 Custom UI component to be displayed when the `MessageList` is empty.
 
 | Type      | Default                                                                                           |
-|-----------|---------------------------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='EmptyStateIndicator' path='/EmptyStateIndicator/EmptyStateIndicator.tsx'/> |
 
 ### FileUploadIcon
@@ -106,7 +139,7 @@ Custom UI component to be displayed when the `MessageList` is empty.
 Custom UI component for file upload icon.
 
 | Type      | Default                                                                 |
-|-----------|-------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------- |
 | component | <GHComponentLink text='FileUploadIcon' path='/MessageInput/icons.tsx'/> |
 
 ### GiphyPreviewMessage
@@ -114,7 +147,7 @@ Custom UI component for file upload icon.
 Custom UI component to render a Giphy preview in the `VirtualizedMessageList`.
 
 | Type      | Default                                                                                   |
-|-----------|-------------------------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='GiphyPreviewMessage' path='/MessageList/GiphyPreviewMessage.tsx'/> |
 
 ### HeaderComponent
@@ -130,15 +163,23 @@ Custom UI component to render at the top of the `MessageList`.
 Custom UI component handling how the message input is rendered.
 
 | Type      | Default                                                                              |
-|-----------|--------------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------------ |
 | component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/MessageInputFlat.tsx'/> |
+
+### LinkPreviewList
+
+Custom component to render link previews in `MessageInput`.
+
+| Type      | Default                                                                             |
+| --------- | ----------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/LinkPreviewList.tsx'/> |
 
 ### LoadingErrorIndicator
 
 Custom UI component to be shown if the channel query fails.
 
 | Type      | Default                                                                                   |
-|-----------|-------------------------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='LoadingErrorIndicator' path='/Loading/LoadingErrorIndicator.tsx'/> |
 
 ### LoadingIndicator
@@ -146,7 +187,7 @@ Custom UI component to be shown if the channel query fails.
 Custom UI component to render while the `MessageList` is loading new messages.
 
 | Type      | Default                                                                         |
-|-----------|---------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='LoadingIndicator' path='/Loading/LoadingIndicator.tsx'/> |
 
 ### Message
@@ -154,7 +195,7 @@ Custom UI component to render while the `MessageList` is loading new messages.
 Custom UI component to display a message in the standard `MessageList`.
 
 | Type      | Default                                                                   |
-|-----------|---------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> |
 
 ### MessageDeleted
@@ -162,7 +203,7 @@ Custom UI component to display a message in the standard `MessageList`.
 Custom UI component for a deleted message.
 
 | Type      | Default                                                                     |
-|-----------|-----------------------------------------------------------------------------|
+| --------- | --------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageDeleted' path='/Message/MessageDeleted.tsx'/> |
 
 ### MessageListNotifications
@@ -170,7 +211,7 @@ Custom UI component for a deleted message.
 Custom UI component that displays message and connection status notifications in the `MessageList`.
 
 | Type      | Default                                                                                                    |
-|-----------|------------------------------------------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='DefaultMessageListNotifications' path='/MessageList/MessageListNotifications.tsx'/> |
 
 ### MessageNotification
@@ -178,7 +219,7 @@ Custom UI component that displays message and connection status notifications in
 Custom UI component to display a notification when scrolled up the list and new messages arrive.
 
 | Type      | Default                                                                                   |
-|-----------|-------------------------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageNotification' path='/MessageList/MessageNotification.tsx'/> |
 
 ### MessageOptions
@@ -186,7 +227,7 @@ Custom UI component to display a notification when scrolled up the list and new 
 Custom UI component for message options popup.
 
 | Type      | Default                                                                     |
-|-----------|-----------------------------------------------------------------------------|
+| --------- | --------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageOptions' path='/Message/MessageOptions.tsx'/> |
 
 ### MessageRepliesCountButton
@@ -194,7 +235,7 @@ Custom UI component for message options popup.
 Custom UI component to display message replies.
 
 | Type      | Default                                                                                           |
-|-----------|---------------------------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageRepliesCountButton' path='/Message/MessageRepliesCountButton.tsx'/> |
 
 ### MessageStatus
@@ -202,7 +243,7 @@ Custom UI component to display message replies.
 Custom UI component to display message delivery status.
 
 | Type      | Default                                                                   |
-|-----------|---------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageStatus' path='/Message/MessageStatus.tsx'/> |
 
 ### MessageSystem
@@ -210,23 +251,33 @@ Custom UI component to display message delivery status.
 Custom UI component to display system messages.
 
 | Type      | Default                                                                            |
-|-----------|------------------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='EventComponent' path='/EventComponent/EventComponent.tsx'/> |
 
 ### MessageTimestamp
 
-Custom UI component to display a timestamp on a message.
+Custom UI component to display a timestamp on a message. This does not include a timestamp for edited messages.
 
 | Type      | Default                                                                         |
-|-----------|---------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageTimestamp' path='/Message/MessageTimestamp.tsx'/> |
+
+See also [`Timestamp`](#timestamp).
+
+### MessageBouncePrompt
+
+Custom UI component for the content of the modal dialog for messages that got bounced by the moderation rules.
+
+| Type      | Default                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageBouncePrompt' path='/MessageBounce/MessageBouncePrompt.tsx'/> |
 
 ### ModalGallery
 
 Custom UI component for viewing message's image attachments.
 
 | Type      | Default                                                                 |
-|-----------|-------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------- |
 | component | <GHComponentLink text='ModalGallery' path='/Gallery/ModalGallery.tsx'/> |
 
 ### PinIndicator
@@ -234,7 +285,7 @@ Custom UI component for viewing message's image attachments.
 Custom UI component to override default pinned message indicator.
 
 | Type      | Default                                                          |
-|-----------|------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------- |
 | component | <GHComponentLink text='PinIndicator' path='/Message/icons.tsx'/> |
 
 ### QuotedMessage
@@ -242,7 +293,7 @@ Custom UI component to override default pinned message indicator.
 Custom UI component to override quoted message UI on a sent message.
 
 | Type      | Default                                                                   |
-|-----------|---------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------- |
 | component | <GHComponentLink text='QuotedMessage' path='/Message/QuotedMessage.tsx'/> |
 
 ### QuotedMessagePreview
@@ -250,7 +301,7 @@ Custom UI component to override quoted message UI on a sent message.
 Custom UI component to override the message input's quoted message preview.
 
 | Type      | Default                                                                                      |
-|-----------|----------------------------------------------------------------------------------------------|
+| --------- | -------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='QuotedMessagePreview' path='/MessageInput/QuotedMessagePreview.tsx'/> |
 
 ### ReactionSelector
@@ -258,7 +309,7 @@ Custom UI component to override the message input's quoted message preview.
 Custom UI component to display the reaction selector.
 
 | Type      | Default                                                                           |
-|-----------|-----------------------------------------------------------------------------------|
+| --------- | --------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='ReactionSelector' path='/Reactions/ReactionSelector.tsx'/> |
 
 ### ReactionsList
@@ -266,7 +317,7 @@ Custom UI component to display the reaction selector.
 Custom UI component to display the list of reactions on a message.
 
 | Type      | Default                                                                     |
-|-----------|-----------------------------------------------------------------------------|
+| --------- | --------------------------------------------------------------------------- |
 | component | <GHComponentLink text='ReactionsList' path='/Reactions/ReactionsList.tsx'/> |
 
 ### SendButton
@@ -274,7 +325,7 @@ Custom UI component to display the list of reactions on a message.
 Custom UI component for send button.
 
 | Type      | Default                                                             |
-|-----------|---------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------- |
 | component | <GHComponentLink text='SendButton' path='/MessageInput/icons.tsx'/> |
 
 ### ThreadHead
@@ -282,7 +333,7 @@ Custom UI component for send button.
 Custom UI component to be displayed at the beginning of a thread. By default, it is the thread parent message. It is composed of [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Message.tsx) context provider component and [ThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/ThreadStart.tsx) component. The latter can be customized by passing custom component to `Channel` props. The `ThreadHead` component defaults to and accepts the same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx).
 
 | Type      | Default                                                            |
-|-----------|--------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------ |
 | component | <GHComponentLink text='ThreadHead' path='/Thread/ThreadHead.tsx'/> |
 
 ### ThreadHeader
@@ -290,31 +341,39 @@ Custom UI component to be displayed at the beginning of a thread. By default, it
 Custom UI component to display the header of a `Thread`.
 
 | Type      | Default                                                                 |
-|-----------|-------------------------------------------------------------------------|
+| --------- | ----------------------------------------------------------------------- |
 | component | <GHComponentLink text='DefaultThreadHeader' path='/Thread/Thread.tsx'/> |
 
 ### ThreadInput
 
-Custom UI component to replace the `MessageInput` of a `Thread`. For  the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
+Custom UI component to replace the `MessageInput` of a `Thread`. For the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
 
-| Type | Default |
-| --------- | ------------------------------------------------------------------------------------------------------------------ |
-| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/>  /  <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
+| Type      | Default                                                                                                                                                                                             |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/> / <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
 
 ### ThreadStart
 
 Custom UI component to display the start of a threaded `MessageList`.
 
 | Type      | Default                                                                |
-|-----------|------------------------------------------------------------------------|
+| --------- | ---------------------------------------------------------------------- |
 | component | <GHComponentLink text='DefaultThreadStart' path='/Thread/Thread.tsx'/> |
+
+### Timestamp
+
+Custom UI component to display a date used in timestamps. It's used internally by the default `MessageTimestamp`, and to display a timestamp for edited messages.
+
+| Type      | Default                                                           |
+| --------- | ----------------------------------------------------------------- |
+| component | <GHComponentLink text='Timestamp' path='/Message/Timestamp.tsx'/> |
 
 ### TriggerProvider
 
 Optional context provider that lets you override the default autocomplete triggers.
 
 | Type      | Default                                                                                          |
-|-----------|--------------------------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------------------------ |
 | component | <GHComponentLink text='DefaultTriggerProvider' path='/MessageInput/DefaultTriggerProvider.tsx'/> |
 
 ### TypingIndicator
@@ -322,13 +381,29 @@ Optional context provider that lets you override the default autocomplete trigge
 Custom UI component for the typing indicator.
 
 | Type      | Default                                                                               |
-|-----------|---------------------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='TypingIndicator' path='/TypingIndicator/TypingIndicator.tsx'/> |
+
+### UnreadMessagesNotification
+
+Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to `UnreadMessagesSeparator`.
+
+| Type      | Default                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='UnreadMessagesNotification' path='/MessageList/UnreadMessagesNotification.tsx'/> |
+
+### UnreadMessagesSeparator
+
+Custom UI component inserted before the first message marked unread.
+
+| Type      | Default                                                                                           |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| component | <GHComponentLink text='UnreadMessagesSeparator' path='/MessageList/UnreadMessagesSeparator.tsx'/> |
 
 ### VirtualMessage
 
 Custom UI component to display a message in the `VirtualizedMessageList`.
 
 | Type      | Default                                                                   |
-|-----------|---------------------------------------------------------------------------|
+| --------- | ------------------------------------------------------------------------- |
 | component | <GHComponentLink text='MessageSimple' path='/Message/MessageSimple.tsx'/> |

@@ -2,6 +2,7 @@
 import { Streami18n } from '../Streami18n';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
+import moment from 'moment-timezone';
 import { nlTranslations, frTranslations } from '../translations';
 import 'dayjs/locale/nl';
 import localeData from 'dayjs/plugin/localeData';
@@ -86,7 +87,9 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+          continue;
+        }
 
         expect(_t(key)).toBe(nlTranslations[key]);
       }
@@ -108,7 +111,9 @@ describe('Streami18n instance - with built-in langauge', () => {
     it('should provide dutch translator', async () => {
       const { t: _t } = await streami18n.getTranslators();
       for (const key in nlTranslations) {
-        if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+        if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+          continue;
+        }
 
         expect(_t(key)).toBe(nlTranslations[key]);
       }
@@ -220,9 +225,44 @@ describe('setLanguage - switch to french', () => {
 
     const { t: _t } = await streami18n.getTranslators();
     for (const key in frTranslations) {
-      if (key.indexOf('{{') > -1 && key.indexOf('}}') > -1) continue;
+      if ((key.includes('{{') && key.includes('}}')) || typeof nlTranslations[key] !== 'string') {
+        continue;
+      }
 
       expect(_t(key)).toBe(frTranslations[key]);
     }
+  });
+});
+
+describe('Streami18n timezone', () => {
+  describe.each([
+    ['Dayjs', Dayjs],
+    ['moment', moment],
+  ])('%s', (moduleName, module) => {
+    it('is by default the local timezone', () => {
+      const streamI18n = new Streami18n({ DateTimeParser: module });
+      const date = new Date();
+      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(date.getHours().toString());
+    });
+
+    it('can be set to different timezone on init', () => {
+      const streamI18n = new Streami18n({ DateTimeParser: module, timezone: 'Europe/Prague' });
+      const date = new Date();
+      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(date.getHours().toString());
+      expect(streamI18n.tDateTimeParser(date).format('H')).not.toBe(
+        (date.getUTCHours() - 2).toString(),
+      );
+    });
+
+    it('is ignored if datetime parser does not support timezones', () => {
+      const tz = module.tz;
+      delete module.tz;
+
+      const streamI18n = new Streami18n({ DateTimeParser: module, timezone: 'Europe/Prague' });
+      const date = new Date();
+      expect(streamI18n.tDateTimeParser(date).format('H')).toBe(date.getHours().toString());
+
+      module.tz = tz;
+    });
   });
 });

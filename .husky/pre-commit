@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+set -e
+
+if ! yarn run lint-staged; then
+    echo
+    echo "Some files were not formatted correctly (see output above), commit aborted!"
+    echo "Consider running \"yarn run fix-staged\" to attempt auto-fix."
+    exit 1
+fi

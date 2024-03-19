@@ -1,19 +1,23 @@
 import { useCallback, useMemo } from 'react';
-import { getStrippedEmojiData, ReactionEmoji } from '../../Channel/emojiData';
-import type { EmojiContextValue } from '../../../context/EmojiContext';
+
+import { useComponentContext, useMessageContext } from '../../../context';
+
 import type { ReactionsListProps } from '../ReactionsList';
-import { useMessageContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import type { ReactionsComparator, ReactionSummary } from '../types';
 
 type SharedReactionListProps =
-  | 'additionalEmojiProps'
   | 'own_reactions'
   | 'reaction_counts'
   | 'reactionOptions'
   | 'reactions';
 
-type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> &
-  Pick<EmojiContextValue, 'emojiConfig'>;
+type UseProcessReactionsParams = Pick<ReactionsListProps, SharedReactionListProps> & {
+  sortReactions?: ReactionsComparator;
+};
+
+export const defaultReactionsSort: ReactionsComparator = (a, b) =>
+  a.reactionType.localeCompare(b.reactionType, 'en');
 
 export const useProcessReactions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -21,93 +25,98 @@ export const useProcessReactions = <
   params: UseProcessReactionsParams,
 ) => {
   const {
-    additionalEmojiProps = {},
-    emojiConfig,
     own_reactions: propOwnReactions,
     reaction_counts: propReactionCounts,
     reactionOptions: propReactionOptions,
     reactions: propReactions,
+    sortReactions: propSortReactions,
   } = params;
-  const { message } = useMessageContext<StreamChatGenerics>('ReactionsList');
-  const { defaultMinimalEmojis, emojiData: fullEmojiData, emojiSetDef } = emojiConfig || {};
+  const { message, sortReactions: contextSortReactions } = useMessageContext<StreamChatGenerics>(
+    'useProcessReactions',
+  );
+  const { reactionOptions: contextReactionOptions } = useComponentContext<StreamChatGenerics>(
+    'useProcessReactions',
+  );
 
-  const latestReactions = propReactions || message.latest_reactions || [];
-  const ownReactions = propOwnReactions || message?.own_reactions || [];
-  const reactionCounts = propReactionCounts || message.reaction_counts || {};
-  const reactionOptions = propReactionOptions || defaultMinimalEmojis;
-  const reactionsAreCustom = !!propReactionOptions?.length;
+  const reactionOptions = propReactionOptions ?? contextReactionOptions;
+  const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
+  const latestReactions = propReactions || message.latest_reactions;
+  const ownReactions = propOwnReactions || message?.own_reactions;
+  const reactionCounts = propReactionCounts || message.reaction_counts;
 
-  const iHaveReactedWithReaction = useCallback(
-    (reactionType: string) => ownReactions.find((reaction) => reaction.type === reactionType),
+  const isOwnReaction = useCallback(
+    (reactionType: string) =>
+      ownReactions?.some((reaction) => reaction.type === reactionType) ?? false,
     [ownReactions],
   );
 
   const getEmojiByReactionType = useCallback(
-    (type: string): ReactionEmoji | undefined =>
-      reactionOptions.find((option: ReactionEmoji) => option.id === type),
+    (reactionType: string) =>
+      reactionOptions.find(({ type }) => type === reactionType)?.Component ?? null,
     [reactionOptions],
   );
 
-  const emojiData = useMemo(
-    () => (reactionsAreCustom ? fullEmojiData : getStrippedEmojiData(fullEmojiData)),
-    [fullEmojiData, reactionsAreCustom],
+  const isSupportedReaction = useCallback(
+    (reactionType: string) =>
+      reactionOptions.some((reactionOption) => reactionOption.type === reactionType),
+    [reactionOptions],
   );
 
-  const latestReactionTypes = useMemo(
-    () =>
-      latestReactions.reduce<string[]>((reactionTypes, { type }) => {
-        if (reactionTypes.indexOf(type) === -1) {
-          reactionTypes.push(type);
+  const getLatestReactedUserNames = useCallback(
+    (reactionType?: string) =>
+      latestReactions?.flatMap((reaction) => {
+        if (reactionType && reactionType === reaction.type) {
+          const username = reaction.user?.name || reaction.user?.id;
+          return username ? [username] : [];
         }
-        return reactionTypes;
-      }, []),
+        return [];
+      }) ?? [],
     [latestReactions],
   );
 
-  const supportedReactionMap = useMemo(
-    () =>
-      reactionOptions.reduce<Record<string, boolean>>((acc, { id }) => {
-        acc[id] = true;
-        return acc;
-      }, {}),
-    [reactionOptions],
-  );
+  const existingReactions: ReactionSummary[] = useMemo(() => {
+    if (!reactionCounts) {
+      return [];
+    }
 
-  const supportedReactionsArePresent = useMemo(
-    () => latestReactionTypes.some((type) => supportedReactionMap[type]),
-    [latestReactionTypes, supportedReactionMap],
-  );
+    const unsortedReactions = Object.entries(reactionCounts).flatMap(
+      ([reactionType, reactionCount]) => {
+        if (reactionCount === 0 || !isSupportedReaction(reactionType)) {
+          return [];
+        }
+
+        return [
+          {
+            EmojiComponent: getEmojiByReactionType(reactionType),
+            isOwnReaction: isOwnReaction(reactionType),
+            latestReactedUserNames: getLatestReactedUserNames(reactionType),
+            reactionCount,
+            reactionType,
+          },
+        ];
+      },
+    );
+
+    return unsortedReactions.sort(sortReactions);
+  }, [
+    getEmojiByReactionType,
+    getLatestReactedUserNames,
+    isOwnReaction,
+    isSupportedReaction,
+    reactionCounts,
+    sortReactions,
+  ]);
+
+  const hasReactions = existingReactions.length > 0;
 
   const totalReactionCount = useMemo(
-    () =>
-      supportedReactionsArePresent
-        ? Object.values(reactionCounts).reduce((total, count) => total + count, 0)
-        : 0,
-    [reactionCounts, supportedReactionsArePresent],
-  );
-
-  const aggregatedUserNamesByType = useMemo(
-    () =>
-      latestReactions.reduce<Record<string, Array<string>>>((typeMap, { type, user }) => {
-        typeMap[type] ??= [];
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        typeMap[type].push(user?.name || user!.id);
-        return typeMap;
-      }, {}),
-    [latestReactions],
+    () => existingReactions.reduce((total, { reactionCount }) => total + reactionCount, 0),
+    [existingReactions],
   );
 
   return {
-    additionalEmojiProps: reactionsAreCustom ? additionalEmojiProps : emojiSetDef,
-    aggregatedUserNamesByType,
-    emojiData,
-    getEmojiByReactionType,
-    iHaveReactedWithReaction,
-    latestReactions,
-    latestReactionTypes,
-    reactionCounts,
-    supportedReactionsArePresent,
+    existingReactions,
+    hasReactions,
     totalReactionCount,
   };
 };

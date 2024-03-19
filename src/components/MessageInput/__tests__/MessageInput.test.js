@@ -16,7 +16,7 @@ import { MessageActionsBox } from '../../MessageActions';
 
 import { MessageProvider } from '../../../context/MessageContext';
 import { useMessageInputContext } from '../../../context/MessageInputContext';
-import { useChatContext } from '../../../context/ChatContext';
+import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
   dispatchMessageUpdatedEvent,
@@ -52,12 +52,13 @@ const threadMessage = generateMessage({
   type: 'reply',
   user: user1,
 });
-const mockedChannel = generateChannel({
+const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
 });
 
+const cooldown = 30;
 const filename = 'some.txt';
 const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
 
@@ -100,6 +101,7 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   const { setActiveChannel } = useChatContext();
   useEffect(() => {
     setActiveChannel(activeChannel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannel]);
   return null;
 };
@@ -162,10 +164,21 @@ function axeNoViolations(container) {
   describe(`${componentName}`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
     afterEach(tearDown);
+
+    it('should render custom EmojiPicker', async () => {
+      const CustomEmojiPicker = () => <div data-testid='custom-emoji-picker' />;
+
+      await renderComponent({ channelProps: { EmojiPicker: CustomEmojiPicker } });
+
+      await waitFor(() => {
+        const c = screen.getByTestId('custom-emoji-picker');
+        expect(c).toBeInTheDocument();
+      });
+    });
 
     it('should contain placeholder text if no default message text provided', async () => {
       await renderComponent();
@@ -218,35 +231,6 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should render default emoji svg', async () => {
-      const { container } = await renderComponent();
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should render custom emoji svg provided as prop', async () => {
-      const EmojiIcon = () => (
-        <svg>
-          <title>NotEmoji</title>
-        </svg>
-      );
-
-      const { container } = await renderComponent({ channelProps: { EmojiIcon } });
-
-      const emojiIcon = await screen.findByTitle('NotEmoji');
-
-      await waitFor(() => {
-        expect(emojiIcon).toBeInTheDocument();
-      });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
     it('Should render default file upload icon', async () => {
       const { container } = await renderComponent();
       const fileUploadIcon = await screen.findByTitle('Attach files');
@@ -272,32 +256,6 @@ function axeNoViolations(container) {
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
       });
-      const results = await axe(container);
-      expect(results).toHaveNoViolations();
-    });
-
-    it('Should open the emoji picker after clicking the icon, and allow adding emojis to the message', async () => {
-      const { container } = await renderComponent();
-
-      const emojiIcon = await screen.findByTitle('Open emoji picker');
-
-      act(() => fireEvent.click(emojiIcon));
-
-      await waitFor(() => {
-        expect(container.querySelector('.emoji-mart')).toBeInTheDocument();
-      });
-
-      const emoji = '💯';
-      const emojiButton = screen.queryAllByText(emoji)[0];
-      expect(emojiButton).toBeInTheDocument();
-      act(() => fireEvent.click(emojiButton));
-
-      // expect input to have emoji as value
-      expect(screen.getByDisplayValue(emoji)).toBeInTheDocument();
-
-      // close picker
-      act(() => fireEvent.click(container));
-      expect(container.querySelector('.emoji-mart')).not.toBeInTheDocument();
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -646,10 +604,11 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             text: messageText,
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -696,10 +655,12 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         await waitFor(() => {
-          const calledMock = componentName === 'EditMessageForm' ? editMock : submitMock;
+          const isEdit = componentName === 'EditMessageForm';
+          const calledMock = isEdit ? editMock : submitMock;
           expect(calledMock).toHaveBeenCalledWith(
-            expect.stringMatching(/.+:.+/),
+            isEdit ? channel.cid : channel,
             expect.objectContaining(customMessageData),
+            undefined,
           );
         });
         await axeNoViolations(container);
@@ -729,6 +690,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           customMessageData,
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -762,7 +724,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -771,6 +733,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -795,7 +758,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -804,6 +767,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -830,7 +794,7 @@ function axeNoViolations(container) {
         await act(() => submit());
 
         expect(submitMock).toHaveBeenCalledWith(
-          channel.cid,
+          channel,
           expect.objectContaining({
             attachments: expect.arrayContaining([
               expect.objectContaining({
@@ -839,6 +803,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
+          undefined,
         );
         await axeNoViolations(container);
       });
@@ -861,13 +826,14 @@ function axeNoViolations(container) {
           }),
         );
 
-        act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+        await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
         expect(submitHandler).toHaveBeenCalledWith(
           expect.objectContaining({
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
         await axeNoViolations(container);
@@ -927,6 +893,7 @@ function axeNoViolations(container) {
             text: messageText,
           }),
           channel.cid,
+          undefined,
           undefined,
         );
 
@@ -1002,6 +969,7 @@ function axeNoViolations(container) {
           mentioned_users: [{ id: userId, name: username }],
           text: message.text,
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1031,10 +999,11 @@ function axeNoViolations(container) {
       await act(() => submit());
 
       expect(submitMock).toHaveBeenCalledWith(
-        channel.cid,
+        channel,
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1068,6 +1037,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: [],
         }),
+        undefined,
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1106,29 +1076,91 @@ function axeNoViolations(container) {
 });
 
 [
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
-  { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
-].forEach(({ InputComponent, name: componentName }) => {
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '1' },
+  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '2' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '1' },
+  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '2' },
+].forEach(({ InputComponent, name: componentName, themeVersion }) => {
+  const makeRenderFn = (InputComponent) => async ({
+    channelProps = {},
+    chatContextOverrides = {},
+    messageInputProps = {},
+    messageContextOverrides = {},
+    messageActionsBoxProps = {},
+  } = {}) => {
+    let renderResult;
+    await act(() => {
+      renderResult = render(
+        <ChatProvider
+          value={{
+            channel,
+            channelsQueryState: { error: null, queryInProgress: false },
+            client: chatClient,
+            latestMessageDatesByChannels: {},
+            ...chatContextOverrides,
+          }}
+        >
+          {/*<ActiveChannelSetter activeChannel={channel} />*/}
+          <Channel
+            doSendMessageRequest={submitMock}
+            doUpdateMessageRequest={editMock}
+            {...channelProps}
+          >
+            <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
+              <MessageActionsBox
+                {...messageActionsBoxProps}
+                getMessageActions={defaultMessageContextValue.getMessageActions}
+              />
+            </MessageProvider>
+            <MessageInput Input={InputComponent} {...messageInputProps} />
+          </Channel>
+        </ChatProvider>,
+      );
+    });
+    return renderResult;
+  };
   const renderComponent = makeRenderFn(InputComponent);
 
-  describe(`${componentName}`, () => {
+  describe(`${componentName}${themeVersion ? `(theme: ${themeVersion})` : ''}:`, () => {
     beforeEach(async () => {
       chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-      channel = chatClient.channel('messaging', mockedChannel.id);
+      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
     });
 
     afterEach(tearDown);
 
-    const render = async () => {
+    const render = async ({
+      chatContextOverrides = {},
+      messageContextOverrides = {},
+      messageInputProps = {},
+    } = {}) => {
       const message =
         componentName === 'MessageInputSmall' ? threadMessage : defaultMessageContextValue.message;
 
       await renderComponent({
-        messageContextOverrides: { message },
+        chatContextOverrides: { themeVersion, ...chatContextOverrides },
+        messageContextOverrides: { message, ...messageContextOverrides },
+        messageInputProps,
       });
 
       return message;
+    };
+
+    const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
+      channel.data.cooldown = cooldown;
+      channel.initialized = true;
+      const lastSentSecondsAhead = 5;
+      await render({
+        chatContextOverrides: {
+          channel,
+          latestMessageDatesByChannels: {
+            [channel.cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
+          },
+        },
+        messageInputProps,
+      });
     };
 
     const initQuotedMessagePreview = async (message) => {
@@ -1143,7 +1175,9 @@ function axeNoViolations(container) {
     };
 
     const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-      await waitFor(() => expect(screen.queryByText(/reply to message/i)).toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
+      );
       await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
     };
 
@@ -1163,17 +1197,19 @@ function axeNoViolations(container) {
         const message = await render();
         await initQuotedMessagePreview(message);
         message.text = nanoid();
-        act(() => {
+        await act(() => {
           dispatchMessageUpdatedEvent(chatClient, message, channel);
         });
         await quotedMessagePreviewIsDisplayedCorrectly(message);
       });
 
       it('is closed on close button click', async () => {
+        // skip trying to cancel reply for theme version 2 as that is not supported
+        if (themeVersion === '2') return;
         const message = await render();
         await initQuotedMessagePreview(message);
         const closeBtn = screen.getByRole('button', { name: /cancel reply/i });
-        act(() => {
+        await act(() => {
           fireEvent.click(closeBtn);
         });
         quotedMessagePreviewIsNotDisplayed(message);
@@ -1182,10 +1218,63 @@ function axeNoViolations(container) {
       it('is closed on original message delete', async () => {
         const message = await render();
         await initQuotedMessagePreview(message);
-        act(() => {
+        await act(() => {
           dispatchMessageDeletedEvent(chatClient, message, channel);
         });
         quotedMessagePreviewIsNotDisplayed(message);
+      });
+    });
+
+    describe('send button', () => {
+      const SEND_BTN_TEST_ID = 'send-button';
+
+      it('should be renderer for empty input', async () => {
+        await render();
+        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should be renderer when editing a message', async () => {
+        await render({ messageInputProps: { message: generateMessage() } });
+        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not be renderer during active cooldown period', async () => {
+        await renderWithActiveCooldown();
+        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not be renderer if explicitly hidden', async () => {
+        await render({ messageInputProps: { hideSendButton: true } });
+        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('cooldown timer', () => {
+      const COOLDOWN_TIMER_TEST_ID = 'cooldown-timer';
+
+      it('should be renderer during active cool-down period', async () => {
+        await renderWithActiveCooldown();
+        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not be renderer if send button explicitly hidden only for MessageInputFlat theme 2', async () => {
+        await renderWithActiveCooldown({ messageInputProps: { hideSendButton: true } });
+        if (componentName === 'MessageInputSmall' || themeVersion === '1') {
+          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+        } else {
+          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+        }
+      });
+
+      it('should be removed after cool-down period elapsed', async () => {
+        jest.useFakeTimers();
+        await renderWithActiveCooldown();
+        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
+        act(() => {
+          jest.advanceTimersByTime(cooldown * 1000);
+        });
+        expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+        jest.useRealTimers();
       });
     });
   });

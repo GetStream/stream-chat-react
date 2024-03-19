@@ -50,5 +50,6 @@ export const useChannelUpdatedListener = <
     return () => {
       client.off('channel.updated', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customHandler]);
 };

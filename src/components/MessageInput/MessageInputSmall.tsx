@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { FileUploadButton, ImageDropzone } from 'react-file-utils';
+import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 
-import { EmojiPicker } from './EmojiPicker';
 import {
-  EmojiIconSmall as DefaultEmojiIcon,
   FileUploadIconFlat as DefaultFileUploadIcon,
   SendButton as DefaultSendButton,
+  EmojiIconSmall,
 } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
@@ -48,24 +47,22 @@ export const MessageInputSmall = <
   const { channel } = useChatContext<StreamChatGenerics>('MessageInputSmall');
 
   const {
-    closeEmojiPicker,
     cooldownRemaining,
-    emojiPickerIsOpen,
     handleSubmit,
+    hideSendButton,
     isUploadEnabled,
     maxFilesLeft,
     numberOfUploads,
-    openEmojiPicker,
     setCooldownRemaining,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics, V>('MessageInputSmall');
 
   const {
     CooldownTimer = DefaultCooldownTimer,
-    EmojiIcon = DefaultEmojiIcon,
     FileUploadIcon = DefaultFileUploadIcon,
     SendButton = DefaultSendButton,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
+    EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputSmall');
 
   useEffect(() => {
@@ -84,6 +81,7 @@ export const MessageInputSmall = <
       channel?.off('message.deleted', handleQuotedMessageUpdate);
       channel?.off('message.updated', handleQuotedMessageUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel, quotedMessage]);
   return (
     <div className='str-chat__small-message-input__wrapper'>
@@ -135,25 +133,17 @@ export const MessageInputSmall = <
                     </FileUploadButton>
                   </div>
                 )}
-                <div className='str-chat__emojiselect-wrapper'>
-                  <Tooltip>
-                    {emojiPickerIsOpen
-                      ? t<string>('Close emoji picker')
-                      : t<string>('Open emoji picker')}
-                  </Tooltip>
-                  <button
-                    aria-label='Emoji picker'
-                    className='str-chat__small-message-input-emojiselect'
-                    onClick={emojiPickerIsOpen ? closeEmojiPicker : openEmojiPicker}
-                  >
-                    <EmojiIcon />
-                  </button>
-                </div>
+                {EmojiPicker && (
+                  <EmojiPicker
+                    // @ts-expect-error
+                    buttonClassName='str-chat__small-message-input-emojiselect'
+                    ButtonIconComponent={EmojiIconSmall}
+                  />
+                )}
               </>
             )}
-            <EmojiPicker small />
           </div>
-          {!cooldownRemaining && <SendButton sendMessage={handleSubmit} />}
+          {!(cooldownRemaining || hideSendButton) && <SendButton sendMessage={handleSubmit} />}
         </div>
       </ImageDropzone>
     </div>

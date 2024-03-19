@@ -8,7 +8,7 @@
 > building chat applications.
 
 [![NPM](https://img.shields.io/npm/v/stream-chat-react.svg)](https://www.npmjs.com/package/stream-chat-react)
-[![build](https://github.com/GetStream/stream-chat-react/workflows/test/badge.svg)](https://github.com/GetStream/stream-chat-react/actions)
+[![build](https://github.com/GetStream/stream-chat-react/actions/workflows/ci.yml/badge.svg)](https://github.com/GetStream/stream-chat-react/actions)
 [![Component Reference](https://img.shields.io/badge/docs-component%20reference-blue.svg)](https://getstream.io/chat/docs/sdk/react/)
 [![codecov](https://codecov.io/gh/GetStream/stream-chat-react/branch/master/graph/badge.svg)](https://codecov.io/gh/GetStream/stream-chat-react)
 
@@ -93,7 +93,7 @@ For components that implement significant logic, it's helpful to split the compo
 The preferred method for overriding the pre-defined styles in the library is to two step process. First, import our bundled CSS into the file where you instantiate your chat application. Second, locate any Stream styles you want to override using either the browser inspector or by viewing the library code. You can then add selectors to your local CSS file to override our defaults. For example:
 
 ```js
-import '@stream-io/stream-chat-css/dist/css/index.css';
+import 'stream-chat-react/dist/css/v2/index.css';
 import './App.css';
 ```
 

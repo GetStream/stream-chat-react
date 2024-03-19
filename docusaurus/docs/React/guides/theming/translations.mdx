@@ -1,6 +1,5 @@
 ---
 id: translations
-sidebar_position: 5
 title: Translation and i18n
 ---
 
@@ -132,6 +131,38 @@ JSON objects can be imported from the library.
 `import { esTranslations } from 'stream-chat-react';`
 :::
 
+### Overriding ARIA labels
+
+ARIA labels that are used for interactive elements are also subject to localization. Translation keys for ARIA labels are prefixed by `aria/`:
+
+```jsx
+import { useTranslationContext } from 'stream-chat-react';
+
+const Component = () => {
+  const { t } = useTranslationContext();
+  return (
+    <button type='button' aria-label={t('aria/Send')}>
+      📨
+    </button>
+  );
+};
+```
+
+To override the default translations, add an `aria`-prefixed key to the `translationsForLanguage` object:
+
+```jsx
+const i18nInstance = new Streami18n({
+  language: 'en',
+  translationsForLanguage: {
+    'aria/Send': 'Send Message',
+  },
+});
+
+<Chat client={client} i18nInstance={i18nInstance}>
+  {/* ... */}
+</Chat>;
+```
+
 ## Add a Language
 
 In the following example, we will demonstrate how to add translation support for an additional language not currently supported
@@ -251,6 +282,7 @@ i18n.registerTranslation(
  }
 );
 ```
+
 2. Provide your own `Momentjs` object
 
 ```js
@@ -270,7 +302,7 @@ const i18n = new Streami18n({
 3. Provide your own Dayjs object
 
 ```js
-import Dayjs from 'dayjs'
+import Dayjs from 'dayjs';
 
 import 'dayjs/locale/nl';
 import 'dayjs/locale/it';
@@ -278,11 +310,34 @@ import 'dayjs/locale/it';
 import 'dayjs/min/locales';
 
 const i18n = new Streami18n({
- language: 'nl',
- DateTimeParser: Dayjs
-})
+  language: 'nl',
+  DateTimeParser: Dayjs,
+});
 ```
+
 If you would like to stick with english language for dates and times in Stream components, you can set `disableDateTimeTranslations` to true.
+
+### Timezone location
+
+To display date and time in different than machine's local timezone, provide the `timezone` parameter to the `Streami18n` constructor. The `timezone` value has to be a [valid timezone identifier string](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). If no `timezone` parameter is provided, then the machine's local timezone is applied.
+
+```ts
+import { Streami18n } from 'stream-chat-react';
+
+const streamI18n = new Streami18n({ timezone: 'Europe/Prague' });
+```
+
+If you are using `moment` as your datetime parser engine and want to start using timezone-located datetime strings, then we recommend to use `moment-timezone` instead of `moment` package. Moment Timezone will automatically load and extend the moment module, then return the modified instance. This will also prevent multiple versions of `moment` being installed in a project.
+
+```ts
+import type momentTimezone from 'moment-timezone';
+import { Streami18n } from 'stream-chat-react';
+
+const i18n = new Streami18n({
+  DateTimeParser: momentTimezone,
+  timezone: 'Europe/Prague',
+});
+```
 
 ### Translating Messages
 
@@ -306,17 +361,47 @@ The `Streami18n` class wraps [`i18next`](https://www.npmjs.com/package/i18next) 
 
 ### Class Constructor Options
 
-| Option                       | Description                                                                                                                                                          | Type     | Default    |
-|------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|------------|
-| language                     | connected user's language                                                                                                                                            | string   | 'en'       |
-| translationsForLanguage      | overrides existing component text                                                                                                                                    | object   | {}         |
-| disableDateTimeTranslations  | disables translation of date times                                                                                                                                   | boolean  | false      |
-| debug                        | enables i18n debug mode                                                                                                                                              | boolean  | false      |
-| logger                       | logs warnings/errors                                                                                                                                                 | function | () => {}   |
-| dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) and [calendar locale config object](https://day.js.org/docs/en/plugin/calendar) | object   | 'enConfig' |
-| DateTimeParser               | custom date time parser                                                                                                                                              | function | Day.js     |
+| Option                       | Description                                                                                                                                                          | Type     | Default                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------- |
+| DateTimeParser               | custom date time parser                                                                                                                                              | function | Day.js                                          |
+| dayjsLocaleConfigForLanguage | internal Day.js [config object](https://github.com/iamkun/dayjs/tree/dev/src/locale) and [calendar locale config object](https://day.js.org/docs/en/plugin/calendar) | object   | 'enConfig'                                      |
+| debug                        | enables i18n debug mode                                                                                                                                              | boolean  | false                                           |
+| disableDateTimeTranslations  | disables translation of date times                                                                                                                                   | boolean  | false                                           |
+| language                     | connected user's language                                                                                                                                            | string   | 'en'                                            |
+| logger                       | logs warnings/errors                                                                                                                                                 | function | () => {}                                        |
+| parseMissingKeyHandler       | function executed, when a key is not found among the translations                                                                                                    | function | (key: string, defaultValue?: string) => string; |
+| translationsForLanguage      | overrides existing component text                                                                                                                                    | object   | {}                                              |
+| timezone                     | valid timezone identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                      | function | Day.js                                          |
 
-####
+#### parseMissingKeyHandler
+
+The default implementation returns the default value provided to the translator function, for example the component below will display string `'hello'` if the key `'some-key'` is not found among the translations for a given language:
+
+```tsx
+import { useTranslationContext } from 'stream-chat-react';
+
+const Component = () => {
+  const { t } = useTranslationContext('useCommandTrigger');
+
+  return <div>{t('some-key', { defaultValue: 'hello' })}</div>;
+};
+```
+
+The custom handler may log missing key warnings to the console in the development environment:
+
+```ts
+import { Streami18n, Streami18nOptions } from 'stream-chat-react';
+
+const parseMissingKeyHandler: Streami18nOptions['parseMissingKeyHandler'] = (
+  key: string,
+  defaultValue?: string,
+) => {
+  console.warn(`Streami18n: Missing translation for key: ${key}`);
+  return defaultValue ?? key;
+};
+
+const i18nInstance = new Streami18n({ parseMissingKeyHandler });
+```
 
 ### Class Instance Methods
 

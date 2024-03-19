@@ -1,0 +1,54 @@
+name: E2E
+
+on: [push]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    name: End-to-end tests
+    concurrency:
+      group: react-e2e
+      cancel-in-progress: false
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ./pw-browsers
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 💾 Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./node_modules
+            ./pw-browsers
+          key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('./yarn.lock') }}
+
+      - name: 🔨 Install Dependencies
+        run: |
+          yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+          npx playwright install chromium
+          npx playwright install-deps
+
+      - name: ⚗️ End-to-end tests
+        run: |
+          yarn e2e-fixtures
+          yarn e2e --browser=chromium
+        env:
+          E2E_JUMP_TO_MESSAGE_CHANNEL: jump-to-message
+          E2E_ADD_MESSAGE_CHANNEL: add-message
+          E2E_TEST_USER_1: test-user-1
+          E2E_TEST_USER_2: test-user-2
+          E2E_APP_KEY: ${{ secrets.E2E_APP_KEY }}
+          E2E_APP_SECRET: ${{ secrets.E2E_APP_SECRET }}
+          E2E_TEST_USER_1_TOKEN: ${{ secrets.E2E_TEST_USER_1_TOKEN }}
+          E2E_TEST_USER_2_TOKEN: ${{ secrets.E2E_TEST_USER_2_TOKEN }}
+          E2E_ADDITIONAL_CHANNELS: mr-channel-1, mr-channel-2, edit-message-channel, pin-message-channel
+          E2E_LONG_MESSAGE_LISTS_CHANNEL: navigate-long-message-lists
+          E2E_ATTACHMENT_SIZING_CHANNEL: attachment-sizing
+
+      - name: 🎥 Upload Artifacts
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: E2E_Artifacts
+          path: ./test-results
+          retention-days: 1

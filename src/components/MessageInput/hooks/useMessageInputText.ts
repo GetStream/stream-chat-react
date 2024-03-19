@@ -5,6 +5,7 @@ import type { MessageInputProps } from '../MessageInput';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type { EnrichURLsController } from './useLinkPreviews';
 
 export const useMessageInputText = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -13,6 +14,7 @@ export const useMessageInputText = <
   props: MessageInputProps<StreamChatGenerics, V>,
   state: MessageInputState<StreamChatGenerics>,
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
+  findAndEnqueueURLsToEnrich?: EnrichURLsController['findAndEnqueueURLsToEnrich'],
 ) => {
   const { channel } = useChannelStateContext<StreamChatGenerics>('useMessageInputText');
   const { additionalTextareaProps, focus, parent, publishTypingEvent = true } = props;
@@ -35,7 +37,7 @@ export const useMessageInputText = <
       const { maxLength } = additionalTextareaProps || {};
 
       if (!textareaRef.current) {
-        dispatch({
+        return dispatch({
           getNewText: (text) => {
             const updatedText = text + textToInsert;
             if (maxLength && updatedText.length > maxLength) {
@@ -45,7 +47,6 @@ export const useMessageInputText = <
           },
           type: 'setText',
         });
-        return;
       }
 
       const { selectionEnd, selectionStart } = textareaRef.current;
@@ -65,6 +66,7 @@ export const useMessageInputText = <
         type: 'setText',
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [additionalTextareaProps, newCursorPosition, textareaRef],
   );
 
@@ -89,11 +91,15 @@ export const useMessageInputText = <
         getNewText: () => newText,
         type: 'setText',
       });
+
+      findAndEnqueueURLsToEnrich?.(newText);
+
       if (publishTypingEvent && newText && channel) {
         logChatPromiseExecution(channel.keystroke(parent?.id), 'start typing event');
       }
     },
-    [channel, parent, publishTypingEvent],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [channel, findAndEnqueueURLsToEnrich, parent, publishTypingEvent],
   );
 
   return {

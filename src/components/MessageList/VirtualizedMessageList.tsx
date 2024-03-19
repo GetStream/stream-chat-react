@@ -1,7 +1,6 @@
-import clsx from 'clsx';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
-  Components,
+  ComputeItemKey,
   ScrollSeekConfiguration,
   ScrollSeekPlaceholderProps,
   Virtuoso,
@@ -10,21 +9,34 @@ import {
 } from 'react-virtuoso';
 
 import { GiphyPreviewMessage as DefaultGiphyPreviewMessage } from './GiphyPreviewMessage';
-import { useGiphyPreview } from './hooks/useGiphyPreview';
-import { useNewMessageNotification } from './hooks/useNewMessageNotification';
-import { usePrependedMessagesCount } from './hooks/usePrependMessagesCount';
-import { useShouldForceScrollToBottom } from './hooks/useShouldForceScrollToBottom';
+import { useLastReadData } from './hooks';
+import {
+  useGiphyPreview,
+  useMessageSetKey,
+  useNewMessageNotification,
+  usePrependedMessagesCount,
+  useScrollToBottomOnNewMessage,
+  useShouldForceScrollToBottom,
+  useUnreadMessagesNotificationVirtualized,
+} from './hooks/VirtualizedMessageList';
+import { useMarkRead } from './hooks/useMarkRead';
+
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { MessageListMainPanel } from './MessageListMainPanel';
-import { getGroupStyles, GroupStyle, processMessages } from './utils';
-
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-import { DateSeparator as DefaultDateSeparator } from '../DateSeparator/DateSeparator';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator/EmptyStateIndicator';
-import { EventComponent } from '../EventComponent/EventComponent';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
-import { Message, MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
+import { getGroupStyles, getLastReceived, GroupStyle, processMessages } from './utils';
+import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
+import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
+import {
+  calculateFirstItemIndex,
+  calculateItemIndex,
+  EmptyPlaceholder,
+  Footer,
+  Header,
+  Item,
+  makeItemsRenderedHandler,
+  messageRenderer,
+} from './VirtualizedMessageListComponents';
 
 import {
   ChannelActionContextValue,
@@ -32,18 +44,66 @@ import {
 } from '../../context/ChannelActionContext';
 import {
   ChannelNotifications,
+  ChannelStateContextValue,
   StreamMessage,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import { isDate } from '../../context/TranslationContext';
+import { ChatContextValue, useChatContext } from '../../context/ChatContext';
+import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 
-import type { Channel } from 'stream-chat';
-
+import type { Channel, ChannelState as StreamChannelState, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
+import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 
-const PREPEND_OFFSET = 10 ** 7;
+type VirtualizedMessageListPropsForContext =
+  | 'additionalMessageInputProps'
+  | 'closeReactionSelectorOnClick'
+  | 'customMessageActions'
+  | 'customMessageRenderer'
+  | 'head'
+  | 'loadingMore'
+  | 'Message'
+  | 'messageActions'
+  | 'shouldGroupByUser'
+  | 'sortReactions'
+  | 'sortReactionDetails'
+  | 'threadList';
+
+/**
+ * Context object provided to some Virtuoso props that are functions (components rendered by Virtuoso and other functions)
+ */
+export type VirtuosoContext<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Required<
+  Pick<
+    ComponentContextValue<StreamChatGenerics>,
+    'DateSeparator' | 'MessageSystem' | 'UnreadMessagesSeparator'
+  >
+> &
+  Pick<VirtualizedMessageListProps<StreamChatGenerics>, VirtualizedMessageListPropsForContext> &
+  Pick<ChatContextValue<StreamChatGenerics>, 'customClasses'> & {
+    /** Latest received message id in the current channel */
+    lastReceivedMessageId: string | null | undefined;
+    /** Object mapping between the message ID and a string representing the position in the group of a sequence of messages posted by the same user. */
+    messageGroupStyles: Record<string, GroupStyle>;
+    /** Number of messages prepended before the first page of messages. This is needed to calculate the virtual position in the virtual list. */
+    numItemsPrepended: number;
+    /** Mapping of message ID of own messages to the array of users, who read the given message */
+    ownMessagesReadByOthers: Record<string, UserResponse<StreamChatGenerics>[]>;
+    /** The original message list enriched with date separators, omitted deleted messages or giphy previews. */
+    processedMessages: StreamMessage<StreamChatGenerics>[];
+    /** Instance of VirtuosoHandle object providing the API to navigate in the virtualized list by various scroll actions. */
+    virtuosoRef: RefObject<VirtuosoHandle>;
+    /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
+    firstUnreadMessageId?: string;
+    /**
+     * The ID of the last message considered read by the current user in the current channel.
+     * All the messages following this message are considered unread.
+     */
+    lastReadMessageId?: string;
+    /** The number of unread messages in the current channel. */
+    unreadMessageCount?: number;
+  };
 
 type VirtualizedMessageListWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -55,6 +115,8 @@ type VirtualizedMessageListWithContextProps<
   loadingMore: boolean;
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
+  channelUnreadUiState?: ChannelStateContextValue['channelUnreadUiState'];
+  read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
 function captureResizeObserverExceededError(e: ErrorEvent) {
@@ -102,14 +164,16 @@ const VirtualizedMessageListWithContext = <
   props: VirtualizedMessageListWithContextProps<StreamChatGenerics>,
 ) => {
   const {
-    additionalVirtuosoProps,
+    additionalMessageInputProps,
+    additionalVirtuosoProps = {},
     channel,
+    channelUnreadUiState,
     closeReactionSelectorOnClick,
+    customMessageActions,
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
     groupStyles,
-    hasMore,
     hasMoreNewer,
     head,
     hideDeletedMessages = false,
@@ -119,42 +183,62 @@ const VirtualizedMessageListWithContext = <
     loadingMore,
     loadMore,
     loadMoreNewer,
-    Message: propMessage,
-    messageLimit = 100,
+    Message: MessageUIComponentFromProps,
+    messageActions,
+    messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages,
     notifications,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
+    read,
+    returnAllReadData = false,
     scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
     shouldGroupByUser = false,
+    showUnreadNotificationAlways,
+    sortReactionDetails,
+    sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
     threadList,
   } = props;
+
+  const {
+    components: virtuosoComponentsFromProps,
+    ...overridingVirtuosoProps
+  } = additionalVirtuosoProps;
 
   // Stops errors generated from react-virtuoso to bubble up
   // to Sentry or other tracking tools.
   useCaptureResizeObserverExceededError();
 
   const {
-    DateSeparator = DefaultDateSeparator,
-    EmptyStateIndicator = DefaultEmptyStateIndicator,
+    DateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
-    LoadingIndicator = DefaultLoadingIndicator,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
-    MessageSystem = EventComponent,
-    TypingIndicator = null,
-    VirtualMessage: contextMessage = MessageSimple,
+    MessageSystem,
+    UnreadMessagesNotification = DefaultUnreadMessagesNotification,
+    UnreadMessagesSeparator,
+    VirtualMessage: MessageUIComponentFromContext = MessageSimple,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
+  const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
   const { client, customClasses } = useChatContext<StreamChatGenerics>('VirtualizedMessageList');
 
+  const virtuoso = useRef<VirtuosoHandle>(null);
+
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const MessageUIComponent = propMessage || contextMessage;
+  const {
+    show: showUnreadMessagesNotification,
+    toggleShowUnreadMessagesNotification,
+  } = useUnreadMessagesNotificationVirtualized({
+    lastRead: channelUnreadUiState?.last_read,
+    showAlways: !!showUnreadNotificationAlways,
+    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
+  });
 
   const { giphyPreviewMessage, setGiphyPreviewMessage } = useGiphyPreview<StreamChatGenerics>(
     separateGiphyPreview,
@@ -183,6 +267,7 @@ const VirtualizedMessageListWithContext = <
       setGiphyPreviewMessage,
       userId: client.userID || '',
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     disableDateSeparator,
     hideDeletedMessages,
@@ -191,6 +276,18 @@ const VirtualizedMessageListWithContext = <
     messages,
     messages?.length,
     client.userID,
+  ]);
+
+  // get the mapping of own messages to array of users who read them
+  const ownMessagesReadByOthers = useLastReadData({
+    messages: processedMessages,
+    read,
+    returnAllReadData,
+    userID: client.userID,
+  });
+
+  const lastReceivedMessageId = useMemo(() => getLastReceived(processedMessages), [
+    processedMessages,
   ]);
 
   const groupStylesFn = groupStyles || getGroupStyles;
@@ -207,10 +304,9 @@ const VirtualizedMessageListWithContext = <
         return acc;
       }, {}),
     // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
-    [processedMessages.length, shouldGroupByUser],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [processedMessages.length, shouldGroupByUser, groupStylesFn],
   );
-
-  const virtuoso = useRef<VirtuosoHandle>(null);
 
   const {
     atBottom,
@@ -219,6 +315,13 @@ const VirtualizedMessageListWithContext = <
     setIsMessageListScrolledToBottom,
     setNewMessagesNotification,
   } = useNewMessageNotification(processedMessages, client.userID, hasMoreNewer);
+
+  useMarkRead({
+    isMessageListScrolledToBottom,
+    messageListIsThread: !!threadList,
+    unreadCount: channelUnreadUiState?.unread_messages ?? 0,
+    wasMarkedUnread: !!channelUnreadUiState?.first_unread_message_id,
+  });
 
   const scrollToBottom = useCallback(async () => {
     if (hasMoreNewer) {
@@ -231,6 +334,7 @@ const VirtualizedMessageListWithContext = <
     }
 
     setNewMessagesNotification(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     virtuoso,
     processedMessages,
@@ -241,59 +345,18 @@ const VirtualizedMessageListWithContext = <
     jumpToLatestMessage,
   ]);
 
-  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = React.useState(
-    false,
-  );
-
-  const resetNewMessagesReceivedInBackground = useCallback(() => {
-    setNewMessagesReceivedInBackground(false);
-  }, []);
-
-  useEffect(() => {
-    setNewMessagesReceivedInBackground(true);
-  }, [messages]);
-
-  const scrollToBottomIfConfigured = useCallback(
-    (event: Event) => {
-      if (scrollToLatestMessageOnFocus && event.target === window) {
-        if (newMessagesReceivedInBackground) {
-          setTimeout(scrollToBottom, 100);
-        }
-      }
-    },
-    [scrollToLatestMessageOnFocus, scrollToBottom, newMessagesReceivedInBackground],
-  );
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.addEventListener('focus', scrollToBottomIfConfigured);
-      window.addEventListener('blur', resetNewMessagesReceivedInBackground);
-    }
-
-    return () => {
-      window.removeEventListener('focus', scrollToBottomIfConfigured);
-      window.removeEventListener('blur', resetNewMessagesReceivedInBackground);
-    };
-  }, [scrollToBottomIfConfigured]);
+  useScrollToBottomOnNewMessage({ messages, scrollToBottom, scrollToLatestMessageOnFocus });
 
   const numItemsPrepended = usePrependedMessagesCount(processedMessages, !disableDateSeparator);
 
-  /**
-   * Logic to update the key of the virtuoso component when the list jumps to a new location.
-   */
-  const [messageSetKey, setMessageSetKey] = useState(+new Date());
-  const firstMessageId = useRef<string | undefined>();
-
-  useEffect(() => {
-    const continuousSet = messages?.find((message) => message.id === firstMessageId.current);
-    if (!continuousSet) {
-      setMessageSetKey(+new Date());
-    }
-    firstMessageId.current = messages?.[0]?.id;
-  }, [messages]);
+  const { messageSetKey } = useMessageSetKey({ messages });
 
   const shouldForceScrollToBottom = useShouldForceScrollToBottom(processedMessages, client.userID);
 
+  const handleItemsRendered = useMemo(
+    () => makeItemsRenderedHandler([toggleShowUnreadMessagesNotification], processedMessages),
+    [processedMessages, toggleShowUnreadMessagesNotification],
+  );
   const followOutput = (isAtBottom: boolean) => {
     if (hasMoreNewer || suppressAutoscroll) {
       return false;
@@ -306,171 +369,110 @@ const VirtualizedMessageListWithContext = <
     return isAtBottom ? stickToBottomScrollBehavior : false;
   };
 
-  const messageRenderer = useCallback(
-    (messageList: StreamMessage<StreamChatGenerics>[], virtuosoIndex: number) => {
-      const streamMessageIndex = virtuosoIndex + numItemsPrepended - PREPEND_OFFSET;
-      // use custom renderer supplied by client if present and skip the rest
-      if (customMessageRenderer) {
-        return customMessageRenderer(messageList, streamMessageIndex);
-      }
-
-      const message = messageList[streamMessageIndex];
-
-      if (message.customType === CUSTOM_MESSAGE_TYPE.date && message.date && isDate(message.date)) {
-        return <DateSeparator date={message.date} unread={message.unread} />;
-      }
-
-      if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
-
-      if (message.type === 'system') {
-        return <MessageSystem message={message} />;
-      }
-
-      const groupedByUser =
-        shouldGroupByUser &&
-        streamMessageIndex > 0 &&
-        message.user?.id === messageList[streamMessageIndex - 1].user?.id;
-
-      const firstOfGroup =
-        shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
-
-      const endOfGroup =
-        shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
-
-      return (
-        <Message
-          autoscrollToBottom={virtuoso.current?.autoscrollToBottom}
-          closeReactionSelectorOnClick={closeReactionSelectorOnClick}
-          customMessageActions={props.customMessageActions}
-          endOfGroup={endOfGroup}
-          firstOfGroup={firstOfGroup}
-          groupedByUser={groupedByUser}
-          message={message}
-          Message={MessageUIComponent}
-          messageActions={props.messageActions}
-        />
-      );
-    },
-    [customMessageRenderer, shouldGroupByUser, numItemsPrepended],
+  const computeItemKey = useCallback<
+    ComputeItemKey<UnknownType, VirtuosoContext<StreamChatGenerics>>
+  >(
+    (index, _, { numItemsPrepended, processedMessages }) =>
+      processedMessages[calculateItemIndex(index, numItemsPrepended)].id,
+    [],
   );
-
-  const Item = useMemo(() => {
-    // using 'display: inline-block'
-    // traps CSS margins of the item elements, preventing incorrect item measurements
-    const Item: Components['Item'] = (props) => {
-      const streamMessageIndex = props['data-item-index'] + numItemsPrepended - PREPEND_OFFSET;
-      const message = processedMessages[streamMessageIndex];
-      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
-
-      return (
-        <div
-          {...props}
-          className={
-            customClasses?.virtualMessage ||
-            clsx('str-chat__virtual-list-message-wrapper str-chat__li', {
-              [`str-chat__li--${groupStyles}`]: groupStyles,
-            })
-          }
-        />
-      );
-    };
-    return Item;
-  }, [
-    customClasses?.virtualMessage,
-    numItemsPrepended,
-    // processedMessages were incorrectly rebuilt with a new object identity at some point, hence the .length usage
-    processedMessages.length,
-  ]);
-
-  const virtuosoComponents: Partial<Components> = useMemo(() => {
-    const EmptyPlaceholder: Components['EmptyPlaceholder'] = () => (
-      <>
-        {EmptyStateIndicator && (
-          <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
-        )}
-      </>
-    );
-
-    const Header: Components['Header'] = () =>
-      loadingMore ? (
-        <div className='str-chat__virtual-list__loading'>
-          <LoadingIndicator size={20} />
-        </div>
-      ) : (
-        head || null
-      );
-
-    const Footer: Components['Footer'] = () =>
-      TypingIndicator ? <TypingIndicator avatarSize={24} /> : <></>;
-
-    return {
-      EmptyPlaceholder,
-      Footer,
-      Header,
-      Item,
-    };
-  }, [loadingMore, head, Item]);
 
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
-    if (isAtBottom && newMessagesNotification) {
-      setNewMessagesNotification(false);
+
+    if (isAtBottom) {
+      loadMoreNewer?.(messageLimit);
+      setNewMessagesNotification?.(false);
     }
   };
-
-  const startReached = () => {
-    if (hasMore && loadMore) {
-      loadMore(messageLimit);
-    }
-  };
-
-  const endReached = () => {
-    if (hasMoreNewer && loadMoreNewer) {
-      loadMoreNewer(messageLimit);
+  const atTopStateChange = (isAtTop: boolean) => {
+    if (isAtTop) {
+      loadMore?.(messageLimit);
     }
   };
 
   useEffect(() => {
+    let scrollTimeout: ReturnType<typeof setTimeout>;
     if (highlightedMessageId) {
       const index = findMessageIndex(processedMessages, highlightedMessageId);
       if (index !== -1) {
-        virtuoso.current?.scrollToIndex({ align: 'center', index });
+        scrollTimeout = setTimeout(() => {
+          virtuoso.current?.scrollToIndex({ align: 'center', index });
+        }, 0);
       }
     }
-  }, [highlightedMessageId]);
+    return () => {
+      clearTimeout(scrollTimeout);
+    };
+  }, [highlightedMessageId, processedMessages]);
 
   if (!processedMessages) return null;
 
   return (
     <>
       <MessageListMainPanel>
+        {!threadList && showUnreadMessagesNotification && (
+          <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
+        )}
         <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
-          <Virtuoso
+          <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
             atBottomStateChange={atBottomStateChange}
-            atBottomThreshold={200}
+            atBottomThreshold={100}
+            atTopStateChange={atTopStateChange}
+            atTopThreshold={100}
             className='str-chat__message-list-scroll'
-            components={virtuosoComponents}
-            computeItemKey={(index) =>
-              processedMessages[numItemsPrepended + index - PREPEND_OFFSET].id
-            }
-            endReached={endReached}
-            firstItemIndex={PREPEND_OFFSET - numItemsPrepended}
+            components={{
+              EmptyPlaceholder,
+              Footer,
+              Header,
+              Item,
+              ...virtuosoComponentsFromProps,
+            }}
+            computeItemKey={computeItemKey}
+            context={{
+              additionalMessageInputProps,
+              closeReactionSelectorOnClick,
+              customClasses,
+              customMessageActions,
+              customMessageRenderer,
+              DateSeparator,
+              firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
+              head,
+              lastReadMessageId: channelUnreadUiState?.last_read_message_id,
+              lastReceivedMessageId,
+              loadingMore,
+              Message: MessageUIComponent,
+              messageActions,
+              messageGroupStyles,
+              MessageSystem,
+              numItemsPrepended,
+              ownMessagesReadByOthers,
+              processedMessages,
+              shouldGroupByUser,
+              sortReactionDetails,
+              sortReactions,
+              threadList,
+              unreadMessageCount: channelUnreadUiState?.unread_messages,
+              UnreadMessagesSeparator,
+              virtuosoRef: virtuoso,
+            }}
+            firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
             followOutput={followOutput}
             increaseViewportBy={{ bottom: 200, top: 0 }}
             initialTopMostItemIndex={calculateInitialTopMostItemIndex(
               processedMessages,
               highlightedMessageId,
             )}
-            itemContent={(i) => messageRenderer(processedMessages, i)}
+            itemContent={messageRenderer}
             itemSize={fractionalItemSize}
+            itemsRendered={handleItemsRendered}
             key={messageSetKey}
             overscan={overscan}
             ref={virtuoso}
-            startReached={startReached}
             style={{ overflowX: 'hidden' }}
             totalCount={processedMessages.length}
-            {...additionalVirtuosoProps}
+            {...overridingVirtuosoProps}
             {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
             {...(defaultItemHeight ? { defaultItemHeight } : {})}
           />
@@ -484,17 +486,25 @@ const VirtualizedMessageListWithContext = <
         notifications={notifications}
         scrollToBottom={scrollToBottom}
         threadList={threadList}
+        unreadCount={threadList ? undefined : channelUnreadUiState?.unread_messages}
       />
       {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
     </>
   );
 };
 
+type PropsDrilledToMessage =
+  | 'additionalMessageInputProps'
+  | 'customMessageActions'
+  | 'messageActions'
+  | 'sortReactions'
+  | 'sortReactionDetails';
+
 export type VirtualizedMessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Partial<Pick<MessageProps<StreamChatGenerics>, 'customMessageActions' | 'messageActions'>> & {
+> = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
-  additionalVirtuosoProps?: VirtuosoProps<UnknownType, unknown>;
+  additionalVirtuosoProps?: VirtuosoProps<UnknownType, VirtuosoContext<StreamChatGenerics>>;
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
@@ -502,7 +512,9 @@ export type VirtualizedMessageListProps<
     messageList: StreamMessage<StreamChatGenerics>[],
     index: number,
   ) => React.ReactElement;
-  /** If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance */
+  /** @deprecated Use additionalVirtuosoProps.defaultItemHeight instead. Will be removed with next major release - `v11.0.0`.
+   * If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance
+   * */
   defaultItemHeight?: number;
   /** Disables the injection of date separator components in MessageList, defaults to `true` */
   disableDateSeparator?: boolean;
@@ -517,7 +529,10 @@ export type VirtualizedMessageListProps<
   hasMore?: boolean;
   /** Whether or not the list has newer items to load */
   hasMoreNewer?: boolean;
-  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
+  /**
+   * @deprecated Use additionalVirtuosoProps.components.Header to override default component rendered above the list ove messages.
+   * Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components
+   */
   head?: React.ReactElement;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
@@ -539,9 +554,15 @@ export type VirtualizedMessageListProps<
   messageLimit?: number;
   /** Optional prop to override the messages available from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */
   messages?: StreamMessage<StreamChatGenerics>[];
-  /** The amount of extra content the list should render in addition to what's necessary to fill in the viewport */
-  overscan?: number;
   /**
+   * @deprecated Use additionalVirtuosoProps.overscan instead. Will be removed with next major release - `v11.0.0`.
+   * The amount of extra content the list should render in addition to what's necessary to fill in the viewport
+   */
+  overscan?: number;
+  /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
+  returnAllReadData?: boolean;
+  /**
+   * @deprecated Pass additionalVirtuosoProps.scrollSeekConfiguration and specify the placeholder in additionalVirtuosoProps.components.ScrollSeekPlaceholder instead.  Will be removed with next major release - `v11.0.0`.
    * Performance improvement by showing placeholders if user scrolls fast through list.
    * it can be used like this:
    * ```
@@ -562,6 +583,12 @@ export type VirtualizedMessageListProps<
   separateGiphyPreview?: boolean;
   /** If true, group messages belonging to the same user, otherwise show each message individually */
   shouldGroupByUser?: boolean;
+  /**
+   * The floating notification informing about unread messages will be shown when the
+   * UnreadMessagesSeparator is not visible. The default is false, that means the notification
+   * is shown only when viewing unread messages.
+   */
+  showUnreadNotificationAlways?: boolean;
   /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** stops the list from autoscrolling when new messages are loaded */
@@ -584,6 +611,7 @@ export function VirtualizedMessageList<
   } = useChannelActionContext<StreamChatGenerics>('VirtualizedMessageList');
   const {
     channel,
+    channelUnreadUiState,
     hasMore,
     hasMoreNewer,
     highlightedMessageId,
@@ -591,6 +619,7 @@ export function VirtualizedMessageList<
     loadingMoreNewer,
     messages: contextMessages,
     notifications,
+    read,
     suppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('VirtualizedMessageList');
 
@@ -599,6 +628,7 @@ export function VirtualizedMessageList<
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
+      channelUnreadUiState={channelUnreadUiState}
       hasMore={!!hasMore}
       hasMoreNewer={!!hasMoreNewer}
       highlightedMessageId={highlightedMessageId}
@@ -609,6 +639,7 @@ export function VirtualizedMessageList<
       loadMoreNewer={loadMoreNewer}
       messages={messages}
       notifications={notifications}
+      read={read}
       suppressAutoscroll={suppressAutoscroll}
       {...props}
     />

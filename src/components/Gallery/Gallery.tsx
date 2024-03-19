@@ -2,6 +2,7 @@ import React, { CSSProperties, MutableRefObject, useState } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 import clsx from 'clsx';
 
+import { BaseImage as DefaultBaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
 
@@ -35,8 +36,12 @@ const UnMemoizedGallery = <
   const [index, setIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { ModalGallery = DefaultModalGallery } = useComponentContext('Gallery');
+  const { BaseImage = DefaultBaseImage, ModalGallery = DefaultModalGallery } = useComponentContext(
+    'Gallery',
+  );
   const { t } = useTranslationContext('Gallery');
+
+  const imageFallbackTitle = t('User uploaded content');
 
   const countImagesDisplayedInPreview = 4;
   const lastImageIndexInPreview = countImagesDisplayedInPreview - 1;
@@ -80,10 +85,11 @@ const UnMemoizedGallery = <
         key={`gallery-image-${i}`}
         onClick={() => toggleModal(i)}
       >
-        <img
-          alt='User uploaded content'
+        <BaseImage
+          alt={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
           src={sanitizeUrl(image.previewUrl || image.image_url || image.thumb_url)}
           style={image.style}
+          title={(image as Attachment<StreamChatGenerics>)?.fallback || imageFallbackTitle}
           {...(innerRefs?.current && { ref: (r) => (innerRefs.current[i] = r) })}
         />
       </button>

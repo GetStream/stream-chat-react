@@ -6,7 +6,7 @@ import { useFileUploads } from './useFileUploads';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-import type { FileLike } from 'react-file-utils';
+import type { FileLike } from '../../ReactFileUtilities';
 
 import type { MessageInputProps } from '../MessageInput';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
@@ -77,6 +77,7 @@ export const useAttachments = <
 
       textareaRef?.current?.focus();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [maxFilesLeft, noFiles],
   );
 

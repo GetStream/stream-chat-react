@@ -1,6 +1,5 @@
 ---
 id: system_message
-sidebar_position: 8
 title: System Message
 ---
 
@@ -39,50 +38,83 @@ To see your custom component in action, try muting a user by using the '/' comma
   display: flex;
   flex-direction: column;
   background: red; /* For browsers that do not support gradients */
-  background: -webkit-linear-gradient(left, orange , yellow, green, cyan, blue, violet); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right, orange, yellow, green, cyan, blue, violet); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right, orange, yellow, green, cyan, blue, violet); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to right, orange , yellow, green, cyan, blue, violet); /* Standard syntax (must be last) */
+  background: -webkit-linear-gradient(
+    left,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet
+  ); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(
+    right,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet
+  ); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(
+    right,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet
+  ); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(
+    to right,
+    orange,
+    yellow,
+    green,
+    cyan,
+    blue,
+    violet
+  ); /* Standard syntax (must be last) */
 }
 ```
 
 ```jsx
 const CustomSystemMessage = (props: EventComponentProps) => {
-    const { Avatar = DefaultAvatar, message } = props;
+  const { Avatar = DefaultAvatar, message } = props;
 
-    const { created_at = '', text, type, user } = message;
-    const date = created_at.toString();
+  const { created_at = '', text, type, user } = message;
+  const date = created_at.toString();
 
-    if (type === 'system') {
-        return (
-            <div className='custom-system-message'>
-                <span>Event: {text} at {date}</span>
-                <span>
-                    Actor: <Avatar image={user?.image} shape={'square'} size={20} />
-                    {user?.name}
-                </span>
-            </div>
-        )
-    }
+  if (type === 'system') {
+    return (
+      <div className='custom-system-message'>
+        <span>
+          Event: {text} at {date}
+        </span>
+        <span>
+          Actor: <Avatar image={user?.image} shape={'square'} size={20} />
+          {user?.name}
+        </span>
+      </div>
+    );
+  }
 
-    return null;
-}
+  return null;
+};
 
 const App = () => (
-    <Chat client={chatClient}>
-        <ChannelList />
-        <Channel MessageSystem={CustomSystemMessage}>
-            <Window>
-                <ChannelHeader />
-                <MessageList />
-                <MessageInput />
-            </Window>
-        <Thread />
-        </Channel>
-    </Chat>
+  <Chat client={chatClient}>
+    <ChannelList />
+    <Channel MessageSystem={CustomSystemMessage}>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
 );
 ```
-
 
 ### The Result:
 

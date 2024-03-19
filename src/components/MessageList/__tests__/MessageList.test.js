@@ -1,26 +1,37 @@
-import React from 'react';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import React, { useEffect } from 'react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import {
   dispatchMessageNewEvent,
+  dispatchNotificationMarkUnread,
   generateChannel,
   generateMember,
   generateMessage,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  initClientWithChannels,
+  markReadApi,
   useMockedApis,
 } from '../../../mock-builders';
 
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
-
+import {
+  ChatProvider,
+  useChannelActionContext,
+  useChatContext,
+  useMessageContext,
+} from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
+import { ScrollToBottomButton } from '../ScrollToBottomButton';
+import { MessageListNotifications } from '../MessageListNotifications';
+import { mockedApiResponse } from '../../../mock-builders/api/utils';
+
+expect.extend(toHaveNoViolations);
 
 jest.mock('../../EmptyStateIndicator', () => ({
   EmptyStateIndicator: jest.fn(),
@@ -39,13 +50,19 @@ const mockedChannelData = generateChannel({
 });
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
+const ChatContextOverrider = ({ children, contextOverrides }) => {
+  const chatContext = useChatContext();
+  return <ChatProvider value={{ ...chatContext, ...contextOverrides }}>{children}</ChatProvider>;
+};
 
-const renderComponent = ({ channelProps, chatClient, msgListProps }) =>
+const renderComponent = ({ channelProps, chatClient, chatContext = {}, msgListProps }) =>
   render(
     <Chat client={chatClient}>
-      <Channel {...channelProps}>
-        <MessageList {...msgListProps} />
-      </Channel>
+      <ChatContextOverrider contextOverrides={chatContext}>
+        <Channel {...channelProps}>
+          <MessageList {...msgListProps} />
+        </Channel>
+      </ChatContextOverrider>
     </Chat>,
   );
 
@@ -237,5 +254,497 @@ describe('MessageList', () => {
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should render intro messages', async () => {
+    const intro = generateMessage({ customType: 'message.intro' });
+    const headerText = 'header is rendered';
+    const Header = () => <div>{headerText}</div>;
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel, HeaderComponent: Header },
+        chatClient,
+        msgListProps: {
+          messages: [intro],
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(headerText)).toBeInTheDocument();
+    });
+  });
+
+  it('should render system messages', async () => {
+    const system = generateMessage({ text: 'system message is rendered', type: 'system' });
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: {
+          messages: [system],
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(system.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should use custom message list renderer if provided', async () => {
+    const customRenderMessages = ({ messages }) =>
+      messages.map((msg) => <li key={msg.id}>prefixed {msg.text}</li>);
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { renderMessages: customRenderMessages },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(`prefixed ${message1.text}`)).toBeInTheDocument();
+    });
+  });
+
+  describe('unread messages', () => {
+    const messages = Array.from({ length: 5 }, generateMessage);
+    const unread_messages = 2;
+    const lastReadMessage = messages[unread_messages];
+    const separatorText = `Unread messages`;
+    const dispatchMarkUnreadForChannel = ({ channel, client, payload = {} }) => {
+      dispatchNotificationMarkUnread({
+        channel,
+        client,
+        payload: {
+          first_unread_message_id: messages[unread_messages + 1].id,
+          last_read: lastReadMessage.created_at,
+          last_read_message_id: lastReadMessage.id,
+          unread_messages,
+          user: client.user,
+          ...payload,
+        },
+      });
+    };
+
+    let invokeIntersectionCb;
+
+    beforeEach(() => {
+      class IntersectionObserverMock {
+        constructor(cb) {
+          invokeIntersectionCb = cb;
+        }
+        disconnect() {
+          return null;
+        }
+        observe() {
+          return null;
+        }
+      }
+      // eslint-disable-next-line jest/prefer-spy-on
+      window.IntersectionObserver = IntersectionObserverMock;
+    });
+    afterEach(jest.clearAllMocks);
+    afterAll(jest.restoreAllMocks);
+
+    it('should keep displaying the unread messages separator when an unread channel is marked read on mount', async () => {
+      const user = generateUser();
+      const last_read_message_id = 'X';
+      const lastReadMessage = generateMessage({ id: last_read_message_id });
+      const messages = [lastReadMessage, generateMessage(), generateMessage()];
+      const {
+        channels: [channel],
+        client: chatClient,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: lastReadMessage.created_at.toISOString(),
+                last_read_message_id,
+                unread_messages: 2,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      const markReadMock = jest
+        .spyOn(channel, 'markRead')
+        .mockReturnValueOnce(markReadApi(channel));
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(markReadMock).toHaveBeenCalledTimes(2);
+      expect(screen.queryByText(separatorText)).toBeInTheDocument();
+    });
+
+    it('should display unread messages separator when a channel is marked unread and remove it when marked read by markRead()', async () => {
+      jest.useFakeTimers();
+      const markReadBtnTestId = 'test-mark-read';
+      const MarkReadButton = () => {
+        const { markRead } = useChannelActionContext();
+        return (
+          <button data-testid={markReadBtnTestId} onClick={markRead}>
+            MarkRead
+          </button>
+        );
+      };
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <MarkReadButton />
+              <MessageList messages={messages} />
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        dispatchMarkUnreadForChannel({ channel, client });
+      });
+      expect(screen.getByText(separatorText)).toBeInTheDocument();
+
+      jest.runAllTimers();
+      useMockedApis(client, [mockedApiResponse(markReadApi(channel), 'post')]);
+      await act(() => {
+        fireEvent.click(screen.getByTestId(markReadBtnTestId));
+      });
+
+      expect(screen.queryByText(separatorText)).not.toBeInTheDocument();
+      jest.useRealTimers();
+    });
+
+    it('should not display unread messages separator when the last read message is the newest channel message', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      await act(() => {
+        const lastReadMessage = messages.slice(-1)[0];
+        dispatchMarkUnreadForChannel({
+          channel,
+          client,
+          payload: {
+            last_read: lastReadMessage.created_at,
+            last_read_message_id: lastReadMessage.id,
+          },
+        });
+      });
+      expect(screen.queryByTestId('unread-messages-separator')).not.toBeInTheDocument();
+    });
+
+    it('should display custom unread messages separator when channel is marked unread', async () => {
+      const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
+      const UnreadMessagesSeparator = () => <div>{customUnreadMessagesSeparatorText}</div>;
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel, UnreadMessagesSeparator },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        dispatchMarkUnreadForChannel({ channel, client });
+      });
+      expect(screen.getByText(customUnreadMessagesSeparatorText)).toBeInTheDocument();
+    });
+
+    it('should not display custom unread messages separator when last read message is the newest channel message', async () => {
+      const customUnreadMessagesSeparatorText = 'CustomUnreadMessagesSeparator';
+      const UnreadMessagesSeparator = () => <div>{customUnreadMessagesSeparatorText}</div>;
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel, UnreadMessagesSeparator },
+          chatClient: client,
+          msgListProps: { messages },
+        });
+      });
+
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+
+      await act(() => {
+        const lastReadMessage = messages.slice(-1)[0];
+        dispatchMarkUnreadForChannel({
+          channel,
+          client,
+          payload: {
+            last_read: lastReadMessage.created_at,
+            last_read_message_id: lastReadMessage.id,
+          },
+        });
+      });
+      expect(screen.queryByText(customUnreadMessagesSeparatorText)).not.toBeInTheDocument();
+    });
+
+    describe('notification', () => {
+      const chatContext = { themeVersion: '2' };
+      const UNREAD_MESSAGES_NOTIFICATION_TEST_ID = 'unread-messages-notification';
+      const observerEntriesScrolledBelowSeparator = [
+        { boundingClientRect: { bottom: -1 }, isIntersecting: false },
+      ];
+      const observerEntriesScrolledAboveSeparator = [
+        { boundingClientRect: { bottom: 1 }, isIntersecting: false },
+      ];
+
+      const setupTest = async ({
+        channelProps = {},
+        dispatchMarkUnreadPayload = {},
+        entries,
+        msgListProps = {},
+      }) => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+
+        await act(() => {
+          renderComponent({
+            channelProps: { channel, ...channelProps },
+            chatClient: client,
+            chatContext,
+            msgListProps: { messages, ...msgListProps },
+          });
+        });
+
+        await act(() => {
+          dispatchMarkUnreadForChannel({ channel, client, payload: dispatchMarkUnreadPayload });
+        });
+
+        await act(() => {
+          invokeIntersectionCb(entries);
+        });
+      };
+
+      it('should not display unread messages notification when scrolled to unread messages separator', async () => {
+        await setupTest({ entries: [{ isIntersecting: true }] });
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it.each([
+        [
+          'should not',
+          "top edge is below container's visible bottom",
+          observerEntriesScrolledAboveSeparator,
+          undefined,
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top",
+          observerEntriesScrolledBelowSeparator,
+          undefined,
+        ],
+        [
+          'should',
+          "top edge is below container's visible bottom when showUnreadNotificationAlways enabled",
+          observerEntriesScrolledAboveSeparator,
+          { showUnreadNotificationAlways: true },
+        ],
+        [
+          'should not',
+          "top edge is below container's visible bottom when showUnreadNotificationAlways disabled",
+          observerEntriesScrolledAboveSeparator,
+          { showUnreadNotificationAlways: false },
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top when showUnreadNotificationAlways disabled",
+          observerEntriesScrolledBelowSeparator,
+          { showUnreadNotificationAlways: false },
+        ],
+        [
+          'should',
+          "bottom edge is above container's visible top when showUnreadNotificationAlways enabled",
+          observerEntriesScrolledBelowSeparator,
+          { showUnreadNotificationAlways: true },
+        ],
+      ])(
+        '%s display unread messages notification when unread messages separator %s',
+        async (expected, __, entries, msgListProps) => {
+          await setupTest({
+            entries,
+            msgListProps,
+          });
+          if (expected === 'should') {
+            expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).toBeInTheDocument();
+          } else {
+            expect(
+              screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
+            ).not.toBeInTheDocument();
+          }
+        },
+      );
+
+      it('should display custom unread messages notification', async () => {
+        const customUnreadMessagesNotificationText = 'customUnreadMessagesNotificationText';
+        const UnreadMessagesNotification = () => <div>{customUnreadMessagesNotificationText}</div>;
+        await setupTest({
+          channelProps: { UnreadMessagesNotification },
+          entries: observerEntriesScrolledBelowSeparator,
+        });
+
+        expect(screen.getByText(customUnreadMessagesNotificationText)).toBeInTheDocument();
+      });
+
+      it('should not display unread messages notification when unread count is 0', async () => {
+        await setupTest({
+          dispatchMarkUnreadPayload: { unread_messages: 0 },
+          entries: observerEntriesScrolledBelowSeparator,
+        });
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not display unread messages notification IntersectionObserver is undefined', async () => {
+        window.IntersectionObserver = undefined;
+        await setupTest({ entries: observerEntriesScrolledBelowSeparator });
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not display unread messages notification in thread', async () => {
+        await setupTest({
+          entries: observerEntriesScrolledBelowSeparator,
+          msgListProps: { threadList: true },
+        });
+        expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).not.toBeInTheDocument();
+      });
+    });
+
+    describe('ScrollToBottomButton', () => {
+      const BUTTON_TEST_ID = 'message-notification';
+      const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
+      const MockMessageListNotifications = (props) => (
+        <MessageListNotifications {...props} isMessageListScrolledToBottom={false} />
+      );
+
+      it('does not reflect the channel unread  UI state', async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+
+        await act(() => {
+          renderComponent({
+            channelProps: {
+              channel,
+              MessageListNotifications: MockMessageListNotifications,
+              MessageNotification: ScrollToBottomButton,
+            },
+            chatClient: client,
+            msgListProps: { messages },
+          });
+        });
+
+        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+        await act(() => {
+          dispatchMarkUnreadForChannel({ channel, client });
+        });
+
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('does not reflect the channel unread state in a thread', async () => {
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+
+        await act(() => {
+          renderComponent({
+            channelProps: {
+              channel,
+              MessageListNotifications: MockMessageListNotifications,
+              MessageNotification: ScrollToBottomButton,
+            },
+            chatClient: client,
+            msgListProps: { messages, threadList: true },
+          });
+        });
+
+        expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+
+        await act(() => {
+          dispatchMarkUnreadForChannel({ channel, client });
+        });
+        expect(screen.queryByTestId(NEW_MESSAGE_COUNTER_TEST_ID)).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('props forwarded to Message', () => {
+    it.each([
+      ['getMarkMessageUnreadErrorNotification'],
+      ['getMarkMessageUnreadSuccessNotification'],
+    ])('calls %s', async (funcName) => {
+      const markUnreadSpy = jest.spyOn(channel, 'markUnread');
+      if (funcName === 'getMarkMessageUnreadErrorNotification')
+        markUnreadSpy.mockRejectedValueOnce();
+
+      const message = generateMessage();
+      const notificationFunc = jest.fn();
+      const Message = () => {
+        const { handleMarkUnread } = useMessageContext();
+        useEffect(() => {
+          const event = { preventDefault: () => null };
+          handleMarkUnread(event);
+        }, [handleMarkUnread]);
+        return null;
+      };
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient,
+          msgListProps: { [funcName]: notificationFunc, Message, messages: [message] },
+        });
+      });
+
+      expect(notificationFunc).toHaveBeenCalledWith(expect.objectContaining(message));
+    });
   });
 });

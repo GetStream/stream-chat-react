@@ -1,0 +1,83 @@
+---
+id: livestream-setup
+sidebar_position: 22
+title: Livestream Best Practices
+keywords: [example, virtualized message list, livestream]
+---
+
+import MarginInspector from '../assets/margin-inspector.png';
+import MessageHeight from '../assets/message-height.png';
+
+Livestream chat UI poses several hard technological challenges since users can spend a few hours watching a certain event. For that period, the chat UI should be able to handle a constant stream of messages, reactions, and media attachments.
+
+The React SDK offers a special component for that purpose - the `VirtualizedMessageList`. The component renders only the messages visible in the viewport and dynamically updates its contents as the user scrolls.
+This decreases browser memory usage and does not degrade the performance of the page even if the user receives thousands of messages in a single session.
+
+In this article, we will go through the best practices and tweaks for configuring the `VirtualizedMessageList` to ensure a smooth user experience during a high message traffic.
+
+## Get Started
+
+The `VirtualizedMessageList` is mostly compatible with the non-virtualized `MessageList`, although not all properties are the same. The simplest configuration and placement are the same:
+
+```tsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel>
+    <VirtualizedMessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+With this configuration, the virtualized list will look identical to the non-virtualized version. With the next few steps, we can configure the component for maximum performance.
+
+## Disable the automatic scroll to bottom transition
+
+By default, the `VirtualizedMessageList` will scroll down to display new messages using the `"smooth"` scroll behavior ([MDN link](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo#examples)). This works well for moderately busy chat rooms but can be unwieldy in chats with more than 2-3 incoming messages per second. A safer, snappier option is `"auto"`. With that setting, the list scrolls to the latest received message instantly.
+
+```tsx
+<VirtualizedMessageList stickToBottomScrollBehavior='auto' />
+```
+
+## Specify the default item height
+
+The `VirtualizedMessageList` supports items with varying heights and automatically keeps track of the rendered item sizes, while estimating the not-yet-rendered sizes based on latest message during load. To optimize this further and minimize potential recalculations, set the `defaultItemHeight` to the height of your usual one-line message (If in doubt, use the developer tools inspector to determine the sizing).
+
+<img src={MessageHeight} alt='Message Height' width='700' />
+
+The element above is `58px` tall, so let's put that at the `defaultItemHeight` prop value:
+
+```tsx
+<VirtualizedMessageList defaultItemHeight={58} />
+```
+
+## Avoid vertical CSS margins
+
+If the custom Message component has vertical margins that affect its height, the message list might behave erratically (blinking, rendering white areas, etc).
+
+This could be a potential pitfall if you're using a custom message component. The `VirtualizedMessageList` uses `getBoundingClientRect` ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect)) on the outermost message element.
+This method does not measure CSS margins, which are tricky to measure in the first place [due to collapsing](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model/Mastering_margin_collapsing).
+If the custom Message component has vertical margins that affect its height, the message list might behave erratically (blinking, rendering white areas, etc).
+
+Use your DOM inspector and look for any orange gaps between the message elements. See the screenshot below for example of headings with margins:
+
+<img src={MarginInspector} alt='Margin Inspector' width='700' />
+
+## Choose the right Giphy size
+
+This practice is not unique to the virtualized message list but might help you build a more compact chat timeline and reduce the overall traffic for your users. By default, the Giphy attachments [use the original Giphy version image](https://developers.giphy.com/docs/api/schema#image-object). You can override that by setting the `giphyVersion` property of the `Channel` Component to a smaller one - use the keys [from the Giphy documentation](https://developers.giphy.com/docs/api/schema#image-object).
+
+```tsx
+<Chat client={client}>
+  <ChannelList />
+  <Channel giphyVersion='fixed_height_small'>
+    <VirtualizedMessageList />
+    <MessageInput />
+  </Channel>
+</Chat>
+```
+
+## Design reactions so that they don't change the message size
+
+One final best practice: make sure that adding reactions to the message does not increase the message height if you're using a custom `Message` component. Good examples for such design would be the chat boxes of Twitch and Telegram.
+Avoiding that will make the message list appear more stable and less jumpy during high traffic.

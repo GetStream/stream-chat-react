@@ -1,30 +1,20 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import EmojiComponentMock from 'emoji-mart/dist-modern/components/emoji/nimble-emoji';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
 import { ReactionSelector } from '../ReactionSelector';
+import { defaultReactionOptions } from '../reactionOptions';
+import * as utils from '../utils/utils';
 
 import { Avatar as AvatarMock } from '../../Avatar';
-import { defaultMinimalEmojis } from '../../Channel/emojiData';
 
 import { ComponentProvider } from '../../../context/ComponentContext';
-import { EmojiProvider } from '../../../context/EmojiContext';
 import { MessageProvider } from '../../../context/MessageContext';
 
-import {
-  emojiComponentMock,
-  emojiDataMock,
-  generateReaction,
-  generateUser,
-} from '../../../mock-builders';
-
-jest.mock('emoji-mart/dist-modern/components/emoji/nimble-emoji', () =>
-  jest.fn(({ emoji }) => <div data-testid={`emoji-${emoji.id}`} />),
-);
+import { generateReaction, generateUser } from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div data-testid='avatar' />),
@@ -45,18 +35,9 @@ const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
   render(
-    <ComponentProvider value={{ Avatar: AvatarMock }}>
+    <ComponentProvider value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}>
       <MessageProvider value={{}}>
-        <EmojiProvider
-          value={{
-            Emoji: emojiComponentMock.Emoji,
-            emojiConfig: emojiDataMock,
-            EmojiIndex: emojiComponentMock.EmojiIndex,
-            EmojiPicker: emojiComponentMock.EmojiPicker,
-          }}
-        >
-          <ReactionSelector handleReaction={handleReactionMock} {...props} />
-        </EmojiProvider>
+        <ReactionSelector handleReaction={handleReactionMock} {...props} />
       </MessageProvider>
     </ComponentProvider>,
   );
@@ -66,28 +47,42 @@ describe('ReactionSelector', () => {
     jest.clearAllMocks();
   });
 
-  it('should render each of default emojis if reactionOptions prop is not specified', async () => {
-    const { container } = renderComponent();
+  it('should render each of default emojis from image sprite', async () => {
+    jest.spyOn(utils, 'getImageDimensions').mockResolvedValue([128, 192]);
 
-    defaultMinimalEmojis.forEach((emoji) => {
-      expect(EmojiComponentMock).toHaveBeenCalledWith(expect.objectContaining({ emoji }), {});
+    const { container, queryAllByTestId } = renderComponent();
+
+    await waitFor(() => {
+      expect(queryAllByTestId('sprite-image')).toHaveLength(5);
     });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render fallbacks of each of the default emojis if sprite did not load', async () => {
+    jest.spyOn(utils, 'getImageDimensions').mockRejectedValue('Error');
+    jest.spyOn(console, 'error').mockImplementation(null);
+
+    const { container, getByText } = renderComponent();
+
+    await waitFor(() => {
+      expect(getByText('❤️')).toBeInTheDocument();
+    });
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it('should render each of reactionOptions if specified', async () => {
     const reactionOptions = [
-      { emoji: 'angry', id: 'angry' },
-      { emoji: 'banana', id: 'banana' },
+      { Component: jest.fn(() => null), type: 'test1' },
+      { Component: jest.fn(() => null), type: 'test2' },
     ];
     const { container } = renderComponent({ reactionOptions });
 
-    reactionOptions.forEach((emoji) => {
-      expect(EmojiComponentMock).toHaveBeenCalledWith(
-        expect.objectContaining({ emoji: expect.objectContaining(emoji) }),
-        {},
-      );
+    reactionOptions.forEach((option) => {
+      expect(option.Component).toHaveBeenCalledTimes(1);
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -113,21 +108,21 @@ describe('ReactionSelector', () => {
 
   it('should render the count of reactions for each reaction', async () => {
     const love = 1;
-    const angry = 2;
+    const haha = 2;
     const { container, getByText } = renderComponent({
       reaction_counts: {
-        angry,
+        haha,
         love,
       },
     });
 
     const loveCount = getByText(`${love}`);
-    const angryCount = getByText(`${angry}`);
+    const hahaCount = getByText(`${haha}`);
 
     expect(loveCount).toBeInTheDocument();
-    expect(angryCount).toBeInTheDocument();
+    expect(hahaCount).toBeInTheDocument();
     expect(loveCount.parentElement).toHaveAttribute('data-text', 'love');
-    expect(angryCount.parentElement).toHaveAttribute('data-text', 'angry');
+    expect(hahaCount.parentElement).toHaveAttribute('data-text', 'haha');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -181,9 +176,9 @@ describe('ReactionSelector', () => {
   });
 
   it('should call handleReaction if an emoji is clicked', async () => {
-    const { container, getByTestId } = renderComponent();
+    const { container, getByText } = renderComponent();
 
-    const emoji = getByTestId('emoji-love');
+    const emoji = getByText('❤️');
 
     fireEvent.click(emoji);
 

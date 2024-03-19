@@ -71,25 +71,6 @@ test.describe('thread autoscroll', () => {
       await message.scrollIntoViewIfNeeded();
       await expectToOpenThreadAndSeeLatestMessage(page, user, MESSAGES_WITH_REPLIES[1]);
     });
-
-    test('if I scroll primary message list by clicking a quoted message already loaded in state', async ({
-      page,
-      user,
-    }) => {
-      await user.clicks(QuotedMessage).nth(QUOTED_MESSAGES[0]);
-      await expectToOpenThreadAndSeeLatestMessage(page, user, QUOTED_MESSAGES[0]);
-    });
-
-    test('if I scroll primary message list by clicking a quoted message that has to be loaded in state', async ({
-      page,
-      user,
-    }) => {
-      await user.clicks(QuotedMessage).nth(QUOTED_MESSAGES[1], 2);
-      await Promise.all([
-        page.waitForResponse((r) => r.url().includes('/messages') && r.ok()),
-        expectToOpenThreadAndSeeLatestMessage(page, user, QUOTED_MESSAGES[1]),
-      ]);
-    });
   });
 
   test.describe('on new message', () => {
@@ -184,72 +165,5 @@ test.describe('scroll to the bottom', () => {
     await user
       .sees(MessageList)
       .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
-  });
-
-  test('after loading more messages on new message notification click', async ({
-    controller,
-    page,
-    user,
-  }) => {
-    // scroll without loading more messages
-    await scrollInSteps(user);
-
-    // trigger load more messages
-    const firstLoadedMessage = await page.locator(
-      `${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer} li:first-of-type`,
-    );
-    await firstLoadedMessage.scrollIntoViewIfNeeded();
-    await controller.sendOtherUserMessage();
-
-    // click the notification
-    await page.waitForSelector(getMessageNotificationSelector(NEW_MESSAGE_NOTIFICATION_TEXT));
-    await user.clicks(MessageNotification).text(NEW_MESSAGE_NOTIFICATION_TEXT);
-
-    // check that you are at the bottom
-    await user
-      .sees(MessageList)
-      .isScrolledToBottom(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageListContainer}`);
-  });
-});
-
-test.describe('pagination', () => {
-  test.beforeEach(async ({ controller, user }) => {
-    await controller.openStory(
-      'navigate-long-message-lists--user1',
-      selectors.channelPreviewButton,
-    );
-    await user.clicks(ChannelPreview).text(CHANNEL_NAME);
-  });
-
-  test('does not lead to the viewport content change', async ({ page, user }) => {
-    const messageList = await page.locator(`${USER1_CHAT_VIEW_CLASSNAME} ${selectors.messageList}`);
-
-    const firstMessageFirstPage = await user.get(Message)(FIRST_MESSAGE_FIRST_PAGE);
-
-    let firstLoadedMessageBoxBeforePagination;
-    const msgListBoxBeforePagination = await messageList.boundingBox();
-
-    // get message position before the next page of messages is received
-    page.once('request', async () => {
-      firstLoadedMessageBoxBeforePagination = await firstMessageFirstPage.boundingBox();
-    });
-
-    await Promise.all([
-      page.waitForResponse((r) => r.url().includes('/query') && r.ok()),
-      firstMessageFirstPage.scrollIntoViewIfNeeded(),
-    ]);
-
-    const msgListBoxAfterPagination = await messageList.boundingBox();
-    const firstLoadedMessageBoxAfterPagination = await firstMessageFirstPage.boundingBox();
-
-    const firstMessageShiftDistanceYToViewport =
-      firstLoadedMessageBoxBeforePagination.y - firstLoadedMessageBoxAfterPagination.y;
-    expect(firstMessageShiftDistanceYToViewport).toBeLessThanOrEqual(
-      firstLoadedMessageBoxBeforePagination.height,
-    );
-    expect(firstMessageShiftDistanceYToViewport).toBeGreaterThanOrEqual(
-      -firstLoadedMessageBoxBeforePagination.height,
-    );
-    expect(msgListBoxBeforePagination.height).not.toStrictEqual(msgListBoxAfterPagination.height);
   });
 });

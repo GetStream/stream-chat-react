@@ -1,0 +1,54 @@
+---
+id: message_actions
+sidebar_position: 3
+title: Message Actions
+---
+
+import CustomMessageAction from '../../../assets/CustomMessageAction.png';
+
+In this example, we will demonstrate how to add a custom message action. By default, the component library supports
+the following message actions:
+
+- `delete`
+- `edit`
+- `flag`
+- `mute`
+- `pin`
+- `quote`
+- `react`
+- `reply`
+
+The `MessageList` component accepts a prop called [`customMessageActions`](../../../components/core-components/message-list.mdx#custommessageactions).
+This prop is an object type, with the key serving as the name of the action and the value as the handler function to be run on click.
+
+In the simple example below, we'll add a custom option `Yell`, which will call a window alert on click.
+
+:::note
+The custom action handler receives both the `message` object and on click `event` as function arguments.
+:::
+
+```tsx
+const yellActionHandler = (message: StreamMessage, event: React.BaseSyntheticEvent) => {
+  // do something custom with the message and event
+  window.alert('Yell Action Clicked!');
+};
+
+const customMessageActions = { Yell: yellActionHandler };
+```
+
+Once the mapping of custom actions has been created, pass it to the `MessageList` component.
+
+```tsx
+const App = () => (
+  <Chat client={client}>
+    <Channel channel={channel}>
+      <MessageList customMessageActions={customMessageActions} />
+      <MessageInput />
+    </Channel>
+  </Chat>
+);
+```
+
+The custom actions will display on top of the defaults in the message actions list.
+
+<img src={CustomMessageAction} alt='Custom Message Action' width='700' />

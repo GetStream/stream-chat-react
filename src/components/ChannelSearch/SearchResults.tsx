@@ -142,17 +142,21 @@ const DefaultSearchResultItem = <
 const ResultsContainer = ({
   children,
   popupResults,
-}: PropsWithChildren<{ popupResults?: boolean }>) => (
-  <div
-    aria-label='Channel search results'
-    className={clsx(
-      `str-chat__channel-search-container str-chat__channel-search-result-list`,
-      popupResults ? 'popup' : 'inline',
-    )}
-  >
-    {children}
-  </div>
-);
+}: PropsWithChildren<{ popupResults?: boolean }>) => {
+  const { t } = useTranslationContext('ResultsContainer');
+
+  return (
+    <div
+      aria-label={t('aria/Channel search results')}
+      className={clsx(
+        `str-chat__channel-search-container str-chat__channel-search-result-list`,
+        popupResults ? 'popup' : 'inline',
+      )}
+    >
+      {children}
+    </div>
+  );
+};
 
 export type SearchResultsController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -227,6 +231,7 @@ export const SearchResults = <
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResult],
   );
 

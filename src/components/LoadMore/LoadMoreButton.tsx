@@ -1,6 +1,7 @@
 import React, { PropsWithChildren, useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
+import { useTranslationContext } from '../../context';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
@@ -15,27 +16,31 @@ export type LoadMoreButtonProps = {
 };
 
 const UnMemoizedLoadMoreButton = ({
-  children = 'Load more',
+  children,
   isLoading,
   onClick,
   refreshing,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
+  const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
+
+  const childrenOrDefaultString = children ?? t<string>('Load more');
   const loading = typeof isLoading !== 'undefined' ? isLoading : refreshing;
 
   useEffect(() => {
     deprecationAndReplacementWarning([[{ refreshing }, { isLoading }]], 'LoadMoreButton');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className='str-chat__load-more-button'>
       <button
-        aria-label='Load More Channels'
+        aria-label={t('aria/Load More Channels')}
         className='str-chat__load-more-button__button str-chat__cta-button'
         data-testid='load-more-button'
         disabled={loading}
         onClick={onClick}
       >
-        {loading ? <LoadingIndicator /> : children}
+        {loading ? <LoadingIndicator /> : childrenOrDefaultString}
       </button>
     </div>
   );

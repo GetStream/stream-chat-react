@@ -5,6 +5,10 @@
     {
       "name": "beta",
       "prerelease": true
+    },
+    {
+      "name": "rc",
+      "prerelease": true
     }
   ],
   "plugins": [
@@ -12,10 +16,48 @@
       "@semantic-release/commit-analyzer",
       {
         "preset": "angular",
-        "releaseRules": [{ "type": "chore", "scope": "deps", "release": "patch" }]
+        "releaseRules": [
+          { "type": "chore", "scope": "deps", "release": "patch" },
+          { "type": "refactor", "release": "patch" }
+        ]
       }
     ],
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {
+              "type": "fix",
+              "section": "Bug Fixes",
+              "hidden": false
+            },
+            {
+              "type": "feat",
+              "section": "Features",
+              "hidden": false
+            },
+            {
+              "type": "chore",
+              "scope": "deps",
+              "section": "Chores",
+              "hidden": false
+            },
+            {
+              "type": "refactor",
+              "section": "Refactors",
+              "hidden": false
+            },
+            {
+              "type": "perf",
+              "section": "Performance Improvements",
+              "hidden": false
+            }
+          ]
+        }
+      }
+    ],
     [
       "@semantic-release/changelog",
       {

@@ -35,6 +35,18 @@ const ActiveChannelSetter = ({ activeChannel }) => {
   return null;
 };
 
+const searchIndexMock = {
+  search: () => [
+    {
+      emoticons: [':D'],
+      id: 'smile',
+      name: 'Smile',
+      native: '😄',
+      skins: [],
+    },
+  ],
+};
+
 const renderComponent = async (
   props = {},
   messageInputContextOverrides = {},
@@ -63,7 +75,7 @@ const renderComponent = async (
     <Chat client={chatClient}>
       <ActiveChannelSetter activeChannel={activeChannel} />
       <Channel>
-        <MessageInput Input={AutoComplete} />
+        <MessageInput emojiSearchIndex={searchIndexMock} Input={AutoComplete} />
       </Channel>
     </Chat>,
   );
@@ -83,13 +95,13 @@ describe('ChatAutoComplete', () => {
   beforeEach(async () => {
     const messages = [generateMessage({ user })];
     const members = [generateMember({ user }), generateMember({ user: mentionUser })];
-    const mockedChannel = generateChannel({
+    const mockedChannelData = generateChannel({
       members,
       messages,
     });
     chatClient = await getTestClientWithUser(user);
-    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', mockedChannel.id);
+    useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
+    channel = chatClient.channel('messaging', mockedChannelData.channel.id);
   });
 
   afterEach(cleanup);
@@ -123,14 +135,18 @@ describe('ChatAutoComplete', () => {
   it('should let you select emojis when you type :<emoji>', async () => {
     const emojiAutocompleteText = ':smile';
     const { findByText, textarea, typeText } = await renderComponent();
+
     typeText(emojiAutocompleteText);
+
     const emoji = await findByText('😄');
 
     expect(emoji).toBeInTheDocument();
 
     fireEvent.click(emoji);
 
-    expect(textarea.value).toContain('😄');
+    await waitFor(() => {
+      expect(textarea.value).toContain('😄');
+    });
   });
 
   it('should let you select users when you type @<username>', async () => {
@@ -200,6 +216,31 @@ describe('ChatAutoComplete', () => {
 
     // eslint-disable-next-line jest-dom/prefer-in-document
     expect(userText).toHaveLength(0);
+  });
+
+  it('should disable popup list when the input is in "isComposing" state', async () => {
+    const { findAllByText, findByTestId, queryAllByText, typeText } = await renderComponent();
+
+    const messageInput = await findByTestId('message-input');
+
+    act(() => {
+      const cStartEvent = new Event('compositionstart', { bubbles: true });
+      messageInput.dispatchEvent(cStartEvent);
+    });
+
+    const userAutocompleteText = `@${user.name}`;
+    typeText(userAutocompleteText);
+
+    // eslint-disable-next-line jest-dom/prefer-in-document
+    expect(await queryAllByText(user.name)).toHaveLength(0);
+
+    act(() => {
+      const cEndEvent = new Event('compositionend', { bubbles: true });
+      messageInput.dispatchEvent(cEndEvent);
+    });
+
+    // eslint-disable-next-line jest-dom/prefer-in-document
+    expect(await findAllByText(user.name)).toHaveLength(2);
   });
 
   it('should use the queryMembers API for mentions if a channel has many members', async () => {

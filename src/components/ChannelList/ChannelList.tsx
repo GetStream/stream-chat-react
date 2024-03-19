@@ -13,7 +13,7 @@ import { useMobileNavigation } from './hooks/useMobileNavigation';
 import { useNotificationAddedToChannelListener } from './hooks/useNotificationAddedToChannelListener';
 import { useNotificationMessageNewListener } from './hooks/useNotificationMessageNewListener';
 import { useNotificationRemovedFromChannelListener } from './hooks/useNotificationRemovedFromChannelListener';
-import { usePaginatedChannels } from './hooks/usePaginatedChannels';
+import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
 
@@ -31,6 +31,7 @@ import {
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 
+import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
@@ -63,6 +64,8 @@ export type ChannelListProps<
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
+  /** Custom function that handles the channel pagination. Has to build query filters, sort and options and query and append channels to the current channels state and update the hasNext pagination flag after each query. */
+  customQueryChannels?: CustomQueryChannelsFn<StreamChatGenerics>;
   /** Custom UI component for rendering an empty list, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx) */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** An object containing channel query filters */
@@ -110,6 +113,11 @@ export type ChannelListProps<
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
     event: Event<StreamChatGenerics>,
   ) => void;
+  /** Function to override the default behavior when a message is received on a channel being watched, handles [message.new](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
+  onMessageNewHandler?: (
+    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+    event: Event<StreamChatGenerics>,
+  ) => void;
   /** Function to override the default behavior when a user gets removed from a channel, corresponds to [notification.removed\_from\_channel](https://getstream.io/chat/docs/javascript/event_object/?language=javascript) event */
   onRemovedFromChannel?: (
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
@@ -121,6 +129,13 @@ export type ChannelListProps<
   Paginator?: React.ComponentType<PaginatorProps | LoadMorePaginatorProps>;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelPreviewMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx) */
   Preview?: React.ComponentType<ChannelPreviewUIComponentProps<StreamChatGenerics>>;
+  /**
+   * Custom interval during which the recovery channel list queries will be prevented.
+   * This is to avoid firing unnecessary queries during internet connection fluctuation.
+   * Recovery channel query is triggered upon `connection.recovered` and leads to complete channel list reload with pagination offset 0.
+   * The minimum throttle interval is 2000ms. The default throttle interval is 5000ms.
+   */
+  recoveryThrottleIntervalMs?: number;
   /** Function to override the default behavior when rendering channels, so this function is called instead of rendering the Preview directly */
   renderChannels?: (
     channels: Channel<StreamChatGenerics>[],
@@ -150,6 +165,7 @@ const UnMemoizedChannelList = <
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
     customActiveChannel,
+    customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
     LoadingErrorIndicator = ChatDown,
@@ -163,10 +179,12 @@ const UnMemoizedChannelList = <
     onChannelUpdated,
     onChannelVisible,
     onMessageNew,
+    onMessageNewHandler,
     onRemovedFromChannel,
     options,
     Paginator = LoadMorePaginator,
     Preview,
+    recoveryThrottleIntervalMs,
     renderChannels,
     sendChannelsToList = false,
     setActiveChannelOnMount = true,
@@ -243,11 +261,13 @@ const UnMemoizedChannelList = <
       setSearchActive(true);
     }
     additionalChannelSearchProps?.onSearch?.(event);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSearchExit = useCallback(() => {
     setSearchActive(false);
     additionalChannelSearchProps?.onSearchExit?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
@@ -256,13 +276,20 @@ const UnMemoizedChannelList = <
     sort || DEFAULT_SORT,
     options || DEFAULT_OPTIONS,
     activeChannelHandler,
+    recoveryThrottleIntervalMs,
+    customQueryChannels,
   );
 
   const loadedChannels = channelRenderFilterFn ? channelRenderFilterFn(channels) : channels;
 
   useMobileNavigation(channelListRef, navOpen, closeMobileNav);
 
-  useMessageNewListener(setChannels, lockChannelOrder, allowNewMessagesFromUnfilteredChannels);
+  useMessageNewListener(
+    setChannels,
+    onMessageNewHandler,
+    lockChannelOrder,
+    allowNewMessagesFromUnfilteredChannels,
+  );
   useNotificationMessageNewListener(
     setChannels,
     onMessageNew,
@@ -296,6 +323,7 @@ const UnMemoizedChannelList = <
       client.off('channel.deleted', handleEvent);
       client.off('channel.hidden', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel?.cid]);
 
   const renderChannel = (item: Channel<StreamChatGenerics>) => {
@@ -327,7 +355,7 @@ const UnMemoizedChannelList = <
 
   const showChannelList = !searchActive || additionalChannelSearchProps?.popupResults;
   return (
-    <>
+    <ChannelListContextProvider value={{ channels, setChannels }}>
       <div className={className} ref={channelListRef}>
         {showChannelSearch && (
           <ChannelSearch
@@ -341,7 +369,10 @@ const UnMemoizedChannelList = <
           <List
             error={channelsQueryState.error}
             loadedChannels={sendChannelsToList ? loadedChannels : undefined}
-            loading={channelsQueryState.queryInProgress === 'reload'}
+            loading={
+              !!channelsQueryState.queryInProgress &&
+              ['reload', 'uninitialized'].includes(channelsQueryState.queryInProgress)
+            }
             LoadingErrorIndicator={LoadingErrorIndicator}
             LoadingIndicator={LoadingIndicator}
             setChannels={setChannels}
@@ -362,7 +393,7 @@ const UnMemoizedChannelList = <
           </List>
         )}
       </div>
-    </>
+    </ChannelListContextProvider>
   );
 };
 

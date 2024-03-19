@@ -5,8 +5,10 @@ import updateLocale from 'dayjs/plugin/updateLocale';
 import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
-import type moment from 'moment';
+import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { TDateTimeParser } from '../context/TranslationContext';
@@ -57,6 +59,8 @@ type CalendarLocaleConfig = {
 };
 
 Dayjs.extend(updateLocale);
+Dayjs.extend(utc);
+Dayjs.extend(timezone);
 
 Dayjs.updateLocale('de', {
   calendar: {
@@ -227,17 +231,26 @@ const en_locale = {
   weekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 };
 
+type DateTimeParserModule = typeof Dayjs | typeof momentTimezone;
 // Type guards to check DayJs
-const isDayJs = (dateTimeParser: typeof Dayjs | typeof moment): dateTimeParser is typeof Dayjs =>
+const isDayJs = (dateTimeParser: DateTimeParserModule): dateTimeParser is typeof Dayjs =>
   (dateTimeParser as typeof Dayjs).extend !== undefined;
 
-type Options = {
-  DateTimeParser?: typeof Dayjs | typeof moment;
+type TimezoneParser = {
+  tz: momentTimezone.MomentTimezone | Dayjs.Dayjs;
+};
+const supportsTz = (dateTimeParser: unknown): dateTimeParser is TimezoneParser =>
+  (dateTimeParser as TimezoneParser).tz !== undefined;
+
+export type Streami18nOptions = {
+  DateTimeParser?: DateTimeParserModule;
   dayjsLocaleConfigForLanguage?: Partial<ILocale> & { calendar?: CalendarLocaleConfig };
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   language?: TranslationLanguages;
   logger?: (message?: string) => void;
+  parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
+  timezone?: string;
   translationsForLanguage?: Partial<typeof enTranslations>;
 };
 
@@ -446,7 +459,7 @@ export class Streami18n {
    */
   logger: (msg?: string) => void;
   currentLanguage: TranslationLanguages;
-  DateTimeParser: typeof Dayjs | typeof moment;
+  DateTimeParser: DateTimeParserModule;
   isCustomDateTimeParser: boolean;
   i18nextConfig: {
     debug: boolean;
@@ -455,8 +468,12 @@ export class Streami18n {
     keySeparator: false;
     lng: string;
     nsSeparator: false;
-    parseMissingKeyHandler: (key: string) => string;
+    parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   };
+  /**
+   * A valid TZ identifier string (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+   */
+  timezone?: string;
   /**
    * Constructor accepts following options:
    *  - language (String) default: 'en'
@@ -483,7 +500,7 @@ export class Streami18n {
    *
    * @param {*} options
    */
-  constructor(options: Options = {}) {
+  constructor(options: Streami18nOptions = {}) {
     const finalOptions = {
       ...defaultStreami18nOptions,
       ...options,
@@ -492,6 +509,7 @@ export class Streami18n {
     this.logger = finalOptions.logger;
     this.currentLanguage = finalOptions.language;
     this.DateTimeParser = finalOptions.DateTimeParser;
+    this.timezone = finalOptions.timezone;
 
     try {
       if (this.DateTimeParser && isDayJs(this.DateTimeParser)) {
@@ -536,13 +554,11 @@ export class Streami18n {
       keySeparator: false,
       lng: this.currentLanguage,
       nsSeparator: false,
-
-      parseMissingKeyHandler: (key) => {
-        this.logger(`Streami18n: Missing translation for key: ${key}`);
-
-        return key;
-      },
     };
+
+    if (finalOptions.parseMissingKeyHandler) {
+      this.i18nextConfig.parseMissingKeyHandler = finalOptions.parseMissingKeyHandler;
+    }
 
     this.validateCurrentLanguage();
 
@@ -561,21 +577,21 @@ export class Streami18n {
     }
 
     this.tDateTimeParser = (timestamp) => {
-      if (finalOptions.disableDateTimeTranslations || !this.localeExists(this.currentLanguage)) {
-        /**
-         * TS needs to know which is being called to accept the chain call
-         */
-        if (isDayJs(this.DateTimeParser)) {
-          return this.DateTimeParser(timestamp).locale(defaultLng);
-        }
-        return this.DateTimeParser(timestamp).locale(defaultLng);
-      }
+      const language =
+        finalOptions.disableDateTimeTranslations || !this.localeExists(this.currentLanguage)
+          ? defaultLng
+          : this.currentLanguage;
 
       if (isDayJs(this.DateTimeParser)) {
-        return this.DateTimeParser(timestamp).locale(this.currentLanguage);
+        return supportsTz(this.DateTimeParser)
+          ? this.DateTimeParser(timestamp).tz(this.timezone).locale(language)
+          : this.DateTimeParser(timestamp).locale(language);
       }
 
-      return this.DateTimeParser(timestamp).locale(this.currentLanguage);
+      if (supportsTz(this.DateTimeParser) && this.timezone) {
+        return this.DateTimeParser(timestamp).tz(this.timezone).locale(language);
+      }
+      return this.DateTimeParser(timestamp).locale(language);
     };
   }
 

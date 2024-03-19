@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import throttle from 'lodash.throttle';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -7,6 +8,7 @@ import { getLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { MessageDeliveryStatus, useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 
 import type { Channel, Event } from 'stream-chat';
 
@@ -29,6 +31,8 @@ export type ChannelPreviewUIComponentProps<
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessage?: string | JSX.Element;
+  /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
+  messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -73,6 +77,10 @@ export const ChannelPreview = <
     channel.state.messages[channel.state.messages.length - 1],
   );
   const [unread, setUnread] = useState(0);
+  const { messageDeliveryStatus } = useMessageDeliveryStatus<StreamChatGenerics>({
+    channel,
+    lastMessage,
+  });
 
   const isActive = activeChannel?.cid === channel.cid;
   const { muted } = useIsChannelMuted(channel);
@@ -85,15 +93,32 @@ export const ChannelPreview = <
 
     client.on('notification.mark_read', handleEvent);
     return () => client.off('notification.mark_read', handleEvent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const refreshUnreadCount = useCallback(() => {
-    if (isActive || muted) {
-      setUnread(0);
-    } else {
+  useEffect(() => {
+    const handleEvent = (event: Event) => {
+      if (channel.cid !== event.cid) return;
+      if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
-    }
-  }, [channel, isActive, muted]);
+    };
+    channel.on('notification.mark_unread', handleEvent);
+    return () => {
+      channel.off('notification.mark_unread', handleEvent);
+    };
+  }, [channel, client]);
+
+  const refreshUnreadCount = useMemo(
+    () =>
+      throttle(() => {
+        if (muted) {
+          setUnread(0);
+        } else {
+          setUnread(channel.countUnread());
+        }
+      }, 400),
+    [channel, muted],
+  );
 
   useEffect(() => {
     refreshUnreadCount();
@@ -112,6 +137,7 @@ export const ChannelPreview = <
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshUnreadCount, channelUpdateCount]);
 
   if (!Preview) return null;
@@ -126,6 +152,7 @@ export const ChannelPreview = <
       displayTitle={displayTitle}
       lastMessage={lastMessage}
       latestMessage={latestMessage}
+      messageDeliveryStatus={messageDeliveryStatus}
       setActiveChannel={setActiveChannel}
       unread={unread}
     />

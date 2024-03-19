@@ -1,16 +1,18 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 
 import {
   useActionHandler,
   useDeleteHandler,
   useEditHandler,
   useFlagHandler,
+  useMarkUnreadHandler,
   useMentionsHandler,
   useMuteHandler,
   useOpenThreadHandler,
   usePinHandler,
   useReactionClick,
   useReactionHandler,
+  useReactionsFetcher,
   useRetryHandler,
   useUserHandler,
   useUserRole,
@@ -22,6 +24,7 @@ import {
   MessageProvider,
   useChannelActionContext,
   useChannelStateContext,
+  useChatContext,
   useComponentContext,
 } from '../../context';
 
@@ -34,10 +37,12 @@ type MessageContextPropsToPick =
   | 'handleAction'
   | 'handleDelete'
   | 'handleFlag'
+  | 'handleMarkUnread'
   | 'handleMute'
   | 'handleOpenThread'
   | 'handlePin'
   | 'handleReaction'
+  | 'handleFetchReactions'
   | 'handleRetry'
   | 'isReactionEnabled'
   | 'mutes'
@@ -45,7 +50,9 @@ type MessageContextPropsToPick =
   | 'onMentionsHoverMessage'
   | 'onReactionListClick'
   | 'reactionSelectorRef'
-  | 'showDetailedReactions';
+  | 'showDetailedReactions'
+  | 'sortReactions'
+  | 'sortReactionDetails';
 
 type MessageWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -71,6 +78,8 @@ const MessageWithContext = <
     userRoles,
   } = props;
 
+  const { client } = useChatContext('Message');
+  const { read } = useChannelStateContext('Message');
   const { Message: contextMessage } = useComponentContext<StreamChatGenerics>('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
@@ -87,6 +96,7 @@ const MessageWithContext = <
     canDelete,
     canEdit,
     canFlag,
+    canMarkUnread,
     canMute,
     canQuote,
     canReact,
@@ -94,19 +104,44 @@ const MessageWithContext = <
     isMyMessage,
   } = userRoles;
 
+  const messageIsUnread = useMemo(
+    () =>
+      !!(
+        !isMyMessage &&
+        client.user?.id &&
+        read &&
+        (!read[client.user.id] ||
+          (message?.created_at &&
+            new Date(message.created_at).getTime() > read[client.user.id].last_read.getTime()))
+      ),
+    [client, isMyMessage, message.created_at, read],
+  );
+
   const messageActionsHandler = useCallback(
     () =>
       getMessageActions(messageActions, {
         canDelete,
         canEdit,
         canFlag,
+        canMarkUnread,
         canMute,
         canPin,
         canQuote,
         canReact,
         canReply,
       }),
-    [messageActions, canDelete, canEdit, canFlag, canMute, canPin, canQuote, canReact, canReply],
+    [
+      messageActions,
+      canDelete,
+      canEdit,
+      canFlag,
+      canMarkUnread,
+      canMute,
+      canPin,
+      canQuote,
+      canReact,
+      canReply,
+    ],
   );
 
   const {
@@ -127,6 +162,7 @@ const MessageWithContext = <
     getMessageActions: messageActionsHandler,
     handleEdit: setEdit,
     isMyMessage: () => isMyMessage,
+    messageIsUnread,
     onUserClick,
     onUserHover,
     setEditingState: setEdit,
@@ -158,8 +194,11 @@ export const Message = <
     closeReactionSelectorOnClick,
     disableQuotedMessages,
     getDeleteMessageErrorNotification,
+    getFetchReactionsErrorNotification,
     getFlagMessageErrorNotification,
     getFlagMessageSuccessNotification,
+    getMarkMessageUnreadErrorNotification,
+    getMarkMessageUnreadSuccessNotification,
     getMuteUserErrorNotification,
     getMuteUserSuccessNotification,
     getPinMessageErrorNotification,
@@ -170,6 +209,8 @@ export const Message = <
     openThread: propOpenThread,
     pinPermissions,
     retrySendMessage: propRetrySendMessage,
+    sortReactionDetails,
+    sortReactions,
   } = props;
 
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
@@ -183,6 +224,11 @@ export const Message = <
   const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
 
+  const handleFetchReactions = useReactionsFetcher(message, {
+    getErrorNotification: getFetchReactionsErrorNotification,
+    notify: addNotification,
+  });
+
   const handleDelete = useDeleteHandler(message, {
     getErrorNotification: getDeleteMessageErrorNotification,
     notify: addNotification,
@@ -191,6 +237,12 @@ export const Message = <
   const handleFlag = useFlagHandler(message, {
     getErrorNotification: getFlagMessageErrorNotification,
     getSuccessNotification: getFlagMessageSuccessNotification,
+    notify: addNotification,
+  });
+
+  const handleMarkUnread = useMarkUnreadHandler(message, {
+    getErrorNotification: getMarkMessageUnreadErrorNotification,
+    getSuccessNotification: getMarkMessageUnreadSuccessNotification,
     notify: addNotification,
   });
 
@@ -233,7 +285,9 @@ export const Message = <
       groupStyles={props.groupStyles}
       handleAction={handleAction}
       handleDelete={handleDelete}
+      handleFetchReactions={handleFetchReactions}
       handleFlag={handleFlag}
+      handleMarkUnread={handleMarkUnread}
       handleMute={handleMute}
       handleOpenThread={handleOpenThread}
       handlePin={handlePin}
@@ -258,6 +312,8 @@ export const Message = <
       readBy={props.readBy}
       renderText={props.renderText}
       showDetailedReactions={showDetailedReactions}
+      sortReactionDetails={sortReactionDetails}
+      sortReactions={sortReactions}
       threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}
       userRoles={userRoles}

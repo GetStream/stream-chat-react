@@ -1,5 +1,5 @@
 import React from 'react';
-import { FilePreviewer, ImagePreviewer } from 'react-file-utils';
+import { FilePreviewer, ImagePreviewer } from '../ReactFileUtilities';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';

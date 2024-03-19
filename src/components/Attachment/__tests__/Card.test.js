@@ -15,8 +15,10 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  mockTranslationContext,
   useMockedApis,
 } from '../../../mock-builders';
+import { TranslationContext } from '../../../context';
 
 let chatClient;
 let channel;
@@ -31,11 +33,13 @@ const mockedChannel = generateChannel({
 const renderCard = ({ cardProps, chatContext, theRenderer = render }) =>
   theRenderer(
     <ChatProvider value={{ themeVersion: '1', ...chatContext }}>
-      <ChannelStateProvider value={{}}>
-        <ComponentProvider value={{}}>
-          <Card {...cardProps} />
-        </ComponentProvider>
-      </ChannelStateProvider>
+      <TranslationContext.Provider value={mockTranslationContext}>
+        <ChannelStateProvider value={{}}>
+          <ComponentProvider value={{}}>
+            <Card {...cardProps} />
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </TranslationContext.Provider>
     </ChatProvider>,
   );
 
@@ -164,10 +168,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -217,10 +222,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
           <div
@@ -296,10 +302,11 @@ describe('Card', () => {
           >
             <img
               alt="test"
-              class="str-chat__message-attachment--img"
+              class="str-chat__message-attachment--img str-chat__base-image"
               data-testid="image-test"
               src="test.jpg"
               tabindex="0"
+              title="test"
             />
           </div>
         </div>

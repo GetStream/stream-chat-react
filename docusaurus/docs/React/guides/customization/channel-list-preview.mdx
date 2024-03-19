@@ -1,6 +1,5 @@
 ---
 id: channel_list_preview
-sidebar_position: 3
 title: Channel List and Preview
 ---
 
@@ -133,7 +132,7 @@ export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
 Let's take advantage of the SDK's [CSS classes](../theming/css-and-theming.mdx) for styling. We'll import the bundled CSS into the file where the application is instantiated then apply a class to the button element.
 
 ```tsx
-import '@stream-io/stream-chat-css/dist/css/index.css';
+import 'stream-chat-react/dist/css/v2/index.css';
 
 <div
   className={'str-chat__channel-preview-messenger'}
@@ -141,7 +140,7 @@ import '@stream-io/stream-chat-css/dist/css/index.css';
 >
 ```
 
-Next, let's add a little bit more useful information to the component using more of the default props and a value pulled from the `ChatContext`, as well as some styling using custom CSS.
+Next, let's add a bit more useful information to the component using more of the default props and a value pulled from the `ChatContext`, as well as some styling using custom CSS.
 This context also exposes the client which makes it possible to use API methods.
 
 :::note

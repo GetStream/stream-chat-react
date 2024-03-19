@@ -6,6 +6,7 @@ import * as linkify from 'linkifyjs';
 
 import { AttachmentActions as DefaultAttachmentActions } from './AttachmentActions';
 import { Audio as DefaultAudio } from './Audio';
+import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
@@ -254,6 +255,20 @@ export const AudioContainer = <
   </AttachmentWithinContainer>
 );
 
+export const VoiceRecordingContainer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  attachment,
+  VoiceRecording = DefaultVoiceRecording,
+  isQuoted,
+}: RenderAttachmentProps<StreamChatGenerics>) => (
+  <AttachmentWithinContainer attachment={attachment} componentType='voiceRecording'>
+    <div className='str-chat__attachment'>
+      <VoiceRecording attachment={attachment} isQuoted={isQuoted} />
+    </div>
+  </AttachmentWithinContainer>
+);
+
 export const MediaContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -277,6 +292,7 @@ export const MediaContainer = <
       );
       setAttachmentConfiguration(config);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoElement, videoAttachmentSizeHandler, attachment]);
 
   const content = (

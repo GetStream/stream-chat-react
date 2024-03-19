@@ -24,7 +24,7 @@ export const QuotedMessagePreviewHeader = <
         {t<string>('Reply to Message')}
       </div>
       <button
-        aria-label='Cancel Reply'
+        aria-label={t('aria/Cancel Reply')}
         className='str-chat__square-button str-chat__quoted-message-remove'
         onClick={() => setQuotedMessage(undefined)}
       >
@@ -78,7 +78,9 @@ export const QuotedMessagePreview = <
           />
         )}
         <div className='quoted-message-preview-content-inner str-chat__quoted-message-bubble'>
-          {!!quotedMessageAttachment.length && <Attachment attachments={quotedMessageAttachment} />}
+          {!!quotedMessageAttachment.length && (
+            <Attachment attachments={quotedMessageAttachment} isQuoted />
+          )}
           <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
             {themeVersion === '2' && <p>{quotedMessageText}</p>}
             {themeVersion === '1' && <>{quotedMessageText}</>}
