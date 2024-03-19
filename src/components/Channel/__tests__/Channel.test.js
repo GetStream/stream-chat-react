@@ -1261,6 +1261,46 @@ describe('Channel', () => {
         expect(await findByText(messageText)).toBeInTheDocument();
       });
 
+      it('should mark message as received when the backend reports duplicated message id', async () => {
+        const { channel, chatClient } = await initClient();
+        // flag to prevent infinite loop
+        let hasSent = false;
+        const messageText = 'hello world';
+        const messageId = '123456';
+
+        let originalMessageStatus = null;
+
+        const { findByText } = await renderComponent(
+          {
+            channel,
+            chatClient,
+            children: <MockMessageList />,
+          },
+          ({ sendMessage }) => {
+            jest.spyOn(channel, 'sendMessage').mockImplementation((message) => {
+              originalMessageStatus = message.status;
+              throw new chatClient.errorFromResponse({
+                data: {
+                  code: 4,
+                  message: `SendMessage failed with error: "a message with ID ${message.id} already exists"`,
+                },
+                status: 400,
+              });
+            });
+            if (!hasSent) {
+              sendMessage({ text: messageText }, { id: messageId, status: 'sending' });
+            }
+            hasSent = true;
+          },
+        );
+        expect(await findByText(messageText)).toBeInTheDocument();
+        expect(originalMessageStatus).toBe('sending');
+
+        const msg = channel.state.findMessage(messageId);
+        expect(msg).toBeDefined();
+        expect(msg.status).toBe('received');
+      });
+
       it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
         const { channel, chatClient } = await initClient();
         // flag to prevent infinite loop

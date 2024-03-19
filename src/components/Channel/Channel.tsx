@@ -13,10 +13,12 @@ import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
 import {
+  APIErrorResponse,
   ChannelAPIResponse,
   ChannelMemberResponse,
   ChannelQueryOptions,
   ChannelState,
+  ErrorFromResponse,
   Event,
   EventAPIResponse,
   Message,
@@ -940,14 +942,34 @@ const ChannelInner = <
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
-      const parsedError = stringError ? JSON.parse(stringError) : {};
+      const parsedError = (stringError
+        ? JSON.parse(stringError)
+        : {}) as ErrorFromResponse<APIErrorResponse>;
 
-      updateMessage({
-        ...message,
-        error: parsedError,
-        errorStatusCode: (parsedError.status as number) || undefined,
-        status: 'failed',
-      });
+      // Handle the case where the message already exists
+      // (typically, when retrying to send a message).
+      // If the message already exists, we can assume it was sent successfully,
+      // so we update the message status to "received".
+      // Right now, the only way to check this error is by checking
+      // the combination of the error code and the error description,
+      // since there is no special error code for duplicate messages.
+      if (
+        parsedError.code === 4 &&
+        error instanceof Error &&
+        error.message.includes('already exists')
+      ) {
+        updateMessage({
+          ...message,
+          status: 'received',
+        });
+      } else {
+        updateMessage({
+          ...message,
+          error: parsedError,
+          errorStatusCode: parsedError.status || undefined,
+          status: 'failed',
+        });
+      }
     }
   };
 
