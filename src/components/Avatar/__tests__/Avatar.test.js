@@ -17,7 +17,7 @@ describe('Avatar', () => {
         onClick={[Function]}
         onMouseOver={[Function]}
         style={
-          Object {
+          {
             "flexBasis": "32px",
             "fontSize": "16px",
             "height": "32px",
@@ -43,7 +43,7 @@ describe('Avatar', () => {
         onClick={[Function]}
         onMouseOver={[Function]}
         style={
-          Object {
+          {
             "flexBasis": "32px",
             "fontSize": "16px",
             "height": "32px",
@@ -60,7 +60,7 @@ describe('Avatar', () => {
           onLoad={[Function]}
           src="random"
           style={
-            Object {
+            {
               "flexBasis": "32px",
               "height": "32px",
               "objectFit": "cover",
