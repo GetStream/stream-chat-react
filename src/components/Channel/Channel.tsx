@@ -833,9 +833,11 @@ const ChannelInner = <
             loadMoreFinished(hasMoreMessages, channel.state.messages);
             return;
           }
+
           const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
           if (!(messages.length && firstMessageWithCreationDate)) {
             addNotification(t('Failed to jump to the first unread message'), 'error');
+            loadMoreFinished(hasMoreMessages, channel.state.messages);
             return;
           }
           const firstMessageTimestamp = new Date(
@@ -850,6 +852,7 @@ const ChannelInner = <
             lastReadMessageId = result.target?.id;
             hasMoreMessages = result.index >= Math.floor(queryMessageLimit / 2);
           }
+          loadMoreFinished(hasMoreMessages, channel.state.messages);
         }
       }
 
