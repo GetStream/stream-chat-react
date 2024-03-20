@@ -5,16 +5,12 @@ title: Message UI
 
 import CustomMessage from '../../assets/CustomMessage.png';
 
-## How-to Guide for Building a Custom Message
+Using pre-built UI components from the library, the following guide walks you through the process of building a custom [Message UI](../../components/message-components/message-ui.mdx) component that looks great and comes packed with functionality. This component must be added to either the `Channel` or `MessageList` component via the `Message` prop.
 
-Using pre-built UI components from the library, the following guide walks you through the process of building a custom
-[Message UI](../../components/message-components/message-ui.mdx) component that looks great and comes packed with functionality. This
-component must be added to either the `Channel` or `MessageList` component via the `Message` prop.
+All the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext` custom hook. The return value from this hook contains all the values and functions needed to build a Message UI component.
 
-All the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext`
-custom hook. The return value from this hook contains all the values and functions needed to build a Message UI component.
-
-### UI Component Overview
+{/* TODO: move to Message UI */}
+### UI Component Overview 
 
 The custom Message UI component built below imports and uses the following UI components:
 
