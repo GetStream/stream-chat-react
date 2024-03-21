@@ -87,8 +87,10 @@ const CustomMessageInput = () => (
 ![](../../assets/message-input-ui-simple.png)
 
 Note that you should not render your custom message input directly, but instead pass it as a prop to
-either `Channel` or `MessageInput` component. That way, you can be sure that your input is wrapped
-with the necessary context providers, most importantly the `MessageInputContext`.
+either [`Channel`](../../components/core-components/channel.mdx) or
+[`MessageInput`](../../components/message-input-components/message-input.mdx) component. That way,
+you can be sure that your input is wrapped with the necessary context providers, most importantly
+the [`MessageInputContext`](../../components/contexts/message-input-context.mdx).
 
 ```jsx
 import {
@@ -117,7 +119,8 @@ export const App = () => (
 );
 ```
 
-For now, our custom input doesn't do anything. The `MessageInputContext` handles most of the
+For now, our custom input doesn't do anything. The
+[`MessageInputContext`](../../components/contexts/message-input-context.mdx) handles most of the
 input-related state and actions, so instead of handling the state yourself, just use the provided
 values and callbacks:
 
@@ -148,7 +151,8 @@ complete - try it out!
 
 To support adding attachments to the message, we should start by adding a file input. And similar to
 the "send" button, once a file is selected, we can use a callback provided in the
-`MessageInputContext` to upload it as an attachment:
+[`MessageInputContext`](../../components/contexts/message-input-context.mdx) to upload it as an
+attachment:
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -178,10 +182,12 @@ const AttachmentUploadButton = () => {
 
 There are two cases when uploads should not be allowed:
 
-1. Uploads are disabled for the current channel. We should check the `isUploadEnabled` value from
-   the `MessageInputContext` to make sure.
+1. Uploads are disabled for the current channel. We should check the
+   [`isUploadEnabled`](../../components/contexts/message-input-context.mdx#isuploadenabled) value
+   from the `MessageInputContext` to make sure.
 2. The maximum number of message attachments has been reached. For this we should check the
-   `maxFilesLeft` value from the `MessageInputContext`.
+   [`maxFilesLeft`](../../components/contexts/message-input-context.mdx#maxfilesleft) value from the
+   `MessageInputContext`.
 
 Let's add these two checks:
 
@@ -213,9 +219,12 @@ const AttachmentUploadButton = () => {
 ```
 
 Now we need a way to preview the added attachments. The SDK provides a ready-made component for
-this: `AttachmentPreviewList`. Instead of importing it directly, you can grab it from the
-`ComponentContext`, which is used throughout the SDK to provide overridable UI components, and only
-fall back to the default implementation if it hasn't been overridden:
+this:
+[`AttachmentPreviewList`](../../components/contexts/component-context.mdx#attachmentpreviewlist).
+Instead of importing it directly, you can grab it from the
+[`ComponentContext`](../../components/contexts/component-context.mdx), which is used throughout the
+SDK to provide overridable UI components, and only fall back to the default implementation if it
+hasn't been overridden:
 
 <Tabs groupId="example">
 <TabItem value="js" label="React">
@@ -309,12 +318,16 @@ the `Channel` level.
 However, if you need deep customization of the attachment preview list, and the out-of-the-box
 component doesn't meet your needs, it's fairly easy to implement it from scratch.
 
-The two relevant values from the `MessageInputContext` are `fileUploads` and `imageUploads`, which
-map upload ids to the objects that describe an attachment. Image attachments are usually treated
-differently from generic files, so it is convenient to keep the two attachment types are separate.
+The two relevant values from the `MessageInputContext` are
+[`fileUploads`](../../components/contexts/message-input-context.mdx#fileuploads) and
+[`imageUploads`](../../components/contexts/message-input-context.mdx#imageuploads), which map upload
+ids to the objects that describe an attachment. Image attachments are usually treated differently
+from generic files, so it is convenient to keep the two attachment types are separate.
 
-Since object keys come in no particular order, you can use `fileOrder` and `imageOrder` arrays,
-which specify the order of attachments by their ids.
+Since object keys come in no particular order, you can use
+[`fileOrder`](../../components/contexts/message-input-context.mdx#fileorder) and
+[`imageOrder`](../../components/contexts/message-input-context.mdx#imageorder) arrays, which specify
+the order of attachments by their ids.
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -580,24 +593,29 @@ const AttachmentActions = ({ type, attachment }) => {
 ## Displaying Link Previews
 
 If URL enrichment is enabled both in channel settings (enabled by default) and in the
-`urlEnrichmentConfig` of the `MessageInput` component (disabled by default), the SDK will
-automatically detect links in the message text (as long as it's set properly in the
-`MessageInputContext`) and create previews for them.
+[`urlEnrichmentConfig`](../../components/message-input-components/message-input.mdx#urlenrichmentconfig)
+of the `MessageInput` component (disabled by default), the SDK will automatically detect links in
+the message text (as long as it's set properly in the
+[`MessageInputContext`](../../components/contexts/message-input-context.mdx)) and create previews
+for them.
 
-To display link previews, you can use a pre-built `LinkPreviewList` component available in the
-`ComponentContext`. Using the `ComponentContext` allows you to hook into the component override
-mechanism used throughout the SDK.
+To display link previews, you can use a pre-built
+[`LinkPreviewList`](../../components/contexts/component-context.mdx#linkpreviewlist) component
+available in the [`ComponentContext`](../../components/contexts/component-context.mdx). Using the
+`ComponentContext` allows you to hook into the component override mechanism used throughout the SDK.
 
 So the rough idea is:
 
-1. Grab the `LinkPreviewList` from the `ComponentContext` (fall back to the default implementation
-   if the component wasn't overridden).
-2. Check if URL enrichment is enabled (`findAndEnqueueURLsToEnrich` value in the
-   `MessageInputContext`).
-3. Grab the `linkPreviews` from the `MessageInputContext` and pass them to the `LinkPreviewList`.
+1. Grab the [`LinkPreviewList`](../../components/contexts/component-context.mdx#linkpreviewlist)
+   from the `ComponentContext` (fall back to the default implementation if the component wasn't
+   overridden).
+2. Grab the [`linkPreviews`](../../components/contexts/message-input-context.mdx#linkpreviews) from
+   the `MessageInputContext` and pass them to the `LinkPreviewList`.
 
-The only thing to note here is that `linkPreviews` is a Map with URLs as keys and enriched data as
-values. Before passing it to the `LinkPreviewList`, we should convert it to an array:
+The only thing to note here is that
+[`linkPreviews`](../../components/contexts/message-input-context.mdx#linkpreviews) is a Map with
+URLs as keys and enriched data as values. Before passing it to the `LinkPreviewList`, we should
+convert it to an array:
 
 ```jsx
 import {
@@ -631,7 +649,8 @@ const CustomMessageInput = () => {
 ```
 
 As always, if you need deeper customization, you can implement the link preview component from
-scratch. Since all the necessary data can be found in the `linkPreviews` value of the
+scratch. Since all the necessary data can be found in the
+[`linkPreviews`](../../components/contexts/message-input-context.mdx#linkpreviews) value of the
 `MessageInputContext`, the implementation itself is quite simple.
 
 The link preview itself goes through several lifecycle states:
@@ -720,12 +739,15 @@ If the Slow Mode is configured for the current channel, we should prevent messag
 before the cooldown period has passed.
 
 The first thing we should do is disable or hide the "send" button while the cooldown period is in
-effect. We can use the `cooldownRemaining` value from the `MessageInputContext`: it's guaranteed to
-have a non-zero numeric value while the user is within a cooldown period. Note that to avoid
-excessive rendering, the value itself does not "tick down" every second.
+effect. We can use the
+[`cooldownRemaining`](../../components/contexts/message-input-context.mdx#cooldownremaining) value
+from the `MessageInputContext`: it's guaranteed to have a non-zero numeric value while the user is
+within a cooldown period, and to reset to a falsy value when the cooldown period ends. Note that to
+avoid excessive rendering, the value itself does not "tick down" every second.
 
-To provide visual feedback with a countdown, we can use the `CooldownTimer` component from the
-`ComponentContext`:
+To provide visual feedback with a countdown, we can use the
+[`CooldownTimer`](../../components/contexts/component-context.mdx#cooldowntimer) component from the
+[`ComponentContext`](../../components/contexts/component-context.mdx):
 
 ```jsx
 import {
@@ -781,7 +803,8 @@ const CustomMessageInput = () => {
 
 The component itself is very simple, it's just a single `<div>` with a timer that counts down
 seconds. Most customizations can be done with CSS, but if you need to implement the whole component
-from scratch, the only trick is to add a timer that counts down from the `cooldownInterval`:
+from scratch, the only trick is to add a timer that counts down from the
+[`cooldownInterval`](../../components/contexts/component-context.mdx#cooldowninterval):
 
 ```jsx
 const CustomCooldownTimer = () => {
