@@ -6,8 +6,6 @@ title: Message Input UI
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-## How To Build Your Own Message Input
-
 Message input is used for composing and editing messages. In this sense, it's a primary component
 that users interact with in a chat, so it's important to get it right.
 
@@ -27,16 +25,14 @@ We will cover this features step by step. For now, let's start with the simplest
 <TabItem value="js" label="React">
 
 ```jsx
-function CustomMessageInput() {
-  return (
-    <div className='message-input'>
-      <textarea value={text} className='message-input__input' />
-      <button type='button' className='message-input__button'>
-        ⬆️
-      </button>
-    </div>
-  );
-}
+const CustomMessageInput = () => (
+  <div className='message-input'>
+    <textarea value={text} className='message-input__input' />
+    <button type='button' className='message-input__button'>
+      ⬆️
+    </button>
+  </div>
+);
 ```
 
 </TabItem>
@@ -105,23 +101,20 @@ import {
   Window,
   MessageInput,
 } from 'stream-chat-react';
-import { CustomMessageInput } from './CustomMessageInput.jsx';
 
-function App() {
-  return (
-    <Chat client={chatClient}>
-      <ChannelList filters={filters} sort={sort} options={options} />
-      <Channel>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput Input={CustomMessageInput} />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
-  );
-}
+export const App = () => (
+  <Chat client={chatClient}>
+    <ChannelList filters={filters} sort={sort} options={options} />
+    <Channel>
+      <Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageInput Input={CustomMessageInput} />
+      </Window>
+      <Thread />
+    </Channel>
+  </Chat>
+);
 ```
 
 For now, our custom input doesn't do anything. The `MessageInputContext` handles most of the
@@ -131,7 +124,7 @@ values and callbacks:
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function CustomMessageInput() {
+const CustomMessageInput = () => {
   const { text, handleChange, handleSubmit } = useMessageInputContext();
 
   return (
@@ -142,7 +135,7 @@ function CustomMessageInput() {
       </button>
     </div>
   );
-}
+};
 ```
 
 The great thing is that the `handleChange` callback not only updates the text value, but also
@@ -151,7 +144,7 @@ detects links (if URL enrichment is enabled), and updates your typing status.
 And with the `handleSubmit` callback added to the "send" button, our basic implementation is
 complete - try it out!
 
-### Uploading and Previewing Attachments
+## Uploading and Previewing Attachments
 
 To support adding attachments to the message, we should start by adding a file input. And similar to
 the "send" button, once a file is selected, we can use a callback provided in the
@@ -160,7 +153,7 @@ the "send" button, once a file is selected, we can use a callback provided in th
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function AttachmentUploadButton() {
+const AttachmentUploadButton = () => {
   const { uploadNewFiles } = useMessageInputContext();
 
   function handleChange(e) {
@@ -178,7 +171,7 @@ function AttachmentUploadButton() {
       📎
     </label>
   );
-}
+};
 ```
 
 ![](../../assets/message-input-ui-upload-button.png)
@@ -195,7 +188,7 @@ Let's add these two checks:
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function AttachmentUploadButton() {
+const AttachmentUploadButton = () => {
   const { uploadNewFiles, isUploadEnabled, maxFilesLeft } = useMessageInputContext();
 
   function handleChange(e) {
@@ -216,7 +209,7 @@ function AttachmentUploadButton() {
       📎
     </label>
   );
-}
+};
 ```
 
 Now we need a way to preview the added attachments. The SDK provides a ready-made component for
@@ -233,9 +226,8 @@ import {
   useComponentContext,
   AttachmentPreviewList as DefaultAttachmentPreviewList,
 } from 'stream-chat-react';
-import { AttachmentUploadButton } from './AttachmentUploadButton.jsx';
 
-function CustomMessageInput() {
+const CustomMessageInput = () => {
   const { text, handleChange, handleSubmit } = useMessageInputContext();
   const { AttachmentPreviewList = DefaultAttachmentPreviewList } = useComponentContext();
 
@@ -251,7 +243,7 @@ function CustomMessageInput() {
       <AttachmentPreviewList />
     </div>
   );
-}
+};
 ```
 
 </TabItem>
@@ -327,7 +319,7 @@ which specify the order of attachments by their ids.
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function CustomAttachmentPreviewList() {
+const CustomAttachmentPreviewList = () => {
   const { fileOrder, imageOrder } = useMessageInputContext();
 
   if (fileOrder.length === 0 && imageOrder.length === 0) {
@@ -348,7 +340,7 @@ function CustomAttachmentPreviewList() {
       ))}
     </ul>
   );
-}
+};
 ```
 
 Note that an attachment can be in three different states:
@@ -366,7 +358,7 @@ temporary URL is no longer available, and `url` should be used instead.
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function ImageAttachmentPreview({ id }: { id: string }) {
+const ImageAttachmentPreview = ({ id }) => {
   const { imageUploads } = useMessageInputContext();
   const image = imageUploads[id];
   const url = image.previewUri ?? image.url ?? 'fallback.webm';
@@ -380,9 +372,9 @@ function ImageAttachmentPreview({ id }: { id: string }) {
       <AttachmentActions attachment={image} type='image' />
     </div>
   );
-}
+};
 
-function AttachmentActions({ attachment }) {
+const AttachmentActions = ({ attachment }) => {
   const { removeImage, uploadImage, removeFile, uploadFile } = useMessageInputContext();
   let [remove, upload] = type === 'image' ? [removeImage, uploadImage] : [removeFile, uploadFile];
   let children = null;
@@ -416,7 +408,7 @@ function AttachmentActions({ attachment }) {
   }
 
   return <div className='message-input__attachment-actions'>{children}</div>;
-}
+};
 ```
 
 For generic file attachments, the file name (`file.name`) and MIME type (`file.type`) can be used to
@@ -425,7 +417,7 @@ display a preview:
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function FileAttachmentPreview({ id }) {
+const FileAttachmentPreview = ({ id }) => {
   const { fileUploads } = useMessageInputContext();
   const attachment = fileUploads[id];
 
@@ -435,7 +427,7 @@ function FileAttachmentPreview({ id }) {
       <AttachmentActions attachment={attachment} type='file' />
     </div>
   );
-}
+};
 ```
 
 Putting it all together, this is a complete implementation of the attachment preview component:
@@ -448,7 +440,7 @@ Putting it all together, this is a complete implementation of the attachment pre
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function CustomAttachmentPreviewList() {
+const CustomAttachmentPreviewList = () => {
   const { fileOrder, imageOrder } = useMessageInputContext();
 
   if (fileOrder.length === 0 && imageOrder.length === 0) {
@@ -469,9 +461,9 @@ function CustomAttachmentPreviewList() {
       ))}
     </ul>
   );
-}
+};
 
-function ImageAttachmentPreview({ id }) {
+const ImageAttachmentPreview = ({ id }) => {
   const { imageUploads } = useMessageInputContext();
   const image = imageUploads[id];
   const url = image.previewUri ?? image.url ?? 'fallback.webm';
@@ -485,9 +477,9 @@ function ImageAttachmentPreview({ id }) {
       <AttachmentActions attachment={image} type='image' />
     </div>
   );
-}
+};
 
-function FileAttachmentPreview({ id }) {
+const FileAttachmentPreview = ({ id }) => {
   const { fileUploads } = useMessageInputContext();
   const attachment = fileUploads[id];
 
@@ -497,9 +489,9 @@ function FileAttachmentPreview({ id }) {
       <AttachmentActions attachment={attachment} type='file' />
     </div>
   );
-}
+};
 
-function AttachmentActions({ type, attachment }) {
+const AttachmentActions = ({ type, attachment }) => {
   const { removeImage, uploadImage, removeFile, uploadFile } = useMessageInputContext();
   let [remove, upload] = type === 'image' ? [removeImage, uploadImage] : [removeFile, uploadFile];
   let children = null;
@@ -533,7 +525,7 @@ function AttachmentActions({ type, attachment }) {
   }
 
   return <div className='message-input__attachment-actions'>{children}</div>;
-}
+};
 ```
 
 </TabItem>
@@ -585,7 +577,7 @@ function AttachmentActions({ type, attachment }) {
 </TabItem>
 </Tabs>
 
-### Displaying Link Previews
+## Displaying Link Previews
 
 If URL enrichment is enabled both in channel settings (enabled by default) and in the
 `urlEnrichmentConfig` of the `MessageInput` component (disabled by default), the SDK will
@@ -615,7 +607,7 @@ import {
   LinkPreviewList as DefaultLinkPreviewList,
 } from 'stream-chat-react';
 
-function CustomMessageInput() {
+const CustomMessageInput = () => {
   const { text, linkPreviews, handleChange, handleSubmit } = useMessageInputContext();
   const {
     LinkPreviewList = DefaultLinkPreviewList,
@@ -635,7 +627,7 @@ function CustomMessageInput() {
       <AttachmentPreviewList />
     </div>
   );
-}
+};
 ```
 
 As always, if you need deeper customization, you can implement the link preview component from
@@ -659,7 +651,7 @@ So the only bit of interactivity we need to add is an option to dismiss a link p
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
 
-function CustomLinkPreviewList() {
+const CustomLinkPreviewList = () => {
   const { linkPreviews: linkPreviewMap, dismissLinkPreview } = useMessageInputContext();
   const linkPreviews = Array.from(linkPreviewMap.values());
 
@@ -691,7 +683,7 @@ function CustomLinkPreviewList() {
       )}
     </ul>
   );
-}
+};
 ```
 
 </TabItem>
@@ -722,7 +714,7 @@ function CustomLinkPreviewList() {
 
 ![](../../assets/message-input-ui-link.png)
 
-### Handling Slow Mode
+## Handling Slow Mode
 
 If the Slow Mode is configured for the current channel, we should prevent messages from being sent
 before the cooldown period has passed.
@@ -743,7 +735,7 @@ import {
   CooldownTimer as DefaultCooldownTimer,
 } from 'stream-chat-react';
 
-function CustomMessageInput() {
+const CustomMessageInput = () => {
   const {
     text,
     cooldownRemaining,
@@ -784,7 +776,7 @@ function CustomMessageInput() {
       <AttachmentPreviewList />
     </div>
   );
-}
+};
 ```
 
 The component itself is very simple, it's just a single `<div>` with a timer that counts down
@@ -792,7 +784,7 @@ seconds. Most customizations can be done with CSS, but if you need to implement 
 from scratch, the only trick is to add a timer that counts down from the `cooldownInterval`:
 
 ```jsx
-function CustomCooldownTimer() {
+const CustomCooldownTimer = () => {
   const { cooldownRemaining, cooldownInterval } = useMessageInputContext();
   const enabled = !!cooldownRemaining;
   const [secondsPassed, setSecondsPassed] = useState(0);
@@ -806,7 +798,7 @@ function CustomCooldownTimer() {
   }, [enabled]);
 
   return <strong>⏳ {cooldownInterval - secondsPassed}</strong>;
-}
+};
 ```
 
 ![](../../assets/message-input-ui-cooldown.png)
