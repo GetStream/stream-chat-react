@@ -168,6 +168,7 @@ function AttachmentUploadButton() {
 
     if (files && files.length > 0) {
       uploadNewFiles(files);
+      e.currentTarget.value = '';
     }
   }
 
