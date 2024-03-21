@@ -8,12 +8,11 @@ import TabItem from '@theme/TabItem';
 
 ## How To Build Your Own Message Input
 
-Message input is used for composing and editing messages. In this sense, it's a primary
-component that users interact with in a chat, so it's important to get it
-right.
+Message input is used for composing and editing messages. In this sense, it's a primary component
+that users interact with in a chat, so it's important to get it right.
 
-Message input is a bit more complex than it might seem at first glance. Not
-just a text box with a "send" button, it has a lot of hidden features:
+Message input is a bit more complex than it might seem at first glance. Not just a text box with a
+"send" button, it has a lot of hidden features:
 
 1. Updating the typing status
 2. Uploading and previewing attachments
@@ -22,8 +21,7 @@ just a text box with a "send" button, it has a lot of hidden features:
 
 ![](../../assets/message-input-ui-kitchensink.png)
 
-We will cover this features step by step. For now, let's start with the
-simplest markup possible:
+We will cover this features step by step. For now, let's start with the simplest markup possible:
 
 <Tabs groupId="example">
 <TabItem value="js" label="React">
@@ -92,10 +90,9 @@ function CustomMessageInput() {
 
 ![](../../assets/message-input-ui-simple.png)
 
-Note that you should not render your custom message input directly, but instead
-pass it as a prop to either `Channel` or `MessageInput` component. That way, you
-can be sure that your input is wrapped with the necessary context providers, most
-importantly the `MessageInputContext`.
+Note that you should not render your custom message input directly, but instead pass it as a prop to
+either `Channel` or `MessageInput` component. That way, you can be sure that your input is wrapped
+with the necessary context providers, most importantly the `MessageInputContext`.
 
 ```jsx
 import {
@@ -127,8 +124,9 @@ function App() {
 }
 ```
 
-For now, our custom input doesn't do anything. The `MessageInputContext` handles most of the input-related state and actions, so instead of
-handling the state yourself, just use the provided values and callbacks:
+For now, our custom input doesn't do anything. The `MessageInputContext` handles most of the
+input-related state and actions, so instead of handling the state yourself, just use the provided
+values and callbacks:
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -147,18 +145,17 @@ function CustomMessageInput() {
 }
 ```
 
-The great thing is that the `handleChange` callback not only updates the
-text value, but also detects links (if URL enrichment is enabled), and updates
-your typing status.
+The great thing is that the `handleChange` callback not only updates the text value, but also
+detects links (if URL enrichment is enabled), and updates your typing status.
 
-And with the `handleSubmit` callback added to the "send" button, our basic
-implementation is complete - try it out!
+And with the `handleSubmit` callback added to the "send" button, our basic implementation is
+complete - try it out!
 
 ### Uploading and Previewing Attachments
 
-To support adding attachments to the message, we should start by adding a file
-input. And similar to the "send" button, once a file is selected, we can use
-a callback provided in the `MessageInputContext` to upload it as an attachment:
+To support adding attachments to the message, we should start by adding a file input. And similar to
+the "send" button, once a file is selected, we can use a callback provided in the
+`MessageInputContext` to upload it as an attachment:
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -187,10 +184,10 @@ function AttachmentUploadButton() {
 
 There are two cases when uploads should not be allowed:
 
-1. Uploads are disabled for the current channel. We should check the
-   `isUploadEnabled` value from the `MessageInputContext` to make sure.
-2. The maximum number of message attachments has been reached. For this we should
-   check the `maxFilesLeft` value from the `MessageInputContext`.
+1. Uploads are disabled for the current channel. We should check the `isUploadEnabled` value from
+   the `MessageInputContext` to make sure.
+2. The maximum number of message attachments has been reached. For this we should check the
+   `maxFilesLeft` value from the `MessageInputContext`.
 
 Let's add these two checks:
 
@@ -221,11 +218,10 @@ function AttachmentUploadButton() {
 }
 ```
 
-Now we need a way to preview the added attachments. The SDK provides a
-ready-made component for this: `AttachmentPreviewList`. Instead of importing it
-directly, you can grab it from the `ComponentContext`, which is used throughout
-the SDK to provide overridable UI components, and only fall back to the default
-implementation if it hasn't been overridden:
+Now we need a way to preview the added attachments. The SDK provides a ready-made component for
+this: `AttachmentPreviewList`. Instead of importing it directly, you can grab it from the
+`ComponentContext`, which is used throughout the SDK to provide overridable UI components, and only
+fall back to the default implementation if it hasn't been overridden:
 
 <Tabs groupId="example">
 <TabItem value="js" label="React">
@@ -313,21 +309,19 @@ function CustomMessageInput() {
 </TabItem>
 </Tabs>
 
-The nice thing about this approach is that our custom message input is not tied
-to a particular implementation of the attachment preview component, and the
-preview component can be overridden at the `Channel` level.
+The nice thing about this approach is that our custom message input is not tied to a particular
+implementation of the attachment preview component, and the preview component can be overridden at
+the `Channel` level.
 
-However, if you need deep customization of the attachment preview list, and the
-out-of-the-box component doesn't meet your needs, it's fairly easy to implement
-it from scratch.
+However, if you need deep customization of the attachment preview list, and the out-of-the-box
+component doesn't meet your needs, it's fairly easy to implement it from scratch.
 
-The two relevant values from the `MessageInputContext` are `fileUploads` and
-`imageUploads`, which map upload ids to the objects that describe an attachment.
-Image attachments are usually treated differently from generic files, so it
-is convenient to keep the two attachment types are separate.
+The two relevant values from the `MessageInputContext` are `fileUploads` and `imageUploads`, which
+map upload ids to the objects that describe an attachment. Image attachments are usually treated
+differently from generic files, so it is convenient to keep the two attachment types are separate.
 
-Since object keys come in no particular order, you can use `fileOrder` and
-`imageOrder` arrays, which specify the order of attachments by their ids.
+Since object keys come in no particular order, you can use `fileOrder` and `imageOrder` arrays,
+which specify the order of attachments by their ids.
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -358,16 +352,15 @@ function CustomAttachmentPreviewList() {
 
 Note that an attachment can be in three different states:
 
-1. `'uploading'` means the attachment is still uploading; you may want to
-   display a spinner in this case.
-2. `'failed'` means that something went wrong while uploading the attachment; you may
-   want to show an option to retry the upload.
+1. `'uploading'` means the attachment is still uploading; you may want to display a spinner in this
+   case.
+2. `'failed'` means that something went wrong while uploading the attachment; you may want to show
+   an option to retry the upload.
 3. `'finished'` means the attachment had been successfully uploaded.
 
-For image attachments, the `previewUri` property is available, which is a
-temporary URL that can be used to display an image preview before the image is
-uploaded. Once the image is uploaded, this temporary URL is no longer available,
-and `url` should be used instead.
+For image attachments, the `previewUri` property is available, which is a temporary URL that can be
+used to display an image preview before the image is uploaded. Once the image is uploaded, this
+temporary URL is no longer available, and `url` should be used instead.
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -425,8 +418,8 @@ function AttachmentActions({ attachment }) {
 }
 ```
 
-For generic file attachments, the file name (`file.name`) and MIME type
-(`file.type`) can be used to display a preview:
+For generic file attachments, the file name (`file.name`) and MIME type (`file.type`) can be used to
+display a preview:
 
 ```jsx
 import { useMessageInputContext } from 'stream-chat-react';
@@ -444,8 +437,7 @@ function FileAttachmentPreview({ id }) {
 }
 ```
 
-Putting it all together, this is a complete implementation of the attachment
-preview component:
+Putting it all together, this is a complete implementation of the attachment preview component:
 
 ![](../../assets/message-input-ui-attachments.png)
 
@@ -592,29 +584,27 @@ function AttachmentActions({ type, attachment }) {
 </TabItem>
 </Tabs>
 
-## Displaying Link Previews
+### Displaying Link Previews
 
-If URL enrichment is enabled both in channel settings (enabled by default) and
-in the `urlEnrichmentConfig` of the `MessageInput` component (disabled by default),
-the SDK will automatically detect links in the message text (as long as it's
-set properly in the `MessageInputContext`) and create previews for them.
+If URL enrichment is enabled both in channel settings (enabled by default) and in the
+`urlEnrichmentConfig` of the `MessageInput` component (disabled by default), the SDK will
+automatically detect links in the message text (as long as it's set properly in the
+`MessageInputContext`) and create previews for them.
 
-To display link previews, you can use a pre-built `LinkPreviewList` component
-available in the `ComponentContext`. Using the `ComponentContext` allows you to hook
-into the component override mechanism used throughout the SDK.
+To display link previews, you can use a pre-built `LinkPreviewList` component available in the
+`ComponentContext`. Using the `ComponentContext` allows you to hook into the component override
+mechanism used throughout the SDK.
 
 So the rough idea is:
 
-1. Grab the `LinkPreviewList` from the `ComponentContext` (fall back to the
-   default implementation if the component wasn't overridden).
+1. Grab the `LinkPreviewList` from the `ComponentContext` (fall back to the default implementation
+   if the component wasn't overridden).
 2. Check if URL enrichment is enabled (`findAndEnqueueURLsToEnrich` value in the
    `MessageInputContext`).
-3. Grab the `linkPreviews` from the `MessageInputContext` and pass them to the
-   `LinkPreviewList`.
+3. Grab the `linkPreviews` from the `MessageInputContext` and pass them to the `LinkPreviewList`.
 
-The only thing to note here is that `linkPreviews` is a Map with URLs as
-keys and enriched data as values. Before passing it to the `LinkPreviewList`, we
-should convert it to an array:
+The only thing to note here is that `linkPreviews` is a Map with URLs as keys and enriched data as
+values. Before passing it to the `LinkPreviewList`, we should convert it to an array:
 
 ```jsx
 import {
@@ -647,24 +637,20 @@ function CustomMessageInput() {
 }
 ```
 
-As always, if you need deeper customization, you can implement the link preview
-component from scratch. Since all the necessary data can be found in the
-`linkPreviews` value of the `MessageInputContext`, the implementation itself is
-quite simple.
+As always, if you need deeper customization, you can implement the link preview component from
+scratch. Since all the necessary data can be found in the `linkPreviews` value of the
+`MessageInputContext`, the implementation itself is quite simple.
 
 The link preview itself goes through several lifecycle states:
 
-1. `'queued'` means that the URL enrichment process hasn't started yet. This
-   process is debounced, so to avoid flashing UI we should ignore queued
-   previews.
-2. `'loading'` means that URL enrichment is in progress. Depending on the
-   desired UX, you can either ignore loading previews, or show a spinner or
-   other loading state.
+1. `'queued'` means that the URL enrichment process hasn't started yet. This process is debounced,
+   so to avoid flashing UI we should ignore queued previews.
+2. `'loading'` means that URL enrichment is in progress. Depending on the desired UX, you can either
+   ignore loading previews, or show a spinner or other loading state.
 3. `'loaded'` means that the preview is ready.
 4. `'dismissed'` means the preview has been dismissed by the user.
 
-So the only bit of interactivity we need to add is an option to dismiss a
-link preview:
+So the only bit of interactivity we need to add is an option to dismiss a link preview:
 
 <Tabs groupId="example">
 <TabItem value="js" label="React">
@@ -735,18 +721,18 @@ function CustomLinkPreviewList() {
 
 ![](../../assets/message-input-ui-link.png)
 
-## Handling Slow Mode
+### Handling Slow Mode
 
-If the Slow Mode is configured for the current channel, we should prevent messages from being sent before the cooldown period has passed.
+If the Slow Mode is configured for the current channel, we should prevent messages from being sent
+before the cooldown period has passed.
 
-The first thing we should do is disable or hide the "send" button while the
-cooldown period is in effect. We can use the `cooldownRemaining` value from the
-`MessageInputContext`: it's guaranteed to have a non-zero numeric value while
-the user is within a cooldown period. Note that to avoid excessive rendering,
-the value itself does not "tick down" every second.
+The first thing we should do is disable or hide the "send" button while the cooldown period is in
+effect. We can use the `cooldownRemaining` value from the `MessageInputContext`: it's guaranteed to
+have a non-zero numeric value while the user is within a cooldown period. Note that to avoid
+excessive rendering, the value itself does not "tick down" every second.
 
-To provide visual feedback with a countdown, we can use the `CooldownTimer`
-component from the `ComponentContext`:
+To provide visual feedback with a countdown, we can use the `CooldownTimer` component from the
+`ComponentContext`:
 
 ```jsx
 import {
@@ -800,10 +786,9 @@ function CustomMessageInput() {
 }
 ```
 
-The component itself is very simple, it's just a single `<div>` with a timer that
-counts down seconds. Most customizations can be done with CSS, but if
-you need to implement the whole component from scratch, the only trick is to add
-a timer that counts down from the `cooldownInterval`:
+The component itself is very simple, it's just a single `<div>` with a timer that counts down
+seconds. Most customizations can be done with CSS, but if you need to implement the whole component
+from scratch, the only trick is to add a timer that counts down from the `cooldownInterval`:
 
 ```jsx
 function CustomCooldownTimer() {
