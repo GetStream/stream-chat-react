@@ -1,4 +1,4 @@
-import { mergeWith } from 'lodash.mergewith';
+import mergeWith from 'lodash.mergewith';
 import { UR } from 'stream-chat';
 
 const overrideEverything = (_: unknown, source: unknown) => source;
