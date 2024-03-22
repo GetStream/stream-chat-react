@@ -101,8 +101,10 @@ type ChannelPropsForwardedToComponentContext<
 > = {
   /** Custom UI component to display a message attachment, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) */
   Attachment?: ComponentContextValue<StreamChatGenerics>['Attachment'];
-  /** Custom UI component to display a attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
+  /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: ComponentContextValue<StreamChatGenerics>['AttachmentPreviewList'];
+  /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
+  AudioRecorder?: ComponentContextValue<StreamChatGenerics>['AudioRecorder'];
   /** Optional UI component to override the default suggestion Header component, defaults to and accepts same props as: [Header](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Header.tsx) */
   AutocompleteSuggestionHeader?: ComponentContextValue<StreamChatGenerics>['AutocompleteSuggestionHeader'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -1153,6 +1155,7 @@ const ChannelInner = <
     () => ({
       Attachment: props.Attachment || DefaultAttachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
+      AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionHeader: props.AutocompleteSuggestionHeader,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,

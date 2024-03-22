@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { downSample, upSample, WaveProgressBar } from '../components';
+import { WaveProgressBar } from '../components';
+import { downSample, upSample } from '../audioSampling';
 
 jest.spyOn(console, 'warn').mockImplementation();
 const originalSample = Array.from({ length: 10 }, (_, i) => i);

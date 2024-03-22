@@ -3,6 +3,12 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
 
+export enum AttachmentUploadState {
+  FAILED = 'failed',
+  UPLOADED = 'uploaded',
+  UPLOADING = 'uploading',
+}
+
 export type FileUpload = {
   file: {
     name: string;
@@ -65,3 +71,24 @@ export enum SetLinkPreviewMode {
 }
 
 export type LinkPreviewMap = Map<LinkURL, LinkPreview>;
+
+export type AttachmentInternalMetadata = {
+  id: string;
+  file?: File;
+  uploadState?: AttachmentUploadState;
+};
+
+export type LocalAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = Attachment<StreamChatGenerics> & { $internal?: AttachmentInternalMetadata };
+
+export type VoiceRecordingAttachment = {
+  asset_url: string;
+  $internal?: AttachmentInternalMetadata;
+  duration?: number;
+  file_size?: number;
+  mime_type?: string;
+  title?: string;
+  type?: 'voiceRecording';
+  waveform_data?: Array<number>;
+};

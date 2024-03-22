@@ -5,7 +5,7 @@ import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
 expect.extend(toHaveNoViolations);
 
-import { SendButton } from '../icons';
+import { SendButton } from '../SendButton';
 
 describe('SendButton', () => {
   it('should call whatever callback was passed into the sendMessage prop when the button is pressed', async () => {

@@ -2,13 +2,11 @@ import React, { useEffect } from 'react';
 import { FileUploadButton, ImageDropzone } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 
-import {
-  FileUploadIconFlat as DefaultFileUploadIcon,
-  SendButton as DefaultSendButton,
-  EmojiIconSmall,
-} from './icons';
+import { FileUploadIconFlat as DefaultFileUploadIcon, EmojiIconSmall } from './icons';
 import { UploadsPreview } from './UploadsPreview';
 
+import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
+import { SendButton as DefaultSendButton } from './SendButton';
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
 
@@ -22,7 +20,6 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { QuotedMessagePreview as DefaultQuotedMessagePreview } from './QuotedMessagePreview';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
-import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 
 /**
  * @deprecated This component has beend deprecated in favor of [`MessageInputFlat`](./MessageInputFlat.tsx) from which

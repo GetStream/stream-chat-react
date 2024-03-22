@@ -11,6 +11,7 @@ import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Ga
 import type { Attachment } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { VoiceRecordingAttachment } from '../MessageInput';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
@@ -72,7 +73,7 @@ export const isVoiceRecordingAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: Attachment<StreamChatGenerics>,
-) => attachment.type === 'voiceRecording';
+): attachment is VoiceRecordingAttachment => attachment.type === 'voiceRecording';
 
 export const isFileAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -7,13 +7,16 @@ import { nanoid } from 'nanoid';
 
 import {
   FileUploadIconFlat as DefaultFileUploadIcon,
-  SendButton as DefaultSendButton,
   UploadIcon as DefaultUploadIcon,
 } from './icons';
+import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
+import { SendButton as DefaultSendButton } from './SendButton';
+import { AudioRecorder as DefaultVoiceRecorder, StartRecordingAudio } from './VoiceRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
+import { RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification } from './RecordingPermissionDeniedNotification';
 import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import { UploadsPreview } from './UploadsPreview';
@@ -29,7 +32,6 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -163,6 +165,8 @@ const MessageInputV2 = <
   const { t } = useTranslationContext('MessageInputV2');
 
   const {
+    attachments,
+    audioRecordingEnabled,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
@@ -175,14 +179,17 @@ const MessageInputV2 = <
     setCooldownRemaining,
     text,
     uploadNewFiles,
+    voiceRecordingController,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
+    AudioRecorder = DefaultVoiceRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
     FileUploadIcon = DefaultUploadIcon,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
+    RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
@@ -206,6 +213,8 @@ const MessageInputV2 = <
     onDrop: uploadNewFiles,
   });
 
+  if (voiceRecordingController.recordingState) return <AudioRecorder />;
+
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
   const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
@@ -213,6 +222,12 @@ const MessageInputV2 = <
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {voiceRecordingController.permissionDenied && (
+          <RecordingPermissionDeniedNotification
+            dismiss={voiceRecordingController.dismissPermissionNotification}
+            permissionName={voiceRecordingController.permissionDenied}
+          />
+        )}
         {findAndEnqueueURLsToEnrich && (
           <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
         )}
@@ -226,7 +241,6 @@ const MessageInputV2 = <
             {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
           </div>
         )}
-
         {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
@@ -247,7 +261,9 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
+            {isUploadEnabled && !!(numberOfUploads || attachments.length) && (
+              <AttachmentPreviewList />
+            )}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
@@ -262,10 +278,20 @@ const MessageInputV2 = <
                   cooldownInterval={cooldownRemaining}
                   setCooldownRemaining={setCooldownRemaining}
                 />
-              ) : (
+              ) : text ||
+                numberOfUploads ||
+                !isUploadEnabled ||
+                !audioRecordingEnabled ||
+                attachments.length ||
+                !navigator.mediaDevices ? ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
                 <SendButton
-                  disabled={!numberOfUploads && !text.length}
+                  disabled={!numberOfUploads && !text.length && !attachments.length}
                   sendMessage={handleSubmit}
+                />
+              ) : (
+                <StartRecordingAudio
+                  disabled={!!voiceRecordingController.recordingState}
+                  onClick={voiceRecordingController.startRecording}
                 />
               )}
             </>
