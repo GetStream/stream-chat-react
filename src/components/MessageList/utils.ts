@@ -5,11 +5,10 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import { isDate } from '../../context/TranslationContext';
 
-import type { UserResponse } from 'stream-chat';
-
+import type { MessageLabel, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import { isMessageEdited } from '../Message/utils';
 
 type ProcessMessagesParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -282,7 +281,8 @@ export const getGroupStyles = <
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
-    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0);
+    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0) ||
+    isMessageEdited(previousMessage);
 
   const isBottomMessage =
     !nextMessage ||
@@ -293,7 +293,8 @@ export const getGroupStyles = <
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
-    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0);
+    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0) ||
+    isMessageEdited(message);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';
@@ -321,3 +322,17 @@ export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: nu
 // @deprecated
 export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages < limit;
+
+type DateSeparatorMessage = {
+  customType: typeof CUSTOM_MESSAGE_TYPE.date;
+  date: Date;
+  id: string;
+  type: MessageLabel;
+  unread: boolean;
+};
+
+export function isDateSeparatorMessage<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
+  return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
+}

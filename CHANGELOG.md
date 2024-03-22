@@ -1,3 +1,27 @@
+## [11.12.2](https://github.com/GetStream/stream-chat-react/compare/v11.12.1...v11.12.2) (2024-03-19)
+
+
+### Bug Fixes
+
+* jump to first unread message when the last read and first unread message id is unknown ([#2315](https://github.com/GetStream/stream-chat-react/issues/2315)) ([d40ab64](https://github.com/GetStream/stream-chat-react/commit/d40ab646a18bbd90f78a66623f0cf6c433e30e1a))
+* mark retryable duplicated messages as received ([#2331](https://github.com/GetStream/stream-chat-react/issues/2331)) ([e098ef1](https://github.com/GetStream/stream-chat-react/commit/e098ef1f3682f5c19ae111305575bd2c896a60b9))
+
+## [11.12.1](https://github.com/GetStream/stream-chat-react/compare/v11.12.0...v11.12.1) (2024-03-19)
+
+
+### Bug Fixes
+
+* await word replace before submitting message ([#2332](https://github.com/GetStream/stream-chat-react/issues/2332)) ([f396a81](https://github.com/GetStream/stream-chat-react/commit/f396a814723a49fdc4b828ea62354946f6815a86))
+* link-breaking typos ([#2322](https://github.com/GetStream/stream-chat-react/issues/2322)) ([17f6b0d](https://github.com/GetStream/stream-chat-react/commit/17f6b0d6bc4f81e1e8272481ce3cd7da1c58ecba))
+
+## [11.12.0](https://github.com/GetStream/stream-chat-react/compare/v11.11.0...v11.12.0) (2024-03-07)
+
+
+### Features
+
+* add message edited timestamp ([#2304](https://github.com/GetStream/stream-chat-react/issues/2304)) ([5633614](https://github.com/GetStream/stream-chat-react/commit/56336142618564152ee7047df5ba00749c93507a))
+* voice recording message attachment ([#2311](https://github.com/GetStream/stream-chat-react/issues/2311)) ([024ba6c](https://github.com/GetStream/stream-chat-react/commit/024ba6c1df39d6e57bfac1a6692fbf1306fdf173))
+
 ## [11.11.0](https://github.com/GetStream/stream-chat-react/compare/v11.10.0...v11.11.0) (2024-03-01)
 
 

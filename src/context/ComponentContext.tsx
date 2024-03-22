@@ -46,6 +46,7 @@ import type { MessageBouncePromptProps } from '../components/MessageBounce';
 import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 import type { SendButtonProps } from '../components/MessageInput/SendButton';
 import type { RecordingPermissionDeniedNotificationProps } from '../components';
+import type { TimestampProps } from '../components/Message/Timestamp';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -96,6 +97,7 @@ export type ComponentContextValue<
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadStart?: React.ComponentType;
+  Timestamp?: React.ComponentType<TimestampProps>;
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;

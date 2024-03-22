@@ -5,10 +5,10 @@ import { ItemProps, ListItem } from 'react-virtuoso';
 
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { Message } from '../Message';
+import { isMessageEdited, Message } from '../Message';
 
-import { isDate, StreamMessage, useComponentContext } from '../../context';
-import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
+import { StreamMessage, useComponentContext } from '../../context';
+import { isDateSeparatorMessage } from './utils';
 
 import type { GroupStyle } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
@@ -128,6 +128,7 @@ export const messageRenderer = <
     customMessageRenderer,
     DateSeparator,
     firstUnreadMessageId,
+    lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
     Message: MessageUIComponent,
@@ -154,7 +155,7 @@ export const messageRenderer = <
 
   if (!message) return <div style={{ height: '1px' }}></div>; // returning null or zero height breaks the virtuoso
 
-  if (message.customType === CUSTOM_MESSAGE_TYPE.date && message.date && isDate(message.date)) {
+  if (isDateSeparatorMessage(message)) {
     return DateSeparator ? <DateSeparator date={message.date} unread={message.unread} /> : null;
   }
 
@@ -166,18 +167,46 @@ export const messageRenderer = <
     shouldGroupByUser &&
     streamMessageIndex > 0 &&
     message.user?.id === messageList[streamMessageIndex - 1].user?.id;
+  const maybePrevMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex - 1];
+  const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
+    messageList[streamMessageIndex + 1];
   const firstOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex - 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybePrevMessage?.user?.id ||
+      (maybePrevMessage && isMessageEdited(maybePrevMessage)));
 
   const endOfGroup =
-    shouldGroupByUser && message.user?.id !== messageList[streamMessageIndex + 1]?.user?.id;
+    shouldGroupByUser &&
+    (message.user?.id !== maybeNextMessage?.user?.id || isMessageEdited(message));
 
+  const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
+  const lastReadTimestamp = lastReadDate?.getTime();
+  const isFirstMessage = streamMessageIndex === 0;
   const isNewestMessage = lastReadMessageId === lastReceivedMessageId;
-  const isLastReadMessage = message.id === lastReadMessageId;
-  const showUnreadSeparator =
-    isLastReadMessage && !isNewestMessage && (firstUnreadMessageId || unreadMessageCount > 0); // unread count can be 0 if the user marks unread only own messages
+  const isLastReadMessage =
+    message.id === lastReadMessageId ||
+    (!unreadMessageCount && createdAtTimestamp === lastReadTimestamp);
+  const isFirstUnreadMessage =
+    firstUnreadMessageId === message.id ||
+    (!!unreadMessageCount &&
+      createdAtTimestamp &&
+      lastReadTimestamp &&
+      createdAtTimestamp > lastReadTimestamp &&
+      isFirstMessage);
+
+  const showUnreadSeparatorAbove = !lastReadMessageId && isFirstUnreadMessage;
+
+  const showUnreadSeparatorBelow =
+    isLastReadMessage && !isNewestMessage && (firstUnreadMessageId || !!unreadMessageCount);
+
   return (
     <>
+      {showUnreadSeparatorAbove && (
+        <div className='str-chat__unread-messages-separator-wrapper'>
+          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
+        </div>
+      )}
       <Message
         additionalMessageInputProps={additionalMessageInputProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}
@@ -194,7 +223,7 @@ export const messageRenderer = <
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
       />
-      {showUnreadSeparator && (
+      {showUnreadSeparatorBelow && (
         <div className='str-chat__unread-messages-separator-wrapper'>
           <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
         </div>

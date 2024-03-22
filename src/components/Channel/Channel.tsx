@@ -13,10 +13,12 @@ import debounce from 'lodash.debounce';
 import defaultsDeep from 'lodash.defaultsdeep';
 import throttle from 'lodash.throttle';
 import {
+  APIErrorResponse,
   ChannelAPIResponse,
   ChannelMemberResponse,
   ChannelQueryOptions,
   ChannelState,
+  ErrorFromResponse,
   Event,
   EventAPIResponse,
   Message,
@@ -64,6 +66,7 @@ import { TypingProvider } from '../../context/TypingContext';
 
 import {
   DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
+  DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
@@ -71,7 +74,7 @@ import {
 import type { UnreadMessagesNotificationProps } from '../MessageList';
 import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
-import { makeAddNotifications } from './utils';
+import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
 
 import type { MessageProps } from '../Message/types';
@@ -185,6 +188,8 @@ type ChannelPropsForwardedToComponentContext<
   ThreadHeader?: ComponentContextValue<StreamChatGenerics>['ThreadHeader'];
   /** Custom UI component to display the start of a threaded `MessageList`, defaults to and accepts same props as: [DefaultThreadStart](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
   ThreadStart?: ComponentContextValue<StreamChatGenerics>['ThreadStart'];
+  /** Custom UI component to display a date used in timestamps. It's used internally by the default `MessageTimestamp`, and to display a timestamp for edited messages. */
+  Timestamp?: ComponentContextValue<StreamChatGenerics>['Timestamp'];
   /** Optional context provider that lets you override the default autocomplete triggers, defaults to: [DefaultTriggerProvider](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/DefaultTriggerProvider.tsx) */
   TriggerProvider?: ComponentContextValue<StreamChatGenerics>['TriggerProvider'];
   /** Custom UI component for the typing indicator, defaults to and accepts same props as: [TypingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/TypingIndicator/TypingIndicator.tsx) */
@@ -552,6 +557,10 @@ const ChannelInner = <
         };
       });
 
+    if (event.type === 'channel.truncated' && event.cid === channel.cid) {
+      _setChannelUnreadUiState(undefined);
+    }
+
     throttledCopyStateFromChannel();
   };
 
@@ -707,7 +716,7 @@ const ChannelInner = <
     return queryResponse.messages.length;
   };
 
-  const loadMoreNewer = async (limit = 100) => {
+  const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (!online.current || !window.navigator.onLine || !state.hasMoreNewer) return 0;
 
     const newestMessage = state?.messages?.[state?.messages?.length - 1];
@@ -742,7 +751,7 @@ const ChannelInner = <
 
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const jumpToMessage = async (messageId: string, messageLimit = 100) => {
+  const jumpToMessage = async (messageId: string, messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
     dispatch({ loadingMore: true, type: 'setLoadingMore' });
     await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
@@ -781,56 +790,118 @@ const ChannelInner = <
   };
 
   const jumpToFirstUnreadMessage = useCallback(
-    async (queryMessageLimit = 100) => {
-      if (!(client.user && channelUnreadUiState?.unread_messages)) return;
-      if (!channelUnreadUiState?.last_read_message_id) {
+    async (queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
+      if (!channelUnreadUiState?.unread_messages) return;
+      let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
+      let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
+      let isInCurrentMessageSet = false;
+      let hasMoreMessages = true;
+
+      if (firstUnreadMessageId) {
+        const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
+        isInCurrentMessageSet = result.index !== -1;
+      } else if (lastReadMessageId) {
+        const result = findInMsgSetById(lastReadMessageId, channel.state.messages);
+        isInCurrentMessageSet = !!result.target;
+        firstUnreadMessageId =
+          result.index > -1 ? channel.state.messages[result.index + 1]?.id : undefined;
+      } else {
+        const lastReadTimestamp = channelUnreadUiState.last_read.getTime();
+        const { index: lastReadMessageIndex, target: lastReadMessage } = findInMsgSetByDate(
+          channelUnreadUiState.last_read,
+          channel.state.messages,
+          true,
+        );
+
+        if (lastReadMessage) {
+          firstUnreadMessageId = channel.state.messages[lastReadMessageIndex + 1]?.id;
+          isInCurrentMessageSet = !!firstUnreadMessageId;
+          lastReadMessageId = lastReadMessage.id;
+        } else {
+          dispatch({ loadingMore: true, type: 'setLoadingMore' });
+          let messages;
+          try {
+            messages = (
+              await channel.query(
+                {
+                  messages: {
+                    created_at_around: channelUnreadUiState.last_read.toISOString(),
+                    limit: queryMessageLimit,
+                  },
+                },
+                'new',
+              )
+            ).messages;
+          } catch (e) {
+            addNotification(t('Failed to jump to the first unread message'), 'error');
+            loadMoreFinished(hasMoreMessages, channel.state.messages);
+            return;
+          }
+
+          const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
+          if (!firstMessageWithCreationDate) {
+            addNotification(t('Failed to jump to the first unread message'), 'error');
+            loadMoreFinished(hasMoreMessages, channel.state.messages);
+            return;
+          }
+          const firstMessageTimestamp = new Date(
+            firstMessageWithCreationDate.created_at as string,
+          ).getTime();
+          if (lastReadTimestamp < firstMessageTimestamp) {
+            // whole channel is unread
+            firstUnreadMessageId = firstMessageWithCreationDate.id;
+            hasMoreMessages = false;
+          } else {
+            const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
+            lastReadMessageId = result.target?.id;
+            hasMoreMessages = result.index >= Math.floor(queryMessageLimit / 2);
+          }
+          loadMoreFinished(hasMoreMessages, channel.state.messages);
+        }
+      }
+
+      if (!firstUnreadMessageId && !lastReadMessageId) {
         addNotification(t('Failed to jump to the first unread message'), 'error');
         return;
       }
 
-      let indexOfLastReadMessage;
-
-      const currentMessageSet = channel.state.messages;
-      for (let i = currentMessageSet.length - 1; i >= 0; i--) {
-        const { id } = currentMessageSet[i];
-        if (id === channelUnreadUiState.last_read_message_id) {
-          indexOfLastReadMessage = i;
-          break;
-        }
-      }
-
-      if (typeof indexOfLastReadMessage === 'undefined') {
+      if (!isInCurrentMessageSet) {
         dispatch({ loadingMore: true, type: 'setLoadingMore' });
-        let hasMoreMessages = true;
         try {
-          await channel.state.loadMessageIntoState(
-            channelUnreadUiState.last_read_message_id,
-            undefined,
-            queryMessageLimit,
-          );
+          const targetId = (firstUnreadMessageId ?? lastReadMessageId) as string;
+          await channel.state.loadMessageIntoState(targetId, undefined, queryMessageLimit);
           /**
            * if the index of the last read message on the page is beyond the half of the page,
            * we have arrived to the oldest page of the channel
            */
-          indexOfLastReadMessage = channel.state.messages.findIndex(
-            (message) => message.id === channelUnreadUiState.last_read_message_id,
+          const indexOfTarget = channel.state.messages.findIndex(
+            (message) => message.id === targetId,
           ) as number;
-          hasMoreMessages = indexOfLastReadMessage >= Math.floor(queryMessageLimit / 2);
+          hasMoreMessages = indexOfTarget >= Math.floor(queryMessageLimit / 2);
+          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          firstUnreadMessageId =
+            firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
         } catch (e) {
           addNotification(t('Failed to jump to the first unread message'), 'error');
           loadMoreFinished(hasMoreMessages, channel.state.messages);
           return;
         }
-
-        loadMoreFinished(hasMoreMessages, channel.state.messages);
       }
 
-      const firstUnreadMessage = channel.state.messages[indexOfLastReadMessage + 1];
-      const jumpToMessageId = firstUnreadMessage?.id ?? channelUnreadUiState.last_read_message_id;
+      if (!firstUnreadMessageId) {
+        addNotification(t('Failed to jump to the first unread message'), 'error');
+        return;
+      }
+      if (!channelUnreadUiState.first_unread_message_id)
+        _setChannelUnreadUiState({
+          ...channelUnreadUiState,
+          first_unread_message_id: firstUnreadMessageId,
+          last_read_message_id: lastReadMessageId,
+        });
 
       dispatch({
         hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
-        highlightedMessageId: jumpToMessageId,
+        highlightedMessageId: firstUnreadMessageId,
         type: 'jumpToMessageFinished',
       });
 
@@ -843,7 +914,7 @@ const ChannelInner = <
         dispatch({ type: 'clearHighlightedMessage' });
       }, 500);
     },
-    [addNotification, channel, client, loadMoreFinished, t, channelUnreadUiState],
+    [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
   );
 
   const deleteMessage = useCallback(
@@ -940,14 +1011,34 @@ const ChannelInner = <
     } catch (error) {
       // error response isn't usable so needs to be stringified then parsed
       const stringError = JSON.stringify(error);
-      const parsedError = stringError ? JSON.parse(stringError) : {};
+      const parsedError = (stringError
+        ? JSON.parse(stringError)
+        : {}) as ErrorFromResponse<APIErrorResponse>;
 
-      updateMessage({
-        ...message,
-        error: parsedError,
-        errorStatusCode: (parsedError.status as number) || undefined,
-        status: 'failed',
-      });
+      // Handle the case where the message already exists
+      // (typically, when retrying to send a message).
+      // If the message already exists, we can assume it was sent successfully,
+      // so we update the message status to "received".
+      // Right now, the only way to check this error is by checking
+      // the combination of the error code and the error description,
+      // since there is no special error code for duplicate messages.
+      if (
+        parsedError.code === 4 &&
+        error instanceof Error &&
+        error.message.includes('already exists')
+      ) {
+        updateMessage({
+          ...message,
+          status: 'received',
+        });
+      } else {
+        updateMessage({
+          ...message,
+          error: parsedError,
+          errorStatusCode: parsedError.status || undefined,
+          status: 'failed',
+        });
+      }
     }
   };
 
@@ -1195,6 +1286,7 @@ const ChannelInner = <
       ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
+      Timestamp: props.Timestamp,
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
