@@ -126,6 +126,7 @@ const SuggestionItem = React.forwardRef(
     const { item, onClickHandler, onSelectHandler, selected } = props;
 
     const selectItem = () => onSelectHandler(item);
+    const clickItem = (event: MouseEvent<HTMLDivElement>) => onClickHandler(event, item);
 
     const itemName = isEmojiOrMention(item) ? item.name || item.id : item.name;
     const displayText = isEmoji(item) ? `${item.native} - ${itemName}` : itemName;
@@ -133,7 +134,7 @@ const SuggestionItem = React.forwardRef(
     return (
       <div
         className={`suggestion-item ${selected ? 'selected' : ''}`}
-        onClick={onClickHandler}
+        onClick={clickItem}
         onMouseEnter={selectItem}
         ref={ref}
         role='button'
@@ -211,6 +212,7 @@ const SuggestionItem = React.forwardRef(
     const { item, onClickHandler, onSelectHandler, selected } = props;
 
     const selectItem = () => onSelectHandler(item);
+    const clickItem = (event: MouseEvent<HTMLDivElement>) => onClickHandler(event, item);
 
     const itemName = isEmojiOrMention(item) ? item.name || item.id : item.name;
     const displayText = isEmoji(item) ? `${item.native} - ${itemName}` : itemName;
@@ -218,7 +220,7 @@ const SuggestionItem = React.forwardRef(
     return (
       <div
         className={`suggestion-item ${selected ? 'selected' : ''}`}
-        onClick={onClickHandler}
+        onClick={clickItem}
         onMouseEnter={selectItem}
         ref={ref}
         role='button'
