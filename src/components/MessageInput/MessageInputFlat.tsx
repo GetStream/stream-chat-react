@@ -30,6 +30,7 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { RecordingPermission } from './hooks/useBrowserPermissionState';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -222,11 +223,8 @@ const MessageInputV2 = <
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
-        {voiceRecordingController.permissionDenied && (
-          <RecordingPermissionDeniedNotification
-            dismiss={voiceRecordingController.dismissPermissionNotification}
-            permissionName={voiceRecordingController.permissionDenied}
-          />
+        {voiceRecordingController.permissionState === 'denied' && (
+          <RecordingPermissionDeniedNotification permissionName={RecordingPermission.MIC} />
         )}
         {findAndEnqueueURLsToEnrich && (
           <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />

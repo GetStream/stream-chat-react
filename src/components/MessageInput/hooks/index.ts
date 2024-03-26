@@ -3,8 +3,8 @@ export { MediaRecordingState } from './useMediaRecorder';
 export type {
   AudioRecordingConfig,
   CustomAudioRecordingConfig,
-  PermissionNotGrantedHandler,
   RecordingAttachmentType,
-  VoiceRecordingController,
+  AudioRecordingController,
 } from './useMediaRecorder';
+export type { PermissionNotGrantedHandler } from './useBrowserPermissionState';
 export * from './useMessageInputState';

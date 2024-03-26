@@ -1,4 +1,4 @@
-import type { FileLike } from './types';
+import { FileLike, RecordedMediaType } from './types';
 import { ChangeEvent, useCallback } from 'react';
 
 export const useHandleFileChangeWrapper = (
@@ -114,4 +114,9 @@ export const createFileFromBlobs = ({
 export const getExtensionFromMimeType = (mimeType: string) => {
   const match = mimeType.match(/\/([^/;]+)/);
   return match && match[1];
+};
+
+export const getRecordedMediaTypeFromMimeType = (mimeType: string): RecordedMediaType | null => {
+  const match = mimeType.match(/^(audio|video)\/.*$/);
+  return match && (match[1] as RecordedMediaType);
 };

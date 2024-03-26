@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslationContext } from '../../context';
-import { RecordingPermission } from './hooks/useMediaRecorder';
+import { RecordingPermission } from './hooks/useBrowserPermissionState';
 
 export type RecordingPermissionDeniedNotificationProps = {
-  dismiss: () => void;
   permissionName: RecordingPermission;
 };
 
 export const RecordingPermissionDeniedNotification = ({
-  dismiss,
   permissionName,
 }: RecordingPermissionDeniedNotificationProps) => {
   const { t } = useTranslationContext();
+  const [show, setShow] = useState(true);
+  if (!show) return null;
+
   return (
     <div className='str-chat__recording-permission-denied-notification'>
       <div className='str-chat__recording-permission-denied-notification__heading'>
@@ -25,7 +26,7 @@ export const RecordingPermissionDeniedNotification = ({
       <div className='str-chat__recording-permission-denied-notification__dismiss-button-container'>
         <button
           className='str-chat__recording-permission-denied-notification__dismiss-button'
-          onClick={dismiss}
+          onClick={() => setShow(false)}
         >
           {t<string>('Ok')}
         </button>

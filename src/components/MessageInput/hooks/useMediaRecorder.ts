@@ -1,9 +1,11 @@
-// import { Mp3Encoder } from '@breezystack/lamejs';
+import fixWebmDuration from 'fix-webm-duration';
 import { nanoid } from 'nanoid';
 import { Dispatch, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import fixWebmDuration from 'fix-webm-duration';
-import { AttachmentUploadState, VoiceRecordingAttachment } from '../types';
-import { createFileFromBlobs, getExtensionFromMimeType } from '../../ReactFileUtilities';
+import {
+  createFileFromBlobs,
+  getExtensionFromMimeType,
+  getRecordedMediaTypeFromMimeType,
+} from '../../ReactFileUtilities';
 import {
   MessageInputContextValue,
   useChannelActionContext,
@@ -12,19 +14,33 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { resampleWaveformData } from '../../Attachment';
-import { checkUploadPermissions } from './utils';
-import type { SendFileAPIResponse } from '../../../../../stream-chat-js';
-import type { DefaultStreamChatGenerics } from '../../../types';
-import type { MessageInputReducerAction } from './useMessageInputState';
 import { mergeDeep } from '../../../utils/mergeDeep';
 import { isSafari } from '../../../utils/browsers';
+import { checkUploadPermissions } from './utils';
+import {
+  PermissionNotGrantedHandler,
+  useBrowserPermissionState,
+} from './useBrowserPermissionState';
+import { AttachmentUploadState } from '../types';
 
-const MAX_FREQUENCY_AMPLITUDE = 255;
+import type { SendFileAPIResponse } from 'stream-chat';
+import type { VoiceRecordingAttachment } from '../types';
+import type { MessageInputReducerAction } from './useMessageInputState';
+import type { DefaultStreamChatGenerics } from '../../../types';
+import { LoadState, useTranscoding } from './useTranscoding';
+
+const MAX_FREQUENCY_AMPLITUDE = 255 as const;
 
 type AnalyserConfig = Pick<AnalyserNode, 'fftSize' | 'maxDecibels' | 'minDecibels'>;
 
 export enum RecordingAttachmentType {
   VOICE_RECORDING = 'voiceRecording',
+}
+
+export enum MediaRecordingState {
+  PAUSED = 'paused',
+  RECORDING = 'recording',
+  STOPPED = 'stopped',
 }
 
 export type AudioRecordingConfig = {
@@ -36,6 +52,7 @@ export type AudioRecordingConfig = {
   samplingFrequency: number;
   audioBitsPerSecond?: number;
   handleNotGrantedPermission?: PermissionNotGrantedHandler;
+  transcodeToMimeType?: string;
 };
 
 export type CustomAudioRecordingConfig = Partial<AudioRecordingConfig>;
@@ -62,77 +79,9 @@ const DEFAULT_CONFIG: {
     mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
     sampleCount: 100,
     samplingFrequency: 60,
+    // transcodeToMimeType: 'audio/mp4;codecs=mp4a.40.2',
   },
 } as const;
-
-// function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.onload = () => {
-//       if (reader.result instanceof ArrayBuffer) {
-//         resolve(reader.result);
-//       } else {
-//         reject(new Error('Failed to read Blob as ArrayBuffer'));
-//       }
-//     };
-//     reader.onerror = () => {
-//       reject(reader.error || new Error('Unknown error reading Blob as ArrayBuffer'));
-//     };
-//     reader.readAsArrayBuffer(blob);
-//   });
-// }
-
-// blobToArrayBuffer(new Blob(recordedData.current)).then((audioData) => {
-//   const mp3Blob = encodeToMP3(new Uint8Array(audioData));
-//   const uri = URL.createObjectURL(mp3Blob);
-//   recordingUri.current = uri;
-//   const title = generateRecordingTitle('audio/mp3');
-//   const recording = {
-//     $internal: {
-//       file: new File([mp3Blob], title, { type: mp3Blob.type }),
-//       id: nanoid(),
-//     },
-//     asset_url: uri,
-//     duration: durationMs / 1000,
-//     file_size: mp3Blob.size,
-//     mime_type: 'audio/mp3',
-//     title,
-//     type: DEFAULT_CONFIG.audio.attachmentType,
-//     waveform_data: resampleWaveformData(
-//         amplitudesRef.current,
-//         DEFAULT_CONFIG.audio.sampleCount,
-//     ),
-//   };
-//   console.log('recording size', recording.$internal.file.size);
-//   resolveProcessingPromise.current?.(recording);
-//   setVoiceRecording(recording);
-// });
-
-// const encodeToMP3 = (data: Uint8Array) => {
-//   const channels = 1; //1 for mono or 2 for stereo
-//   const sampleRate = 44100; //44.1khz (normal mp3 samplerate)
-//   const kbps = 128; //encode 128kbps mp3
-//   const mp3encoder = new Mp3Encoder(channels, sampleRate, kbps);
-//   const mp3Data = [];
-//
-//   const samples = new Int16Array(data); //one second of silence (get your data from the source you have)
-//   const sampleBlockSize = 1152; //can be anything but make it a multiple of 576 to make encoders life easier
-//
-//   for (let i = 0; i < samples.length; i += sampleBlockSize) {
-//     const sampleChunk = samples.subarray(i, i + sampleBlockSize);
-//     const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
-//     if (mp3buf.length > 0) {
-//       mp3Data.push(mp3buf);
-//     }
-//   }
-//   const lastMP3buf = mp3encoder.flush(); //finish writing mp3
-//
-//   if (lastMP3buf.length > 0) {
-//     mp3Data.push(new Int8Array(lastMP3buf));
-//   }
-//
-//   return new Blob(mp3Data, { type: 'audio/mp3' });
-// };
 
 const rootMeanSquare = (values: Uint8Array) =>
   Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val, 2), 0) / values.length);
@@ -145,26 +94,13 @@ const disposeOfMediaStream = (stream?: MediaStream) => {
   });
 };
 
-const queryPermissions = (name: PermissionName) => navigator.permissions.query({ name });
-
 const logError = (e: Error) => console.error('[VOICE RECORDING ERROR]', e);
 
-export enum MediaRecordingState {
-  PAUSED = 'paused',
-  RECORDING = 'recording',
-  STOPPED = 'stopped',
-}
-
-export enum RecordingPermission {
-  CAM = 'camera',
-  MIC = 'microphone',
-}
-
-export type VoiceRecordingController = {
+export type AudioRecordingController = {
   amplitudes: number[];
   cancelRecording: () => void;
   completeRecording: () => void;
-  dismissPermissionNotification: () => void;
+  isTranscoding: boolean;
   pauseRecording: () => void;
   resumeRecording: () => void;
   startRecording: () => void;
@@ -173,15 +109,11 @@ export type VoiceRecordingController = {
   analyserNode?: AnalyserNode;
   error?: Error;
   mediaRecorder?: MediaRecorder;
-  permissionDenied?: RecordingPermission;
+  permissionState?: PermissionState;
   recordingState?: MediaRecordingState;
+  transcoderLoadState?: LoadState;
   voiceRecording?: VoiceRecordingAttachment;
 };
-
-export type PermissionNotGrantedHandler = (params: {
-  permissionName: PermissionName;
-  permissionStatus: PermissionStatus;
-}) => void;
 
 type UseMediaRecorderParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -204,7 +136,7 @@ export const useMediaRecorder = <
   doFileUploadRequest,
   errorHandler,
   handleSubmit,
-}: UseMediaRecorderParams<StreamChatGenerics>): VoiceRecordingController => {
+}: UseMediaRecorderParams<StreamChatGenerics>): AudioRecordingController => {
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useMediaRecorder');
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('useMediaRecorder');
   const { channel } = useChannelStateContext<StreamChatGenerics>('useMediaRecorder');
@@ -215,7 +147,6 @@ export const useMediaRecorder = <
   const [amplitudes, setAmplitudes] = useState<number[]>([]);
   const [voiceRecording, setVoiceRecording] = useState<VoiceRecordingAttachment>();
   const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
-  const [permissionDenied, setPermissionDenied] = useState<RecordingPermission>();
 
   const mediaRecorder = useRef<MediaRecorder>();
   const analyserNode = useRef<AnalyserNode>();
@@ -251,9 +182,29 @@ export const useMediaRecorder = <
     generateRecordingTitle,
     handleNotGrantedPermission,
     mimeType,
+    transcodeToMimeType,
   } = audioRecordingConfig;
+  const mediaType = useMemo(() => getRecordedMediaTypeFromMimeType(mimeType), [mimeType]);
 
-  const dismissPermissionNotification = useCallback(() => setPermissionDenied(undefined), []);
+  const onError = useCallback(
+    (e: Error, notificationText?: string) => {
+      logError(e);
+      setError(e);
+      if (notificationText) addNotification(notificationText, 'error');
+    },
+    [addNotification],
+  );
+
+  const { checkPermissions, permissionState } = useBrowserPermissionState({
+    handleNotGrantedPermission,
+    mediaType,
+    onError,
+  });
+
+  const { isTranscoding, transcode, transcoderLoadState } = useTranscoding({
+    onError,
+    transcodeToMimeType,
+  });
 
   const stopCollectingAudioData = useCallback(() => {
     clearInterval(samplingInterval.current);
@@ -268,8 +219,7 @@ export const useMediaRecorder = <
       try {
         analyserNode.current?.getByteFrequencyData(frequencyBins);
       } catch (e) {
-        logError(e as Error);
-        setError(e as Error);
+        onError(e as Error);
         return;
       }
       const normalizedSignalStrength = rootMeanSquare(frequencyBins) / MAX_FREQUENCY_AMPLITUDE;
@@ -279,11 +229,10 @@ export const useMediaRecorder = <
         return newAmplitudes;
       });
     }, DEFAULT_CONFIG.audio.samplingFrequency);
-  }, [stopCollectingAudioData]);
+  }, [onError, stopCollectingAudioData]);
 
   const resetRecordingState = useCallback(() => {
     recordedData.current = [];
-    setPermissionDenied(undefined);
     setVoiceRecording(undefined);
     setRecordingState(undefined);
     setAmplitudes([]);
@@ -298,51 +247,64 @@ export const useMediaRecorder = <
       if (!e.data.size) return;
       recordedData.current.push(e.data);
       if (!recordedData.current.length) return;
-      // The browser does not include duration metadata with the recorded blob
-      fixWebmDuration(new Blob(recordedData.current, { type: mimeType }), durationMs, {
-        logger: () => null,
-      })
-        .then((repairedBlob) => {
-          if (recordingUri.current) URL.revokeObjectURL(recordingUri.current);
-          const uri = URL.createObjectURL(repairedBlob);
-          recordingUri.current = uri;
-          const title = generateRecordingTitle(mimeType);
-          const recording = {
-            $internal: {
-              file: createFileFromBlobs({
-                blobsArray: [repairedBlob],
-                fileName: title,
-                mimeType,
-              }),
-              id: nanoid(),
-            },
-            asset_url: uri,
-            duration: durationMs / 1000,
-            file_size: repairedBlob.size,
-            mime_type: mimeType,
-            title,
-            type: DEFAULT_CONFIG.audio.attachmentType,
-            waveform_data: resampleWaveformData(
-              amplitudesRef.current,
-              DEFAULT_CONFIG.audio.sampleCount,
-            ),
-          };
-          resolveProcessingPromise.current?.(recording);
-          setVoiceRecording(recording);
+
+      const initialBlob = new Blob(recordedData.current, { type: mimeType });
+
+      const makeVoiceRecording = async (blob: Blob) => {
+        if (recordingUri.current) URL.revokeObjectURL(recordingUri.current);
+        let finalBlob = blob;
+        if (transcode) {
+          const transcodedBlob = await transcode(finalBlob);
+          if (transcodedBlob) finalBlob = transcodedBlob;
+        }
+        const uri = URL.createObjectURL(finalBlob);
+        recordingUri.current = uri;
+        const title = generateRecordingTitle(finalBlob.type);
+        const recording = {
+          $internal: {
+            file: createFileFromBlobs({
+              blobsArray: [finalBlob],
+              fileName: title,
+              mimeType: finalBlob.type,
+            }),
+            id: nanoid(),
+          },
+          asset_url: uri,
+          duration: durationMs / 1000,
+          file_size: finalBlob.size,
+          mime_type: finalBlob.type,
+          title,
+          type: DEFAULT_CONFIG.audio.attachmentType,
+          waveform_data: resampleWaveformData(
+            amplitudesRef.current,
+            DEFAULT_CONFIG.audio.sampleCount,
+          ),
+        };
+        resolveProcessingPromise.current?.(recording);
+        setVoiceRecording(recording);
+      };
+
+      if (mimeType.match('audio/webm')) {
+        // The browser does not include duration metadata with the recorded blob
+        fixWebmDuration(initialBlob, durationMs, {
+          logger: () => null,
         })
-        .catch((e) => {
-          logError(e);
-          setError(e);
-        });
+          .then(makeVoiceRecording)
+          .catch(onError);
+      } else {
+        makeVoiceRecording(initialBlob);
+      }
     },
-    [generateRecordingTitle, mimeType],
+    [generateRecordingTitle, mimeType, onError, transcode],
   );
 
-  const handleError = useCallback((e: Event) => {
-    const error = (e as ErrorEvent).error;
-    logError(error);
-    setError(error);
-  }, []);
+  const handleErrorEvent = useCallback(
+    (e: Event) => {
+      const error = (e as ErrorEvent).error;
+      onError(error);
+    },
+    [onError],
+  );
 
   const uploadRecording = useCallback(
     async ({ $internal, ...recording }: VoiceRecordingAttachment) => {
@@ -358,7 +320,8 @@ export const useMediaRecorder = <
       });
 
       if (!canUpload) {
-        addNotification(t('Missing permissions to upload the recording'), 'error');
+        const notificationText = t('Missing permissions to upload the recording');
+        onError(new Error(notificationText), notificationText);
       }
 
       if (asyncMessagesMultiSendEnabled) {
@@ -401,9 +364,7 @@ export const useMediaRecorder = <
           finalError = Object.assign(finalError, error);
         }
 
-        addNotification(finalError.message, 'error');
-        logError(finalError);
-        setError(finalError);
+        onError(finalError, finalError.message);
 
         dispatch({
           attachment: {
@@ -431,6 +392,7 @@ export const useMediaRecorder = <
       dispatch,
       errorHandler,
       getAppSettings,
+      onError,
       t,
     ],
   );
@@ -444,9 +406,9 @@ export const useMediaRecorder = <
     if (mediaRecorder.current) {
       disposeOfMediaStream(mediaRecorder.current.stream);
       mediaRecorder.current.removeEventListener('dataavailable', handleDataavailable);
-      mediaRecorder.current.removeEventListener('error', handleError);
+      mediaRecorder.current.removeEventListener('error', handleErrorEvent);
     }
-  }, [handleDataavailable, handleError, resetRecordingState]);
+  }, [handleDataavailable, handleErrorEvent, resetRecordingState]);
 
   const pauseRecording = useCallback(() => {
     if (startTime.current) {
@@ -499,34 +461,18 @@ export const useMediaRecorder = <
   }, [asyncMessagesMultiSendEnabled, cleanUp, stopRecording, voiceRecording, uploadRecording]);
 
   const startRecording = useCallback(() => {
-    const logErrorStarting = (error: Error) => {
-      const message = t(`Error starting recording`);
-      logError(error);
-      setError(error);
-      addNotification(message, 'error');
-    };
+    const notificationText = t(`Error starting recording`);
+
     if (!navigator.mediaDevices) {
       // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
-      logErrorStarting(new Error(t('Media recording is not supported')));
+      onError(new Error(t('Media recording is not supported')), notificationText);
       return;
     }
-    const start = async () => {
-      const permissionName = 'microphone' as PermissionName;
-      let permissionStatus;
-      try {
-        permissionStatus = await queryPermissions(permissionName);
-      } catch (e) {
-        logErrorStarting(t('Unsupported permission request'));
-        return;
-      }
 
-      if (permissionStatus.state !== 'granted' && handleNotGrantedPermission) {
-        handleNotGrantedPermission({ permissionName, permissionStatus });
-      }
-      if (permissionStatus.state === 'denied') {
-        setPermissionDenied(RecordingPermission.MIC);
-        return;
-      }
+    const start = async () => {
+      const permissionState = await checkPermissions();
+
+      if (permissionState === 'denied') return;
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -536,7 +482,7 @@ export const useMediaRecorder = <
         });
 
         mediaRecorder.current.addEventListener('dataavailable', handleDataavailable);
-        mediaRecorder.current.addEventListener('error', handleError);
+        mediaRecorder.current.addEventListener('error', handleErrorEvent);
 
         audioContext.current = new AudioContext();
 
@@ -553,19 +499,19 @@ export const useMediaRecorder = <
         startCollectingAudioData();
         setRecordingState(MediaRecordingState.RECORDING);
       } catch (error) {
-        logErrorStarting(error as Error);
+        onError(error as Error, notificationText);
         cancelRecording();
       }
     };
 
     start();
   }, [
-    addNotification,
     audioBitsPerSecond,
     cancelRecording,
+    checkPermissions,
     handleDataavailable,
-    handleError,
-    handleNotGrantedPermission,
+    handleErrorEvent,
+    onError,
     mimeType,
     startCollectingAudioData,
     t,
@@ -589,15 +535,16 @@ export const useMediaRecorder = <
     analyserNode: analyserNode.current,
     cancelRecording,
     completeRecording,
-    dismissPermissionNotification,
     error,
+    isTranscoding,
     mediaRecorder: mediaRecorder.current,
     pauseRecording,
-    permissionDenied,
+    permissionState,
     recordingState,
     resumeRecording,
     startRecording,
     stopRecording,
+    transcoderLoadState,
     uploadRecording,
     voiceRecording,
   };

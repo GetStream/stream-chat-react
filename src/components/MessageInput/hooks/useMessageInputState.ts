@@ -8,7 +8,7 @@ import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import { useMediaRecorder, VoiceRecordingController } from './useMediaRecorder';
+import { AudioRecordingController, useMediaRecorder } from './useMediaRecorder';
 import {
   AttachmentUploadState,
   LinkPreviewState,
@@ -139,7 +139,7 @@ export type MessageInputHookProps<
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
-  voiceRecordingController: VoiceRecordingController;
+  voiceRecordingController: AudioRecordingController;
 };
 
 const makeEmptyMessageInputState = <
