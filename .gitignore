@@ -74,3 +74,8 @@ client/dist
 /.virtualgo
 .vscode/
 coverage.out
+
+# stream-chat-css/docusaurus files
+docusaurus/docs/React/theming
+docusaurus/docs/React/assets/stream-chat-css*
+shared
