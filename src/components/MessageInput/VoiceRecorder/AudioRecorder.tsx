@@ -12,19 +12,16 @@ import { AudioRecordingInProgress } from './AudioRecordingInProgress';
 import { useMessageInputContext } from '../../../context';
 import { MediaRecordingState } from '../hooks/useMediaRecorder';
 import { AttachmentUploadState } from '../types';
-import { LoadState } from '../hooks/useTranscoding';
 
 export const AudioRecorder = () => {
   const {
     voiceRecordingController: {
       cancelRecording,
       completeRecording,
-      isTranscoding,
       pauseRecording,
       recordingState,
       resumeRecording,
       stopRecording,
-      transcoderLoadState,
       voiceRecording,
     },
   } = useMessageInputContext();
@@ -75,11 +72,7 @@ export const AudioRecorder = () => {
             disabled={isUploadingFile}
             onClick={completeRecording}
           >
-            {isUploadingFile || isTranscoding || transcoderLoadState === LoadState.LOADING ? (
-              <LoadingIndicatorIcon />
-            ) : (
-              <SendIconV2 />
-            )}
+            {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIconV2 />}
           </button>
         ) : (
           <button className='str-chat__audio_recorder__stop-button' onClick={stopRecording}>

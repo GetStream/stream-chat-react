@@ -27,7 +27,6 @@ import type { SendFileAPIResponse } from 'stream-chat';
 import type { VoiceRecordingAttachment } from '../types';
 import type { MessageInputReducerAction } from './useMessageInputState';
 import type { DefaultStreamChatGenerics } from '../../../types';
-import { LoadState, useTranscoding } from './useTranscoding';
 
 const MAX_FREQUENCY_AMPLITUDE = 255 as const;
 
@@ -52,7 +51,6 @@ export type AudioRecordingConfig = {
   samplingFrequency: number;
   audioBitsPerSecond?: number;
   handleNotGrantedPermission?: PermissionNotGrantedHandler;
-  transcodeToMimeType?: string;
 };
 
 export type CustomAudioRecordingConfig = Partial<AudioRecordingConfig>;
@@ -79,7 +77,6 @@ const DEFAULT_CONFIG: {
     mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
     sampleCount: 100,
     samplingFrequency: 60,
-    // transcodeToMimeType: 'audio/mp4;codecs=mp4a.40.2',
   },
 } as const;
 
@@ -100,7 +97,6 @@ export type AudioRecordingController = {
   amplitudes: number[];
   cancelRecording: () => void;
   completeRecording: () => void;
-  isTranscoding: boolean;
   pauseRecording: () => void;
   resumeRecording: () => void;
   startRecording: () => void;
@@ -111,7 +107,6 @@ export type AudioRecordingController = {
   mediaRecorder?: MediaRecorder;
   permissionState?: PermissionState;
   recordingState?: MediaRecordingState;
-  transcoderLoadState?: LoadState;
   voiceRecording?: VoiceRecordingAttachment;
 };
 
@@ -182,7 +177,6 @@ export const useMediaRecorder = <
     generateRecordingTitle,
     handleNotGrantedPermission,
     mimeType,
-    transcodeToMimeType,
   } = audioRecordingConfig;
   const mediaType = useMemo(() => getRecordedMediaTypeFromMimeType(mimeType), [mimeType]);
 
@@ -199,11 +193,6 @@ export const useMediaRecorder = <
     handleNotGrantedPermission,
     mediaType,
     onError,
-  });
-
-  const { isTranscoding, transcode, transcoderLoadState } = useTranscoding({
-    onError,
-    transcodeToMimeType,
   });
 
   const stopCollectingAudioData = useCallback(() => {
@@ -250,13 +239,9 @@ export const useMediaRecorder = <
 
       const initialBlob = new Blob(recordedData.current, { type: mimeType });
 
-      const makeVoiceRecording = async (blob: Blob) => {
+      const makeVoiceRecording = (blob: Blob) => {
         if (recordingUri.current) URL.revokeObjectURL(recordingUri.current);
-        let finalBlob = blob;
-        if (transcode) {
-          const transcodedBlob = await transcode(finalBlob);
-          if (transcodedBlob) finalBlob = transcodedBlob;
-        }
+        const finalBlob = blob;
         const uri = URL.createObjectURL(finalBlob);
         recordingUri.current = uri;
         const title = generateRecordingTitle(finalBlob.type);
@@ -295,7 +280,7 @@ export const useMediaRecorder = <
         makeVoiceRecording(initialBlob);
       }
     },
-    [generateRecordingTitle, mimeType, onError, transcode],
+    [generateRecordingTitle, mimeType, onError],
   );
 
   const handleErrorEvent = useCallback(
@@ -536,7 +521,6 @@ export const useMediaRecorder = <
     cancelRecording,
     completeRecording,
     error,
-    isTranscoding,
     mediaRecorder: mediaRecorder.current,
     pauseRecording,
     permissionState,
@@ -544,7 +528,6 @@ export const useMediaRecorder = <
     resumeRecording,
     startRecording,
     stopRecording,
-    transcoderLoadState,
     uploadRecording,
     voiceRecording,
   };
