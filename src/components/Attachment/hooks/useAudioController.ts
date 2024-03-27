@@ -78,6 +78,7 @@ export const useAudioController = ({
         })
         .catch((e) => {
           registerError(e);
+          setIsPlaying(false);
         })
         .finally(() => {
           clearTimeout(playTimeout.current);
@@ -107,11 +108,11 @@ export const useAudioController = ({
       const { width, x } = currentTarget.getBoundingClientRect();
 
       const ratio = (clientX - x) / width;
-
+      if (ratio > 1 || ratio < 0) return;
       const currentTime = ratio * audioRef.current.duration;
       setSecondsElapsed(currentTime);
       audioRef.current.currentTime = currentTime;
-    }, 60),
+    }, 16),
     [isSeekable, t],
   );
 
@@ -127,6 +128,7 @@ export const useAudioController = ({
 
     const handleError = () => {
       addNotification(t<string>('Error reproducing the recording'), 'error');
+      setIsPlaying(false);
     };
     audioElement.addEventListener('error', handleError);
 

@@ -1,8 +1,7 @@
 import React, {
-  MouseEvent,
-  MouseEventHandler,
-  TouchEvent,
-  TouchEventHandler,
+  PointerEventHandler,
+  useCallback,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -32,35 +31,37 @@ export const WaveProgressBar = ({
   const isDragging = useRef(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const handleDragStart = (e: MouseEvent | TouchEvent) => {
+  const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
     if (!progressIndicator) return;
     isDragging.current = true;
     progressIndicator.style.cursor = 'grabbing';
   };
 
-  const handleMouseMove: MouseEventHandler<HTMLDivElement> = (event) => {
+  const handleDrag: PointerEventHandler<HTMLDivElement> = (e) => {
     if (!isDragging.current) return;
-    seek({ ...event });
+    // Due to throttling of seek, it is necessary to create a copy (snapshot) of the event.
+    // Otherwise, the event would be nullified at the point when the throttled function is executed.
+    seek({ ...e });
   };
 
-  const handleTouchMove: TouchEventHandler<HTMLDivElement> = (event) => {
-    if (!(rootRef.current && isDragging.current)) return;
-    event.preventDefault();
-    const touch = event.touches[0];
-    seek({ clientX: touch.clientX, currentTarget: rootRef.current });
-  };
-
-  const handleMouseUp = () => {
+  const handleDragStop = useCallback(() => {
     if (!progressIndicator) return;
     isDragging.current = false;
     progressIndicator.style.removeProperty('cursor');
-  };
+  }, [progressIndicator]);
 
   const resampledWaveformData = useMemo(() => resampleWaveformData(waveformData, amplitudesCount), [
     amplitudesCount,
     waveformData,
   ]);
+
+  useEffect(() => {
+    document.addEventListener('pointerup', handleDragStop);
+    return () => {
+      document.removeEventListener('pointerup', handleDragStop);
+    };
+  }, [handleDragStop]);
 
   if (!waveformData.length) return null;
 
@@ -69,13 +70,9 @@ export const WaveProgressBar = ({
       className='str-chat__wave-progress-bar__track'
       data-testid='wave-progress-bar-track'
       onClick={seek}
-      onMouseDown={handleDragStart}
-      onMouseLeave={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onTouchEnd={handleMouseUp}
-      onTouchMove={handleTouchMove}
-      onTouchStart={handleDragStart}
+      onPointerDown={handleDragStart}
+      onPointerMove={handleDrag}
+      onPointerUp={handleDragStop}
       ref={rootRef}
       role='progressbar'
     >
