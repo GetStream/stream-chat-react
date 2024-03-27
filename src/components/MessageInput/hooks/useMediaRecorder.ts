@@ -48,7 +48,7 @@ export type AudioRecordingConfig = {
   generateRecordingTitle: (mimeType: string) => string;
   mimeType: string;
   sampleCount: number;
-  samplingFrequency: number;
+  samplingFrequencyMs: number;
   audioBitsPerSecond?: number;
   handleNotGrantedPermission?: PermissionNotGrantedHandler;
 };
@@ -76,7 +76,7 @@ const DEFAULT_CONFIG: {
       `audio_recording_${new Date().toISOString()}.${getExtensionFromMimeType(mimeType)}`, // extension needed so that desktop Safari can play the asset
     mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
     sampleCount: 100,
-    samplingFrequency: 60,
+    samplingFrequencyMs: 60,
   },
 } as const;
 
@@ -217,7 +217,7 @@ export const useMediaRecorder = <
         amplitudesRef.current = newAmplitudes;
         return newAmplitudes;
       });
-    }, DEFAULT_CONFIG.audio.samplingFrequency);
+    }, DEFAULT_CONFIG.audio.samplingFrequencyMs);
   }, [onError, stopCollectingAudioData]);
 
   const resetRecordingState = useCallback(() => {
