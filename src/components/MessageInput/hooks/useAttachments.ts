@@ -31,6 +31,10 @@ export const useAttachments = <
     'useAttachments',
   );
 
+  const removeAttachment = (id: string) => {
+    dispatch({ id, type: 'removeAttachment' });
+  };
+
   const { removeFile, uploadFile } = useFileUploads<StreamChatGenerics, V>(props, state, dispatch);
 
   const { removeImage, uploadImage } = useImageUploads<StreamChatGenerics, V>(
@@ -84,6 +88,7 @@ export const useAttachments = <
   return {
     maxFilesLeft,
     numberOfUploads,
+    removeAttachment,
     removeFile,
     removeImage,
     uploadFile,

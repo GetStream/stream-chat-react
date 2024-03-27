@@ -21,6 +21,7 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { FileUpload, ImageUpload } from './types';
+import type { CustomAudioRecordingConfig } from './hooks/useMediaRecorder';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -42,6 +43,14 @@ export type MessageInputProps<
 > = {
   /** Additional props to be passed to the underlying `AutoCompleteTextarea` component, [available props](https://www.npmjs.com/package/react-textarea-autosize) */
   additionalTextareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+  /**
+   * When enabled, recorded messages won’t be sent immediately.
+   * Instead, they will “stack up” with other attachments in the message composer allowing the user to send multiple attachments as part of the same message.
+   */
+  asyncMessagesMultiSendEnabled?: boolean;
+  audioRecordingConfig?: CustomAudioRecordingConfig;
+  /** Controls whether the users will be provided with the UI to record voice messages. */
+  audioRecordingEnabled?: boolean;
   /** Function to clear the editing state while editing a message */
   clearEditingState?: () => void;
   /** If true, disables the text input */

@@ -9,5 +9,8 @@ export * from './MessageInput';
 export * from './MessageInputFlat';
 export * from './MessageInputSmall';
 export * from './QuotedMessagePreview';
+export * from './RecordingPermissionDeniedNotification';
+export * from './SendButton';
 export * from './UploadsPreview';
 export * from './types';
+export * from './VoiceRecorder/AudioRecorder';
