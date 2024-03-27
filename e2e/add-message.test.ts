@@ -1,6 +1,7 @@
 /* eslint-disable jest/expect-expect */
 /* eslint-disable jest/no-done-callback */
 /* eslint-disable jest/require-top-level-describe */
+/* eslint-disable jest/no-commented-out-tests */
 import selectors from './user/selectors';
 import { test } from './user/test';
 
