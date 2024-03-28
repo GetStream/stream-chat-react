@@ -3,10 +3,7 @@ id: message_actions
 title: Message Actions
 ---
 
-import CustomMessageAction from '../../../assets/CustomMessageAction.png';
-
-In this example, we will demonstrate how to add a custom message action. By default, the component library supports
-the following message actions:
+In this example, we will demonstrate how to add a custom message action. By default, the component library supports the following message actions:
 
 - `delete`
 - `edit`
@@ -17,37 +14,67 @@ the following message actions:
 - `react`
 - `reply`
 
-The `MessageList` component accepts a prop called [`customMessageActions`](../../../components/core-components/message-list.mdx#custommessageactions).
-This prop is an object type, with the key serving as the name of the action and the value as the handler function to be run on click.
+## Using customMessageActions
 
-In the simple example below, we'll add a custom option `Yell`, which will call a window alert on click.
+The `MessageList` component accepts a prop called [`customMessageActions`](../../../components/core-components/message-list.mdx#custommessageactions). This prop is an object type, with the key serving as the name (and the title) of the action and the value as the handler function to be run on click.
+
+In the examples below, we'll add a custom option `Yell`, which will call a window alert on click.
 
 :::note
 The custom action handler receives both the `message` object and on click `event` as function arguments.
 :::
 
 ```tsx
-const yellActionHandler = (message: StreamMessage, event: React.BaseSyntheticEvent) => {
-  // do something custom with the message and event
-  window.alert('Yell Action Clicked!');
+import { MessageList } from 'stream-chat-react';
+import type { CustomMessageActions } from 'stream-chat-react';
+
+const customMessageActions: CustomMessageActions = {
+  Yell: (message, event) => {
+    window.alert(`Yell action clicked on message: ${message.id}!`);
+  },
 };
 
-const customMessageActions = { Yell: yellActionHandler };
+export const WrappedMessageList = () => {
+  return <MessageList customMessageActions={customMessageActions} />;
+};
 ```
 
-Once the mapping of custom actions has been created, pass it to the `MessageList` component.
+## Using CustomMessageActionList Component
+
+If you need more flexibility - for example; adding translations to your action titles - you can utilise `CustomMessageActionList` component instead.
+
+:::note
+Unless you replicate the internal functionality of the default [`CustomMessageActionList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageActions/CustomMessageActionsList.tsx) you'll be only able to use one of the customization options mentioned in this guide.
+:::
 
 ```tsx
-const App = () => (
-  <Chat client={client}>
-    <Channel channel={channel}>
-      <MessageList customMessageActions={customMessageActions} />
-      <MessageInput />
-    </Channel>
-  </Chat>
+import { Channel } from 'stream-chat-react';
+
+const CustomMessageActionList = () => {
+  const { message } = useMessageContext('CustomMessageActionList');
+  const { t } = useTranslationContext('CustomMessageActionList');
+
+  return (
+    <>
+      <button
+        className='str-chat__message-actions-list-item str-chat__message-actions-list-item-button'
+        onClick={(event) => {
+          window.alert(`Yell action clicked on message: ${message.id}!`);
+        }}
+      >
+        {t('yell')}
+      </button>
+
+      {/** ...other action buttons... */}
+    </>
+  );
+};
+
+export const WrappedChannel = ({ children }) => (
+  <Channel CustomMessageActionList={CustomMessageActionList}>{children}</Channel>
 );
 ```
 
-The custom actions will display on top of the defaults in the message actions list.
+The custom actions will be displayed on top of the defaults in the message actions list.
 
-<img src={CustomMessageAction} alt='Custom Message Action' width='700' />
+![Preview of the Custom Message Action](../../../assets/custom-message-action.png)
