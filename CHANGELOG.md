@@ -1,3 +1,15 @@
+## [11.13.0](https://github.com/GetStream/stream-chat-react/compare/v11.12.2...v11.13.0) (2024-03-29)
+
+
+### Bug Fixes
+
+* suggestion onClickHandler type ([#2343](https://github.com/GetStream/stream-chat-react/issues/2343)) ([1ff586a](https://github.com/GetStream/stream-chat-react/commit/1ff586adbe4b50c5de02f6f78f02f3c41b8f7c31))
+
+
+### Features
+
+* allow EmojiPicker to be closed on emoji click ([#2336](https://github.com/GetStream/stream-chat-react/issues/2336)) ([87bf84c](https://github.com/GetStream/stream-chat-react/commit/87bf84c3219807e1a21e700d8033b43c10abfa4a))
+
 ## [11.12.2](https://github.com/GetStream/stream-chat-react/compare/v11.12.1...v11.12.2) (2024-03-19)
 
 
