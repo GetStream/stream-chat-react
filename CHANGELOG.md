@@ -1,3 +1,10 @@
+## [11.13.1](https://github.com/GetStream/stream-chat-react/compare/v11.13.0...v11.13.1) (2024-04-02)
+
+
+### Chores
+
+* **deps:** drop @react-aria/focus version ([#2350](https://github.com/GetStream/stream-chat-react/issues/2350)) ([c3807d5](https://github.com/GetStream/stream-chat-react/commit/c3807d52b338c65285008c27b96e3d9c327d7c92))
+
 ## [11.13.0](https://github.com/GetStream/stream-chat-react/compare/v11.12.2...v11.13.0) (2024-03-29)
 
 
