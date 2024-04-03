@@ -1,276 +1,578 @@
 ---
 id: channel_list_preview
-title: Channel List and Preview
+title: Channel List UI
 ---
 
-import CustomPreview from '../../assets/CustomPreview.png';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import ImageShowcase from '@site/src/components/ImageShowcase';
 
-## How-to Guide for Customizing the ChannelList UI
+![](../../assets/channel-list.png)
 
-To customize the UI for the [`ChannelList`](../../components/core-components/channel-list.mdx) you need to focus on the two components that dictate the UI, the list and preview components. These are set via the optional `List` and `Preview` props, and if nothing is provided they default to
-[`ChannelListMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx)
-and [`ChannelPreviewMessenger`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelPreviewMessenger.tsx).
+[`ChannelList`](../../components/core-components/channel-list.mdx) is a primary navigation component of a chat, used to display and
+switch between available channels. Due to the dynamic, real-time nature of chat,
+the [`ChannelList`](../../components/core-components/channel-list.mdx) component needs to subscribe to and handle many different
+types of events to keep the list state up to date. This includes handling new
+message events and updates to the existing ones, channel update events, channel
+member presence events, and so on.
 
-Here is a guide to build these two UI components to override the defaults.
+That's a lot of work, and if done incorrectly, it's easy to miss an important
+event. That is why we always recommend building on top of the [`ChannelList`](../../components/core-components/channel-list.mdx)
+component provided by the SDK, even if you need to do some major customization.
+Fortunately, the component itself is very flexible, and basically everything
+about it can be customized. It supports
 
-## The List Prop Component
+1. [Custom channel preview](#custom-channel-preview)
+2. [Custom channel list wrapper](#custom-channel-list-wrapper)
+3. [Custom channel list renderer](#custom-channel-list-renderer)
+4. [Custom paginator](../channel-list-infinite-scroll.mdx)
 
-The list component used by `ChannelList` receives the same props as the default and is a container that renders the list of channels via the children prop. The return block in the code below is an example of the minimum necessary elements
-needed for a custom list component.
+This guide takes a deep dive into these customization options.
 
-```jsx
-return <div>{props.children}</div>;
-```
+## Custom Channel Preview
 
-Using the default `ChannelListMessenger` component as a model, let's incorporate the other props to render the list conditionally.
+You can think of a channel preview as a single item of the channel list. The
+preview should accurately display the current channel state and handle user
+interactions to switch to the selected channel.
 
-```jsx
-if (props.error) {
-  return <div>Warning! Error Message!</div>;
-}
+![](../../assets/channel-list-preview.png)
 
-if (props.loading) {
-  return null;
-}
-```
-
-The items we're rendering in those conditionals are not very helpful for the user, so let's take advantage of several of the library's status indicator components via the `LoadingErrorIndicator` and `LoadingIndicator`
-props and assign the default values for each, `ChatDown` and `LoadingChannels`. This assignment is necessary here to satisfy TypeScript since these props are optional.
-
-```jsx
-import { ChatDown, LoadingChannels } from 'stream-chat-react';
-
-const { LoadingErrorIndicator = ChatDown, LoadingIndicator = LoadingChannels } = props;
-
-if (error) {
-  return <LoadingErrorIndicator type={'connection'} />;
-}
-
-if (loading) {
-  return <LoadingIndicator />;
-}
-```
-
-To use a custom component (or a different library component) for either the `LoadingErrorIndicator` or `LoadingIndicator` props here (and in the default list component, too),
-you can utilize the props of the same names on `ChannelList`. If either of these props are provided, then the assignment mentioned in the above step is not necessary.
+You can customize the look and behavior of the channel previews by providing a
+custom component in the [`Preview`](../../components/core-components/channel-list.mdx#preview) prop of the `ChannelList` component. When
+rendering previews, `ChannelList` wraps each item with a `ChannelPreview`
+wrapper that handles channel events such as new, updated and deleted messages.
+This way, you don't have to subscribe to these events yourself, and you can just
+grab the latest state from the props instead.
 
 ```jsx
-const CustomErrorIndicator = (props: ChatDownProps) => {
-  return <div>So much error when rendering.</div>;
-};
-
-<ChannelList
-  LoadingErrorIndicator={(props) => <CustomErrorIndicator {...props} type={'connection'} />}
-/>;
+<ChannelList Preview={CustomChannelPreview} />
+// Don't forget to provide filter and sort options as well!
 ```
 
-This is a basic example, but possibilities are endless for
-adding additional UI items, not using all the props, and incorporating other logic that fit your requirements.
+Let's implement a simple custom preview:
 
-**The Final Code:**
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
 ```jsx
-const CustomList = (props: PropsWithChildren<ChannelListMessengerProps>) => {
-  const { children, error, loading, LoadingErrorIndicator, LoadingIndicator } = props;
-
-  if (error) {
-    return <LoadingErrorIndicator text='Loading Error - check your connection.' type='connection' />;
-  }
-
-  if (loading) {
-    return <LoadingIndicator />;
-  }
-
-  return <div>{children}</div>;
-};
-
-const CustomErrorIndicator = (props: ChatDownProps) => {
-  const { text } = props;
-
-  return <div>{text}</div>;
-};
-
-const CustomLoadingIndicator = () => {
-  return <div>Loading, loading, loading...</div>;
-};
-
-<Chat client={client}>
-  <ChannelList
-    List={CustomList}
-    LoadingErrorIndicator={CustomErrorIndicator}
-    LoadingIndicator={CustomLoadingIndicator}
-  />
-  <Channel>
-    <MessageList />
-    <MessageInput />
-  </Channel>
-</Chat>;
-```
-
-## The Preview Prop Component
-
-The component set via the `Preview` prop (or the default) dictates the design and click functionality of an individual channel in the list that we built above.
-Ultimately, these UI components are rendered via the [`ChannelPreview`](../../components/utility-components/channel-preview.mdx) wrapper component.
-
-Here is a guide to build a custom UI component to override the default using the large variety of props provided.
-The code snippet below includes the bare minimum code that would be required for standard preview functionality (click handler and active channel selection), and anything additional would be to satisfy unique requirements.
-
-```tsx
-import { ChannelPreviewUIComponentProps } from 'stream-chat-react';
-
-export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
-  const { channel, setActiveChannel, watchers } = props;
-
-  return (
-    <div onClick={() => setActiveChannel(channel, watchers)}>
-      <span>{channel.data.name || 'Channel Preview'}</span>
+const CustomChannelPreview = ({ displayImage, displayTitle, latestMessage }) => (
+  <div className='channel-preview'>
+    <img className='channel-preview__avatar' src={displayImage} alt='' />
+    <div className='channel-preview__main'>
+      <div className='channel-preview__header'>{displayTitle}</div>
+      <div className='channel-preview__message'>{latestMessage}</div>
     </div>
-  );
-};
+  </div>
+);
 ```
 
-Let's take advantage of the SDK's [CSS classes](../theming/css-and-theming.mdx) for styling. We'll import the bundled CSS into the file where the application is instantiated then apply a class to the button element.
+</TabItem>
+<TabItem value="css" label="CSS">
 
-```tsx
-import 'stream-chat-react/dist/css/v2/index.css';
+```css
+.channel-preview {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.9em;
+  line-height: 1.2em;
+}
 
-<div
-  className={'str-chat__channel-preview-messenger'}
-  onClick={() => setActiveChannel(channel, watchers)}
->
+.channel-preview__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.channel-preview__main {
+  flex-grow: 1;
+}
+
+.channel-preview__header {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.channel-preview__message {
+  max-height: 2.4em;
+  overflow: hidden;
+  color: #858688;
+}
+
+.channel-preview__message p {
+  margin: 0;
+}
 ```
 
-Next, let's add a bit more useful information to the component using more of the default props and a value pulled from the `ChatContext`, as well as some styling using custom CSS.
-This context also exposes the client which makes it possible to use API methods.
+</TabItem>
+</Tabs>
 
-:::note
-For a complete overview of the available props in the custom component, take a look at the [ChannelPreview UI props](../../components/utility-components/channel-preview-ui.mdx#props) section.
-:::
+(See also the complete reference of [the available preview component props](../../components/utility-components/channel-preview-ui.mdx).)
 
-**The Final Code:**
+![](../../assets/channel-list-preview-custom.png)
 
-```tsx
-import { ChannelPreviewUIComponentProps, useChatContext } from 'stream-chat-react';
-import './CustomPreview.scss';
+The props provided to the preview component are usually sufficient to render the
+preview. However, if you need additional data, you can always get it from the
+channel state. In this next example, we will add the timestamp of the latest
+message in the channel:
 
-export const CustomPreview = (props: ChannelPreviewUIComponentProps) => {
-  const { channel, setActiveChannel } = props;
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
-  const { channel: activeChannel } = useChatContext();
+```jsx
+const CustomChannelPreview = (props) => {
+  const { channel, displayImage, displayTitle, latestMessage } = props;
+  const { userLanguage } = useTranslationContext();
+  const latestMessageAt = channel.state.last_message_at;
 
-  const selected = channel?.id === activeChannel?.id;
-
-  const renderMessageText = () => {
-    const lastMessageText = channel.state.messages[channel.state.messages.length - 1].text;
-
-    const text = lastMessageText || 'message text';
-
-    return text.length < 60 ? lastMessageText : `${text.slice(0, 70)}...`;
-  };
-
-  if (!channel.state.messages.length) return null;
+  const timestamp = useMemo(() => {
+    if (!latestMessageAt) {
+      return '';
+    }
+    const formatter = new Intl.DateTimeFormat(userLanguage, {
+      timeStyle: 'short',
+    });
+    return formatter.format(latestMessageAt);
+  }, [latestMessageAt, userLanguage]);
 
   return (
-    <div
-      className={selected ? 'channel-preview__container selected' : 'channel-preview__container'}
-      onClick={() => setActiveChannel(channel)}
-    >
-      <div className='channel-preview__content-wrapper'>
-        <div className='channel-preview__content-top'>
-          <p className='channel-preview__content-name'>{channel.data?.name || 'Channel'}</p>
-          <p className='channel-preview__content-name'>{channel.data?.subtitle}</p>
+    <div className='channel-preview'>
+      <img className='channel-preview__avatar' src={displayImage} alt='' />
+      <div className='channel-preview__main'>
+        <div className='channel-preview__header'>
+          {displayTitle}
+          <time dateTime={latestMessageAt?.toISOString()} className='channel-preview__timestamp'>
+            {timestamp}
+          </time>
         </div>
-        <p className='channel-preview__content-message'>{renderMessageText()}</p>
+        <div className='channel-preview__message'>{latestMessage}</div>
       </div>
     </div>
   );
 };
 ```
 
+</TabItem>
+<TabItem value="css" label="CSS">
+
 ```css
-.channel-preview__container {
-  height: 56px;
-  margin-bottom: 8px;
-  margin-left: 20px;
-  margin-right: 20px;
-  border-radius: 8px;
-  cursor: pointer;
+.channel-preview {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.9em;
+  line-height: 1.2em;
+}
+
+.channel-preview__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.channel-preview__main {
+  flex-grow: 1;
+}
+
+.channel-preview__header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-left: 8px;
-}
-
-.channel-preview__container:hover {
-  background: #ffffff;
-  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.07);
-  transition: background 0.1s ease-in-out;
-}
-
-.channel-preview__container.selected {
-  background: #ffffff;
-  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.07);
-  transition: background 0.1s ease-in-out;
-}
-
-.channel-preview__content-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-left: 8px;
-  margin-right: 8px;
-  width: 100%;
-}
-
-.channel-preview__content-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  height: 18px;
+  font-weight: bold;
   margin-bottom: 4px;
 }
 
-.channel-preview__content-name {
-  font-family: Helvetica Neue, sans-serif;
-  font-weight: 500;
-  font-size: 15px;
-  color: #000000;
-  margin: 0;
-  max-width: 158px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.channel-preview__content-message {
-  font-family: Helvetica Neue, sans-serif;
-  font-size: 13px;
-  line-height: 16px;
-  margin: 0;
+.channel-preview__timestamp {
+  font-weight: normal;
   color: #858688;
-  height: 16px;
-  max-width: 200px;
+}
+
+.channel-preview__message {
+  max-height: 2.4em;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: #858688;
+}
+
+.channel-preview__message p {
+  margin: 0;
 }
 ```
 
-```tsx
-<Chat client={client}>
-  <ChannelList Preview={CustomPreview} showChannelSearch />
-  <Channel>
-    <Window>
-      <ChannelHeader />
-      <MessageList />
-      <MessageInput />
-    </Window>
-    <Thread />
-  </Channel>
-</Chat>
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-list-preview-timestamp.png)
+
+One more thing we should add is the click event handler, which should change the
+currently active channel. That's easy enough to do:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+const CustomChannelPreview = (props) => {
+  const {
+    channel,
+    activeChannel,
+    displayImage,
+    displayTitle,
+    latestMessage,
+    setActiveChannel,
+  } = props;
+  const latestMessageAt = channel.state.last_message_at;
+  const isSelected = channel.id === activeChannel?.id;
+  const { userLanguage } = useTranslationContext();
+
+  const timestamp = useMemo(() => {
+    if (!latestMessageAt) {
+      return '';
+    }
+    const formatter = new Intl.DateTimeFormat(userLanguage, {
+      timeStyle: 'short',
+    });
+    return formatter.format(latestMessageAt);
+  }, [latestMessageAt, userLanguage]);
+
+  const handleClick = () => {
+    setActiveChannel?.(channel);
+  };
+
+  return (
+    <button
+      className={`channel-preview ${isSelected ? 'channel-preview_selected' : ''}`}
+      disabled={isSelected}
+      onClick={handleClick}
+    >
+      <img className='channel-preview__avatar' src={displayImage} alt='' />
+      <div className='channel-preview__main'>
+        <div className='channel-preview__header'>
+          {displayTitle}
+          <time dateTime={latestMessageAt?.toISOString()} className='channel-preview__timestamp'>
+            {timestamp}
+          </time>
+        </div>
+        <div className='channel-preview__message'>{latestMessage}</div>
+      </div>
+    </button>
+  );
+};
 ```
 
-**Result:**
+</TabItem>
+<TabItem value="css" label="CSS">
 
-<img src={CustomPreview} alt='Custom Preview UI Component for Chat' width='500' />
+```css
+.channel-preview {
+  font: inherit;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  padding: 8px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.9em;
+  line-height: 1.2em;
+  cursor: pointer;
+}
+
+.channel-preview_selected {
+  background: #fff;
+  border-color: #005fff;
+  cursor: auto;
+}
+
+.channel-preview__avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.channel-preview__main {
+  flex-grow: 1;
+}
+
+.channel-preview__header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.channel-preview_selected .channel-preview__header {
+  color: #005fff;
+}
+
+.channel-preview__timestamp {
+  font-weight: normal;
+  color: #858688;
+}
+
+.channel-preview__message {
+  max-height: 2.4em;
+  overflow: hidden;
+  color: #858688;
+}
+
+.channel-preview__message p {
+  margin: 0;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-list-preview-selected.png)
+
+Note that we've also added an additional class to the preview element if its
+channel is currently active (we check this by comparing the id of the active
+channel to the id of the current channel.)
+
+## Custom Channel List Wrapper
+
+Channel list wrapper is responsible for rendering the actual items of the
+channel list, as well as handling the loading and error states. This is a great
+place to plug in your custom component if you want to have a custom loader, or
+to add some additional content (like header and footer) to the channel list.
+
+You can do this by providing a custom custom component in the [`List`](../../components/core-components/channel-list.mdx#list) prop of the
+`ChannelList` component. It will get a bunch of props from the parent
+`ChannelList`, including a list of loaded channels, a loading flag, and an error
+object (if any).
+
+```jsx
+<ChannelList List={CustomChannelList} />
+// Don't forget to provide filter and sort options as well!
+```
+
+The simplest implementation of the custom channel list wrapper looks like this:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+const CustomChannelList = ({ children, loading, error }) => {
+  if (loading) {
+    return <div className='channel-list__placeholder'>⏳ Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className='channel-list__placeholder'>
+        💣 Error loading channels
+        <br />
+        <button className='channel-list__button' onClick={() => window.location.reload()}>
+          Reload page
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className='channel-list'>
+      {loadedChannels && (
+        <div className='channel-list__counter'>{loadedChannels.length} channels:</div>
+      )}
+      {children}
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.channel-list__placeholder {
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.channel-list__button {
+  border: 1px solid #00000014;
+  outline: 0;
+  background: #fafafa;
+  font: inherit;
+  border-radius: 4px;
+  margin: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.channel-list__button:focus {
+  border-color: #005fff;
+}
+```
+
+</TabItem>
+</Tabs>
+
+import ChannelListLoadingStateImage from '../../assets/channel-list-loading.png';
+import ChannelListErrorStateImage from '../../assets/channel-list-error.png';
+import ChannelListNormalStateImage from '../../assets/channel-list-preview-selected.png';
+
+<ImageShowcase
+  border
+  items={[
+    {
+      image: ChannelListLoadingStateImage,
+      caption: <span>Loading state</span>,
+      alt: '',
+    },
+    {
+      image: ChannelListErrorStateImage,
+      caption: <span>Error state</span>,
+      alt: '',
+    },
+    {
+      image: ChannelListNormalStateImage,
+      caption: <span>Normal state</span>,
+      alt: '',
+    },
+  ]}
+/>
+
+If you need access to the array of channel objects, you can use the
+`loadedChannels` prop. Keep in mind, however, that it can update frequently,
+resulting in excessive rendering. For this reason, you have to explicitly opt-in
+by setting the [`sendChannelsToList`](../../components/core-components/channel-list.mdx#sendchannelstolist) prop on the `ChannelList`:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+<ChannelList List={CustomChannelList} sendChannelsToList />;
+// Don't forget to provide filter and sort options as well!
+
+const CustomChannelList = ({
+  loadedChannels,
+  children,
+  loading,
+  error,
+}: React.PropsWithChildren<ChannelListMessengerProps<StreamChatGenerics>>) => {
+  if (loading) {
+    return <div className='channel-list__placeholder'>⏳ Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className='channel-list__placeholder'>
+        💣 Error loading channels
+        <br />
+        <button className='channel-list__button' onClick={() => window.location.reload()}>
+          Reload page
+        </button>
+      </div>
+    );
+  }
+
+  if (loadedChannels?.length === 0) {
+    return <div className='channel-list__placeholder'>🤷 You have no channels... yet</div>;
+  }
+
+  return (
+    <div className='channel-list'>
+      {loadedChannels && (
+        <div className='channel-list__counter'>{loadedChannels.length} channels:</div>
+      )}
+      {children}
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.channel-list__placeholder {
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.channel-list__button {
+  border: 1px solid #00000014;
+  outline: 0;
+  background: #fafafa;
+  font: inherit;
+  border-radius: 4px;
+  margin: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.channel-list__button:focus {
+  border-color: #005fff;
+}
+
+.channel-list__counter {
+  color: #858688;
+  margin: 0 10px 8px;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-list-counter.png)
+
+## Custom Channel List Renderer
+
+By default, the [`ChannelList`](../../components/core-components/channel-list.mdx) component provided by the SDK renders channel
+previews in the same order as the channels were queried. If you want to hook
+into the list rendering process, e.g. to add subheadings, group channels, etc.,
+you can provide a custom list renderer in the [`renderChannels`](../../components/core-components/channel-list.mdx#renderchannels) prop of the
+`ChannelList` component.
+
+The function passed in this prop takes a list of loaded channels and a channel
+preview component. Note that it is not exactly the component passed in the
+[`Preview`](../../components/core-components/channel-list.mdx#preview) prop, but rather a version of that component wrapped with the
+`ChannelPreview` helper to ensure that all channel event listeners are set up
+properly. The `renderChannels` function is only called if the channel list was
+successfully loaded and is not empty.
+
+This example adds a separator between read and unread channels:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+const renderChannels = (channels, getChannelPreview) => {
+  const unreadChannels = [];
+  const readChannels = [];
+
+  for (const channel of channels) {
+    const hasUnread = channel.countUnread();
+    (hasUnread ? unreadChannels : readChannels).push(channel);
+  }
+
+  return [unreadChannels, readChannels]
+    .filter((group) => group.length > 0)
+    .map((group, index) => (
+      <div key={index} className='channel-group'>
+        {group.map((channel) => (
+          <div key={channel.id}>{getChannelPreview(channel)}</div>
+        ))}
+      </div>
+    ));
+};
+```
+
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.channel-group + .channel-group {
+  padding-top: 40px;
+  margin-top: 40px;
+  border-top: 2px solid #00000014;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-list-separator.png)
