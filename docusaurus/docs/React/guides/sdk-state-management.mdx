@@ -3,7 +3,7 @@ id: sdk-state-management
 title: SDK State Management
 ---
 
-Most of the application state which is the main driver behind the UI changes of our chat SDK lives within our LLC ([`StreamChat`](https://github.com/GetStream/stream-chat-js)) - more specifically client and channel instances and is _NOT REACTIVE_ - our React SDK makes these states reactive by listening to the same events client does and copies it with the help of `useState` API after it has been changed.
+Most of the application state which is the main driver behind the UI changes of our chat SDK lives within our LLC ([`StreamChat`](https://github.com/GetStream/stream-chat-js)) - more specifically client and channel instances and is _NOT REACTIVE_ - our React SDK makes these state stores reactive by listening to the same events client does and copies it with the help of `useState` API after it has been changed.
 
 This is how the SDK state pipeline looks like behind the scenes:
 
@@ -13,8 +13,6 @@ client attaches WS event listeners -> React SDK attaches WS event listeners -> W
 
 Optimistic updates - if applicable - are handled by the React SDK.
 
-TODO: link to optimistic update tutorial?
-
 ## Active Channel & Channel State
 
 Before you can access the _reactive_ channel state you'll need to make one of the available channels active either through the use of the [`ChannelList`](../components/core-components/channel-list.mdx) component which handles this for you ([default setup](../basics/getting-started.mdx#your-first-app-with-stream-chat-react)) or by passing the `channel` instance to a [`Channel`](../components/core-components/channel.mdx) component as a prop or lastly, by calling `setActiveChannel`.
@@ -22,7 +20,7 @@ Before you can access the _reactive_ channel state you'll need to make one of th
 The SDK comes with [`ChatContext`](../components/contexts/chat-context.mdx) which holds (among other things) currently active channel and forwards LLC instance passed to the [`Chat`](../components/core-components/chat.mdx) component.
 
 :::note
-You can use either `channel` prop on the `Channel` component or `setActiveChannel` function. You cannot use both at the same time.
+You can use either `channel` prop on the [`Channel`](../components/core-components/channel.mdx) component or [`setActiveChannel`](../components/contexts/chat-context.mdx#setactivechannel) function. You cannot use both at the same time.
 :::
 
 Channel as a prop example:
@@ -112,8 +110,37 @@ const ChannelWrapper = () => (
 
 ## Channel List State
 
-TODO: channel list state
+[`ChannelList`](../components/core-components/channel-list.mdx) component is a standalone component which (unsurprisingly) holds and manages list of channels. You can access loaded `channels` from [`ChannelListContext`](../components/contexts/channel-list-context.mdx) with the help of `useChannelListContext` hook.
+
+```tsx
+import { ChannelList, ChannelPreviewMessenger } from 'stream-chat-react';
+import type { ChannelListProps } from 'stream-chat-react';
+
+const CustomPreviewUI = (props) => {
+  const { channels } = useChannelListContext();
+
+  return <ChannelPreviewMessenger {...props} />;
+};
+
+export const CustomChannelList = (props: ChannelListProps) => {
+  return <ChannelList Preview={CustomPreviewUI} {...props} />;
+};
+```
 
 ## Conclusion
 
 This guide covers the biggest and most important state stores, see other React stateful contexts exported by our SDK for more information.
+
+Mentioned in this article:
+
+- [`ChannelStateContext`](../components/contexts/channel-state-context.mdx)
+- [`ChatContext`](../components/contexts/chat-context.mdx)
+- [`ChannelListContext`](../components/contexts/channel-list-context.mdx)
+
+Other data/action providers:
+
+- [`ComponentContext`](../components/contexts/component-context.mdx)
+- [`ChannelActionContext`](../components/contexts/channel-action-context.mdx)
+- [`MessageContext`](../components/contexts/message-context.mdx)
+- [`MessageInputContext`](../components/contexts/message-input-context.mdx)
+- [`MessageListContext`](../components/contexts/message-list-context.mdx)
