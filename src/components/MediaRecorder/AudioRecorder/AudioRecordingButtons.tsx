@@ -1,9 +1,9 @@
 import React from 'react';
-import { MicIcon } from '../icons';
+import { MicIcon } from '../../MessageInput/icons';
 
-export type StartRecordingAudioProps = React.ComponentProps<'button'>;
+export type StartRecordingAudioButtonProps = React.ComponentProps<'button'>;
 
-export const StartRecordingAudio = (props: StartRecordingAudioProps) => (
+export const StartRecordingAudioButton = (props: StartRecordingAudioButtonProps) => (
   <button
     aria-label='Start recording audio'
     className='str-chat__start-recording-audio-button'

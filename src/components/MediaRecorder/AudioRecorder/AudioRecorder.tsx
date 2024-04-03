@@ -6,12 +6,12 @@ import {
   MicIcon,
   PauseIcon,
   SendIconV2,
-} from '../icons';
+} from '../../MessageInput/icons';
 import { AudioRecordingPreview } from './AudioRecordingPreview';
 import { AudioRecordingInProgress } from './AudioRecordingInProgress';
 import { useMessageInputContext } from '../../../context';
 import { MediaRecordingState } from '../hooks/useMediaRecorder';
-import { AttachmentUploadState } from '../types';
+import { AttachmentUploadState } from '../../MessageInput/types';
 
 export const AudioRecorder = () => {
   const {

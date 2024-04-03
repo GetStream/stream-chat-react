@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { AudioRecordingWaveform } from './AudioRecordingWaveform';
-import { useTimeElapsed } from '../hooks/useTimeElapsed';
+import { useTimeElapsed } from '../../MessageInput/hooks/useTimeElapsed';
 import { useMessageInputContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
 

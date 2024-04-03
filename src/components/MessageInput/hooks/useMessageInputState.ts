@@ -8,7 +8,10 @@ import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import { AudioRecordingController, useMediaRecorder } from './useMediaRecorder';
+import {
+  AudioRecordingController,
+  useMediaRecorder,
+} from '../../MediaRecorder/hooks/useMediaRecorder';
 import {
   AttachmentUploadState,
   LinkPreviewState,

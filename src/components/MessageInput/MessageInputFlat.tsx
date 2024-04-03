@@ -11,12 +11,16 @@ import {
 } from './icons';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
-import { AudioRecorder as DefaultVoiceRecorder, StartRecordingAudio } from './VoiceRecorder';
+import {
+  RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
+  AudioRecorder as DefaultVoiceRecorder,
+  RecordingPermission,
+  StartRecordingAudioButton,
+} from '../MediaRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification } from './RecordingPermissionDeniedNotification';
 import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 import { UploadsPreview } from './UploadsPreview';
@@ -30,7 +34,6 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { RecordingPermission } from './hooks/useBrowserPermissionState';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -287,7 +290,7 @@ const MessageInputV2 = <
                   sendMessage={handleSubmit}
                 />
               ) : (
-                <StartRecordingAudio
+                <StartRecordingAudioButton
                   disabled={!!voiceRecordingController.recordingState}
                   onClick={voiceRecordingController.startRecording}
                 />

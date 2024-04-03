@@ -1,5 +1,5 @@
 import React from 'react';
-import { PauseIcon, PlayIcon } from '../icons';
+import { PauseIcon, PlayIcon } from '../../MessageInput/icons';
 import { RecordingTimer } from './RecordingTimer';
 import { useAudioController } from '../../Attachment/hooks/useAudioController';
 import { WaveProgressBar } from '../../Attachment';

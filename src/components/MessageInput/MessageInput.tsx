@@ -21,7 +21,7 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { FileUpload, ImageUpload } from './types';
-import type { CustomAudioRecordingConfig } from './hooks/useMediaRecorder';
+import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
 export type EmojiSearchIndexResult = {
   id: string;

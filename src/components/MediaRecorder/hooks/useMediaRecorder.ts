@@ -14,19 +14,18 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { resampleWaveformData } from '../../Attachment';
+import { transcode } from '../AudioRecorder/transcode';
 import { mergeDeep } from '../../../utils/mergeDeep';
 import { isSafari } from '../../../utils/browsers';
-import { checkUploadPermissions } from './utils';
+import { checkUploadPermissions } from '../../MessageInput/hooks/utils';
 import {
   PermissionNotGrantedHandler,
   useBrowserPermissionState,
 } from './useBrowserPermissionState';
-import type { VoiceRecordingAttachment } from '../types';
-import { AttachmentUploadState } from '../types';
-import { transcode } from '../VoiceRecorder/transcode';
+import { AttachmentUploadState } from '../../MessageInput';
 
 import type { SendFileAPIResponse } from 'stream-chat';
-import type { MessageInputReducerAction } from './useMessageInputState';
+import type { MessageInputReducerAction, VoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const MAX_FREQUENCY_AMPLITUDE = 255 as const;

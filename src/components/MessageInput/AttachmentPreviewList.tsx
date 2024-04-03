@@ -1,6 +1,8 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 
+import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
+import { AttachmentUploadState } from './types';
 import {
   isAudioAttachment,
   isMediaAttachment,
@@ -8,13 +10,12 @@ import {
   PlayButton,
 } from '../Attachment';
 import { BaseImage as DefaultBaseImage } from '../Gallery';
+import { useAudioController } from '../Attachment/hooks/useAudioController';
+import { RecordingTimer } from '../MediaRecorder';
 import { FileIcon } from '../ReactFileUtilities';
 import { useComponentContext, useMessageInputContext } from '../../context';
 
-import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
-import { AttachmentUploadState, LocalAttachment, VoiceRecordingAttachment } from './types';
-import { useAudioController } from '../Attachment/hooks/useAudioController';
-import { RecordingTimer } from './VoiceRecorder/RecordingTimer';
+import type { LocalAttachment, VoiceRecordingAttachment } from './types';
 
 export const AttachmentPreviewList = () => {
   const {
