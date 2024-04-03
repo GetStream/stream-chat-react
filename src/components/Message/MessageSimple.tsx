@@ -85,6 +85,7 @@ const MessageSimpleWithContext = <
     MessageTimestamp = DefaultMessageTimestamp,
     ReactionSelector = DefaultReactionSelector,
     ReactionsList = DefaultReactionList,
+    PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
   const { themeVersion } = useChatContext('MessageSimple');
 
@@ -132,9 +133,9 @@ const MessageSimpleWithContext = <
       : 'str-chat__message--other',
     message.text ? 'str-chat__message--has-text' : 'has-no-text',
     {
-      'pinned-message': message.pinned,
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--highlighted': highlighted,
+      'str-chat__message--pinned pinned-message': message.pinned,
       'str-chat__message--with-reactions str-chat__message-with-thread-link': canShowReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.errorStatusCode !== 403,
@@ -167,6 +168,7 @@ const MessageSimpleWithContext = <
       )}
       {
         <div className={rootClassName} key={message.id}>
+          {PinIndicator && <PinIndicator />}
           {themeVersion === '1' && <MessageStatus />}
           {message.user && (
             <Avatar

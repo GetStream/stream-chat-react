@@ -24,6 +24,15 @@ export type SuggestionUser<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UserResponse<StreamChatGenerics>;
 
+export type SuggestionEmoji<T extends UnknownType = UnknownType> = Awaited<
+  ReturnType<EmojiSearchIndex<T>['search']>
+>;
+
+export type SuggestionItem<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  T extends UnknownType = UnknownType
+> = SuggestionUser<StreamChatGenerics> | SuggestionCommand<StreamChatGenerics> | SuggestionEmoji<T>;
+
 // FIXME: entity type is wrong, fix
 export type SuggestionItemProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -31,24 +40,16 @@ export type SuggestionItemProps<
 > = {
   className: string;
   component: React.ComponentType<{
-    entity:
-      | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
-      | SuggestionUser<StreamChatGenerics>
-      | SuggestionCommand<StreamChatGenerics>;
+    entity: SuggestionItem<StreamChatGenerics, T>;
     selected: boolean;
   }>;
-  item:
-    | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
-    | SuggestionUser<StreamChatGenerics>
-    | SuggestionCommand<StreamChatGenerics>;
+  item: SuggestionItem<StreamChatGenerics, T>;
   key: React.Key;
-  onClickHandler: (event: React.BaseSyntheticEvent) => void;
-  onSelectHandler: (
-    item:
-      | Awaited<ReturnType<EmojiSearchIndex<T>['search']>>
-      | SuggestionUser<StreamChatGenerics>
-      | SuggestionCommand<StreamChatGenerics>,
+  onClickHandler: (
+    event: React.BaseSyntheticEvent,
+    item: SuggestionItem<StreamChatGenerics, T>,
   ) => void;
+  onSelectHandler: (item: SuggestionItem<StreamChatGenerics, T>) => void;
   selected: boolean;
   style: React.CSSProperties;
   value: string;

@@ -19,6 +19,7 @@ export type EmojiPickerProps = {
   buttonClassName?: string;
   pickerContainerClassName?: string;
   wrapperClassName?: string;
+  closeOnEmojiSelect?: boolean;
   /**
    * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
    * passed to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
@@ -89,6 +90,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
             onEmojiSelect={(e: { native: string }) => {
               insertText(e.native);
               textareaRef.current?.focus();
+              if (props.closeOnEmojiSelect) {
+                setDisplayPicker(false);
+              }
             }}
             {...props.pickerProps}
           />
