@@ -1,8 +1,8 @@
 import React from 'react';
 import { PauseIcon, PlayIcon } from '../icons';
+import { RecordingTimer } from './RecordingTimer';
 import { useAudioController } from '../../Attachment/hooks/useAudioController';
 import { WaveProgressBar } from '../../Attachment';
-import { RecordingTimer } from './RecordingTimer';
 
 export type AudioRecordingPlayerProps = React.ComponentProps<'audio'> & {
   durationSeconds: number;
@@ -25,7 +25,9 @@ export const AudioRecordingPreview = ({
 
   return (
     <React.Fragment>
-      <audio {...props} ref={audioRef}></audio>
+      <audio ref={audioRef}>
+        <source src={props.src} type={mimeType} />
+      </audio>
       <button className='str-chat__audio_recorder__toggle-playback-button' onClick={togglePlay}>
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </button>

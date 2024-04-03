@@ -120,3 +120,17 @@ export const getRecordedMediaTypeFromMimeType = (mimeType: string): RecordedMedi
   const match = mimeType.match(/^(audio|video)\/.*$/);
   return match && (match[1] as RecordedMediaType);
 };
+
+export const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> =>
+  new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      resolve(fileReader.result as ArrayBuffer);
+    };
+
+    fileReader.onerror = () => {
+      reject(fileReader.error);
+    };
+
+    fileReader.readAsArrayBuffer(file);
+  });

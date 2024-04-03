@@ -61,6 +61,7 @@
   "dependencies": {
     "@babel/runtime": "^7.23.6",
     "@braintree/sanitize-url": "^6.0.4",
+    "@breezystack/lamejs": "^1.2.7",
     "@popperjs/core": "^2.11.5",
     "@react-aria/focus": "^3.16.1",
     "clsx": "^2.0.0",

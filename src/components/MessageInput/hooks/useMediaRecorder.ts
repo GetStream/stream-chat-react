@@ -21,16 +21,38 @@ import {
   PermissionNotGrantedHandler,
   useBrowserPermissionState,
 } from './useBrowserPermissionState';
+import type { VoiceRecordingAttachment } from '../types';
 import { AttachmentUploadState } from '../types';
+import { transcode } from '../VoiceRecorder/transcode';
 
 import type { SendFileAPIResponse } from 'stream-chat';
-import type { VoiceRecordingAttachment } from '../types';
 import type { MessageInputReducerAction } from './useMessageInputState';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 const MAX_FREQUENCY_AMPLITUDE = 255 as const;
 
+/**
+ * fftSize
+ * An unsigned integer, representing the window size of the FFT, given in number of samples.
+ * A higher value will result in more details in the frequency domain but fewer details
+ * in the amplitude domain.
+ *
+ * Must be a power of 2 between 2^5 and 2^15, so one of: 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, and 32768.
+ * Defaults to 32.
+ *
+ * maxDecibels
+ * A double, representing the maximum decibel value for scaling the FFT analysis data,
+ * where 0 dB is the loudest possible sound, -10 dB is a 10th of that, etc.
+ * The default value is -30 dB.
+ *
+ * minDecibels
+ * A double, representing the minimum decibel value for scaling the FFT analysis data,
+ * where 0 dB is the loudest possible sound, -10 dB is a 10th of that, etc.
+ * The default value is -100 dB.
+ */
 type AnalyserConfig = Pick<AnalyserNode, 'fftSize' | 'maxDecibels' | 'minDecibels'>;
+
+type SupportedTranscodeMimeTypes = 'audio/wav' | 'audio/mp3';
 
 export enum RecordingAttachmentType {
   VOICE_RECORDING = 'voiceRecording',
@@ -42,13 +64,19 @@ export enum MediaRecordingState {
   STOPPED = 'stopped',
 }
 
-export type AudioRecordingConfig = {
+type AmplitudeRecorderConfig = {
   analyserConfig: AnalyserConfig;
-  attachmentType: RecordingAttachmentType;
-  generateRecordingTitle: (mimeType: string) => string;
-  mimeType: string;
   sampleCount: number;
   samplingFrequencyMs: number;
+};
+
+export type AudioRecordingConfig = {
+  amplitudeRecorderConfig: AmplitudeRecorderConfig;
+  generateRecordingTitle: (mimeType: string) => string;
+  // Number of samples recorded per second. Default 44100Hz.
+  sampleRate: number;
+  // Defaults to audio/mp3;
+  transcodeToMimeType: SupportedTranscodeMimeTypes;
   audioBitsPerSecond?: number;
   handleNotGrantedPermission?: PermissionNotGrantedHandler;
 };
@@ -66,17 +94,19 @@ const DEFAULT_CONFIG: {
   audio: AudioRecordingConfig;
 } = {
   audio: {
-    analyserConfig: {
-      fftSize: 32,
-      maxDecibels: 0,
-      minDecibels: -100,
-    } as AnalyserConfig,
-    attachmentType: RecordingAttachmentType.VOICE_RECORDING,
+    amplitudeRecorderConfig: {
+      analyserConfig: {
+        fftSize: 32,
+        maxDecibels: 0,
+        minDecibels: -100,
+      } as AnalyserConfig,
+      sampleCount: 100,
+      samplingFrequencyMs: 60,
+    },
     generateRecordingTitle: (mimeType: string) =>
       `audio_recording_${new Date().toISOString()}.${getExtensionFromMimeType(mimeType)}`, // extension needed so that desktop Safari can play the asset
-    mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
-    sampleCount: 100,
-    samplingFrequencyMs: 60,
+    sampleRate: 16000,
+    transcodeToMimeType: 'audio/mp3',
   },
 } as const;
 
@@ -118,15 +148,13 @@ type UseMediaRecorderParams<
 > & {
   dispatch: Dispatch<MessageInputReducerAction<StreamChatGenerics>>;
   audioRecordingConfig?: CustomAudioRecordingConfig;
-  chooseMimeType?: () => string;
 };
 
 export const useMediaRecorder = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   asyncMessagesMultiSendEnabled = true,
-  audioRecordingConfig: audioRecordingConfigProps,
-  chooseMimeType,
+  audioRecordingConfig: audioRecordingConfigProps = {},
   dispatch,
   doFileUploadRequest,
   errorHandler,
@@ -156,29 +184,26 @@ export const useMediaRecorder = <
   const durations = useRef<number[]>([]);
   const resolveProcessingPromise = useRef<(r: VoiceRecordingAttachment) => void>();
 
-  const audioRecordingConfig = useMemo(() => {
-    const result = mergeDeep({ ...(audioRecordingConfigProps ?? {}) }, DEFAULT_CONFIG.audio);
-    const propsMimeType = audioRecordingConfigProps?.mimeType;
+  const mimeType = useMemo(
+    () =>
+      isSafari()
+        ? RECORDED_MIME_TYPE_BY_BROWSER.audio.safari
+        : RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
+    [],
+  );
 
-    result.mimeType = DEFAULT_CONFIG.audio.mimeType;
-    if (chooseMimeType) {
-      result.mimeType = chooseMimeType();
-    } else if (propsMimeType && MediaRecorder.isTypeSupported(propsMimeType)) {
-      result.mimeType = propsMimeType;
-    } else if (isSafari()) {
-      result.mimeType = RECORDED_MIME_TYPE_BY_BROWSER.audio.safari;
-    }
-
-    return result;
-  }, [audioRecordingConfigProps, chooseMimeType]);
+  const mediaType = useMemo(() => getRecordedMediaTypeFromMimeType(mimeType), [mimeType]);
 
   const {
+    amplitudeRecorderConfig,
     audioBitsPerSecond,
     generateRecordingTitle,
     handleNotGrantedPermission,
-    mimeType,
-  } = audioRecordingConfig;
-  const mediaType = useMemo(() => getRecordedMediaTypeFromMimeType(mimeType), [mimeType]);
+    sampleRate,
+    transcodeToMimeType,
+  } = useMemo(() => mergeDeep({ ...audioRecordingConfigProps }, DEFAULT_CONFIG.audio), [
+    audioRecordingConfigProps,
+  ]);
 
   const onError = useCallback(
     (e: Error, notificationText?: string) => {
@@ -217,8 +242,8 @@ export const useMediaRecorder = <
         amplitudesRef.current = newAmplitudes;
         return newAmplitudes;
       });
-    }, DEFAULT_CONFIG.audio.samplingFrequencyMs);
-  }, [onError, stopCollectingAudioData]);
+    }, amplitudeRecorderConfig.samplingFrequencyMs);
+  }, [amplitudeRecorderConfig.samplingFrequencyMs, onError, stopCollectingAudioData]);
 
   const resetRecordingState = useCallback(() => {
     recordedData.current = [];
@@ -239,9 +264,16 @@ export const useMediaRecorder = <
 
       const initialBlob = new Blob(recordedData.current, { type: mimeType });
 
-      const makeVoiceRecording = (blob: Blob) => {
+      const makeVoiceRecording = async (blob: Blob) => {
         if (recordingUri.current) URL.revokeObjectURL(recordingUri.current);
-        const finalBlob = blob;
+
+        const finalBlob = await transcode({
+          blob,
+          sampleRate,
+          targetMimeType: transcodeToMimeType,
+        });
+        if (!finalBlob) return;
+
         const uri = URL.createObjectURL(finalBlob);
         recordingUri.current = uri;
         const title = generateRecordingTitle(finalBlob.type);
@@ -259,10 +291,10 @@ export const useMediaRecorder = <
           file_size: finalBlob.size,
           mime_type: finalBlob.type,
           title,
-          type: DEFAULT_CONFIG.audio.attachmentType,
+          type: RecordingAttachmentType.VOICE_RECORDING,
           waveform_data: resampleWaveformData(
             amplitudesRef.current,
-            DEFAULT_CONFIG.audio.sampleCount,
+            amplitudeRecorderConfig.sampleCount,
           ),
         };
         resolveProcessingPromise.current?.(recording);
@@ -280,7 +312,14 @@ export const useMediaRecorder = <
         makeVoiceRecording(initialBlob);
       }
     },
-    [generateRecordingTitle, mimeType, onError],
+    [
+      amplitudeRecorderConfig.sampleCount,
+      generateRecordingTitle,
+      mimeType,
+      onError,
+      sampleRate,
+      transcodeToMimeType,
+    ],
   );
 
   const handleErrorEvent = useCallback(
@@ -439,7 +478,7 @@ export const useMediaRecorder = <
     if (!recording) return;
     await uploadRecording(recording);
     if (!asyncMessagesMultiSendEnabled) {
-      // cannot call handleSubmit() directly as the function has stale reference to attachments
+      // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
       scheduleForSubmit(true);
     }
     cleanUp();
@@ -472,9 +511,10 @@ export const useMediaRecorder = <
         audioContext.current = new AudioContext();
 
         analyserNode.current = audioContext.current.createAnalyser();
-        analyserNode.current.fftSize = DEFAULT_CONFIG.audio.analyserConfig.fftSize;
-        analyserNode.current.maxDecibels = DEFAULT_CONFIG.audio.analyserConfig.maxDecibels;
-        analyserNode.current.minDecibels = DEFAULT_CONFIG.audio.analyserConfig.minDecibels;
+        const { fftSize, maxDecibels, minDecibels } = amplitudeRecorderConfig.analyserConfig;
+        analyserNode.current.fftSize = fftSize;
+        analyserNode.current.maxDecibels = maxDecibels;
+        analyserNode.current.minDecibels = minDecibels;
 
         microphone.current = audioContext.current.createMediaStreamSource(stream);
         microphone.current.connect(analyserNode.current);
@@ -491,6 +531,7 @@ export const useMediaRecorder = <
 
     start();
   }, [
+    amplitudeRecorderConfig.analyserConfig,
     audioBitsPerSecond,
     cancelRecording,
     checkPermissions,
