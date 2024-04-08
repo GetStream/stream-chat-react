@@ -3,269 +3,391 @@ id: message_ui
 title: Message UI
 ---
 
-import CustomMessage from '../../assets/CustomMessage.png';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-Using pre-built UI components from the library, the following guide walks you through the process of building a custom [Message UI](../../components/message-components/message-ui.mdx) component that looks great and comes packed with functionality. This component must be added to either the `Channel` or `MessageList` component via the `Message` prop.
+Message UI is one of the main building blocks of the chat application. Designing proper message UI is no easy feat and that's why our SDK comes with a pre-built component ([`MessageSimple`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx)) which is packed with functionality and is easy to customize through [our CSS variables](../../theming/component-variables.mdx) or through component replacement ([Component Context](../../components/contexts/component-context.mdx#message)).
 
-All the message UI components in this example have access to the `MessageContext`, and therefore can call the `useMessageContext` custom hook. The return value from this hook contains all the values and functions needed to build a Message UI component.
+In this guide we'll build a simplified custom message UI component combining pre-built and other completely custom components.
 
-{/* TODO: move to Message UI */}
-### UI Component Overview 
+Message UI and all of its children can access [`MessageContext`](../../components/contexts/message-context.mdx) in which it's wrapped, and therefore can call the `useMessageContext` hook accessing all of the message related information and functions alike.
 
-The custom Message UI component built below imports and uses the following UI components:
+## Custom Message UI
 
-- [`Attachment`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/Attachment.tsx) - displays the
-  attachments included with a message. See the [Attachments section](../../components/message-components/attachment.mdx) for information on types
-  and props.
+### Message Text and Avatars
 
-- [`Avatar`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) - displays the image of the
-  user that sent the message. If the user does not have an image, it will default to the initials of the user's name.
+Let's begin with the simplest form the message UI can take: rendering the raw message text.
 
-- [`MessageOptions`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) - on hover,
-  shows the available options on a message (i.e., react, reply, actions). This component internally renders the `MessageActions`
-  component, which displays the available actions on a message (ex: edit, flag, pin).
+```tsx
+import { useMessageContext, Channel } from 'stream-chat-react';
 
-- [`MessageRepliesCountButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) - displays
-  the number of threaded replies on a message. Clicking the button will call the `handleOpenThread` function and navigate into a `Thread`
-  component that lists the replies.
+const CustomMessageUi = () => {
+  const { message } = useMessageContext();
 
-- [`MessageStatus`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) - displays message
-  delivery status and shows the users who have read the message.
+  return <div data-message-id={message.id}>{message.text}</div>;
+};
+```
 
-- [`MessageText`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageText.tsx) - formats and renders
-  the message text in markdown using [react-markdown](https://www.npmjs.com/package/react-markdown). This component also renders
-  `QuotedMessage`, which provides an additional UI wrapper if the sent message has quoted a previous message.
+To see our changes we'll need to pass this component down to either `Channel` or `MessageList` (`VirtualizedMessageList`) components as `Message` prop.
 
-- [`MessageTimestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) - shows the
-  sent time of a message. The default format can be overridden with props.
+```tsx
+<Channel Message={CustomMessageUi}>...</Channel>
+```
 
-- [`ReactionSelector`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) - allows
-  the connected user to select a reaction on a message. The list of emojis can be customized, but this tutorial uses the default set.
+![](../../assets/custom-message-ui-0.png)
 
-- [`SimpleReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/SimpleReactionsList.tsx) - displays
-  a minimal list of the reactions added to a message (alternate option to [`ReactionsList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionsList.tsx)).
+You can see that all of the messages are now on one side and we have no idea who's the message coming from, let's adjust that with the help of some CSS and to render the name of the sender we'll need to access `user` property of the `message` object.
 
-- [`Timestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/Timestamp.tsx) - formats and displays a date,
-  used by `MessageTimestamp` and for edited message timestamps.
+Our message will be on the right and the message of the other senders will be on the left side of the screen.
 
-### How it Fits Together
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
-The sample code below assembles the above UI building blocks into a fully featured Message UI component. The UI components allow you to
-pick the features you wish to employ in your message and orient them in a manner that meets your design specifications. All the
-components consume the `MessageContext` by pulling the necessary through `useMessageContext` hook.
+```tsx
+import { useMessageContext, Channel } from 'stream-chat-react';
 
-:::tip
-In advanced use cases, the pre-built, UI components may not provide enough design customization potential. In these situations, we
-recommend copying the component's functionality and adding your own design and layout.
-:::
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
 
-#### The Code:
+  const messageUiClassNames = ['custom-message-ui'];
 
-```jsx
-import React, { useRef } from 'react';
-import {
-  Attachment,
-  Avatar,
-  messageHasReactions,
-  MessageOptions,
-  MessageRepliesCountButton,
-  MessageStatus,
-  MessageText,
-  MessageTimestamp,
-  ReactionSelector,
-  SimpleReactionsList,
-  useMessageContext,
-} from 'stream-chat-react';
-
-import './CustomMessage.scss';
-
-export const CustomMessage = () => {
-  const {
-    isReactionEnabled,
-    message,
-    reactionSelectorRef,
-    showDetailedReactions,
-  } = useMessageContext();
-
-  const messageWrapperRef = useRef(null);
-
-  const canReact = isReactionEnabled;
-  const hasReactions = messageHasReactions(message);
-  const hasAttachments = message.attachments && message.attachments.length > 0;
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
 
   return (
-    <div className='message-wrapper'>
-      <Avatar image={message.user?.image} />
-      <div className='message-wrapper-content'>
-        <MessageOptions messageWrapperRef={messageWrapperRef} />
-        <div className='message-header'>
-          <div className='message-header-name'>{message.user?.name}</div>
-          <div className='message-header-timestamp'>
-            <MessageTimestamp />
-          </div>
-        </div>
-        {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
-        <MessageText />
-        <MessageStatus />
-        {hasAttachments && <Attachment attachments={message.attachments} />}
-        {hasReactions && <SimpleReactionsList />}
-        <MessageRepliesCountButton reply_count={message.reply_count} />
-      </div>
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      <strong className='custom-message-ui__name'>{message.user?.name || message.user?.id}</strong>
+      <span>{message.text}</span>
     </div>
   );
 };
 ```
 
-CustomMessage.scss:
+</TabItem>
 
-```scss
-.str-chat__li {
-  margin: 0;
-  padding: 15px;
-  position: relative;
+<TabItem value='css' label='CSS'>
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.03);
-    .str-chat__message-text-inner {
-      background: rgba(0, 0, 0, 0);
-    }
-  }
-}
+```css
+.custom-message-ui {
+  --cmui-gap-size: 0.5rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
 
-.message-wrapper {
   display: flex;
-
-  &-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
+  gap: var(--cmui-gap-size);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
 }
 
-.message-header {
+.custom-message-ui__name {
   display: flex;
-
-  &-name {
-    font-family: Helvetica Neue, sans-serif;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 120%;
-    color: #858688;
-  }
-
-  &-timestamp {
-    font-family: Helvetica Neue, sans-serif;
-    font-size: 11px;
-    line-height: 120%;
-    color: #858688;
-    margin-left: 6px;
-  }
+  gap: var(--cmui-gap-size);
 }
 
-.str-chat__li:hover .str-chat__message-simple__actions {
-  position: absolute;
-  top: -14px;
-  right: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 24px;
-  border-radius: 100px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-  z-index: 1;
-  padding: 0 4px 0;
-
-  &__action--reactions {
-    display: flex;
-  }
-
-  &__action--options {
-    display: flex;
-  }
-
-  &__action--thread {
-    display: flex;
-  }
+.custom-message-ui--mine .custom-message-ui__name::before {
+  content: '<';
 }
 
-.str-chat__message-simple__actions {
-  margin-top: 0;
+.custom-message-ui--other .custom-message-ui__name::after {
+  content: '>';
 }
 
-.str-chat__message-actions-box {
-  top: initial;
-  left: -100px;
-  border-radius: 16px 16px 0 16px;
-}
-
-.str-chat__message-text {
-  display: flex;
-  width: 100%;
-}
-
-.str-chat__message-text-inner {
-  position: relative;
-  flex: 1;
-  display: block;
-  min-height: 32px;
-  font-size: 15px;
-  color: black;
-  border-radius: 0;
-  border: 0;
-  margin-left: 0;
-
-  p {
-    font-family: Helvetica Neue, sans-serif;
-    font-size: 15px;
-    line-height: 18px;
-    color: #000000;
-    margin-bottom: 0;
-  }
-}
-
-.str-chat__message-replies-count-button {
-  font-family: Helvetica Neue, sans-serif;
-  font-weight: bold;
-  font-size: 13px;
+.custom-message-ui--mine {
+  flex-direction: row-reverse;
   text-align: right;
-  color: #4e1d9d;
-}
-
-.str-chat__simple-reactions-list {
-  border-radius: 10px;
-}
-
-.str-chat__reaction-selector {
-  max-height: 40px;
-  top: -58px;
-  right: 20px;
-  border-radius: 20px;
-  background: white;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-  border: 1px solid #bed5e4;
-}
-
-.str-chat__message-reactions-list-item__count {
-  color: #000000;
-}
-
-.str-chat__message-simple-status {
-  right: 22px;
-}
-
-.quoted-message-inner {
-  margin-top: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.str-chat__li .quoted-message.mine .quoted-message-inner {
-  background: #ebebeb;
 }
 ```
 
-#### The Result:
+</TabItem>
+</Tabs>
 
-<img src={CustomMessage} alt='Custom Message UI Component for Chat' width='700' />
+![](../../assets/custom-message-ui-1.png)
+
+Now this already looks way better than the initial version but we can do better - let's switch from names to avatars using pre-built [`Avatar`](../../components/utility-components/avatar.mdx) component to make the UI slightly friendlier.
+
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+import { Avatar, useMessageContext, Channel } from 'stream-chat-react';
+
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+      <span className='custom-message-ui__text'>{message.text}</span>
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css
+.custom-message-ui {
+  --cmui-gap-size: 0.5rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
+
+  display: flex;
+  gap: var(--cmui-gap-size);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
+}
+
+.custom-message-ui__text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.custom-message-ui--mine {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/custom-message-ui-2.png)
+
+Our message UI looks pretty good now but what if text of a message becomes more complex? Let's say someone sends a link to a site or mentions some other user? In the current state our UI would display this in plaintext and none of it would be interactive.
+
+![](../../assets/custom-message-ui-3a.png)
+
+Let's enhance this behavior by using pre-built [`MessageText`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageText.tsx) which uses [`renderText`](../../components/message-components/render-text.mdx) internally and that'll transform all of our links, mentions and certain Markdown syntax to interactive and neat-looking elements.
+
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+import { Avatar, MessageText, useMessageContext, Channel } from 'stream-chat-react';
+
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+      <MessageText />
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='css'>
+
+```css
+.custom-message-ui {
+  --cmui-gap-size: 0.5rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
+
+  display: flex;
+  gap: var(--cmui-gap-size);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
+}
+
+.custom-message-ui--mine {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.custom-message-ui .str-chat__message-text p {
+  all: unset;
+}
+
+.custom-message-ui .str-chat__message-text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.custom-message-ui .str-chat__message-mention {
+  font-weight: bold;
+  color: palevioletred;
+  cursor: pointer;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/custom-message-ui-3b.png)
+
+:::note
+While the mentioned user is being highlighted there's no default pointer event attached to the highlighted element, see [Mentions Actions guide](./actions/mentions-hover-click.mdx) for more information.
+:::
+
+### Metadata
+
+So far we've covered avatars and proper text rendering but the UI still feels a bit empty. Each message has a lot of extra information which can be benefitial to the end users. Let's add creation date, "edited" flag and delivery/read status information to our message UI.
+
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+const CustomMessageUiMetadata = () => {
+  const {
+    message: { created_at, message_text_updated_at, status = 'unknown' },
+    readBy = [],
+  } = useMessageContext();
+  const { client } = useChatContext();
+
+  const [firstUser] = readBy;
+
+  const receivedAndRead = readBy.length > 1 || (firstUser && firstUser.id !== client.user?.id);
+
+  return (
+    <div className='custom-message-ui__metadata'>
+      <div className='custom-message-ui__metadata-created-at'>{created_at?.toLocaleString()}</div>
+      <div className='custom-message-ui__metadata-read-status'>
+        {receivedAndRead
+          ? statusIconMap.receivedAndRead
+          : statusIconMap[status as keyof typeof statusIconMap] ?? statusIconMap.unknown}
+      </div>
+      {message_text_updated_at && (
+        <div className='custom-message-ui__metadata-edited-status' title={message_text_updated_at}>
+          Edited
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      <div className='custom-message-ui__body'>
+        <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+        <MessageText />
+      </div>
+      <CustomMessageUiMetadata />
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='css'>
+
+```css
+.custom-message-ui {
+  --cmui-gap-size-md: 0.5rem;
+  --cmui-gap-size-sm: 0.2rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--cmui-gap-size-md);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
+}
+
+.custom-message-ui__body {
+  gap: var(--cmui-gap-size-md);
+  display: flex;
+}
+
+.custom-message-ui--mine .custom-message-ui__body {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.custom-message-ui__metadata {
+  display: flex;
+  font-size: x-small;
+  align-items: baseline;
+}
+
+.custom-message-ui__metadata > *:nth-child(even)::after,
+.custom-message-ui__metadata > *:nth-child(even)::before {
+  content: '•';
+  padding-inline: var(--cmui-gap-size-sm);
+}
+
+.custom-message-ui__metadata > *:last-child::after {
+  content: '';
+}
+
+.custom-message-ui--mine .custom-message-ui__metadata {
+  align-self: flex-end;
+}
+
+.custom-message-ui .str-chat__message-text p {
+  all: unset;
+}
+
+.custom-message-ui .str-chat__message-text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.custom-message-ui .str-chat__message-mention {
+  font-weight: bold;
+  color: palevioletred;
+  cursor: pointer;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/custom-message-ui-4.png)
+
+TODO: grouping (adjust .custom-message-ui__metadata rule as well - display none)
+Let's add grouping as well:
+
+```css
+.str-chat__li--bottom .custom-message-ui__metadata,
+.str-chat__li--single .custom-message-ui__metadata {
+  display: flex;
+}
+```
+
+### Message Actions and Reactions
+
+message actions + reactions
+
+We'll add reply count as well but reply implementation will be covered in the [Message Actions and Reactions](./message-ui.mdx#message-actions-and-reactions) section.
+
+### Attachments
+
+cover attachments
