@@ -137,7 +137,7 @@ export const checkUploadPermissions = async <
     allowed_mime_types,
     blocked_file_extensions,
     blocked_mime_types,
-    size_limit = DEFAULT_UPLOAD_SIZE_LIMIT_BYTES,
+    size_limit,
   } =
     ((uploadType === 'image'
       ? appSettings?.app?.image_upload_config
@@ -193,10 +193,11 @@ export const checkUploadPermissions = async <
     }
   }
 
-  if (file.size && size_limit && file.size > size_limit) {
+  const sizeLimit = size_limit || DEFAULT_UPLOAD_SIZE_LIMIT_BYTES;
+  if (file.size && file.size > sizeLimit) {
     addNotification(
       t('File is too large: {{ size }}, maximum upload size is {{ limit }}', {
-        limit: prettifyFileSize(size_limit),
+        limit: prettifyFileSize(sizeLimit),
         size: prettifyFileSize(file.size),
       }),
       'error',
