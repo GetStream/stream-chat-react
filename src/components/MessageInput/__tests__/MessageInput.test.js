@@ -25,13 +25,12 @@ import {
   generateMessage,
   generateUser,
   getOrCreateChannelApi,
+  getTestClient,
   getTestClientWithUser,
   useMockedApis,
 } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
-
-jest.mock('../../Channel/utils', () => ({ makeAddNotifications: jest.fn }));
 
 let chatClient;
 let channel;
@@ -76,6 +75,11 @@ const mockFaultyUploadApi = (cause) => jest.fn().mockImplementation(() => Promis
 
 const submitMock = jest.fn();
 const editMock = jest.fn();
+const mockAddNotification = jest.fn();
+
+jest.mock('../../Channel/utils', () => ({
+  makeAddNotifications: () => mockAddNotification,
+}));
 
 const defaultMessageContextValue = {
   getMessageActions: () => ['delete', 'edit', 'quote'],
@@ -507,6 +511,55 @@ function axeNoViolations(container) {
         act(() => dropFile(file2, formElement));
         await waitFor(() => expect(screen.queryByText(filename2)).not.toBeInTheDocument());
         await axeNoViolations(container);
+      });
+
+      it('should show notification if size limit is exceeded', async () => {
+        chatClient = getTestClient({
+          getAppSettings: () => ({
+            app: {
+              file_upload_config: { size_limit: 1 },
+              image_upload_config: { size_limit: 1 },
+            },
+          }),
+        });
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest: mockUploadApi(),
+          },
+        });
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile(filename1);
+        act(() => dropFile(file, formElement));
+        await waitFor(() => expect(screen.queryByText(filename1)).toBeInTheDocument());
+
+        expect(mockAddNotification).toHaveBeenCalledTimes(1);
+        expect(mockAddNotification.mock.calls[0][0]).toContain('File is too large');
+      });
+
+      it('should apply separate limits to files and images', async () => {
+        chatClient = getTestClient({
+          getAppSettings: () => ({
+            app: {
+              file_upload_config: { size_limit: 100 },
+              image_upload_config: { size_limit: 1 },
+            },
+          }),
+        });
+        const doImageUploadRequest = mockUploadApi();
+        await renderComponent({
+          messageInputProps: {
+            doImageUploadRequest,
+          },
+        });
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getImage();
+        await act(() => {
+          dropFile(file, formElement);
+        });
+        await waitFor(() => {
+          expect(mockAddNotification).toHaveBeenCalledTimes(1);
+          expect(mockAddNotification.mock.calls[0][0]).toContain('File is too large');
+        });
       });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
