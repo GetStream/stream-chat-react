@@ -5,6 +5,7 @@ import type { ChannelActionContextValue } from '../../../context/ChannelActionCo
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { DEFAULT_UPLOAD_SIZE_LIMIT_BYTES } from '../../../constants/limits';
 
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
@@ -136,12 +137,13 @@ export const checkUploadPermissions = async <
     allowed_mime_types,
     blocked_file_extensions,
     blocked_mime_types,
+    size_limit,
   } =
     ((uploadType === 'image'
       ? appSettings?.app?.image_upload_config
       : appSettings?.app?.file_upload_config) as FileUploadConfig) || {};
 
-  const sendErrorNotification = () =>
+  const sendNotAllowedErrorNotification = () =>
     addNotification(
       t(`Upload type: "{{ type }}" is not allowed`, { type: file.type || 'unknown type' }),
       'error',
@@ -153,7 +155,7 @@ export const checkUploadPermissions = async <
     );
 
     if (!allowed) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -164,7 +166,7 @@ export const checkUploadPermissions = async <
     );
 
     if (blocked) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -175,7 +177,7 @@ export const checkUploadPermissions = async <
     );
 
     if (!allowed) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
@@ -186,10 +188,29 @@ export const checkUploadPermissions = async <
     );
 
     if (blocked) {
-      sendErrorNotification();
+      sendNotAllowedErrorNotification();
       return false;
     }
   }
 
+  const sizeLimit = size_limit || DEFAULT_UPLOAD_SIZE_LIMIT_BYTES;
+  if (file.size && file.size > sizeLimit) {
+    addNotification(
+      t('File is too large: {{ size }}, maximum upload size is {{ limit }}', {
+        limit: prettifyFileSize(sizeLimit),
+        size: prettifyFileSize(file.size),
+      }),
+      'error',
+    );
+    return false;
+  }
+
   return true;
 };
+
+export function prettifyFileSize(bytes: number, precision = 3) {
+  const units = ['B', 'kB', 'MB', 'GB'];
+  const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const mantissa = bytes / 1024 ** exponent;
+  return `${mantissa.toPrecision(precision)} ${units[exponent]}`;
+}

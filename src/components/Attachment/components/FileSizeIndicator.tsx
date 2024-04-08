@@ -1,5 +1,5 @@
 import React from 'react';
-import prettybytes from 'pretty-bytes';
+import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 
 type FileSizeIndicatorProps = {
   /** file size in byte */
@@ -19,7 +19,7 @@ export const FileSizeIndicator = ({ fileSize, maximumFractionDigits }: FileSizeI
       className='str-chat__message-attachment-file--item-size'
       data-testid='file-size-indicator'
     >
-      {prettybytes(fileSize, { maximumFractionDigits })}
+      {prettifyFileSize(fileSize, maximumFractionDigits)}
     </span>
   );
 };

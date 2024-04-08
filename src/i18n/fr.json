@@ -31,6 +31,7 @@
   "Error: {{ errorMessage }}": "Erreur : {{ errorMessage }}",
   "Failed to jump to the first unread message": "Échec de saut vers le premier message non lu",
   "Failed to mark channel as read": "Échec de la marque du canal comme lu",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Le fichier est trop volumineux : {{ size }}, la taille de téléchargement maximale est de {{ limit }}",
   "Flag": "Signaler",
   "Latest Messages": "Derniers messages",
   "Load more": "Charger plus",

@@ -31,6 +31,7 @@
   "Error: {{ errorMessage }}": "エラー: {{ errorMessage }}",
   "Failed to jump to the first unread message": "最初の未読メッセージにジャンプできませんでした",
   "Failed to mark channel as read": "チャンネルを既読にすることができませんでした",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "ファイルが大きすぎます：{{ size }}、最大アップロードサイズは{{ limit }}です",
   "Flag": "フラグ",
   "Latest Messages": "最新のメッセージ",
   "Load more": "もっと読み込む",
