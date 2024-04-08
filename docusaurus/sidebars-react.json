@@ -70,6 +70,7 @@
             "hooks/message_input_hooks",
             "components/message-input-components/input_ui",
             "components/message-input-components/ui_components",
+            "components/message-input-components/emoji-picker",
             "components/contexts/typing_context"
           ]
         },
