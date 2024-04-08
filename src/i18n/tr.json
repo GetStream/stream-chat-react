@@ -31,6 +31,7 @@
   "Error: {{ errorMessage }}": "Hata: {{ errorMessage }}",
   "Failed to jump to the first unread message": "İlk okunmamış mesaja atlamada hata oluştu",
   "Failed to mark channel as read": "Kanalı okundu olarak işaretleme başarısız oldu",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Dosya çok büyük: {{ size }}, maksimum yükleme boyutu {{ limit }}",
   "Flag": "Bayrak",
   "Latest Messages": "Son Mesajlar",
   "Load more": "Daha fazla yükle",
