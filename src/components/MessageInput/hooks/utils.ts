@@ -5,6 +5,7 @@ import type { ChannelActionContextValue } from '../../../context/ChannelActionCo
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { DEFAULT_UPLOAD_SIZE_LIMIT_BYTES } from '../../../constants/limits';
 
 export const accentsMap: { [key: string]: string } = {
   a: 'á|à|ã|â|À|Á|Ã|Â',
@@ -136,7 +137,7 @@ export const checkUploadPermissions = async <
     allowed_mime_types,
     blocked_file_extensions,
     blocked_mime_types,
-    size_limit,
+    size_limit = DEFAULT_UPLOAD_SIZE_LIMIT_BYTES,
   } =
     ((uploadType === 'image'
       ? appSettings?.app?.image_upload_config

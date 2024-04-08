@@ -223,7 +223,7 @@
     "rollup-plugin-url": "^3.0.1",
     "rollup-plugin-visualizer": "^4.2.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "^8.21.0",
+    "stream-chat": "^8.25.1",
     "style-loader": "^2.0.0",
     "ts-jest": "^28.0.8",
     "typescript": "^4.7.4",
