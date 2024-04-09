@@ -16,8 +16,7 @@ For reference, the default system message component, [`EventComponent`](https://
 
 ### Custom System Message Component
 
-Our custom component will display the message text, date, and the actor (user who triggered the event) with added styling. For this complete override of the default component, we will utilize the [`MessageSystem`](../../components/core-components/channel.mdx#messagesystem) prop on [`Channel`](../../components/core-components/channel.mdx). This adds our custom component to the [`ComponentContext`](../../components/contexts/component-context.mdx) where it
-is then pulled for use in the lists when needed.
+Our custom component will display the message text, date, and the actor (user who triggered the event) with added styling. For this complete override of the default component, we will utilize the [`MessageSystem`](../../components/core-components/channel.mdx#messagesystem) prop on [`Channel`](../../components/core-components/channel.mdx) through which it's being passed to [`ComponentContext`](../../components/contexts/component-context.mdx) which allows you to hook into the component override mechanism used throughout the SDK.
 
 :::note
 To see your custom component in action, try muting a user by using the `/` command. For example, type `/mute` followed by a user mention, `@`. These commands must be enabled in the [Dashboard](https://dashboard.getstream.io/).
@@ -50,9 +49,9 @@ const CustomSystemMessage = (props: EventComponentProps) => {
   );
 };
 
-export const ChannelWrapper = ({ children }) => (
-  <Channel MessageSystem={CustomSystemMessage}>{children}</Channel>
-);
+//...
+
+<Channel MessageSystem={CustomSystemMessage}>...</Channel>;
 ```
 
 </TabItem>
