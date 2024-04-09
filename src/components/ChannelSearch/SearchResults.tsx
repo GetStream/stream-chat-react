@@ -44,9 +44,8 @@ const DefaultSearchResultsHeader = <
 
 export type SearchResultsListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Pick<
-  SearchResultsProps<StreamChatGenerics>,
-  'results' | 'SearchResultItem' | 'selectResult'
+> = Required<
+  Pick<SearchResultsProps<StreamChatGenerics>, 'results' | 'SearchResultItem' | 'selectResult'>
 > & {
   focusedUser?: number;
 };
@@ -56,7 +55,7 @@ const DefaultSearchResultsList = <
 >(
   props: SearchResultsListProps<StreamChatGenerics>,
 ) => {
-  const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
+  const { focusedUser, results, SearchResultItem, selectResult } = props;
 
   return (
     <>
@@ -161,7 +160,7 @@ const ResultsContainer = ({
 export type SearchResultsController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  results: Array<ChannelOrUserResponse<StreamChatGenerics>> | [];
+  results: Array<ChannelOrUserResponse<StreamChatGenerics>>;
   searching: boolean;
   selectResult: (result: ChannelOrUserResponse<StreamChatGenerics>) => Promise<void> | void;
 };
