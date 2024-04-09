@@ -51,6 +51,14 @@ export const DEFAULT_AUDIO_RECORDER_CONFIG: AudioRecorderConfig = {
   },
 } as const;
 
+const disposeOfMediaStream = (stream?: MediaStream) => {
+  if (!stream?.active) return;
+  stream.getTracks().forEach((track) => {
+    track.stop();
+    stream.removeTrack(track);
+  });
+};
+
 const logError = (e?: Error) => e && console.error('[MEDIA RECORDER ERROR]', e);
 
 type SupportedTranscodeMimeTypes = 'audio/wav' | 'audio/mp3';
@@ -145,14 +153,6 @@ export class MediaRecorderController {
     this.stop = this.stop.bind(this);
     this.cancel = this.cancel.bind(this);
   }
-
-  static disposeOfMediaStream = (stream?: MediaStream) => {
-    if (!stream?.active) return;
-    stream.getTracks().forEach((track) => {
-      track.stop();
-      stream.removeTrack(track);
-    });
-  };
 
   generateRecordingTitle(mimeType: string) {
     if (this.customGenerateRecordingTitle) {
@@ -252,7 +252,7 @@ export class MediaRecorderController {
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
     this.amplitudeRecorder?.close();
     if (this.mediaRecorder) {
-      MediaRecorderController.disposeOfMediaStream(this.mediaRecorder.stream);
+      disposeOfMediaStream(this.mediaRecorder.stream);
       this.mediaRecorder.removeEventListener('dataavailable', this.handleDataavailableEvent);
       this.mediaRecorder.removeEventListener('error', this.handleErrorEvent);
     }
