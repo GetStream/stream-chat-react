@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslationContext } from '../../context';
-import { RecordingPermission } from './hooks/useBrowserPermissionState';
+
+import { RecordingPermission } from './classes/BrowserPermission';
 
 export type RecordingPermissionDeniedNotificationProps = {
   permissionName: RecordingPermission;

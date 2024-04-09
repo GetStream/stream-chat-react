@@ -10,41 +10,33 @@ import {
 import { AudioRecordingPreview } from './AudioRecordingPreview';
 import { AudioRecordingInProgress } from './AudioRecordingInProgress';
 import { useMessageInputContext } from '../../../context';
-import { MediaRecordingState } from '../hooks/useMediaRecorder';
 import { AttachmentUploadState } from '../../MessageInput/types';
+import { MediaRecordingState } from '../classes/MediaRecorderController';
 
 export const AudioRecorder = () => {
   const {
-    voiceRecordingController: {
-      cancelRecording,
-      completeRecording,
-      pauseRecording,
-      recordingState,
-      resumeRecording,
-      stopRecording,
-      voiceRecording,
-    },
+    voiceRecordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageInputContext();
 
-  const isUploadingFile =
-    voiceRecording?.$internal?.uploadState === AttachmentUploadState.UPLOADING;
+  const isUploadingFile = recording?.$internal?.uploadState === AttachmentUploadState.UPLOADING;
+
   return (
     <div className='str-chat__audio_recorder-container'>
       <div className='str-chat__audio_recorder'>
         <button
           className='str-chat__audio_recorder__cancel-button'
           disabled={isUploadingFile}
-          onClick={cancelRecording}
+          onClick={recorder.cancel}
         >
           <BinIcon />
         </button>
 
-        {voiceRecording?.asset_url ? (
+        {recording?.asset_url ? (
           <AudioRecordingPreview
-            durationSeconds={voiceRecording.duration ?? 0}
-            mimeType={voiceRecording.mime_type}
-            src={voiceRecording.asset_url}
-            waveformData={voiceRecording.waveform_data}
+            durationSeconds={recording.duration ?? 0}
+            mimeType={recording.mime_type}
+            src={recording.asset_url}
+            waveformData={recording.waveform_data}
           />
         ) : (
           <AudioRecordingInProgress />
@@ -53,7 +45,7 @@ export const AudioRecorder = () => {
         {recordingState === MediaRecordingState.PAUSED && (
           <button
             className='str-chat__audio_recorder__resume-recording-button'
-            onClick={resumeRecording}
+            onClick={recorder.resume}
           >
             <MicIcon />
           </button>
@@ -61,7 +53,7 @@ export const AudioRecorder = () => {
         {recordingState === MediaRecordingState.RECORDING && (
           <button
             className='str-chat__audio_recorder__pause-recording-button'
-            onClick={pauseRecording}
+            onClick={recorder.pause}
           >
             <PauseIcon />
           </button>
@@ -75,7 +67,7 @@ export const AudioRecorder = () => {
             {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIconV2 />}
           </button>
         ) : (
-          <button className='str-chat__audio_recorder__stop-button' onClick={stopRecording}>
+          <button className='str-chat__audio_recorder__stop-button' onClick={recorder.stop}>
             <CheckSignIcon />
           </button>
         )}

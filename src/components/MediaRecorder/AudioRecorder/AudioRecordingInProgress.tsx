@@ -1,13 +1,50 @@
-import React, { useEffect } from 'react';
-import { AudioRecordingWaveform } from './AudioRecordingWaveform';
+import React, { useEffect, useState } from 'react';
 import { useTimeElapsed } from '../../MessageInput/hooks/useTimeElapsed';
 import { useMessageInputContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
 
+type WaveformProps = {
+  maxDataPointsDrawn?: number;
+};
+
+const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => {
+  const {
+    voiceRecordingController: { recorder },
+  } = useMessageInputContext();
+
+  const [amplitudes, setAmplitudes] = useState<number[]>([]);
+
+  useEffect(() => {
+    const amplitudesSubscription = recorder.amplitudes.subscribe(setAmplitudes);
+    return () => {
+      amplitudesSubscription.unsubscribe();
+    };
+  }, [recorder]);
+
+  return (
+    <div className='str-chat__audio_recorder__waveform-box'>
+      {amplitudes.slice(-maxDataPointsDrawn).map((amplitude, i) => (
+        <div
+          className='str-chat__wave-progress-bar__amplitude-bar'
+          key={`amplitude-${i}-voice-recording`}
+          style={
+            {
+              '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
+                ? amplitude * 100 + '%'
+                : '0%',
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+};
 export const AudioRecordingInProgress = () => {
   const { secondsElapsed, startCounter, stopCounter } = useTimeElapsed();
   const {
-    voiceRecordingController: { mediaRecorder },
+    voiceRecordingController: {
+      recorder: { mediaRecorder },
+    },
   } = useMessageInputContext();
 
   useEffect(() => {

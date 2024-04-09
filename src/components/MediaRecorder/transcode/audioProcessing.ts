@@ -1,4 +1,4 @@
-import { readFileAsArrayBuffer } from '../../../ReactFileUtilities';
+import { readFileAsArrayBuffer } from '../../ReactFileUtilities';
 
 /**
  * In the context of resampling audio data, AudioContext is used to decode the input audio file into an AudioBuffer,

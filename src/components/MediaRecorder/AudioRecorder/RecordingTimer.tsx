@@ -8,8 +8,8 @@ export type RecordingTimerProps = {
 
 export const RecordingTimer = ({ durationSeconds }: RecordingTimerProps) => (
   <div
-    className={clsx('str-chat__audio_recorder__timer', {
-      'str-chat__audio_recorder__timer--hours': durationSeconds >= 3600,
+    className={clsx('str-chat__recording-timer', {
+      'str-chat__recording-timer--hours': durationSeconds >= 3600,
     })}
   >
     {displayDuration(durationSeconds)}

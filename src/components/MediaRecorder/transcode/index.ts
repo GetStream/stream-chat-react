@@ -1,6 +1,6 @@
 import { encodeToWaw } from './wav';
 import { encodeToMp3 } from './mp3';
-import { createFileFromBlobs, getExtensionFromMimeType } from '../../../ReactFileUtilities';
+import { createFileFromBlobs, getExtensionFromMimeType } from '../../ReactFileUtilities';
 
 type TranscodeParams = {
   blob: Blob;

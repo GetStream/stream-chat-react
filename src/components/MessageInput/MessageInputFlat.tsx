@@ -292,7 +292,7 @@ const MessageInputV2 = <
               ) : (
                 <StartRecordingAudioButton
                   disabled={!!voiceRecordingController.recordingState}
-                  onClick={voiceRecordingController.startRecording}
+                  onClick={() => voiceRecordingController.recorder.start()}
                 />
               )}
             </>
