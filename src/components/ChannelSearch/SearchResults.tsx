@@ -55,7 +55,7 @@ const DefaultSearchResultsList = <
 >(
   props: SearchResultsListProps<StreamChatGenerics>,
 ) => {
-  const { focusedUser, results, SearchResultItem = DefaultSearchResultItem, selectResult } = props;
+  const { focusedUser, results, SearchResultItem, selectResult } = props;
 
   return (
     <>
