@@ -17,9 +17,11 @@ import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { Subject } from '../observable/Subject';
 import { BehaviorSubject } from '../observable/BehaviorSubject';
-import { AmplitudeAnalyserConfig, AmplitudeRecorderConfig } from './AmplitudeRecorder';
-
-const MAX_FREQUENCY_AMPLITUDE = 255 as const;
+import {
+  AmplitudeAnalyserConfig,
+  AmplitudeRecorder,
+  AmplitudeRecorderConfig,
+} from './AmplitudeRecorder';
 
 const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -50,9 +52,6 @@ export const DEFAULT_AUDIO_RECORDER_CONFIG: AudioRecorderConfig = {
 } as const;
 
 const logError = (e?: Error) => e && console.error('[MEDIA RECORDER ERROR]', e);
-
-const rootMeanSquare = (values: Uint8Array) =>
-  Math.sqrt(values.reduce((acc, val) => acc + Math.pow(val, 2), 0) / values.length);
 
 type SupportedTranscodeMimeTypes = 'audio/wav' | 'audio/mp3';
 
@@ -86,16 +85,13 @@ export enum MediaRecordingState {
 
 export class MediaRecorderController {
   permission: BrowserPermission;
-  audioContext: AudioContext | undefined;
-  amplitudeAnalyser: AnalyserNode | undefined;
-  microphone: MediaStreamAudioSourceNode | undefined;
   mediaRecorder: MediaRecorder | undefined;
+  amplitudeRecorder: AmplitudeRecorder | undefined;
 
   amplitudeRecorderConfig: AmplitudeRecorderConfig;
   mediaRecorderConfig: MediaRecorderConfig;
   transcoderConfig: TranscoderConfig;
 
-  amplitudeSamplingInterval: ReturnType<typeof setInterval> | undefined;
   startTime: number | undefined;
   recordedChunkDurations: number[] = [];
   recordedData: Blob[] = [];
@@ -104,7 +100,6 @@ export class MediaRecorderController {
 
   signalRecordingReady: ((r: VoiceRecordingAttachment) => void) | undefined;
 
-  amplitudes = new BehaviorSubject<number[]>([]);
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
   recording = new BehaviorSubject<VoiceRecordingAttachment | undefined>(undefined);
   error = new Subject<Error | undefined>();
@@ -140,8 +135,6 @@ export class MediaRecorderController {
 
     this.customGenerateRecordingTitle = generateRecordingTitle;
 
-    this.stopCollectingAudioData = this.stopCollectingAudioData.bind(this);
-    this.startCollectingAudioData = this.startCollectingAudioData.bind(this);
     this.handleErrorEvent = this.handleErrorEvent.bind(this);
     this.handleDataavailableEvent = this.handleDataavailableEvent.bind(this);
     this.resetRecordingState = this.resetRecordingState.bind(this);
@@ -169,45 +162,6 @@ export class MediaRecorderController {
       mimeType,
     )}`; // extension needed so that desktop Safari can play the asset
   }
-
-  initAmplitudeAnalyser(stream: MediaStream) {
-    this.audioContext = new AudioContext();
-    this.amplitudeAnalyser = this.audioContext.createAnalyser();
-    const { analyserConfig } = this.amplitudeRecorderConfig;
-    this.amplitudeAnalyser.fftSize = analyserConfig.fftSize;
-    this.amplitudeAnalyser.maxDecibels = analyserConfig.maxDecibels;
-    this.amplitudeAnalyser.minDecibels = analyserConfig.minDecibels;
-
-    this.microphone = this.audioContext.createMediaStreamSource(stream);
-    this.microphone.connect(this.amplitudeAnalyser);
-  }
-
-  stopCollectingAudioData() {
-    clearInterval(this.amplitudeSamplingInterval);
-  }
-
-  startCollectingAudioData = () => {
-    this.stopCollectingAudioData();
-    if (!this.amplitudeAnalyser) {
-      if (!this.mediaRecorder?.stream) return;
-      this.initAmplitudeAnalyser(this.mediaRecorder.stream);
-    }
-
-    this.amplitudeSamplingInterval = setInterval(() => {
-      if (!(this.amplitudeAnalyser && this.recordingState.value === MediaRecordingState.RECORDING))
-        return;
-      const frequencyBins = new Uint8Array(this.amplitudeAnalyser.frequencyBinCount);
-      try {
-        this.amplitudeAnalyser.getByteFrequencyData(frequencyBins);
-      } catch (e) {
-        logError(e as Error);
-        this.error.next(e as Error);
-        return;
-      }
-      const normalizedSignalStrength = rootMeanSquare(frequencyBins) / MAX_FREQUENCY_AMPLITUDE;
-      this.amplitudes.next([...this.amplitudes.value, normalizedSignalStrength]);
-    }, this.amplitudeRecorderConfig.samplingFrequencyMs);
-  };
 
   handleErrorEvent = (e: Event) => {
     const { error } = e as ErrorEvent;
@@ -256,7 +210,7 @@ export class MediaRecorderController {
         title: file.name,
         type: RecordingAttachmentType.VOICE_RECORDING,
         waveform_data: resampleWaveformData(
-          this.amplitudes.value,
+          this.amplitudeRecorder?.amplitudes.value ?? [],
           this.amplitudeRecorderConfig.sampleCount,
         ),
       };
@@ -289,7 +243,6 @@ export class MediaRecorderController {
     this.recordedData = [];
     this.recording.next(undefined);
     this.recordingState.next(undefined);
-    this.amplitudes.next([]);
     this.recordedChunkDurations = [];
     this.startTime = undefined;
   }
@@ -297,9 +250,7 @@ export class MediaRecorderController {
   cleanUp() {
     this.resetRecordingState();
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
-    this.microphone?.disconnect();
-    this.amplitudeAnalyser?.disconnect();
-    if (this.audioContext?.state !== 'closed') this.audioContext?.close();
+    this.amplitudeRecorder?.close();
     if (this.mediaRecorder) {
       MediaRecorderController.disposeOfMediaStream(this.mediaRecorder.stream);
       this.mediaRecorder.removeEventListener('dataavailable', this.handleDataavailableEvent);
@@ -335,12 +286,17 @@ export class MediaRecorderController {
       this.mediaRecorder.addEventListener('dataavailable', this.handleDataavailableEvent);
       this.mediaRecorder.addEventListener('error', this.handleErrorEvent);
 
-      if (this.mediaType === 'audio') {
-        this.startCollectingAudioData();
-      }
-
       this.startTime = new Date().getTime();
       this.mediaRecorder.start();
+
+      if (this.mediaType === 'audio') {
+        this.amplitudeRecorder = new AmplitudeRecorder({
+          config: this.amplitudeRecorderConfig,
+          stream,
+        });
+        this.amplitudeRecorder.start();
+      }
+
       this.recordingState.next(MediaRecordingState.RECORDING);
     } catch (error) {
       logError(error as Error);
@@ -356,14 +312,14 @@ export class MediaRecorderController {
       this.startTime = undefined;
     }
     this.mediaRecorder?.pause();
-    this.stopCollectingAudioData();
+    this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.PAUSED);
   }
 
   resume() {
     this.startTime = new Date().getTime();
     this.mediaRecorder?.resume();
-    this.startCollectingAudioData();
+    this.amplitudeRecorder?.start();
     this.recordingState.next(MediaRecordingState.RECORDING);
   }
 
@@ -381,7 +337,7 @@ export class MediaRecorderController {
       this.signalRecordingReady = res;
     });
     this.mediaRecorder?.stop();
-    this.stopCollectingAudioData();
+    this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.STOPPED);
     return result;
   }
