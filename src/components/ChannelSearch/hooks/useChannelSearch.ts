@@ -85,7 +85,7 @@ export type ChannelSearchControllerParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = ChannelSearchParams<StreamChatGenerics> & {
   /** Set the array of channels displayed in the ChannelList */
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+  setChannels?: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
 };
 
 export const useChannelSearch = <
@@ -204,7 +204,7 @@ export const useChannelSearch = <
         setActiveChannel(newChannel);
         selectedChannel = newChannel;
       }
-      setChannels((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
+      setChannels?.((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
       if (clearSearchOnClickOutside) {
         exitSearch();
       }
