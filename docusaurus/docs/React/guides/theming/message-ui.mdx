@@ -252,6 +252,15 @@ So far we've covered avatars and proper text rendering but the UI still feels a 
 <TabItem value='js' label='React'>
 
 ```tsx
+import { Avatar, MessageText, useMessageContext, useChatContext, Channel } from 'stream-chat-react';
+
+const statusIconMap = {
+  received: '✅',
+  receivedAndRead: '👁️',
+  sending: '🛫',
+  unknown: '❓',
+};
+
 const CustomMessageUiMetadata = () => {
   const {
     message: { created_at, message_text_updated_at, status = 'unknown' },
@@ -374,6 +383,8 @@ const CustomMessageUi = () => {
 
 Message grouping is being managed automatically by the SDK and each parent element (which holds our message UI) receives appropriate class name based on which we can adjust our rules to display metadata elements only when it's appropriate to make our UI look less busy.
 
+TODO: link to grouping logic (maybe how to adjust it if needed)
+
 ```css
 .custom-message-ui__metadata {
   /* removed-line */
@@ -402,10 +413,13 @@ The SDK also comes with [`MessageStatus`](https://github.com/GetStream/stream-ch
 
 ### Message Actions and Reactions
 
-To do: cover message actions + reactions.
+Up to this point we've covered mostly the presentational part of our message UI and apart from the mentions and links there's not much the end users can interact with. Obviously - the SDK offers so much more so in this section of the guide we'll explain how to add and enable message actions (pinning, deleting, replies, etc.) and reactions.
 
-Let's add a reply count to our `CustomMessageUiMetadata` component as well.
+Let's begin by adding a reply count to our `CustomMessageUiMetadata` component. At this point nothing will be displayed but once we implement the thread functionality we'll see the count indicator rendered beside the rest of the metadata elements.
+
+TODO: cover message actions + reactions
+TODO?: cover edit and bouncing dialogs
 
 ### Attachments
 
-To do: cover attachments.
+TODO: cover attachments (link to appropriate guide)
