@@ -372,22 +372,40 @@ const CustomMessageUi = () => {
 
 ![](../../assets/custom-message-ui-4.png)
 
-TODO: grouping (adjust .custom-message-ui__metadata rule as well - display none)
-Let's add grouping as well:
+Message grouping is being managed automatically by the SDK and each parent element (which holds our message UI) receives appropriate class name based on which we can adjust our rules to display metadata elements only when it's appropriate to make our UI look less busy.
 
 ```css
+.custom-message-ui__metadata {
+  /* removed-line */
+  display: flex;
+  /* added-line */
+  display: none;
+  font-size: x-small;
+  align-items: baseline;
+}
+
+/* added-block-start */
 .str-chat__li--bottom .custom-message-ui__metadata,
 .str-chat__li--single .custom-message-ui__metadata {
   display: flex;
 }
+/* added-block-end */
 ```
+
+![](../../assets/custom-message-ui-5.png)
+
+:::note
+You can utilize [`MessageContext`](../../components/contexts/message-context.mdx) properties [`firstOfGroup`](../../components/contexts/message-context.mdx#firstofgroup), [`endOfGroup`](../../components/contexts/message-context.mdx#endofgroup) and [`groupedByUser`](../../components/contexts/message-context.mdx#groupedbyuser) if you use [`VirtualizedMessageList`](../../components/core-components/virtualized-list.mdx) for conditional metadata rendering. These properties **are not available** in regular [`MessageList`](../../components/core-components/message-list.mdx).
+:::
+
+The SDK also comes with [`MessageStatus`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) and [`MessageTimestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) components which you can use to replace our custom made ones. These components come with some extra logic but essentially provide almost identical amount of utility for the end users so we won't be covering the replacement in this guide.
 
 ### Message Actions and Reactions
 
-message actions + reactions
+To do: cover message actions + reactions.
 
-We'll add reply count as well but reply implementation will be covered in the [Message Actions and Reactions](./message-ui.mdx#message-actions-and-reactions) section.
+Let's add a reply count to our `CustomMessageUiMetadata` component as well.
 
 ### Attachments
 
-cover attachments
+To do: cover attachments.
