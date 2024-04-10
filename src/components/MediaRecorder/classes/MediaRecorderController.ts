@@ -1,4 +1,3 @@
-import { RecordingAttachmentType } from '../hooks';
 import {
   createFileFromBlobs,
   getExtensionFromMimeType,
@@ -89,6 +88,10 @@ export enum MediaRecordingState {
   PAUSED = 'paused',
   RECORDING = 'recording',
   STOPPED = 'stopped',
+}
+
+export enum RecordingAttachmentType {
+  VOICE_RECORDING = 'voiceRecording',
 }
 
 export class MediaRecorderController {

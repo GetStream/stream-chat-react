@@ -12,8 +12,8 @@ import {
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
+  AudioRecorder as DefaultAudioRecorder,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
-  AudioRecorder as DefaultVoiceRecorder,
   RecordingPermission,
   StartRecordingAudioButton,
 } from '../MediaRecorder';
@@ -186,7 +186,7 @@ const MessageInputV2 = <
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
-    AudioRecorder = DefaultVoiceRecorder,
+    AudioRecorder = DefaultAudioRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
     FileUploadIcon = DefaultUploadIcon,

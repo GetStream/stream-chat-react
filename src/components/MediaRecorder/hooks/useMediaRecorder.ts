@@ -18,10 +18,6 @@ import {
   MediaRecordingState,
 } from '../classes/MediaRecorderController';
 
-export enum RecordingAttachmentType {
-  VOICE_RECORDING = 'voiceRecording',
-}
-
 export type CustomAudioRecordingConfig = Partial<AudioRecorderConfig>;
 
 export type AudioRecordingController = {
