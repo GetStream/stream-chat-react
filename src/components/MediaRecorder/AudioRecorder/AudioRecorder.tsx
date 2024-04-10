@@ -10,15 +10,16 @@ import {
 import { AudioRecordingPreview } from './AudioRecordingPreview';
 import { AudioRecordingInProgress } from './AudioRecordingInProgress';
 import { useMessageInputContext } from '../../../context';
-import { AttachmentUploadState } from '../../MessageInput/types';
 import { MediaRecordingState } from '../classes/MediaRecorderController';
 
 export const AudioRecorder = () => {
   const {
-    voiceRecordingController: { completeRecording, recorder, recording, recordingState },
+    audioRecordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageInputContext();
 
-  const isUploadingFile = recording?.$internal?.uploadState === AttachmentUploadState.UPLOADING;
+  const isUploadingFile = recording?.$internal?.uploadState === 'uploading';
+
+  if (!recorder) return null;
 
   return (
     <div className='str-chat__audio_recorder-container'>

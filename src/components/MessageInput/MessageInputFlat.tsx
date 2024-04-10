@@ -170,7 +170,7 @@ const MessageInputV2 = <
 
   const {
     attachments,
-    audioRecordingEnabled,
+    audioRecordingController,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
@@ -183,7 +183,6 @@ const MessageInputV2 = <
     setCooldownRemaining,
     text,
     uploadNewFiles,
-    voiceRecordingController,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
@@ -217,7 +216,7 @@ const MessageInputV2 = <
     onDrop: uploadNewFiles,
   });
 
-  if (voiceRecordingController.recordingState) return <AudioRecorder />;
+  if (audioRecordingController.recordingState) return <AudioRecorder />;
 
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
@@ -226,7 +225,7 @@ const MessageInputV2 = <
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
-        {voiceRecordingController.permissionState === 'denied' && (
+        {audioRecordingController.permissionState === 'denied' && (
           <RecordingPermissionDeniedNotification permissionName={RecordingPermission.MIC} />
         )}
         {findAndEnqueueURLsToEnrich && (
@@ -279,20 +278,15 @@ const MessageInputV2 = <
                   cooldownInterval={cooldownRemaining}
                   setCooldownRemaining={setCooldownRemaining}
                 />
-              ) : text ||
-                numberOfUploads ||
-                !isUploadEnabled ||
-                !audioRecordingEnabled ||
-                attachments.length ||
-                !navigator.mediaDevices ? ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+              ) : audioRecordingController.recorder && navigator.mediaDevices ? ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+                <StartRecordingAudioButton
+                  disabled={!!audioRecordingController.recordingState}
+                  onClick={audioRecordingController.recorder.start}
+                />
+              ) : (
                 <SendButton
                   disabled={!numberOfUploads && !text.length && !attachments.length}
                   sendMessage={handleSubmit}
-                />
-              ) : (
-                <StartRecordingAudioButton
-                  disabled={!!voiceRecordingController.recordingState}
-                  onClick={() => voiceRecordingController.recorder.start()}
                 />
               )}
             </>

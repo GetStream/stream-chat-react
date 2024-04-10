@@ -13,6 +13,7 @@ export const useCreateMessageInputContext = <
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
     attachments,
+    audioRecordingController,
     audioRecordingEnabled,
     autocompleteTriggers,
     cancelURLEnrichment,
@@ -70,7 +71,6 @@ export const useCreateMessageInputContext = <
     uploadImage,
     uploadNewFiles,
     useMentionsTransliteration,
-    voiceRecordingController,
   } = value;
 
   const editing = message?.editing;
@@ -91,6 +91,7 @@ export const useCreateMessageInputContext = <
       additionalTextareaProps,
       asyncMessagesMultiSendEnabled,
       attachments,
+      audioRecordingController,
       audioRecordingEnabled,
       autocompleteTriggers,
       cancelURLEnrichment,
@@ -148,7 +149,6 @@ export const useCreateMessageInputContext = <
       uploadImage,
       uploadNewFiles,
       useMentionsTransliteration,
-      voiceRecordingController,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -174,7 +174,7 @@ export const useCreateMessageInputContext = <
       showCommandsList,
       showMentionsList,
       text,
-      voiceRecordingController,
+      audioRecordingController,
     ],
   );
 

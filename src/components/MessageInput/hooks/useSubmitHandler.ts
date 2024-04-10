@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
-import { AttachmentUploadState, LinkPreviewState } from '../types';
+import { LinkPreviewState } from '../types';
 
 import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 
@@ -102,7 +102,7 @@ export const useSubmitHandler = <
       }));
 
     const otherAttachments = attachments
-      .filter((att) => att.$internal?.uploadState !== AttachmentUploadState.FAILED)
+      .filter((att) => att.$internal?.uploadState !== 'failed')
       .map((localAttachment) => {
         const { $internal: _, ...attachment } = localAttachment;
         return attachment as Attachment;
@@ -133,7 +133,7 @@ export const useSubmitHandler = <
     const someAttachmentsUploading =
       Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
       Object.values(fileUploads).some((upload) => upload.state === 'uploading') ||
-      attachments.some((att) => att.$internal?.uploadState === AttachmentUploadState.UPLOADING);
+      attachments.some((att) => att.$internal?.uploadState === 'uploading');
 
     if (someAttachmentsUploading) {
       return addNotification(t('Wait until all attachments have uploaded'), 'error');

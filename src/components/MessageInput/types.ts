@@ -3,12 +3,6 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
 
-export enum AttachmentUploadState {
-  FAILED = 'failed',
-  UPLOADED = 'uploaded',
-  UPLOADING = 'uploading',
-}
-
 export type FileUpload = {
   file: {
     name: string;
@@ -75,7 +69,7 @@ export type LinkPreviewMap = Map<LinkURL, LinkPreview>;
 export type AttachmentInternalMetadata = {
   id: string;
   file?: File;
-  uploadState?: AttachmentUploadState;
+  uploadState?: AttachmentLoadingState;
 };
 
 export type LocalAttachment<

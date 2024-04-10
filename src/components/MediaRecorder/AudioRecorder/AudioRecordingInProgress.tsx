@@ -9,18 +9,20 @@ type WaveformProps = {
 
 const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => {
   const {
-    voiceRecordingController: { recorder },
+    audioRecordingController: { recorder },
   } = useMessageInputContext();
 
   const [amplitudes, setAmplitudes] = useState<number[]>([]);
 
   useEffect(() => {
-    if (!recorder.amplitudeRecorder) return;
+    if (!recorder?.amplitudeRecorder) return;
     const amplitudesSubscription = recorder.amplitudeRecorder.amplitudes.subscribe(setAmplitudes);
     return () => {
       amplitudesSubscription.unsubscribe();
     };
   }, [recorder]);
+
+  if (!recorder) return null;
 
   return (
     <div className='str-chat__audio_recorder__waveform-box'>
@@ -43,13 +45,13 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => 
 export const AudioRecordingInProgress = () => {
   const { secondsElapsed, startCounter, stopCounter } = useTimeElapsed();
   const {
-    voiceRecordingController: {
-      recorder: { mediaRecorder },
-    },
+    audioRecordingController: { recorder },
   } = useMessageInputContext();
 
   useEffect(() => {
-    if (!mediaRecorder) return;
+    if (!recorder?.mediaRecorder) return;
+
+    const { mediaRecorder } = recorder;
     mediaRecorder.addEventListener('start', startCounter);
     mediaRecorder.addEventListener('resume', startCounter);
     mediaRecorder.addEventListener('stop', stopCounter);
@@ -61,7 +63,7 @@ export const AudioRecordingInProgress = () => {
       mediaRecorder.removeEventListener('stop', stopCounter);
       mediaRecorder.removeEventListener('pause', stopCounter);
     };
-  }, [mediaRecorder, startCounter, stopCounter]);
+  }, [recorder, startCounter, stopCounter]);
   return (
     <React.Fragment>
       <RecordingTimer durationSeconds={secondsElapsed} />

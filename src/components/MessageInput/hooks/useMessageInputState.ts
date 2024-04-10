@@ -12,12 +12,7 @@ import {
   AudioRecordingController,
   useMediaRecorder,
 } from '../../MediaRecorder/hooks/useMediaRecorder';
-import {
-  AttachmentUploadState,
-  LinkPreviewState,
-  LocalAttachment,
-  SetLinkPreviewMode,
-} from '../types';
+import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
 
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Message, OGAttachment, UserResponse } from 'stream-chat';
@@ -123,6 +118,7 @@ export type MessageInputReducerAction<
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = EnrichURLsController & {
+  audioRecordingController: AudioRecordingController;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
     event?: React.BaseSyntheticEvent,
@@ -142,7 +138,6 @@ export type MessageInputHookProps<
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
-  voiceRecordingController: AudioRecordingController;
 };
 
 const makeEmptyMessageInputState = <
@@ -241,7 +236,7 @@ const initState = <
         (att) =>
           ({
             ...att,
-            $internal: { id: nanoid(), uploadState: AttachmentUploadState.UPLOADED },
+            $internal: { id: nanoid(), uploadState: 'finished' },
           } as LocalAttachment<StreamChatGenerics>),
       ) || [];
 
@@ -429,6 +424,7 @@ export const useMessageInputState = <
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
     audioRecordingConfig,
+    audioRecordingEnabled = true,
     doFileUploadRequest,
     errorHandler,
     getDefaultValue,
@@ -514,11 +510,12 @@ export const useMessageInputState = <
     numberOfUploads,
     enrichURLsController,
   );
-  const voiceRecordingController = useMediaRecorder({
+  const audioRecordingController = useMediaRecorder({
     asyncMessagesMultiSendEnabled,
     audioRecordingConfig,
     dispatch,
     doFileUploadRequest,
+    enabled: audioRecordingEnabled,
     errorHandler,
     handleSubmit,
   });
@@ -545,6 +542,7 @@ export const useMessageInputState = <
   return {
     ...state,
     ...enrichURLsController,
+    audioRecordingController,
     closeCommandsList,
     closeMentionsList,
     handleChange,
@@ -567,6 +565,5 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
-    voiceRecordingController,
   };
 };

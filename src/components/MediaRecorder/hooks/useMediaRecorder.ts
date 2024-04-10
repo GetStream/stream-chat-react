@@ -9,7 +9,6 @@ import {
 } from '../../../context';
 import { checkUploadPermissions } from '../../MessageInput/hooks/utils';
 import type { MessageInputReducerAction, VoiceRecordingAttachment } from '../../MessageInput';
-import { AttachmentUploadState } from '../../MessageInput';
 
 import type { SendFileAPIResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
@@ -27,9 +26,9 @@ export type CustomAudioRecordingConfig = Partial<AudioRecorderConfig>;
 
 export type AudioRecordingController = {
   completeRecording: () => void;
-  recorder: MediaRecorderController;
   uploadRecording: (recording: VoiceRecordingAttachment) => Promise<void>;
   permissionState?: PermissionState;
+  recorder?: MediaRecorderController;
   recording?: VoiceRecordingAttachment;
   recordingState?: MediaRecordingState;
 };
@@ -41,6 +40,7 @@ type UseMediaRecorderParams<
   'asyncMessagesMultiSendEnabled' | 'doFileUploadRequest' | 'errorHandler' | 'handleSubmit'
 > & {
   dispatch: Dispatch<MessageInputReducerAction<StreamChatGenerics>>;
+  enabled: boolean;
   audioRecordingConfig?: CustomAudioRecordingConfig;
   generateRecordingTitle?: (mimeType: string) => string;
 };
@@ -52,6 +52,7 @@ export const useMediaRecorder = <
   audioRecordingConfig,
   dispatch,
   doFileUploadRequest,
+  enabled,
   errorHandler,
   generateRecordingTitle,
   handleSubmit,
@@ -68,12 +69,14 @@ export const useMediaRecorder = <
 
   const recorder = useMemo(
     () =>
-      new MediaRecorderController({
-        config: audioRecordingConfig ?? {},
-        generateRecordingTitle,
-        t,
-      }),
-    [audioRecordingConfig, generateRecordingTitle, t],
+      enabled
+        ? new MediaRecorderController({
+            config: audioRecordingConfig ?? {},
+            generateRecordingTitle,
+            t,
+          })
+        : undefined,
+    [audioRecordingConfig, enabled, generateRecordingTitle, t],
   );
 
   const uploadRecording = useCallback(
@@ -102,7 +105,7 @@ export const useMediaRecorder = <
             $internal: {
               ...$internal,
               id,
-              uploadState: AttachmentUploadState.UPLOADING,
+              uploadState: 'uploading',
             },
           },
           type: 'upsertAttachment',
@@ -121,7 +124,7 @@ export const useMediaRecorder = <
             ...recording,
             $internal: {
               ...$internal,
-              uploadState: AttachmentUploadState.UPLOADED,
+              uploadState: 'finished',
             },
             asset_url: response.file,
           },
@@ -143,7 +146,7 @@ export const useMediaRecorder = <
             ...recording,
             $internal: {
               ...$internal,
-              uploadState: AttachmentUploadState.FAILED,
+              uploadState: 'failed',
             },
           },
           type: 'upsertAttachment',
@@ -169,6 +172,7 @@ export const useMediaRecorder = <
   );
 
   const completeRecording = useCallback(async () => {
+    if (!recorder) return;
     const recording = await recorder.stop();
     if (!recording) return;
     await uploadRecording(recording);
@@ -186,6 +190,7 @@ export const useMediaRecorder = <
   }, [handleSubmit, isScheduledForSubmit]);
 
   useEffect(() => {
+    if (!recorder) return;
     recorder.permission.watch();
     const recordingSubscription = recorder.recording.subscribe(setRecording);
     const recordingStateSubscription = recorder.recordingState.subscribe(setRecordingState);

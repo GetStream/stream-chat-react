@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
-import { AttachmentUploadState } from './types';
 import {
   isAudioAttachment,
   isMediaAttachment,
@@ -20,10 +19,10 @@ import type { LocalAttachment, VoiceRecordingAttachment } from './types';
 export const AttachmentPreviewList = () => {
   const {
     attachments,
+    audioRecordingController: { uploadRecording },
     fileOrder,
     imageOrder,
     removeAttachment,
-    voiceRecordingController: { uploadRecording },
   } = useMessageInputContext('AttachmentPreviewList');
 
   return (
@@ -92,13 +91,13 @@ const VoiceRecordingPreview = ({
       <button
         className='str-chat__attachment-preview-delete'
         data-testid='file-preview-item-delete-button'
-        disabled={attachment.$internal?.uploadState === AttachmentUploadState.UPLOADING}
+        disabled={attachment.$internal?.uploadState === 'uploading'}
         onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal.id)}
       >
         <CloseIcon />
       </button>
 
-      {attachment.$internal?.uploadState === AttachmentUploadState.FAILED && !!handleRetry && (
+      {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
         <button
           className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
           data-testid='file-preview-item-retry-button'
@@ -115,9 +114,7 @@ const VoiceRecordingPreview = ({
         {typeof attachment.duration !== 'undefined' && (
           <RecordingTimer durationSeconds={secondsElapsed || attachment.duration} />
         )}
-        {attachment.$internal?.uploadState === AttachmentUploadState.UPLOADING && (
-          <LoadingIndicatorIcon size={17} />
-        )}
+        {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
       </div>
       <div className='str-chat__attachment-preview-file-icon'>
         <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
@@ -135,13 +132,13 @@ const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPr
     <button
       className='str-chat__attachment-preview-delete'
       data-testid='file-preview-item-delete-button'
-      disabled={attachment.$internal?.uploadState === AttachmentUploadState.UPLOADING}
+      disabled={attachment.$internal?.uploadState === 'uploading'}
       onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal?.id)}
     >
       <CloseIcon />
     </button>
 
-    {attachment.$internal?.uploadState === AttachmentUploadState.FAILED && !!handleRetry && (
+    {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
       <button
         className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
         data-testid='file-preview-item-retry-button'
@@ -155,7 +152,7 @@ const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPr
       <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
         {attachment.title}
       </div>
-      {attachment.$internal?.uploadState === AttachmentUploadState.UPLOADED && (
+      {attachment.$internal?.uploadState === 'finished' && (
         <a
           className='str-chat__attachment-preview-file-download'
           download
@@ -166,9 +163,7 @@ const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPr
           <DownloadIcon />
         </a>
       )}
-      {attachment.$internal?.uploadState === AttachmentUploadState.UPLOADING && (
-        <LoadingIndicatorIcon size={17} />
-      )}
+      {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
     </div>
   </div>
 );
@@ -258,17 +253,11 @@ const FilePreviewItem = ({ id }: PreviewItemProps) => {
 
   if (!file) return null;
 
-  const toAttachmentUploadState = {
-    failed: AttachmentUploadState.FAILED,
-    finished: AttachmentUploadState.UPLOADED,
-    uploading: AttachmentUploadState.UPLOADING,
-  };
-
   const attachment: LocalAttachment = {
     $internal: {
       file: file.file as File,
       id,
-      uploadState: toAttachmentUploadState[file.state],
+      uploadState: file.state,
     },
     asset_url: file.url,
     mime_type: file.file.type,
