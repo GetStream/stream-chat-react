@@ -804,7 +804,6 @@ const MessageSearchResultPreview = ({ message }) => {
       setActiveChannel(channel);
       await channel.state.loadMessageIntoState(message.id);
       history.replace(`${window.location.pathname}#${message.id}`);
-      window.dispatchEvent(new Event('replacestate'));
     }
   };
 
