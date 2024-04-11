@@ -9,7 +9,7 @@ type WaveformProps = {
 
 const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => {
   const {
-    audioRecordingController: { recorder },
+    recordingController: { recorder },
   } = useMessageInputContext();
 
   const [amplitudes, setAmplitudes] = useState<number[]>([]);
@@ -45,7 +45,7 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => 
 export const AudioRecordingInProgress = () => {
   const { secondsElapsed, startCounter, stopCounter } = useTimeElapsed();
   const {
-    audioRecordingController: { recorder },
+    recordingController: { recorder },
   } = useMessageInputContext();
 
   useEffect(() => {

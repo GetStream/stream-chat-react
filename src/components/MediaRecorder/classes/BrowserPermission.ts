@@ -31,7 +31,7 @@ export class BrowserPermission {
   }
 
   get isWatching() {
-    return this.changeSubscriptions.some(({ closed }) => !closed);
+    return this.changeSubscriptions.some((subscription) => !subscription.closed);
   }
 
   async watch() {
@@ -55,7 +55,7 @@ export class BrowserPermission {
   }
 
   unwatch() {
-    this.changeSubscriptions.forEach(({ unsubscribe }) => unsubscribe());
+    this.changeSubscriptions.forEach((subscription) => subscription.unsubscribe());
   }
 
   async check() {

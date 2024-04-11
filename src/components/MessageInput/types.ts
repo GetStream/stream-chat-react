@@ -1,4 +1,4 @@
-import type { Attachment, OGAttachment } from 'stream-chat';
+import type { Attachment, DefaultGenerics, ExtendableGenerics, OGAttachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
@@ -66,23 +66,62 @@ export enum SetLinkPreviewMode {
 
 export type LinkPreviewMap = Map<LinkURL, LinkPreview>;
 
+export type VoiceRecordingAttachment<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = Attachment<StreamChatGenerics> & {
+  asset_url: string;
+  type: 'voiceRecording';
+  duration?: number;
+  file_size?: number;
+  mime_type?: string;
+  title?: string;
+  waveform_data?: Array<number>;
+};
+
+export type AudioAttachment<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = Attachment<StreamChatGenerics> & {
+  asset_url: string;
+  type: 'audio';
+  file_size?: number;
+  mime_type?: string;
+  title?: string;
+};
+
+export type VideoAttachment<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = Attachment<StreamChatGenerics> & {
+  asset_url: string;
+  type: 'video';
+  mime_type?: string;
+  thumb_url?: string;
+  title?: string;
+};
+
 export type AttachmentInternalMetadata = {
   id: string;
   file?: File;
   uploadState?: AttachmentLoadingState;
 };
 
+type LocalAttachmentCast<T> = T & { $internal: AttachmentInternalMetadata };
+
+export type LocalVoiceRecordingAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = LocalAttachmentCast<VoiceRecordingAttachment<StreamChatGenerics>>;
+
+export type LocalAudioAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = LocalAttachmentCast<AudioAttachment<StreamChatGenerics>>;
+
+export type LocalVideoAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = LocalAttachmentCast<VideoAttachment<StreamChatGenerics>>;
+
 export type LocalAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = Attachment<StreamChatGenerics> & { $internal?: AttachmentInternalMetadata };
-
-export type VoiceRecordingAttachment = {
-  asset_url: string;
-  $internal?: AttachmentInternalMetadata;
-  duration?: number;
-  file_size?: number;
-  mime_type?: string;
-  title?: string;
-  type?: 'voiceRecording';
-  waveform_data?: Array<number>;
-};
+> =
+  | LocalAttachmentCast<Attachment<StreamChatGenerics>>
+  | LocalAudioAttachment<StreamChatGenerics>
+  | LocalVideoAttachment<StreamChatGenerics>
+  | LocalVoiceRecordingAttachment<StreamChatGenerics>;

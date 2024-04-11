@@ -14,7 +14,7 @@ import { MediaRecordingState } from '../classes/MediaRecorderController';
 
 export const AudioRecorder = () => {
   const {
-    audioRecordingController: { completeRecording, recorder, recording, recordingState },
+    recordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageInputContext();
 
   const isUploadingFile = recording?.$internal?.uploadState === 'uploading';

@@ -14,16 +14,19 @@ import { RecordingTimer } from '../MediaRecorder';
 import { FileIcon } from '../ReactFileUtilities';
 import { useComponentContext, useMessageInputContext } from '../../context';
 
-import type { LocalAttachment, VoiceRecordingAttachment } from './types';
+import type { LocalAttachment } from './types';
+import type { DefaultStreamChatGenerics } from '../../types';
 
-export const AttachmentPreviewList = () => {
+export const AttachmentPreviewList = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>() => {
   const {
     attachments,
-    audioRecordingController: { uploadRecording },
     fileOrder,
     imageOrder,
     removeAttachment,
-  } = useMessageInputContext('AttachmentPreviewList');
+    uploadAttachment,
+  } = useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
 
   return (
     <div className='str-chat__attachment-preview-list'>
@@ -36,7 +39,7 @@ export const AttachmentPreviewList = () => {
             return (
               <VoiceRecordingPreview
                 attachment={attachment}
-                handleRetry={uploadRecording}
+                handleRetry={uploadAttachment}
                 key={attachment.$internal?.id || attachment.asset_url}
                 removeAttachment={removeAttachment}
               />
@@ -47,6 +50,7 @@ export const AttachmentPreviewList = () => {
             return (
               <FilePreview
                 attachment={attachment}
+                handleRetry={uploadAttachment}
                 key={attachment.$internal?.id || attachment.asset_url}
                 removeAttachment={removeAttachment}
               />
@@ -68,14 +72,14 @@ export const AttachmentPreviewList = () => {
 type AttachmentPreviewProps<A extends LocalAttachment = LocalAttachment> = {
   attachment: A;
   removeAttachment: (id: string) => void;
-  handleRetry?: (attachment: A) => void | Promise<void>;
+  handleRetry?: (attachment: A) => void | Promise<A>;
 };
 
 const VoiceRecordingPreview = ({
   attachment,
   handleRetry,
   removeAttachment,
-}: AttachmentPreviewProps<VoiceRecordingAttachment>) => {
+}: AttachmentPreviewProps) => {
   const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController();
 
   return (

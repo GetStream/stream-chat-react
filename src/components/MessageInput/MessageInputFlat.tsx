@@ -170,7 +170,6 @@ const MessageInputV2 = <
 
   const {
     attachments,
-    audioRecordingController,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
@@ -180,6 +179,7 @@ const MessageInputV2 = <
     maxFilesLeft,
     message,
     numberOfUploads,
+    recordingController,
     setCooldownRemaining,
     text,
     uploadNewFiles,
@@ -216,7 +216,7 @@ const MessageInputV2 = <
     onDrop: uploadNewFiles,
   });
 
-  if (audioRecordingController.recordingState) return <AudioRecorder />;
+  if (recordingController.recordingState) return <AudioRecorder />;
 
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
@@ -225,7 +225,7 @@ const MessageInputV2 = <
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
-        {audioRecordingController.permissionState === 'denied' && (
+        {recordingController.permissionState === 'denied' && (
           <RecordingPermissionDeniedNotification permissionName={RecordingPermission.MIC} />
         )}
         {findAndEnqueueURLsToEnrich && (
@@ -278,16 +278,20 @@ const MessageInputV2 = <
                   cooldownInterval={cooldownRemaining}
                   setCooldownRemaining={setCooldownRemaining}
                 />
-              ) : audioRecordingController.recorder && navigator.mediaDevices ? ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
-                <StartRecordingAudioButton
-                  disabled={!!audioRecordingController.recordingState}
-                  onClick={audioRecordingController.recorder.start}
-                />
               ) : (
-                <SendButton
-                  disabled={!numberOfUploads && !text.length && !attachments.length}
-                  sendMessage={handleSubmit}
-                />
+                <>
+                  <SendButton
+                    disabled={!numberOfUploads && !text.length && !attachments.length}
+                    sendMessage={handleSubmit}
+                  />
+                  {recordingController.recorder &&
+                    navigator.mediaDevices && ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+                      <StartRecordingAudioButton
+                        disabled={!!recordingController.recordingState}
+                        onClick={recordingController.recorder.start}
+                      />
+                    )}
+                </>
               )}
             </>
           )}

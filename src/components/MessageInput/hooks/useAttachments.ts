@@ -3,14 +3,20 @@ import { nanoid } from 'nanoid';
 
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
+import { checkUploadPermissions } from './utils';
 
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import {
+  useChannelActionContext,
+  useChannelStateContext,
+  useChatContext,
+  useTranslationContext,
+} from '../../../context';
 
-import type { FileLike } from '../../ReactFileUtilities';
-
-import type { MessageInputProps } from '../MessageInput';
+import type { SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
-
+import type { MessageInputProps } from '../MessageInput';
+import type { LocalAttachment } from '../types';
+import type { FileLike } from '../../ReactFileUtilities';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
@@ -24,16 +30,14 @@ export const useAttachments = <
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
-  const { noFiles } = props;
+  const { doFileUploadRequest, errorHandler, noFiles } = props;
   const { fileUploads, imageUploads } = state;
-
-  const { maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
+  const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
+  const { t } = useTranslationContext('useAttachments');
+  const { addNotification } = useChannelActionContext<StreamChatGenerics>('useAttachments');
+  const { channel, maxNumberOfFiles, multipleUploads } = useChannelStateContext<StreamChatGenerics>(
     'useAttachments',
   );
-
-  const removeAttachment = (id: string) => {
-    dispatch({ id, type: 'removeAttachment' });
-  };
 
   const { removeFile, uploadFile } = useFileUploads<StreamChatGenerics, V>(props, state, dispatch);
 
@@ -85,12 +89,109 @@ export const useAttachments = <
     [maxFilesLeft, noFiles],
   );
 
+  const removeAttachment = (id: string) => {
+    dispatch({ id, type: 'removeAttachment' });
+  };
+
+  const uploadAttachment = useCallback(
+    async (
+      att: LocalAttachment<StreamChatGenerics>,
+    ): Promise<LocalAttachment<StreamChatGenerics>> => {
+      const { $internal, ...attachment } = att;
+      if (!$internal?.file) return att;
+
+      const id = $internal?.id ?? nanoid();
+      const { file } = $internal;
+      const canUpload = await checkUploadPermissions({
+        addNotification,
+        file,
+        getAppSettings,
+        t,
+        uploadType: 'file',
+      });
+
+      if (!canUpload) {
+        const notificationText = t('Missing permissions to upload the attachment');
+        console.error(new Error(notificationText));
+        addNotification(notificationText, 'error');
+        return att;
+      }
+
+      dispatch({
+        attachment: {
+          ...attachment,
+          $internal: {
+            ...$internal,
+            id,
+            uploadState: 'uploading',
+          },
+        },
+        type: 'upsertAttachment',
+      });
+
+      try {
+        let response: SendFileAPIResponse;
+        if (doFileUploadRequest) {
+          response = await doFileUploadRequest(file, channel);
+        } else {
+          response = await channel.sendFile(file as File);
+        }
+        const uploadedAttachment = {
+          ...attachment,
+          $internal: {
+            ...$internal,
+            uploadState: 'finished',
+          },
+          asset_url: response.file,
+        } as LocalAttachment<StreamChatGenerics>;
+
+        dispatch({
+          attachment: uploadedAttachment,
+          type: 'upsertAttachment',
+        });
+
+        return uploadedAttachment;
+      } catch (error) {
+        let finalError: Error = { message: t('Error uploading attachment'), name: 'Error' };
+        if (typeof (error as Error).message === 'string') {
+          finalError = error as Error;
+        } else if (typeof error === 'object') {
+          finalError = Object.assign(finalError, error);
+        }
+
+        console.error(finalError);
+        addNotification(finalError.message, 'error');
+
+        const failedAttachment = {
+          ...attachment,
+          $internal: {
+            ...$internal,
+            uploadState: 'failed',
+          },
+        } as LocalAttachment<StreamChatGenerics>;
+
+        dispatch({
+          attachment: failedAttachment,
+          type: 'upsertAttachment',
+        });
+
+        if (errorHandler) {
+          errorHandler(finalError as Error, 'upload-attachment', file);
+        }
+
+        return failedAttachment;
+      }
+    },
+    [addNotification, channel, doFileUploadRequest, dispatch, errorHandler, getAppSettings, t],
+  );
+
   return {
     maxFilesLeft,
     numberOfUploads,
     removeAttachment,
     removeFile,
     removeImage,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,

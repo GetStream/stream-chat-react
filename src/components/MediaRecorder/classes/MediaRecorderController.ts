@@ -1,3 +1,5 @@
+import fixWebmDuration from 'fix-webm-duration';
+import { nanoid } from 'nanoid';
 import {
   createFileFromBlobs,
   getExtensionFromMimeType,
@@ -6,11 +8,8 @@ import {
 } from '../../ReactFileUtilities';
 import { mergeDeep } from '../../../utils/mergeDeep';
 import { transcode } from '../transcode';
-import { nanoid } from 'nanoid';
 import { resampleWaveformData } from '../../Attachment';
-import fixWebmDuration from 'fix-webm-duration';
 import { isSafari } from '../../../utils/browsers';
-import { VoiceRecordingAttachment } from '../../MessageInput';
 import { BrowserPermission } from './BrowserPermission';
 import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
@@ -21,6 +20,8 @@ import {
   AmplitudeRecorder,
   AmplitudeRecorderConfig,
 } from './AmplitudeRecorder';
+
+import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 
 const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -109,10 +110,10 @@ export class MediaRecorderController {
   recordingUri: string | undefined;
   mediaType: RecordedMediaType;
 
-  signalRecordingReady: ((r: VoiceRecordingAttachment) => void) | undefined;
+  signalRecordingReady: ((r: LocalVoiceRecordingAttachment) => void) | undefined;
 
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
-  recording = new BehaviorSubject<VoiceRecordingAttachment | undefined>(undefined);
+  recording = new BehaviorSubject<LocalVoiceRecordingAttachment | undefined>(undefined);
   error = new Subject<Error | undefined>();
   notification = new Subject<{ text: string; type: 'success' | 'error' } | undefined>();
 
@@ -336,7 +337,7 @@ export class MediaRecorderController {
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
     }
-    const result = new Promise<VoiceRecordingAttachment>((res) => {
+    const result = new Promise<LocalVoiceRecordingAttachment>((res) => {
       this.signalRecordingReady = res;
     });
     this.mediaRecorder?.stop();

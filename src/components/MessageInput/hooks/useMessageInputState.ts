@@ -8,10 +8,7 @@ import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
-import {
-  AudioRecordingController,
-  useMediaRecorder,
-} from '../../MediaRecorder/hooks/useMediaRecorder';
+import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
 import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
 
 import type { FileLike } from '../../ReactFileUtilities';
@@ -118,7 +115,6 @@ export type MessageInputReducerAction<
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = EnrichURLsController & {
-  audioRecordingController: AudioRecordingController;
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
     event?: React.BaseSyntheticEvent,
@@ -131,10 +127,14 @@ export type MessageInputHookProps<
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
+  recordingController: RecordingController;
   removeAttachment: (id: string) => void;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
+  uploadAttachment: (
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => Promise<LocalAttachment<StreamChatGenerics>>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
@@ -425,8 +425,6 @@ export const useMessageInputState = <
     asyncMessagesMultiSendEnabled,
     audioRecordingConfig,
     audioRecordingEnabled = true,
-    doFileUploadRequest,
-    errorHandler,
     getDefaultValue,
     message,
     urlEnrichmentConfig,
@@ -498,6 +496,7 @@ export const useMessageInputState = <
     removeAttachment,
     removeFile,
     removeImage,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
@@ -510,14 +509,12 @@ export const useMessageInputState = <
     numberOfUploads,
     enrichURLsController,
   );
-  const audioRecordingController = useMediaRecorder({
+  const recordingController = useMediaRecorder({
     asyncMessagesMultiSendEnabled,
     audioRecordingConfig,
-    dispatch,
-    doFileUploadRequest,
     enabled: audioRecordingEnabled,
-    errorHandler,
     handleSubmit,
+    uploadAttachment,
   });
 
   // todo: remove the check for channelConfig?.uploads
@@ -542,7 +539,6 @@ export const useMessageInputState = <
   return {
     ...state,
     ...enrichURLsController,
-    audioRecordingController,
     closeCommandsList,
     closeMentionsList,
     handleChange,
@@ -555,6 +551,7 @@ export const useMessageInputState = <
     onSelectUser,
     openCommandsList,
     openMentionsList,
+    recordingController,
     removeAttachment,
     removeFile,
     removeImage,
@@ -562,6 +559,7 @@ export const useMessageInputState = <
     showCommandsList,
     showMentionsList,
     textareaRef,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
