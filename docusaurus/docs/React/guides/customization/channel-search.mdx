@@ -3,27 +3,29 @@ id: channel_search
 title: Channel Search
 ---
 
-Channel search is used to look up channels based on query that includes user
-input. Depending on your case, it can be used to either find existing
-conversations, initiate new ones, or do both.
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+Channel search is used to find channels based on a query that includes user
+input. Depending on your needs, it can be used to either find existing
+conversations, start new ones, or do both.
 
 There are two ways to use the built-in search functionality:
 
 1. by enabling search in the `ChannelList` component with the
-   `showChannelSearch` prop,
-2. or by using the `ChannelSearch` component directly.
+   [`showChannelSearch`](../../components/core-components/channel-list.mdx#showchannelsearch) prop,
+2. or by using the [`ChannelSearch`](../../components/utility-components/channel-search.mdx) component directly.
 
-No matter which way works better for you, the `ChannelSearch` component will be
-managing the UI logic.
+Whichever works better for you, the [`ChannelSearch`](../../components/utility-components/channel-search.mdx) component is the one that handles the UI logic.
 
-In the first case, when you're using the search functionality of the
+In the first case, if you're using the search functionality of the
 `ChannelList` component, the `ChannelSearch` is rendered by the `ChannelList`.
-You can still pass props to the underlying `ChannelSearch` via the
-`additionalChannelSearchProps`.
+You can still pass props to the underlying `ChannelSearch` through the
+[`additionalChannelSearchProps`](../../components/core-components/channel-list.mdx#showchannelsearch#additionalchannelsearchprops).
 
-For example, this is how you enable search in the `ChannelList` (with the
-`showChannelSearch` prop), and configure search results to include both channels
-and users by passing settings in the `additionalChannelSearchProps`:
+For example, you could enable search in the `ChannelList` (with the
+[`showChannelSearch`](../../components/core-components/channel-list.mdx#showchannelsearch) prop), and configure the search results to include both channels
+and users by passing settings in the [`additionalChannelSearchProps`](../../components/core-components/channel-list.mdx#showchannelsearch#additionalchannelsearchprops):
 
 ```jsx
 <ChannelList
@@ -35,21 +37,23 @@ and users by passing settings in the `additionalChannelSearchProps`:
 />
 ```
 
-In the second case, when you're using the `ChannelSearch` component directly,
-you can pass settings right as the props of the `ChannelSearch` component:
+In the second case, if you're using the [`ChannelSearch`](../../components/utility-components/channel-search.mdx) component directly,
+you can pass settings directly as props of the `ChannelSearch` component:
 
 ```jsx
 <ChannelSearch searchForChannels />
 ```
 
-## ChannelSearch Component Anatomy
+## Component Anatomy
 
-`ChannelSearch` component consists of the search bar (including the search
-input), results header, and the results list (consisting of individual search
+The [`ChannelSearch`](../../components/utility-components/channel-search.mdx) component consists of the search bar (including the search
+input), the results header, and the results list (consisting of individual search
 results items).
 
-Each of this components can be overriden by passing custom components in the
-`ChannelSearch` props:
+![](../../assets/channel-search-anatomy.png)
+
+Each of these components can be overridden by passing custom components in the
+[`ChannelSearch` props](../../components/utility-components/channel-search.mdx#Props):
 
 ```jsx
 <ChannelSearch
@@ -62,7 +66,7 @@ Each of this components can be overriden by passing custom components in the
 ```
 
 If you're using the search functionality of the `ChannelList` components, you
-can pass the same custom components to the `additionalChannelSearchProps`:
+can pass the same custom components to the [`additionalChannelSearchProps`](../../components/core-components/channel-list.mdx#showchannelsearch#additionalchannelsearchprops):
 
 ```jsx
 <ChannelList
@@ -80,9 +84,7 @@ can pass the same custom components to the `additionalChannelSearchProps`:
 />
 ```
 
-Next, we'll go through some of these customization options in depth. But first
-we recommend that you check out the [many customization options]() available out
-of the box that do not require providing custom components.
+Next, we'll take a closer look at some of these customization options. But first, we encourage you to explore the many out-of-the-box [customization options](../../components/utility-components/channel-search.mdx) that do not require you to provide custom components.
 
 <!-- Note: I'm removing this whole section because changing the order of search
 results in the `SearchResultList` component breaks keyboard navigation in the
@@ -150,41 +152,99 @@ custom `SearchResultItem`.
 <ChannelSearch SearchResultItem={CustomSearchResultItem} />
 ```
 
+Or:
+
 ```jsx
-<ChannelList additionalChannelSearchProps={{ SearchResultItem: SearchResultItem }} />
+<ChannelList
+  additionalChannelSearchProps={{
+    SearchResultItem: CustomSearchResultItem,
+  }}
+/>
 // Don't forget to provide filter and sort options as well!
 ```
 
 This component receives a search result item as a prop, which can be either a
-`UserResponse` or a `Channel` (if `searchForChannels` option is enabled).
+`UserResponse` or a `Channel` (if the [`searchForChannels`](../../components/utility-components/channel-search.mdx#searchforchannels) option is enabled).
 
-Our implementation should be able to:
+Your custom implementation should be able to:
 
 1. Display both channel and user search result items.
-2. Provide visual feedback for an item focused with arrow keys. We can do it by
+2. Provide visual feedback for an item focused with the arrow keys. We can do this by
    looking at the `focusUser` prop which contains the index of the currently
    selected item.
 3. When clicked, it should invoke the `selectResult` callback.
 
-```jsx
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
+```jsx
+const CustomSearchResultItem = ({ result, index, focusedUser, selectResult }) => {
+  const isChannel = result.cid;
+
+  return (
+    <button
+      className={`search-result-item ${index === focusedUser ? 'search-result-item_focused' : ''}`}
+      onClick={() => selectResult(result)}
+    >
+      {isChannel ? (
+        <>
+          <span className='search-result-item__icon'>#️⃣</span>
+          {result.data?.name}
+        </>
+      ) : (
+        <>
+          <span className='search-result-item__icon'>👤</span>
+          {result.name ?? result.id}
+        </>
+      )}
+    </button>
+  );
+};
 ```
+
+</TabItem>
+<TabItem value="css" label="CSS">
 
 ```css
+.search-result-item {
+  font: inherit;
+  border: 0;
+  background: none;
+  padding: 10px 20px 10px 50px;
+  text-align: left;
+}
 
+.search-result-item:not(:last-child) {
+  border-bottom: 1px solid #dbdde1;
+}
+
+.search-result-item_focused {
+  background: #dbdde1;
+}
+
+.search-result-item__icon {
+  display: inline-block;
+  width: 30px;
+  margin-left: -30px;
+}
 ```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-search-item.png)
 
 ## Implementing Search from Scratch
 
-You don't have to rely on the components provided by the SDK to implement
-search. For ultimate customizability it's not too difficult to implement search
-from scratch. You'll have to manage state yourself, and use our low-level client
+You don't have to rely on the components provided in the SDK to implement
+search. For ultimate customization, it's not too difficult to implement search
+from scratch. You'll have to manage the state yourself, and use our low-level client
 methods to query for results, but the upside is that you can manipulate the
 results however you like.
 
-Refer to our client documentation to learn how to query for [channels](),
-[users](), or [messages](). As a quick reference, here are the queries we will
-be making:
+See our client documentation to learn how to query for [channels](https://getstream.io/chat/docs/react/query_channels/?language=javascript),
+[users](https://getstream.io/chat/docs/react/query_users/?language=javascript), or [messages](https://getstream.io/chat/docs/react/search/?language=javascript). As a quick reference, here are the queries we will
+be using:
 
 ```js
 // Query at most 5 messaging channels where current user is a member,
@@ -221,11 +281,14 @@ const { results } = await client.search({ type: 'messaging', members: { $in: [us
 const messages = results.map((item) => item.message);
 ```
 
-Next, let's add a simple text input and some buttons to search for channels,
+Next, let's add some simple text input and some buttons to search for channels,
 users, or messages:
 
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
 ```jsx
-function CustomSearch() {
+const CustomSearch = () => {
   const [query, setQuery] = useState('');
 
   return (
@@ -251,20 +314,73 @@ function CustomSearch() {
       )}
     </div>
   );
+};
+```
+
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.search-input {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #00000014;
+  font: inherit;
+  padding: 10px 15px;
+}
+
+.search-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-actions {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 20px;
+}
+
+.search-button {
+  background: #00000014;
+  border: 0;
+  border-bottom: 1px solid #dbdde1;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.search-button:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.search-button:last-child {
+  border-radius: 0 0 10px 10px;
+  border-bottom: 0;
+}
+
+.search-button:hover {
+  background: #dbdde1;
 }
 ```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-search.png)
 
 So far, our `CustomSearch` component doesn't do anything. Let's wire things up
 by adding click event listeners to the search buttons.
 
-One thing we should be mindful about is race conditions: we should either cancel
-or discard the results of previous request when making a new one, or prevent a
-user from making several requests at the same time. Better yet, use a query
+<details>
+<summary><strong>A note about race conditions</strong></summary>
+
+One thing we should be aware of is race conditions: we should either abort
+or discard the results of the previous request when making a new one, or prevent a
+user from making multiple requests at once. Better yet, use a query
 library like [TanStack Query](https://tanstack.com/query/latest) or
 [SWR](https://swr.vercel.app/) to make requests.
 
-In this example, we are going to use a helper function that will guard us
-against race conditions:
+In this example, we will use a helper function that will protect us
+from race conditions:
 
 ```js
 function useSearchQuery() {
@@ -293,18 +409,281 @@ function useSearchQuery() {
 }
 ```
 
-:::caution If you're implementing the "search as you type" user experience,
-don't forget to debounce or throttle your search requests. Otherwise you can
-reach rate limits very quickly. :::
+</details>
 
-Now we are ready to bring things together by adding the click event handlers to
-the search buttons:
+:::caution
+
+If you're implementing the "search as you type" user experience,
+don't forget to debounce or throttle your search requests. Otherwise, you can quickly
+hit rate limits.
+
+:::
 
 ```jsx
-function CustomSearch() {
+import { useChatContext } from 'stream-chat-react';
+
+const CustomSearch = () => {
   const { client } = useChatContext();
   const [query, setQuery] = useState('');
   const { results, pending, querySearchResults } = useSearchQuery();
+
+  const handleChannelSearchClick = () => {
+    querySearchResults(async () => {
+      const channels = await client.queryChannels(
+        {
+          type: 'messaging',
+          name: { $autocomplete: query },
+          members: { $in: [userId] },
+        },
+        { last_message_at: -1, updated_at: -1 },
+        { limit: 5 },
+      );
+
+      return {
+        entity: 'channel',
+        items: channels,
+      };
+    });
+  };
+
+  const handleUserSearchClick = () => {
+    querySearchResults(async () => {
+      const { users } = await client.queryUsers(
+        {
+          $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
+          id: { $ne: userId },
+        },
+        { id: 1, name: 1 },
+        { limit: 5 },
+      );
+
+      return {
+        entity: 'user',
+        items: users,
+      };
+    });
+  };
+
+  const handleMessageSearchClick = () => {
+    querySearchResults(async () => {
+      const { results } = await client.search(
+        { type: 'messaging', members: { $in: [userId] } },
+        query,
+        { limit: 5 },
+      );
+
+      return {
+        entity: 'message',
+        items: results.map((item) => item.message),
+      };
+    });
+  };
+
+  return (
+    <div className='search'>
+      <input
+        type='search'
+        className='search-input'
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+      />
+      {query && (
+        <div className='search-actions'>
+          <button type='button' className='search-button' onClick={handleChannelSearchClick}>
+            #️⃣ Find <strong>"{query}"</strong> channels
+          </button>
+          <button type='button' className='search-button' onClick={handleUserSearchClick}>
+            👤 Find <strong>"{query}"</strong> users
+          </button>
+          <button type='button' className='search-button' onClick={handleMessageSearchClick}>
+            💬 Look up <strong>"{query}"</strong> in messages
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+Finally, we need to display the search results to the user. You can use components
+like `ChannelPreview` that come with the SDK, or you can create your own. Let's
+create very simple preview components for channels, users, and messages:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+const ChannelSearchResultPreview = ({ channel }) => (
+  <li className='search-results__item'>
+    <div className='search-results__icon'>#️⃣</div>
+    {channel.data?.name}
+  </li>
+);
+
+const UserSearchResultPreview = ({ user }) => (
+  <li className='search-results__item'>
+    <div className='search-results__icon'>👤</div>
+    {user.name ?? user.id}
+  </li>
+);
+
+const MessageSearchResultPreview = ({ message }) => (
+  <li className='search-results__item'>
+    <div className='search-results__icon'>💬</div>
+    {message.text}
+  </li>
+);
+
+const SearchResultsPreview = ({ results }) => {
+  if (results.items.length === 0) {
+    return <div class='search-results'>🤷‍♂️ No results</div>;
+  }
+
+  return (
+    <ul className='search-results'>
+      {results.entity === 'channel' &&
+        results.items.map((item) => <ChannelSearchResultPreview key={item.cid} channel={item} />)}
+      {results.entity === 'user' &&
+        results.items.map((item) => <UserSearchResultPreview key={item.id} user={item} />)}
+      {results.entity === 'message' &&
+        results.items.map((item) => <MessageSearchResultPreview key={item.id} message={item} />)}
+    </ul>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-results__item {
+  padding-left: 30px;
+}
+
+.search-results__item:not(:last-child) {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dbdde1;
+}
+
+.search-results__icon {
+  display: inline-block;
+  width: 30px;
+  margin-left: -30px;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/channel-search-channels.png)
+![](../../assets/channel-search-users.png)
+![](../../assets/channel-search-messages.png)
+
+What happens when you click on a search result depends on your desired user
+experience. If you click on a channel, it makes sense to set the channel as
+active. When clicking on a user, you may want to create or open a channel with
+a one-on-one conversation with the user. When clicking on a message, it's
+probably expected that a relevant channel will be set as active and scrolled to the
+message.
+
+<Tabs groupId="example">
+<TabItem value="channel" label="Channel Preview">
+
+```jsx
+import { useChatContext } from 'stream-chat-react';
+
+const ChannelSearchResultPreview = ({ channel }) => {
+  const { setActiveChannel } = useChatContext();
+
+  return (
+    <li className='search-results__item' onClick={() => setActiveChannel(channel)}>
+      <div className='search-results__icon'>#️⃣</div>
+      {channel.data?.name}
+    </li>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="user" label="User Preview">
+
+```jsx
+import { useChatContext } from 'stream-chat-react';
+
+const UserSearchResultPreview = ({ user }) => {
+  const { client, setActiveChannel } = useChatContext();
+
+  const handleClick = async () => {
+    const channel = client.channel('messaging', { members: [userId, user.id] });
+    await channel.watch();
+    setActiveChannel(channel);
+  };
+
+  return (
+    <li className='search-results__item' onClick={handleClick}>
+      <div className='search-results__icon'>👤</div>
+      {user.name ?? user.id}
+    </li>
+  );
+};
+```
+
+</TabItem>
+<TabItem value="message" label="Message Preview">
+
+```jsx
+import { useChatContext } from 'stream-chat-react';
+
+const MessageSearchResultPreview = ({ message }) => {
+  const history = useHistory(); // bring your own router of choice
+  const { client, setActiveChannel } = useChatContext();
+
+  const handleClick = async () => {
+    if (message.channel) {
+      const channel = client.channel(message.channel.type, message.channel.id);
+      setActiveChannel(channel);
+      await channel.state.loadMessageIntoState(message.id);
+      history.replace(`${window.location.pathname}#${message.id}`);
+    }
+  };
+
+  return (
+    <li className='search-results__item' onClick={handleClick}>
+      <div className='search-results__icon'>💬</div>
+      {message.text}
+    </li>
+  );
+};
+
+// Somewhere in your application code:
+const location = useLocation();
+const messageId = useMemo(() => new URL(location).hash.slice(1), [location]);
+<MessageList highlightedMessageId={messageId} />;
+```
+
+</TabItem>
+</Tabs>
+
+And that's it! Here's the complete code:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
+
+```jsx
+import { useChatContext } from 'stream-chat-react';
+
+const CustomSearch = () => {
+  const { client } = useChatContext();
+  const [query, setQuery] = useState('');
+  const { results, pending, querySearchResults } = useSearchQuery();
+  // Use your favorite query library here 👆
 
   const handleChannelSearchClick = async () => {
     querySearchResults(async () => {
@@ -364,6 +743,7 @@ function CustomSearch() {
         type='search'
         className='search-input'
         value={query}
+        placeholder='Search'
         onChange={(event) => setQuery(event.target.value)}
       />
       {query && (
@@ -379,40 +759,66 @@ function CustomSearch() {
           </button>
         </div>
       )}
+
+      {pending && <>Searching...</>}
+      {results && <SearchResultsPreview results={results} />}
     </div>
   );
-}
-```
+};
 
-Finally, we have to display search results to the user. You can use components
-like `ChannelPreview` provided by the SDK, or you can roll your own. Let's
-create very simple preview components for channels, users, and messages:
+const ChannelSearchResultPreview = ({ channel }) => {
+  const { setActiveChannel } = useChatContext();
 
-```jsx
-const ChannelSearchResultPreview = ({ channel }) => (
-  <li className='search-results__item'>
-    <div className='search-results__icon'>#️⃣</div>
-    {channel.data?.name}
-  </li>
-);
+  return (
+    <li className='search-results__item' onClick={() => setActiveChannel(channel)}>
+      <div className='search-results__icon'>#️⃣</div>
+      {channel.data?.name}
+    </li>
+  );
+};
 
-const UserSearchResultPreview = ({ user }) => (
-  <li className='search-results__item'>
-    <div className='search-results__icon'>👤</div>
-    {user.name ?? user.id}
-  </li>
-);
+const UserSearchResultPreview = ({ user }) => {
+  const { client, setActiveChannel } = useChatContext();
 
-const MessageSearchResultPreview = ({ message }) => (
-  <li className='search-results__item'>
-    <div className='search-results__icon'>💬</div>
-    {message.text}
-  </li>
-);
+  const handleClick = async () => {
+    const channel = client.channel('messaging', { members: [userId, user.id] });
+    await channel.watch();
+    setActiveChannel(channel);
+  };
+
+  return (
+    <li className='search-results__item' onClick={handleClick}>
+      <div className='search-results__icon'>👤</div>
+      {user.name ?? user.id}
+    </li>
+  );
+};
+
+const MessageSearchResultPreview = ({ message }) => {
+  const history = useHistory(); // bring your own router of choice
+  const { client, setActiveChannel } = useChatContext();
+
+  const handleClick = async () => {
+    if (message.channel) {
+      const channel = client.channel(message.channel.type, message.channel.id);
+      setActiveChannel(channel);
+      await channel.state.loadMessageIntoState(message.id);
+      history.replace(`${window.location.pathname}#${message.id}`);
+      window.dispatchEvent(new Event('replacestate'));
+    }
+  };
+
+  return (
+    <li className='search-results__item' onClick={handleClick}>
+      <div className='search-results__icon'>💬</div>
+      {message.text}
+    </li>
+  );
+};
 
 const SearchResultsPreview = ({ results }) => {
   if (results.items.length === 0) {
-    return <div class='search-results'>🤷‍♂️ No results</div>;
+    return <>No results</>;
   }
 
   return (
@@ -428,7 +834,50 @@ const SearchResultsPreview = ({ results }) => {
 };
 ```
 
+</TabItem>
+<TabItem value="css" label="CSS">
+
 ```css
+.search-input {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: #00000014;
+  font: inherit;
+  padding: 10px 15px;
+}
+
+.search-input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-actions {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 20px;
+}
+
+.search-button {
+  background: #00000014;
+  border: 0;
+  border-bottom: 1px solid #dbdde1;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.search-button:first-child {
+  border-radius: 10px 10px 0 0;
+}
+
+.search-button:last-child {
+  border-radius: 0 0 10px 10px;
+  border-bottom: 0;
+}
+
+.search-button:hover {
+  background: #dbdde1;
+}
+
 .search-results {
   list-style: none;
   padding: 0;
@@ -452,74 +901,5 @@ const SearchResultsPreview = ({ results }) => {
 }
 ```
 
-What happens when clicking on a search results depends on your desired user
-experience. When clicking on a channel, it makes sense of set the channel as
-active. When clicking on a user, you might want to create or open a channel with
-a one-on-one coversation with the user. When clicking on a message, it's
-probably expected that a relevant channel is set as active and scrolled to the
-message in question.
-
-```jsx
-import { useChatContext } from 'stream-chat-react';
-
-const ChannelSearchResultPreview = ({ channel }) => {
-  const { setActiveChannel } = useChatContext();
-
-  return (
-    <li className='search-results__item' onClick={() => setActiveChannel(channel)}>
-      <div className='search-results__icon'>#️⃣</div>
-      {channel.data?.name}
-    </li>
-  );
-};
-```
-
-```jsx
-import { useChatContext } from 'stream-chat-react';
-
-const UserSearchResultPreview = ({ user }) => {
-  const { client, setActiveChannel } = useChatContext();
-
-  const handleClick = async () => {
-    const channel = client.channel('messaging', { members: [userId, user.id] });
-    await channel.watch();
-    setActiveChannel(channel);
-  };
-
-  return (
-    <li className='search-results__item' onClick={handleClick}>
-      <div className='search-results__icon'>👤</div>
-      {user.name ?? user.id}
-    </li>
-  );
-};
-```
-
-```jsx
-const MessageSearchResultPreview = ({ message }) => {
-  const history = useHistory(); // bring your own router of choice
-  const { client, setActiveChannel } = useChatContext();
-
-  const handleClick = async () => {
-    if (message.channel) {
-      const channel = client.channel(message.channel.type, message.channel.id);
-      setActiveChannel(channel);
-      await channel.state.loadMessageIntoState(message.id);
-      history.replace(`${window.location.pathname}#${message.id}`);
-    }
-  };
-
-  return (
-    <li className='search-results__item' onClick={handleClick}>
-      <div className='search-results__icon'>💬</div>
-      {message.text}
-    </li>
-  );
-};
-```
-
-And that's it! Here's the complete code:
-
-```jsx
-
-```
+</TabItem>
+</Tabs>
