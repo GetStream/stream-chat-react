@@ -10,7 +10,7 @@ export const toAudioBuffer = async (file: File) => {
 
   const arrayBuffer = await readFileAsArrayBuffer(file);
   const decodedData = await audioCtx.decodeAudioData(arrayBuffer);
-  if (audioCtx.state === 'closed') await audioCtx.close();
+  if (audioCtx.state !== 'closed') await audioCtx.close();
   return decodedData;
 };
 
