@@ -146,26 +146,16 @@ export class MediaRecorderController {
     this.permission = new BrowserPermission({ mediaType });
 
     this.customGenerateRecordingTitle = generateRecordingTitle;
-
-    this.handleErrorEvent = this.handleErrorEvent.bind(this);
-    this.handleDataavailableEvent = this.handleDataavailableEvent.bind(this);
-    this.resetRecordingState = this.resetRecordingState.bind(this);
-    this.cleanUp = this.cleanUp.bind(this);
-    this.start = this.start.bind(this);
-    this.pause = this.pause.bind(this);
-    this.resume = this.resume.bind(this);
-    this.stop = this.stop.bind(this);
-    this.cancel = this.cancel.bind(this);
   }
 
-  generateRecordingTitle(mimeType: string) {
+  generateRecordingTitle = (mimeType: string) => {
     if (this.customGenerateRecordingTitle) {
       return this.customGenerateRecordingTitle(mimeType);
     }
     return `${this.mediaType}_recording_${new Date().toISOString()}.${getExtensionFromMimeType(
       mimeType,
     )}`; // extension needed so that desktop Safari can play the asset
-  }
+  };
 
   handleErrorEvent = (e: Event) => {
     const { error } = e as ErrorEvent;
@@ -177,7 +167,7 @@ export class MediaRecorderController {
     });
   };
 
-  handleDataavailableEvent(e: BlobEvent) {
+  handleDataavailableEvent = (e: BlobEvent) => {
     const durationMs = this.recordedChunkDurations.reduce((acc, val) => acc + val, 0);
     if (!e.data.size) return;
     this.recordedData.push(e.data);
@@ -241,17 +231,17 @@ export class MediaRecorderController {
     } else {
       makeVoiceRecording(initialBlob).catch(handleError);
     }
-  }
+  };
 
-  resetRecordingState() {
+  resetRecordingState = () => {
     this.recordedData = [];
     this.recording.next(undefined);
     this.recordingState.next(undefined);
     this.recordedChunkDurations = [];
     this.startTime = undefined;
-  }
+  };
 
-  cleanUp() {
+  cleanUp = () => {
     this.resetRecordingState();
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
     this.amplitudeRecorder?.close();
@@ -260,9 +250,9 @@ export class MediaRecorderController {
       this.mediaRecorder.removeEventListener('dataavailable', this.handleDataavailableEvent);
       this.mediaRecorder.removeEventListener('error', this.handleErrorEvent);
     }
-  }
+  };
 
-  async start() {
+  start = async () => {
     // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
     if (!navigator.mediaDevices) {
       const error = new Error('Media recording is not supported');
@@ -308,9 +298,9 @@ export class MediaRecorderController {
       this.error.next(error as Error);
       this.notification.next({ text: this.t('Error starting recording'), type: 'error' });
     }
-  }
+  };
 
-  pause() {
+  pause = () => {
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
@@ -318,16 +308,16 @@ export class MediaRecorderController {
     this.mediaRecorder?.pause();
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.PAUSED);
-  }
+  };
 
-  resume() {
+  resume = () => {
     this.startTime = new Date().getTime();
     this.mediaRecorder?.resume();
     this.amplitudeRecorder?.start();
     this.recordingState.next(MediaRecordingState.RECORDING);
-  }
+  };
 
-  stop() {
+  stop = () => {
     const recording = this.recording.value;
     if (recording) return recording;
 
@@ -344,10 +334,10 @@ export class MediaRecorderController {
     this.amplitudeRecorder?.stop();
     this.recordingState.next(MediaRecordingState.STOPPED);
     return result;
-  }
+  };
 
-  cancel() {
+  cancel = () => {
     this.stop();
     this.cleanUp();
-  }
+  };
 }
