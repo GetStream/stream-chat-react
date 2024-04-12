@@ -266,6 +266,16 @@ export class MediaRecorderController {
       return;
     }
 
+    if (this.mediaType === 'video') {
+      const error = new Error(
+        `Video recording is not supported. Provided MIME type: ${this.mediaRecorderConfig.mimeType}`,
+      );
+      logError(error);
+      this.error.next(error);
+      this.notification.next({ text: this.t('Error starting recording'), type: 'error' });
+      return;
+    }
+
     if (!this.permission.state.value) {
       await this.permission.check();
     }
@@ -276,9 +286,7 @@ export class MediaRecorderController {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(
-        this.mediaType === 'video' ? { audio: true, video: true } : { audio: true },
-      );
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       this.mediaRecorder = new MediaRecorder(stream, this.mediaRecorderConfig);
 
       this.mediaRecorder.addEventListener('dataavailable', this.handleDataavailableEvent);
