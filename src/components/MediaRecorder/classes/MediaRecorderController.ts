@@ -167,7 +167,7 @@ export class MediaRecorderController {
     });
   };
 
-  handleDataavailableEvent = (e: BlobEvent) => {
+  handleDataavailableEvent = async (e: BlobEvent) => {
     const durationMs = this.recordedChunkDurations.reduce((acc, val) => acc + val, 0);
     if (!e.data.size) return;
     this.recordedData.push(e.data);
@@ -176,20 +176,16 @@ export class MediaRecorderController {
     const { mimeType } = this.mediaRecorderConfig;
     const initialBlob = new Blob(this.recordedData, { type: mimeType });
 
-    const makeVoiceRecording = async (blob: Blob) => {
+    const makeVoiceRecording = (blob: Blob) => {
       if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
 
-      const finalBlob = await transcode({
-        blob,
-        ...this.transcoderConfig,
-      });
-      if (!finalBlob) return;
+      if (!blob) return;
 
-      this.recordingUri = URL.createObjectURL(finalBlob);
+      this.recordingUri = URL.createObjectURL(blob);
       const file = createFileFromBlobs({
-        blobsArray: [finalBlob],
-        fileName: this.generateRecordingTitle(finalBlob.type),
-        mimeType: finalBlob.type,
+        blobsArray: [blob],
+        fileName: this.generateRecordingTitle(blob.type),
+        mimeType: blob.type,
       });
 
       const recording = {
@@ -199,8 +195,8 @@ export class MediaRecorderController {
         },
         asset_url: this.recordingUri,
         duration: durationMs / 1000,
-        file_size: finalBlob.size,
-        mime_type: finalBlob.type,
+        file_size: blob.size,
+        mime_type: blob.type,
         title: file.name,
         type: RecordingAttachmentType.VOICE_RECORDING,
         waveform_data: resampleWaveformData(
@@ -221,15 +217,23 @@ export class MediaRecorderController {
       });
     };
 
-    if (mimeType.match('audio/webm')) {
-      // The browser does not include duration metadata with the recorded blob
-      fixWebmDuration(initialBlob, durationMs, {
-        logger: () => null,
-      })
-        .then(makeVoiceRecording)
-        .catch(handleError);
-    } else {
-      makeVoiceRecording(initialBlob).catch(handleError);
+    let blob = initialBlob;
+    try {
+      if (mimeType.match('audio/webm')) {
+        // The browser does not include duration metadata with the recorded blob
+        blob = await fixWebmDuration(initialBlob, durationMs, {
+          logger: () => null,
+        });
+      }
+      if (!mimeType.match('audio/mp4')) {
+        blob = await transcode({
+          blob,
+          ...this.transcoderConfig,
+        });
+      }
+      makeVoiceRecording(blob);
+    } catch (e) {
+      handleError(e as Error);
     }
   };
 
