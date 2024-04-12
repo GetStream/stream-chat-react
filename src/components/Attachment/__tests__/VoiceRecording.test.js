@@ -13,6 +13,12 @@ const FALLBACK_TITLE = 'Voice message';
 
 const attachment = generateVoiceRecordingAttachment();
 
+const clickPlay = async () => {
+  await act(async () => {
+    await fireEvent.click(screen.queryByTestId('play-audio'));
+  });
+};
+
 jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
 jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
@@ -41,6 +47,7 @@ describe('VoiceRecordingPlayer', () => {
   beforeAll(() => {
     jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
     jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
+    jest.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });
   afterAll(jest.restoreAllMocks);
 
@@ -68,19 +75,19 @@ describe('VoiceRecordingPlayer', () => {
     expect(queryByTestId('play-audio')).toBeInTheDocument();
     expect(queryByTestId('pause-audio')).not.toBeInTheDocument();
   });
-  it('should render pause button when playing', () => {
+  it('should render pause button when playing', async () => {
     const { queryByTestId } = renderComponent({ attachment });
-    fireEvent.click(queryByTestId('play-audio'));
+    await clickPlay();
     expect(queryByTestId('play-audio')).not.toBeInTheDocument();
     expect(queryByTestId('pause-audio')).toBeInTheDocument();
   });
-  it('should render playback rate button only when playing', () => {
+  it('should render playback rate button only when playing', async () => {
     const { queryByTestId } = renderComponent({ attachment });
     expect(queryByTestId('playback-rate-button')).not.toBeInTheDocument();
-    fireEvent.click(queryByTestId('play-audio'));
+    await clickPlay();
     expect(queryByTestId('playback-rate-button')).toHaveTextContent('1.0x');
   });
-  it('should use custom playback rates', () => {
+  it('should use custom playback rates', async () => {
     const { queryByTestId } = renderComponent(
       {
         attachment: { ...attachment },
@@ -89,10 +96,10 @@ describe('VoiceRecordingPlayer', () => {
       VoiceRecordingPlayer,
     );
     expect(queryByTestId('playback-rate-button')).not.toBeInTheDocument();
-    fireEvent.click(queryByTestId('play-audio'));
+    await clickPlay();
     expect(queryByTestId('playback-rate-button')).toHaveTextContent('2.5x');
   });
-  it('should switch playback rates in round robin', () => {
+  it('should switch playback rates in round robin', async () => {
     const { queryByTestId } = renderComponent(
       {
         attachment: { ...attachment },
@@ -101,7 +108,7 @@ describe('VoiceRecordingPlayer', () => {
       VoiceRecordingPlayer,
     );
     expect(queryByTestId('playback-rate-button')).not.toBeInTheDocument();
-    fireEvent.click(queryByTestId('play-audio'));
+    await clickPlay();
     const playbackRateButton = queryByTestId('playback-rate-button');
     expect(playbackRateButton).toHaveTextContent('2.5x');
     act(() => {

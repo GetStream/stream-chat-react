@@ -41,6 +41,7 @@ export const AttachmentPreviewList = <
                 attachment={attachment}
                 handleRetry={uploadAttachment}
                 key={attachment.$internal?.id || attachment.asset_url}
+                mimeType={attachment.mime_type}
                 removeAttachment={removeAttachment}
               />
             );
@@ -73,14 +74,16 @@ type AttachmentPreviewProps<A extends LocalAttachment = LocalAttachment> = {
   attachment: A;
   removeAttachment: (id: string) => void;
   handleRetry?: (attachment: A) => void | Promise<A>;
+  mimeType?: string;
 };
 
 const VoiceRecordingPreview = ({
   attachment,
   handleRetry,
+  mimeType,
   removeAttachment,
 }: AttachmentPreviewProps) => {
-  const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController({ mimeType });
 
   return (
     <div

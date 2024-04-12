@@ -1,6 +1,9 @@
 import throttle from 'lodash.throttle';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useChannelActionContext, useTranslationContext } from '../../../context';
+
+const isSeekable = (audioElement: HTMLAudioElement) =>
+  !(audioElement.duration === Infinity || isNaN(audioElement.duration));
 
 export const elementIsPlaying = (audioElement: HTMLAudioElement | null) =>
   audioElement && !(audioElement.paused || audioElement.ended);
@@ -44,13 +47,7 @@ export const useAudioController = ({
     [addNotification],
   );
 
-  const isSeekable = useCallback(
-    (audioElement: HTMLAudioElement) =>
-      !(audioElement.duration === Infinity || isNaN(audioElement.duration)),
-    [],
-  );
-
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     if (!audioRef.current) return;
     clearTimeout(playTimeout.current);
     playTimeout.current = undefined;
@@ -71,19 +68,17 @@ export const useAudioController = ({
           registerError(new Error(t('Failed to play the recording')));
         }
       }, 2000);
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch((e) => {
-          registerError(e);
-          setIsPlaying(false);
-        })
-        .finally(() => {
-          clearTimeout(playTimeout.current);
-          playTimeout.current = undefined;
-        });
+
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (e) {
+        registerError(e as Error);
+        setIsPlaying(false);
+      } finally {
+        clearTimeout(playTimeout.current);
+        playTimeout.current = undefined;
+      }
     }
   }, [mimeType, registerError, t]);
 
@@ -96,24 +91,24 @@ export const useAudioController = ({
     });
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const seek = useCallback<SeekFn>(
-    throttle(({ clientX, currentTarget }) => {
-      if (!(currentTarget && audioRef.current)) return;
-      if (!isSeekable(audioRef.current)) {
-        registerError(new Error(t('The recording is not seekable')));
-        return;
-      }
+  const seek = useMemo<SeekFn>(
+    () =>
+      throttle(({ clientX, currentTarget }) => {
+        if (!(currentTarget && audioRef.current)) return;
+        if (!isSeekable(audioRef.current)) {
+          registerError(new Error(t('Cannot seek in the recording')));
+          return;
+        }
 
-      const { width, x } = currentTarget.getBoundingClientRect();
+        const { width, x } = currentTarget.getBoundingClientRect();
 
-      const ratio = (clientX - x) / width;
-      if (ratio > 1 || ratio < 0) return;
-      const currentTime = ratio * audioRef.current.duration;
-      setSecondsElapsed(currentTime);
-      audioRef.current.currentTime = currentTime;
-    }, 16),
-    [isSeekable, t],
+        const ratio = (clientX - x) / width;
+        if (ratio > 1 || ratio < 0) return;
+        const currentTime = ratio * audioRef.current.duration;
+        setSecondsElapsed(currentTime);
+        audioRef.current.currentTime = currentTime;
+      }, 16),
+    [registerError, t],
   );
 
   useEffect(() => {
@@ -150,7 +145,6 @@ export const useAudioController = ({
     canPlayRecord,
     increasePlaybackRate,
     isPlaying,
-    isSeekable,
     playbackError,
     playbackRate: playbackRates[playbackRateIndex],
     progress:
