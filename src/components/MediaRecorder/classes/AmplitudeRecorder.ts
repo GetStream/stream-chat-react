@@ -39,7 +39,7 @@ type AmplitudeAnalyserOptions = {
   stream: MediaStream;
 };
 
-enum AmplitudeRecorderState {
+export enum AmplitudeRecorderState {
   RECORDING = 'recording',
   STOPPED = 'stopped',
 }
@@ -81,7 +81,7 @@ export class AmplitudeRecorder {
   }
 
   start = () => {
-    this.stop();
+    if (this.state.value === AmplitudeRecorderState.RECORDING) this.stop();
     if (!this.analyserNode) {
       if (!this.stream) return;
       this.init();

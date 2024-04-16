@@ -6,10 +6,10 @@ import {
   getRecordedMediaTypeFromMimeType,
   RecordedMediaType,
 } from '../../ReactFileUtilities';
-import { mergeDeep } from '../../../utils/mergeDeep';
 import { transcode } from '../transcode';
 import { resampleWaveformData } from '../../Attachment';
 import { isSafari } from '../../../utils/browsers';
+import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 import { BrowserPermission } from './BrowserPermission';
 import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
@@ -29,6 +29,8 @@ const RECORDED_MIME_TYPE_BY_BROWSER = {
     safari: 'audio/mp4;codecs=mp4a.40.2',
   },
 } as const;
+
+const POSSIBLE_TRANSCODING_MIME_TYPES = ['audio/wav', 'audio/mp3'] as const;
 
 export const DEFAULT_AUDIO_RECORDER_CONFIG: AudioRecorderConfig = {
   amplitudeRecorderConfig: {
@@ -61,7 +63,7 @@ const disposeOfMediaStream = (stream?: MediaStream) => {
 
 const logError = (e?: Error) => e && console.error('[MEDIA RECORDER ERROR]', e);
 
-type SupportedTranscodeMimeTypes = 'audio/wav' | 'audio/mp3';
+type SupportedTranscodeMimeTypes = typeof POSSIBLE_TRANSCODING_MIME_TYPES[number];
 
 type TranscoderConfig = {
   // defaults to 16000Hz
@@ -120,25 +122,27 @@ export class MediaRecorderController {
   customGenerateRecordingTitle: ((mimeType: string) => string) | undefined;
   t: TranslationContextValue['t'];
 
-  constructor({
-    config,
-    generateRecordingTitle,
-    t = defaultTranslatorFunction,
-  }: AudioRecorderOptions) {
-    const { amplitudeRecorderConfig, mediaRecorderConfig, transcoderConfig } = mergeDeep(
+  constructor({ config, generateRecordingTitle, t }: AudioRecorderOptions = {}) {
+    const { amplitudeRecorderConfig, mediaRecorderConfig, transcoderConfig } = mergeDeepUndefined(
       { ...config },
       DEFAULT_AUDIO_RECORDER_CONFIG,
     );
 
-    this.t = t;
+    this.t = t || defaultTranslatorFunction;
+
     this.mediaRecorderConfig = mediaRecorderConfig as MediaRecorderConfig;
     this.transcoderConfig = transcoderConfig;
     this.amplitudeRecorderConfig = amplitudeRecorderConfig;
 
+    if (POSSIBLE_TRANSCODING_MIME_TYPES.includes(this.transcoderConfig.targetMimeType)) {
+      this.transcoderConfig.targetMimeType =
+        DEFAULT_AUDIO_RECORDER_CONFIG.transcoderConfig.targetMimeType;
+    }
+
     const mediaType = getRecordedMediaTypeFromMimeType(this.mediaRecorderConfig.mimeType);
     if (!mediaType) {
       throw new Error(
-        `Unsupported media type (supported audio or video only). Provided mimeType: ${this.mediaRecorderConfig.mimeType}}`,
+        `Unsupported media type (supported audio or video only). Provided mimeType: ${this.mediaRecorderConfig.mimeType}`,
       );
     }
     this.mediaType = mediaType;
@@ -148,6 +152,10 @@ export class MediaRecorderController {
     this.customGenerateRecordingTitle = generateRecordingTitle;
   }
 
+  get durationMs() {
+    return this.recordedChunkDurations.reduce((acc, val) => acc + val, 0);
+  }
+
   generateRecordingTitle = (mimeType: string) => {
     if (this.customGenerateRecordingTitle) {
       return this.customGenerateRecordingTitle(mimeType);
@@ -155,6 +163,36 @@ export class MediaRecorderController {
     return `${this.mediaType}_recording_${new Date().toISOString()}.${getExtensionFromMimeType(
       mimeType,
     )}`; // extension needed so that desktop Safari can play the asset
+  };
+
+  makeVoiceRecording = (blob: Blob) => {
+    if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+
+    if (!blob) return;
+
+    this.recordingUri = URL.createObjectURL(blob);
+    const file = createFileFromBlobs({
+      blobsArray: [blob],
+      fileName: this.generateRecordingTitle(blob.type),
+      mimeType: blob.type,
+    });
+
+    return {
+      $internal: {
+        file,
+        id: nanoid(),
+      },
+      asset_url: this.recordingUri,
+      duration: this.durationMs / 1000,
+      file_size: blob.size,
+      mime_type: blob.type,
+      title: file.name,
+      type: RecordingAttachmentType.VOICE_RECORDING,
+      waveform_data: resampleWaveformData(
+        this.amplitudeRecorder?.amplitudes.value ?? [],
+        this.amplitudeRecorderConfig.sampleCount,
+      ),
+    };
   };
 
   handleErrorEvent = (e: Event) => {
@@ -168,61 +206,16 @@ export class MediaRecorderController {
   };
 
   handleDataavailableEvent = async (e: BlobEvent) => {
-    const durationMs = this.recordedChunkDurations.reduce((acc, val) => acc + val, 0);
     if (!e.data.size) return;
     this.recordedData.push(e.data);
-    if (!this.recordedData.length) return;
 
     const { mimeType } = this.mediaRecorderConfig;
-    const initialBlob = new Blob(this.recordedData, { type: mimeType });
-
-    const makeVoiceRecording = (blob: Blob) => {
-      if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
-
-      if (!blob) return;
-
-      this.recordingUri = URL.createObjectURL(blob);
-      const file = createFileFromBlobs({
-        blobsArray: [blob],
-        fileName: this.generateRecordingTitle(blob.type),
-        mimeType: blob.type,
-      });
-
-      const recording = {
-        $internal: {
-          file,
-          id: nanoid(),
-        },
-        asset_url: this.recordingUri,
-        duration: durationMs / 1000,
-        file_size: blob.size,
-        mime_type: blob.type,
-        title: file.name,
-        type: RecordingAttachmentType.VOICE_RECORDING,
-        waveform_data: resampleWaveformData(
-          this.amplitudeRecorder?.amplitudes.value ?? [],
-          this.amplitudeRecorderConfig.sampleCount,
-        ),
-      };
-      this.signalRecordingReady?.(recording);
-      this.recording.next(recording);
-    };
-
-    const handleError = (e: Error) => {
-      logError(e);
-      this.error.next(e);
-      this.notification.next({
-        text: this.t('An error has occurred during the recording processing'),
-        type: 'error',
-      });
-    };
-
-    let blob = initialBlob;
+    let blob = new Blob(this.recordedData, { type: mimeType });
     try {
       if (mimeType.match('audio/webm')) {
         // The browser does not include duration metadata with the recorded blob
-        blob = await fixWebmDuration(initialBlob, durationMs, {
-          logger: () => null,
+        blob = await fixWebmDuration(blob, this.durationMs, {
+          logger: () => null, // prevents polluting the browser console
         });
       }
       if (!mimeType.match('audio/mp4')) {
@@ -231,9 +224,17 @@ export class MediaRecorderController {
           ...this.transcoderConfig,
         });
       }
-      makeVoiceRecording(blob);
+      const recording = this.makeVoiceRecording(blob);
+      if (!recording) return;
+      this.signalRecordingReady?.(recording);
+      this.recording.next(recording);
     } catch (e) {
-      handleError(e as Error);
+      logError(e as Error);
+      this.error.next(e as Error);
+      this.notification.next({
+        text: this.t('An error has occurred during the recording processing'),
+        type: 'error',
+      });
     }
   };
 
@@ -257,6 +258,17 @@ export class MediaRecorderController {
   };
 
   start = async () => {
+    if (
+      [MediaRecordingState.RECORDING, MediaRecordingState.PAUSED].includes(
+        this.recordingState.value as MediaRecordingState,
+      )
+    ) {
+      const error = new Error('Cannot start recording. Recording already in progress');
+      logError(error);
+      this.error.next(error);
+      return;
+    }
+
     // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
     if (!navigator.mediaDevices) {
       const error = new Error('Media recording is not supported');
@@ -295,7 +307,7 @@ export class MediaRecorderController {
       this.startTime = new Date().getTime();
       this.mediaRecorder.start();
 
-      if (this.mediaType === 'audio') {
+      if (this.mediaType === 'audio' && stream) {
         this.amplitudeRecorder = new AmplitudeRecorder({
           config: this.amplitudeRecorderConfig,
           stream,
@@ -313,6 +325,7 @@ export class MediaRecorderController {
   };
 
   pause = () => {
+    if (this.recordingState.value !== MediaRecordingState.RECORDING) return;
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
@@ -323,6 +336,7 @@ export class MediaRecorderController {
   };
 
   resume = () => {
+    if (this.recordingState.value !== MediaRecordingState.PAUSED) return;
     this.startTime = new Date().getTime();
     this.mediaRecorder?.resume();
     this.amplitudeRecorder?.start();
@@ -331,13 +345,18 @@ export class MediaRecorderController {
 
   stop = () => {
     const recording = this.recording.value;
-    if (recording) return recording;
+    if (recording) return Promise.resolve(recording);
 
-    if (!['paused', 'recording'].includes(this.mediaRecorder?.state || ''))
+    if (
+      ![MediaRecordingState.PAUSED, MediaRecordingState.RECORDING].includes(
+        (this.mediaRecorder?.state || '') as MediaRecordingState,
+      )
+    )
       return Promise.resolve(undefined);
 
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
+      this.startTime = undefined;
     }
     const result = new Promise<LocalVoiceRecordingAttachment>((res) => {
       this.signalRecordingReady = res;
