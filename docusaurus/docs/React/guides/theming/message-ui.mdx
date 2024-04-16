@@ -12,8 +12,6 @@ In this guide we'll build a simplified custom message UI component combining pre
 
 Message UI and all of its children can access [`MessageContext`](../../components/contexts/message-context.mdx) in which it's wrapped, and therefore can call the `useMessageContext` hook accessing all of the message related information and functions alike.
 
-## Custom Message UI
-
 ### Message Text and Avatars
 
 Let's begin with the simplest form the message UI can take: rendering the raw message text.
@@ -263,7 +261,11 @@ const statusIconMap = {
 
 const CustomMessageUiMetadata = () => {
   const {
-    message: { created_at, message_text_updated_at, status = 'unknown' },
+    message: {
+      created_at: createdAt,
+      message_text_updated_at: messageTextUpdatedAt,
+      status = 'unknown',
+    },
     readBy = [],
   } = useMessageContext();
   const { client } = useChatContext();
@@ -274,14 +276,14 @@ const CustomMessageUiMetadata = () => {
 
   return (
     <div className='custom-message-ui__metadata'>
-      <div className='custom-message-ui__metadata-created-at'>{created_at?.toLocaleString()}</div>
+      <div className='custom-message-ui__metadata-created-at'>{createdAt?.toLocaleString()}</div>
       <div className='custom-message-ui__metadata-read-status'>
         {receivedAndRead
           ? statusIconMap.receivedAndRead
           : statusIconMap[status as keyof typeof statusIconMap] ?? statusIconMap.unknown}
       </div>
-      {message_text_updated_at && (
-        <div className='custom-message-ui__metadata-edited-status' title={message_text_updated_at}>
+      {messageTextUpdatedAt && (
+        <div className='custom-message-ui__metadata-edited-status' title={messageTextUpdatedAt}>
           Edited
         </div>
       )}
@@ -352,7 +354,7 @@ const CustomMessageUi = () => {
 }
 
 .custom-message-ui__metadata > *:last-child::after {
-  content: '';
+  display: none;
 }
 
 .custom-message-ui--mine .custom-message-ui__metadata {
@@ -383,7 +385,7 @@ const CustomMessageUi = () => {
 
 Message grouping is being managed automatically by the SDK and each parent element (which holds our message UI) receives appropriate class name based on which we can adjust our rules to display metadata elements only when it's appropriate to make our UI look less busy.
 
-TODO: link to grouping logic (maybe how to adjust it if needed)
+{/_ TODO: link to grouping logic (maybe how to adjust it if needed) _/}
 
 ```css
 .custom-message-ui__metadata {
@@ -411,15 +413,483 @@ You can utilize [`MessageContext`](../../components/contexts/message-context.mdx
 
 The SDK also comes with [`MessageStatus`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) and [`MessageTimestamp`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageTimestamp.tsx) components which you can use to replace our custom made ones. These components come with some extra logic but essentially provide almost identical amount of utility for the end users so we won't be covering the replacement in this guide.
 
-### Message Actions and Reactions
+### Message Actions
 
-Up to this point we've covered mostly the presentational part of our message UI and apart from the mentions and links there's not much the end users can interact with. Obviously - the SDK offers so much more so in this section of the guide we'll explain how to add and enable message actions (pinning, deleting, replies, etc.) and reactions.
+Up to this point we've covered mostly the presentational part of our message UI and apart from the mentions and links there's not much the end users can interact with. Obviously - the SDK offers so much more so in this section of the guide we'll explain how to add and enable message actions (deleting, replies, pinning, etc.) and reactions.
 
-Let's begin by adding a reply count to our `CustomMessageUiMetadata` component. At this point nothing will be displayed but once we implement the thread functionality we'll see the count indicator rendered beside the rest of the metadata elements.
+At the very beginning of this guide we've mentioned that [`MessageContext`](../../components/contexts/message-context.mdx) provides information **and** functions related to a specific message. So to implement a subset of message actions we'll need to access `handleDelete`, `handlePin`, `handleFlag` and `handleThread` functions which we can attach to our action buttons of our `CustomMessageUiActions` component.
 
-TODO: cover message actions + reactions
-TODO?: cover edit and bouncing dialogs
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+const statusIconMap = {
+  received: '✅',
+  receivedAndRead: '👁️',
+  sending: '🛫',
+  unknown: '❓',
+};
+
+const CustomMessageUiActions = () => {
+  const {
+    handleDelete,
+    handleFlag,
+    handleOpenThread,
+    handlePin,
+    message,
+    threadList,
+  } = useMessageContext();
+
+  if (threadList) return null;
+
+  return (
+    <div className='custom-message-ui__actions'>
+      <div className='custom-message-ui__actions-group'>
+        <button onClick={handlePin} title={message.pinned ? 'Unpin' : 'Pin'}>
+          {message.pinned ? '📍' : '📌'}
+        </button>
+        <button onClick={handleDelete} title='Delete'>
+          🗑️
+        </button>
+        <button onClick={handleOpenThread} title='Open thread'>
+          ↩️
+        </button>
+        <button onClick={handleFlag} title='Flag message'>
+          🚩
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const CustomMessageUiMetadata = () => {
+  const {
+    message: {
+      created_at: createdAt,
+      message_text_updated_at: messageTextUpdatedAt,
+      status = 'unknown',
+    },
+    readBy = [],
+  } = useMessageContext();
+  const { client } = useChatContext();
+
+  const [firstUser] = readBy;
+
+  const receivedAndRead = readBy.length > 1 || (firstUser && firstUser.id !== client.user?.id);
+
+  return (
+    <div className='custom-message-ui__metadata'>
+      <div className='custom-message-ui__metadata-created-at'>{createdAt?.toLocaleString()}</div>
+      <div className='custom-message-ui__metadata-read-status'>
+        {receivedAndRead
+          ? statusIconMap.receivedAndRead
+          : statusIconMap[status as keyof typeof statusIconMap] ?? statusIconMap.unknown}
+      </div>
+      {messageTextUpdatedAt && (
+        <div className='custom-message-ui__metadata-edited-status' title={messageTextUpdatedAt}>
+          Edited
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      <div className='custom-message-ui__body'>
+        <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+        <MessageText />
+      </div>
+      <CustomMessageUiMetadata />
+      <CustomMessageUiActions />
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css
+.custom-message-ui {
+  --cmui-gap-size-md: 0.5rem;
+  --cmui-gap-size-sm: 0.2rem;
+  --cmui-inline-spacing: 2rem;
+  --cmui-block-spacing: 0.5rem;
+  --cmui-bg-color: #efefef;
+  --cmui-border-color: #ddd;
+  --cmui-border-radius: 0.2rem;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--cmui-gap-size-md);
+  padding-inline: var(--cmui-inline-spacing);
+  padding-block: var(--cmui-block-spacing);
+}
+
+.custom-message-ui:hover,
+.custom-message-ui:has(.str-chat__message-text:focus) {
+  background: var(--cmui-bg-color);
+}
+
+.custom-message-ui__body {
+  gap: var(--cmui-gap-size-md);
+  display: flex;
+}
+
+.custom-message-ui--mine .custom-message-ui__body {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.custom-message-ui__actions {
+  display: none;
+  position: absolute;
+  gap: var(--cmui-gap-size-md);
+  top: -20px;
+}
+
+.custom-message-ui:hover .custom-message-ui__actions {
+  display: flex;
+}
+
+.custom-message-ui__actions-group {
+  display: flex;
+  background-color: var(--cmui-border-color);
+  border-radius: var(--cmui-border-radius);
+  gap: 1px;
+  padding: 1px;
+}
+
+.custom-message-ui__actions-group button {
+  all: unset;
+  background: white;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1rem;
+}
+
+.custom-message-ui__actions-group button:first-child {
+  border-bottom-left-radius: var(--cmui-border-radius);
+  border-top-left-radius: var(--cmui-border-radius);
+}
+.custom-message-ui__actions-group button:last-child {
+  border-bottom-right-radius: var(--cmui-border-radius);
+  border-top-right-radius: var(--cmui-border-radius);
+}
+
+.custom-message-ui__actions-group button:hover {
+  background: var(--cmui-bg-color);
+}
+
+.custom-message-ui__metadata {
+  display: none;
+  font-size: x-small;
+  align-items: baseline;
+}
+
+.str-chat__li--bottom .custom-message-ui__metadata,
+.str-chat__li--single .custom-message-ui__metadata {
+  display: flex;
+}
+
+.custom-message-ui__metadata > *:nth-child(even)::after,
+.custom-message-ui__metadata > *:nth-child(even)::before {
+  content: '•';
+  padding-inline: var(--cmui-gap-size-sm);
+}
+
+.custom-message-ui__metadata > *:last-child::after {
+  display: none;
+}
+
+.custom-message-ui--mine .custom-message-ui__metadata {
+  align-self: flex-end;
+}
+
+.custom-message-ui--mine .custom-message-ui__actions {
+  left: var(--cmui-inline-spacing);
+}
+
+.custom-message-ui--other .custom-message-ui__actions {
+  right: var(--cmui-inline-spacing);
+}
+
+.custom-message-ui .str-chat__message-text p {
+  all: unset;
+}
+
+.custom-message-ui .str-chat__message-text {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.custom-message-ui .str-chat__message-mention {
+  font-weight: bold;
+  color: palevioletred;
+  cursor: pointer;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../assets/custom-message-ui-6.png)
+
+Now that we've enabled some actions we'll also need to cover certain UI parts that should reflect the latest message state which weren't relevant before. You can see that we've already covered message's "pinned" state by acessing `pinned` property of the `message` object and rendering the appropriate icon when this property is set to `true`. See [Pin Indicator](../customization/pin-indicator.mdx) guide for more customization options. Let's explore other customizations needed for a complete message UI.
+
+:::note
+The following code samples contain only the code related to the appropriate components, if you're following along you can copy and add the following examples to whatever you had created up until now. The whole example lives [at the bottom](./message-ui.mdx#complete-example) of this guide.
+:::
+
+#### Thread and Reply Count
+
+First - upon opening a thread and replying to a message, the message's property `reply_count` changes; let's add the count indicator button beside the rest of the metadata elements so the end users can access the thread from two places.
+
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+const CustomMessageUiMetadata = () => {
+  const {
+    message: {
+      created_at: createdAt,
+      message_text_updated_at: messageTextUpdatedAt,
+      // added-line
+      reply_count: replyCount = 0,
+      status = 'unknown',
+    },
+    readBy = [],
+    handleOpenThread,
+  } = useMessageContext();
+  const { client } = useChatContext();
+
+  const [firstUser] = readBy;
+
+  const receivedAndRead = readBy.length > 1 || (firstUser && firstUser.id !== client.user?.id);
+
+  return (
+    <div className='custom-message-ui__metadata'>
+      <div className='custom-message-ui__metadata-created-at'>{createdAt?.toLocaleString()}</div>
+      <div className='custom-message-ui__metadata-read-status'>
+        {receivedAndRead
+          ? statusIconMap.receivedAndRead
+          : statusIconMap[status as keyof typeof statusIconMap] ?? statusIconMap.unknown}
+      </div>
+      {messageTextUpdatedAt && (
+        <div className='custom-message-ui__metadata-edited-status' title={messageTextUpdatedAt}>
+          Edited
+        </div>
+      )}
+      // added-block-start
+      {replyCount > 0 && (
+        <button className='custom-message-ui__metadata-reply-count' onClick={handleOpenThread}>
+          <span>
+            {replyCount} {replyCount > 1 ? 'replies' : 'reply'}
+          </span>
+        </button>
+      )}
+      // added-block-end
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css
+.custom-message-ui__metadata-reply-count {
+  all: unset;
+}
+
+.custom-message-ui__metadata-reply-count > span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Deleted Message
+
+Since now we're also able to soft delete our own messages we'll need to render a sligtly different UI to handle such case. Let's add a condition where we check whether `deleted_at` property of the `message` object exists and if it does we'll simply fall back to "message deleted" text.
+
+```tsx
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      // added-block-start
+      {message.deleted_at && (
+        <div className='custom-message-ui__body'>This message has been deleted...</div>
+      )}
+      {!message.deleted_at && (
+        <>
+          <div className='custom-message-ui__body'>
+            <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+            <MessageText />
+          </div>
+          <CustomMessageUiMetadata />
+          <CustomMessageUiActions />
+        </>
+      )}
+      // added-block-end
+    </div>
+  );
+};
+```
+
+![](../../assets/custom-message-ui-7.png)
+
+### Reactions
+
+With message actions in place we've made our message UI slightly more interactive but there's still place for improvement. In this section of the guide we'll create a simple selector consisting of two reactions (thumbs up and down) and to display them we'll reuse and slightly modify [`ReactionsList`](../../components/message-components/reactions.mdx#reactionslist-props) component provided by the SDK. Let's begin by defining `customReactionOptions` (see more in [Reactions Customization](./reactions.mdx) guide) and by passing them down to a `reactionOptions` prop of a [`Channel`](../../components/core-components/channel.mdx) component.
+
+```tsx
+const customReactionOptions = [
+  { name: 'Thumbs up', type: '+1', Component: () => <>👍</> },
+  { name: 'Thumbs down', type: '-1', Component: () => <>👎</> },
+];
+
+<Channel Message={CustomMessageUi} reactionOptions={customReactionOptions}>
+  ...
+</Channel>;
+```
+
+And now that's done we can continue by extending our `CustomMessageUiActions` component using these newly defined options.
+
+```tsx
+const CustomMessageUiActions = () => {
+  const {
+    handleDelete,
+    handleFlag,
+    handleOpenThread,
+    handlePin,
+    // added-line
+    handleReaction,
+    message,
+    threadList,
+  } = useMessageContext();
+
+  // added-line
+  const { reactionOptions } = useComponentContext();
+
+  if (threadList) return null;
+
+  return (
+    <div className='custom-message-ui__actions'>
+      <div className='custom-message-ui__actions-group'>
+        <button onClick={handlePin} title={message.pinned ? 'Unpin' : 'Pin'}>
+          {message.pinned ? '📍' : '📌'}
+        </button>
+        <button onClick={handleDelete} title='Delete'>
+          🗑️
+        </button>
+        <button onClick={handleOpenThread} title='Open thread'>
+          ↩️
+        </button>
+        <button onClick={handleFlag} title='Flag message'>
+          🚩
+        </button>
+      </div>
+      // added-block-start
+      <div className='custom-message-ui__actions-group'>
+        {reactionOptions.map(({ Component, name, type }) => (
+          <button key={type} onClick={(e) => handleReaction(type, e)} title={`React with: ${name}`}>
+            <Component />
+          </button>
+        ))}
+      </div>
+      // added-block-end
+    </div>
+  );
+};
+```
+
+Finally we can add the `ReactionsList` component to our `CustomMessageUi` component and adjust the styles accordingly.
+
+<Tabs groupId='example'>
+<TabItem value='js' label='React'>
+
+```tsx
+import { Avatar, MessageText, ReactionsList, useMessageContext } from 'stream-chat-react';
+
+const CustomMessageUi = () => {
+  const { isMyMessage, message } = useMessageContext();
+
+  const messageUiClassNames = ['custom-message-ui'];
+
+  if (isMyMessage()) {
+    messageUiClassNames.push('custom-message-ui--mine');
+  } else {
+    messageUiClassNames.push('custom-message-ui--other');
+  }
+
+  return (
+    <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
+      {message.deleted_at && (
+        <div className='custom-message-ui__body'>This message has been deleted...</div>
+      )}
+      {!message.deleted_at && (
+        <>
+          <div className='custom-message-ui__body'>
+            <Avatar image={message.user?.image} name={message.user?.name || message.user?.id} />
+            <MessageText />
+          </div>
+          <CustomMessageUiMetadata />
+          <CustomMessageUiActions />
+          // added-line
+          <ReactionsList />
+        </>
+      )}
+    </div>
+  );
+};
+```
+
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css
+
+```
+
+</TabItem>
+</Tabs>
+
+:::note
+This guide does not cover Edit Message and Message Bounced functionality but these components are part of the Message UI.
+:::
 
 ### Attachments
 
-TODO: cover attachments (link to appropriate guide)
+- [ ] TODO: reactions + list
+- [ ] TODO: cover attachments (link to appropriate guide)
+- [ ] TODO?: permissions? canPin/canDelete...
