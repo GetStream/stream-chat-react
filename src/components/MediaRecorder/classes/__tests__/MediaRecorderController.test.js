@@ -1,10 +1,11 @@
 import {
-  DEFAULT_AUDIO_RECORDER_CONFIG,
+  DEFAULT_AUDIO_TRANSCODER_CONFIG,
+  DEFAULT_MEDIA_RECORDER_CONFIG,
   MediaRecorderController,
   MediaRecordingState,
 } from '../MediaRecorderController';
 import { defaultTranslatorFunction } from '../../../../i18n';
-import { AmplitudeRecorderState } from '../AmplitudeRecorder';
+import { AmplitudeRecorderState, DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../AmplitudeRecorder';
 import { generateVoiceRecordingAttachment } from '../../../../mock-builders';
 
 const idMock = 'randomNanoId';
@@ -78,13 +79,13 @@ describe('MediaRecorderController', () => {
   it('provides defaults on initiation', () => {
     const controller = new MediaRecorderController();
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.mediaRecorderConfig),
+      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
     );
     expect(controller.transcoderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.transcoderConfig),
+      expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
     );
-    expect(controller.amplitudeRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.amplitudeRecorderConfig),
+    expect(controller.amplitudeRecorder.config).toStrictEqual(
+      expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
     expect(controller.t).toStrictEqual(defaultTranslatorFunction);
     expect(controller.mediaType).toStrictEqual('audio');
@@ -121,7 +122,7 @@ describe('MediaRecorderController', () => {
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(config.transcoderConfig),
     );
-    expect(controller.amplitudeRecorderConfig).toStrictEqual(
+    expect(controller.amplitudeRecorder.config).toStrictEqual(
       expect.objectContaining(config.amplitudeRecorderConfig),
     );
     expect(controller.t).toStrictEqual(t);
@@ -134,13 +135,13 @@ describe('MediaRecorderController', () => {
     const controller = new MediaRecorderController({ generateRecordingTitle });
     expect(controller.customGenerateRecordingTitle).toStrictEqual(generateRecordingTitle);
     expect(controller.mediaRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.mediaRecorderConfig),
+      expect.objectContaining(DEFAULT_MEDIA_RECORDER_CONFIG),
     );
     expect(controller.transcoderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.transcoderConfig),
+      expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
     );
-    expect(controller.amplitudeRecorderConfig).toStrictEqual(
-      expect.objectContaining(DEFAULT_AUDIO_RECORDER_CONFIG.amplitudeRecorderConfig),
+    expect(controller.amplitudeRecorder.config).toStrictEqual(
+      expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
     expect(controller.t).toStrictEqual(defaultTranslatorFunction);
     expect(controller.mediaType).toStrictEqual('audio');
@@ -204,7 +205,7 @@ describe('MediaRecorderController', () => {
     );
 
     describe.each([undefined, MediaRecordingState.STOPPED])('recording in state %s', () => {
-      describe.each([['denied'], ['prompt'], ['granted']])('with permission %s', (permission) => {
+      describe.each([['denied'], ['prompt'], ['granted']])('with permission "%s"', (permission) => {
         it('registers error on unavailable navigator.mediaDevices', async () => {
           window.navigator.mediaDevices = undefined;
           const controller = new MediaRecorderController();
@@ -260,7 +261,7 @@ describe('MediaRecorderController', () => {
             controller.permission.state.next(permission);
             await controller.start();
             if (permission === 'denied') {
-              expect(controller.amplitudeRecorder).toBeUndefined();
+              expect(controller.amplitudeRecorder.stream).toBeUndefined();
             } else {
               expect(controller.amplitudeRecorder.state.value).toBe(
                 AmplitudeRecorderState.RECORDING,
@@ -392,7 +393,9 @@ describe('MediaRecorderController', () => {
       ['does not transcode', 'audio/mp4'],
       ['transcodes', 'audio/web'],
       ['transcodes', 'audio/ogg'],
-    ])('%s recording of MIME type %s');
+    ])('%s recording of MIME type %s', () => {
+      console.log();
+    });
     it.todo('does not emit recording if generation was unsuccessful');
     it.todo('emits recording if generation was successful');
   });

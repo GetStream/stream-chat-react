@@ -1,5 +1,6 @@
 import { BehaviorSubject } from '../observable/BehaviorSubject';
 import { Subject } from '../observable/Subject';
+import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 
 const MAX_FREQUENCY_AMPLITUDE = 255 as const;
 
@@ -34,9 +35,18 @@ export type AmplitudeRecorderConfig = {
   samplingFrequencyMs: number;
 };
 
+export const DEFAULT_AMPLITUDE_RECORDER_CONFIG: AmplitudeRecorderConfig = {
+  analyserConfig: {
+    fftSize: 32,
+    maxDecibels: 0,
+    minDecibels: -100,
+  } as AmplitudeAnalyserConfig,
+  sampleCount: 100,
+  samplingFrequencyMs: 60,
+};
+
 type AmplitudeAnalyserOptions = {
-  config: AmplitudeRecorderConfig;
-  stream: MediaStream;
+  config?: AmplitudeRecorderConfig;
 };
 
 export enum AmplitudeRecorderState {
@@ -48,7 +58,7 @@ export class AmplitudeRecorder {
   audioContext: AudioContext | undefined;
   analyserNode: AnalyserNode | undefined;
   microphone: MediaStreamAudioSourceNode | undefined;
-  stream: MediaStream;
+  stream: MediaStream | undefined;
 
   config: AmplitudeRecorderConfig;
 
@@ -58,21 +68,8 @@ export class AmplitudeRecorder {
   state = new BehaviorSubject<AmplitudeRecorderState | undefined>(undefined);
   error = new Subject<Error | undefined>();
 
-  constructor({ config, stream }: AmplitudeAnalyserOptions) {
-    this.config = config;
-    this.stream = stream;
-  }
-
-  init() {
-    this.audioContext = new AudioContext();
-    this.analyserNode = this.audioContext.createAnalyser();
-    const { analyserConfig } = this.config;
-    this.analyserNode.fftSize = analyserConfig.fftSize;
-    this.analyserNode.maxDecibels = analyserConfig.maxDecibels;
-    this.analyserNode.minDecibels = analyserConfig.minDecibels;
-
-    this.microphone = this.audioContext.createMediaStreamSource(this.stream);
-    this.microphone.connect(this.analyserNode);
+  constructor({ config }: AmplitudeAnalyserOptions) {
+    this.config = mergeDeepUndefined({ ...config }, DEFAULT_AMPLITUDE_RECORDER_CONFIG);
   }
 
   stop() {
@@ -80,12 +77,29 @@ export class AmplitudeRecorder {
     this.state.next(AmplitudeRecorderState.STOPPED);
   }
 
-  start = () => {
-    if (this.state.value === AmplitudeRecorderState.RECORDING) this.stop();
-    if (!this.analyserNode) {
-      if (!this.stream) return;
-      this.init();
+  start = (stream?: MediaStream) => {
+    if (!this.stream) {
+      if (stream) {
+        this.stream = stream;
+      } else {
+        throw new Error('Provide MediaStream instance to start recording');
+      }
     }
+
+    if (this.state.value === AmplitudeRecorderState.RECORDING) this.stop();
+
+    if (!this.analyserNode) {
+      this.audioContext = new AudioContext();
+      this.analyserNode = this.audioContext.createAnalyser();
+      const { analyserConfig } = this.config;
+      this.analyserNode.fftSize = analyserConfig.fftSize;
+      this.analyserNode.maxDecibels = analyserConfig.maxDecibels;
+      this.analyserNode.minDecibels = analyserConfig.minDecibels;
+
+      this.microphone = this.audioContext.createMediaStreamSource(this.stream);
+      this.microphone.connect(this.analyserNode);
+    }
+
     this.state.next(AmplitudeRecorderState.RECORDING);
 
     this.amplitudeSamplingInterval = setInterval(() => {

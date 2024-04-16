@@ -15,11 +15,7 @@ import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { Subject } from '../observable/Subject';
 import { BehaviorSubject } from '../observable/BehaviorSubject';
-import {
-  AmplitudeAnalyserConfig,
-  AmplitudeRecorder,
-  AmplitudeRecorderConfig,
-} from './AmplitudeRecorder';
+import { AmplitudeRecorder, AmplitudeRecorderConfig } from './AmplitudeRecorder';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 
@@ -30,27 +26,17 @@ const RECORDED_MIME_TYPE_BY_BROWSER = {
   },
 } as const;
 
-const POSSIBLE_TRANSCODING_MIME_TYPES = ['audio/wav', 'audio/mp3'] as const;
+export const POSSIBLE_TRANSCODING_MIME_TYPES = ['audio/wav', 'audio/mp3'] as const;
 
-export const DEFAULT_AUDIO_RECORDER_CONFIG: AudioRecorderConfig = {
-  amplitudeRecorderConfig: {
-    analyserConfig: {
-      fftSize: 32,
-      maxDecibels: 0,
-      minDecibels: -100,
-    } as AmplitudeAnalyserConfig,
-    sampleCount: 100,
-    samplingFrequencyMs: 60,
-  },
-  mediaRecorderConfig: {
-    mimeType: isSafari()
-      ? RECORDED_MIME_TYPE_BY_BROWSER.audio.safari
-      : RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
-  },
-  transcoderConfig: {
-    sampleRate: 16000,
-    targetMimeType: 'audio/mp3',
-  },
+export const DEFAULT_MEDIA_RECORDER_CONFIG: MediaRecorderConfig = {
+  mimeType: isSafari()
+    ? RECORDED_MIME_TYPE_BY_BROWSER.audio.safari
+    : RECORDED_MIME_TYPE_BY_BROWSER.audio.others,
+} as const;
+
+export const DEFAULT_AUDIO_TRANSCODER_CONFIG: TranscoderConfig = {
+  sampleRate: 16000,
+  targetMimeType: 'audio/mp3',
 } as const;
 
 const disposeOfMediaStream = (stream?: MediaStream) => {
@@ -100,9 +86,8 @@ export enum RecordingAttachmentType {
 export class MediaRecorderController {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
-  amplitudeRecorder: AmplitudeRecorder | undefined;
+  amplitudeRecorder: AmplitudeRecorder;
 
-  amplitudeRecorderConfig: AmplitudeRecorderConfig;
   mediaRecorderConfig: MediaRecorderConfig;
   transcoderConfig: TranscoderConfig;
 
@@ -123,21 +108,22 @@ export class MediaRecorderController {
   t: TranslationContextValue['t'];
 
   constructor({ config, generateRecordingTitle, t }: AudioRecorderOptions = {}) {
-    const { amplitudeRecorderConfig, mediaRecorderConfig, transcoderConfig } = mergeDeepUndefined(
-      { ...config },
-      DEFAULT_AUDIO_RECORDER_CONFIG,
-    );
-
     this.t = t || defaultTranslatorFunction;
 
-    this.mediaRecorderConfig = mediaRecorderConfig as MediaRecorderConfig;
-    this.transcoderConfig = transcoderConfig;
-    this.amplitudeRecorderConfig = amplitudeRecorderConfig;
+    this.mediaRecorderConfig = mergeDeepUndefined(
+      { ...config?.mediaRecorderConfig },
+      DEFAULT_MEDIA_RECORDER_CONFIG,
+    );
 
-    if (POSSIBLE_TRANSCODING_MIME_TYPES.includes(this.transcoderConfig.targetMimeType)) {
-      this.transcoderConfig.targetMimeType =
-        DEFAULT_AUDIO_RECORDER_CONFIG.transcoderConfig.targetMimeType;
+    this.transcoderConfig = mergeDeepUndefined(
+      { ...config?.transcoderConfig },
+      DEFAULT_AUDIO_TRANSCODER_CONFIG,
+    );
+    if (!POSSIBLE_TRANSCODING_MIME_TYPES.includes(this.transcoderConfig.targetMimeType)) {
+      this.transcoderConfig.targetMimeType = DEFAULT_AUDIO_TRANSCODER_CONFIG.targetMimeType;
     }
+
+    this.amplitudeRecorder = new AmplitudeRecorder({ config: config?.amplitudeRecorderConfig });
 
     const mediaType = getRecordedMediaTypeFromMimeType(this.mediaRecorderConfig.mimeType);
     if (!mediaType) {
@@ -190,7 +176,7 @@ export class MediaRecorderController {
       type: RecordingAttachmentType.VOICE_RECORDING,
       waveform_data: resampleWaveformData(
         this.amplitudeRecorder?.amplitudes.value ?? [],
-        this.amplitudeRecorderConfig.sampleCount,
+        this.amplitudeRecorder.config.sampleCount,
       ),
     };
   };
@@ -308,11 +294,7 @@ export class MediaRecorderController {
       this.mediaRecorder.start();
 
       if (this.mediaType === 'audio' && stream) {
-        this.amplitudeRecorder = new AmplitudeRecorder({
-          config: this.amplitudeRecorderConfig,
-          stream,
-        });
-        this.amplitudeRecorder.start();
+        this.amplitudeRecorder.start(stream);
       }
 
       this.recordingState.next(MediaRecordingState.RECORDING);
