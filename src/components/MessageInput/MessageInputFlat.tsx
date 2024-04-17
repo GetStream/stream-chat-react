@@ -14,8 +14,8 @@ import { SendButton as DefaultSendButton } from './SendButton';
 import {
   AudioRecorder as DefaultAudioRecorder,
   RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
+  StartRecordingAudioButton as DefaultStartRecordingAudioButton,
   RecordingPermission,
-  StartRecordingAudioButton,
 } from '../MediaRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
@@ -196,6 +196,7 @@ const MessageInputV2 = <
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
+    StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
 

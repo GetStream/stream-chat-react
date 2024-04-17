@@ -35,10 +35,11 @@ import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type {
+import {
   BaseImageProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
+  StartRecordingAudioButtonProps,
 } from '../components';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
@@ -93,6 +94,7 @@ export type ComponentContextValue<
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
   RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
+  StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;

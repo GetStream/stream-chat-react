@@ -182,6 +182,8 @@ type ChannelPropsForwardedToComponentContext<
   ReactionsList?: ComponentContextValue<StreamChatGenerics>['ReactionsList'];
   /** Custom UI component for send button, defaults to and accepts same props as: [SendButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
   SendButton?: ComponentContextValue<StreamChatGenerics>['SendButton'];
+  /** Custom UI component button for initiating audio recording, defaults to and accepts same props as: [StartRecordingAudioButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MediaRecorder/AudioRecorder/AudioRecordingButtons.tsx) */
+  StartRecordingAudioButton?: ComponentContextValue<StreamChatGenerics>['StartRecordingAudioButton'];
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
@@ -1283,6 +1285,7 @@ const ChannelInner = <
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
+      StartRecordingAudioButton: props.StartRecordingAudioButton,
       ThreadHead: props.ThreadHead,
       ThreadHeader: props.ThreadHeader,
       ThreadStart: props.ThreadStart,
