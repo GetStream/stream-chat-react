@@ -30,14 +30,14 @@ import {
 import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 
 const PERM_DENIED_NOTIFICATION_TEXT =
-  'To start recording, allow the {{name}} access in your browser';
-const CSS_THEME_VERSION = '2';
+  'To start recording, allow the microphone access in your browser';
 
 const START_RECORDING_AUDIO_BUTTON_TEST_ID = 'start-recording-audio-button';
 const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
+const CSS_THEME_VERSION = '2';
 const DEFAULT_RENDER_PARAMS = {
   channelActionCtx: {
     addNotification: jest.fn(),
@@ -61,26 +61,30 @@ const renderComponent = async ({
     channels: [channel],
     client,
   } = await initClientWithChannels();
-  return render(
-    <ChatProvider
-      value={{
-        ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
-        themeVersion: CSS_THEME_VERSION,
-      }}
-    >
-      <ComponentProvider value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}>
-        <ChannelActionProvider
-          value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
-        >
-          <ChannelStateProvider
-            value={{ channel, ...DEFAULT_RENDER_PARAMS.channelStateCtx, ...channelStateCtx }}
+  let result;
+  await act(() => {
+    result = render(
+      <ChatProvider
+        value={{
+          ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
+          themeVersion: CSS_THEME_VERSION,
+        }}
+      >
+        <ComponentProvider value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}>
+          <ChannelActionProvider
+            value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
           >
-            <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
-          </ChannelStateProvider>
-        </ChannelActionProvider>
-      </ComponentProvider>
-    </ChatProvider>,
-  );
+            <ChannelStateProvider
+              value={{ channel, ...DEFAULT_RENDER_PARAMS.channelStateCtx, ...channelStateCtx }}
+            >
+              <MessageInput {...{ audioRecordingEnabled: true, ...props }} />
+            </ChannelStateProvider>
+          </ChannelActionProvider>
+        </ComponentProvider>
+      </ChatProvider>,
+    );
+  });
+  return result;
 };
 
 const nanoidMockValue = 'randomNanoId';
@@ -178,9 +182,7 @@ describe('MessageInput', () => {
   });
 
   it('renders AudioRecorder on start recording button click', async () => {
-    await act(async () => {
-      await renderComponent();
-    });
+    await renderComponent();
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
@@ -192,9 +194,7 @@ describe('MessageInput', () => {
     const status = new EventEmitterMock();
     status.state = 'denied';
     window.navigator.permissions.query.mockResolvedValueOnce(status);
-    await act(async () => {
-      await renderComponent();
-    });
+    await renderComponent();
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
@@ -207,18 +207,64 @@ describe('MessageInput', () => {
     const status = new EventEmitterMock();
     status.state = 'denied';
     window.navigator.permissions.query.mockResolvedValueOnce(status);
-    await act(async () => {
-      await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
-    });
+    await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
     expect(screen.queryByText('custom notification')).toBeInTheDocument();
   });
 
-  it.todo(
-    'uploads and submits the whole message with all the attachments on recording completion and multiple async messages disabled',
-  );
+  it('uploads and submits the whole message with all the attachments on recording completion and multiple async messages disabled', async () => {
+    const sendMessage = jest.fn();
+    const doFileUploadRequest = jest.fn().mockResolvedValue({ file: fileObjectURL });
+    let recorder;
+    let recording;
+    const MessageInputFlatWithContextCatcher = () => {
+      const ctx = useMessageInputContext();
+
+      useEffect(() => {
+        if (ctx.recordingController.recorder) {
+          recorder = ctx.recordingController.recorder;
+        }
+        if (ctx.recordingController.recording) {
+          recording = ctx.recordingController.recording;
+        }
+      }, [ctx.recordingController.recorder, ctx.recordingController.recording]);
+
+      return <MessageInputFlat />;
+    };
+    await renderComponent({
+      channelActionCtx: { sendMessage },
+      componentCtx: { Input: MessageInputFlatWithContextCatcher },
+      props: { doFileUploadRequest },
+    });
+
+    await act(() => {
+      fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    });
+    recorder.mediaRecorder.state = 'recording';
+
+    await act(() => {
+      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+    });
+    recorder.mediaRecorder.state = 'paused';
+
+    await act(async () => {
+      await recorder.handleDataavailableEvent(generateDataavailableEvent());
+    });
+    await act(() => {
+      fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_COMPLETE_BTN_TEST_ID));
+    });
+
+    expect(doFileUploadRequest).toHaveBeenCalledTimes(1);
+    const { $internal, ...uploadedRecordingAtt } = recording;
+    expect(sendMessage.mock.calls[0][0]).toStrictEqual({
+      attachments: [uploadedRecordingAtt],
+      mentioned_users: [],
+      parent: undefined,
+      text: '',
+    });
+  });
 
   it('uploads but does not submit message on recording completion and multiple async messages enabled', async () => {
     const sendMessage = jest.fn();
@@ -235,12 +281,10 @@ describe('MessageInput', () => {
 
       return <MessageInputFlat />;
     };
-    await act(async () => {
-      await renderComponent({
-        channelActionCtx: { sendMessage },
-        componentCtx: { Input: MessageInputFlatWithContextCatcher },
-        props: { asyncMessagesMultiSendEnabled: true, doFileUploadRequest },
-      });
+    await renderComponent({
+      channelActionCtx: { sendMessage },
+      componentCtx: { Input: MessageInputFlatWithContextCatcher },
+      props: { asyncMessagesMultiSendEnabled: true, doFileUploadRequest },
     });
 
     await act(() => {

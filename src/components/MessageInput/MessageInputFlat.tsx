@@ -231,7 +231,7 @@ const MessageInputV2 = <
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
   const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
-  const recordingEnabled = recordingController.recorder && navigator.mediaDevices; // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+  const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
   const isRecording = !!recordingController.recordingState;
 
   return (
