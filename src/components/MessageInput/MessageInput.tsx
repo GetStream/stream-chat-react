@@ -48,6 +48,7 @@ export type MessageInputProps<
    * Instead, they will “stack up” with other attachments in the message composer allowing the user to send multiple attachments as part of the same message.
    */
   asyncMessagesMultiSendEnabled?: boolean;
+  /** Allows to configure the audio recording parameters for voice messages. */
   audioRecordingConfig?: CustomAudioRecordingConfig;
   /** Controls whether the users will be provided with the UI to record voice messages. */
   audioRecordingEnabled?: boolean;
