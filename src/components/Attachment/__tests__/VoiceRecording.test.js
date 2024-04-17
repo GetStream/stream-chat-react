@@ -66,7 +66,7 @@ describe('VoiceRecordingPlayer', () => {
 
   it('should fallback to file size, if duration is not available', () => {
     const { getByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60000 },
+      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
     });
     expect(getByTestId('file-size-indicator')).toHaveTextContent('60 kB');
   });
@@ -156,7 +156,7 @@ describe('QuotedVoiceRecording', () => {
   });
   it('should fallback to file size, if duration is not available', () => {
     const { queryByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60000 },
+      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
       isQuoted: true,
     });
     expect(queryByTestId('file-size-indicator')).toHaveTextContent('60 kB');

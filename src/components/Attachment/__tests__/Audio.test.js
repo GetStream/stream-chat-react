@@ -1,5 +1,4 @@
 import React from 'react';
-import prettybytes from 'pretty-bytes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -7,6 +6,7 @@ import { Audio } from '../Audio';
 
 import { ChannelActionProvider, ChatContext } from '../../../context';
 import { generateAudioAttachment } from '../../../mock-builders';
+import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 
 const AUDIO = generateAudioAttachment();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -72,7 +72,7 @@ describe('Audio', () => {
     });
 
     expect(getByText(AUDIO.title)).toBeInTheDocument();
-    expect(getByText(prettybytes(AUDIO.file_size))).toBeInTheDocument();
+    expect(getByText(prettifyFileSize(AUDIO.file_size))).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 

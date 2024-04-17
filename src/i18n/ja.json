@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "最初の未読メッセージにジャンプできませんでした",
   "Failed to mark channel as read": "チャンネルを既読にすることができませんでした",
   "Failed to play the recording": "録音の再生に失敗しました",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "ファイルが大きすぎます：{{ size }}、最大アップロードサイズは{{ limit }}です",
   "Flag": "フラグ",
   "Latest Messages": "最新のメッセージ",
   "Load more": "もっと読み込む",

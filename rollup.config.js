@@ -49,7 +49,6 @@ const externalDependencies = [
   'lodash.throttle',
   'lodash.uniqby',
   'mml-react',
-  'pretty-bytes',
   'prop-types',
   'react-fast-compare',
   'react-images',

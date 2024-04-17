@@ -40,6 +40,7 @@
   "Failed to jump to the first unread message": "पहले अपठित संदेश पर जाने में विफल",
   "Failed to mark channel as read": "चैनल को पढ़ा हुआ चिह्नित करने में विफल।",
   "Failed to play the recording": "रेकॉर्डिंग प्ले करने में विफल",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "फ़ाइल बहुत बड़ी है: {{ size }}, अधिकतम अपलोड साइज़ {{ limit }} है",
   "Flag": "फ्लैग करे",
   "Latest Messages": "नवीनतम संदेश",
   "Load more": "और लोड करें",

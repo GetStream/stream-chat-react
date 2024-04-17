@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "Impossibile passare al primo messaggio non letto",
   "Failed to mark channel as read": "Impossibile contrassegnare il canale come letto",
   "Failed to play the recording": "Impossibile riprodurre la registrazione",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Il file è troppo grande: {{ size }}, la dimensione massima di caricamento è {{ limit }}",
   "Flag": "Segnala",
   "Latest Messages": "Ultimi messaggi",
   "Load more": "Carica di più",

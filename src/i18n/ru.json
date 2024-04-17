@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "Не удалось перейти к первому непрочитанному сообщению",
   "Failed to mark channel as read": "Не удалось пометить канал как прочитанный",
   "Failed to play the recording": "Не удалось воспроизвести запись",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Файл слишком большой: {{ size }}, максимальный размер загрузки составляет {{ limit }}",
   "Flag": "Пожаловаться",
   "Latest Messages": "Последние сообщения",
   "Load more": "Загрузить больше",

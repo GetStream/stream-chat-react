@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "첫 번째 읽지 않은 메시지로 이동하지 못했습니다",
   "Failed to mark channel as read": "채널을 읽음으로 표시하는 데 실패했습니다",
   "Failed to play the recording": "녹음을 재생하지 못했습니다",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "파일이 너무 큽니다: {{ size }}, 최대 업로드 크기는 {{ limit }}입니다",
   "Flag": "플래그",
   "Latest Messages": "최신 메시지",
   "Load more": "더 불러오기",

@@ -1,3 +1,16 @@
+## [11.14.0](https://github.com/GetStream/stream-chat-react/compare/v11.13.1...v11.14.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* add missing PinIndicator placeholder ([#2352](https://github.com/GetStream/stream-chat-react/issues/2352)) ([e059af8](https://github.com/GetStream/stream-chat-react/commit/e059af8dbd2fd6d00a390d3f071b0525e47869f9))
+* file size formatting ([#2357](https://github.com/GetStream/stream-chat-react/issues/2357)) ([7e98a85](https://github.com/GetStream/stream-chat-react/commit/7e98a85efe60f84241aae316bc16453aca9c2ba9)), closes [#2301](https://github.com/GetStream/stream-chat-react/issues/2301)
+
+
+### Features
+
+* support size_limit in upload config ([#2301](https://github.com/GetStream/stream-chat-react/issues/2301)) ([a8aa524](https://github.com/GetStream/stream-chat-react/commit/a8aa524858b002f837b9859a916948141b97c67e))
+
 ## [11.13.1](https://github.com/GetStream/stream-chat-react/compare/v11.13.0...v11.13.1) (2024-04-02)
 
 

@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "Niet gelukt om naar het eerste ongelezen bericht te springen",
   "Failed to mark channel as read": "Kanaal kon niet als gelezen worden gemarkeerd",
   "Failed to play the recording": "Kan de opname niet afspelen",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "Bestand is te groot: {{ size }}, maximale uploadgrootte is {{ limit }}",
   "Flag": "Markeer",
   "Latest Messages": "Laatste berichten",
   "Load more": "Meer laden",

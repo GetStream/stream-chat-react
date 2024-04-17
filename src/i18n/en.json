@@ -39,6 +39,7 @@
   "Failed to jump to the first unread message": "Failed to jump to the first unread message",
   "Failed to mark channel as read": "Failed to mark channel as read",
   "Failed to play the recording": "Failed to play the recording",
+  "File is too large: {{ size }}, maximum upload size is {{ limit }}": "File is too large: {{ size }}, maximum upload size is {{ limit }}",
   "Flag": "Flag",
   "Latest Messages": "Latest Messages",
   "Load more": "Load more",
