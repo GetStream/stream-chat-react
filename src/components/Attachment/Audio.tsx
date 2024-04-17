@@ -16,8 +16,9 @@ export type AudioProps<
 };
 
 const AudioV1 = ({ og }: AudioProps) => {
-  const { asset_url, description, image_url, text, title } = og;
-  const { audioRef, isPlaying, progress, togglePlay } = useAudioController();
+  // fixme: pass mimeType if available
+  const { asset_url, description, image_url, mime_type, text, title } = og;
+  const { audioRef, isPlaying, progress, togglePlay } = useAudioController({ mimeType: mime_type });
 
   return (
     <div className='str-chat__audio'>
@@ -77,8 +78,10 @@ const AudioV1 = ({ og }: AudioProps) => {
 };
 
 const AudioV2 = ({ og }: AudioProps) => {
-  const { asset_url, file_size, title } = og;
-  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
+  const { asset_url, file_size, mime_type, title } = og;
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController({
+    mimeType: mime_type,
+  });
 
   if (!asset_url) return null;
 

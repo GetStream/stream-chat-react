@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
@@ -7,9 +7,16 @@ import { nanoid } from 'nanoid';
 
 import {
   FileUploadIconFlat as DefaultFileUploadIcon,
-  SendButton as DefaultSendButton,
   UploadIcon as DefaultUploadIcon,
 } from './icons';
+import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
+import { SendButton as DefaultSendButton } from './SendButton';
+import {
+  AudioRecorder as DefaultAudioRecorder,
+  RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification,
+  StartRecordingAudioButton as DefaultStartRecordingAudioButton,
+  RecordingPermission,
+} from '../MediaRecorder';
 import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
@@ -20,6 +27,7 @@ import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
@@ -29,7 +37,6 @@ import { useMessageInputContext } from '../../context/MessageInputContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 
 export const MessageInputFlat = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -163,6 +170,8 @@ const MessageInputV2 = <
   const { t } = useTranslationContext('MessageInputV2');
 
   const {
+    asyncMessagesMultiSendEnabled,
+    attachments,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
@@ -172,20 +181,32 @@ const MessageInputV2 = <
     maxFilesLeft,
     message,
     numberOfUploads,
+    recordingController,
     setCooldownRemaining,
     text,
     uploadNewFiles,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
+    AudioRecorder = DefaultAudioRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
     CooldownTimer = DefaultCooldownTimer,
     FileUploadIcon = DefaultUploadIcon,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
+    RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
     SendButton = DefaultSendButton,
+    StartRecordingAudioButton = DefaultStartRecordingAudioButton,
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
+
+  const [
+    showRecordingPermissionDeniedNotification,
+    setShowRecordingPermissionDeniedNotification,
+  ] = useState(false);
+  const closePermissionDeniedNotification = useCallback(() => {
+    setShowRecordingPermissionDeniedNotification(false);
+  }, []);
 
   const id = useMemo(() => nanoid(), []);
 
@@ -206,13 +227,25 @@ const MessageInputV2 = <
     onDrop: uploadNewFiles,
   });
 
+  if (recordingController.recordingState) return <AudioRecorder />;
+
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
   const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
+  const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+  const isRecording = !!recordingController.recordingState;
 
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
+        {recordingEnabled &&
+          recordingController.permissionState === 'denied' &&
+          showRecordingPermissionDeniedNotification && (
+            <RecordingPermissionDeniedNotification
+              onClose={closePermissionDeniedNotification}
+              permissionName={RecordingPermission.MIC}
+            />
+          )}
         {findAndEnqueueURLsToEnrich && (
           <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
         )}
@@ -226,7 +259,6 @@ const MessageInputV2 = <
             {isDragReject && <p>{t<string>('Some of the files will not be accepted')}</p>}
           </div>
         )}
-
         {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
@@ -247,7 +279,9 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {isUploadEnabled && !!numberOfUploads && <AttachmentPreviewList />}
+            {isUploadEnabled && !!(numberOfUploads || attachments.length) && (
+              <AttachmentPreviewList />
+            )}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
@@ -263,10 +297,27 @@ const MessageInputV2 = <
                   setCooldownRemaining={setCooldownRemaining}
                 />
               ) : (
-                <SendButton
-                  disabled={!numberOfUploads && !text.length}
-                  sendMessage={handleSubmit}
-                />
+                <>
+                  <SendButton
+                    disabled={!numberOfUploads && !text.length && !attachments.length}
+                    sendMessage={handleSubmit}
+                  />
+                  {recordingEnabled && (
+                    <StartRecordingAudioButton
+                      disabled={
+                        isRecording ||
+                        (!asyncMessagesMultiSendEnabled &&
+                          attachments.some(
+                            (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
+                          ))
+                      }
+                      onClick={() => {
+                        recordingController.recorder?.start();
+                        setShowRecordingPermissionDeniedNotification(true);
+                      }}
+                    />
+                  )}
+                </>
               )}
             </>
           )}

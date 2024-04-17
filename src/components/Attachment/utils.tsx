@@ -11,6 +11,7 @@ import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Ga
 import type { Attachment } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import type { LocalAttachment, VoiceRecordingAttachment } from '../MessageInput';
 
 export const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/ogg', 'video/webm', 'video/quicktime'];
 
@@ -65,14 +66,20 @@ export const isGalleryAttachmentType = <
 export const isAudioAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  attachment: Attachment<StreamChatGenerics>,
+  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
 ) => attachment.type === 'audio';
 
 export const isVoiceRecordingAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  attachment: Attachment<StreamChatGenerics>,
-) => attachment.type === 'voiceRecording';
+  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
+): attachment is VoiceRecordingAttachment => attachment.type === 'voiceRecording';
+
+export const isLocalAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: LocalAttachment<StreamChatGenerics>,
+): attachment is LocalAttachment<StreamChatGenerics> => !!attachment.$internal;
 
 export const isFileAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -87,7 +94,7 @@ export const isFileAttachment = <
 export const isMediaAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  attachment: Attachment<StreamChatGenerics>,
+  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
 ) =>
   (attachment.mime_type && SUPPORTED_VIDEO_FORMATS.indexOf(attachment.mime_type) !== -1) ||
   attachment.type === 'video';

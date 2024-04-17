@@ -1,15 +1,32 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 
+import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
+import {
+  isAudioAttachment,
+  isMediaAttachment,
+  isVoiceRecordingAttachment,
+  PlayButton,
+} from '../Attachment';
 import { BaseImage as DefaultBaseImage } from '../Gallery';
+import { useAudioController } from '../Attachment/hooks/useAudioController';
+import { RecordingTimer } from '../MediaRecorder';
 import { FileIcon } from '../ReactFileUtilities';
 import { useComponentContext, useMessageInputContext } from '../../context';
-import { useFileState } from './hooks/useFileState';
 
-import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from './icons';
+import type { LocalAttachment } from './types';
+import type { DefaultStreamChatGenerics } from '../../types';
 
-export const AttachmentPreviewList = () => {
-  const { fileOrder, imageOrder } = useMessageInputContext('AttachmentPreviewList');
+export const AttachmentPreviewList = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>() => {
+  const {
+    attachments,
+    fileOrder,
+    imageOrder,
+    removeAttachment,
+    uploadAttachment,
+  } = useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
 
   return (
     <div className='str-chat__attachment-preview-list'>
@@ -17,6 +34,31 @@ export const AttachmentPreviewList = () => {
         className='str-chat__attachment-list-scroll-container'
         data-testid='attachment-list-scroll-container'
       >
+        {attachments.map((attachment) => {
+          if (isVoiceRecordingAttachment(attachment)) {
+            return (
+              <VoiceRecordingPreview
+                attachment={attachment}
+                handleRetry={uploadAttachment}
+                key={attachment.$internal?.id || attachment.asset_url}
+                mimeType={attachment.mime_type}
+                removeAttachment={removeAttachment}
+              />
+            );
+          } else if (isAudioAttachment(attachment) || isMediaAttachment(attachment)) {
+            // unnecessary to pass handleRetry as video and audio if among attachments is already uploaded
+            // - user looking at the edit message input
+            return (
+              <FilePreview
+                attachment={attachment}
+                handleRetry={uploadAttachment}
+                key={attachment.$internal?.id || attachment.asset_url}
+                removeAttachment={removeAttachment}
+              />
+            );
+          }
+          return null;
+        })}
         {imageOrder.map((id) => (
           <ImagePreviewItem id={id} key={id} />
         ))}
@@ -27,6 +69,111 @@ export const AttachmentPreviewList = () => {
     </div>
   );
 };
+
+type AttachmentPreviewProps<A extends LocalAttachment = LocalAttachment> = {
+  attachment: A;
+  removeAttachment: (id: string) => void;
+  handleRetry?: (attachment: A) => void | Promise<A>;
+  mimeType?: string;
+};
+
+const VoiceRecordingPreview = ({
+  attachment,
+  handleRetry,
+  mimeType,
+  removeAttachment,
+}: AttachmentPreviewProps) => {
+  const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController({ mimeType });
+
+  return (
+    <div
+      className='str-chat__attachment-preview-voice-recording'
+      data-testid='attachment-preview-voice-recording'
+    >
+      <audio ref={audioRef}>
+        <source data-testid='audio-source' src={attachment.asset_url} type={attachment.mime_type} />
+      </audio>
+      <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+
+      <button
+        className='str-chat__attachment-preview-delete'
+        data-testid='file-preview-item-delete-button'
+        disabled={attachment.$internal?.uploadState === 'uploading'}
+        onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal.id)}
+      >
+        <CloseIcon />
+      </button>
+
+      {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
+        <button
+          className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
+          data-testid='file-preview-item-retry-button'
+          onClick={() => handleRetry(attachment)}
+        >
+          <RetryIcon />
+        </button>
+      )}
+
+      <div className='str-chat__attachment-preview-metadata'>
+        <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
+          {attachment.title}
+        </div>
+        {typeof attachment.duration !== 'undefined' && (
+          <RecordingTimer durationSeconds={secondsElapsed || attachment.duration} />
+        )}
+        {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
+      </div>
+      <div className='str-chat__attachment-preview-file-icon'>
+        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
+      </div>
+    </div>
+  );
+};
+
+const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPreviewProps) => (
+  <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
+    <div className='str-chat__attachment-preview-file-icon'>
+      <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
+    </div>
+
+    <button
+      className='str-chat__attachment-preview-delete'
+      data-testid='file-preview-item-delete-button'
+      disabled={attachment.$internal?.uploadState === 'uploading'}
+      onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal?.id)}
+    >
+      <CloseIcon />
+    </button>
+
+    {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
+      <button
+        className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
+        data-testid='file-preview-item-retry-button'
+        onClick={() => handleRetry(attachment)}
+      >
+        <RetryIcon />
+      </button>
+    )}
+
+    <div className='str-chat__attachment-preview-file-end'>
+      <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
+        {attachment.title}
+      </div>
+      {attachment.$internal?.uploadState === 'finished' && (
+        <a
+          className='str-chat__attachment-preview-file-download'
+          download
+          href={attachment.asset_url}
+          rel='noreferrer'
+          target='_blank'
+        >
+          <DownloadIcon />
+        </a>
+      )}
+      {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
+    </div>
+  </div>
+);
 
 type PreviewItemProps = { id: string };
 
@@ -98,60 +245,37 @@ export const ImagePreviewItem = ({ id }: PreviewItemProps) => {
 const FilePreviewItem = ({ id }: PreviewItemProps) => {
   const { fileUploads, removeFile, uploadFile } = useMessageInputContext('FilePreviewItem');
 
-  const handleRemove: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    (e) => {
-      e.stopPropagation();
+  const handleRemove = useCallback(
+    (id: string) => {
       removeFile(id);
     },
-    [removeFile, id],
+    [removeFile],
   );
-  const handleRetry = useCallback(() => uploadFile(id), [uploadFile, id]);
+  const handleRetry = useCallback(
+    (attachment: LocalAttachment) => attachment.$internal && uploadFile(attachment.$internal.id),
+    [uploadFile],
+  );
 
   const file = fileUploads[id];
-  const state = useFileState(file);
 
   if (!file) return null;
 
+  const attachment: LocalAttachment = {
+    $internal: {
+      file: file.file as File,
+      id,
+      uploadState: file.state,
+    },
+    asset_url: file.url,
+    mime_type: file.file.type,
+    title: file.file.name,
+  };
+
   return (
-    <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
-      <div className='str-chat__attachment-preview-file-icon'>
-        <FileIcon filename={file.file.name} mimeType={file.file.type} version='2' />
-      </div>
-
-      <button
-        className='str-chat__attachment-preview-delete'
-        data-testid='file-preview-item-delete-button'
-        disabled={state.uploading}
-        onClick={handleRemove}
-      >
-        <CloseIcon />
-      </button>
-
-      {state.failed && (
-        <button
-          className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
-          data-testid='file-preview-item-retry-button'
-          onClick={handleRetry}
-        >
-          <RetryIcon />
-        </button>
-      )}
-
-      <div className='str-chat__attachment-preview-file-end'>
-        <div className='str-chat__attachment-preview-file-name'>{file.file.name}</div>
-        {state.finished && (
-          <a
-            className='str-chat__attachment-preview-file-download'
-            download
-            href={file.url}
-            rel='noreferrer'
-            target='_blank'
-          >
-            <DownloadIcon />
-          </a>
-        )}
-        {state.uploading && <LoadingIndicatorIcon size={17} />}
-      </div>
-    </div>
+    <FilePreview
+      attachment={attachment}
+      handleRetry={handleRetry}
+      removeAttachment={handleRemove}
+    />
   );
 };

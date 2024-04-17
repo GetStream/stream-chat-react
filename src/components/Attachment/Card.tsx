@@ -217,9 +217,11 @@ const CardV2 = (props: CardProps) => {
 };
 
 export const CardAudio = ({
-  og: { asset_url, author_name, og_scrape_url, text, title, title_link },
+  og: { asset_url, author_name, mime_type, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
-  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController({
+    mimeType: mime_type,
+  });
 
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';

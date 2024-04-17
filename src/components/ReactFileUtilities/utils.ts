@@ -1,4 +1,4 @@
-import type { FileLike } from './types';
+import { FileLike, RecordedMediaType } from './types';
 import { ChangeEvent, useCallback } from 'react';
 
 export const useHandleFileChangeWrapper = (
@@ -97,3 +97,40 @@ const extractImageSources = (s: string) => {
   const imageTags = new DOMParser().parseFromString(s, 'text/html').getElementsByTagName('img');
   return Array.from(imageTags, (tag) => tag.src).filter((tag) => tag);
 };
+
+export const createFileFromBlobs = ({
+  blobsArray,
+  fileName,
+  mimeType,
+}: {
+  blobsArray: Blob[];
+  fileName: string;
+  mimeType: string;
+}) => {
+  const concatenatedBlob = new Blob(blobsArray, { type: mimeType });
+  return new File([concatenatedBlob], fileName, { type: concatenatedBlob.type });
+};
+
+export const getExtensionFromMimeType = (mimeType: string) => {
+  const match = mimeType.match(/\/([^/;]+)/);
+  return match && match[1];
+};
+
+export const getRecordedMediaTypeFromMimeType = (mimeType: string): RecordedMediaType | null => {
+  const match = mimeType.match(/^(audio|video)\/.*$/);
+  return match && (match[1] as RecordedMediaType);
+};
+
+export const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> =>
+  new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      resolve(fileReader.result as ArrayBuffer);
+    };
+
+    fileReader.onerror = () => {
+      reject(fileReader.error);
+    };
+
+    fileReader.readAsArrayBuffer(file);
+  });

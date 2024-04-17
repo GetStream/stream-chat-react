@@ -4,12 +4,15 @@ import { nanoid } from 'nanoid';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import { useAttachments } from './useAttachments';
+import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
+import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
+import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
 
 import type { FileLike } from '../../ReactFileUtilities';
-import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
+import type { Message, OGAttachment, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -18,14 +21,13 @@ import type {
   DefaultStreamChatGenerics,
   SendMessageOptions,
 } from '../../../types/types';
-import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
-import { LinkPreviewState, SetLinkPreviewMode } from '../types';
+import { mergeDeep } from '../../../utils/mergeDeep';
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  attachments: Attachment<StreamChatGenerics>[];
+  attachments: LocalAttachment<StreamChatGenerics>[];
   fileOrder: string[];
   fileUploads: Record<string, FileUpload>;
   imageOrder: string[];
@@ -34,6 +36,16 @@ export type MessageInputState<
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
+};
+
+type UpsertAttachmentAction = {
+  attachment: LocalAttachment;
+  type: 'upsertAttachment';
+};
+
+type RemoveAttachmentAction = {
+  id: string;
+  type: 'removeAttachment';
 };
 
 type SetTextAction = {
@@ -96,14 +108,16 @@ export type MessageInputReducerAction<
   | SetLinkPreviewsAction
   | RemoveImageUploadAction
   | RemoveFileUploadAction
-  | AddMentionedUserAction<StreamChatGenerics>;
+  | AddMentionedUserAction<StreamChatGenerics>
+  | UpsertAttachmentAction
+  | RemoveAttachmentAction;
 
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
-    event: React.BaseSyntheticEvent,
+    event?: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
     options?: SendMessageOptions,
   ) => void;
@@ -113,9 +127,14 @@ export type MessageInputHookProps<
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
+  recordingController: RecordingController;
+  removeAttachment: (id: string) => void;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
+  uploadAttachment: (
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => Promise<LocalAttachment<StreamChatGenerics>>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
@@ -211,7 +230,15 @@ const initState = <
   const fileOrder = Object.keys(fileUploads);
 
   const attachments =
-    message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
+    message.attachments
+      ?.filter(({ type }) => type !== 'file' && type !== 'image')
+      .map(
+        (att) =>
+          ({
+            ...att,
+            $internal: { id: nanoid(), uploadState: 'finished' },
+          } as LocalAttachment<StreamChatGenerics>),
+      ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
 
@@ -243,6 +270,34 @@ const messageInputReducer = <
 
     case 'clear':
       return makeEmptyMessageInputState();
+
+    case 'upsertAttachment': {
+      const attachmentIndex = state.attachments.findIndex(
+        (att) => att.$internal?.id && att.$internal?.id === action.attachment.$internal?.id,
+      );
+      const upsertedAttachment = mergeDeep(
+        state.attachments[attachmentIndex] ?? {},
+        action.attachment,
+      );
+      const attachments = [...state.attachments];
+      attachments.splice(attachmentIndex, 1, upsertedAttachment);
+      return {
+        ...state,
+        attachments,
+      };
+    }
+
+    case 'removeAttachment': {
+      const attachmentIndex = state.attachments.findIndex(
+        (att) => att.$internal?.id && att.$internal?.id === action.id,
+      );
+      if (attachmentIndex === -1) return state;
+
+      return {
+        ...state,
+        attachments: [...state.attachments.splice(attachmentIndex, 1)],
+      };
+    }
 
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
@@ -365,7 +420,15 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { additionalTextareaProps, getDefaultValue, message, urlEnrichmentConfig } = props;
+  const {
+    additionalTextareaProps,
+    asyncMessagesMultiSendEnabled,
+    audioRecordingConfig,
+    audioRecordingEnabled,
+    getDefaultValue,
+    message,
+    urlEnrichmentConfig,
+  } = props;
 
   const {
     channelCapabilities = {},
@@ -430,8 +493,10 @@ export const useMessageInputState = <
   const {
     maxFilesLeft,
     numberOfUploads,
+    removeAttachment,
     removeFile,
     removeImage,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
@@ -444,6 +509,15 @@ export const useMessageInputState = <
     numberOfUploads,
     enrichURLsController,
   );
+  const recordingController = useMediaRecorder({
+    asyncMessagesMultiSendEnabled,
+    enabled: !!audioRecordingEnabled,
+    handleSubmit,
+    recordingConfig: audioRecordingConfig,
+    uploadAttachment,
+  });
+
+  // todo: remove the check for channelConfig?.uploads
   const isUploadEnabled =
     channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
 
@@ -477,12 +551,15 @@ export const useMessageInputState = <
     onSelectUser,
     openCommandsList,
     openMentionsList,
+    recordingController,
+    removeAttachment,
     removeFile,
     removeImage,
     setText,
     showCommandsList,
     showMentionsList,
     textareaRef,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,

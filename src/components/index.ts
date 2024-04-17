@@ -18,6 +18,7 @@ export * from './Gallery';
 export * from './InfiniteScrollPaginator';
 export * from './Loading';
 export * from './LoadMore';
+export * from './MediaRecorder';
 export * from './Message';
 export * from './MessageActions';
 export * from './MessageInput';

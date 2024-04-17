@@ -2,11 +2,6 @@ import React, { useMemo } from 'react';
 import { nanoid } from 'nanoid';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChatContext } from '../../context/ChatContext';
-
-import type { Message } from 'stream-chat';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export const EmojiIconLarge = () => {
   const { t } = useTranslationContext('EmojiIconLarge');
@@ -206,49 +201,45 @@ export const SendIconV2 = () => {
   return (
     <svg
       data-testid='send'
-      fill='none'
+      fill='currentColor'
       height='24'
       viewBox='0 0 24 24'
       width='24'
       xmlns='http://www.w3.org/2000/svg'
     >
       <title>{t<string>('Send')}</title>
-      <path
-        d='M4.00952 22L24 12L4.00952 2L4 9.77778L18.2857 12L4 14.2222L4.00952 22Z'
-        fill='black'
-      ></path>
+      <path d='M4.00952 22L24 12L4.00952 2L4 9.77778L18.2857 12L4 14.2222L4.00952 22Z'></path>
     </svg>
   );
 };
 
-export type SendButtonProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  sendMessage: (
-    event: React.BaseSyntheticEvent,
-    customMessageData?: Partial<Message<StreamChatGenerics>>,
-  ) => void;
-} & React.ComponentProps<'button'>;
+export const MicIcon = () => (
+  <svg fill='currentColor' viewBox='0 0 14 20' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M7 12.5C8.66 12.5 10 11.16 10 9.5V3.5C10 1.84 8.66 0.5 7 0.5C5.34 0.5 4 1.84 4 3.5V9.5C4 11.16 5.34 12.5 7 12.5Z' />
+    <path d='M12 9.5C12 12.26 9.76 14.5 7 14.5C4.24 14.5 2 12.26 2 9.5H0C0 13.03 2.61 15.93 6 16.42V19.5H8V16.42C11.39 15.93 14 13.03 14 9.5H12Z' />
+  </svg>
+);
 
-export const SendButton = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  sendMessage,
-  ...rest
-}: SendButtonProps<StreamChatGenerics>) => {
-  const { themeVersion } = useChatContext('SendButton');
-  const { t } = useTranslationContext('SendButton');
+export const BinIcon = () => (
+  <svg fill='currentColor' viewBox='0 0 32 32' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M8.00033 25.3333C8.00033 26.8 9.20033 28 10.667 28H21.3337C22.8003 28 24.0003 26.8 24.0003 25.3333V12C24.0003 10.5333 22.8003 9.33333 21.3337 9.33333H10.667C9.20033 9.33333 8.00033 10.5333 8.00033 12V25.3333ZM24.0003 5.33333H20.667L19.7203 4.38667C19.4803 4.14667 19.1337 4 18.787 4H13.2137C12.867 4 12.5203 4.14667 12.2803 4.38667L11.3337 5.33333H8.00033C7.26699 5.33333 6.66699 5.93333 6.66699 6.66667C6.66699 7.4 7.26699 8 8.00033 8H24.0003C24.7337 8 25.3337 7.4 25.3337 6.66667C25.3337 5.93333 24.7337 5.33333 24.0003 5.33333Z' />
+  </svg>
+);
 
-  return (
-    <button
-      aria-label={t('aria/Send')}
-      className='str-chat__send-button'
-      data-testid='send-button'
-      onClick={sendMessage}
-      type='button'
-      {...rest}
-    >
-      {themeVersion === '2' ? <SendIconV2 /> : <SendIconV1 />}
-    </button>
-  );
-};
+export const PauseIcon = () => (
+  <svg fill='currentColor' viewBox='0 0 16 20' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M0 19.3333H5.33333V0.666626H0V19.3333ZM10.6667 0.666626V19.3333H16V0.666626H10.6667Z' />
+  </svg>
+);
+
+export const PlayIcon = () => (
+  <svg fill='currentColor' viewBox='0 0 14 18' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M0.236328 2.09338V15.9067C0.236328 16.9601 1.39633 17.6001 2.28966 17.0267L13.143 10.1201C13.9697 9.60005 13.9697 8.40005 13.143 7.86672L2.28966 0.973385C1.39633 0.400051 0.236328 1.04005 0.236328 2.09338Z' />
+  </svg>
+);
+
+export const CheckSignIcon = () => (
+  <svg fill='currentColor' viewBox='0 0 18 14' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M5.79457 10.875L2.32457 7.40502C1.93457 7.01502 1.30457 7.01502 0.91457 7.40502C0.52457 7.79502 0.52457 8.42502 0.91457 8.81502L5.09457 12.995C5.48457 13.385 6.11457 13.385 6.50457 12.995L17.0846 2.41502C17.4746 2.02502 17.4746 1.39502 17.0846 1.00502C16.6946 0.615024 16.0646 0.615024 15.6746 1.00502L5.79457 10.875Z' />
+  </svg>
+);

@@ -11,7 +11,9 @@ export const useCreateMessageInputContext = <
 ) => {
   const {
     additionalTextareaProps,
+    asyncMessagesMultiSendEnabled,
     attachments,
+    audioRecordingEnabled,
     autocompleteTriggers,
     cancelURLEnrichment,
     clearEditingState,
@@ -54,6 +56,8 @@ export const useCreateMessageInputContext = <
     overrideSubmitHandler,
     parent,
     publishTypingEvent,
+    recordingController,
+    removeAttachment,
     removeFile,
     removeImage,
     setCooldownRemaining,
@@ -63,6 +67,7 @@ export const useCreateMessageInputContext = <
     showMentionsList,
     text,
     textareaRef,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
@@ -85,7 +90,9 @@ export const useCreateMessageInputContext = <
   const messageInputContext: MessageInputContextValue<StreamChatGenerics, V> = useMemo(
     () => ({
       additionalTextareaProps,
+      asyncMessagesMultiSendEnabled,
       attachments,
+      audioRecordingEnabled,
       autocompleteTriggers,
       cancelURLEnrichment,
       clearEditingState,
@@ -128,6 +135,8 @@ export const useCreateMessageInputContext = <
       overrideSubmitHandler,
       parent,
       publishTypingEvent,
+      recordingController,
+      removeAttachment,
       removeFile,
       removeImage,
       setCooldownRemaining,
@@ -137,6 +146,7 @@ export const useCreateMessageInputContext = <
       showMentionsList,
       text,
       textareaRef,
+      uploadAttachment,
       uploadFile,
       uploadImage,
       uploadNewFiles,
@@ -144,6 +154,8 @@ export const useCreateMessageInputContext = <
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      asyncMessagesMultiSendEnabled,
+      audioRecordingEnabled,
       cancelURLEnrichment,
       cooldownInterval,
       cooldownRemaining,
@@ -152,6 +164,7 @@ export const useCreateMessageInputContext = <
       emojiSearchIndex,
       fileUploadsValue,
       findAndEnqueueURLsToEnrich,
+      handleSubmit,
       hideSendButton,
       imageUploadsValue,
       isUploadEnabled,
@@ -159,10 +172,12 @@ export const useCreateMessageInputContext = <
       mentionedUsersLength,
       parentId,
       publishTypingEvent,
+      recordingController,
+      removeAttachment,
       showCommandsList,
       showMentionsList,
       text,
-      handleSubmit,
+      uploadAttachment,
     ],
   );
 

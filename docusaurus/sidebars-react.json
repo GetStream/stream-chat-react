@@ -71,6 +71,7 @@
             "components/message-input-components/input_ui",
             "components/message-input-components/ui_components",
             "components/message-input-components/emoji-picker",
+            "components/message-input-components/audio_recorder",
             "components/contexts/typing_context"
           ]
         },
