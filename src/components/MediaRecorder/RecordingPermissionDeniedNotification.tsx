@@ -17,7 +17,7 @@ export const RecordingPermissionDeniedNotification = ({
   return (
     <div className='str-chat__recording-permission-denied-notification'>
       <div className='str-chat__recording-permission-denied-notification__heading'>
-        {t<string>('Allow {{name}}', { name: permissionName })}
+        {t<string>('Allow access to {{name}}', { name: permissionName })}
       </div>
       <p className='str-chat__recording-permission-denied-notification__message'>
         {t<string>('To start recording, allow the {{name}} access in your browser', {
