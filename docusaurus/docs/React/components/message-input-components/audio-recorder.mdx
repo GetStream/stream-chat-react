@@ -3,8 +3,6 @@ id: audio_recorder
 title: Audio Recorder
 ---
 
-import ImageShowcase from '@site/src/components/ImageShowcase';
-
 import RecordingPermissionDeniedNotification from '../../assets/audio-recorder-permission-denied-notification.png';
 import StartRecordingButton from '../../assets/audio-recorder-start-recording-button.png';
 import AudioRecorderRecording from '../../assets/audio-recorder-recording.png';
@@ -97,50 +95,6 @@ And so the message is sent depending on `asyncMessagesMultiSendEnabled` value as
 :::note
 Enabling `asyncMessagesMultiSendEnabled` would allow users to record multiple voice messages or accompany the voice recording with text or other types of attachments.
 :::
-
-## Audio recording configuration
-
-It is possible to customize the parameters of recorder audio. These can be specified through `MessageInput` prop `audioRecordingConfig`.
-
-```jsx
-<MessageInput
-  audioRecordingConfig={customConfig}
-  asyncMessagesMultiSendEnabled
-  audioRecordingEnabled
-/>
-```
-
-The configuration parameters can be divided into three groups:
-
-**1. Amplitude recording**
-
-| Parameter             | Description                                                                                                                                                                                                                                                                                                                                                                 | Default                                              |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `analyserConfig`      | It is possible to specify the `fftSize` [link for more details](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/fftSize), `maxDecibels` [link for more details](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/maxDecibels), `minDecibels` [link for more details](https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode/minDecibels). | `fftSize: 32`, `maxDecibels: 0`, `minDecibels: -100` |
-| `sampleCount`         | Number of data points to be generated for waveform                                                                                                                                                                                                                                                                                                                          | `100`                                                |
-| `samplingFrequencyMs` | Frequency in which the sound amplitudes are collected. By default the sample is taken every 60ms. This means that every second 16 samples are taken. The collected samples are then down-sampled or up-sampled to the count specified by `sampleCount`.                                                                                                                     | `60`                                                 |
-
-**2. `MediaRecorder` configuration**
-
-At the moment the configuration object allows to change the default recording MIME type. The browser landscape does not provide a unified support to recording and playback formats. Specific browsers support limited array of recording formats (Chrome only `audio/webm`) and not all the formats recorded in one browser can be played back in another browser (`audio/webm` is not supported on native iOS apps, iOS 17.4 and lower). The default recording MIME type configuration takes care of this problem and should not be changed unless we want to record only for a limited set of browsers.
-
-**3. Transcoding configuration**
-
-As per the mentioned problem with playback incompatibility among the browsers, the audio recorder has to transcode (convert) the original recording to a different format that can be reproduced in the majority of the browsers on majority of the OS, e.g. `audio/webm` to `audio/mp3`.
-
-The supported transcoded MIME types are
-
-| MIME                  | Description                                    |
-| --------------------- | ---------------------------------------------- |
-| `audio/mp3` (default) | Lossy audio format leading to smaller files.   |
-| `audio/wav` (default) | Lossless audio format leading to bigger files. |
-
-Beside specifying the transcoded MIME type, it is also possible to specify the resulting sample rate of the resulting transcode recording. The default is 16000Hz.
-
-| Param            | Default     |
-| ---------------- | ----------- |
-| `sampleRate`     | `16000`     |
-| `targetMimeType` | `audio/mp3` |
 
 ## Audio recorder controller
 
