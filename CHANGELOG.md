@@ -1,3 +1,16 @@
+## [11.15.0](https://github.com/GetStream/stream-chat-react/compare/v11.14.0...v11.15.0) (2024-04-17)
+
+
+### Bug Fixes
+
+* make setChannels prop optional for ChannelSearch ([#2358](https://github.com/GetStream/stream-chat-react/issues/2358)) ([2ad6132](https://github.com/GetStream/stream-chat-react/commit/2ad613216f0bf965b7c0858d112704053f06a852))
+* search results list props ([#2359](https://github.com/GetStream/stream-chat-react/issues/2359)) ([6575d30](https://github.com/GetStream/stream-chat-react/commit/6575d30d889abc16e44d9b635ccba28f793d5652))
+
+
+### Features
+
+* async voice messages recording ([#2339](https://github.com/GetStream/stream-chat-react/issues/2339)) ([b81ab96](https://github.com/GetStream/stream-chat-react/commit/b81ab964ae8705d492a4c819a044d09d404002db))
+
 ## [11.14.0](https://github.com/GetStream/stream-chat-react/compare/v11.13.1...v11.14.0) (2024-04-08)
 
 
