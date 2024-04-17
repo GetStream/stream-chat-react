@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FileUploadButton, ImageDropzone, UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
@@ -27,6 +27,7 @@ import { UploadsPreview } from './UploadsPreview';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
 import { Tooltip } from '../Tooltip/Tooltip';
+import { RecordingAttachmentType } from '../MediaRecorder/classes';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
@@ -169,6 +170,7 @@ const MessageInputV2 = <
   const { t } = useTranslationContext('MessageInputV2');
 
   const {
+    asyncMessagesMultiSendEnabled,
     attachments,
     cooldownRemaining,
     findAndEnqueueURLsToEnrich,
@@ -197,6 +199,14 @@ const MessageInputV2 = <
     EmojiPicker,
   } = useComponentContext<StreamChatGenerics>('MessageInputV2');
 
+  const [
+    showRecordingPermissionDeniedNotification,
+    setShowRecordingPermissionDeniedNotification,
+  ] = useState(false);
+  const closePermissionDeniedNotification = useCallback(() => {
+    setShowRecordingPermissionDeniedNotification(false);
+  }, []);
+
   const id = useMemo(() => nanoid(), []);
 
   const accept = useMemo(
@@ -221,13 +231,20 @@ const MessageInputV2 = <
   // TODO: "!message" condition is a temporary fix for shared
   // state when editing a message (fix shared state issue)
   const displayQuotedMessage = !message && quotedMessage && !quotedMessage.parent_id;
+  const recordingEnabled = recordingController.recorder && navigator.mediaDevices; // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
+  const isRecording = !!recordingController.recordingState;
 
   return (
     <>
       <div {...getRootProps({ className: 'str-chat__message-input' })}>
-        {recordingController.permissionState === 'denied' && (
-          <RecordingPermissionDeniedNotification permissionName={RecordingPermission.MIC} />
-        )}
+        {recordingEnabled &&
+          recordingController.permissionState === 'denied' &&
+          showRecordingPermissionDeniedNotification && (
+            <RecordingPermissionDeniedNotification
+              onClose={closePermissionDeniedNotification}
+              permissionName={RecordingPermission.MIC}
+            />
+          )}
         {findAndEnqueueURLsToEnrich && (
           <LinkPreviewList linkPreviews={Array.from(linkPreviews.values())} />
         )}
@@ -284,13 +301,21 @@ const MessageInputV2 = <
                     disabled={!numberOfUploads && !text.length && !attachments.length}
                     sendMessage={handleSubmit}
                   />
-                  {recordingController.recorder &&
-                    navigator.mediaDevices && ( // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
-                      <StartRecordingAudioButton
-                        disabled={!!recordingController.recordingState}
-                        onClick={recordingController.recorder.start}
-                      />
-                    )}
+                  {recordingEnabled && (
+                    <StartRecordingAudioButton
+                      disabled={
+                        isRecording ||
+                        (!asyncMessagesMultiSendEnabled &&
+                          attachments.some(
+                            (a) => a.type === RecordingAttachmentType.VOICE_RECORDING,
+                          ))
+                      }
+                      onClick={() => {
+                        recordingController.recorder?.start();
+                        setShowRecordingPermissionDeniedNotification(true);
+                      }}
+                    />
+                  )}
                 </>
               )}
             </>

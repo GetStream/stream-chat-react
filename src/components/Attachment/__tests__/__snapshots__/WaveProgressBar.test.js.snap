@@ -1,46 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`WaveProgressBar component is rendered with zero progress by default if waveform data is available 1`] = `
-<div>
-  <div
-    class="str-chat__wave-progress-bar__track"
-    data-testid="wave-progress-bar-track"
-    role="progressbar"
-  >
-    <div
-      class="str-chat__wave-progress-bar__amplitude-bar"
-      data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 0%;"
-    />
-    <div
-      class="str-chat__wave-progress-bar__amplitude-bar"
-      data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 200%;"
-    />
-    <div
-      class="str-chat__wave-progress-bar__amplitude-bar"
-      data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 500%;"
-    />
-    <div
-      class="str-chat__wave-progress-bar__amplitude-bar"
-      data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 700%;"
-    />
-    <div
-      class="str-chat__wave-progress-bar__amplitude-bar"
-      data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 900%;"
-    />
-    <div
-      class="str-chat__wave-progress-bar__progress-indicator"
-      data-testid="wave-progress-bar-progress-indicator"
-      style="left: 0%;"
-    />
-  </div>
-</div>
-`;
-
 exports[`WaveProgressBar is rendered with zero progress by default if waveform data is available 1`] = `
 <div>
   <div

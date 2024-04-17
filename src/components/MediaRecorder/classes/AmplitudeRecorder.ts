@@ -46,10 +46,12 @@ export const DEFAULT_AMPLITUDE_RECORDER_CONFIG: AmplitudeRecorderConfig = {
 };
 
 type AmplitudeAnalyserOptions = {
+  stream: MediaStream;
   config?: AmplitudeRecorderConfig;
 };
 
 export enum AmplitudeRecorderState {
+  CLOSED = 'closed',
   RECORDING = 'recording',
   STOPPED = 'stopped',
 }
@@ -58,7 +60,7 @@ export class AmplitudeRecorder {
   audioContext: AudioContext | undefined;
   analyserNode: AnalyserNode | undefined;
   microphone: MediaStreamAudioSourceNode | undefined;
-  stream: MediaStream | undefined;
+  stream: MediaStream;
 
   config: AmplitudeRecorderConfig;
 
@@ -68,36 +70,40 @@ export class AmplitudeRecorder {
   state = new BehaviorSubject<AmplitudeRecorderState | undefined>(undefined);
   error = new Subject<Error | undefined>();
 
-  constructor({ config }: AmplitudeAnalyserOptions) {
+  constructor({ config, stream }: AmplitudeAnalyserOptions) {
     this.config = mergeDeepUndefined({ ...config }, DEFAULT_AMPLITUDE_RECORDER_CONFIG);
+    this.stream = stream;
+  }
+
+  init() {
+    this.audioContext = new AudioContext();
+    this.analyserNode = this.audioContext.createAnalyser();
+    const { analyserConfig } = this.config;
+    this.analyserNode.fftSize = analyserConfig.fftSize;
+    this.analyserNode.maxDecibels = analyserConfig.maxDecibels;
+    this.analyserNode.minDecibels = analyserConfig.minDecibels;
+
+    this.microphone = this.audioContext.createMediaStreamSource(this.stream);
+    this.microphone.connect(this.analyserNode);
   }
 
   stop() {
     clearInterval(this.amplitudeSamplingInterval);
+    this.amplitudeSamplingInterval = undefined;
     this.state.next(AmplitudeRecorderState.STOPPED);
   }
 
-  start = (stream?: MediaStream) => {
+  start = () => {
+    if (this.state.value === AmplitudeRecorderState.CLOSED) return;
     if (!this.stream) {
-      if (stream) {
-        this.stream = stream;
-      } else {
-        throw new Error('Provide MediaStream instance to start recording');
-      }
+      throw new Error('Missing MediaStream instance. Cannot to start amplitude recording');
     }
 
     if (this.state.value === AmplitudeRecorderState.RECORDING) this.stop();
 
     if (!this.analyserNode) {
-      this.audioContext = new AudioContext();
-      this.analyserNode = this.audioContext.createAnalyser();
-      const { analyserConfig } = this.config;
-      this.analyserNode.fftSize = analyserConfig.fftSize;
-      this.analyserNode.maxDecibels = analyserConfig.maxDecibels;
-      this.analyserNode.minDecibels = analyserConfig.minDecibels;
-
-      this.microphone = this.audioContext.createMediaStreamSource(this.stream);
-      this.microphone.connect(this.analyserNode);
+      if (!this.stream) return;
+      this.init();
     }
 
     this.state.next(AmplitudeRecorderState.RECORDING);
@@ -118,6 +124,8 @@ export class AmplitudeRecorder {
   };
 
   close() {
+    if (this.state.value !== AmplitudeRecorderState.STOPPED) this.stop();
+    this.state.next(AmplitudeRecorderState.CLOSED);
     this.amplitudes.next([]);
     this.microphone?.disconnect();
     this.analyserNode?.disconnect();

@@ -1,37 +1,66 @@
+import fixWebmDuration from 'fix-webm-duration';
+import * as transcoder from '../../transcode';
 import {
   DEFAULT_AUDIO_TRANSCODER_CONFIG,
   DEFAULT_MEDIA_RECORDER_CONFIG,
   MediaRecorderController,
   MediaRecordingState,
+  RecordingAttachmentType,
 } from '../MediaRecorderController';
-import { defaultTranslatorFunction } from '../../../../i18n';
 import { AmplitudeRecorderState, DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../AmplitudeRecorder';
+import { defaultTranslatorFunction } from '../../../../i18n';
+import * as audioSampling from '../../../Attachment/audioSampling';
+import * as reactFileUtils from '../../../ReactFileUtilities/utils';
 import { generateVoiceRecordingAttachment } from '../../../../mock-builders';
+import { AudioContextMock, MediaRecorderMock } from '../../../../mock-builders/browser';
+import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 
-const idMock = 'randomNanoId';
+const fileObjectURL = 'fileObjectURL';
+const nanoidMockValue = 'randomNanoId';
+const fileMock = { name: 'fileName' };
 
+const recordedChunkCount = 10;
+const dataPoints = Array.from({ length: recordedChunkCount }, (_, i) => i);
 jest.mock('nanoid', () => ({
-  nanoid: () => idMock,
+  nanoid: () => nanoidMockValue,
 }));
 
+jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+
+const transcodeSpy = jest
+  .spyOn(transcoder, 'transcode')
+  .mockImplementation((opts) =>
+    Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
+  );
+
+jest.spyOn(audioSampling, 'resampleWaveformData').mockReturnValue(dataPoints);
+
+jest.spyOn(reactFileUtils, 'createFileFromBlobs').mockReturnValue(fileMock);
+
 const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+const expectRegistersError = async ({ action, controller, errorMsg, notificationMsg }) => {
+  let error, notification;
+  const errorSubscription = controller.error.subscribe((e) => {
+    error = e;
+  });
+  const notificationSubscription =
+    notificationMsg &&
+    controller.notification.subscribe((n) => {
+      notification = n;
+    });
+  await action();
+  expect(error.message).toBe(errorMsg);
+  expect(consoleErrorSpy.mock.calls[0][0]).toBe('[MEDIA RECORDER ERROR]');
+  expect(consoleErrorSpy.mock.calls[0][1].message).toBe(errorMsg);
+  if (notificationMsg)
+    expect(notification).toStrictEqual(
+      expect.objectContaining({ text: notificationMsg, type: 'error' }),
+    );
+  expect(controller.mediaRecorder).toBeUndefined();
 
-class MediaRecorderMock {
-  constructor() {}
-  addEventListener = jest.fn();
-  removeEventListener = jest.fn();
-  start = jest.fn();
-  pause = jest.fn();
-  resume = jest.fn();
-  stop = jest.fn();
-}
-
-class AudioContextMock {
-  constructor() {}
-  createAnalyser = jest.fn(() => ({}));
-  createMediaStreamSource = jest.fn().mockReturnValue({ connect: jest.fn() });
-  close = jest.fn();
-}
+  errorSubscription.unsubscribe();
+  notificationSubscription?.unsubscribe();
+};
 
 // eslint-disable-next-line
 window.MediaRecorder = MediaRecorderMock;
@@ -40,33 +69,9 @@ window.MediaRecorder = MediaRecorderMock;
 window.AudioContext = AudioContextMock;
 
 // eslint-disable-next-line
-window.URL.createObjectURL = jest.fn();
+window.URL.createObjectURL = jest.fn(() => fileObjectURL);
 // eslint-disable-next-line
 window.URL.revokeObjectURL = jest.fn();
-
-const generateBlobEvent = (
-  { dataOverrides, mediaRecorder } = {
-    dataOverrides: {},
-    mediaRecorder: new window.MediaRecorder(),
-  },
-) => ({
-  bubbles: false,
-  cancelable: false,
-  cancelBubble: false,
-  composed: false,
-  currentTarget: mediaRecorder,
-  data: new Blob([0x48], { type: 'audio/webm' }),
-  defaultPrevented: false,
-  eventPhase: 0,
-  isTrusted: true,
-  returnValue: true,
-  srcElement: mediaRecorder,
-  target: mediaRecorder,
-  timecode: 1713214079256.997,
-  timeStamp: 11853.20000000298,
-  type: 'dataavailable',
-  ...dataOverrides,
-});
 
 describe('MediaRecorderController', () => {
   beforeEach(() => {
@@ -84,7 +89,7 @@ describe('MediaRecorderController', () => {
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
     );
-    expect(controller.amplitudeRecorder.config).toStrictEqual(
+    expect(controller.amplitudeRecorderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
     expect(controller.t).toStrictEqual(defaultTranslatorFunction);
@@ -122,7 +127,7 @@ describe('MediaRecorderController', () => {
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(config.transcoderConfig),
     );
-    expect(controller.amplitudeRecorder.config).toStrictEqual(
+    expect(controller.amplitudeRecorderConfig).toStrictEqual(
       expect.objectContaining(config.amplitudeRecorderConfig),
     );
     expect(controller.t).toStrictEqual(t);
@@ -140,7 +145,7 @@ describe('MediaRecorderController', () => {
     expect(controller.transcoderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AUDIO_TRANSCODER_CONFIG),
     );
-    expect(controller.amplitudeRecorder.config).toStrictEqual(
+    expect(controller.amplitudeRecorderConfig).toStrictEqual(
       expect.objectContaining(DEFAULT_AMPLITUDE_RECORDER_CONFIG),
     );
     expect(controller.t).toStrictEqual(defaultTranslatorFunction);
@@ -159,30 +164,6 @@ describe('MediaRecorderController', () => {
   });
 
   describe('start', () => {
-    const expectRegistersError = async ({ controller, errorMsg, withNotification = true }) => {
-      let error, notification;
-      const errorSubscription = controller.error.subscribe((e) => {
-        error = e;
-      });
-      const notificationSubscription =
-        withNotification &&
-        controller.notification.subscribe((n) => {
-          notification = n;
-        });
-      await controller.start();
-      expect(error.message).toBe(errorMsg);
-      expect(consoleErrorSpy.mock.calls[0][0]).toBe('[MEDIA RECORDER ERROR]');
-      expect(consoleErrorSpy.mock.calls[0][1].message).toBe(errorMsg);
-      if (withNotification)
-        expect(notification).toStrictEqual(
-          expect.objectContaining({ text: 'Error starting recording', type: 'error' }),
-        );
-      expect(controller.mediaRecorder).toBeUndefined();
-
-      errorSubscription.unsubscribe();
-      if (withNotification) notificationSubscription.unsubscribe();
-    };
-
     it('checks device permission if unknown', async () => {
       const controller = new MediaRecorderController();
       controller.permission.state.next(undefined);
@@ -197,9 +178,9 @@ describe('MediaRecorderController', () => {
         const controller = new MediaRecorderController();
         controller.recordingState.next(recordingState);
         await expectRegistersError({
+          action: controller.start,
           controller,
           errorMsg: 'Cannot start recording. Recording already in progress',
-          withNotification: false,
         });
       },
     );
@@ -210,7 +191,12 @@ describe('MediaRecorderController', () => {
           window.navigator.mediaDevices = undefined;
           const controller = new MediaRecorderController();
           controller.permission.state.next(permission);
-          await expectRegistersError({ controller, errorMsg: 'Media recording is not supported' });
+          await expectRegistersError({
+            action: controller.start,
+            controller,
+            errorMsg: 'Media recording is not supported',
+            notificationMsg: 'Error starting recording',
+          });
           expect(controller.recordingState.value).toBeUndefined();
         });
 
@@ -220,8 +206,10 @@ describe('MediaRecorderController', () => {
           });
           controller.permission.state.next(permission);
           await expectRegistersError({
+            action: controller.start,
             controller,
             errorMsg: 'Video recording is not supported. Provided MIME type: video/webm',
+            notificationMsg: 'Error starting recording',
           });
           expect(controller.recordingState.value).toBeUndefined();
         });
@@ -255,13 +243,13 @@ describe('MediaRecorderController', () => {
         );
 
         it.each([['does not initiate'], ['initiates'], ['initiates']])(
-          '%s amplitude recording for audio recording on permission %s',
+          '%s amplitude recording for audio recording',
           async () => {
             const controller = new MediaRecorderController();
             controller.permission.state.next(permission);
             await controller.start();
             if (permission === 'denied') {
-              expect(controller.amplitudeRecorder.stream).toBeUndefined();
+              expect(controller.amplitudeRecorder).toBeUndefined();
             } else {
               expect(controller.amplitudeRecorder.state.value).toBe(
                 AmplitudeRecorderState.RECORDING,
@@ -279,7 +267,12 @@ describe('MediaRecorderController', () => {
           const controller = new MediaRecorderController();
           const errorMsg = 'User media error';
           window.navigator.mediaDevices.getUserMedia.mockRejectedValueOnce(new Error(errorMsg));
-          await expectRegistersError({ controller, errorMsg });
+          await expectRegistersError({
+            action: controller.start,
+            controller,
+            errorMsg,
+            notificationMsg: 'Error starting recording',
+          });
           expect(controller.recordingState.value).toBeUndefined();
         });
       });
@@ -383,33 +376,132 @@ describe('MediaRecorderController', () => {
     it('does nothing if event does not contain data', () => {
       const controller = new MediaRecorderController();
       controller.handleDataavailableEvent(
-        generateBlobEvent({ dataOverrides: { data: new Blob([], { type: 'audio/webm' }) } }),
+        generateDataavailableEvent({
+          dataOverrides: { data: new Blob([], { type: 'audio/webm' }) },
+        }),
       );
       expect(controller.recording.value).toBeUndefined();
     });
-    it.todo('handles error');
-    it.todo('adds recording duration to audio/webm recording');
-    it.each([
-      ['does not transcode', 'audio/mp4'],
-      ['transcodes', 'audio/web'],
-      ['transcodes', 'audio/ogg'],
-    ])('%s recording of MIME type %s', () => {
-      console.log();
+
+    it('handles error', () => {
+      const errorMsg = 'Error making voice recording';
+      const controller = new MediaRecorderController();
+      const makeVoiceRecordingSpy = jest
+        .spyOn(controller, 'makeVoiceRecording')
+        .mockRejectedValue(new Error(errorMsg));
+      expectRegistersError({
+        action: () => controller.handleDataavailableEvent(generateDataavailableEvent()),
+        controller,
+        errorMsg,
+        notificationMsg: 'An error has occurred during the recording processing',
+      });
+      makeVoiceRecordingSpy.mockRestore();
     });
-    it.todo('does not emit recording if generation was unsuccessful');
-    it.todo('emits recording if generation was successful');
+
+    it('does not emit recording if generation was unsuccessful', async () => {
+      const controller = new MediaRecorderController();
+      const makeVoiceRecordingSpy = jest
+        .spyOn(controller, 'makeVoiceRecording')
+        .mockResolvedValue(undefined);
+      await controller.handleDataavailableEvent(generateDataavailableEvent());
+      expect(controller.recording.value).toBeUndefined();
+      makeVoiceRecordingSpy.mockRestore();
+    });
+
+    it('emits recording if generation was successful', async () => {
+      const controller = new MediaRecorderController();
+      const voiceRecording = generateVoiceRecordingAttachment();
+      const makeVoiceRecordingSpy = jest
+        .spyOn(controller, 'makeVoiceRecording')
+        .mockResolvedValue(voiceRecording);
+      await controller.handleDataavailableEvent(generateDataavailableEvent());
+      expect(controller.recording.value).toStrictEqual(expect.objectContaining(voiceRecording));
+      makeVoiceRecordingSpy.mockRestore();
+    });
   });
 
   describe('makeVoiceRecording', () => {
-    it.todo('revokes URI of the previous recording');
-  });
+    it('does not generate recording if no data was recorded', async () => {
+      const controller = new MediaRecorderController();
+      const recording = await controller.makeVoiceRecording();
+      expect(recording).toBeUndefined();
+    });
 
-  it.todo('handles MediaRecorder error events');
+    it('revokes URI of the previous recording', async () => {
+      const recordingUri = 'recordingUri';
+      const controller = new MediaRecorderController();
+      controller.recordingUri = recordingUri;
+      await controller.makeVoiceRecording();
+      expect(window.URL.revokeObjectURL).toHaveBeenCalledWith(recordingUri);
+    });
 
-  it('records the duration', async () => {
-    const controller = new MediaRecorderController();
-    await controller.start();
-    expect(controller.startTime).toBeGreaterThan(0);
-    expect(controller.recordingState.value).toBe(MediaRecordingState.RECORDING);
+    it.each([
+      ['does not add', 'audio/mp4'],
+      ['adds', 'audio/webm'],
+      ['does not add', 'audio/ogg'],
+    ])('%s recording duration to %s recording', async (_, mimeType) => {
+      const controller = new MediaRecorderController({
+        config: { mediaRecorderConfig: { mimeType } },
+      });
+      controller.recordedData.push(new Blob([1], { type: mimeType }));
+      await controller.makeVoiceRecording();
+      if (mimeType === 'audio/webm') {
+        expect(fixWebmDuration).toHaveBeenCalledTimes(1);
+      } else {
+        expect(fixWebmDuration).not.toHaveBeenCalled();
+      }
+    });
+
+    it.each([
+      ['does not transcode', 'audio/mp4'],
+      ['transcodes', 'audio/webm'],
+      ['transcodes', 'audio/ogg'],
+    ])('%s recording of MIME type %s', async (_, mimeType) => {
+      const controller = new MediaRecorderController({
+        config: { mediaRecorderConfig: { mimeType } },
+      });
+      controller.recordedData.push(new Blob([1], { type: mimeType }));
+      await controller.makeVoiceRecording();
+      if (mimeType === 'audio/mp4') {
+        expect(transcodeSpy).not.toHaveBeenCalled();
+      } else {
+        expect(transcodeSpy).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it.each([
+      ['audio/mp4', 'audio/mp4'],
+      ['audio/mp3', 'audio/webm'],
+      ['audio/mp3', 'audio/ogg'],
+    ])(
+      'generates recording of MIME type %s for original recording of MIME type %s',
+      async (targetMimeType, recordedMimeType) => {
+        const controller = new MediaRecorderController({
+          config: { mediaRecorderConfig: { mimeType: recordedMimeType } },
+        });
+
+        controller.recordedData = [
+          new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+        ];
+        controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
+        const recording = await controller.makeVoiceRecording();
+
+        expect(recording).toStrictEqual(
+          expect.objectContaining({
+            $internal: {
+              file: fileMock,
+              id: nanoidMockValue,
+            },
+            asset_url: fileObjectURL,
+            duration: dataPoints.reduce((acc, n) => acc + n),
+            file_size: recordedChunkCount,
+            mime_type: targetMimeType,
+            title: fileMock.name,
+            type: RecordingAttachmentType.VOICE_RECORDING,
+            waveform_data: dataPoints,
+          }),
+        );
+      },
+    );
   });
 });

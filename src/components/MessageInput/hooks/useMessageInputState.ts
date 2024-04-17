@@ -424,7 +424,7 @@ export const useMessageInputState = <
     additionalTextareaProps,
     asyncMessagesMultiSendEnabled,
     audioRecordingConfig,
-    audioRecordingEnabled = true,
+    audioRecordingEnabled,
     getDefaultValue,
     message,
     urlEnrichmentConfig,
@@ -511,9 +511,9 @@ export const useMessageInputState = <
   );
   const recordingController = useMediaRecorder({
     asyncMessagesMultiSendEnabled,
-    audioRecordingConfig,
-    enabled: audioRecordingEnabled,
+    enabled: !!audioRecordingEnabled,
     handleSubmit,
+    recordingConfig: audioRecordingConfig,
     uploadAttachment,
   });
 

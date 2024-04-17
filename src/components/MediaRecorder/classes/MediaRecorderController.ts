@@ -1,21 +1,24 @@
 import fixWebmDuration from 'fix-webm-duration';
 import { nanoid } from 'nanoid';
 import {
+  AmplitudeRecorder,
+  AmplitudeRecorderConfig,
+  DEFAULT_AMPLITUDE_RECORDER_CONFIG,
+} from './AmplitudeRecorder';
+import { BrowserPermission } from './BrowserPermission';
+import { BehaviorSubject, Subject } from '../observable';
+import { transcode } from '../transcode';
+import { resampleWaveformData } from '../../Attachment';
+import {
   createFileFromBlobs,
   getExtensionFromMimeType,
   getRecordedMediaTypeFromMimeType,
   RecordedMediaType,
 } from '../../ReactFileUtilities';
-import { transcode } from '../transcode';
-import { resampleWaveformData } from '../../Attachment';
-import { isSafari } from '../../../utils/browsers';
-import { mergeDeepUndefined } from '../../../utils/mergeDeep';
-import { BrowserPermission } from './BrowserPermission';
 import { TranslationContextValue } from '../../../context';
 import { defaultTranslatorFunction } from '../../../i18n';
-import { Subject } from '../observable/Subject';
-import { BehaviorSubject } from '../observable/BehaviorSubject';
-import { AmplitudeRecorder, AmplitudeRecorderConfig } from './AmplitudeRecorder';
+import { isSafari } from '../../../utils/browsers';
+import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 
@@ -51,7 +54,7 @@ const logError = (e?: Error) => e && console.error('[MEDIA RECORDER ERROR]', e);
 
 type SupportedTranscodeMimeTypes = typeof POSSIBLE_TRANSCODING_MIME_TYPES[number];
 
-type TranscoderConfig = {
+export type TranscoderConfig = {
   // defaults to 16000Hz
   sampleRate: number;
   // Defaults to audio/mp3;
@@ -86,8 +89,9 @@ export enum RecordingAttachmentType {
 export class MediaRecorderController {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
-  amplitudeRecorder: AmplitudeRecorder;
+  amplitudeRecorder: AmplitudeRecorder | undefined;
 
+  amplitudeRecorderConfig: AmplitudeRecorderConfig;
   mediaRecorderConfig: MediaRecorderConfig;
   transcoderConfig: TranscoderConfig;
 
@@ -110,6 +114,11 @@ export class MediaRecorderController {
   constructor({ config, generateRecordingTitle, t }: AudioRecorderOptions = {}) {
     this.t = t || defaultTranslatorFunction;
 
+    this.amplitudeRecorderConfig = mergeDeepUndefined(
+      { ...config?.amplitudeRecorderConfig },
+      DEFAULT_AMPLITUDE_RECORDER_CONFIG,
+    );
+
     this.mediaRecorderConfig = mergeDeepUndefined(
       { ...config?.mediaRecorderConfig },
       DEFAULT_MEDIA_RECORDER_CONFIG,
@@ -122,8 +131,6 @@ export class MediaRecorderController {
     if (!POSSIBLE_TRANSCODING_MIME_TYPES.includes(this.transcoderConfig.targetMimeType)) {
       this.transcoderConfig.targetMimeType = DEFAULT_AUDIO_TRANSCODER_CONFIG.targetMimeType;
     }
-
-    this.amplitudeRecorder = new AmplitudeRecorder({ config: config?.amplitudeRecorderConfig });
 
     const mediaType = getRecordedMediaTypeFromMimeType(this.mediaRecorderConfig.mimeType);
     if (!mediaType) {
@@ -151,8 +158,24 @@ export class MediaRecorderController {
     )}`; // extension needed so that desktop Safari can play the asset
   };
 
-  makeVoiceRecording = (blob: Blob) => {
+  makeVoiceRecording = async () => {
     if (this.recordingUri) URL.revokeObjectURL(this.recordingUri);
+
+    if (!this.recordedData.length) return;
+    const { mimeType } = this.mediaRecorderConfig;
+    let blob = new Blob(this.recordedData, { type: mimeType });
+    if (mimeType.match('audio/webm')) {
+      // The browser does not include duration metadata with the recorded blob
+      blob = await fixWebmDuration(blob, this.durationMs, {
+        logger: () => null, // prevents polluting the browser console
+      });
+    }
+    if (!mimeType.match('audio/mp4')) {
+      blob = await transcode({
+        blob,
+        ...this.transcoderConfig,
+      });
+    }
 
     if (!blob) return;
 
@@ -176,7 +199,7 @@ export class MediaRecorderController {
       type: RecordingAttachmentType.VOICE_RECORDING,
       waveform_data: resampleWaveformData(
         this.amplitudeRecorder?.amplitudes.value ?? [],
-        this.amplitudeRecorder.config.sampleCount,
+        this.amplitudeRecorderConfig.sampleCount,
       ),
     };
   };
@@ -193,24 +216,10 @@ export class MediaRecorderController {
 
   handleDataavailableEvent = async (e: BlobEvent) => {
     if (!e.data.size) return;
-    this.recordedData.push(e.data);
-
-    const { mimeType } = this.mediaRecorderConfig;
-    let blob = new Blob(this.recordedData, { type: mimeType });
+    if (this.mediaType !== 'audio') return;
     try {
-      if (mimeType.match('audio/webm')) {
-        // The browser does not include duration metadata with the recorded blob
-        blob = await fixWebmDuration(blob, this.durationMs, {
-          logger: () => null, // prevents polluting the browser console
-        });
-      }
-      if (!mimeType.match('audio/mp4')) {
-        blob = await transcode({
-          blob,
-          ...this.transcoderConfig,
-        });
-      }
-      const recording = this.makeVoiceRecording(blob);
+      this.recordedData.push(e.data);
+      const recording = await this.makeVoiceRecording();
       if (!recording) return;
       this.signalRecordingReady?.(recording);
       this.recording.next(recording);
@@ -294,7 +303,11 @@ export class MediaRecorderController {
       this.mediaRecorder.start();
 
       if (this.mediaType === 'audio' && stream) {
-        this.amplitudeRecorder.start(stream);
+        this.amplitudeRecorder = new AmplitudeRecorder({
+          config: this.amplitudeRecorderConfig,
+          stream,
+        });
+        this.amplitudeRecorder.start();
       }
 
       this.recordingState.next(MediaRecordingState.RECORDING);

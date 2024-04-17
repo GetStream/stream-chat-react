@@ -1,4 +1,7 @@
 import React from 'react';
+import { AudioRecordingPreview } from './AudioRecordingPreview';
+import { AudioRecordingInProgress } from './AudioRecordingInProgress';
+import { MediaRecordingState } from '../classes';
 import {
   BinIcon,
   CheckSignIcon,
@@ -6,11 +9,8 @@ import {
   MicIcon,
   PauseIcon,
   SendIconV2,
-} from '../../MessageInput/icons';
-import { AudioRecordingPreview } from './AudioRecordingPreview';
-import { AudioRecordingInProgress } from './AudioRecordingInProgress';
+} from '../../MessageInput';
 import { useMessageInputContext } from '../../../context';
-import { MediaRecordingState } from '../classes/MediaRecorderController';
 
 export const AudioRecorder = () => {
   const {
@@ -23,7 +23,7 @@ export const AudioRecorder = () => {
 
   return (
     <div className='str-chat__audio_recorder-container'>
-      <div className='str-chat__audio_recorder'>
+      <div className='str-chat__audio_recorder' data-testid={'audio-recorder'}>
         <button
           className='str-chat__audio_recorder__cancel-button'
           disabled={isUploadingFile}
@@ -62,13 +62,18 @@ export const AudioRecorder = () => {
         {recordingState === MediaRecordingState.STOPPED ? (
           <button
             className='str-chat__audio_recorder__complete-button'
+            data-testid='audio-recorder-complete-button'
             disabled={isUploadingFile}
             onClick={completeRecording}
           >
             {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIconV2 />}
           </button>
         ) : (
-          <button className='str-chat__audio_recorder__stop-button' onClick={recorder.stop}>
+          <button
+            className='str-chat__audio_recorder__stop-button'
+            data-testid='audio-recorder-stop-button'
+            onClick={recorder.stop}
+          >
             <CheckSignIcon />
           </button>
         )}

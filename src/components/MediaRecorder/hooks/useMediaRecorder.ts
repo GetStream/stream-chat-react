@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MessageInputContextValue, useTranslationContext } from '../../../context';
-import {
-  AudioRecorderConfig,
-  MediaRecorderController,
-  MediaRecordingState,
-} from '../classes/MediaRecorderController';
+import { AudioRecorderConfig, MediaRecorderController, MediaRecordingState } from '../classes';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
@@ -26,18 +22,18 @@ type UseMediaRecorderParams<
   'asyncMessagesMultiSendEnabled' | 'handleSubmit' | 'uploadAttachment'
 > & {
   enabled: boolean;
-  audioRecordingConfig?: CustomAudioRecordingConfig;
   generateRecordingTitle?: (mimeType: string) => string;
+  recordingConfig?: CustomAudioRecordingConfig;
 };
 
 export const useMediaRecorder = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  asyncMessagesMultiSendEnabled = true,
-  audioRecordingConfig,
+  asyncMessagesMultiSendEnabled,
   enabled,
   generateRecordingTitle,
   handleSubmit,
+  recordingConfig,
   uploadAttachment,
 }: UseMediaRecorderParams<StreamChatGenerics>): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
@@ -51,12 +47,12 @@ export const useMediaRecorder = <
     () =>
       enabled
         ? new MediaRecorderController({
-            config: audioRecordingConfig ?? {},
+            config: recordingConfig ?? {},
             generateRecordingTitle,
             t,
           })
         : undefined,
-    [audioRecordingConfig, enabled, generateRecordingTitle, t],
+    [recordingConfig, enabled, generateRecordingTitle, t],
   );
 
   const completeRecording = useCallback(async () => {
