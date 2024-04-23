@@ -14,6 +14,8 @@ import {
 import { EmojiIconLarge, EmojiPickerIcon } from '../MessageInput/icons';
 import { Tooltip } from '../Tooltip';
 
+const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
+
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
@@ -67,7 +69,14 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     const handlePointerDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement;
 
-      if (popperElement.contains(target) || referenceElement.contains(target)) return;
+      const rootNode = target.getRootNode();
+
+      if (
+        popperElement.contains(isShadowRoot(rootNode) ? rootNode.host : target) ||
+        referenceElement.contains(target)
+      ) {
+        return;
+      }
 
       setDisplayPicker(false);
     };
