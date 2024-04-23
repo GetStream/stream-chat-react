@@ -46,7 +46,9 @@ export type MessageContextValue<
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
   /** Function to fetch the message reactions */
-  handleFetchReactions: () => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
+  handleFetchReactions: (
+    reactionType?: string,
+  ) => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
   /** Function to mark message and the messages that follow it as unread in a Channel */
