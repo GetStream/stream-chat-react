@@ -237,7 +237,7 @@ const OrderAttachment = (props) => {
   const { data, isPending: isOrderLoading } = useQuery({
     queryKey: ['order', props.orderId],
     queryFn: async () => {
-      const res = await fetch(`/api/order/${orderId}`);
+      const res = await fetch(`/api/order/${props.orderId}`);
       return await res.json();
     },
   });
