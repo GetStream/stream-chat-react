@@ -1,3 +1,10 @@
+## [11.15.2](https://github.com/GetStream/stream-chat-react/compare/v11.15.1...v11.15.2) (2024-04-24)
+
+
+### Bug Fixes
+
+* **EmojiPicker:** check whether clicked target is child of shadow root node ([#2369](https://github.com/GetStream/stream-chat-react/issues/2369)) ([c552e2c](https://github.com/GetStream/stream-chat-react/commit/c552e2c7ce7be935826d9621b50777f4712351e1))
+
 ## [11.15.1](https://github.com/GetStream/stream-chat-react/compare/v11.15.0...v11.15.1) (2024-04-18)
 
 
