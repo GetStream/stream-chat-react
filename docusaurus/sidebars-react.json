@@ -121,7 +121,8 @@
             "guides/theming/actions/attachment_actions",
             "guides/customization/image_gallery",
             "guides/theming/actions/geolocation_attachment",
-            "guides/customization/giphy_preview"
+            "guides/customization/giphy_preview",
+            "guides/theming/actions/payment_attachment"
           ]
         },
         "guides/customization/emoji_picker",
