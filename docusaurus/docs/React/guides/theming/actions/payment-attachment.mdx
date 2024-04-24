@@ -32,7 +32,7 @@ have any JSON payload. In our case, the payload contains the order number:
 }
 ```
 
-We can send a message using with our Node.js client with a simple script. In
+We can send a message using our Node.js client with a simple script. In
 real use cases, it's either your backend or admin/agent frontend that will send
 a message with a custom attachment.
 
@@ -144,7 +144,7 @@ prevent double payments. Or, your backend can update the message to replace the
 attachment with another one:
 
 ```jsx
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 
 const OrderAttachment = (props) => {
   const { data, isPending: isOrderLoading } = useQuery({
@@ -159,6 +159,7 @@ const OrderAttachment = (props) => {
     mutateFn: async () => {
       await fetch(`/api/order/${orderId}/confirm`, {
         method: 'POST',
+        body: JSON.stringify({ messageId }),
       });
     },
   });
@@ -195,7 +196,7 @@ const OrderAttachment = (props) => {
 // on your backend, once the order is finished:
 await serverClient.updateMessage(
   {
-    id: orderMessage.id,
+    id: messageId,
     attachments: [
       {
         type: 'order-completed',
@@ -224,11 +225,6 @@ const CustomAttachment = (props) => {
 };
 
 const OrderCompletedAttachment = (props) => {
-  const { data, isPending } = useQuery(['order', props.orderId], async () => {
-    const res = await fetch(`/api/order/${orderId}`);
-    return await res.json();
-  });
-
   return (
     <div className='order'>
       <h3 className='order-header'>🛒 Order #{props.orderId}</h3>
