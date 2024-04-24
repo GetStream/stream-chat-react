@@ -3,6 +3,9 @@ id: payment_attachment
 title: Order and Payment Attachment
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 Custom attachment types are a great way to extend chat functionality. Any
 component can be rendered to represent your custom attachment, so you can
 provide rich user experiences right in the chat.
@@ -63,6 +66,8 @@ node send-order.mjs
 
 As a result, you should see the message saying "Your order" in the channel:
 
+![](../../../assets/payment-attachment-no-preview.png)
+
 However, you'll notice that the attachment itself is not rendered. This is
 because the SDK doesn't yet know how to display this custom attachment type.
 We'll fix that next.
@@ -73,6 +78,9 @@ To support rendering custom attachment types, we'll create a small wrapper
 around the default `Attachment` component. The wrapper will only be responsible
 for rendering our custom attachment type, the rest we'll just pass on to the
 default implementation:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
 ```jsx
 import { Attachment } from 'stream-chat-react';
@@ -90,6 +98,19 @@ const OrderAttachment = (props) => {
 };
 ```
 
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.order {
+  padding: 8px 16px 16px;
+  border-bottom: 1px solid #00000016;
+}
+```
+
+</TabItem>
+</Tabs>
+
 As usual, to override the default `Attachment` component with our wrapper, we
 pass it as a prop to the `Channel` component:
 
@@ -99,10 +120,15 @@ import { Channel } from 'stream-chat-react';
 <Channel Attachment={CustomAttachment}>{/* ... */}</Channel>;
 ```
 
+![](../../../assets/payment-attachment-start.png)
+
 At this point, you'll want to add your custom logic to your component. You will
 probably want to fetch the order data, and integrate payment system components
 (like [React Stripe.js](https://docs.stripe.com/stripe-js/react)). In our
 example, we'll make some (fake) requests to mimic the order data fetching:
+
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
 ```jsx
 import { useQuery } from '@tanstack/react-query';
@@ -111,15 +137,15 @@ const OrderAttachment = (props) => {
   const { data, isPending: isOrderLoading } = useQuery({
     queryKey: ['order', props.orderId],
     queryFn: async () => {
-      const res = await fetch(`/api/order/${orderId}`);
+      const res = await fetch(`/api/order/${props.orderId}`);
       return await res.json();
     },
   });
 
   return (
     <div className='order'>
-      🛒 Order #{props.orderId}
-      {isPending ? (
+      <h3 className='order-header'>🛒 Order #{props.orderId}</h3>
+      {isOrderLoading ? (
         <div className='order-placeholder'>Loading...</div>
       ) : (
         <ul className='order-product-list'>
@@ -139,14 +165,75 @@ const OrderAttachment = (props) => {
 };
 ```
 
+</TabItem>
+<TabItem value="css" label="CSS">
+
+```css
+.order {
+  padding: 8px 16px 16px;
+  border-bottom: 1px solid #00000016;
+}
+
+.order-header {
+  font-size: 1em;
+  font-weight: normal;
+  margin: 0;
+}
+
+.order-product-list {
+  list-style: none;
+  margin: 16px 0;
+  padding: 0;
+}
+
+.order-product {
+  font-weight: bold;
+}
+
+.order-product:not(:last-child) {
+  margin-bottom: 4px;
+}
+
+.order-amount {
+  float: right;
+  margin-left: 2ex;
+  font-weight: normal;
+  opacity: 0.5;
+}
+
+.order-confirm {
+  background: #005fff;
+  color: #fff;
+  font-weight: bold;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.order-placeholder {
+  margin: 16px 0 32px;
+  font-weight: bold;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../../assets/payment-attachment-order.png)
+
 Once the order is complete, our custom component can display a special UI to
 prevent double payments. Or, your backend can update the message to replace the
 attachment with another one:
 
 ```jsx
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useMessageContext } from 'stream-chat-react';
 
 const OrderAttachment = (props) => {
+  const { message } = useMessageContext();
+
   const { data, isPending: isOrderLoading } = useQuery({
     queryKey: ['order', props.orderId],
     queryFn: async () => {
@@ -157,9 +244,9 @@ const OrderAttachment = (props) => {
 
   const { mutate: confirmOrder, isPending: isOrderConfirming } = useMutation({
     mutateFn: async () => {
-      await fetch(`/api/order/${orderId}/confirm`, {
+      await fetch(`/api/order/${props.orderId}/confirm`, {
         method: 'POST',
-        body: JSON.stringify({ messageId }),
+        body: JSON.stringify({ messageId: message.id }),
       });
     },
   });
@@ -167,7 +254,7 @@ const OrderAttachment = (props) => {
   return (
     <div className='order'>
       <h3 className='order-header'>🛒 Order #{props.orderId}</h3>
-      {isPending ? (
+      {isOrderLoading ? (
         <div className='order-placeholder'>Loading...</div>
       ) : (
         <ul className='order-product-list'>
@@ -196,7 +283,7 @@ const OrderAttachment = (props) => {
 // on your backend, once the order is finished:
 await serverClient.updateMessage(
   {
-    id: messageId,
+    id: req.body.messageId,
     attachments: [
       {
         type: 'order-completed',
@@ -208,6 +295,8 @@ await serverClient.updateMessage(
   'john-doe',
 );
 ```
+
+![](../../../assets/payment-attachment-updated.png)
 
 Finally, we'll add another custom attachment type to display completed orders:
 
@@ -233,6 +322,8 @@ const OrderCompletedAttachment = (props) => {
   );
 };
 ```
+
+![](../../../assets/payment-attachment-completed.png)
 
 And there it is! Use this example as a starting point for your own interactive
 user experiences right in the chat.
