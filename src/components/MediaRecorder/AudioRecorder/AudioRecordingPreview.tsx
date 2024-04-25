@@ -28,7 +28,11 @@ export const AudioRecordingPreview = ({
       <audio ref={audioRef}>
         <source src={props.src} type={mimeType} />
       </audio>
-      <button className='str-chat__audio_recorder__toggle-playback-button' onClick={togglePlay}>
+      <button
+        className='str-chat__audio_recorder__toggle-playback-button'
+        data-testid='audio-recording-preview-toggle-play-btn'
+        onClick={togglePlay}
+      >
         {isPlaying ? <PauseIcon /> : <PlayIcon />}
       </button>
       <RecordingTimer durationSeconds={displayedDuration} />

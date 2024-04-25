@@ -64,6 +64,7 @@ export const useAudioController = ({
         if (!audioRef.current) return;
         try {
           audioRef.current.pause();
+          setIsPlaying(false);
         } catch (e) {
           registerError(new Error(t('Failed to play the recording')));
         }
