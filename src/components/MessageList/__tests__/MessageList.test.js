@@ -316,6 +316,25 @@ describe('MessageList', () => {
     });
   });
 
+  it('forwards and executes reviewProcessedMessage function for each message', async () => {
+    const msgCount = 3;
+    const messages = Array.from({ length: msgCount }, generateMessage);
+    const reviewProcessedMessage = jest.fn();
+
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages, reviewProcessedMessage },
+      });
+    });
+
+    expect(reviewProcessedMessage.mock.calls[0][0].changes[0].id).toMatchSnapshot('message.date');
+    expect(reviewProcessedMessage.mock.calls[0][0].changes[1].id).toBe(messages[0].id);
+    expect(reviewProcessedMessage.mock.calls[1][0].changes[0].id).toBe(messages[1].id);
+    expect(reviewProcessedMessage.mock.calls[2][0].changes[0].id).toBe(messages[2].id);
+  });
+
   describe('unread messages', () => {
     const messages = Array.from({ length: 5 }, generateMessage);
     const unread_messages = 2;
