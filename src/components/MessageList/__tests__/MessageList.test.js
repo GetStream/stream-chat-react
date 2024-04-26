@@ -329,7 +329,7 @@ describe('MessageList', () => {
       });
     });
 
-    expect(reviewProcessedMessage.mock.calls[0][0].changes[0].id).toMatchSnapshot('message.date');
+    expect(reviewProcessedMessage.mock.calls[0][0].changes[0].id).toMatch('message.date');
     expect(reviewProcessedMessage.mock.calls[0][0].changes[1].id).toBe(messages[0].id);
     expect(reviewProcessedMessage.mock.calls[1][0].changes[0].id).toBe(messages[1].id);
     expect(reviewProcessedMessage.mock.calls[2][0].changes[0].id).toBe(messages[2].id);
