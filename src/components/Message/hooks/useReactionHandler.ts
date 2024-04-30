@@ -31,17 +31,28 @@ export const useReactionHandler = <
       reaction: ReactionResponse<StreamChatGenerics>,
       message: StreamMessage<StreamChatGenerics>,
     ): StreamMessage<StreamChatGenerics> => {
-      const newReactionCounts = message?.reaction_counts || {};
+      const newReactionGroups = message?.reaction_groups || {};
       const reactionType = reaction.type;
-      const hasReaction = !!newReactionCounts[reactionType];
+      const hasReaction = !!newReactionGroups[reactionType];
 
       if (add) {
-        newReactionCounts[reactionType] = hasReaction ? newReactionCounts[reactionType] + 1 : 1;
+        const timestamp = new Date().toISOString();
+        newReactionGroups[reactionType] = hasReaction
+          ? { ...newReactionGroups[reactionType], count: newReactionGroups[reactionType].count + 1 }
+          : {
+              count: 1,
+              first_reaction_at: timestamp,
+              last_reaction_at: timestamp,
+              sum_scores: 1,
+            };
       } else {
-        if (hasReaction && newReactionCounts[reactionType] > 1) {
-          newReactionCounts[reactionType]--;
+        if (hasReaction && newReactionGroups[reactionType].count > 1) {
+          newReactionGroups[reactionType] = {
+            ...newReactionGroups[reactionType],
+            count: newReactionGroups[reactionType].count - 1,
+          };
         } else {
-          delete newReactionCounts[reactionType];
+          delete newReactionGroups[reactionType];
         }
       }
 
@@ -59,8 +70,7 @@ export const useReactionHandler = <
         ...message,
         latest_reactions: newReactions || message.latest_reactions,
         own_reactions: newOwnReactions,
-        reaction_counts: newReactionCounts,
-        reaction_scores: newReactionCounts,
+        reaction_groups: newReactionGroups,
       } as StreamMessage<StreamChatGenerics>;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

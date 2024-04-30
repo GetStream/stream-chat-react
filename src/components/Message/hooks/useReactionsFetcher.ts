@@ -1,4 +1,4 @@
-import { ReactionResponse, StreamChat } from 'stream-chat';
+import { Reaction, ReactionResponse, StreamChat } from 'stream-chat';
 import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
 import { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -34,9 +34,13 @@ export function useReactionsFetcher<
 
 async function queryMessageReactions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(client: StreamChat<StreamChatGenerics>, messageId: string, reactionType?: string) {
+>(
+  client: StreamChat<StreamChatGenerics>,
+  messageId: string,
+  reactionType?: Reaction<StreamChatGenerics>['type'],
+) {
   const reactions: ReactionResponse<StreamChatGenerics>[] = [];
-  const limit = 300;
+  const limit = 25;
   let hasNext = true;
   let next: string | undefined;
 

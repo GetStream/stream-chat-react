@@ -8,7 +8,7 @@ import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import type { ReactionResponse } from 'stream-chat';
+import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
@@ -26,8 +26,13 @@ export type ReactionSelectorProps<
   latest_reactions?: ReactionResponse<StreamChatGenerics>[];
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
-  /** An object that keeps track of the count of each type of reaction on a message */
+  /**
+   * An object that keeps track of the count of each type of reaction on a message
+   * @deprecated This override value is no longer taken into account. Use `reaction_groups` to override reaction counts instead.
+   * */
   reaction_counts?: Record<string, number>;
+  /** An object containing summary for each reaction type on a message */
+  reaction_groups?: Record<string, ReactionGroupResponse>;
   /** A list of the currently supported reactions on a message */
   reactionOptions?: ReactionOptions;
   /** If true, adds a CSS class that reverses the horizontal positioning of the selector */
@@ -45,7 +50,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
       handleReaction: propHandleReaction,
       latest_reactions: propLatestReactions,
       own_reactions: propOwnReactions,
-      reaction_counts: propReactionCounts,
+      reaction_groups: propReactionGroups,
       reactionOptions: propReactionOptions,
       reverse = false,
     } = props;
@@ -65,7 +70,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
     const handleReaction = propHandleReaction || contextHandleReaction;
     const latestReactions = propLatestReactions || message?.latest_reactions || [];
     const ownReactions = propOwnReactions || message?.own_reactions || [];
-    const reactionCounts = propReactionCounts || message?.reaction_counts || {};
+    const reactionGroups = propReactionGroups || message?.reaction_groups || {};
 
     const [tooltipReactionType, setTooltipReactionType] = useState<string | null>(null);
     const [tooltipPositions, setTooltipPositions] = useState<{
@@ -157,7 +162,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
         <ul className='str-chat__message-reactions-list str-chat__message-reactions-options'>
           {reactionOptions.map(({ Component, name: reactionName, type: reactionType }) => {
             const latestUser = getLatestUserForReactionType(reactionType);
-            const count = reactionCounts && reactionCounts[reactionType];
+            const count = reactionGroups[reactionType]?.count ?? 0;
             return (
               <li key={reactionType}>
                 <button
