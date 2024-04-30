@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import * as transcoder from '../../transcode';
 
@@ -9,6 +9,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  MessageInputContextProvider,
   useMessageInputContext,
 } from '../../../../context';
 import {
@@ -28,13 +29,17 @@ import {
   MediaRecorderMock,
 } from '../../../../mock-builders/browser';
 import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
+import { AudioRecorder } from '../AudioRecorder';
+import { MediaRecordingState } from '../../classes';
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
 
 const START_RECORDING_AUDIO_BUTTON_TEST_ID = 'start-recording-audio-button';
-const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
+const CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID = 'cancel-recording-audio-button';
+const PAUSE_RECORDING_AUDIO_BUTTON_TEST_ID = 'pause-recording-audio-button';
 const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
+const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
 const CSS_THEME_VERSION = '2';
@@ -62,8 +67,8 @@ const renderComponent = async ({
     client,
   } = await initClientWithChannels();
   let result;
-  await act(() => {
-    result = render(
+  await act(async () => {
+    result = await render(
       <ChatProvider
         value={{
           ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
@@ -93,6 +98,8 @@ jest.mock('nanoid', () => ({
 }));
 
 jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+
+jest.spyOn(console, 'warn').mockImplementation();
 
 jest
   .spyOn(transcoder, 'transcode')
@@ -188,6 +195,44 @@ describe('MessageInput', () => {
     });
     expect(screen.queryByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
   });
+
+  it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING, MediaRecordingState.STOPPED])(
+    'renders message composer when recording cancelled while recording in state %s',
+    async (state) => {
+      const { container } = await renderComponent();
+      const Input = () => container.querySelector('.str-chat__message-input');
+      await waitFor(() => {
+        expect(Input()).toBeInTheDocument();
+      });
+
+      await act(() => {
+        fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+      });
+      await waitFor(() => {
+        expect(Input()).not.toBeInTheDocument();
+      });
+
+      if (state === MediaRecordingState.PAUSED) {
+        await act(() => {
+          fireEvent.click(screen.queryByTestId(PAUSE_RECORDING_AUDIO_BUTTON_TEST_ID));
+        });
+      } else if (state === MediaRecordingState.STOPPED) {
+        await act(() => {
+          fireEvent.click(screen.queryByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+        });
+      }
+      await waitFor(() => {
+        expect(Input()).not.toBeInTheDocument();
+      });
+
+      await act(() => {
+        fireEvent.click(screen.queryByTestId(CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID));
+      });
+      await waitFor(() => {
+        expect(Input()).toBeInTheDocument();
+      });
+    },
+  );
 
   it('does not show RecordingPermissionDeniedNotification until start recording button clicked if microphone permission is denied', async () => {
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
@@ -309,14 +354,75 @@ describe('MessageInput', () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 });
+
+const recorderMock = {};
+
+const DEFAULT_RECORDING_CONTROLLER = {
+  completeRecording: jest.fn(),
+  recorder: recorderMock,
+  recording: undefined,
+  recordingState: undefined,
+};
+
+const renderAudioRecorder = (controller = {}) =>
+  render(
+    <ChannelActionProvider value={{}}>
+      <MessageInputContextProvider
+        value={{ recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller } }}
+      >
+        <AudioRecorder />
+      </MessageInputContextProvider>
+    </ChannelActionProvider>,
+  );
+
 describe('AudioRecorder', () => {
-  it.todo('does not render anything if recorder is not available');
-  it.todo('renders audio recording in progress UI');
-  it.todo('renders audio recording paused UI when paused');
-  it.todo('renders audio recording in progress UI when recording resumed');
-  it.todo('renders audio recording stopped UI when stopped');
-  it.todo('renders message composer when recording cancelled while recording');
-  it.todo('renders message composer when recording cancelled while paused');
-  it.todo('renders message composer when recording cancelled while stopped');
-  it.todo('renders loading indicators while recording being uploaded');
+  it('does not render anything if recorder is not available', async () => {
+    const { container } = await renderAudioRecorder({ recorder: undefined });
+    expect(container).toBeEmpty();
+  });
+
+  it('renders audio recording in progress UI', async () => {
+    const { container } = await renderAudioRecorder({
+      recordingState: MediaRecordingState.RECORDING,
+    });
+    expect(container).toMatchSnapshot();
+  });
+  it('renders audio recording paused UI when paused', async () => {
+    const { container } = await renderAudioRecorder({
+      recordingState: MediaRecordingState.PAUSED,
+    });
+    expect(container).toMatchSnapshot();
+  });
+  it('renders audio recording stopped UI when stopped without recording preview', async () => {
+    const { container } = await renderAudioRecorder({
+      recordingState: MediaRecordingState.STOPPED,
+    });
+    expect(container).toMatchSnapshot();
+  });
+  it('renders audio recording stopped UI with recording preview', async () => {
+    const { container } = await renderAudioRecorder({
+      recording: generateVoiceRecordingAttachment(),
+      recordingState: MediaRecordingState.STOPPED,
+    });
+    expect(container).toMatchSnapshot();
+  });
+
+  it.each([MediaRecordingState.PAUSED, MediaRecordingState.RECORDING])(
+    'does not render recording preview if %s',
+    async (state) => {
+      const { container } = await renderAudioRecorder({
+        recording: generateVoiceRecordingAttachment(),
+        recordingState: state,
+      });
+      expect(container).toMatchSnapshot();
+    },
+  );
+
+  it('renders loading indicators while recording being uploaded', async () => {
+    await renderAudioRecorder({
+      recording: generateVoiceRecordingAttachment({ $internal: { uploadState: 'uploading' } }),
+      recordingState: MediaRecordingState.STOPPED,
+    });
+    expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();
+  });
 });

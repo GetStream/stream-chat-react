@@ -227,13 +227,23 @@ export const BinIcon = () => (
 );
 
 export const PauseIcon = () => (
-  <svg fill='currentColor' viewBox='0 0 16 20' xmlns='http://www.w3.org/2000/svg'>
+  <svg
+    data-testid='str-chat__pause-icon'
+    fill='currentColor'
+    viewBox='0 0 16 20'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <path d='M0 19.3333H5.33333V0.666626H0V19.3333ZM10.6667 0.666626V19.3333H16V0.666626H10.6667Z' />
   </svg>
 );
 
 export const PlayIcon = () => (
-  <svg fill='currentColor' viewBox='0 0 14 18' xmlns='http://www.w3.org/2000/svg'>
+  <svg
+    data-testid='str-chat__play-icon'
+    fill='currentColor'
+    viewBox='0 0 14 18'
+    xmlns='http://www.w3.org/2000/svg'
+  >
     <path d='M0.236328 2.09338V15.9067C0.236328 16.9601 1.39633 17.6001 2.28966 17.0267L13.143 10.1201C13.9697 9.60005 13.9697 8.40005 13.143 7.86672L2.28966 0.973385C1.39633 0.400051 0.236328 1.04005 0.236328 2.09338Z' />
   </svg>
 );

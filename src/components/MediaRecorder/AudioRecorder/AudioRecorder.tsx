@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AudioRecordingPreview } from './AudioRecordingPreview';
 import { AudioRecordingInProgress } from './AudioRecordingInProgress';
 import { MediaRecordingState } from '../classes';
@@ -19,6 +19,15 @@ export const AudioRecorder = () => {
 
   const isUploadingFile = recording?.$internal?.uploadState === 'uploading';
 
+  const state = useMemo(
+    () => ({
+      paused: recordingState === MediaRecordingState.PAUSED,
+      recording: recordingState === MediaRecordingState.RECORDING,
+      stopped: recordingState === MediaRecordingState.STOPPED,
+    }),
+    [recordingState],
+  );
+
   if (!recorder) return null;
 
   return (
@@ -26,24 +35,25 @@ export const AudioRecorder = () => {
       <div className='str-chat__audio_recorder' data-testid={'audio-recorder'}>
         <button
           className='str-chat__audio_recorder__cancel-button'
+          data-testid={'cancel-recording-audio-button'}
           disabled={isUploadingFile}
           onClick={recorder.cancel}
         >
           <BinIcon />
         </button>
 
-        {recording?.asset_url ? (
+        {state.stopped && recording?.asset_url ? (
           <AudioRecordingPreview
             durationSeconds={recording.duration ?? 0}
             mimeType={recording.mime_type}
             src={recording.asset_url}
             waveformData={recording.waveform_data}
           />
-        ) : (
+        ) : state.paused || state.recording ? (
           <AudioRecordingInProgress />
-        )}
+        ) : null}
 
-        {recordingState === MediaRecordingState.PAUSED && (
+        {state.paused && (
           <button
             className='str-chat__audio_recorder__resume-recording-button'
             onClick={recorder.resume}
@@ -51,15 +61,16 @@ export const AudioRecorder = () => {
             <MicIcon />
           </button>
         )}
-        {recordingState === MediaRecordingState.RECORDING && (
+        {state.recording && (
           <button
             className='str-chat__audio_recorder__pause-recording-button'
+            data-testid={'pause-recording-audio-button'}
             onClick={recorder.pause}
           >
             <PauseIcon />
           </button>
         )}
-        {recordingState === MediaRecordingState.STOPPED ? (
+        {state.stopped ? (
           <button
             className='str-chat__audio_recorder__complete-button'
             data-testid='audio-recorder-complete-button'
