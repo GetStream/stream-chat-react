@@ -1,6 +1,6 @@
-import { Reaction, ReactionResponse, StreamChat } from 'stream-chat';
-import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
+import { StreamMessage, useChannelStateContext, useTranslationContext } from '../../../context';
 import { DefaultStreamChatGenerics } from '../../../types/types';
+import { Channel, ReactionResponse } from 'stream-chat';
 
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1200;
 
@@ -17,13 +17,13 @@ export function useReactionsFetcher<
   message: StreamMessage<StreamChatGenerics>,
   notifications: FetchMessageReactionsNotifications<StreamChatGenerics> = {},
 ) {
-  const { client } = useChatContext('useReactionFetcher');
+  const { channel } = useChannelStateContext<StreamChatGenerics>('useReactionFetcher');
   const { t } = useTranslationContext('useReactionFetcher');
   const { getErrorNotification, notify } = notifications;
 
-  return async (reactionType?: string) => {
+  return async () => {
     try {
-      return await queryMessageReactions(client, message.id, reactionType);
+      return await fetchMessageReactions(channel, message.id);
     } catch (e) {
       const errorMessage = getErrorNotification?.(message);
       notify?.(errorMessage || t('Error fetching reactions'), 'error');
@@ -32,28 +32,25 @@ export function useReactionsFetcher<
   };
 }
 
-async function queryMessageReactions<
+async function fetchMessageReactions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  client: StreamChat<StreamChatGenerics>,
-  messageId: string,
-  reactionType?: Reaction<StreamChatGenerics>['type'],
-) {
+>(channel: Channel<StreamChatGenerics>, messageId: string) {
   const reactions: ReactionResponse<StreamChatGenerics>[] = [];
-  const limit = 25;
-  let hasNext = true;
-  let next: string | undefined;
+  const limit = 300;
+  let offset = 0;
+  const reactionsLimit = MAX_MESSAGE_REACTIONS_TO_FETCH;
+  let lastPageSize = limit;
 
-  while (hasNext) {
-    const page = await client.queryReactions(
-      messageId,
-      reactionType ? { type: reactionType } : {},
-      { created_at: -1 },
-      { limit, next },
-    );
-    reactions.push(...page.reactions);
-    next = page.next;
-    hasNext = Boolean(next);
+  while (lastPageSize === limit && reactions.length < reactionsLimit) {
+    const response = await channel.getReactions(messageId, {
+      limit,
+      offset,
+    });
+    lastPageSize = response.reactions.length;
+    if (lastPageSize > 0) {
+      reactions.push(...response.reactions);
+    }
+    offset += lastPageSize;
   }
 
   return reactions;
