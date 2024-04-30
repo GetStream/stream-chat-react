@@ -48,7 +48,7 @@ export const useProcessReactions = <
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
   const latestReactions = propReactions || message.latest_reactions;
   const ownReactions = propOwnReactions || message?.own_reactions;
-  const reactionGroups = propReactionGroups || message.reaction_groups;
+  const reactionGroups = propReactionGroups || message?.reaction_groups;
 
   const isOwnReaction = useCallback(
     (reactionType: string) =>
