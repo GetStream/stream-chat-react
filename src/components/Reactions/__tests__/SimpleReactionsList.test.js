@@ -18,8 +18,8 @@ import { ComponentProvider } from '../../../context';
 const handleReactionMock = jest.fn();
 // const loveEmojiTestId = 'emoji-love';
 
-const renderComponent = ({ reaction_counts = {}, themeVersion = '1', ...props }) => {
-  const reactions = Object.entries(reaction_counts).flatMap(([type, count]) =>
+const renderComponent = ({ reaction_groups = {}, themeVersion = '1', ...props }) => {
+  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
     Array(count)
       .fill()
       .map((_, i) => generateReaction({ type, user: { id: `${USER_ID}-${i}` } })),
@@ -32,7 +32,7 @@ const renderComponent = ({ reaction_counts = {}, themeVersion = '1', ...props })
           <MessageProvider value={{}}>
             <SimpleReactionsList
               handleReaction={handleReactionMock}
-              reaction_counts={reaction_counts}
+              reaction_groups={reaction_groups}
               reactions={reactions}
               {...props}
             />
@@ -61,9 +61,9 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
 
   it('should render the total reaction count', async () => {
     const { container, getByText } = renderComponent({
-      reaction_counts: {
-        haha: 2,
-        love: 5,
+      reaction_groups: {
+        haha: { count: 2 },
+        love: { count: 5 },
       },
       themeVersion,
     });
@@ -75,15 +75,15 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
   });
 
   it('should render an emoji for each type of reaction', async () => {
-    const reaction_counts = {
-      haha: 2,
-      love: 5,
+    const reaction_groups = {
+      haha: { count: 2 },
+      love: { count: 5 },
     };
     // force to render default fallbacks
     jest.spyOn(utils, 'getImageDimensions').mockRejectedValue('Error');
     jest.spyOn(console, 'error').mockImplementation(null);
 
-    const { container } = renderComponent({ reaction_counts, themeVersion });
+    const { container } = renderComponent({ reaction_groups, themeVersion });
 
     expect(container).toMatchSnapshot();
     const results = await axe(container);
@@ -91,13 +91,13 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
   });
 
   it('should handle custom reaction options', async () => {
-    const reaction_counts = {
-      banana: 1,
-      cowboy: 2,
+    const reaction_groups = {
+      banana: { count: 1 },
+      cowboy: { count: 2 },
     };
 
     const { container } = renderComponent({
-      reaction_counts,
+      reaction_groups,
       reactionOptions: [
         { emoji: '🍌', id: 'banana' },
         { emoji: '🤠', id: 'cowboy' },
@@ -111,11 +111,11 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
   });
 
   it('should call handleReaction callback if a reaction emoji is clicked', async () => {
-    const reaction_counts = {
-      love: 1,
+    const reaction_groups = {
+      love: { count: 1 },
     };
 
-    const { container, getByText } = renderComponent({ reaction_counts, themeVersion });
+    const { container, getByText } = renderComponent({ reaction_groups, themeVersion });
 
     fireEvent.click(getByText('❤️'));
 
@@ -125,12 +125,12 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
   });
 
   it('should render a tooltip with all users that reacted a certain way if the emoji is hovered', async () => {
-    const reaction_counts = {
-      love: 3,
+    const reaction_groups = {
+      love: { count: 3 },
     };
 
     const { container, getByText, queryByText, reactions } = renderComponent({
-      reaction_counts,
+      reaction_groups,
       themeVersion,
     });
 
