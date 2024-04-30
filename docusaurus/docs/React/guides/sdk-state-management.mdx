@@ -9,23 +9,22 @@ This is how the SDK state pipeline looks like behind the scenes:
 
 ```mermaid
 sequenceDiagram
-
   box Stream Chat Client
     participant Client State
-    participant WS Client
+    participant WebSocket Client
   end
 
   box Stream React SDK
-    participant Channel
+    participant UI Components
   end
 
-  Client State->>WS Client: attaches listeners
-  Channel->>WS Client: attaches listeners
-  WS Client->>Client State: receives a message and triggers listeners
-  Client State->>Client State: updates state;
-  WS Client->>Channel: receives a message and triggers listeners
-  Channel->>Client State: reaches for updated client state
-  Channel->>Channel: updates state
+  Client State->>WebSocket Client: attach listeners to keep the state up-to-date
+  UI Components->>WebSocket Client: attach listeners to keep UI up-to-date
+  WebSocket Client->>Client State: receive a WebSocket message and trigger listeners
+  Client State->>Client State: update client state
+  WebSocket Client->>UI Components: receive a WebSocket message and trigger listeners
+  UI Components->>Client State: reach for updated client state
+  UI Components->>UI Components: update UI
 ```
 
 ## Active Channel & Channel State
