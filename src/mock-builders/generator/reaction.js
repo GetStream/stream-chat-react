@@ -26,3 +26,17 @@ export const countReactions = (reactions = []) => {
   }
   return reactionCount;
 };
+
+export const groupReactions = (reactions = []) => {
+  const timestamp = new Date().toISOString();
+  const reactionGroups = {};
+  for (const reaction of reactions) {
+    reactionGroups[reaction.type] ??= {
+      count: 0,
+      first_reaction_at: timestamp,
+      last_reaction_at: timestamp,
+    };
+    reactionGroups[reaction.type].count++;
+  }
+  return reactionGroups;
+};

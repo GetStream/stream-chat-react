@@ -20,6 +20,7 @@ import {
   generateReaction,
   generateUser,
   getTestClientWithUser,
+  groupReactions,
 } from '../../../mock-builders';
 
 import { Attachment } from '../../Attachment';
@@ -234,6 +235,7 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
     });
 
     let container;
@@ -253,6 +255,7 @@ describe('<MessageText />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
     });
     const { container, queryByTestId } = await renderMessageText({
       channelCapabilitiesOverrides: { 'send-reaction': false },
