@@ -281,7 +281,7 @@ export const getGroupStyles = <
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
-    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0) ||
+    (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
     isMessageEdited(previousMessage);
 
   const isBottomMessage =
@@ -293,7 +293,7 @@ export const getGroupStyles = <
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
-    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0) ||
+    (nextMessage.reaction_groups && Object.keys(nextMessage.reaction_groups).length > 0) ||
     isMessageEdited(message);
 
   if (!isTopMessage && !isBottomMessage) {
