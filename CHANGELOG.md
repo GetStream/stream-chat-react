@@ -1,3 +1,10 @@
+## [11.16.0](https://github.com/GetStream/stream-chat-react/compare/v11.15.2...v11.16.0) (2024-05-01)
+
+
+### Features
+
+* support reaction groups ([#2370](https://github.com/GetStream/stream-chat-react/issues/2370)) ([560df58](https://github.com/GetStream/stream-chat-react/commit/560df589c983dc4007fe4fbe0e2740225d6f4db6))
+
 ## [11.15.2](https://github.com/GetStream/stream-chat-react/compare/v11.15.1...v11.15.2) (2024-04-24)
 
 
