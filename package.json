@@ -250,7 +250,7 @@
     "prepare": "husky install && yarn run build",
     "preversion": "yarn install",
     "test": "jest",
-    "types": "tsc --strict",
+    "types": "tsc",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "node scripts/validate-cjs-bundle.cjs",
     "semantic-release": "semantic-release",

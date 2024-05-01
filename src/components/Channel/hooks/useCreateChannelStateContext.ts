@@ -74,8 +74,8 @@ export const useCreateChannelStateContext = <
     ? messages
     : messages
         .map(
-          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at, user }) =>
-            `${deleted_at}${
+          ({ deleted_at, latest_reactions, pinned, reply_count, status, updated_at, user, poll }) =>
+            `${deleted_at}${JSON.stringify(poll)}${
               latest_reactions ? latest_reactions.map(({ type }) => type).join() : ''
             }${pinned}${reply_count}${status}${
               updated_at && (isDayOrMoment(updated_at) || isDate(updated_at))
@@ -99,7 +99,14 @@ export const useCreateChannelStateContext = <
     .join();
 
   const channelStateContext: ChannelStateContextValue<StreamChatGenerics> = useMemo(
-    () => ({
+    () => {
+      console.log('re-rendering ChannelStateContext')
+        channel.state.messages.forEach((message) => {
+          if (message.id === "83d0a39b-68fa-4d51-9fac-da664cf805b1") {
+            console.log('from channelStateContext memoization', message.poll.options);
+          }
+        })
+      return {
       acceptedFiles,
       channel,
       channelCapabilities,
@@ -137,7 +144,7 @@ export const useCreateChannelStateContext = <
       watcher_count,
       watcherCount,
       watchers,
-    }),
+    }},
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       channelId,

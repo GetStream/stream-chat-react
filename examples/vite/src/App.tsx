@@ -40,6 +40,7 @@ type StreamChatGenerics = {
   messageType: LocalMessageType;
   reactionType: LocalReactionType;
   userType: LocalUserType;
+  pollType: Record<string, unknown>;
 };
 
 const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);

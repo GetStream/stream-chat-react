@@ -10,7 +10,6 @@ import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
-import { Poll as DefaultPoll } from './Poll';
 
 import { NullComponent as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
@@ -213,20 +212,20 @@ export const CardContainer = <
   );
 };
 
-export const PollContainer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  attachment,
-  Poll = DefaultPoll,
-}: RenderAttachmentProps<StreamChatGenerics>) => {
-  const componentType = 'poll';
+// export const PollContainer = <
+//   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+// >({
+//   attachment,
+//   Poll = DefaultPoll,
+// }: RenderAttachmentProps<StreamChatGenerics>) => {
+//   const componentType = 'poll';
 
-  return (
-    <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <Poll {...attachment} />
-    </AttachmentWithinContainer>
-  );
-};
+//   return (
+//     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
+//       <Poll {...attachment} />
+//     </AttachmentWithinContainer>
+//   );
+// };
 
 export const FileContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

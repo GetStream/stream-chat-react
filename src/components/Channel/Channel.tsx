@@ -1086,6 +1086,11 @@ const ChannelInner = <
 
   const { typing, ...restState } = state;
 
+  state.messages?.forEach((message) => {
+    if (message.id === "83d0a39b-68fa-4d51-9fac-da664cf805b1") {
+      console.log('from CHannel.tsx', message.poll.own_votes?.length);
+    }
+  })
   const channelStateContextValue = useCreateChannelStateContext<StreamChatGenerics>({
     ...restState,
     acceptedFiles,

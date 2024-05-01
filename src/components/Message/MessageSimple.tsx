@@ -37,6 +37,7 @@ import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import { useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
+import { Poll } from './Poll';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -144,6 +145,10 @@ const MessageSimpleWithContext = <
     },
   );
 
+  if (message.id === "83d0a39b-68fa-4d51-9fac-da664cf805b1") {
+    console.log('re-rednering message');
+  }
+
   return (
     <>
       {editing && (
@@ -190,7 +195,14 @@ const MessageSimpleWithContext = <
               {canShowReactions && <ReactionsList reverse />}
               {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
             </div>
-            <div className='str-chat__message-bubble'>
+            <div className={clsx('str-chat__message-bubble', {
+              'str-chat__simple-message--poll': !!message.poll_id,
+            })}>
+              {
+                message.poll && (
+                  <Poll message={message} />
+                )
+              }
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}

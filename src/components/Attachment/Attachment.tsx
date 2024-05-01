@@ -7,7 +7,6 @@ import {
   isAudioAttachment,
   isFileAttachment,
   isMediaAttachment,
-  isPollAttachment,
   isScrapedContent,
   isUploadedImage,
   isVoiceRecordingAttachment,
@@ -20,7 +19,6 @@ import {
   GalleryContainer,
   ImageContainer,
   MediaContainer,
-  PollContainer,
   UnsupportedAttachmentContainer,
   VoiceRecordingContainer,
 } from './AttachmentContainer';
@@ -41,7 +39,7 @@ const CONTAINER_MAP = {
   card: CardContainer,
   file: FileContainer,
   media: MediaContainer,
-  poll: PollContainer,
+  // poll: PollContainer,
   unsupported: UnsupportedAttachmentContainer,
   voiceRecording: VoiceRecordingContainer,
 } as const;
@@ -51,7 +49,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'gallery',
   'image',
   'media',
-  'poll',
+  // 'poll',
   'audio',
   'voiceRecording',
   'file',
@@ -184,8 +182,8 @@ const getAttachmentType = <
     return 'card';
   } else if (isMediaAttachment(attachment)) {
     return 'media';
-  } else if (isPollAttachment(attachment)) {
-    return 'poll';
+  // } else if (isPollAttachment(attachment)) {
+  //   return 'poll';
   } else if (isAudioAttachment(attachment)) {
     return 'audio';
   } else if (isVoiceRecordingAttachment(attachment)) {

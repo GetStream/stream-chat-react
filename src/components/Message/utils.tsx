@@ -237,7 +237,8 @@ const areMessagesEqual = <
 >(
   prevMessage: StreamMessage<StreamChatGenerics>,
   nextMessage: StreamMessage<StreamChatGenerics>,
-) =>
+) => {
+  const result = 
   prevMessage.deleted_at === nextMessage.deleted_at &&
   prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
   prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
@@ -247,7 +248,16 @@ const areMessagesEqual = <
   prevMessage.text === nextMessage.text &&
   prevMessage.type === nextMessage.type &&
   prevMessage.updated_at === nextMessage.updated_at &&
-  prevMessage.user?.updated_at === nextMessage.user?.updated_at;
+  prevMessage.user?.updated_at === nextMessage.user?.updated_at &&
+  deepequal(prevMessage.poll, nextMessage.poll);
+
+  if (nextMessage.id === "83d0a39b-68fa-4d51-9fac-da664cf805b1") {
+    console.log('result of areMessagesEqual: ', prevMessage.poll.own_votes?.length, result, nextMessage.poll.own_votes?.length);
+  }
+
+  return result
+
+}
 
 export const areMessagePropsEqual = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

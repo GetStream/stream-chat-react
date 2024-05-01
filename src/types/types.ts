@@ -71,6 +71,8 @@ export type DefaultStreamChatGenerics = ExtendableGenerics & {
   messageType: DefaultMessageType;
   reactionType: UnknownType;
   userType: DefaultUserType;
+  pollType: UnknownType;
+  pollOptionType: UnknownType;
 };
 
 export type GiphyVersions =

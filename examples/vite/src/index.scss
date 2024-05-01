@@ -59,6 +59,10 @@ $stream-chat-theme-version: '2';
       }
     }
 
+    .str-chat__message-bubble.str-chat__simple-message--poll {
+      min-width: 400px
+    }
+
     @media screen and (min-width: 768px) {
       //.str-chat-channel-list.thread-open {
       //  &.menu-open {

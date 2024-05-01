@@ -273,7 +273,7 @@ const MessageInputV2 = <
                 />
               ) : (
                 <>
-                  <button onClick={() => setCreatingPoll(true)}>Poll</button>
+                  <button onClick={() => setCreatingPoll(true)}>Create Poll</button>
                   <SendButton
                     disabled={!numberOfUploads && !text.length}
                     sendMessage={handleSubmit}
