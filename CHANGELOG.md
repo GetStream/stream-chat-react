@@ -1,3 +1,10 @@
+## [11.16.1](https://github.com/GetStream/stream-chat-react/compare/v11.16.0...v11.16.1) (2024-05-01)
+
+
+### Bug Fixes
+
+* message input not preventing default on enter on React 16 ([#2380](https://github.com/GetStream/stream-chat-react/issues/2380)) ([ca6761f](https://github.com/GetStream/stream-chat-react/commit/ca6761f1dff8070e07702d3eb5216d18242cd662)), closes [/github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts#L119](https://github.com/GetStream//github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts/issues/L119)
+
 ## [11.16.0](https://github.com/GetStream/stream-chat-react/compare/v11.15.2...v11.16.0) (2024-05-01)
 
 
