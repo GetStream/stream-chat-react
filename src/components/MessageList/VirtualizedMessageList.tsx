@@ -24,7 +24,13 @@ import { useMarkRead } from './hooks/useMarkRead';
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
 import { MessageListMainPanel } from './MessageListMainPanel';
-import { getGroupStyles, getLastReceived, GroupStyle, processMessages } from './utils';
+import {
+  getGroupStyles,
+  getLastReceived,
+  GroupStyle,
+  processMessages,
+  ProcessMessagesParams,
+} from './utils';
 import { MessageProps, MessageSimple, MessageUIComponentProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
@@ -193,6 +199,7 @@ const VirtualizedMessageListWithContext = <
     overscan = 0,
     read,
     returnAllReadData = false,
+    reviewProcessedMessage,
     scrollSeekPlaceHolder,
     scrollToLatestMessageOnFocus = false,
     separateGiphyPreview = false,
@@ -259,12 +266,13 @@ const VirtualizedMessageListWithContext = <
       return messages;
     }
 
-    return processMessages({
+    return processMessages<StreamChatGenerics>({
       enableDateSeparator: !disableDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
       messages,
+      reviewProcessedMessage,
       setGiphyPreviewMessage,
       userId: client.userID || '',
     });
@@ -563,6 +571,11 @@ export type VirtualizedMessageListProps<
   overscan?: number;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
+  /**
+   * Allows to review changes introduced to messages array on per message basis (e.g. date separator injected before a message).
+   * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `VirtualizedMessageList`.
+   */
+  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
   /**
    * @deprecated Pass additionalVirtuosoProps.scrollSeekConfiguration and specify the placeholder in additionalVirtuosoProps.components.ScrollSeekPlaceholder instead.  Will be removed with next major release - `v11.0.0`.
    * Performance improvement by showing placeholders if user scrolls fast through list.
