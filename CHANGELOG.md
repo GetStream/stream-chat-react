@@ -1,3 +1,10 @@
+## [11.17.0](https://github.com/GetStream/stream-chat-react/compare/v11.16.1...v11.17.0) (2024-05-02)
+
+
+### Features
+
+* allow to review message processing before rendering in message lists ([#2375](https://github.com/GetStream/stream-chat-react/issues/2375)) ([567bea9](https://github.com/GetStream/stream-chat-react/commit/567bea9fbc90c3a9cf93682671c8025fb1f7f5a1))
+
 ## [11.16.1](https://github.com/GetStream/stream-chat-react/compare/v11.16.0...v11.16.1) (2024-05-01)
 
 
