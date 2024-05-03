@@ -1,5 +1,4 @@
-import React from 'react';
-import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
+import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -9,8 +8,9 @@ import {
   MessageList,
   Thread,
   Window,
+  useCreateChatClient,
 } from 'stream-chat-react';
-import '@stream-io/stream-chat-css/dist/v2/css/index.css';
+import 'stream-chat-react/css/v2/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -20,7 +20,10 @@ const apiKey = import.meta.env.VITE_STREAM_KEY as string;
 const userId = params.uid ?? (import.meta.env.VITE_USER_ID as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
 
-const filters: ChannelFilters = { members: { $in: [userId] }, type: 'messaging' };
+const filters: ChannelFilters = {
+  members: { $in: [userId] },
+  type: 'messaging',
+};
 const options: ChannelOptions = { limit: 10, presence: true, state: true };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
@@ -42,26 +45,28 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
+const App = () => {
+  const chatClient = useCreateChatClient<StreamChatGenerics>({
+    apiKey,
+    tokenOrProvider: userToken,
+    userData: { id: userId },
+  });
 
-if (import.meta.env.VITE_CHAT_SERVER_ENDPOINT) {
-  chatClient.setBaseURL(import.meta.env.VITE_CHAT_SERVER_ENDPOINT as string);
-}
+  if (!chatClient) return <>Loading...</>;
 
-chatClient.connectUser({ id: userId }, userToken);
-
-const App = () => (
-  <Chat client={chatClient}>
-    <ChannelList filters={filters} options={options} showChannelSearch sort={sort} />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput focus />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
+  return (
+    <Chat client={chatClient}>
+      <ChannelList filters={filters} options={options} sort={sort} />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  );
+};
 
 export default App;

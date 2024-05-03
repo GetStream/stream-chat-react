@@ -17,8 +17,8 @@ import { defaultReactionOptions } from '../reactionOptions';
 
 const USER_ID = 'mark';
 
-const renderComponent = ({ reaction_counts = {}, ...props }) => {
-  const reactions = Object.entries(reaction_counts).flatMap(([type, count]) =>
+const renderComponent = ({ reaction_groups = {}, ...props }) => {
+  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
     Array.from({ length: count }, (_, i) =>
       generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
     ),
@@ -27,7 +27,7 @@ const renderComponent = ({ reaction_counts = {}, ...props }) => {
   return render(
     <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
       <MessageProvider value={{}}>
-        <ReactionsList reaction_counts={reaction_counts} reactions={reactions} {...props} />,
+        <ReactionsList reaction_groups={reaction_groups} reactions={reactions} {...props} />,
       </MessageProvider>
     </ComponentProvider>,
   );
@@ -41,9 +41,9 @@ describe('ReactionsList', () => {
 
   it('should render the total reaction count', async () => {
     const { container, getByText } = renderComponent({
-      reaction_counts: {
-        haha: 2,
-        love: 5,
+      reaction_groups: {
+        haha: { count: 2 },
+        love: { count: 5 },
       },
     });
     const count = getByText('7');
@@ -62,23 +62,23 @@ describe('ReactionsList', () => {
   });
 
   it('should render an emoji for each type of reaction', async () => {
-    const reaction_counts = {
-      haha: 2,
-      love: 5,
+    const reaction_groups = {
+      haha: { count: 2 },
+      love: { count: 5 },
     };
     // make sure to render default fallbacks
     jest.spyOn(utils, 'getImageDimensions').mockRejectedValue('Error');
     jest.spyOn(console, 'error').mockImplementation(null);
 
-    const { container, getByTestId } = renderComponent({ reaction_counts });
+    const { container, getByTestId } = renderComponent({ reaction_groups });
 
     const hahaButton = getByTestId('reactions-list-button-haha');
     const loveButton = getByTestId('reactions-list-button-love');
 
-    expect(hahaButton.lastChild).toHaveTextContent(reaction_counts['haha']);
+    expect(hahaButton.lastChild).toHaveTextContent(reaction_groups['haha'].count);
     expect(hahaButton.firstChild).toHaveTextContent('😂');
 
-    expect(loveButton.lastChild).toHaveTextContent(reaction_counts['love']);
+    expect(loveButton.lastChild).toHaveTextContent(reaction_groups['love'].count);
     expect(loveButton.firstChild).toHaveTextContent('❤️');
 
     const results = await axe(container);
@@ -86,13 +86,13 @@ describe('ReactionsList', () => {
   });
 
   it('should handle custom reaction options', async () => {
-    const reaction_counts = {
-      banana: 1,
-      cowboy: 2,
+    const reaction_groups = {
+      banana: { count: 1 },
+      cowboy: { count: 2 },
     };
 
     const { container, getByTestId } = renderComponent({
-      reaction_counts,
+      reaction_groups,
       reactionOptions: [
         { Component: () => <>🍌</>, type: 'banana' },
         { Component: () => <>🤠</>, type: 'cowboy' },
@@ -102,10 +102,10 @@ describe('ReactionsList', () => {
     const bananaButton = getByTestId('reactions-list-button-banana');
     const cowboyButton = getByTestId('reactions-list-button-cowboy');
 
-    expect(bananaButton.lastChild).toHaveTextContent(reaction_counts['banana']);
+    expect(bananaButton.lastChild).toHaveTextContent(reaction_groups['banana'].count);
     expect(bananaButton.firstChild).toHaveTextContent('🍌');
 
-    expect(cowboyButton.lastChild).toHaveTextContent(reaction_counts['cowboy']);
+    expect(cowboyButton.lastChild).toHaveTextContent(reaction_groups['cowboy'].count);
     expect(cowboyButton.firstChild).toHaveTextContent('🤠');
 
     const results = await axe(container);
@@ -113,9 +113,9 @@ describe('ReactionsList', () => {
   });
 
   it('should add reverse class if the prop is set to true', () => {
-    const reaction_counts = {
-      banana: 1,
-      cowboy: 2,
+    const reaction_groups = {
+      banana: { count: 1 },
+      cowboy: { count: 2 },
     };
     const reactionOptions = [
       { Component: () => <>🍌</>, type: 'banana' },
@@ -123,24 +123,24 @@ describe('ReactionsList', () => {
     ];
 
     expect(
-      renderComponent({ reaction_counts, reactionOptions, reverse: true }).container.querySelector(
+      renderComponent({ reaction_groups, reactionOptions, reverse: true }).container.querySelector(
         '.str-chat__reaction-list--reverse',
       ),
     ).toBeInTheDocument();
 
     expect(
-      renderComponent({ reaction_counts, reactionOptions, reverse: false }).container.querySelector(
+      renderComponent({ reaction_groups, reactionOptions, reverse: false }).container.querySelector(
         '.str-chat__reaction-list--reverse',
       ),
     ).not.toBeInTheDocument();
   });
 
-  it('should order reactions alphabetically by default', () => {
+  it('should order reactions by first reaction timestamp by default', () => {
     const { getByTestId } = renderComponent({
-      reaction_counts: {
-        haha: 2,
-        like: 8,
-        love: 5,
+      reaction_groups: {
+        haha: { count: 2, first_reaction_at: new Date().toISOString() },
+        like: { count: 8, first_reaction_at: new Date(Date.now() + 60_000).toISOString() },
+        love: { count: 5, first_reaction_at: new Date(Date.now() + 120_000).toISOString() },
       },
     });
 
@@ -159,10 +159,10 @@ describe('ReactionsList', () => {
 
   it('should use custom comparator if provided', () => {
     const { getByTestId } = renderComponent({
-      reaction_counts: {
-        haha: 2,
-        like: 8,
-        love: 5,
+      reaction_groups: {
+        haha: { count: 2 },
+        like: { count: 8 },
+        love: { count: 5 },
       },
       sortReactions: (a, b) => b.reactionCount - a.reactionCount,
     });

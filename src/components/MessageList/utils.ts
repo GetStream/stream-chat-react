@@ -10,10 +10,8 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import { isMessageEdited } from '../Message/utils';
 
-type ProcessMessagesParams<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  messages: StreamMessage<StreamChatGenerics>[];
+type ProcessMessagesContext = {
+  /** the connected user ID */
   userId: string;
   /** Enable date separator */
   enableDateSeparator?: boolean;
@@ -21,8 +19,26 @@ type ProcessMessagesParams<
   hideDeletedMessages?: boolean;
   /** Disable date separator display for unread incoming messages */
   hideNewMessageSeparator?: boolean;
-  /** Sets the treshold after everything is considered unread */
+  /** Sets the threshold after everything is considered unread */
   lastRead?: Date | null;
+};
+
+export type ProcessMessagesParams<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = ProcessMessagesContext & {
+  messages: StreamMessage<StreamChatGenerics>[];
+  reviewProcessedMessage?: (params: {
+    /** array of messages representing the changes applied around a given processed message */
+    changes: StreamMessage<StreamChatGenerics>[];
+    /** configuration params and information forwarded from `processMessages` */
+    context: ProcessMessagesContext;
+    /** index of the processed message in the original messages array */
+    index: number;
+    /** array of messages retrieved from the back-end */
+    messages: StreamMessage<StreamChatGenerics>[];
+    /** newly built array of messages to be later rendered */
+    processedMessages: StreamMessage<StreamChatGenerics>[];
+  }) => StreamMessage<StreamChatGenerics>[];
   /** Signals whether to separate giphy preview as well as used to set the giphy preview state */
   setGiphyPreviewMessage?: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
@@ -50,15 +66,14 @@ export const processMessages = <
 >(
   params: ProcessMessagesParams<StreamChatGenerics>,
 ) => {
+  const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
   const {
     enableDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
-    messages,
-    setGiphyPreviewMessage,
     userId,
-  } = params;
+  } = context;
 
   let unread = false;
   let ephemeralMessagePresent = false;
@@ -78,6 +93,7 @@ export const processMessages = <
       continue;
     }
 
+    const changes: StreamMessage<StreamChatGenerics>[] = [];
     const messageDate =
       (message.created_at && isDate(message.created_at) && message.created_at.toDateString()) || '';
     const previousMessage = messages[i - 1];
@@ -92,7 +108,7 @@ export const processMessages = <
 
       // do not show date separator for current user's messages
       if (enableDateSeparator && unread && message.user?.id !== userId) {
-        newMessages.push({
+        changes.push({
           customType: CUSTOM_MESSAGE_TYPE.date,
           date: message.created_at,
           id: makeDateMessageId(message.created_at),
@@ -109,11 +125,11 @@ export const processMessages = <
         (hideDeletedMessages &&
           previousMessage?.type === 'deleted' &&
           lastDateSeparator !== messageDate)) &&
-      newMessages?.[newMessages.length - 1]?.customType !== CUSTOM_MESSAGE_TYPE.date // do not show two date separators in a row)
+      changes[changes.length - 1]?.customType !== CUSTOM_MESSAGE_TYPE.date // do not show two date separators in a row)
     ) {
       lastDateSeparator = messageDate;
 
-      newMessages.push(
+      changes.push(
         {
           customType: CUSTOM_MESSAGE_TYPE.date,
           date: message.created_at,
@@ -122,8 +138,18 @@ export const processMessages = <
         message,
       );
     } else {
-      newMessages.push(message);
+      changes.push(message);
     }
+
+    newMessages.push(
+      ...(reviewProcessedMessage?.({
+        changes,
+        context,
+        index: i,
+        messages,
+        processedMessages: newMessages,
+      }) || changes),
+    );
   }
 
   // clean up the giphy preview component state after a Cancel action
@@ -281,7 +307,7 @@ export const getGroupStyles = <
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
-    (message.reaction_counts && Object.keys(message.reaction_counts).length > 0) ||
+    (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
     isMessageEdited(previousMessage);
 
   const isBottomMessage =
@@ -293,7 +319,7 @@ export const getGroupStyles = <
     message.user?.id !== nextMessage.user?.id ||
     nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
-    (nextMessage.reaction_counts && Object.keys(nextMessage.reaction_counts).length > 0) ||
+    (nextMessage.reaction_groups && Object.keys(nextMessage.reaction_groups).length > 0) ||
     isMessageEdited(message);
 
   if (!isTopMessage && !isBottomMessage) {
@@ -333,6 +359,7 @@ type DateSeparatorMessage = {
 
 export function isDateSeparatorMessage<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  // @ts-ignore
 >(message: StreamMessage<StreamChatGenerics>): message is DateSeparatorMessage {
   return message.customType === CUSTOM_MESSAGE_TYPE.date && !!message.date && isDate(message.date);
 }

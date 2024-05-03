@@ -35,6 +35,7 @@ import {
   generateReaction,
   generateUser,
   getTestClientWithUser,
+  groupReactions,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 
@@ -236,6 +237,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
       text: undefined,
     });
 
@@ -253,6 +255,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
       text: undefined,
     });
     const CustomReactionsList = ({ reactions = [] }) => (

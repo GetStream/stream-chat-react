@@ -119,6 +119,8 @@ export class ReactTextareaAutocomplete extends React.Component {
     const trigger = this.state.currentTrigger;
 
     if (!trigger || !this.state.data) {
+      // https://legacy.reactjs.org/docs/legacy-event-pooling.html
+      event.persist();
       // trigger a submit
       await this._replaceWord();
       if (this.textareaRef) {

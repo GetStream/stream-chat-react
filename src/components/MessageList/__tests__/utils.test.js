@@ -404,4 +404,20 @@ describe('processMessages', () => {
     const customMsgIDs = customMessages.map((m) => m.id);
     expect(customMessages).toHaveLength(new Set(customMsgIDs).size);
   });
+
+  it('executes reviewProcessedMessage function for each message', () => {
+    const msgCount = 5;
+    const messages = Array.from({ length: msgCount }, generateMessage);
+    const reviewProcessedMessage = jest.fn();
+    processMessages({
+      messages,
+      reviewProcessedMessage,
+      userId: myUserId,
+    });
+
+    expect(reviewProcessedMessage).toHaveBeenCalledTimes(msgCount);
+    messages.forEach((msg, i) => {
+      expect(reviewProcessedMessage.mock.calls[i][0].changes[0].id).toBe(msg.id);
+    });
+  });
 });

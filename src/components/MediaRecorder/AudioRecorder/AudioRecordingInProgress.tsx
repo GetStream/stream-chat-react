@@ -25,20 +25,22 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 100 }: WaveformProps) => 
   if (!recorder) return null;
 
   return (
-    <div className='str-chat__audio_recorder__waveform-box'>
-      {amplitudes.slice(-maxDataPointsDrawn).map((amplitude, i) => (
-        <div
-          className='str-chat__wave-progress-bar__amplitude-bar'
-          key={`amplitude-${i}-voice-recording`}
-          style={
-            {
-              '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
-                ? amplitude * 100 + '%'
-                : '0%',
-            } as React.CSSProperties
-          }
-        />
-      ))}
+    <div className='str-chat__waveform-box-container'>
+      <div className='str-chat__audio_recorder__waveform-box'>
+        {amplitudes.slice(-maxDataPointsDrawn).map((amplitude, i) => (
+          <div
+            className='str-chat__wave-progress-bar__amplitude-bar'
+            key={`amplitude-${i}-voice-recording`}
+            style={
+              {
+                '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
+                  ? amplitude * 100 + '%'
+                  : '0%',
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -64,12 +66,11 @@ export const AudioRecordingInProgress = () => {
       mediaRecorder.removeEventListener('pause', stopCounter);
     };
   }, [recorder, startCounter, stopCounter]);
+
   return (
     <React.Fragment>
       <RecordingTimer durationSeconds={secondsElapsed} />
-      <div className='str-chat__waveform-box-container'>
-        <AudioRecordingWaveform />
-      </div>
+      <AudioRecordingWaveform />
     </React.Fragment>
   );
 };

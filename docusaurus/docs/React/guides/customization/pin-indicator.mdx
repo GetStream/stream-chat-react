@@ -1,262 +1,106 @@
 ---
 id: pin_indicator
-title: Pin Indicator and Permissions
+title: Pin Indicator
 ---
 
-import CustomPinMessage from '../../assets/CustomPinMessage.png';
-import CustomPinMessagePinned from '../../assets/CustomPinMessagePinned.png';
-import CustomPinMessagePinnedHover from '../../assets/CustomPinMessagePinnedHover.png';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-In this example, we will demonstrate how to create a custom pin indicator component for pinned messages, as well as set custom permissions for pinning.
-
-## Pin Permissions
-
-Stream provides a default set of pin permissions for each user type within each channel type:
-
-```tsx
-export const defaultPinPermissions: PinPermissions = {
-  commerce: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  gaming: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: false,
-    user: false,
-  },
-  livestream: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  messaging: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  team: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-};
-```
-
-:::important
-When using a custom channel type, these permissions must be set for each user role.
-:::
-
-If you want to use different user permissions or create a custom channel type, the new permissions would need to be passed to `MessageList` using the `pinPermissions` prop.
-
-```tsx
-const CustomPermissions = {
-  customChannelType: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-};
-```
-
-```tsx
-<MessageList pinPermissions={CustomPermissions} />
-```
+In this example, we will demonstrate how to create a custom pin indicator for pinned messages. [Pinned messages](https://getstream.io/chat/docs/javascript/pinned_messages/?language=javascript) allow users to highlight important messages, make announcements, or temporarily promote content.
 
 ## Custom Pin Indicator
 
-To utilize pinned messages, we will create a basic message component as well as a custom pin indicator to display when a message has been pinned. The custom pin indicator component will simply display the text 'pinned'. This is where you could get creative with custom icons and styles.
+### CSS Based Solution
 
-```tsx
-export const CustomPinIndicator = () => {
-  return (
-    <div>
-      <div className='pin-text'>pinned</div>
-    </div>
-  );
-};
-```
+Let's start with the less invasive and fairly simple CSS based solution. All the class names you need to build this feature are in place and toggled appropriately. We'll add `::before` pseudo-class to our message bubble element with a pin (📌) icon to display whenever message has been pinned.
 
 ```css
-.pin-text {
-  font-style: italic;
-  color: grey;
+.str-chat__message--pinned .str-chat__message-bubble::before {
+  content: '📌';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  background-color: papayawhip;
+  font-size: 0.6rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 9999px;
+  z-index: 1;
+  top: -10px;
+}
+
+.str-chat__message--other.str-chat__message--pinned .str-chat__message-bubble::before {
+  right: -10px;
+}
+
+.str-chat__message--me.str-chat__message--pinned .str-chat__message-bubble::before {
+  left: -10px;
 }
 ```
 
-This component can now be passed to `Channel` and later pulled from the `ComponentContext` when used.
+![Custom Pin Indicator - CSS Based Solution](../../assets/custom-pin-indicator-css.png)
 
-```tsx
-<Channel PinIndicator={CustomPinIndicator}>{/* children of Channel component */}</Channel>
-```
+### Component Based Solution
 
-Now we will build a message component that changes its background from turquoise to yellow when a message is pinned. Our custom pin indicator will also replace the `MessageOptions` component unless the message is currently being hovered.
+While CSS solution is certainly less invasive it's also less malleable when it comes to hooking some JavaScript to it. For that case the component based solution is also an option. In this example we'll build an indicator which displays the name of the user who pinned the message. We'll pass our custom component to the [`Channel`](../../components/core-components/channel.mdx) prop `PinIndicator` which forwards it to [`ComponentContext`](../../components/contexts/component-context.mdx) from which it'll be picked up by the [`MessageSimple`](../../components/message-components/message-ui.mdx) component to render.
 
-```tsx
-export const CustomMessage = () => {
-  const [hovering, setHovering] = useState(false);
+<Tabs groupId="example">
+<TabItem value="js" label="React">
 
-  const { message } = useMessageContext();
-  const { PinIndicator = DefaultPinIndicator } = useComponentContext();
+```jsx
+import { Channel } from 'stream-chat-react';
 
-  const messageWrapperRef = useRef<HTMLDivElement>(null);
+const CustomPinIndicator = () => {
+  const { message } = useMessageContext('CustomPinIndicator');
 
-  const { pinned } = message;
+  const pinnedBy = message.pinned_by?.name || message.pinned_by?.id;
 
-  return (
-    <div
-      className={pinned ? 'pinned-custom-message-wrapper' : 'custom-message-wrapper'}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-    >
-      <div className='custom-message-wrapper-content'>
-        <div className='custom-message-header'>
-          <div className='custom-message-header-name'>{message.user?.name || message.user?.id}</div>
-        </div>
-        <MessageText />
-        <MessageRepliesCountButton reply_count={message.reply_count} />
-      </div>
-      <div className='custom-message-right-wrapper'>
-        {hovering ? (
-          <MessageOptions messageWrapperRef={messageWrapperRef} />
-        ) : (
-          pinned && <PinIndicator />
-        )}
-      </div>
-    </div>
-  );
+  if (!pinnedBy) return null;
+
+  return <div className='pin-indicator'>📌 Pinned by {pinnedBy}</div>;
 };
+
+//...
+
+<Channel PinIndicator={CustomPinIndicator}>...</Channel>;
 ```
+
+</TabItem>
+<TabItem value="css" label="CSS">
 
 ```css
-.custom-message-wrapper {
-  display: flex;
-  padding: 12px;
-  width: fit-content;
-  border-radius: 16px;
+.pin-indicator {
+  grid-area: pin;
 }
 
-.custom-message-wrapper-content {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.str-chat__message.str-chat__message--other,
+.str-chat__message.str-chat__quoted-message-preview {
+  grid-template-areas:
+    '. pin'
+    'avatar message'
+    '. replies'
+    '. translation-notice'
+    '. custom-metadata'
+    '. metadata';
 }
 
-.right-wrapper {
-  margin-left: 80px;
-  margin-right: 16px;
-  width: 48px;
-}
-
-.custom-message-header-name {
-  color: black;
-  font-weight: bold;
-  font-size: 14;
-}
-
-.str-chat__message-text-inner {
-  color: grey;
-  background: white;
-  border: none;
-  padding: 0;
-}
-
-.str-chat__message-simple__actions {
-  display: flex;
-}
-
-.custom-message-wrapper {
-  background: turquoise;
-  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-}
-
-.custom-message-wrapper:hover .str-chat__message-text-inner {
-  background: turquoise;
-}
-
-.str-chat__message-replies-count-button {
-  align-self: flex-start;
-}
-
-/** Pinned Message */
-
-.pinned-custom-message-wrapper {
-  display: flex;
-  padding: 12px;
-  width: fit-content;
-  border-radius: 16px;
-}
-
-.pinned-custom-message-wrapper {
-  background: papayawhip;
-  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.07);
-}
-
-.pinned-custom-message-wrapper:hover .str-chat__message-text-inner {
-  background: papayawhip;
-}
-
-.pinned-custom-message-wrapper .str-chat__message-text-inner {
-  background: papayawhip;
+.str-chat__message.str-chat__message--me {
+  grid-template-areas:
+    'pin'
+    'message'
+    'replies'
+    'translation-notice'
+    'custom-metadata'
+    'metadata';
 }
 ```
 
-From here all we need to do is override the default component in `Channel` at the `App.tsx` level:
+</TabItem>
+</Tabs>
 
-```tsx
-<Channel Message={CustomMessage}>{/* children of Channel component */}</Channel>
-```
+![Custom Pin Indicator](../../assets/custom-pin-indicator.png)
 
-## The Result
+### Read More
 
-Unpinned Message:
-
-<img src={CustomPinMessage} alt='Custom Pin Indicator UI Component for Chat' width='650' />
-
-Pinned Message (not hovered):
-
-<img src={CustomPinMessagePinned} alt='Custom Pin Indicator UI Component for Chat' width='650' />
-
-Pinned Message (hovered):
-
-<img
-  src={CustomPinMessagePinnedHover}
-  alt='Custom Pin Indicator UI Component for Chat'
-  width='700'
-/>
+See more on permissions regarding message pinning in [_Permissions v2_](https://getstream.io/chat/docs/react/user_permissions/?language=javascript) section of our JS documentation.

@@ -453,6 +453,68 @@ only `readBy` data for a user's most recently sent message is returned.
 | ------- | ------- |
 | boolean | false   |
 
+### reviewProcessedMessage
+
+Allows to review changes introduced to messages array on per message basis (for example date separator injection before a message). The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
+
+The function expects a single parameter, which is an object containing the following attributes:
+
+- `changes` - array of messages representing the changes applied around a given processed message
+- `context` - configuration params and information forwarded from `processMessages`
+- `index` - index of the processed message in the original messages array
+- `messages` - array of messages retrieved from the back-end
+- `processedMessages` - newly built array of messages to be later rendered
+
+The `context` has the following parameters:
+
+- `userId` - the connected user ID;
+- `enableDateSeparator` - flag determining whether the date separators will be injected Enable date separator
+- `hideDeletedMessages` - flag determining whether deleted messages would be filtered out during the processing
+- `hideNewMessageSeparator` - disables date separator display for unread incoming messages
+- `lastRead`: Date when the channel has been last read. Sets the threshold after everything is considered unread
+
+The example below demonstrates how the custom logic can decide, whether deleted messages should be rendered on a given date. In this example, the deleted messages neither the date separator would be rendered if all the messages on a given date are deleted.
+
+```js
+const getMsgDate = (msg) =>
+  (msg && msg.created_at && isDate(msg.created_at) && msg.created_at.toDateString()) || '';
+
+const dateSeparatorFilter = (msg) => msg.customType !== 'message.date';
+
+const msgIsDeleted = (msg) => msg.type === 'deleted';
+
+const reviewProcessedMessage = ({ changes, context, index, messages, processedMessages }) => {
+  if (!context.enableDateSeparator) return changes;
+
+  const changesWithoutSeparator = changes.filter(dateSeparatorFilter);
+  const dateSeparatorInjected = changesWithoutSeparator.length !== changes.length;
+  const previousProcessedMessage = processedMessages[processedMessages.length - 1];
+  const processedMessage = messages[index];
+  const processedMessageDate = getMsgDate(processedMessage);
+
+  if (dateSeparatorInjected) {
+    if (!processedMessageDate) return changes;
+    const followingMessages = messages.slice(index + 1);
+    let allFollowingMessagesOnDateDeleted = false;
+
+    for (const followingMsg of followingMessages) {
+      const followingMsgDate = getMsgDate(followingMsg);
+      if (followingMsgDate !== processedMessageDate) break;
+      allFollowingMessagesOnDateDeleted = followingMsg.type === 'deleted';
+    }
+
+    return allFollowingMessagesOnDateDeleted ? [] : changes;
+  } else if (
+    msgIsDeleted(processedMessage) &&
+    getMsgDate(previousProcessedMessage) !== getMsgDate(processedMessage)
+  ) {
+    return [];
+  } else {
+    return changes;
+  }
+};
+```
+
 ### scrolledUpThreshold
 
 The pixel threshold to determine whether the user is scrolled up in the list. When scrolled up in the active

@@ -2,6 +2,7 @@ import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import {
   countReactions,
   getTestClientWithUser,
+  groupReactions,
   mockTranslatorFunction,
 } from '../../../mock-builders';
 import {
@@ -247,6 +248,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         latest_reactions: reactions,
         reaction_counts: countReactions(reactions),
+        reaction_groups: groupReactions(reactions),
       });
       expect(messageHasReactions(message)).toBe(true);
     });

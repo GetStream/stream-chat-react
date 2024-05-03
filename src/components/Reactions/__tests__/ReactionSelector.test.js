@@ -92,7 +92,7 @@ describe('ReactionSelector', () => {
     const aliceReaction = generateReaction({ type: 'love', user: alice });
     const { container } = renderComponent({
       latest_reactions: [aliceReaction],
-      reaction_counts: { love: 1 },
+      reaction_groups: { love: { count: 1 } },
     });
 
     expect(AvatarMock).toHaveBeenCalledWith(
@@ -110,9 +110,9 @@ describe('ReactionSelector', () => {
     const love = 1;
     const haha = 2;
     const { container, getByText } = renderComponent({
-      reaction_counts: {
-        haha,
-        love,
+      reaction_groups: {
+        haha: { count: haha },
+        love: { count: love },
       },
     });
 
@@ -132,7 +132,7 @@ describe('ReactionSelector', () => {
     const bobReaction = generateReaction({ type: 'love', user: bob });
     const { container, findByText, getByTestId } = renderComponent({
       latest_reactions: [aliceReaction, bobReaction],
-      reaction_counts: { love: 2 },
+      reaction_groups: { love: { count: 2 } },
     });
 
     expect(AvatarMock).toHaveBeenCalledWith(

@@ -30,9 +30,9 @@ import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel } from './MessageListMainPanel';
 
-import type { GroupStyle } from './utils';
 import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
+import type { GroupStyle, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -75,6 +75,7 @@ const MessageListWithContext = <
     headerPosition,
     read,
     renderMessages = defaultRenderMessages,
+    reviewProcessedMessage,
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
@@ -136,6 +137,7 @@ const MessageListWithContext = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
+    reviewProcessedMessage,
   });
 
   const elements = useMessageListElements({
@@ -344,6 +346,11 @@ export type MessageListProps<
   renderMessages?: MessageRenderer<StreamChatGenerics>;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
   returnAllReadData?: boolean;
+  /**
+   * Allows to review changes introduced to messages array on per message basis (e.g. date separator injection before a message).
+   * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
+   */
+  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
   /**
    * The pixel threshold under which the message list is considered to be so near to the bottom,
    * so that if a new message is delivered, the list will be scrolled to the absolute bottom.

@@ -13,8 +13,8 @@ import { generateReactions, generateUser } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 
-const generateReactionsFromReactionCounts = (reactionCounts) =>
-  Object.entries(reactionCounts).flatMap(([type, count]) =>
+const generateReactionsFromReactionGroups = (reactionGroups) =>
+  Object.entries(reactionGroups).flatMap(([type, { count }]) =>
     generateReactions(count, (i) => ({
       type,
       user: generateUser({ id: `mark-${i}`, name: `Mark Number ${i}` }),
@@ -41,13 +41,13 @@ describe('ReactionsListModal', () => {
   });
 
   it('should show reactions modal when a reaction is clicked', async () => {
-    const reactionCounts = {
-      haha: 2,
-      love: 5,
+    const reactionGroups = {
+      haha: { count: 2 },
+      love: { count: 5 },
     };
     const { container, getByTestId, queryByTestId } = renderComponent({
-      reaction_counts: reactionCounts,
-      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      reaction_groups: reactionGroups,
+      reactions: generateReactionsFromReactionGroups(reactionGroups),
     });
 
     expect(queryByTestId('reactions-list-modal')).not.toBeInTheDocument();
@@ -61,16 +61,16 @@ describe('ReactionsListModal', () => {
   });
 
   it('should display a list of reactions in a modal', async () => {
-    const reactionCounts = {
-      haha: 2,
-      love: 5,
+    const reactionGroups = {
+      haha: { count: 2 },
+      love: { count: 5 },
     };
-    const reactions = generateReactionsFromReactionCounts(reactionCounts);
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
     const fetchReactions = jest.fn(() => Promise.resolve(reactions));
 
     const { container, getAllByTestId, getByTestId } = renderComponent({
       handleFetchReactions: fetchReactions,
-      reaction_counts: reactionCounts,
+      reaction_groups: reactionGroups,
       reactions,
     });
 
@@ -89,13 +89,13 @@ describe('ReactionsListModal', () => {
   });
 
   it('should close reactions list modal when close button is clicked', async () => {
-    const reactionCounts = {
-      haha: 2,
-      love: 5,
+    const reactionGroups = {
+      haha: { count: 2 },
+      love: { count: 5 },
     };
     const { getByTestId, getByTitle, queryByTestId } = renderComponent({
-      reaction_counts: reactionCounts,
-      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      reaction_groups: reactionGroups,
+      reactions: generateReactionsFromReactionGroups(reactionGroups),
     });
 
     await act(() => {
@@ -109,13 +109,13 @@ describe('ReactionsListModal', () => {
   });
 
   it('should not allow opening reactions list modal when the reactions count is too high', async () => {
-    const reactionCounts = {
-      haha: 2000,
-      love: 5000,
+    const reactionGroups = {
+      haha: { count: 2000 },
+      love: { count: 5000 },
     };
     const { getByTestId, queryByTestId } = renderComponent({
-      reaction_counts: reactionCounts,
-      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      reaction_groups: reactionGroups,
+      reactions: generateReactionsFromReactionGroups(reactionGroups),
     });
 
     await act(() => {
@@ -125,14 +125,14 @@ describe('ReactionsListModal', () => {
   });
 
   it('should order reactions alphabetically by default', async () => {
-    const reactionCounts = {
-      haha: 2,
-      like: 8,
-      love: 5,
+    const reactionGroups = {
+      haha: { count: 2 },
+      like: { count: 8 },
+      love: { count: 5 },
     };
     const { getByTestId } = renderComponent({
-      reaction_counts: reactionCounts,
-      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      reaction_groups: reactionGroups,
+      reactions: generateReactionsFromReactionGroups(reactionGroups),
     });
 
     await act(() => {
@@ -153,14 +153,14 @@ describe('ReactionsListModal', () => {
   });
 
   it('should use custom reactions comparator if provided', async () => {
-    const reactionCounts = {
-      haha: 2,
-      like: 8,
-      love: 5,
+    const reactionGroups = {
+      haha: { count: 2 },
+      like: { count: 8 },
+      love: { count: 5 },
     };
     const { getByTestId } = renderComponent({
-      reaction_counts: reactionCounts,
-      reactions: generateReactionsFromReactionCounts(reactionCounts),
+      reaction_groups: reactionGroups,
+      reactions: generateReactionsFromReactionGroups(reactionGroups),
       sortReactions: (a, b) => b.reactionCount - a.reactionCount,
     });
 
@@ -182,14 +182,14 @@ describe('ReactionsListModal', () => {
   });
 
   it('should order reacted users alphabetically by default', async () => {
-    const reactionCounts = {
-      haha: 3,
+    const reactionGroups = {
+      haha: { count: 3 },
     };
-    const reactions = generateReactionsFromReactionCounts(reactionCounts).reverse();
+    const reactions = generateReactionsFromReactionGroups(reactionGroups).reverse();
     const fetchReactions = jest.fn(() => Promise.resolve(reactions));
     const { getByTestId, getByText } = renderComponent({
       handleFetchReactions: fetchReactions,
-      reaction_counts: reactionCounts,
+      reaction_groups: reactionGroups,
       reactions,
     });
 
@@ -207,14 +207,14 @@ describe('ReactionsListModal', () => {
   });
 
   it('should use custom reaction details comparator if provided', async () => {
-    const reactionCounts = {
-      haha: 3,
+    const reactionGroups = {
+      haha: { count: 3 },
     };
-    const reactions = generateReactionsFromReactionCounts(reactionCounts).reverse();
+    const reactions = generateReactionsFromReactionGroups(reactionGroups).reverse();
     const fetchReactions = jest.fn(() => Promise.resolve(reactions));
     const { getByTestId, getByText } = renderComponent({
       handleFetchReactions: fetchReactions,
-      reaction_counts: reactionCounts,
+      reaction_groups: reactionGroups,
       reactions,
       sortReactionDetails: (a, b) => -a.user.name.localeCompare(b.user.name),
     });
