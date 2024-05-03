@@ -189,7 +189,7 @@ describe('AttachmentPreviewList', () => {
     });
   });
 
-  describe.each(['audio', 'file', 'image', 'unknown', 'voiceRecording', 'video'])(
+  describe.each(['audio', 'file', 'image', 'unsupported', 'voiceRecording', 'video'])(
     '%s attachments rendering',
     (type) => {
       const customAttachment = {
@@ -205,7 +205,7 @@ describe('AttachmentPreviewList', () => {
         audio: generateAudioAttachment,
         file: generateFileAttachment,
         image: generateImageAttachment,
-        unknown: () => customAttachment,
+        unsupported: () => customAttachment,
         video: generateVideoAttachment,
         voiceRecording: generateVoiceRecordingAttachment,
       };
@@ -309,7 +309,7 @@ describe('AttachmentPreviewList', () => {
           audio: 'FileAttachmentPreview',
           file: 'FileAttachmentPreview',
           image: 'ImageAttachmentPreview',
-          unknown: 'UnknownAttachmentPreview',
+          unsupported: 'UnsupportedAttachmentPreview',
           video: 'FileAttachmentPreview',
           voiceRecording: 'VoiceRecordingPreview',
         };

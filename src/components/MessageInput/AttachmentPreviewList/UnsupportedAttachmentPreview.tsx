@@ -4,15 +4,15 @@ import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import React from 'react';
 
-export type UnknownAttachmentPreviewProps = AttachmentPreviewProps;
+export type UnsupportedAttachmentPreviewProps = AttachmentPreviewProps;
 
-export const UnknownAttachmentPreview = ({
+export const UnsupportedAttachmentPreview = ({
   attachment,
   handleRetry,
   removeAttachments,
-}: UnknownAttachmentPreviewProps) => {
-  const { t } = useTranslationContext('UnknownAttachmentPreview');
-  const title = attachment.title ?? t('Unknown attachment');
+}: UnsupportedAttachmentPreviewProps) => {
+  const { t } = useTranslationContext('UnsupportedAttachmentPreview');
+  const title = attachment.title ?? t('Unsupported attachment');
   return (
     <div className='str-chat__attachment-preview-unknown' data-testid='attachment-preview-unknown'>
       <div className='str-chat__attachment-preview-file-icon'>

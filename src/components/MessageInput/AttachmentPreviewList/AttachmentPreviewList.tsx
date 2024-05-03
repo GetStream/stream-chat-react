@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import { UnknownAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnknownAttachmentPreview';
+import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
 import {
   VoiceRecordingPreview as DefaultVoiceRecordingPreview,
   VoiceRecordingPreviewProps,
@@ -28,7 +28,7 @@ import type { AttachmentPreviewProps } from './types';
 export type AttachmentPreviewListProps = {
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
-  UnknownAttachmentPreview?: ComponentType<AttachmentPreviewProps>;
+  UnsupportedAttachmentPreview?: ComponentType<AttachmentPreviewProps>;
   VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
 };
 
@@ -37,7 +37,7 @@ export const AttachmentPreviewList = <
 >({
   FileAttachmentPreview = DefaultFilePreview,
   ImageAttachmentPreview = DefaultImagePreview,
-  UnknownAttachmentPreview = DefaultUnknownAttachmentPreview,
+  UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
 }: AttachmentPreviewListProps) => {
   const {
@@ -88,7 +88,7 @@ export const AttachmentPreviewList = <
             );
           }
           return (
-            <UnknownAttachmentPreview
+            <UnsupportedAttachmentPreview
               attachment={attachment}
               handleRetry={uploadAttachment}
               key={attachment.$internal.id}
