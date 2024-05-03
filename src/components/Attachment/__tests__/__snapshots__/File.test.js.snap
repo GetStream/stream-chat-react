@@ -46,9 +46,9 @@ exports[`File should render File component in V2 1`] = `
   <svg
     className="rfu-file-pdf str-chat__file-icon"
     fill="none"
-    height={20}
+    height={50}
     viewBox="0 0 34 40"
-    width={20}
+    width={50}
     xmlns="http://www.w3.org/2000/svg"
   >
     <path

@@ -26,8 +26,8 @@ The following UI components are available for use:
 - [`SendButton`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) - on click, sends a
   message to the currently active channel
 
-- [`UploadsPreview`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/UploadsPreview.tsx) - displays
-  a list of uploaded files prior to sending the message
+- [`AttachmentPreviewList`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList/AttachmentPreviewList.tsx) - displays
+  a list of message attachments
 
 ## ChatAutoComplete Props
 
@@ -155,8 +155,46 @@ Function to send a message to the currently active channel.
 | ----------------------------------------- |
 | (event: React.BaseSyntheticEvent) => void |
 
-## UploadsPreview
+## AttachmentPreviewList
 
-:::note
-`UploadsPreview` only consumes context and does not accept any optional props.
-:::
+Renders message attachments in preview. The default (supported) message attachment types are:
+
+- `audio`
+- `video`
+- `image`
+- `voiceRecording`
+- `file`
+
+If the attachment object has property `og_scrape_url` or `title_link`, then it is rendered be [`LinkPreviewList` component](#linkpreviewlist-props) and not `AttachmentPreviewList`.
+
+### FileAttachmentPreview
+
+Custom component to be rendered for attachments of types `'file'`, `'video'`, `'audio'`.
+
+| Type                                        |
+| ------------------------------------------- |
+| `ComponentType<FileAttachmentPreviewProps>` |
+
+### ImageAttachmentPreview
+
+Custom component to be rendered for uploaded `'image'` attachment.
+
+| Type                                         |
+| -------------------------------------------- |
+| `ComponentType<ImageAttachmentPreviewProps>` |
+
+### UnknownAttachmentPreview
+
+Custom component to be rendered for attachment that is not recognized as any of the default types.
+
+| Type                                    |
+| --------------------------------------- |
+| `ComponentType<AttachmentPreviewProps>` |
+
+### VoiceRecordingPreview
+
+Custom component to preview audio recorded using [`AudioRecorder` component](../audio_recorder).
+
+| Type                                        |
+| ------------------------------------------- |
+| `ComponentType<VoiceRecordingPreviewProps>` |

@@ -1,4 +1,5 @@
 export { AttachmentPreviewList } from './AttachmentPreviewList';
+export type { AttachmentPreviewListProps } from './AttachmentPreviewList';
 export * from './CooldownTimer';
 export * from './DefaultTriggerProvider';
 export * from './EditMessageForm';

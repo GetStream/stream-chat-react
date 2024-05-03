@@ -7,17 +7,58 @@ export const generateAttachmentAction = (a) => ({
   ...a,
 });
 
+export const generateFile = (overrides) => ({
+  lastModified: 12345,
+  lastModifiedDate: new Date(12345),
+  name: 'file.pdf',
+  size: 144,
+  type: 'application/pdf',
+  webkitRelativePath: '',
+  ...overrides,
+});
+
+export const generateImageFile = (overrides) => ({
+  ...generateFile(),
+  name: 'image.png',
+  type: 'image/png',
+  ...overrides,
+});
+
+export const generateLocalAttachmentData = () => ({
+  $internal: {
+    id: nanoid(),
+  },
+});
+
+export const generateLocalFileUploadAttachmentData = (overrides) => ({
+  $internal: {
+    ...generateLocalAttachmentData().$internal,
+    ...overrides,
+    file: generateFile(overrides?.file ?? {}),
+  },
+});
+
+export const generateLocalImageUploadAttachmentData = (overrides) => ({
+  $internal: {
+    ...generateLocalFileUploadAttachmentData().$internal,
+    previewUri: 'image-preview-uri',
+    ...overrides,
+    // eslint-disable-next-line sort-keys
+    file: generateImageFile(overrides?.file ?? {}),
+  },
+});
+
 export const generateFileAttachment = (a) => ({
   asset_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
   file_size: 1337,
   mime_type: 'application/pdf',
-  title: nanoid(),
+  title: nanoid() + '.pdf',
   type: 'file',
   ...a,
 });
 
 export const generateImageAttachment = (a) => ({
-  fallback: nanoid(),
+  fallback: nanoid() + '.png',
   image_url: 'http://' + nanoid(),
   type: 'image',
   ...a,
@@ -27,7 +68,8 @@ export const generateVideoAttachment = (a) => ({
   asset_url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
   file_size: 2930530,
   mime_type: 'video/mp4',
-  title: nanoid(),
+  thumb_url: 'thumb_url',
+  title: nanoid() + '.mp4',
   type: 'video',
   ...a,
 });
@@ -36,7 +78,7 @@ export const generateAudioAttachment = (a) => ({
   asset_url: 'http://www.jackblack.com/tribute.mp3',
   file_size: 36132,
   mime_type: 'audio/mpeg',
-  title: nanoid(),
+  title: nanoid() + '.mpeg',
   type: 'audio',
   ...a,
 });
@@ -47,7 +89,7 @@ export const generateVoiceRecordingAttachment = (a) => ({
   duration: 43.007999420166016,
   file_size: 67940,
   mime_type: 'audio/aac',
-  title: 'audio_recording_Mon Feb 05 16:21:34 PST 2024',
+  title: 'audio_recording_Mon Feb 05 16:21:34 PST 2024.aac',
   type: 'voiceRecording',
   waveform_data: [
     0.3139950633049011,

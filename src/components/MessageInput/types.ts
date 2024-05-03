@@ -98,9 +98,30 @@ export type VideoAttachment<
   title?: string;
 };
 
+type ImageAttachment<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = Attachment<StreamChatGenerics> & {
+  type: 'image';
+  fallback?: string;
+  image_url?: string;
+  original_height?: number;
+  original_width?: number;
+};
+
+type FileAttachment<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = Attachment<StreamChatGenerics> & {
+  type: 'file';
+  asset_url?: string;
+  file_size?: number;
+  mime_type?: string;
+  title?: string;
+};
+
 export type AttachmentInternalMetadata = {
   id: string;
   file?: File;
+  previewUri?: string;
   uploadState?: AttachmentLoadingState;
 };
 
@@ -118,10 +139,20 @@ export type LocalVideoAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = LocalAttachmentCast<VideoAttachment<StreamChatGenerics>>;
 
+export type LocalImageAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = LocalAttachmentCast<ImageAttachment<StreamChatGenerics>>;
+
+export type LocalFileAttachment<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = LocalAttachmentCast<FileAttachment<StreamChatGenerics>>;
+
 export type LocalAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > =
   | LocalAttachmentCast<Attachment<StreamChatGenerics>>
+  | LocalFileAttachment<StreamChatGenerics>
+  | LocalImageAttachment<StreamChatGenerics>
   | LocalAudioAttachment<StreamChatGenerics>
   | LocalVideoAttachment<StreamChatGenerics>
   | LocalVoiceRecordingAttachment<StreamChatGenerics>;

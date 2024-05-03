@@ -9,10 +9,11 @@ import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
+import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
 import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
 
 import type { FileLike } from '../../ReactFileUtilities';
-import type { Message, OGAttachment, UserResponse } from 'stream-chat';
+import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
 import type { MessageInputProps } from '../MessageInput';
 
@@ -21,7 +22,6 @@ import type {
   DefaultStreamChatGenerics,
   SendMessageOptions,
 } from '../../../types/types';
-import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
 import { mergeDeep } from '../../../utils/mergeDeep';
 
 export type MessageInputState<
@@ -38,14 +38,16 @@ export type MessageInputState<
   text: string;
 };
 
-type UpsertAttachmentAction = {
-  attachment: LocalAttachment;
-  type: 'upsertAttachment';
+type UpsertAttachmentsAction<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachments: LocalAttachment<StreamChatGenerics>[];
+  type: 'upsertAttachments';
 };
 
-type RemoveAttachmentAction = {
-  id: string;
-  type: 'removeAttachment';
+type RemoveAttachmentsAction = {
+  ids: string[];
+  type: 'removeAttachments';
 };
 
 type SetTextAction = {
@@ -109,8 +111,8 @@ export type MessageInputReducerAction<
   | RemoveImageUploadAction
   | RemoveFileUploadAction
   | AddMentionedUserAction<StreamChatGenerics>
-  | UpsertAttachmentAction
-  | RemoveAttachmentAction;
+  | UpsertAttachmentsAction
+  | RemoveAttachmentsAction;
 
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -128,16 +130,19 @@ export type MessageInputHookProps<
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
   recordingController: RecordingController;
-  removeAttachment: (id: string) => void;
+  removeAttachments: (ids: string[]) => void;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadAttachment: (
     attachment: LocalAttachment<StreamChatGenerics>,
-  ) => Promise<LocalAttachment<StreamChatGenerics>>;
+  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
+  upsertAttachments: (
+    attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[],
+  ) => void;
 };
 
 const makeEmptyMessageInputState = <
@@ -182,7 +187,7 @@ const initState = <
               name: fallback,
             },
             id,
-            og_scrape_url,
+            og_scrape_url, // fixme: why scraped content is mixed with uploaded content?
             state: 'finished',
             text,
             title,
@@ -236,7 +241,7 @@ const initState = <
         (att) =>
           ({
             ...att,
-            $internal: { id: nanoid(), uploadState: 'finished' },
+            $internal: { id: nanoid() },
           } as LocalAttachment<StreamChatGenerics>),
       ) || [];
 
@@ -271,31 +276,34 @@ const messageInputReducer = <
     case 'clear':
       return makeEmptyMessageInputState();
 
-    case 'upsertAttachment': {
-      const attachmentIndex = state.attachments.findIndex(
-        (att) => att.$internal?.id && att.$internal?.id === action.attachment.$internal?.id,
-      );
-      const upsertedAttachment = mergeDeep(
-        state.attachments[attachmentIndex] ?? {},
-        action.attachment,
-      );
+    case 'upsertAttachments': {
       const attachments = [...state.attachments];
-      attachments.splice(attachmentIndex, 1, upsertedAttachment);
+      action.attachments.forEach((actionAttachment) => {
+        const attachmentIndex = state.attachments.findIndex(
+          (att) => att.$internal?.id && att.$internal?.id === actionAttachment.$internal?.id,
+        );
+
+        if (attachmentIndex === -1) {
+          attachments.push(actionAttachment);
+        } else {
+          const upsertedAttachment = mergeDeep(
+            state.attachments[attachmentIndex] ?? {},
+            actionAttachment,
+          );
+          attachments.splice(attachmentIndex, 1, upsertedAttachment);
+        }
+      });
+
       return {
         ...state,
         attachments,
       };
     }
 
-    case 'removeAttachment': {
-      const attachmentIndex = state.attachments.findIndex(
-        (att) => att.$internal?.id && att.$internal?.id === action.id,
-      );
-      if (attachmentIndex === -1) return state;
-
+    case 'removeAttachments': {
       return {
         ...state,
-        attachments: [...state.attachments.splice(attachmentIndex, 1)],
+        attachments: state.attachments.filter((att) => !action.ids.includes(att.$internal?.id)),
       };
     }
 
@@ -493,13 +501,14 @@ export const useMessageInputState = <
   const {
     maxFilesLeft,
     numberOfUploads,
-    removeAttachment,
+    removeAttachments,
     removeFile,
     removeImage,
     uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
   } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
 
   const { handleSubmit } = useSubmitHandler<StreamChatGenerics, V>(
@@ -552,7 +561,7 @@ export const useMessageInputState = <
     openCommandsList,
     openMentionsList,
     recordingController,
-    removeAttachment,
+    removeAttachments,
     removeFile,
     removeImage,
     setText,
@@ -563,5 +572,6 @@ export const useMessageInputState = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
   };
 };
