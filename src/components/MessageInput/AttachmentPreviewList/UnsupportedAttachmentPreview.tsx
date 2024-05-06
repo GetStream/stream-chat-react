@@ -20,7 +20,10 @@ export const UnsupportedAttachmentPreview = <
   const { t } = useTranslationContext('UnsupportedAttachmentPreview');
   const title = attachment.title ?? t('Unsupported attachment');
   return (
-    <div className='str-chat__attachment-preview-unknown' data-testid='attachment-preview-unknown'>
+    <div
+      className='str-chat__attachment-preview-unsupported'
+      data-testid='attachment-preview-unknown'
+    >
       <div className='str-chat__attachment-preview-file-icon'>
         <FileIcon filename={title} mimeType={attachment.mime_type} version='2' />
       </div>
