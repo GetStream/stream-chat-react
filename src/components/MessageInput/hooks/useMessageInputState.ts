@@ -9,7 +9,7 @@ import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
-import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
+import { AnyLocalAttachment, FileUpload, ImageUpload, LinkPreviewMap } from '../types';
 import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
 
 import type { FileLike } from '../../ReactFileUtilities';
@@ -135,8 +135,8 @@ export type MessageInputHookProps<
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadAttachment: (
-    attachment: LocalAttachment<StreamChatGenerics>,
-  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
+    attachment: AnyLocalAttachment<StreamChatGenerics>,
+  ) => Promise<AnyLocalAttachment<StreamChatGenerics> | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;

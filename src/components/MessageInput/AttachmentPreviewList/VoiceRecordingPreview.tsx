@@ -1,18 +1,24 @@
-import { AttachmentPreviewProps } from './types';
-import { useAudioController } from '../../Attachment/hooks/useAudioController';
-import { PlayButton } from '../../Attachment';
-import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
-import { RecordingTimer } from '../../MediaRecorder';
-import { FileIcon } from '../../ReactFileUtilities';
 import React from 'react';
+import { PlayButton } from '../../Attachment';
+import { RecordingTimer } from '../../MediaRecorder';
+import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
+import { FileIcon } from '../../ReactFileUtilities';
+import { useAudioController } from '../../Attachment/hooks/useAudioController';
+import type { AttachmentPreviewProps } from './types';
+import type { LocalVoiceRecordingAttachment } from '../types';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type VoiceRecordingPreviewProps = AttachmentPreviewProps;
+export type VoiceRecordingPreviewProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = AttachmentPreviewProps<LocalVoiceRecordingAttachment<StreamChatGenerics>, StreamChatGenerics>;
 
-export const VoiceRecordingPreview = ({
+export const VoiceRecordingPreview = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   attachment,
   handleRetry,
   removeAttachments,
-}: VoiceRecordingPreviewProps) => {
+}: VoiceRecordingPreviewProps<StreamChatGenerics>) => {
   const { audioRef, isPlaying, secondsElapsed, togglePlay } = useAudioController({
     mimeType: attachment.mime_type,
   });

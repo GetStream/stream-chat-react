@@ -1,17 +1,23 @@
 import clsx from 'clsx';
 import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import React, { useCallback, useState } from 'react';
-import { AttachmentPreviewProps } from './types';
 import { BaseImage as DefaultBaseImage } from '../../Gallery';
 import { useComponentContext } from '../../../context';
+import type { AttachmentPreviewProps } from './types';
+import type { LocalImageAttachment } from '../types';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type ImageAttachmentPreviewProps = AttachmentPreviewProps;
+export type ImageAttachmentPreviewProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = AttachmentPreviewProps<LocalImageAttachment<StreamChatGenerics>, StreamChatGenerics>;
 
-export const ImageAttachmentPreview = ({
+export const ImageAttachmentPreview = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   attachment,
   handleRetry,
   removeAttachments,
-}: ImageAttachmentPreviewProps) => {
+}: ImageAttachmentPreviewProps<StreamChatGenerics>) => {
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreview');
   const [previewError, setPreviewError] = useState(false);
 

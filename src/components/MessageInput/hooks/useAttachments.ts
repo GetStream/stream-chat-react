@@ -15,7 +15,7 @@ import {
 import type { Attachment, SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import type { AttachmentInternalMetadata, LocalAttachment } from '../types';
+import { AnyLocalAttachment, AttachmentInternalMetadata, LocalAttachment } from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 import { isUploadedImage } from '../../Attachment';
@@ -126,8 +126,8 @@ export const useAttachments = <
 
   const uploadAttachment = useCallback(
     async (
-      att: LocalAttachment<StreamChatGenerics>,
-    ): Promise<LocalAttachment<StreamChatGenerics> | undefined> => {
+      att: AnyLocalAttachment<StreamChatGenerics>,
+    ): Promise<AnyLocalAttachment<StreamChatGenerics> | undefined> => {
       const { $internal, ...attachment } = att;
       if (!$internal?.file) return att;
 
@@ -190,7 +190,7 @@ export const useAttachments = <
             ...$internal,
             uploadState: 'failed',
           },
-        } as LocalAttachment<StreamChatGenerics>;
+        } as AnyLocalAttachment<StreamChatGenerics>;
 
         dispatch({
           attachments: [failedAttachment],
@@ -219,7 +219,7 @@ export const useAttachments = <
           ...$internal,
           uploadState: 'finished',
         },
-      } as LocalAttachment<StreamChatGenerics>;
+      } as AnyLocalAttachment<StreamChatGenerics>;
 
       if (uploadType === 'image') {
         if (uploadedAttachment.$internal.previewUri) {

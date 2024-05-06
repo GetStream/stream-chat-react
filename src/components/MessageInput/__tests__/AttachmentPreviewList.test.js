@@ -88,15 +88,15 @@ describe('AttachmentPreviewList', () => {
       contextValue: generateMessageInputContextValue({
         attachments: [
           generateAudioAttachment({
-            $internal: { uploadState: state },
+            $internal: { id: 'audio-attachment-id', uploadState: state },
             title: `audio-attachment-${state}`,
           }),
           generateVoiceRecordingAttachment({
-            $internal: { uploadState: state },
+            $internal: { id: 'voice-recording-attachment-id', uploadState: state },
             title: `voice-recording-attachment-${state}`,
           }),
           generateVideoAttachment({
-            $internal: { uploadState: state },
+            $internal: { id: 'video-attachment-id', uploadState: state },
             title: `video-attachment-${state}`,
           }),
         ],
@@ -306,22 +306,21 @@ describe('AttachmentPreviewList', () => {
 
       it('renders custom preview component', () => {
         const previewComponentNames = {
-          audio: 'FileAttachmentPreview',
+          audio: 'AudioAttachmentPreview',
           file: 'FileAttachmentPreview',
           image: 'ImageAttachmentPreview',
           unsupported: 'UnsupportedAttachmentPreview',
-          video: 'FileAttachmentPreview',
+          video: 'VideoAttachmentPreview',
           voiceRecording: 'VoiceRecordingPreview',
         };
-        const state = 'finished';
-        const title = `${type}-attachment-${state}`;
+        const title = `${type}-attachment`;
         const id = `${type}-id`;
         const uploadedAttachmentData = generate[type]({
           title,
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id, uploadState: state },
+          $internal: { id },
         };
 
         const contextValue = generateMessageInputContextValue({

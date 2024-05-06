@@ -1,15 +1,27 @@
-import { AttachmentPreviewProps } from './types';
+import React from 'react';
 import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
-import React from 'react';
+import type { AttachmentPreviewProps } from './types';
+import type { LocalAttachmentCast } from '../types';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type FileAttachmentPreviewProps = AttachmentPreviewProps;
+type FileLikeAttachment = {
+  asset_url?: string;
+  mime_type?: string;
+  title?: string;
+};
 
-export const FileAttachmentPreview = ({
+export type FileAttachmentPreviewProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = AttachmentPreviewProps<LocalAttachmentCast<FileLikeAttachment>, StreamChatGenerics>;
+
+export const FileAttachmentPreview = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   attachment,
   handleRetry,
   removeAttachments,
-}: FileAttachmentPreviewProps) => (
+}: FileAttachmentPreviewProps<StreamChatGenerics>) => (
   <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
     <div className='str-chat__attachment-preview-file-icon'>
       <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />

@@ -1,16 +1,22 @@
-import { AttachmentPreviewProps } from './types';
-import { useTranslationContext } from '../../../context';
-import { FileIcon } from '../../ReactFileUtilities';
-import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import React from 'react';
+import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
+import { FileIcon } from '../../ReactFileUtilities';
+import { useTranslationContext } from '../../../context';
+import type { AttachmentPreviewProps } from './types';
+import type { AnyLocalAttachment } from '../types';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
-export type UnsupportedAttachmentPreviewProps = AttachmentPreviewProps;
+export type UnsupportedAttachmentPreviewProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = AttachmentPreviewProps<AnyLocalAttachment<StreamChatGenerics>, StreamChatGenerics>;
 
-export const UnsupportedAttachmentPreview = ({
+export const UnsupportedAttachmentPreview = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   attachment,
   handleRetry,
   removeAttachments,
-}: UnsupportedAttachmentPreviewProps) => {
+}: UnsupportedAttachmentPreviewProps<StreamChatGenerics>) => {
   const { t } = useTranslationContext('UnsupportedAttachmentPreview');
   const title = attachment.title ?? t('Unsupported attachment');
   return (

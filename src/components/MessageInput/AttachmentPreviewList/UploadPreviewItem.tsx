@@ -11,7 +11,7 @@ export const ImageUploadPreviewAdapter = <
 >({
   id,
   Preview = ImageAttachmentPreview,
-}: PreviewAdapterProps<ImageAttachmentPreviewProps>) => {
+}: PreviewAdapterProps<ImageAttachmentPreviewProps<StreamChatGenerics>>) => {
   const { imageUploads, removeImage, uploadImage } = useMessageInputContext(
     'ImageUploadPreviewAdapter',
   );

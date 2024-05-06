@@ -1,5 +1,8 @@
 import React, { ComponentType } from 'react';
-import { UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview } from './UnsupportedAttachmentPreview';
+import {
+  UnsupportedAttachmentPreview as DefaultUnknownAttachmentPreview,
+  UnsupportedAttachmentPreviewProps,
+} from './UnsupportedAttachmentPreview';
 import {
   VoiceRecordingPreview as DefaultVoiceRecordingPreview,
   VoiceRecordingPreviewProps,
@@ -14,32 +17,40 @@ import {
   ImageAttachmentPreviewProps,
 } from './ImageAttachmentPreview';
 import {
-  isAudioAttachment,
-  isFileAttachment,
-  isMediaAttachment,
-  isUploadedImage,
-  isVoiceRecordingAttachment,
+  isLocalAttachment,
+  isLocalAudioAttachment,
+  isLocalFileAttachment,
+  isLocalImageAttachment,
+  isLocalMediaAttachment,
+  isLocalVoiceRecordingAttachment,
 } from '../../Attachment';
 import { useMessageInputContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types';
-import type { AttachmentPreviewProps } from './types';
 
-export type AttachmentPreviewListProps = {
+export type AttachmentPreviewListProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  AudioAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
   FileAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
-  ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps>;
-  UnsupportedAttachmentPreview?: ComponentType<AttachmentPreviewProps>;
-  VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps>;
+  ImageAttachmentPreview?: ComponentType<ImageAttachmentPreviewProps<StreamChatGenerics>>;
+  UnsupportedAttachmentPreview?: ComponentType<
+    UnsupportedAttachmentPreviewProps<StreamChatGenerics>
+  >;
+  VideoAttachmentPreview?: ComponentType<FileAttachmentPreviewProps>;
+  VoiceRecordingPreview?: ComponentType<VoiceRecordingPreviewProps<StreamChatGenerics>>;
 };
 
 export const AttachmentPreviewList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
+  AudioAttachmentPreview = DefaultFilePreview,
   FileAttachmentPreview = DefaultFilePreview,
   ImageAttachmentPreview = DefaultImagePreview,
   UnsupportedAttachmentPreview = DefaultUnknownAttachmentPreview,
+  VideoAttachmentPreview = DefaultFilePreview,
   VoiceRecordingPreview = DefaultVoiceRecordingPreview,
-}: AttachmentPreviewListProps) => {
+}: AttachmentPreviewListProps<StreamChatGenerics>) => {
   const {
     attachments,
     fileOrder,
@@ -55,7 +66,7 @@ export const AttachmentPreviewList = <
         data-testid='attachment-list-scroll-container'
       >
         {attachments.map((attachment) => {
-          if (isVoiceRecordingAttachment(attachment)) {
+          if (isLocalVoiceRecordingAttachment(attachment)) {
             return (
               <VoiceRecordingPreview
                 attachment={attachment}
@@ -64,20 +75,25 @@ export const AttachmentPreviewList = <
                 removeAttachments={removeAttachments}
               />
             );
-          } else if (
-            isFileAttachment(attachment) ||
-            isAudioAttachment(attachment) ||
-            isMediaAttachment(attachment)
-          ) {
+          } else if (isLocalAudioAttachment(attachment)) {
             return (
-              <FileAttachmentPreview
+              <AudioAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
                 key={attachment.$internal?.id || attachment.asset_url}
                 removeAttachments={removeAttachments}
               />
             );
-          } else if (isUploadedImage(attachment)) {
+          } else if (isLocalMediaAttachment(attachment)) {
+            return (
+              <VideoAttachmentPreview
+                attachment={attachment}
+                handleRetry={uploadAttachment}
+                key={attachment.$internal?.id || attachment.asset_url}
+                removeAttachments={removeAttachments}
+              />
+            );
+          } else if (isLocalImageAttachment(attachment)) {
             return (
               <ImageAttachmentPreview
                 attachment={attachment}
@@ -86,15 +102,26 @@ export const AttachmentPreviewList = <
                 removeAttachments={removeAttachments}
               />
             );
+          } else if (isLocalFileAttachment(attachment)) {
+            return (
+              <FileAttachmentPreview
+                attachment={attachment}
+                handleRetry={uploadAttachment}
+                key={attachment.$internal?.id || attachment.asset_url}
+                removeAttachments={removeAttachments}
+              />
+            );
+          } else if (isLocalAttachment(attachment)) {
+            return (
+              <UnsupportedAttachmentPreview
+                attachment={attachment}
+                handleRetry={uploadAttachment}
+                key={attachment.$internal.id}
+                removeAttachments={removeAttachments}
+              />
+            );
           }
-          return (
-            <UnsupportedAttachmentPreview
-              attachment={attachment}
-              handleRetry={uploadAttachment}
-              key={attachment.$internal.id}
-              removeAttachments={removeAttachments}
-            />
-          );
+          return null;
         })}
         {imageOrder.map((id) => (
           <ImageUploadPreviewAdapter id={id} key={id} Preview={ImageAttachmentPreview} />
