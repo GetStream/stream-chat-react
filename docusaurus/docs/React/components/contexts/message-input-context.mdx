@@ -438,13 +438,27 @@ If true, triggers typing events on text input keystroke.
 | ------- | ------- |
 | boolean | true    |
 
-### removeAttachment
+### removeAttachments
 
-Function to remove a file from the `attachments` array in the `MessageInputState`.
+Function to remove an attachment objects from the `attachments` array in the `MessageInputState`.
 
-| Type                 |
-| -------------------- |
-| (id: string) => void |
+| Type                   |
+| ---------------------- |
+| (id: string[]) => void |
+
+```jsx
+const Component = () => {
+  const { attachments, removeAttachments } = useMessageInputContext();
+
+  return (
+    <div>
+      {attachments.map((att) => (
+        <button onClick={() => removeAttachments([att.$internal.id])}>Remove</button>
+      ))}
+    </div>
+  );
+};
+```
 
 ### removeFile
 
@@ -541,6 +555,25 @@ Function that adds or updates `attachments` array in `MessageInputState`. Accept
 | Type                                                                                               |
 | -------------------------------------------------------------------------------------------------- |
 | `(attachments: (Attachment<StreamChatGenerics> \| LocalAttachment<StreamChatGenerics>)[]) => void` |
+
+```jsx
+const Component = () => {
+  const { upsertAttachments } = useMessageInputContext();
+
+  const handleSelect = (location) => {
+    upsertAttachments([
+      {
+        type: 'geolocation',
+        longitude: location.longitude,
+        latitude: location.latitude,
+        name: location.name,
+      },
+    ]);
+  };
+
+  // ...
+};
+```
 
 ### useMentionsTransliteration
 
