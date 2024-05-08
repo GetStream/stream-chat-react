@@ -58,7 +58,7 @@ export const isLocalAttachment = <
 >(
   attachment: UnknownType,
 ): attachment is LocalAttachment<StreamChatGenerics> =>
-  !!(attachment.$internal as LocalAttachment)?.id;
+  !!(attachment.localMetadata as LocalAttachment)?.id;
 
 export const isScrapedContent = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -302,7 +302,7 @@ describe('MessageInput', () => {
     });
 
     expect(doFileUploadRequest).toHaveBeenCalledTimes(1);
-    const { $internal, ...uploadedRecordingAtt } = recording;
+    const { localMetadata, ...uploadedRecordingAtt } = recording;
     expect(sendMessage.mock.calls[0][0]).toStrictEqual({
       attachments: [uploadedRecordingAtt],
       mentioned_users: [],
@@ -420,7 +420,7 @@ describe('AudioRecorder', () => {
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({
-      recording: generateVoiceRecordingAttachment({ $internal: { uploadState: 'uploading' } }),
+      recording: generateVoiceRecordingAttachment({ localMetadata: { uploadState: 'uploading' } }),
       recordingState: MediaRecordingState.STOPPED,
     });
     expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();

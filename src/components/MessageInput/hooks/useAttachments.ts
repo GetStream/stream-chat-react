@@ -25,14 +25,14 @@ const apiMaxNumberOfFiles = 10;
 const ensureIsLocalAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  $internal = {},
+  localMetadata = {},
   ...attachment
 }:
   | Attachment<StreamChatGenerics>
   | LocalAttachment<StreamChatGenerics>): LocalAttachment<StreamChatGenerics> => ({
-  $internal: {
-    ...($internal ?? {}),
-    id: ($internal as AttachmentInternalMetadata)?.id || nanoid(),
+  localMetadata: {
+    ...(localMetadata ?? {}),
+    id: (localMetadata as AttachmentInternalMetadata)?.id || nanoid(),
   },
   ...attachment,
 });
@@ -128,12 +128,12 @@ export const useAttachments = <
     async (
       att: AnyLocalAttachment<StreamChatGenerics>,
     ): Promise<AnyLocalAttachment<StreamChatGenerics> | undefined> => {
-      const { $internal, ...attachment } = att;
-      if (!$internal?.file) return att;
+      const { localMetadata, ...attachment } = att;
+      if (!localMetadata?.file) return att;
 
       const uploadType = isUploadedImage(attachment) ? 'image' : 'file';
-      const id = $internal?.id ?? nanoid();
-      const { file } = $internal;
+      const id = localMetadata?.id ?? nanoid();
+      const { file } = localMetadata;
 
       const canUpload = await checkUploadPermissions({
         addNotification,
@@ -154,8 +154,8 @@ export const useAttachments = <
         attachments: [
           {
             ...attachment,
-            $internal: {
-              ...$internal,
+            localMetadata: {
+              ...localMetadata,
               id,
               uploadState: 'uploading',
             },
@@ -186,8 +186,8 @@ export const useAttachments = <
 
         const failedAttachment = {
           ...attachment,
-          $internal: {
-            ...$internal,
+          localMetadata: {
+            ...localMetadata,
             uploadState: 'failed',
           },
         } as AnyLocalAttachment<StreamChatGenerics>;
@@ -215,16 +215,16 @@ export const useAttachments = <
 
       const uploadedAttachment = {
         ...attachment,
-        $internal: {
-          ...$internal,
+        localMetadata: {
+          ...localMetadata,
           uploadState: 'finished',
         },
       } as AnyLocalAttachment<StreamChatGenerics>;
 
       if (uploadType === 'image') {
-        if (uploadedAttachment.$internal.previewUri) {
-          URL.revokeObjectURL(uploadedAttachment.$internal.previewUri);
-          delete uploadedAttachment.$internal.previewUri;
+        if (uploadedAttachment.localMetadata.previewUri) {
+          URL.revokeObjectURL(uploadedAttachment.localMetadata.previewUri);
+          delete uploadedAttachment.localMetadata.previewUri;
         }
         uploadedAttachment.image_url = response.file;
       } else {

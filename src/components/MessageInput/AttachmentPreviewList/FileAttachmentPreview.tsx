@@ -30,13 +30,15 @@ export const FileAttachmentPreview = <
     <button
       className='str-chat__attachment-preview-delete'
       data-testid='file-preview-item-delete-button'
-      disabled={attachment.$internal?.uploadState === 'uploading'}
-      onClick={() => attachment.$internal?.id && removeAttachments([attachment.$internal?.id])}
+      disabled={attachment.localMetadata?.uploadState === 'uploading'}
+      onClick={() =>
+        attachment.localMetadata?.id && removeAttachments([attachment.localMetadata?.id])
+      }
     >
       <CloseIcon />
     </button>
 
-    {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
+    {attachment.localMetadata?.uploadState === 'failed' && !!handleRetry && (
       <button
         className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
         data-testid='file-preview-item-retry-button'
@@ -50,7 +52,7 @@ export const FileAttachmentPreview = <
       <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
         {attachment.title}
       </div>
-      {attachment.$internal?.uploadState === 'finished' && !!attachment.asset_url && (
+      {attachment.localMetadata?.uploadState === 'finished' && !!attachment.asset_url && (
         <a
           className='str-chat__attachment-preview-file-download'
           download
@@ -61,7 +63,7 @@ export const FileAttachmentPreview = <
           <DownloadIcon />
         </a>
       )}
-      {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
+      {attachment.localMetadata?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
     </div>
   </div>
 );

@@ -71,7 +71,7 @@ export const AttachmentPreviewList = <
               <VoiceRecordingPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal?.id || attachment.asset_url}
+                key={attachment.localMetadata?.id || attachment.asset_url}
                 removeAttachments={removeAttachments}
               />
             );
@@ -80,7 +80,7 @@ export const AttachmentPreviewList = <
               <AudioAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal?.id || attachment.asset_url}
+                key={attachment.localMetadata?.id || attachment.asset_url}
                 removeAttachments={removeAttachments}
               />
             );
@@ -89,7 +89,7 @@ export const AttachmentPreviewList = <
               <VideoAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal?.id || attachment.asset_url}
+                key={attachment.localMetadata?.id || attachment.asset_url}
                 removeAttachments={removeAttachments}
               />
             );
@@ -98,7 +98,7 @@ export const AttachmentPreviewList = <
               <ImageAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal?.id || attachment.image_url}
+                key={attachment.localMetadata?.id || attachment.image_url}
                 removeAttachments={removeAttachments}
               />
             );
@@ -107,7 +107,7 @@ export const AttachmentPreviewList = <
               <FileAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal?.id || attachment.asset_url}
+                key={attachment.localMetadata?.id || attachment.asset_url}
                 removeAttachments={removeAttachments}
               />
             );
@@ -116,7 +116,7 @@ export const AttachmentPreviewList = <
               <UnsupportedAttachmentPreview
                 attachment={attachment}
                 handleRetry={uploadAttachment}
-                key={attachment.$internal.id}
+                key={attachment.localMetadata.id}
                 removeAttachments={removeAttachments}
               />
             );

@@ -241,7 +241,7 @@ const initState = <
         (att) =>
           ({
             ...att,
-            $internal: { id: nanoid() },
+            localMetadata: { id: nanoid() },
           } as LocalAttachment<StreamChatGenerics>),
       ) || [];
 
@@ -280,7 +280,8 @@ const messageInputReducer = <
       const attachments = [...state.attachments];
       action.attachments.forEach((actionAttachment) => {
         const attachmentIndex = state.attachments.findIndex(
-          (att) => att.$internal?.id && att.$internal?.id === actionAttachment.$internal?.id,
+          (att) =>
+            att.localMetadata?.id && att.localMetadata?.id === actionAttachment.localMetadata?.id,
         );
 
         if (attachmentIndex === -1) {
@@ -303,7 +304,7 @@ const messageInputReducer = <
     case 'removeAttachments': {
       return {
         ...state,
-        attachments: state.attachments.filter((att) => !action.ids.includes(att.$internal?.id)),
+        attachments: state.attachments.filter((att) => !action.ids.includes(att.localMetadata?.id)),
       };
     }
 

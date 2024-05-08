@@ -125,7 +125,7 @@ export type AttachmentInternalMetadata = {
   uploadState?: AttachmentLoadingState;
 };
 
-export type LocalAttachmentCast<T> = T & { $internal: AttachmentInternalMetadata };
+export type LocalAttachmentCast<T> = T & { localMetadata: AttachmentInternalMetadata };
 
 export type LocalVoiceRecordingAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -187,13 +187,13 @@ export class MediaRecorderController {
     });
 
     return {
-      $internal: {
-        file,
-        id: nanoid(),
-      },
       asset_url: this.recordingUri,
       duration: this.durationMs / 1000,
       file_size: blob.size,
+      localMetadata: {
+        file,
+        id: nanoid(),
+      },
       mime_type: blob.type,
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,

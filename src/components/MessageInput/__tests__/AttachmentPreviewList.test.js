@@ -88,15 +88,15 @@ describe('AttachmentPreviewList', () => {
       contextValue: generateMessageInputContextValue({
         attachments: [
           generateAudioAttachment({
-            $internal: { id: 'audio-attachment-id', uploadState: state },
+            localMetadata: { id: 'audio-attachment-id', uploadState: state },
             title: `audio-attachment-${state}`,
           }),
           generateVoiceRecordingAttachment({
-            $internal: { id: 'voice-recording-attachment-id', uploadState: state },
+            localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
             title: `voice-recording-attachment-${state}`,
           }),
           generateVideoAttachment({
-            $internal: { id: 'video-attachment-id', uploadState: state },
+            localMetadata: { id: 'video-attachment-id', uploadState: state },
             title: `video-attachment-${state}`,
           }),
         ],
@@ -218,7 +218,7 @@ describe('AttachmentPreviewList', () => {
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id: new Date().toISOString(), uploadState: state },
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
         const contextValue = generateMessageInputContextValue({
@@ -246,7 +246,7 @@ describe('AttachmentPreviewList', () => {
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id: new Date().toISOString(), uploadState: state },
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
         const contextValue = generateMessageInputContextValue({
@@ -267,7 +267,7 @@ describe('AttachmentPreviewList', () => {
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id: new Date().toISOString(), uploadState: state },
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
         };
 
         const contextValue = generateMessageInputContextValue({
@@ -288,7 +288,7 @@ describe('AttachmentPreviewList', () => {
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id, uploadState: state },
+          localMetadata: { id, uploadState: state },
         };
 
         const contextValue = generateMessageInputContextValue({
@@ -301,7 +301,9 @@ describe('AttachmentPreviewList', () => {
           screen.getByTestId(type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID),
         );
 
-        expect(contextValue.removeAttachments).toHaveBeenCalledWith([localAttachment.$internal.id]);
+        expect(contextValue.removeAttachments).toHaveBeenCalledWith([
+          localAttachment.localMetadata.id,
+        ]);
       });
 
       it('renders custom preview component', () => {
@@ -320,7 +322,7 @@ describe('AttachmentPreviewList', () => {
         });
         const localAttachment = {
           ...uploadedAttachmentData,
-          $internal: { id },
+          localMetadata: { id },
         };
 
         const contextValue = generateMessageInputContextValue({

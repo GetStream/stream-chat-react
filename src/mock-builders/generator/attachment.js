@@ -25,22 +25,22 @@ export const generateImageFile = (overrides) => ({
 });
 
 export const generateLocalAttachmentData = () => ({
-  $internal: {
+  localMetadata: {
     id: nanoid(),
   },
 });
 
 export const generateLocalFileUploadAttachmentData = (overrides) => ({
-  $internal: {
-    ...generateLocalAttachmentData().$internal,
+  localMetadata: {
+    ...generateLocalAttachmentData().localMetadata,
     ...overrides,
     file: generateFile(overrides?.file ?? {}),
   },
 });
 
 export const generateLocalImageUploadAttachmentData = (overrides) => ({
-  $internal: {
-    ...generateLocalFileUploadAttachmentData().$internal,
+  localMetadata: {
+    ...generateLocalFileUploadAttachmentData().localMetadata,
     previewUri: 'image-preview-uri',
     ...overrides,
     // eslint-disable-next-line sort-keys

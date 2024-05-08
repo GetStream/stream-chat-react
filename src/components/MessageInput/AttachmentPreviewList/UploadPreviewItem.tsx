@@ -20,7 +20,7 @@ export const ImageUploadPreviewAdapter = <
 
   const handleRetry = useCallback(
     (attachment: LocalAttachment<StreamChatGenerics>) =>
-      attachment.$internal && uploadImage(attachment.$internal.id),
+      attachment.localMetadata && uploadImage(attachment.localMetadata.id),
     [uploadImage],
   );
 
@@ -31,12 +31,12 @@ export const ImageUploadPreviewAdapter = <
       !image || image.og_scrape_url
         ? undefined
         : {
-            $internal: {
+            image_url: image.previewUri ?? image.url,
+            localMetadata: {
               file: image.file as File,
               id,
               uploadState: image.state,
             },
-            image_url: image.previewUri ?? image.url,
             title: image.file.name,
             type: 'image',
           },
@@ -72,7 +72,7 @@ export const FileUploadPreviewAdapter = <
   );
   const handleRetry = useCallback(
     (attachment: LocalAttachment<StreamChatGenerics>) =>
-      attachment.$internal && uploadFile(attachment.$internal.id),
+      attachment.localMetadata && uploadFile(attachment.localMetadata.id),
     [uploadFile],
   );
 
@@ -82,12 +82,12 @@ export const FileUploadPreviewAdapter = <
       !file
         ? undefined
         : {
-            $internal: {
+            asset_url: file.url,
+            localMetadata: {
               file: file.file as File,
               id,
               uploadState: file.state,
             },
-            asset_url: file.url,
             mime_type: file.file.type,
             title: file.file.name,
             type: 'file',

@@ -129,7 +129,7 @@ describe('useMessageInputState', () => {
         result.current.attachments.forEach((resultAttachment, i) => {
           expect(resultAttachment).toMatchObject(
             expect.objectContaining({
-              $internal: expect.objectContaining({ id: expect.any(String) }),
+              localMetadata: expect.objectContaining({ id: expect.any(String) }),
               ...message.attachments[i],
             }),
           );
@@ -155,7 +155,7 @@ describe('useMessageInputState', () => {
         result.current.attachments.forEach((resultAttachment, i) => {
           expect(resultAttachment).toMatchObject(
             expect.objectContaining({
-              $internal: expect.objectContaining({ id: expect.any(String) }),
+              localMetadata: expect.objectContaining({ id: expect.any(String) }),
               ...attachmentsAfterUpdate[i],
             }),
           );
@@ -169,7 +169,9 @@ describe('useMessageInputState', () => {
         const originalCount = result.current.attachments.length;
         await act(() => {
           result.current.removeAttachments(
-            result.current.attachments.slice(0, removeUpToIndex).map(({ $internal: { id } }) => id),
+            result.current.attachments
+              .slice(0, removeUpToIndex)
+              .map(({ localMetadata: { id } }) => id),
           );
         });
         const attachmentsLeft = result.current.attachments.slice(removeUpToIndex);
@@ -179,7 +181,7 @@ describe('useMessageInputState', () => {
         result.current.attachments.forEach((resultAttachment, i) => {
           expect(resultAttachment).toMatchObject(
             expect.objectContaining({
-              $internal: expect.objectContaining({ id: expect.any(String) }),
+              localMetadata: expect.objectContaining({ id: expect.any(String) }),
               ...attachmentsLeft[i],
             }),
           );
@@ -248,8 +250,8 @@ describe('useMessageInputState', () => {
               chatContext: { getAppSettings },
               client,
             });
-            const att = { ...attachment, $internal: { ...attachment.$internal } };
-            delete att.$internal.file;
+            const att = { ...attachment, localMetadata: { ...attachment.localMetadata } };
+            delete att.localMetadata.file;
             await act(async () => {
               await result.current.uploadAttachment(att);
             });
@@ -266,7 +268,7 @@ describe('useMessageInputState', () => {
             [
               'uploading file with blocked extension',
               {
-                blocked_file_extensions: attachment.$internal.file.type?.split('/').slice(-1),
+                blocked_file_extensions: attachment.localMetadata.file.type?.split('/').slice(-1),
               },
             ],
             [
@@ -278,13 +280,13 @@ describe('useMessageInputState', () => {
             [
               'uploading file with blocked mime_type',
               {
-                blocked_mime_types: [attachment.$internal.file.type],
+                blocked_mime_types: [attachment.localMetadata.file.type],
               },
             ],
             [
               'file exceeds allowed size',
               {
-                size_limit: attachment.$internal.file.size - 1,
+                size_limit: attachment.localMetadata.file.size - 1,
               },
             ],
           ])('does not upload attachment if %s in app config', async (_, appConfig) => {
@@ -328,7 +330,7 @@ describe('useMessageInputState', () => {
               client,
             });
             if (type === 'image') {
-              expect(attachment.$internal.previewUri).toBeDefined();
+              expect(attachment.localMetadata.previewUri).toBeDefined();
             }
 
             await act(async () => {
@@ -339,13 +341,13 @@ describe('useMessageInputState', () => {
             expect(result.all[0].attachments).toHaveLength(0);
             expect(result.all[1].attachments).toHaveLength(1);
             expect(result.all[2].attachments).toHaveLength(1);
-            // cannot test result.all[1].attachments[0].$internal.uploadState === 'uploading'
+            // cannot test result.all[1].attachments[0].localMetadata.uploadState === 'uploading'
             // as the value is getting overridden by the current result
-            expect(result.all[2].attachments[0].$internal.uploadState).toBe('finished');
+            expect(result.all[2].attachments[0].localMetadata.uploadState).toBe('finished');
 
             if (type === 'image') {
               expect(result.all[2].attachments[0].image_url).toBe(assetUrl);
-              expect(result.all[2].attachments[0].$internal.previewUri).toBeUndefined();
+              expect(result.all[2].attachments[0].localMetadata.previewUri).toBeUndefined();
             } else {
               expect(result.all[2].attachments[0].asset_url).toBe(assetUrl);
             }
@@ -459,7 +461,7 @@ describe('useMessageInputState', () => {
                 await result.current.uploadAttachment(attachment);
               });
 
-              expect(result.current.attachments[0].$internal.uploadState).toBe('failed');
+              expect(result.current.attachments[0].localMetadata.uploadState).toBe('failed');
               expect(consoleErrorSpy.mock.calls[0][0].message).toBe(
                 scenario === 'custom' ? errMsgCustom : errMsg,
               );

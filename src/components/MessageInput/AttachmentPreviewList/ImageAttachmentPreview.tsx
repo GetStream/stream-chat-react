@@ -21,7 +21,7 @@ export const ImageAttachmentPreview = <
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreview');
   const [previewError, setPreviewError] = useState(false);
 
-  const { id, uploadState } = attachment.$internal ?? {};
+  const { id, uploadState } = attachment.localMetadata ?? {};
 
   const handleLoadError = useCallback(() => setPreviewError(true), []);
 

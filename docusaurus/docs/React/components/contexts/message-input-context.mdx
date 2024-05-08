@@ -453,7 +453,7 @@ const Component = () => {
   return (
     <div>
       {attachments.map((att) => (
-        <button onClick={() => removeAttachments([att.$internal.id])}>Remove</button>
+        <button onClick={() => removeAttachments([att.localMetadata.id])}>Remove</button>
       ))}
     </div>
   );
