@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 import { checkUploadPermissions } from './utils';
-import { isLocalImageAttachment, isUploadedImage } from '../../Attachment';
+import { isLocalAttachment, isLocalImageAttachment, isUploadedImage } from '../../Attachment';
 
 import {
   useChannelActionContext,
@@ -29,18 +29,21 @@ const apiMaxNumberOfFiles = 10;
 
 const ensureIsLocalAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({
-  localMetadata = {},
-  ...attachment
-}:
-  | Attachment<StreamChatGenerics>
-  | LocalAttachment<StreamChatGenerics>): LocalAttachment<StreamChatGenerics> => ({
-  localMetadata: {
-    ...(localMetadata ?? {}),
-    id: (localMetadata as BaseLocalAttachmentMetadata)?.id || nanoid(),
-  },
-  ...attachment,
-});
+>(
+  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
+): LocalAttachment<StreamChatGenerics> => {
+  if (isLocalAttachment(attachment)) {
+    return attachment;
+  }
+  const { localMetadata, ...rest } = attachment;
+  return {
+    localMetadata: {
+      ...(localMetadata ?? {}),
+      id: (localMetadata as BaseLocalAttachmentMetadata)?.id || nanoid(),
+    },
+    ...rest,
+  };
+};
 
 export const useAttachments = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
