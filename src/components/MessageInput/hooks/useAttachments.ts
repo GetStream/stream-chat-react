@@ -112,7 +112,7 @@ export const useAttachments = <
 
   const removeAttachments = useCallback(
     (ids: string[]) => {
-      if (!(ids && ids.length)) return;
+      if (!ids.length) return;
       dispatch({ ids, type: 'removeAttachments' });
     },
     [dispatch],
@@ -120,7 +120,7 @@ export const useAttachments = <
 
   const upsertAttachments = useCallback(
     (attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[]) => {
-      if (!(attachments && attachments.length)) return;
+      if (!attachments.length) return;
       dispatch({
         attachments: attachments.map(ensureIsLocalAttachment),
         type: 'upsertAttachments',
