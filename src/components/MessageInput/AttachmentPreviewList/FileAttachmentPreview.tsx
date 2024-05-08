@@ -2,7 +2,7 @@ import React from 'react';
 import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import type { AttachmentPreviewProps } from './types';
-import type { LocalAttachmentCast } from '../types';
+import { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 type FileLikeAttachment = {
@@ -13,7 +13,10 @@ type FileLikeAttachment = {
 
 export type FileAttachmentPreviewProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AttachmentPreviewProps<LocalAttachmentCast<FileLikeAttachment>, StreamChatGenerics>;
+> = AttachmentPreviewProps<
+  LocalAttachmentCast<FileLikeAttachment, LocalAttachmentUploadMetadata>,
+  StreamChatGenerics
+>;
 
 export const FileAttachmentPreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

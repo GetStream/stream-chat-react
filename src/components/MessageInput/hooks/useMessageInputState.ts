@@ -9,9 +9,15 @@ import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
 import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
-import { AnyLocalAttachment, FileUpload, ImageUpload, LinkPreviewMap } from '../types';
-import { LinkPreviewState, LocalAttachment, SetLinkPreviewMode } from '../types';
+import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 
+import type {
+  AnyLocalAttachment,
+  FileUpload,
+  ImageUpload,
+  LinkPreviewMap,
+  LocalAttachment,
+} from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
@@ -129,7 +135,7 @@ export type MessageInputHookProps<
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
-  recordingController: RecordingController;
+  recordingController: RecordingController<StreamChatGenerics>;
   removeAttachments: (ids: string[]) => void;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;

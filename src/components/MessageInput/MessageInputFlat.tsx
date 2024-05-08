@@ -185,7 +185,6 @@ const MessageInputV2 = <
     setCooldownRemaining,
     text,
     uploadNewFiles,
-    upsertAttachments,
   } = useMessageInputContext<StreamChatGenerics>('MessageInputV2');
 
   const {
@@ -264,9 +263,6 @@ const MessageInputV2 = <
 
         <div className='str-chat__message-input-inner'>
           <div className='str-chat__file-input-container' data-testid='file-upload-button'>
-            <button onClick={() => upsertAttachments([{ type: 'test1' }, { type: 'test2' }])}>
-              upsert
-            </button>
             <UploadButton
               accept={acceptedFiles?.join(',')}
               aria-label={t('aria/File upload')}

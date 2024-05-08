@@ -1,8 +1,8 @@
-import { AnyLocalAttachment, LocalAttachment } from '../types';
+import { AnyLocalAttachment } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type AttachmentPreviewProps<
-  A extends LocalAttachment,
+  A extends AnyLocalAttachment,
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachment: A;

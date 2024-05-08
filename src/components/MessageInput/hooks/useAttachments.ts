@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 import { checkUploadPermissions } from './utils';
+import { isLocalImageAttachment, isUploadedImage } from '../../Attachment';
 
 import {
   useChannelActionContext,
@@ -15,10 +16,14 @@ import {
 import type { Attachment, SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import { AnyLocalAttachment, AttachmentInternalMetadata, LocalAttachment } from '../types';
+import type {
+  AnyLocalAttachment,
+  AttachmentLoadingState,
+  BaseLocalAttachmentMetadata,
+  LocalAttachment,
+} from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
-import { isUploadedImage } from '../../Attachment';
 
 const apiMaxNumberOfFiles = 10;
 
@@ -32,7 +37,7 @@ const ensureIsLocalAttachment = <
   | LocalAttachment<StreamChatGenerics>): LocalAttachment<StreamChatGenerics> => ({
   localMetadata: {
     ...(localMetadata ?? {}),
-    id: (localMetadata as AttachmentInternalMetadata)?.id || nanoid(),
+    id: (localMetadata as BaseLocalAttachmentMetadata)?.id || nanoid(),
   },
   ...attachment,
 });
@@ -131,8 +136,7 @@ export const useAttachments = <
       const { localMetadata, ...attachment } = att;
       if (!localMetadata?.file) return att;
 
-      const uploadType = isUploadedImage(attachment) ? 'image' : 'file';
-      const isImage = uploadType === 'image';
+      const isImage = isUploadedImage(attachment);
       const id = localMetadata?.id ?? nanoid();
       const { file } = localMetadata;
 
@@ -141,7 +145,7 @@ export const useAttachments = <
         file,
         getAppSettings,
         t,
-        uploadType,
+        uploadType: isImage ? 'image' : 'file',
       });
 
       if (!canUpload) {
@@ -151,19 +155,16 @@ export const useAttachments = <
         return att;
       }
 
-      dispatch({
-        attachments: [
-          {
-            ...attachment,
-            localMetadata: {
-              ...localMetadata,
-              id,
-              uploadState: 'uploading',
-            },
+      upsertAttachments([
+        {
+          ...attachment,
+          localMetadata: {
+            ...localMetadata,
+            id,
+            uploadState: 'uploading',
           },
-        ],
-        type: 'upsertAttachments',
-      });
+        },
+      ]);
 
       let response: SendFileAPIResponse;
       try {
@@ -185,18 +186,15 @@ export const useAttachments = <
         console.error(finalError);
         addNotification(finalError.message, 'error');
 
-        const failedAttachment = {
+        const failedAttachment: AnyLocalAttachment<StreamChatGenerics> = {
           ...attachment,
           localMetadata: {
             ...localMetadata,
-            uploadState: 'failed',
+            uploadState: 'failed' as AttachmentLoadingState,
           },
-        } as AnyLocalAttachment<StreamChatGenerics>;
+        };
 
-        dispatch({
-          attachments: [failedAttachment],
-          type: 'upsertAttachments',
-        });
+        upsertAttachments([failedAttachment]);
 
         if (errorHandler) {
           errorHandler(finalError as Error, 'upload-attachment', file);
@@ -214,15 +212,15 @@ export const useAttachments = <
         return;
       }
 
-      const uploadedAttachment = {
+      const uploadedAttachment: AnyLocalAttachment<StreamChatGenerics> = {
         ...attachment,
         localMetadata: {
           ...localMetadata,
-          uploadState: 'finished',
+          uploadState: 'finished' as AttachmentLoadingState,
         },
-      } as AnyLocalAttachment<StreamChatGenerics>;
+      };
 
-      if (isImage) {
+      if (isLocalImageAttachment(uploadedAttachment)) {
         if (uploadedAttachment.localMetadata.previewUri) {
           URL.revokeObjectURL(uploadedAttachment.localMetadata.previewUri);
           delete uploadedAttachment.localMetadata.previewUri;
@@ -231,10 +229,7 @@ export const useAttachments = <
       } else {
         uploadedAttachment.asset_url = response.file;
       }
-      dispatch({
-        attachments: [uploadedAttachment],
-        type: 'upsertAttachments',
-      });
+      upsertAttachments([uploadedAttachment]);
 
       return uploadedAttachment;
     },
@@ -243,11 +238,11 @@ export const useAttachments = <
       channel,
       doFileUploadRequest,
       doImageUploadRequest,
-      dispatch,
       errorHandler,
       getAppSettings,
       removeAttachments,
       t,
+      upsertAttachments,
     ],
   );
 
