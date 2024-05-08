@@ -132,6 +132,7 @@ export const useAttachments = <
       if (!localMetadata?.file) return att;
 
       const uploadType = isUploadedImage(attachment) ? 'image' : 'file';
+      const isImage = uploadType === 'image';
       const id = localMetadata?.id ?? nanoid();
       const { file } = localMetadata;
 
@@ -166,12 +167,12 @@ export const useAttachments = <
 
       let response: SendFileAPIResponse;
       try {
-        const doUploadRequest = uploadType === 'image' ? doImageUploadRequest : doFileUploadRequest;
+        const doUploadRequest = isImage ? doImageUploadRequest : doFileUploadRequest;
 
         if (doUploadRequest) {
           response = await doUploadRequest(file, channel);
         } else {
-          response = await channel.sendFile(file as File);
+          response = await channel[isImage ? 'sendImage' : 'sendFile'](file);
         }
       } catch (error) {
         let finalError: Error = { message: t('Error uploading attachment'), name: 'Error' };
@@ -221,7 +222,7 @@ export const useAttachments = <
         },
       } as AnyLocalAttachment<StreamChatGenerics>;
 
-      if (uploadType === 'image') {
+      if (isImage) {
         if (uploadedAttachment.localMetadata.previewUri) {
           URL.revokeObjectURL(uploadedAttachment.localMetadata.previewUri);
           delete uploadedAttachment.localMetadata.previewUri;

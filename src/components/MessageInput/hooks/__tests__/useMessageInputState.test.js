@@ -323,7 +323,9 @@ describe('useMessageInputState', () => {
               channels: [channel],
               client,
             } = await initClientWithChannels();
-            jest.spyOn(channel, 'sendFile').mockResolvedValue({ file: assetUrl });
+            jest
+              .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+              .mockResolvedValue({ file: assetUrl });
             const { result } = await renderUseMessageInputStateHook({
               channel,
               chatContext: { getAppSettings },
@@ -380,7 +382,9 @@ describe('useMessageInputState', () => {
               channels: [channel],
               client,
             } = await initClientWithChannels();
-            jest.spyOn(channel, 'sendFile').mockResolvedValue(undefined);
+            jest
+              .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+              .mockResolvedValue(undefined);
             const { result } = await renderUseMessageInputStateHook({
               channel,
               chatContext: { getAppSettings },
@@ -437,7 +441,9 @@ describe('useMessageInputState', () => {
                 client,
               } = await initClientWithChannels();
               const customSendSpy = jest.fn().mockRejectedValue(new Error(errMsgCustom));
-              jest.spyOn(channel, 'sendFile').mockRejectedValue(new Error(errMsg));
+              jest
+                .spyOn(channel, type === 'image' ? 'sendImage' : 'sendFile')
+                .mockRejectedValue(new Error(errMsg));
               const originalConsoleError = console.error;
               const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
                 if ([errMsg, errMsgCustom].includes(args[0].message)) return;
