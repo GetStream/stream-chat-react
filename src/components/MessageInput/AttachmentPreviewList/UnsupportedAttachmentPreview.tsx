@@ -7,8 +7,12 @@ import type { AnyLocalAttachment } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type UnsupportedAttachmentPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = AttachmentPreviewProps<AnyLocalAttachment<StreamChatGenerics>, StreamChatGenerics>;
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  CustomLocalMetadata = Record<string, unknown>
+> = AttachmentPreviewProps<
+  AnyLocalAttachment<StreamChatGenerics, CustomLocalMetadata>,
+  StreamChatGenerics
+>;
 
 export const UnsupportedAttachmentPreview = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

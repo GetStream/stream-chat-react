@@ -17,7 +17,6 @@ import type { Attachment, SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 import type {
-  AnyLocalAttachment,
   AttachmentLoadingState,
   BaseLocalAttachmentMetadata,
   LocalAttachment,
@@ -134,8 +133,8 @@ export const useAttachments = <
 
   const uploadAttachment = useCallback(
     async (
-      att: AnyLocalAttachment<StreamChatGenerics>,
-    ): Promise<AnyLocalAttachment<StreamChatGenerics> | undefined> => {
+      att: LocalAttachment<StreamChatGenerics>,
+    ): Promise<LocalAttachment<StreamChatGenerics> | undefined> => {
       const { localMetadata, ...attachment } = att;
       if (!localMetadata?.file) return att;
 
@@ -189,7 +188,7 @@ export const useAttachments = <
         console.error(finalError);
         addNotification(finalError.message, 'error');
 
-        const failedAttachment: AnyLocalAttachment<StreamChatGenerics> = {
+        const failedAttachment: LocalAttachment<StreamChatGenerics> = {
           ...attachment,
           localMetadata: {
             ...localMetadata,
@@ -215,7 +214,7 @@ export const useAttachments = <
         return;
       }
 
-      const uploadedAttachment: AnyLocalAttachment<StreamChatGenerics> = {
+      const uploadedAttachment: LocalAttachment<StreamChatGenerics> = {
         ...attachment,
         localMetadata: {
           ...localMetadata,

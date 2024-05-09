@@ -12,7 +12,6 @@ import type { Attachment } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 import type {
-  AnyLocalAttachment,
   LocalAttachment,
   LocalAudioAttachment,
   LocalFileAttachment,
@@ -58,7 +57,7 @@ export const isLocalAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   attachment: UnknownType,
-): attachment is AnyLocalAttachment<StreamChatGenerics> =>
+): attachment is LocalAttachment<StreamChatGenerics> =>
   !!(attachment.localMetadata as LocalAttachment)?.id;
 
 export const isScrapedContent = <

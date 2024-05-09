@@ -1,13 +1,13 @@
-import { AnyLocalAttachment } from '../types';
+import { LocalAttachment } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type AttachmentPreviewProps<
-  A extends AnyLocalAttachment,
+  A extends LocalAttachment,
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   attachment: A;
   handleRetry: (
-    attachment: AnyLocalAttachment<StreamChatGenerics>,
-  ) => void | Promise<AnyLocalAttachment | undefined>;
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => void | Promise<LocalAttachment<StreamChatGenerics> | undefined>;
   removeAttachments: (ids: string[]) => void;
 };

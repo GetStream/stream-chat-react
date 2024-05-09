@@ -131,49 +131,61 @@ export type LocalImageAttachmentUploadMetadata = LocalAttachmentUploadMetadata &
   previewUri?: string;
 };
 
-export type LocalAttachmentCast<A, L = unknown> = A & {
+export type LocalAttachmentCast<A, L = Record<string, unknown>> = A & {
   localMetadata: L & BaseLocalAttachmentMetadata;
 };
 
-export type LocalAttachmentMetadata<T = unknown> = T &
-  BaseLocalAttachmentMetadata &
-  LocalImageAttachmentUploadMetadata;
+export type LocalAttachmentMetadata<
+  CustomLocalMetadata = Record<string, unknown>
+> = CustomLocalMetadata & BaseLocalAttachmentMetadata & LocalImageAttachmentUploadMetadata;
 
 export type LocalVoiceRecordingAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
+  CustomLocalMetadata = Record<string, unknown>
 > = LocalAttachmentCast<
   VoiceRecordingAttachment<StreamChatGenerics>,
-  LocalAttachmentUploadMetadata & T
+  LocalAttachmentUploadMetadata & CustomLocalMetadata
 >;
 
 export type LocalAudioAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
-> = LocalAttachmentCast<AudioAttachment<StreamChatGenerics>, LocalAttachmentUploadMetadata & T>;
+  CustomLocalMetadata = Record<string, unknown>
+> = LocalAttachmentCast<
+  AudioAttachment<StreamChatGenerics>,
+  LocalAttachmentUploadMetadata & CustomLocalMetadata
+>;
 
 export type LocalVideoAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
-> = LocalAttachmentCast<VideoAttachment<StreamChatGenerics>, LocalAttachmentUploadMetadata & T>;
+  CustomLocalMetadata = Record<string, unknown>
+> = LocalAttachmentCast<
+  VideoAttachment<StreamChatGenerics>,
+  LocalAttachmentUploadMetadata & CustomLocalMetadata
+>;
 
 export type LocalImageAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
+  CustomLocalMetadata = Record<string, unknown>
 > = LocalAttachmentCast<
   ImageAttachment<StreamChatGenerics>,
-  LocalImageAttachmentUploadMetadata & T
+  LocalImageAttachmentUploadMetadata & CustomLocalMetadata
 >;
 
 export type LocalFileAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
-> = LocalAttachmentCast<FileAttachment<StreamChatGenerics>, LocalAttachmentUploadMetadata & T>;
+  CustomLocalMetadata = Record<string, unknown>
+> = LocalAttachmentCast<
+  FileAttachment<StreamChatGenerics>,
+  LocalAttachmentUploadMetadata & CustomLocalMetadata
+>;
 
 export type AnyLocalAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
-  T = unknown
-> = LocalAttachmentCast<Attachment<StreamChatGenerics>, LocalAttachmentMetadata<T>>;
+  CustomLocalMetadata = Record<string, unknown>
+> = LocalAttachmentCast<
+  Attachment<StreamChatGenerics>,
+  LocalAttachmentMetadata<CustomLocalMetadata>
+>;
 
 export type LocalAttachment<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

@@ -11,13 +11,7 @@ import { usePasteHandler } from './usePasteHandler';
 import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
 import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 
-import type {
-  AnyLocalAttachment,
-  FileUpload,
-  ImageUpload,
-  LinkPreviewMap,
-  LocalAttachment,
-} from '../types';
+import type { FileUpload, ImageUpload, LinkPreviewMap, LocalAttachment } from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
@@ -141,8 +135,8 @@ export type MessageInputHookProps<
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
   uploadAttachment: (
-    attachment: AnyLocalAttachment<StreamChatGenerics>,
-  ) => Promise<AnyLocalAttachment<StreamChatGenerics> | undefined>;
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;

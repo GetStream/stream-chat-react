@@ -12,9 +12,10 @@ type FileLikeAttachment = {
 };
 
 export type FileAttachmentPreviewProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  CustomLocalMetadata = Record<string, unknown>
 > = AttachmentPreviewProps<
-  LocalAttachmentCast<FileLikeAttachment, LocalAttachmentUploadMetadata>,
+  LocalAttachmentCast<FileLikeAttachment, LocalAttachmentUploadMetadata & CustomLocalMetadata>,
   StreamChatGenerics
 >;
 
