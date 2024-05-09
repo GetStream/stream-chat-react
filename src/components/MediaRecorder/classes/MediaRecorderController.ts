@@ -21,6 +21,7 @@ import { isSafari } from '../../../utils/browsers';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
 const RECORDED_MIME_TYPE_BY_BROWSER = {
   audio: {
@@ -86,7 +87,9 @@ export enum RecordingAttachmentType {
   VOICE_RECORDING = 'voiceRecording',
 }
 
-export class MediaRecorderController {
+export class MediaRecorderController<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> {
   permission: BrowserPermission;
   mediaRecorder: MediaRecorder | undefined;
   amplitudeRecorder: AmplitudeRecorder | undefined;
@@ -101,10 +104,14 @@ export class MediaRecorderController {
   recordingUri: string | undefined;
   mediaType: RecordedMediaType;
 
-  signalRecordingReady: ((r: LocalVoiceRecordingAttachment) => void) | undefined;
+  signalRecordingReady:
+    | ((r: LocalVoiceRecordingAttachment<StreamChatGenerics>) => void)
+    | undefined;
 
   recordingState = new BehaviorSubject<MediaRecordingState | undefined>(undefined);
-  recording = new BehaviorSubject<LocalVoiceRecordingAttachment | undefined>(undefined);
+  recording = new BehaviorSubject<LocalVoiceRecordingAttachment<StreamChatGenerics> | undefined>(
+    undefined,
+  );
   error = new Subject<Error | undefined>();
   notification = new Subject<{ text: string; type: 'success' | 'error' } | undefined>();
 
@@ -187,13 +194,13 @@ export class MediaRecorderController {
     });
 
     return {
-      $internal: {
-        file,
-        id: nanoid(),
-      },
       asset_url: this.recordingUri,
       duration: this.durationMs / 1000,
       file_size: blob.size,
+      localMetadata: {
+        file,
+        id: nanoid(),
+      },
       mime_type: blob.type,
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,
@@ -353,7 +360,7 @@ export class MediaRecorderController {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
     }
-    const result = new Promise<LocalVoiceRecordingAttachment>((res) => {
+    const result = new Promise<LocalVoiceRecordingAttachment<StreamChatGenerics>>((res) => {
       this.signalRecordingReady = res;
     });
     this.mediaRecorder?.stop();

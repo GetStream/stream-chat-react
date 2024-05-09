@@ -2241,10 +2241,10 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@^4.14.0":
-  version "4.14.0"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-4.14.0.tgz#89073a4d22465dee34c26ba3c6ea90fe17a851a2"
-  integrity sha512-EHP2clD0BNtzNYM6PYOxBJENDwAnT2y/39DF+kkZ/KEN1Z6S+o/c99NDjffWcXERRCG03nrARgXJNuU7UWiF9w==
+"@stream-io/stream-chat-css@^4.16.0":
+  version "4.16.0"
+  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-4.16.0.tgz#7d0358ca4ef696f422eafeb01c281a643e9e3b26"
+  integrity sha512-LeJoHhxCjHGlgDISkKF7J3AwHbb9OT0q6N6ErIK82Yx6pwpnMLD10uVt6xHwZg5W5gdbQq9oQFwMtpga23fW/g==
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"

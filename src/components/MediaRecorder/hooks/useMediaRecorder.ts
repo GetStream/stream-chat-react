@@ -7,11 +7,13 @@ import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type CustomAudioRecordingConfig = Partial<AudioRecorderConfig>;
 
-export type RecordingController = {
+export type RecordingController<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
   completeRecording: () => void;
   permissionState?: PermissionState;
   recorder?: MediaRecorderController;
-  recording?: LocalVoiceRecordingAttachment;
+  recording?: LocalVoiceRecordingAttachment<StreamChatGenerics>;
   recordingState?: MediaRecordingState;
 };
 
@@ -35,10 +37,10 @@ export const useMediaRecorder = <
   handleSubmit,
   recordingConfig,
   uploadAttachment,
-}: UseMediaRecorderParams<StreamChatGenerics>): RecordingController => {
+}: UseMediaRecorderParams<StreamChatGenerics>): RecordingController<StreamChatGenerics> => {
   const { t } = useTranslationContext('useMediaRecorder');
 
-  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
+  const [recording, setRecording] = useState<LocalVoiceRecordingAttachment<StreamChatGenerics>>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
   const [isScheduledForSubmit, scheduleForSubmit] = useState(false);

@@ -84,6 +84,7 @@
   "Unmute": "Désactiver muet",
   "Unpin": "Détacher",
   "Unread messages": "Messages non lus",
+  "Unsupported attachment": "Pièce jointe non prise en charge",
   "Upload type: \"{{ type }}\" is not allowed": "Le type de téléchargement: \"{{ type }}\" n'est pas autorisé",
   "User uploaded content": "Contenu téléchargé par l'utilisateur",
   "Voice message": "Message vocal",

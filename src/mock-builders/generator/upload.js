@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 
-export const generateFile = (data = {}) => {
+const generateFile = (data = {}) => {
   const date = new Date();
   return {
     lastModified: +date,
