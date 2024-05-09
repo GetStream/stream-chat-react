@@ -136,9 +136,10 @@ const MessageSimpleWithContext = <
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--pinned pinned-message': message.pinned,
-      'str-chat__message--with-reactions str-chat__message-with-thread-link': canShowReactions,
+      'str-chat__message--with-reactions': canShowReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.errorStatusCode !== 403,
+      'str-chat__message-with-thread-link': showReplyCountButton,
       'str-chat__virtual-message__wrapper--end': endOfGroup,
       'str-chat__virtual-message__wrapper--first': firstOfGroup,
       'str-chat__virtual-message__wrapper--group': groupedByUser,
