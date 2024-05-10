@@ -1,3 +1,10 @@
+## [11.18.1](https://github.com/GetStream/stream-chat-react/compare/v11.18.0...v11.18.1) (2024-05-10)
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to v4.16.1 ([d5d5ffa](https://github.com/GetStream/stream-chat-react/commit/d5d5ffa73e67dc397ff66f8901296ecf768f0918))
+
 ## [11.18.0](https://github.com/GetStream/stream-chat-react/compare/v11.17.0...v11.18.0) (2024-05-09)
 
 
