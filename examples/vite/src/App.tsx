@@ -1,3 +1,4 @@
+import React from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
@@ -9,6 +10,8 @@ import {
   Thread,
   Window,
   useCreateChatClient,
+  Threads,
+  ThreadList,
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
@@ -69,6 +72,9 @@ const App = () => {
         </Window>
         <Thread />
       </Channel>
+      <Threads>
+        <ThreadList />
+      </Threads>
     </Chat>
   );
 };
