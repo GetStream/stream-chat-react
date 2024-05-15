@@ -31,6 +31,7 @@ export * from './Tooltip';
 export * from './TypingIndicator';
 export * from './UserItem';
 export * from './Window';
+export * from './Threads';
 
 export { UploadButton } from './ReactFileUtilities';
 export type { UploadButtonProps } from './ReactFileUtilities';
