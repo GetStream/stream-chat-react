@@ -35,7 +35,7 @@ export type ReactionsListProps<
   reactions?: ReactionResponse<StreamChatGenerics>[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
-  /** Comparator function to sort the list of reacted users, defaults to alphabetical order
+  /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
   sortReactionDetails?: ReactionDetailsComparator;

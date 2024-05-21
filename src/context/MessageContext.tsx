@@ -132,7 +132,7 @@ export type MessageContextValue<
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
-  /** Comparator function to sort the list of reacted users, defaults to alphabetical order
+  /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
   sortReactionDetails?: ReactionDetailsComparator;

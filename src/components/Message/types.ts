@@ -100,7 +100,7 @@ export type MessageProps<
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /** Comparator function to sort the list of reacted users, defaults to alphabetical order
+  /** Comparator function to sort the list of reacted users
    * @deprecated use `reactionDetailsSort` instead
    */
   sortReactionDetails?: ReactionDetailsComparator;
