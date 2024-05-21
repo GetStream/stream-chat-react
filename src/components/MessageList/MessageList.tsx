@@ -80,7 +80,10 @@ const MessageListWithContext = <
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
+    reactionDetailsSort,
     showUnreadNotificationAlways,
+    sortReactionDetails,
+    sortReactions,
     suppressAutoscroll,
     highlightedMessageId,
     jumpToLatestMessage = () => Promise.resolve(),
@@ -167,8 +170,11 @@ const MessageListWithContext = <
       onUserHover: props.onUserHover,
       openThread: props.openThread,
       pinPermissions,
+      reactionDetailsSort,
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
+      sortReactionDetails,
+      sortReactions,
       unsafeHTML,
     },
     messageGroupStyles,
@@ -296,6 +302,7 @@ type PropsDrilledToMessage =
   | 'onUserHover'
   | 'openThread'
   | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+  | 'reactionDetailsSort'
   | 'renderText'
   | 'retrySendMessage'
   | 'sortReactions'
