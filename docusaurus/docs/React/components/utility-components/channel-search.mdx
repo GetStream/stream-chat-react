@@ -11,14 +11,10 @@ import ImageInactiveSearchBarNoAppMenu from '../../assets/inactive-searchbar-no-
 import ImageInactiveSearchBarWithAppMenu from '../../assets/inactive-searchbar-with-app-menu.png';
 import ImageActiveSearchBarNoText from '../../assets/active-searchbar-no-text.png';
 import ImageActiveSearchBarWithText from '../../assets/active-searchbar-with-text.png';
-import ImageSearchResultsInlineThemeV2 from '../../assets/search-results-inline-theme-v2.png';
-import ImageSearchResultsPopupThemeV2 from '../../assets/search-results-popup-theme-v2.png';
-import ImageSearchResultsInlineThemeV1 from '../../assets/search-results-inline-theme-v1.png';
-import ImageSearchResultsPopupThemeV1 from '../../assets/search-results-popup-theme-v1.png';
-import ImageSearchResultsLoadingThemeV2 from '../../assets/search-results-loading-theme-v2.png';
-import ImageSearchResultsLoadingThemeV1 from '../../assets/search-results-loading-theme-v1.png';
-import ImageSearchResultsEmptyThemeV2 from '../../assets/search-results-empty-theme-v2.png';
-import ImageSearchResultsEmptyThemeV1 from '../../assets/search-results-empty-theme-v1.png';
+import ImageSearchResultsInlineTheme from '../../assets/search-results-inline-theme.png';
+import ImageSearchResultsPopupTheme from '../../assets/search-results-popup-theme.png';
+import ImageSearchResultsLoadingTheme from '../../assets/search-results-loading-theme.png';
+import ImageSearchResultsEmptyTheme from '../../assets/search-results-empty-theme.png';
 
 `ChannelSearch` is a UI component that searches for chat users and displays the results in a list. It can be used standalone or in the `ChannelList` via the `showChannelSearch` prop (default is false).
 The input searches for users by default, but you can utilize the `searchForChannels` prop to also search for `channels`. Completely override the querying via the `searchFunction` prop.
@@ -42,18 +38,14 @@ Selection of a search result will set the active channel with the selected user,
 </Chat>
 ```
 
-## ChannelSearch according to theme version
-
 The `ChannelSearch` component renders 2 components:
 
 1. the search input
 2. the search results list
 
-If opted in the use of [theme version 2](../../theming/introduction.mdx), the `ChannelSearch` will render a more complex search input component called [`SearchBar`](./#searchbar-component). Otherwise, the [`SearchInput`](./#searchinput-component) is rendered.
+### Search input and SearchResults state
 
-### Search input vs.SearchResults state
-
-The input naturally transitions between 3 states regardless of theme version:
+The input naturally transitions between 3 states:
 
 | Input state   | Input                            | Search results |
 | ------------- | -------------------------------- | -------------- |
@@ -143,23 +135,13 @@ The default styling of the first two states are as follows:
   border
   items={[
     {
-      image: ImageSearchResultsLoadingThemeV1,
-      caption: <span>Search results list content when loading (theme v1)</span>,
+      image: ImageSearchResultsLoadingTheme,
+      caption: <span>Search results list content when loading</span>,
       alt: 'Image of search results list content when loading',
     },
     {
-      image: ImageSearchResultsEmptyThemeV1,
-      caption: <span>Empty search results (theme v1)</span>,
-      alt: 'Image of empty search results',
-    },
-    {
-      image: ImageSearchResultsLoadingThemeV2,
-      caption: <span>Search results list content when loading (theme v2)</span>,
-      alt: 'Image of search results list content when loading',
-    },
-    {
-      image: ImageSearchResultsEmptyThemeV2,
-      caption: <span>Empty search results (theme v2)</span>,
+      image: ImageSearchResultsEmptyTheme,
+      caption: <span>Empty search results</span>,
       alt: 'Image of empty search results',
     },
   ]}
@@ -173,24 +155,14 @@ The search results can be rendered in place of the channel list or above the cha
   border
   items={[
     {
-      image: ImageSearchResultsInlineThemeV1,
-      caption: <span>Search results displayed inline (theme v1)</span>,
-      alt: 'Image of search results displayed inline (theme v1)',
+      image: ImageSearchResultsInlineTheme,
+      caption: <span>Search results displayed inline</span>,
+      alt: 'Image of search results displayed inline',
     },
     {
-      image: ImageSearchResultsPopupThemeV1,
-      caption: <span>Search results displayed floating above the channel list (theme v1)</span>,
-      alt: 'Image of search results displayed floating above the channel list (theme v1)',
-    },
-    {
-      image: ImageSearchResultsInlineThemeV2,
-      caption: <span>Search results displayed inline (theme v2)</span>,
-      alt: 'Image of search results displayed inline (theme v2)',
-    },
-    {
-      image: ImageSearchResultsPopupThemeV2,
-      caption: <span>Search results displayed floating above the channel list (theme v2)</span>,
-      alt: 'Image of search results displayed floating above the channel list (theme v2)',
+      image: ImageSearchResultsPopupTheme,
+      caption: <span>Search results displayed floating above the channel list</span>,
+      alt: 'Image of search results displayed floating above the channel list',
     },
   ]}
 />
@@ -245,7 +217,7 @@ const { client } = useChatContext();
 
 ### AppMenu
 
-Application menu / drop-down to be displayed when clicked on [`MenuIcon`](./#menuicon). Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is only available with the use of the [theming v2](../../theming/introduction.mdx). No default component is provided by the SDK. The library does not provide any CSS for `AppMenu`. Consult the customization tutorial on how to [add AppMenu to your application](../../guides/customization/channel-search.mdx/#adding-menu). The component is passed a prop `close`, which is a function that can be called to hide the app menu (e.g. on menu item selection).
+Application menu / drop-down to be displayed when clicked on [`MenuIcon`](./#menuicon). Prop is consumed only by the [`SearchBar` component](./#searchbar). No default component is provided by the SDK. The library does not provide any CSS for `AppMenu`. Consult the customization tutorial on how to [add AppMenu to your application](../../guides/customization/channel-search.mdx/#adding-menu). The component is passed a prop `close`, which is a function that can be called to hide the app menu (e.g. on menu item selection).
 
 | Type                  | Default     |
 | --------------------- | ----------- |
@@ -261,7 +233,7 @@ The type of `channel` to create on user result selection.
 
 ### ClearInputIcon
 
-Custom icon component used as a content of the button used to clear the search input. Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only.
+Custom icon component used as a content of the button used to clear the search input. Prop is consumed only by the [`SearchBar` component](./#searchbar).
 
 | Type                  | Default                                                         |
 | --------------------- | --------------------------------------------------------------- |
@@ -285,7 +257,7 @@ Disables execution of the search queries and makes the search text input element
 
 ### ExitSearchIcon
 
-Custom icon component used as a content of the button used to exit the search UI. Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only.
+Custom icon component used as a content of the button used to exit the search UI. Prop is consumed only by the [`SearchBar` component](./#searchbar).
 
 | Type                  | Default                                                              |
 | --------------------- | -------------------------------------------------------------------- |
@@ -293,7 +265,7 @@ Custom icon component used as a content of the button used to exit the search UI
 
 ### MenuIcon
 
-Custom icon component used as a content of the button used to invoke the [`AppMenu`](./#appmenu). Prop is consumed only by the [`SearchBar` component](./#searchbar). The `SearchBar` component is rendered with `themeVersion` `'2'` only. The menu icon button is displayed only if `AppMenu` component has been passed to `ChannelSearch` props.
+Custom icon component used as a content of the button used to invoke the [`AppMenu`](./#appmenu). Prop is consumed only by the [`SearchBar` component](./#searchbar). The menu icon button is displayed only if `AppMenu` component has been passed to `ChannelSearch` props.
 
 | Type                  | Default                                                            |
 | --------------------- | ------------------------------------------------------------------ |
@@ -345,7 +317,7 @@ Display search results as an absolutely positioned popup, defaults to false and 
 
 ### SearchBar
 
-Custom component to be rendered instead of the default <GHComponentLink text='SearchBar' path='/ChannelSearch/SearchBar.tsx'/>. This component is displayed only if `themeVersion` is `'2'`. With the theme version 1 only the `SearchInput` is rendered. The default `SearchBar` component is a composite of multiple buttons and a search input. You can find more information about its features in an [above section](./#searchbar-component).
+Custom component to be rendered instead of the default <GHComponentLink text='SearchBar' path='/ChannelSearch/SearchBar.tsx'/>. The default `SearchBar` component is a composite of multiple buttons and a search input. You can find more information about its features in an [above section](./#searchbar-component).
 
 | Type                                   | Default                                                                 |
 | -------------------------------------- | ----------------------------------------------------------------------- |
