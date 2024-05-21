@@ -87,7 +87,7 @@ export const MessageInputFlat = <
 
   const id = useMemo(() => nanoid(), []);
   const failedAttachmentsCount = useMemo(
-    () => attachments.filter((a) => a.$internal?.uploadState === 'failed').length,
+    () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
     [attachments],
   );
   const failedUploadsCount = useMemo(

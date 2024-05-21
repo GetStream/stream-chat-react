@@ -12,7 +12,8 @@ import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
 import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
-  AttachmentContainerProps,
+  AttachmentComponentType,
+  GalleryAttachment,
   isGalleryAttachmentType,
   isSvgAttachment,
   RenderAttachmentProps,
@@ -26,7 +27,14 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
+import type { Attachment } from '../../../../stream-chat-js';
 
+export type AttachmentContainerProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
+  componentType: AttachmentComponentType;
+};
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
