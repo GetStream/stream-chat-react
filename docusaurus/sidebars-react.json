@@ -110,6 +110,7 @@
           "Message Input": [
             "guides/theming/input_ui",
             "guides/customization/link-previews",
+            "guides/message-input/attachment_previews",
             "guides/customization/override_submit_handler",
             "guides/customization/persist_input_text_in_localstorage",
             "guides/customization/suggestion_list",

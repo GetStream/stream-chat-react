@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { useImageUploads } from './useImageUploads';
 import { useFileUploads } from './useFileUploads';
 import { checkUploadPermissions } from './utils';
+import { isLocalAttachment, isLocalImageAttachment, isUploadedImage } from '../../Attachment';
 
 import {
   useChannelActionContext,
@@ -12,14 +13,36 @@ import {
   useTranslationContext,
 } from '../../../context';
 
-import type { SendFileAPIResponse } from 'stream-chat';
+import type { Attachment, SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
-import type { LocalAttachment } from '../types';
+import type {
+  AttachmentLoadingState,
+  BaseLocalAttachmentMetadata,
+  LocalAttachment,
+} from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
+
+const ensureIsLocalAttachment = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  attachment: Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>,
+): LocalAttachment<StreamChatGenerics> => {
+  if (isLocalAttachment(attachment)) {
+    return attachment;
+  }
+  const { localMetadata, ...rest } = attachment;
+  return {
+    localMetadata: {
+      ...(localMetadata ?? {}),
+      id: (localMetadata as BaseLocalAttachmentMetadata)?.id || nanoid(),
+    },
+    ...rest,
+  };
+};
 
 export const useAttachments = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -30,7 +53,7 @@ export const useAttachments = <
   dispatch: React.Dispatch<MessageInputReducerAction<StreamChatGenerics>>,
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
-  const { doFileUploadRequest, errorHandler, noFiles } = props;
+  const { doFileUploadRequest, doImageUploadRequest, errorHandler, noFiles } = props;
   const { fileUploads, imageUploads } = state;
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
   const { t } = useTranslationContext('useAttachments');
@@ -89,25 +112,42 @@ export const useAttachments = <
     [maxFilesLeft, noFiles],
   );
 
-  const removeAttachment = (id: string) => {
-    dispatch({ id, type: 'removeAttachment' });
-  };
+  const removeAttachments = useCallback(
+    (ids: string[]) => {
+      if (!ids.length) return;
+      dispatch({ ids, type: 'removeAttachments' });
+    },
+    [dispatch],
+  );
+
+  const upsertAttachments = useCallback(
+    (attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[]) => {
+      if (!attachments.length) return;
+      dispatch({
+        attachments: attachments.map(ensureIsLocalAttachment),
+        type: 'upsertAttachments',
+      });
+    },
+    [dispatch],
+  );
 
   const uploadAttachment = useCallback(
     async (
       att: LocalAttachment<StreamChatGenerics>,
-    ): Promise<LocalAttachment<StreamChatGenerics>> => {
-      const { $internal, ...attachment } = att;
-      if (!$internal?.file) return att;
+    ): Promise<LocalAttachment<StreamChatGenerics> | undefined> => {
+      const { localMetadata, ...attachment } = att;
+      if (!localMetadata?.file) return att;
 
-      const id = $internal?.id ?? nanoid();
-      const { file } = $internal;
+      const isImage = isUploadedImage(attachment);
+      const id = localMetadata?.id ?? nanoid();
+      const { file } = localMetadata;
+
       const canUpload = await checkUploadPermissions({
         addNotification,
         file,
         getAppSettings,
         t,
-        uploadType: 'file',
+        uploadType: isImage ? 'image' : 'file',
       });
 
       if (!canUpload) {
@@ -117,40 +157,26 @@ export const useAttachments = <
         return att;
       }
 
-      dispatch({
-        attachment: {
+      upsertAttachments([
+        {
           ...attachment,
-          $internal: {
-            ...$internal,
+          localMetadata: {
+            ...localMetadata,
             id,
             uploadState: 'uploading',
           },
         },
-        type: 'upsertAttachment',
-      });
+      ]);
 
+      let response: SendFileAPIResponse;
       try {
-        let response: SendFileAPIResponse;
-        if (doFileUploadRequest) {
-          response = await doFileUploadRequest(file, channel);
+        const doUploadRequest = isImage ? doImageUploadRequest : doFileUploadRequest;
+
+        if (doUploadRequest) {
+          response = await doUploadRequest(file, channel);
         } else {
-          response = await channel.sendFile(file as File);
+          response = await channel[isImage ? 'sendImage' : 'sendFile'](file);
         }
-        const uploadedAttachment = {
-          ...attachment,
-          $internal: {
-            ...$internal,
-            uploadState: 'finished',
-          },
-          asset_url: response.file,
-        } as LocalAttachment<StreamChatGenerics>;
-
-        dispatch({
-          attachment: uploadedAttachment,
-          type: 'upsertAttachment',
-        });
-
-        return uploadedAttachment;
       } catch (error) {
         let finalError: Error = { message: t('Error uploading attachment'), name: 'Error' };
         if (typeof (error as Error).message === 'string') {
@@ -162,18 +188,15 @@ export const useAttachments = <
         console.error(finalError);
         addNotification(finalError.message, 'error');
 
-        const failedAttachment = {
+        const failedAttachment: LocalAttachment<StreamChatGenerics> = {
           ...attachment,
-          $internal: {
-            ...$internal,
-            uploadState: 'failed',
+          localMetadata: {
+            ...localMetadata,
+            uploadState: 'failed' as AttachmentLoadingState,
           },
-        } as LocalAttachment<StreamChatGenerics>;
+        };
 
-        dispatch({
-          attachment: failedAttachment,
-          type: 'upsertAttachment',
-        });
+        upsertAttachments([failedAttachment]);
 
         if (errorHandler) {
           errorHandler(finalError as Error, 'upload-attachment', file);
@@ -181,19 +204,60 @@ export const useAttachments = <
 
         return failedAttachment;
       }
+
+      if (!response) {
+        // Copied this from useImageUpload / useFileUpload. Not sure how failure could be handled on app level.
+
+        // If doUploadRequest returns any falsy value, then don't create the upload preview.
+        // This is for the case if someone wants to handle failure on app level.
+        removeAttachments([id]);
+        return;
+      }
+
+      const uploadedAttachment: LocalAttachment<StreamChatGenerics> = {
+        ...attachment,
+        localMetadata: {
+          ...localMetadata,
+          uploadState: 'finished' as AttachmentLoadingState,
+        },
+      };
+
+      if (isLocalImageAttachment(uploadedAttachment)) {
+        if (uploadedAttachment.localMetadata.previewUri) {
+          URL.revokeObjectURL(uploadedAttachment.localMetadata.previewUri);
+          delete uploadedAttachment.localMetadata.previewUri;
+        }
+        uploadedAttachment.image_url = response.file;
+      } else {
+        uploadedAttachment.asset_url = response.file;
+      }
+      upsertAttachments([uploadedAttachment]);
+
+      return uploadedAttachment;
     },
-    [addNotification, channel, doFileUploadRequest, dispatch, errorHandler, getAppSettings, t],
+    [
+      addNotification,
+      channel,
+      doFileUploadRequest,
+      doImageUploadRequest,
+      errorHandler,
+      getAppSettings,
+      removeAttachments,
+      t,
+      upsertAttachments,
+    ],
   );
 
   return {
     maxFilesLeft,
     numberOfUploads,
-    removeAttachment,
+    removeAttachments,
     removeFile,
     removeImage,
     uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
   };
 };

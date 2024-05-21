@@ -10,7 +10,7 @@ import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
-import { NullComponent as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
+import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
   AttachmentContainerProps,
   isGalleryAttachmentType,

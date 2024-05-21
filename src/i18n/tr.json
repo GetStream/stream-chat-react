@@ -84,6 +84,7 @@
   "Unmute": "Sesini aç",
   "Unpin": "Sabitlemeyi kaldır",
   "Unread messages": "Okunmamış mesajlar",
+  "Unsupported attachment": "Desteklenmeyen ek",
   "Upload type: \"{{ type }}\" is not allowed": "Yükleme türü: \"{{ type }}\" izin verilmez",
   "User uploaded content": "Kullanıcı tarafından yüklenen içerik",
   "Voice message": "Sesli mesaj",
