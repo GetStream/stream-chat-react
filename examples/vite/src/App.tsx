@@ -5,12 +5,12 @@ import {
   ChannelList,
   Chat,
   MessageInput,
-  MessageList,
+  VirtualizedMessageList as MessageList,
   Thread,
   Window,
   useCreateChatClient,
 } from 'stream-chat-react';
-import 'stream-chat-react/css/v2/index.css';
+import 'stream-chat-react/css/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -32,6 +32,8 @@ type LocalChannelType = Record<string, unknown>;
 type LocalCommandType = string;
 type LocalEventType = Record<string, unknown>;
 type LocalMessageType = Record<string, unknown>;
+type LocalPollOptionType = Record<string, unknown>;
+type LocalPollType = Record<string, unknown>;
 type LocalReactionType = Record<string, unknown>;
 type LocalUserType = Record<string, unknown>;
 
@@ -41,6 +43,8 @@ type StreamChatGenerics = {
   commandType: LocalCommandType;
   eventType: LocalEventType;
   messageType: LocalMessageType;
+  pollOptionType: LocalPollOptionType;
+  pollType: LocalPollType;
   reactionType: LocalReactionType;
   userType: LocalUserType;
 };
