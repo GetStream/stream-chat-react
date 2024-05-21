@@ -3,7 +3,7 @@
 exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
 <div>
   <div
-    class="str-chat messaging light str-chat-channel str-chat__channel"
+    class="str-chat messaging light str-chat__channel"
   >
     <div
       class="str-chat__container"
@@ -20,6 +20,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
             data-testid="attachment-preview-image"
           >
             <button
+              aria-label="Remove attachment"
               class="str-chat__attachment-preview-delete"
               data-testid="image-preview-item-delete-button"
               disabled=""
@@ -92,6 +93,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
             data-testid="attachment-preview-image"
           >
             <button
+              aria-label="Remove attachment"
               class="str-chat__attachment-preview-delete"
               data-testid="image-preview-item-delete-button"
               disabled=""
@@ -174,6 +176,7 @@ exports[`ImagePreviewItem renders upload failed state 1`] = `
     data-testid="attachment-preview-image"
   >
     <button
+      aria-label="aria/Remove attachment"
       class="str-chat__attachment-preview-delete"
       data-testid="image-preview-item-delete-button"
     >
@@ -225,6 +228,7 @@ exports[`ImagePreviewItem renders upload finished state 1`] = `
     data-testid="attachment-preview-image"
   >
     <button
+      aria-label="aria/Remove attachment"
       class="str-chat__attachment-preview-delete"
       data-testid="image-preview-item-delete-button"
     >
@@ -258,6 +262,7 @@ exports[`ImagePreviewItem renders uploading state 1`] = `
     data-testid="attachment-preview-image"
   >
     <button
+      aria-label="aria/Remove attachment"
       class="str-chat__attachment-preview-delete"
       data-testid="image-preview-item-delete-button"
       disabled=""

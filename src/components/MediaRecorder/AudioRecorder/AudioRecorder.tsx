@@ -8,7 +8,7 @@ import {
   LoadingIndicatorIcon,
   MicIcon,
   PauseIcon,
-  SendIconV2,
+  SendIcon,
 } from '../../MessageInput';
 import { useMessageInputContext } from '../../../context';
 
@@ -77,7 +77,7 @@ export const AudioRecorder = () => {
             disabled={isUploadingFile}
             onClick={completeRecording}
           >
-            {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIconV2 />}
+            {isUploadingFile ? <LoadingIndicatorIcon /> : <SendIcon />}
           </button>
         ) : (
           <button

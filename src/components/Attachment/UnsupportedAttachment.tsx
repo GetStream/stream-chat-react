@@ -20,5 +20,3 @@ export const UnsupportedAttachment = <
     <code>{JSON.stringify(attachment, null, 4)}</code>;
   </div>
 );
-
-export const NullComponent = () => null;

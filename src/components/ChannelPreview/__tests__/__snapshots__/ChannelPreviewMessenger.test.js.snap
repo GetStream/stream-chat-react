@@ -16,19 +16,10 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
       className="str-chat__channel-preview-messenger--left"
     >
       <div
-        className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
+        className="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--channel-preview"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
-        style={
-          Object {
-            "flexBasis": "40px",
-            "fontSize": "20px",
-            "height": "40px",
-            "lineHeight": "40px",
-            "width": "40px",
-          }
-        }
         title="Channel name"
       >
         <img
@@ -36,21 +27,12 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
           className="str-chat__avatar-image"
           data-testid="avatar-img"
           onError={[Function]}
-          onLoad={[Function]}
           src="https://randomimage.com/src.jpg"
-          style={
-            Object {
-              "flexBasis": "40px",
-              "height": "40px",
-              "objectFit": "cover",
-              "width": "40px",
-            }
-          }
         />
       </div>
     </div>
     <div
-      className="str-chat__channel-preview-messenger--right str-chat__channel-preview-end"
+      className="str-chat__channel-preview-end"
     >
       <div
         className="str-chat__channel-preview-end-first-row"

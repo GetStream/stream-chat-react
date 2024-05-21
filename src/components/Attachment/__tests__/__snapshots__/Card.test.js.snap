@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Card theme V2 (1) should render card without caption if attachment type is audio and og_scrape_url neither title_link is available 1`] = `
+exports[`Card (1) should render card without caption if attachment type is audio and og_scrape_url neither title_link is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -87,7 +87,7 @@ exports[`Card theme V2 (1) should render card without caption if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (2) should render card without caption if attachment type is video and og_scrape_url neither title_link is available 1`] = `
+exports[`Card (2) should render card without caption if attachment type is video and og_scrape_url neither title_link is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -99,14 +99,7 @@ exports[`Card theme V2 (2) should render card without caption if attachment type
       <div
         class="react-player"
         style="width: 100%; height: 100%;"
-      >
-        <video
-          controls=""
-          preload="auto"
-          src="dummyAttachment_asset_url"
-          style="width: 100%; height: 100%;"
-        />
-      </div>
+      />
     </div>
     <div
       class="str-chat__message-attachment-card--content"
@@ -130,7 +123,7 @@ exports[`Card theme V2 (2) should render card without caption if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (3) should render card without caption if attachment type is image and og_scrape_url neither title_link is available 1`] = `
+exports[`Card (3) should render card without caption if attachment type is image and og_scrape_url neither title_link is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -170,7 +163,7 @@ exports[`Card theme V2 (3) should render card without caption if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (4) should render unable-to-display card if attachment type is audio and neither image and asset urls nor title_link are available 1`] = `
+exports[`Card (4) should render unable-to-display card if attachment type is audio and neither image and asset urls nor title_link are available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card"
@@ -188,7 +181,7 @@ exports[`Card theme V2 (4) should render unable-to-display card if attachment ty
 </div>
 `;
 
-exports[`Card theme V2 (5) should render unable-to-display card if attachment type is video and neither image and asset urls nor title_link are available 1`] = `
+exports[`Card (5) should render unable-to-display card if attachment type is video and neither image and asset urls nor title_link are available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card"
@@ -206,7 +199,7 @@ exports[`Card theme V2 (5) should render unable-to-display card if attachment ty
 </div>
 `;
 
-exports[`Card theme V2 (6) should render unable-to-display card if attachment type is image and neither image and asset urls nor title_link are available 1`] = `
+exports[`Card (6) should render unable-to-display card if attachment type is image and neither image and asset urls nor title_link are available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card"
@@ -224,7 +217,7 @@ exports[`Card theme V2 (6) should render unable-to-display card if attachment ty
 </div>
 `;
 
-exports[`Card theme V2 (7) should render audio with caption using og_scrape_url and with asset in header if attachment type is audio and title_link is not available 1`] = `
+exports[`Card (7) should render audio with caption using og_scrape_url and with asset in header if attachment type is audio and title_link is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -325,7 +318,7 @@ exports[`Card theme V2 (7) should render audio with caption using og_scrape_url 
 </div>
 `;
 
-exports[`Card theme V2 (8) should render video with caption using og_scrape_url and with asset in header if attachment type is video and title_link is not available 1`] = `
+exports[`Card (8) should render video with caption using og_scrape_url and with asset in header if attachment type is video and title_link is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -382,7 +375,7 @@ exports[`Card theme V2 (8) should render video with caption using og_scrape_url 
 </div>
 `;
 
-exports[`Card theme V2 (9) should render image with caption using og_scrape_url and with asset in header if attachment type is image and title_link is not available 1`] = `
+exports[`Card (9) should render image with caption using og_scrape_url and with asset in header if attachment type is image and title_link is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -436,7 +429,7 @@ exports[`Card theme V2 (9) should render image with caption using og_scrape_url 
 </div>
 `;
 
-exports[`Card theme V2 (10) should render audio without title if attachment type is audio and title is not available 1`] = `
+exports[`Card (10) should render audio without title if attachment type is audio and title is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -532,7 +525,7 @@ exports[`Card theme V2 (10) should render audio without title if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (11) should render video without title if attachment type is video and title is not available 1`] = `
+exports[`Card (11) should render video without title if attachment type is video and title is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -584,7 +577,7 @@ exports[`Card theme V2 (11) should render video without title if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (12) should render image without title if attachment type is image and title is not available 1`] = `
+exports[`Card (12) should render image without title if attachment type is image and title is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -633,7 +626,7 @@ exports[`Card theme V2 (12) should render image without title if attachment type
 </div>
 `;
 
-exports[`Card theme V2 (13) should render audio without title and with caption using og_scrape_url and with image in header if attachment type is audio and title_link neither title is available 1`] = `
+exports[`Card (13) should render audio without title and with caption using og_scrape_url and with image in header if attachment type is audio and title_link neither title is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -729,7 +722,7 @@ exports[`Card theme V2 (13) should render audio without title and with caption u
 </div>
 `;
 
-exports[`Card theme V2 (14) should render video without title and with caption using og_scrape_url and with image in header if attachment type is video and title_link neither title is available 1`] = `
+exports[`Card (14) should render video without title and with caption using og_scrape_url and with image in header if attachment type is video and title_link neither title is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -781,7 +774,7 @@ exports[`Card theme V2 (14) should render video without title and with caption u
 </div>
 `;
 
-exports[`Card theme V2 (15) should render image without title and with caption using og_scrape_url and with image in header if attachment type is image and title_link neither title is available 1`] = `
+exports[`Card (15) should render image without title and with caption using og_scrape_url and with image in header if attachment type is image and title_link neither title is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -830,7 +823,7 @@ exports[`Card theme V2 (15) should render image without title and with caption u
 </div>
 `;
 
-exports[`Card theme V2 (16) should render audio widget with title & text in Card content and without Card header if attachment type is audio and og image URLs are not available 1`] = `
+exports[`Card (16) should render audio widget with title & text in Card content and without Card header if attachment type is audio and og image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -918,7 +911,7 @@ exports[`Card theme V2 (16) should render audio widget with title & text in Card
 </div>
 `;
 
-exports[`Card theme V2 (17) should render video widget in header and title & text in Card content if attachment type is video and og image URLs are not available 1`] = `
+exports[`Card (17) should render video widget in header and title & text in Card content if attachment type is video and og image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -975,7 +968,7 @@ exports[`Card theme V2 (17) should render video widget in header and title & tex
 </div>
 `;
 
-exports[`Card theme V2 (18) should render card with title and text only and without the image in the header part of the Card if attachment type is image and og image URLs are not available 1`] = `
+exports[`Card (18) should render card with title and text only and without the image in the header part of the Card if attachment type is image and og image URLs are not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -1016,7 +1009,7 @@ exports[`Card theme V2 (18) should render card with title and text only and with
 </div>
 `;
 
-exports[`Card theme V2 (19) should render image loaded from thumb_url not audio widget if attachment type is audio and thumb_url is available, but not asset_url, image_url 1`] = `
+exports[`Card (19) should render image loaded from thumb_url not audio widget if attachment type is audio and thumb_url is available, but not asset_url, image_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -1075,7 +1068,7 @@ exports[`Card theme V2 (19) should render image loaded from thumb_url not audio 
 </div>
 `;
 
-exports[`Card theme V2 (20) should render image loaded from thumb_url not video widget if attachment type is video and thumb_url is available, but not asset_url, image_url 1`] = `
+exports[`Card (20) should render image loaded from thumb_url not video widget if attachment type is video and thumb_url is available, but not asset_url, image_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -1129,7 +1122,7 @@ exports[`Card theme V2 (20) should render image loaded from thumb_url not video 
 </div>
 `;
 
-exports[`Card theme V2 (21) should render image loaded from thumb_url if attachment type is image and thumb_url is available, but not image_url 1`] = `
+exports[`Card (21) should render image loaded from thumb_url if attachment type is image and thumb_url is available, but not image_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -1183,7 +1176,7 @@ exports[`Card theme V2 (21) should render image loaded from thumb_url if attachm
 </div>
 `;
 
-exports[`Card theme V2 (22) should render image loaded from image_url not audio widget if attachment type is audio and image_url is available, but not asset_url, thumb_url 1`] = `
+exports[`Card (22) should render image loaded from image_url not audio widget if attachment type is audio and image_url is available, but not asset_url, thumb_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -1242,7 +1235,7 @@ exports[`Card theme V2 (22) should render image loaded from image_url not audio 
 </div>
 `;
 
-exports[`Card theme V2 (23) should render image loaded from image_url not video widget if attachment type is video and image_url is available, but not asset_url, thumb_url 1`] = `
+exports[`Card (23) should render image loaded from image_url not video widget if attachment type is video and image_url is available, but not asset_url, thumb_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -1296,7 +1289,7 @@ exports[`Card theme V2 (23) should render image loaded from image_url not video 
 </div>
 `;
 
-exports[`Card theme V2 (24) should render image loaded from image_url if attachment type is image and image_url is available, but not thumb_url 1`] = `
+exports[`Card (24) should render image loaded from image_url if attachment type is image and image_url is available, but not thumb_url 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--image"
@@ -1350,7 +1343,7 @@ exports[`Card theme V2 (24) should render image loaded from image_url if attachm
 </div>
 `;
 
-exports[`Card theme V2 (25) should render audio widget with image loaded from thumb_url and title & text in Card content if attachment type is audio and all props are available 1`] = `
+exports[`Card (25) should render audio widget with image loaded from thumb_url and title & text in Card content if attachment type is audio and all props are available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -1451,7 +1444,7 @@ exports[`Card theme V2 (25) should render audio widget with image loaded from th
 </div>
 `;
 
-exports[`Card theme V2 (26) should render video widget in header and title & text in Card content if attachment type is video and all props are available 1`] = `
+exports[`Card (26) should render video widget in header and title & text in Card content if attachment type is video and all props are available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -1508,7 +1501,7 @@ exports[`Card theme V2 (26) should render video widget in header and title & tex
 </div>
 `;
 
-exports[`Card theme V2 (27) should render content part with title and text only and without the header part of the Card if attachment type is audio and asset and neither og image URL is available 1`] = `
+exports[`Card (27) should render content part with title and text only and without the header part of the Card if attachment type is audio and asset and neither og image URL is available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--audio"
@@ -1554,7 +1547,7 @@ exports[`Card theme V2 (27) should render content part with title and text only 
 </div>
 `;
 
-exports[`Card theme V2 (28) should render content part with title and text only and without the header part of the Card if attachment type is video and scraped media URL is not available 1`] = `
+exports[`Card (28) should render content part with title and text only and without the header part of the Card if attachment type is video and scraped media URL is not available 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card str-chat__message-attachment-card--video"
@@ -1595,7 +1588,7 @@ exports[`Card theme V2 (28) should render content part with title and text only 
 </div>
 `;
 
-exports[`Card theme V2 should render giphy image if type is giphy 1`] = `
+exports[`Card should render giphy image if type is giphy 1`] = `
 <div>
   <div
     class="str-chat__message-attachment-card"

@@ -12,7 +12,7 @@ import { BaseImage as DefaultBaseImage } from '../Gallery';
 import { useAudioController } from '../Attachment/hooks/useAudioController';
 import { RecordingTimer } from '../MediaRecorder';
 import { FileIcon } from '../ReactFileUtilities';
-import { useComponentContext, useMessageInputContext } from '../../context';
+import { useComponentContext, useMessageInputContext, useTranslationContext } from '../../context';
 
 import type { LocalAttachment } from './types';
 import type { DefaultStreamChatGenerics } from '../../types';
@@ -124,60 +124,66 @@ const VoiceRecordingPreview = ({
         {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
       </div>
       <div className='str-chat__attachment-preview-file-icon'>
-        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
+        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} />
       </div>
     </div>
   );
 };
 
-const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPreviewProps) => (
-  <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
-    <div className='str-chat__attachment-preview-file-icon'>
-      <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
-    </div>
+const FilePreview = ({ attachment, handleRetry, removeAttachment }: AttachmentPreviewProps) => {
+  const { t } = useTranslationContext('FilePreview');
 
-    <button
-      className='str-chat__attachment-preview-delete'
-      data-testid='file-preview-item-delete-button'
-      disabled={attachment.$internal?.uploadState === 'uploading'}
-      onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal?.id)}
-    >
-      <CloseIcon />
-    </button>
-
-    {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
-      <button
-        className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
-        data-testid='file-preview-item-retry-button'
-        onClick={() => handleRetry(attachment)}
-      >
-        <RetryIcon />
-      </button>
-    )}
-
-    <div className='str-chat__attachment-preview-file-end'>
-      <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
-        {attachment.title}
+  return (
+    <div className='str-chat__attachment-preview-file' data-testid='attachment-preview-file'>
+      <div className='str-chat__attachment-preview-file-icon'>
+        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} />
       </div>
-      {attachment.$internal?.uploadState === 'finished' && (
-        <a
-          className='str-chat__attachment-preview-file-download'
-          download
-          href={attachment.asset_url}
-          rel='noreferrer'
-          target='_blank'
+
+      <button
+        aria-label={t('aria/Remove attachment')}
+        className='str-chat__attachment-preview-delete'
+        data-testid='file-preview-item-delete-button'
+        disabled={attachment.$internal?.uploadState === 'uploading'}
+        onClick={() => attachment.$internal?.id && removeAttachment(attachment.$internal?.id)}
+      >
+        <CloseIcon />
+      </button>
+
+      {attachment.$internal?.uploadState === 'failed' && !!handleRetry && (
+        <button
+          className='str-chat__attachment-preview-error str-chat__attachment-preview-error-file'
+          data-testid='file-preview-item-retry-button'
+          onClick={() => handleRetry(attachment)}
         >
-          <DownloadIcon />
-        </a>
+          <RetryIcon />
+        </button>
       )}
-      {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
+
+      <div className='str-chat__attachment-preview-file-end'>
+        <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
+          {attachment.title}
+        </div>
+        {attachment.$internal?.uploadState === 'finished' && (
+          <a
+            className='str-chat__attachment-preview-file-download'
+            download
+            href={attachment.asset_url}
+            rel='noreferrer'
+            target='_blank'
+          >
+            <DownloadIcon />
+          </a>
+        )}
+        {attachment.$internal?.uploadState === 'uploading' && <LoadingIndicatorIcon size={17} />}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 type PreviewItemProps = { id: string };
 
 export const ImagePreviewItem = ({ id }: PreviewItemProps) => {
+  const { t } = useTranslationContext('ImagePreviewItem');
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreviewItem');
   const { imageUploads, removeImage, uploadImage } = useMessageInputContext('ImagePreviewItem');
   const [previewError, setPreviewError] = useState(false);
@@ -205,6 +211,7 @@ export const ImagePreviewItem = ({ id }: PreviewItemProps) => {
       data-testid='attachment-preview-image'
     >
       <button
+        aria-label={t('aria/Remove attachment')}
         className='str-chat__attachment-preview-delete'
         data-testid='image-preview-item-delete-button'
         disabled={image.state === 'uploading'}

@@ -1,8 +1,9 @@
 import React, { ComponentPropsWithoutRef } from 'react';
+import clsx from 'clsx';
 
 export type IconTypeV2 = 'standard' | 'alt';
 
-export type IconPropsV2 = {
+export type IconProps = {
   mimeType?: string;
   size?: number;
   type?: IconTypeV2;
@@ -10,9 +11,9 @@ export type IconPropsV2 = {
 
 const DEFAULT_SIZE = 40;
 
-export const FilePdfIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FilePdfIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-pdf ${className}`.trim()}
+    className={clsx('rfu-file-pdf', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -42,9 +43,9 @@ export const FilePdfIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: I
   </svg>
 );
 
-export const FileWordIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileWordIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-word ${className}`.trim()}
+    className={clsx('rfu-file-word', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -64,9 +65,9 @@ export const FileWordIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: 
   </svg>
 );
 
-export const FileWordIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileWordIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-word-alt ${className}`.trim()}
+    className={clsx('rfu-file-word-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -102,9 +103,9 @@ export const FilePowerPointIcon = ({
   className = '',
   size = DEFAULT_SIZE,
   ...props
-}: IconPropsV2) => (
+}: IconProps) => (
   <svg
-    className={`rfu-file-powerpoint ${className}`.trim()}
+    className={clsx('rfu-file-powerpoint', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -137,9 +138,9 @@ export const FilePowerPointIconAlt = ({
   className = '',
   size = DEFAULT_SIZE,
   ...props
-}: IconPropsV2) => (
+}: IconProps) => (
   <svg
-    className={`rfu-file-powerpoint-alt ${className}`.trim()}
+    className={clsx('rfu-file-powerpoint-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -174,9 +175,9 @@ export const FilePowerPointIconAlt = ({
   </svg>
 );
 
-export const FileExcelIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileExcelIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-excel ${className}`.trim()}
+    className={clsx('rfu-file-excel', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -205,13 +206,9 @@ export const FileExcelIcon = ({ className = '', size = DEFAULT_SIZE, ...props }:
   </svg>
 );
 
-export const FileExcelIconAlt = ({
-  className = '',
-  size = DEFAULT_SIZE,
-  ...props
-}: IconPropsV2) => (
+export const FileExcelIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-excel-alt ${className}`.trim()}
+    className={clsx('rfu-file-excel-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -246,9 +243,9 @@ export const FileExcelIconAlt = ({
   </svg>
 );
 
-export const FileArchiveIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileArchiveIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-archive ${className}`.trim()}
+    className={clsx('rfu-file-archive', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -281,9 +278,9 @@ export const FileArchiveIconAlt = ({
   className = '',
   size = DEFAULT_SIZE,
   ...props
-}: IconPropsV2) => (
+}: IconProps) => (
   <svg
-    className={`rfu-file-archive-alt ${className}`.trim()}
+    className={clsx('rfu-file-archive-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -318,9 +315,9 @@ export const FileArchiveIconAlt = ({
   </svg>
 );
 
-export const FileCodeIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileCodeIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-code ${className}`.trim()}
+    className={clsx('rfu-file-code', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -343,9 +340,9 @@ export const FileCodeIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: 
   </svg>
 );
 
-export const FileCodeIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileCodeIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-code-alt ${className}`.trim()}
+    className={clsx('rfu-file-code-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -380,9 +377,9 @@ export const FileCodeIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props 
   </svg>
 );
 
-export const FileAudioIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileAudioIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-audio ${className}`.trim()}
+    className={clsx('rfu-file-audio', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -411,13 +408,9 @@ export const FileAudioIcon = ({ className = '', size = DEFAULT_SIZE, ...props }:
   </svg>
 );
 
-export const FileAudioIconAlt = ({
-  className = '',
-  size = DEFAULT_SIZE,
-  ...props
-}: IconPropsV2) => (
+export const FileAudioIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-audio-alt ${className}`.trim()}
+    className={clsx('rfu-file-audio-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -452,9 +445,9 @@ export const FileAudioIconAlt = ({
   </svg>
 );
 
-export const FileVideoIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileVideoIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-video ${className}`.trim()}
+    className={clsx('rfu-file-video', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -481,13 +474,9 @@ export const FileVideoIcon = ({ className = '', size = DEFAULT_SIZE, ...props }:
   </svg>
 );
 
-export const FileVideoIconAlt = ({
-  className = '',
-  size = DEFAULT_SIZE,
-  ...props
-}: IconPropsV2) => (
+export const FileVideoIconAlt = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-video-alt ${className}`.trim()}
+    className={clsx('rfu-file-video-alt', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -520,13 +509,9 @@ export const FileVideoIconAlt = ({
   </svg>
 );
 
-export const FileFallbackIcon = ({
-  className = '',
-  size = DEFAULT_SIZE,
-  ...props
-}: IconPropsV2) => (
+export const FileFallbackIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-fallback ${className}`.trim()}
+    className={clsx('rfu-file-fallback ', className)}
     fill='none'
     height={size}
     viewBox='0 0 34 40'
@@ -559,9 +544,9 @@ export const FileFallbackIcon = ({
 );
 
 // v1 icon without possibility to specify size via props
-export const FileImageIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconPropsV2) => (
+export const FileImageIcon = ({ className = '', size = DEFAULT_SIZE, ...props }: IconProps) => (
   <svg
-    className={`rfu-file-image  ${className}`.trim()}
+    className={clsx('rfu-file-image', className)}
     height={size}
     viewBox='0 0 384 512'
     width={size}

@@ -30,11 +30,11 @@ import type {
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import { UnreadMessagesSeparatorProps } from '../components/MessageList/UnreadMessagesSeparator';
-import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
 import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type { RecordingPermissionDeniedNotificationProps } from '../components';
 import {
   BaseImageProps,
   CooldownTimerProps,
@@ -46,7 +46,6 @@ import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
 import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
 import type { SendButtonProps } from '../components/MessageInput/SendButton';
-import type { RecordingPermissionDeniedNotificationProps } from '../components';
 import type { TimestampProps } from '../components/Message/Timestamp';
 
 export type ComponentContextValue<
@@ -61,7 +60,6 @@ export type ComponentContextValue<
   UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
   AttachmentPreviewList?: React.ComponentType;
   AudioRecorder?: React.ComponentType;
-  AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;

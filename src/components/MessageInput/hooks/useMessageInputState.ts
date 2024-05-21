@@ -236,7 +236,7 @@ const initState = <
         (att) =>
           ({
             ...att,
-            $internal: { id: nanoid(), uploadState: 'finished' },
+            $internal: { id: nanoid() },
           } as LocalAttachment<StreamChatGenerics>),
       ) || [];
 
@@ -432,7 +432,6 @@ export const useMessageInputState = <
 
   const {
     channelCapabilities = {},
-    channelConfig,
     enrichURLForPreview: enrichURLForPreviewChannelContext,
   } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
@@ -517,9 +516,7 @@ export const useMessageInputState = <
     uploadAttachment,
   });
 
-  // todo: remove the check for channelConfig?.uploads
-  const isUploadEnabled =
-    channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
+  const isUploadEnabled = !!channelCapabilities['upload-file'];
 
   const { onPaste } = usePasteHandler(
     uploadNewFiles,

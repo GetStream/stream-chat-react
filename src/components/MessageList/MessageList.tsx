@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 import {
@@ -179,9 +180,6 @@ const MessageListWithContext = <
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__list';
-  const threadListClass = threadList
-    ? customClasses?.threadList || 'str-chat__list--thread str-chat__thread-list'
-    : '';
 
   const loadMore = React.useCallback(() => {
     if (loadMoreCallback) {
@@ -221,7 +219,9 @@ const MessageListWithContext = <
           <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
         )}
         <div
-          className={`${messageListClass} ${threadListClass}`}
+          className={clsx(messageListClass, {
+            [customClasses?.threadList || 'str-chat__thread-list']: threadList,
+          })}
           onScroll={onScroll}
           ref={setListElement}
           tabIndex={0}
@@ -233,7 +233,7 @@ const MessageListWithContext = <
             />
           ) : (
             <InfiniteScroll
-              className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
+              className='str-chat__message-list-scroll'
               data-testid='reverse-infinite-scroll'
               hasNextPage={props.hasMoreNewer}
               hasPreviousPage={props.hasMore}

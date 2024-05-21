@@ -620,47 +620,41 @@ describe('ChannelList', () => {
           </ChatContext.Provider>,
         );
 
-      it.each([['1'], ['2']])(
-        "theme v%s should not render search results on input focus if user haven't started to type",
-        async (themeVersion) => {
-          const { container } = await renderComponents({ channel, client, themeVersion });
-          const input = screen.queryByTestId('search-input');
-          await act(() => {
-            fireEvent.focus(input);
-          });
+      it("should not render search results on input focus if user haven't started to type", async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          fireEvent.focus(input);
+        });
 
-          await waitFor(() => {
-            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
-            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-          });
-        },
-      );
-      it.each([['1'], ['2']])(
-        'theme v%s should not render inline search results if popupResults is true',
-        async (themeVersion) => {
-          const { container } = await renderComponents(
-            { channel, client, themeVersion },
-            { additionalChannelSearchProps: { popupResults: true } },
-          );
-          const input = screen.queryByTestId('search-input');
-          await act(() => {
-            fireEvent.change(input, {
-              target: {
-                value: inputText,
-              },
-            });
-          });
-          await waitFor(() => {
-            expect(
-              container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
-            ).toBeInTheDocument();
-            expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
-          });
-        },
-      );
-      it('theme v2 should render inline search results if popupResults is false', async () => {
+        await waitFor(() => {
+          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+        });
+      });
+      it('should not render inline search results if popupResults is true', async () => {
         const { container } = await renderComponents(
-          { channel, client, themeVersion: '2' },
+          { channel, client },
+          { additionalChannelSearchProps: { popupResults: true } },
+        );
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
+          });
+        });
+        await waitFor(() => {
+          expect(
+            container.querySelector(`${SEARCH_RESULT_LIST_SELECTOR}.popup`),
+          ).toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
+        });
+      });
+      it('should render inline search results if popupResults is false', async () => {
+        const { container } = await renderComponents(
+          { channel, client },
           { additionalChannelSearchProps: { popupResults: false } },
         );
         const input = screen.queryByTestId('search-input');
@@ -680,17 +674,15 @@ describe('ChannelList', () => {
       });
 
       it.each([
-        ['1', 'should not', false],
-        ['2', 'should not', false],
-        ['1', 'should', true],
-        ['2', 'should', true],
+        ['should not', false],
+        ['should', true],
       ])(
-        'theme v%s %s unmount search results on result click, if configured',
-        async (themeVersion, _, clearSearchOnClickOutside) => {
+        '%s unmount search results on result click, if configured',
+        async (_, clearSearchOnClickOutside) => {
           jest.useFakeTimers('modern');
           jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
           const { container } = await renderComponents(
-            { channel, client, themeVersion },
+            { channel, client },
             { additionalChannelSearchProps: { clearSearchOnClickOutside } },
           );
           const input = screen.getByTestId('search-input');
@@ -721,46 +713,33 @@ describe('ChannelList', () => {
         },
       );
 
-      it.each([['1'], ['2']])(
-        'theme v%s should unmount search results if user cleared the input',
-        async (themeVersion) => {
-          const { container } = await renderComponents({ channel, client, themeVersion });
-          const input = screen.queryByTestId('search-input');
-          await act(() => {
-            input.focus();
-            fireEvent.change(input, {
-              target: {
-                value: inputText,
-              },
-            });
+      it('should unmount search results if user cleared the input', async () => {
+        const { container } = await renderComponents({ channel, client });
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          input.focus();
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
           });
+        });
 
-          await act(() => {
-            if (themeVersion === '2') {
-              const clearButton = screen.queryByTestId('clear-input-button');
-              fireEvent.click(clearButton);
-            } else {
-              fireEvent.change(input, {
-                target: {
-                  value: '',
-                },
-              });
-            }
-          });
-          await waitFor(() => {
-            expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
-            expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
-            expect(input).toHaveValue('');
-            expect(input).toHaveFocus();
-            if (themeVersion === '2') {
-              expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
-            }
-          });
-        },
-      );
+        await act(() => {
+          const clearButton = screen.queryByTestId('clear-input-button');
+          fireEvent.click(clearButton);
+        });
+        await waitFor(() => {
+          expect(container.querySelector(SEARCH_RESULT_LIST_SELECTOR)).not.toBeInTheDocument();
+          expect(container.querySelector(CHANNEL_LIST_SELECTOR)).toBeInTheDocument();
+          expect(input).toHaveValue('');
+          expect(input).toHaveFocus();
+          expect(screen.queryByTestId('return-icon')).toBeInTheDocument();
+        });
+      });
 
-      it('theme v2 should unmount search results if user clicked the return button', async () => {
-        const { container } = await renderComponents({ channel, client, themeVersion: '2' });
+      it('should unmount search results if user clicked the return button', async () => {
+        const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
 
         await act(() => {
@@ -783,65 +762,55 @@ describe('ChannelList', () => {
           expect(returnIcon).not.toBeInTheDocument();
         });
       });
-      it.each([['1'], ['2']])(
-        'theme v%s should add the selected result to the top of the channel list',
-        async (themeVersion) => {
-          jest.useFakeTimers('modern');
-          jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
-          const getComputedStyleMock = jest.spyOn(window, 'getComputedStyle');
-          getComputedStyleMock.mockReturnValue({
-            getPropertyValue: jest.fn().mockReturnValue(themeVersion),
-          });
-          await render(
-            <Chat client={client}>
-              <ChannelList
-                additionalChannelSearchProps={{ searchForChannels: true }}
-                filters={{}}
-                options={{ presence: true, state: true }}
-                showChannelSearch
-              />
-            </Chat>,
-          );
+      it('should add the selected result to the top of the channel list', async () => {
+        jest.useFakeTimers('modern');
+        jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [generateUser()] });
+        await render(
+          <Chat client={client}>
+            <ChannelList
+              additionalChannelSearchProps={{ searchForChannels: true }}
+              filters={{}}
+              options={{ presence: true, state: true }}
+              showChannelSearch
+            />
+          </Chat>,
+        );
 
-          const channelNotInTheList = generateChannel({
-            channel: { name: 'channel-not-loaded-yet' },
-          });
+        const channelNotInTheList = generateChannel({
+          channel: { name: 'channel-not-loaded-yet' },
+        });
 
-          await waitFor(() => {
-            expect(screen.queryAllByRole('option')).toHaveLength(3);
-            expect(screen.queryByText(channelNotInTheList.channel.name)).not.toBeInTheDocument();
-          });
+        await waitFor(() => {
+          expect(screen.queryAllByRole('option')).toHaveLength(3);
+          expect(screen.queryByText(channelNotInTheList.channel.name)).not.toBeInTheDocument();
+        });
 
-          useMockedApis(client, [queryChannelsApi([channelNotInTheList, ...mockedChannels])]);
-          const input = screen.queryByTestId('search-input');
-          await act(() => {
-            input.focus();
-            fireEvent.change(input, {
-              target: {
-                value: inputText,
-              },
-            });
+        useMockedApis(client, [queryChannelsApi([channelNotInTheList, ...mockedChannels])]);
+        const input = screen.queryByTestId('search-input');
+        await act(() => {
+          input.focus();
+          fireEvent.change(input, {
+            target: {
+              value: inputText,
+            },
           });
-          await act(() => {
-            jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
-          });
+        });
+        await act(() => {
+          jest.advanceTimersByTime(defaultSearchDebounceInterval + 1);
+        });
 
-          const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
-          expect(targetChannelPreview).toBeInTheDocument();
-          await act(() => {
-            fireEvent.click(targetChannelPreview);
-          });
+        const targetChannelPreview = screen.getByText(channelNotInTheList.channel.name);
+        expect(targetChannelPreview).toBeInTheDocument();
+        await act(() => {
+          fireEvent.click(targetChannelPreview);
+        });
 
-          await waitFor(() => {
-            expect(screen.queryByText(channelNotInTheList.channel.name)).toBeInTheDocument();
-            if (themeVersion === '2') {
-              expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
-            }
-          });
-          getComputedStyleMock.mockClear();
-          jest.useRealTimers();
-        },
-      );
+        await waitFor(() => {
+          expect(screen.queryByText(channelNotInTheList.channel.name)).toBeInTheDocument();
+          expect(screen.queryByTestId('return-icon')).not.toBeInTheDocument();
+        });
+        jest.useRealTimers();
+      });
     });
   });
 
@@ -884,7 +853,9 @@ describe('ChannelList', () => {
           user: generateUser(),
         });
 
-        await act(() => dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel));
+        await act(() => {
+          dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel);
+        });
         return newMessage;
       };
 
@@ -1620,37 +1591,6 @@ describe('ChannelList', () => {
       dateNowSpy.mockRestore();
     });
 
-    it('should throttle channel queries', async () => {
-      renderUI(chatClient);
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
-
-      const dateNowSpy = jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
-
-      act(() => {
-        chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      act(() => {
-        chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-          expect.objectContaining({ offset: 0 }),
-        );
-      });
-
-      dateNowSpy.mockRestore();
-    });
-
     it('should circumvent the throttle interval if the last query failed', async () => {
       renderUI(chatClient);
       expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
@@ -1700,7 +1640,7 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
@@ -1713,7 +1653,7 @@ describe('ChannelList', () => {
         );
       });
 
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
@@ -1723,7 +1663,7 @@ describe('ChannelList', () => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
       });
 
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
@@ -1747,7 +1687,7 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(recoveryThrottleIntervalMs + 1)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
@@ -1760,17 +1700,13 @@ describe('ChannelList', () => {
         );
       });
 
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      });
-
-      act(() => {
+      await act(() => {
         chatClient.dispatchEvent({
           type: 'connection.recovered',
         });

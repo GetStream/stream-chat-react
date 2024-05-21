@@ -27,8 +27,6 @@ import {
   ReactionSelector as DefaultReactionSelector,
 } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
-
-import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
@@ -87,7 +85,6 @@ const MessageSimpleWithContext = <
     ReactionsList = DefaultReactionList,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
-  const { themeVersion } = useChatContext('MessageSimple');
 
   const hasAttachment = messageHasAttachments(message);
   const hasReactions = messageHasReactions(message);
@@ -169,7 +166,6 @@ const MessageSimpleWithContext = <
       {
         <div className={rootClassName} key={message.id}>
           {PinIndicator && <PinIndicator />}
-          {themeVersion === '1' && <MessageStatus />}
           {message.user && (
             <Avatar
               image={message.user.image}
@@ -204,33 +200,17 @@ const MessageSimpleWithContext = <
                   source={message.mml}
                 />
               )}
-              {themeVersion === '2' && <MessageErrorIcon />}
+              <MessageErrorIcon />
             </div>
-            {showReplyCountButton && themeVersion === '1' && (
-              <MessageRepliesCountButton
-                onClick={handleOpenThread}
-                reply_count={message.reply_count}
-              />
-            )}
-            {showMetadata && themeVersion === '1' && (
-              <div className='str-chat__message-data str-chat__message-simple-data'>
-                {!isMyMessage() && message.user ? (
-                  <span className='str-chat__message-simple-name'>
-                    {message.user.name || message.user.id}
-                  </span>
-                ) : null}
-                <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
-              </div>
-            )}
           </div>
-          {showReplyCountButton && themeVersion === '2' && (
+          {showReplyCountButton && (
             <MessageRepliesCountButton
               onClick={handleOpenThread}
               reply_count={message.reply_count}
             />
           )}
-          {showMetadata && themeVersion === '2' && (
-            <div className='str-chat__message-data str-chat__message-simple-data str-chat__message-metadata'>
+          {showMetadata && (
+            <div className='str-chat__message-metadata'>
               <MessageStatus />
               {!isMyMessage() && !!message.user && (
                 <span className='str-chat__message-simple-name'>

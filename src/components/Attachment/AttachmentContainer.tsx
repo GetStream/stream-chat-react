@@ -10,14 +10,15 @@ import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
-import { NullComponent as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
-  AttachmentContainerProps,
+  AttachmentComponentType,
+  GalleryAttachment,
   isGalleryAttachmentType,
   isSvgAttachment,
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
+import { NullComponent as DefaultUnsupportedAttachment } from '../UtilityComponents';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
@@ -26,7 +27,14 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
+import type { Attachment } from '../../../../stream-chat-js';
 
+export type AttachmentContainerProps<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
+  componentType: AttachmentComponentType;
+};
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
@@ -53,7 +61,7 @@ export const AttachmentWithinContainer = <
       [`str-chat__message-attachment--${attachment?.type}`]: attachment?.type,
       [`str-chat__message-attachment--${componentType}--${extra}`]: componentType && extra,
       'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
-      'str-chat__message-attachment-with-actions': extra === 'actions', // added for theme V2 (better readability)
+      'str-chat__message-attachment-with-actions': extra === 'actions',
     },
   );
 
@@ -298,7 +306,7 @@ export const MediaContainer = <
 
   return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
-      <div className='str-chat__attachment str-chat__attachment-media'>
+      <div className='str-chat__attachment'>
         {content}
         <AttachmentActionsContainer {...props} />
       </div>

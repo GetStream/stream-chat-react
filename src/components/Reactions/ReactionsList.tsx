@@ -64,6 +64,7 @@ const UnMemoizedReactionsList = <
       <div
         aria-label={t('aria/Reaction list')}
         className={clsx('str-chat__reaction-list str-chat__message-reactions-container', {
+          // we are stuck with both classes as both are used in CSS
           'str-chat__reaction-list--reverse': reverse,
         })}
         data-testid='reaction-list'
