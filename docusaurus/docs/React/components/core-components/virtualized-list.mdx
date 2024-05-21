@@ -327,13 +327,13 @@ The scroll-to behavior when new messages appear. Use `'smooth'` for regular chat
 | ------------------ | -------- |
 | 'smooth' \| 'auto' | 'smooth' |
 
-### sortReactionDetails
+### reactionDetailsSort
 
-Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method.
+Sort options to provide to a reactions query. Affects the order of reacted users in the default reactions modal.
 
-| Type                                                       | Default            |
-| ---------------------------------------------------------- | ------------------ |
-| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
+| Type                   | Default                     |
+| ---------------------- | --------------------------- |
+| { created_at: number } | reverse chronological order |
 
 ### sortReactions
 

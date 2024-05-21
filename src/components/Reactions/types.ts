@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { ReactionResponse } from 'stream-chat';
+import type { DefaultGenerics, ExtendableGenerics, ReactionResponse } from 'stream-chat';
 import { DefaultStreamChatGenerics } from '../../types';
 
 export interface ReactionSummary {
@@ -15,7 +15,9 @@ export interface ReactionSummary {
 
 export type ReactionsComparator = (a: ReactionSummary, b: ReactionSummary) => number;
 
-export type ReactionDetailsComparator = (a: ReactionResponse, b: ReactionResponse) => number;
+export type ReactionDetailsComparator<
+  StreamChatGenerics extends ExtendableGenerics = DefaultGenerics
+> = (a: ReactionResponse<StreamChatGenerics>, b: ReactionResponse<StreamChatGenerics>) => number;
 
 export type ReactionType<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

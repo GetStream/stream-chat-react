@@ -19,7 +19,7 @@ export function useFetchReactions<
   const {
     handleFetchReactions: contextHandleFetchReactions,
   } = useMessageContext<StreamChatGenerics>('useFetchReactions');
-  const [reactions, setReactions] = useState<ReactionResponse[]>([]);
+  const [reactions, setReactions] = useState<ReactionResponse<StreamChatGenerics>[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,
     reactionType,

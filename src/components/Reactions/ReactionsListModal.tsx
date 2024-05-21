@@ -22,14 +22,8 @@ type ReactionsListModalProps<
     onSelectedReactionTypeChange?: (reactionType: ReactionType<StreamChatGenerics>) => void;
     sort?: ReactionSort<StreamChatGenerics>;
     /** @deprecated use `sort` instead */
-    sortReactionDetails?: ReactionDetailsComparator;
+    sortReactionDetails?: ReactionDetailsComparator<StreamChatGenerics>;
   };
-
-const defaultSortReactionDetails: ReactionDetailsComparator = (a, b) => {
-  const aName = a.user?.name ?? a.user?.id;
-  const bName = b.user?.name ?? b.user?.id;
-  return aName ? (bName ? aName.localeCompare(bName, 'en') : -1) : 1;
-};
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
@@ -51,29 +45,27 @@ export function ReactionsListModal<
   const {
     reactionDetailsSort: contextReactionDetailsSort,
     sortReactionDetails: contextSortReactionDetails,
-  } = useMessageContext('ReactionsListModal');
-  const legacySortReactionDetails =
-    propSortReactionDetails ?? contextSortReactionDetails ?? defaultSortReactionDetails;
+  } = useMessageContext<StreamChatGenerics>('ReactionsListModal');
+  const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
-  const { isLoading: areReactionsLoading, reactions: allReactions } = useFetchReactions({
+  const {
+    isLoading: areReactionsLoading,
+    reactions: reactionDetails,
+  } = useFetchReactions<StreamChatGenerics>({
     handleFetchReactions,
     reactionType: selectedReactionType,
     shouldFetch: modalProps.open,
     sort: reactionDetailsSort,
   });
 
-  const currentReactions = useMemo(() => {
-    if (!selectedReactionType) {
-      return [];
-    }
-
-    const unsortedCurrentReactions = allReactions.filter(
-      (reaction) => reaction.type === selectedReactionType && reaction.user,
-    );
-
-    return unsortedCurrentReactions.sort(legacySortReactionDetails);
-  }, [allReactions, selectedReactionType, legacySortReactionDetails]);
+  const reactionDetailsWithLegacyFallback = useMemo(
+    () =>
+      legacySortReactionDetails
+        ? [...reactionDetails].sort(legacySortReactionDetails)
+        : reactionDetails,
+    [legacySortReactionDetails, reactionDetails],
+  );
 
   return (
     <Modal {...modalProps}>
@@ -114,7 +106,7 @@ export function ReactionsListModal<
           {areReactionsLoading ? (
             <LoadingIndicator />
           ) : (
-            currentReactions.map(({ user }) => (
+            reactionDetailsWithLegacyFallback.map(({ user }) => (
               <div className='str-chat__message-reactions-details-reacting-user' key={user?.id}>
                 <Avatar
                   data-testid='avatar'
