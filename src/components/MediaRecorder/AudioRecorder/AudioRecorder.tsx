@@ -17,7 +17,7 @@ export const AudioRecorder = () => {
     recordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageInputContext();
 
-  const isUploadingFile = recording?.$internal?.uploadState === 'uploading';
+  const isUploadingFile = recording?.localMetadata?.uploadState === 'uploading';
 
   const state = useMemo(
     () => ({

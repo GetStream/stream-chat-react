@@ -65,7 +65,7 @@ const defaultChatContext = {
 
 const cooldown = 30;
 const filename = 'some.txt';
-const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
 
 const getImage = () => new File(['content'], filename, { type: 'image/png' });
 const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });

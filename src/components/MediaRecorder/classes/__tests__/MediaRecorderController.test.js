@@ -488,13 +488,13 @@ describe('MediaRecorderController', () => {
 
         expect(recording).toStrictEqual(
           expect.objectContaining({
-            $internal: {
-              file: fileMock,
-              id: nanoidMockValue,
-            },
             asset_url: fileObjectURL,
             duration: dataPoints.reduce((acc, n) => acc + n),
             file_size: recordedChunkCount,
+            localMetadata: {
+              file: fileMock,
+              id: nanoidMockValue,
+            },
             mime_type: targetMimeType,
             title: fileMock.name,
             type: RecordingAttachmentType.VOICE_RECORDING,

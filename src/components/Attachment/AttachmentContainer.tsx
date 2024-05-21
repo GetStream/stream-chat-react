@@ -10,15 +10,14 @@ import { VoiceRecording as DefaultVoiceRecording } from './VoiceRecording';
 import { Gallery as DefaultGallery, ImageComponent as DefaultImage } from '../Gallery';
 import { Card as DefaultCard } from './Card';
 import { FileAttachment as DefaultFile } from './FileAttachment';
+import { UnsupportedAttachment as DefaultUnsupportedAttachment } from './UnsupportedAttachment';
 import {
-  AttachmentComponentType,
-  GalleryAttachment,
+  AttachmentContainerProps,
   isGalleryAttachmentType,
   isSvgAttachment,
   RenderAttachmentProps,
   RenderGalleryProps,
 } from './utils';
-import { NullComponent as DefaultUnsupportedAttachment } from '../UtilityComponents';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 
@@ -27,14 +26,7 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
-import type { Attachment } from '../../../../stream-chat-js';
 
-export type AttachmentContainerProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  attachment: Attachment<StreamChatGenerics> | GalleryAttachment<StreamChatGenerics>;
-  componentType: AttachmentComponentType;
-};
 export const AttachmentWithinContainer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({

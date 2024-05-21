@@ -84,6 +84,7 @@
   "Unmute": "음소거 해제",
   "Unpin": "핀 해제",
   "Unread messages": "읽지 않은 메시지",
+  "Unsupported attachment": "지원되지 않는 첨부 파일",
   "Upload type: \"{{ type }}\" is not allowed": "업로드 유형: \"{{ type }}\"은(는) 허용되지 않습니다.",
   "User uploaded content": "사용자 업로드 콘텐츠",
   "Voice message": "음성 메시지",

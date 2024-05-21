@@ -84,6 +84,7 @@
   "Unmute": "Activar sonido",
   "Unpin": "Desprender",
   "Unread messages": "Mensajes no leídos",
+  "Unsupported attachment": "Adjunto no compatible",
   "Upload type: \"{{ type }}\" is not allowed": "Tipo de carga: \"{{ type }}\" no está permitido",
   "User uploaded content": "Contenido subido por el usuario",
   "Voice message": "Mensaje de voz",

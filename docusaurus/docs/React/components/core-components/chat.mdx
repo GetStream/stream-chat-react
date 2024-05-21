@@ -127,7 +127,23 @@ const i18nInstance = new Streami18n({
 
 ### initialNavOpen
 
-When the screen width is at a mobile breakpoint, whether or not the mobile navigation menu is open.
+The prop controls setting of the class `str-chat-channel-list--open` on the `ChannelList` root `div`. It is up to the integrator to decide, what styles should be assigned to this class to control the app layout. An example could be as follows:
+
+```
+@media screen and (min-width: 768px) {
+  .str-chat-channel-list--open {
+      width: 100%;
+  }
+
+  .str-chat-channel-list {
+      position: fixed;
+      z-index: 1;
+      width: 0;
+  }
+}
+```
+
+Here, the list will take the whole width of the screen on small devices once the class `str-chat-channel-list--open` is assigned to the root div. Otherwise, the list is not visible as it has zero width.
 
 | Type    | Default |
 | ------- | ------- |

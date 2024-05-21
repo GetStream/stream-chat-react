@@ -57,7 +57,7 @@ export const useCreateMessageInputContext = <
     parent,
     publishTypingEvent,
     recordingController,
-    removeAttachment,
+    removeAttachments,
     removeFile,
     removeImage,
     setCooldownRemaining,
@@ -71,6 +71,7 @@ export const useCreateMessageInputContext = <
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
     useMentionsTransliteration,
   } = value;
 
@@ -136,7 +137,7 @@ export const useCreateMessageInputContext = <
       parent,
       publishTypingEvent,
       recordingController,
-      removeAttachment,
+      removeAttachments,
       removeFile,
       removeImage,
       setCooldownRemaining,
@@ -150,6 +151,7 @@ export const useCreateMessageInputContext = <
       uploadFile,
       uploadImage,
       uploadNewFiles,
+      upsertAttachments,
       useMentionsTransliteration,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -173,11 +175,12 @@ export const useCreateMessageInputContext = <
       parentId,
       publishTypingEvent,
       recordingController,
-      removeAttachment,
+      removeAttachments,
       showCommandsList,
       showMentionsList,
       text,
       uploadAttachment,
+      upsertAttachments,
     ],
   );
 

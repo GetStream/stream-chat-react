@@ -169,7 +169,7 @@ exports[`AttachmentPreviewList should render custom BaseImage component 1`] = `
 </div>
 `;
 
-exports[`ImagePreviewItem renders upload failed state 1`] = `
+exports[`ImageUploadPreviewAdapter renders upload failed state 1`] = `
 <div>
   <div
     class="str-chat__attachment-preview-image"
@@ -221,7 +221,7 @@ exports[`ImagePreviewItem renders upload failed state 1`] = `
 </div>
 `;
 
-exports[`ImagePreviewItem renders upload finished state 1`] = `
+exports[`ImageUploadPreviewAdapter renders upload finished state 1`] = `
 <div>
   <div
     class="str-chat__attachment-preview-image"
@@ -255,7 +255,166 @@ exports[`ImagePreviewItem renders upload finished state 1`] = `
 </div>
 `;
 
-exports[`ImagePreviewItem renders uploading state 1`] = `
+exports[`ImageUploadPreviewAdapter renders uploading state 1`] = `
+<div>
+  <div
+    class="str-chat__attachment-preview-image"
+    data-testid="attachment-preview-image"
+  >
+    <button
+      class="str-chat__attachment-preview-delete"
+      data-testid="image-preview-item-delete-button"
+      disabled=""
+    >
+      <svg
+        data-testid="close-no-outline"
+        fill="none"
+        height="24"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+          fill="black"
+        />
+      </svg>
+    </button>
+    <div
+      class="str-chat__attachment-preview-image-loading"
+    >
+      <div
+        class="str-chat__loading-indicator"
+      >
+        <svg
+          data-testid="loading-indicator"
+          height="17"
+          viewBox="0 0 30 30"
+          width="17"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <lineargradient
+              id="randomNanoId-linear-gradient"
+              x1="50%"
+              x2="50%"
+              y1="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stop-color="#FFF"
+                stop-opacity="0"
+              />
+              <stop
+                data-testid="stop-color"
+                offset="100%"
+                stop-opacity="1"
+              />
+            </lineargradient>
+          </defs>
+          <path
+            d="M2.518 23.321l1.664-1.11A12.988 12.988 0 0 0 15 28c7.18 0 13-5.82 13-13S22.18 2 15 2V0c8.284 0 15 6.716 15 15 0 8.284-6.716 15-15 15-5.206 0-9.792-2.652-12.482-6.679z"
+            fill="url(#randomNanoId-linear-gradient)"
+            fill-rule="evenodd"
+          />
+        </svg>
+      </div>
+    </div>
+    <img
+      class="str-chat__attachment-preview-thumbnail str-chat__base-image"
+      data-testid="str-chat__base-image"
+      src="https://us-east.stream-io-cdn.com/1145265/images/abc&oh=6120&ow=8160"
+    />
+  </div>
+</div>
+`;
+
+exports[`ImageUploadPreviewAdapter renders upload failed state 1`] = `
+<div>
+  <div
+    class="str-chat__attachment-preview-image"
+    data-testid="attachment-preview-image"
+  >
+    <button
+      class="str-chat__attachment-preview-delete"
+      data-testid="image-preview-item-delete-button"
+    >
+      <svg
+        data-testid="close-no-outline"
+        fill="none"
+        height="24"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+          fill="black"
+        />
+      </svg>
+    </button>
+    <button
+      class="str-chat__attachment-preview-error str-chat__attachment-preview-error-image"
+      data-testid="image-preview-item-retry-button"
+    >
+      <svg
+        data-testid="retry"
+        fill="none"
+        height="24"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M17.6449 6.35C16.1949 4.9 14.2049 4 11.9949 4C7.57488 4 4.00488 7.58 4.00488 12C4.00488 16.42 7.57488 20 11.9949 20C15.7249 20 18.8349 17.45 19.7249 14H17.6449C16.8249 16.33 14.6049 18 11.9949 18C8.68488 18 5.99488 15.31 5.99488 12C5.99488 8.69 8.68488 6 11.9949 6C13.6549 6 15.1349 6.69 16.2149 7.78L12.9949 11H19.9949V4L17.6449 6.35Z"
+          fill="black"
+        />
+      </svg>
+    </button>
+    <img
+      class="str-chat__attachment-preview-thumbnail str-chat__base-image"
+      data-testid="str-chat__base-image"
+      src="https://us-east.stream-io-cdn.com/1145265/images/abc&oh=6120&ow=8160"
+    />
+  </div>
+</div>
+`;
+
+exports[`ImageUploadPreviewAdapter renders upload finished state 1`] = `
+<div>
+  <div
+    class="str-chat__attachment-preview-image"
+    data-testid="attachment-preview-image"
+  >
+    <button
+      class="str-chat__attachment-preview-delete"
+      data-testid="image-preview-item-delete-button"
+    >
+      <svg
+        data-testid="close-no-outline"
+        fill="none"
+        height="24"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+          fill="black"
+        />
+      </svg>
+    </button>
+    <img
+      class="str-chat__attachment-preview-thumbnail str-chat__base-image"
+      data-testid="str-chat__base-image"
+      src="https://us-east.stream-io-cdn.com/1145265/images/abc&oh=6120&ow=8160"
+    />
+  </div>
+</div>
+`;
+
+exports[`ImageUploadPreviewAdapter renders uploading state 1`] = `
 <div>
   <div
     class="str-chat__attachment-preview-image"

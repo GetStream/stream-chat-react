@@ -41,6 +41,7 @@ import {
   CustomMessageActionsListProps,
   StartRecordingAudioButtonProps,
 } from '../components';
+import type { AttachmentPreviewListProps } from '../components/MessageInput';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
@@ -58,7 +59,7 @@ export type ComponentContextValue<
   MessageSystem: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   reactionOptions: ReactionOptions;
   UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
-  AttachmentPreviewList?: React.ComponentType;
+  AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   AudioRecorder?: React.ComponentType;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;

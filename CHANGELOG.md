@@ -1,3 +1,22 @@
+## [11.18.1](https://github.com/GetStream/stream-chat-react/compare/v11.18.0...v11.18.1) (2024-05-10)
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to v4.16.1 ([d5d5ffa](https://github.com/GetStream/stream-chat-react/commit/d5d5ffa73e67dc397ff66f8901296ecf768f0918))
+
+## [11.18.0](https://github.com/GetStream/stream-chat-react/compare/v11.17.0...v11.18.0) (2024-05-09)
+
+
+### Bug Fixes
+
+* attach class str-chat__message-with-thread-link only if the message has replies ([#2386](https://github.com/GetStream/stream-chat-react/issues/2386)) ([c71f94e](https://github.com/GetStream/stream-chat-react/commit/c71f94e81ad2db4c26c3cfbac1b9246050dc60c9))
+
+
+### Features
+
+* allow custom attachments ([#2383](https://github.com/GetStream/stream-chat-react/issues/2383)) ([c751670](https://github.com/GetStream/stream-chat-react/commit/c751670319bd40784dd2ab56e1e0ff392f9ed79f))
+
 ## [11.17.0](https://github.com/GetStream/stream-chat-react/compare/v11.16.1...v11.17.0) (2024-05-02)
 
 

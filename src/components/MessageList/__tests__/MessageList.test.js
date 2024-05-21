@@ -311,8 +311,8 @@ describe('MessageList', () => {
     const messages = Array.from({ length: msgCount }, generateMessage);
     const reviewProcessedMessage = jest.fn();
 
-    await act(() => {
-      renderComponent({
+    await act(async () => {
+      await renderComponent({
         channelProps: { channel },
         chatClient,
         msgListProps: { messages, reviewProcessedMessage },

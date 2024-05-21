@@ -84,6 +84,7 @@
   "Unmute": "Включить уведомления",
   "Unpin": "Открепить",
   "Unread messages": "Непрочитанные сообщения",
+  "Unsupported attachment": "Неподдерживаемое вложение",
   "Upload type: \"{{ type }}\" is not allowed": "Тип загрузки: \"{{ type }}\" не разрешен",
   "User uploaded content": "Пользователь загрузил контент",
   "Voice message": "Голосовое сообщение",
