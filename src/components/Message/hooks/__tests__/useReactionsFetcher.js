@@ -6,11 +6,10 @@ import { ChatProvider } from '../../../../context/ChatContext';
 import { generateChannel, generateMessage, getTestClient } from '../../../../mock-builders';
 import { useReactionsFetcher } from '../useReactionsFetcher';
 
-async function renderUseReactionsFetcherHook(channel = generateChannel(), notificationOpts) {
-  const client = await getTestClient();
+function renderUseReactionsFetcherHook(client = getTestClient(), notificationOpts) {
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel }}>{children}</ChannelStateProvider>
+      <ChannelStateProvider value={{ channel: generateChannel() }}>{children}</ChannelStateProvider>
     </ChatProvider>
   );
 
@@ -23,42 +22,36 @@ async function renderUseReactionsFetcherHook(channel = generateChannel(), notifi
 describe('useReactionsFetcher custom hook', () => {
   afterEach(() => jest.clearAllMocks());
 
-  it('should generate a function', async () => {
-    const fetchReactions = await renderUseReactionsFetcherHook();
+  it('should generate a function', () => {
+    const fetchReactions = renderUseReactionsFetcherHook();
     expect(typeof fetchReactions).toBe('function');
   });
 
   it('generated function should make a request to fetch reactions', async () => {
-    const getReactionsMock = jest.fn(() => Promise.resolve({ reactions: [] }));
-    const channel = generateChannel({
-      getReactions: getReactionsMock,
-    });
-    const fetchReactions = await renderUseReactionsFetcherHook(channel);
+    const queryReactionsMock = jest.fn(() => Promise.resolve({ reactions: [] }));
+    const client = getTestClient({ queryReactions: queryReactionsMock });
+    const fetchReactions = renderUseReactionsFetcherHook(client);
     await fetchReactions();
-    expect(getReactionsMock).toHaveBeenCalledTimes(1);
+    expect(queryReactionsMock).toHaveBeenCalledTimes(1);
   });
 
   it('generated function should make paged requests to fetch reactions', async () => {
-    const getReactionsMock = jest
+    const queryReactionsMock = jest
       .fn()
-      .mockImplementationOnce(() => Promise.resolve({ reactions: Array(300) }))
-      .mockImplementationOnce(() => Promise.resolve({ reactions: [] }));
-    const channel = generateChannel({
-      getReactions: getReactionsMock,
-    });
-    const fetchReactions = await renderUseReactionsFetcherHook(channel);
+      .mockImplementationOnce(() => Promise.resolve({ next: '42', reactions: Array(20) }))
+      .mockImplementationOnce(() => Promise.resolve({ reactions: Array(20) }));
+    const client = getTestClient({ queryReactions: queryReactionsMock });
+    const fetchReactions = renderUseReactionsFetcherHook(client);
     await fetchReactions();
-    expect(getReactionsMock).toHaveBeenCalledTimes(2);
+    expect(queryReactionsMock).toHaveBeenCalledTimes(2);
   });
 
   it('generated function should notify about errors', async () => {
-    const getReactionsMock = jest.fn(() => Promise.reject());
-    const channel = generateChannel({
-      getReactions: getReactionsMock,
-    });
+    const queryReactionsMock = jest.fn(() => Promise.reject());
+    const client = getTestClient({ queryReactions: queryReactionsMock });
     const getErrorNotificationMock = jest.fn(() => 'Error message');
     const notifyMock = jest.fn();
-    const fetchReactions = await renderUseReactionsFetcherHook(channel, {
+    const fetchReactions = renderUseReactionsFetcherHook(client, {
       getErrorNotification: getErrorNotificationMock,
       notify: notifyMock,
     });

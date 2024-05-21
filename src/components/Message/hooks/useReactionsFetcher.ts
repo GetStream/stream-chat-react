@@ -59,7 +59,7 @@ async function fetchMessageReactions<
 
     reactions.push(...response.reactions);
     next = response.next;
-    hasNext = response.reactions.length === limit && Boolean(next);
+    hasNext = Boolean(next);
   }
 
   return reactions;
