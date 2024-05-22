@@ -1562,8 +1562,8 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(1)
         .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1575,8 +1575,8 @@ describe('ChannelList', () => {
         );
       });
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1589,6 +1589,41 @@ describe('ChannelList', () => {
       });
 
       dateNowSpy.mockRestore();
+    });
+
+    it('should throttle channel queries', async () => {
+      jest.useFakeTimers('modern');
+      renderUI(chatClient);
+      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
+
+      const dateNowSpy = jest
+        .spyOn(Date, 'now')
+        .mockReturnValueOnce(1)
+        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
+
+      await act(async () => {
+        await chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+
+      jest.advanceTimersByTime(100);
+
+      await act(async () => {
+        await chatClient.dispatchEvent({
+          type: 'connection.recovered',
+        });
+      });
+      jest.advanceTimersByTime(100);
+      await waitFor(() => {
+        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
+        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+          expect.objectContaining({ offset: 0 }),
+        );
+      });
+
+      dateNowSpy.mockRestore();
+      jest.useRealTimers();
     });
 
     it('should circumvent the throttle interval if the last query failed', async () => {
@@ -1640,8 +1675,8 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1653,8 +1688,8 @@ describe('ChannelList', () => {
         );
       });
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1663,8 +1698,8 @@ describe('ChannelList', () => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
       });
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1687,8 +1722,8 @@ describe('ChannelList', () => {
         .mockReturnValueOnce(recoveryThrottleIntervalMs + 1)
         .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
@@ -1700,14 +1735,14 @@ describe('ChannelList', () => {
         );
       });
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
 
-      await act(() => {
-        chatClient.dispatchEvent({
+      await act(async () => {
+        await chatClient.dispatchEvent({
           type: 'connection.recovered',
         });
       });
