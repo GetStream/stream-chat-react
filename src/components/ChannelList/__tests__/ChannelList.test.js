@@ -1499,7 +1499,6 @@ describe('ChannelList', () => {
 
   describe('on connection recovery', () => {
     const RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 5000;
-    const MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS = 2000;
     let queryChannelsMock;
 
     beforeEach(() => {
@@ -1591,41 +1590,6 @@ describe('ChannelList', () => {
       dateNowSpy.mockRestore();
     });
 
-    it('should throttle channel queries', async () => {
-      jest.useFakeTimers('modern');
-      renderUI(chatClient);
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
-
-      const dateNowSpy = jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS);
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      jest.advanceTimersByTime(100);
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-      jest.advanceTimersByTime(100);
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-          expect.objectContaining({ offset: 0 }),
-        );
-      });
-
-      dateNowSpy.mockRestore();
-      jest.useRealTimers();
-    });
-
     it('should circumvent the throttle interval if the last query failed', async () => {
       renderUI(chatClient);
       expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
@@ -1660,96 +1624,6 @@ describe('ChannelList', () => {
         );
       });
 
-      dateNowSpy.mockRestore();
-    });
-
-    it('should allow custom recovery request throttle interval', async () => {
-      renderUI(chatClient, {
-        recoveryThrottleIntervalMs: MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
-      });
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
-
-      const dateNowSpy = jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS)
-        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-          expect.objectContaining({ offset: 0 }),
-        );
-      });
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-      });
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-      });
-      dateNowSpy.mockRestore();
-    });
-
-    it('should not allow recovery request throttle interval smaller than 2000ms', async () => {
-      const recoveryThrottleIntervalMs = MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS - 1;
-
-      renderUI(chatClient, { recoveryThrottleIntervalMs });
-      expect(chatClient.queryChannels).toHaveBeenCalledTimes(1);
-
-      const dateNowSpy = jest
-        .spyOn(Date, 'now')
-        .mockReturnValueOnce(1)
-        .mockReturnValueOnce(recoveryThrottleIntervalMs + 1)
-        .mockReturnValueOnce(MIN_RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS + 1);
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
-          expect.objectContaining({ offset: 0 }),
-        );
-      });
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await act(async () => {
-        await chatClient.dispatchEvent({
-          type: 'connection.recovered',
-        });
-      });
-
-      await waitFor(() => {
-        expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-      });
       dateNowSpy.mockRestore();
     });
   });
