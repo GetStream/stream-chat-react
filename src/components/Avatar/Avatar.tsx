@@ -51,7 +51,10 @@ export const Avatar = <
 
   return (
     <div
-      className={clsx(`str-chat__avatar str-chat__message-sender-avatar`, className)}
+      className={clsx(`str-chat__avatar str-chat__message-sender-avatar`, className, {
+        ['str-chat__avatar--multiple-letters']: initials.length > 1,
+        ['str-chat__avatar--one-letter']: initials.length === 1,
+      })}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}

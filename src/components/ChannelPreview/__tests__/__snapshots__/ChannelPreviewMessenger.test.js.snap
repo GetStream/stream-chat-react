@@ -16,7 +16,7 @@ exports[`ChannelPreviewMessenger should render correctly 1`] = `
       className="str-chat__channel-preview-messenger--left"
     >
       <div
-        className="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--channel-preview"
+        className="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--channel-preview str-chat__avatar--one-letter"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
