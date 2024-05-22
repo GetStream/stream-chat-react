@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import type { UserResponse } from 'stream-chat';
+import type { ReactionSort, UserResponse } from 'stream-chat';
 
 import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
@@ -88,6 +88,8 @@ export type MessageProps<
   openThread?: ChannelActionContextValue<StreamChatGenerics>['openThread'];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
   pinPermissions?: PinPermissions;
+  /** Sort options to provide to a reactions query */
+  reactionDetailsSort?: ReactionSort<StreamChatGenerics>;
   /** A list of users that have read this Message if the message is the last one and was posted by my user */
   readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
@@ -98,9 +100,11 @@ export type MessageProps<
   ) => JSX.Element | null;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
-  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  /** Comparator function to sort the list of reacted users
+   * @deprecated use `reactionDetailsSort` instead
+   */
   sortReactionDetails?: ReactionDetailsComparator;
-  /** Comparator function to sort reactions, defaults to alphabetical order */
+  /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
   /** Whether the Message is in a Thread */
   threadList?: boolean;

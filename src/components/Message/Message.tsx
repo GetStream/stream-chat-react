@@ -50,6 +50,7 @@ type MessageContextPropsToPick =
   | 'onMentionsHoverMessage'
   | 'onReactionListClick'
   | 'reactionSelectorRef'
+  | 'reactionDetailsSort'
   | 'showDetailedReactions'
   | 'sortReactions'
   | 'sortReactionDetails';
@@ -208,6 +209,7 @@ export const Message = <
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
     pinPermissions,
+    reactionDetailsSort,
     retrySendMessage: propRetrySendMessage,
     sortReactionDetails,
     sortReactions,
@@ -308,6 +310,7 @@ export const Message = <
       onUserClick={props.onUserClick}
       onUserHover={props.onUserHover}
       pinPermissions={props.pinPermissions}
+      reactionDetailsSort={reactionDetailsSort}
       reactionSelectorRef={reactionSelectorRef}
       readBy={props.readBy}
       renderText={props.renderText}
