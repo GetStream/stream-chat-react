@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
+import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat, UR } from 'stream-chat';
 import {
   Chat,
   Channel,
@@ -37,6 +37,8 @@ type StreamChatGenerics = {
   messageType: LocalMessageType;
   reactionType: LocalReactionType;
   userType: LocalUserType;
+  pollType: UR;
+  pollOptionType: UR;
 };
 
 const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);

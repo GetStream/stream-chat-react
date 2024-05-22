@@ -66,7 +66,9 @@ describe('ReactionsListModal', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = jest.fn(() => Promise.resolve(reactions));
+    const fetchReactions = jest.fn((type) =>
+      Promise.resolve(reactions.filter((r) => r.type === type)),
+    );
 
     const { container, getAllByTestId, getByTestId } = renderComponent({
       handleFetchReactions: fetchReactions,
@@ -178,31 +180,6 @@ describe('ReactionsListModal', () => {
       getByTestId('reaction-details-selector-love').compareDocumentPosition(
         getByTestId('reaction-details-selector-haha'),
       ),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-  });
-
-  it('should order reacted users alphabetically by default', async () => {
-    const reactionGroups = {
-      haha: { count: 3 },
-    };
-    const reactions = generateReactionsFromReactionGroups(reactionGroups).reverse();
-    const fetchReactions = jest.fn(() => Promise.resolve(reactions));
-    const { getByTestId, getByText } = renderComponent({
-      handleFetchReactions: fetchReactions,
-      reaction_groups: reactionGroups,
-      reactions,
-    });
-
-    await act(() => {
-      fireEvent.click(getByTestId('reactions-list-button-haha'));
-    });
-
-    expect(
-      getByText('Mark Number 0').compareDocumentPosition(getByText('Mark Number 1')),
-    ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-
-    expect(
-      getByText('Mark Number 1').compareDocumentPosition(getByText('Mark Number 2')),
     ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 

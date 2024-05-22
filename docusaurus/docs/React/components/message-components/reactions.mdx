@@ -31,7 +31,7 @@ The SDK comes with built-in support for adding reactions to messages. The compon
 
 ## Sorting reactions
 
-By default, reactions are sorted alphabetically by type. You can change this behavior by passing the `sortReactions` prop to the `MessageList` (or `VirtualizedMessageList`).
+By default, reactions are sorted chronologically by the first time reaction type was used. You can change this behavior by passing the `sortReactions` prop to the `MessageList` (or `VirtualizedMessageList`).
 
 In this example, we sort the reactions in the descending order by the number of users:
 
@@ -52,9 +52,9 @@ function sortByReactionCount(a, b) {
 </Chat>;
 ```
 
-Similarly, the `sortReactionDetails` prop can be passed to the `MessageList` (or `VirtualizedMessageList`) to sort the list of reacted users. The default implementation used by the reactions list modal dialog sorts users alphabetically by name.
+For better performance, keep the sorting function memoized with `useCallback`, or declare it in either global or module scope.
 
-For better performance, keep the sorting functions memoized with `useCallback`, or declare it in either global or module scope.
+Similarly, the `reactionDetailsSort` object can be passed to the `MessageList` (or `VirtualizedMessageList`) to sort the list of reacted users. The default implementation used by the reactions list modal dialog sorts users in the reverse chronological order of their reactions.
 
 ## Customization
 
@@ -199,21 +199,21 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 | ------- | ------- |
 | boolean | false   |
 
-### sortReactionDetails
+### reactionDetailsSort
 
-Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method. This prop overrides the function stored in `MessageContext`.
+Sort options to provide to a reactions query. Affects the order of reacted users in the default reactions modal. This prop overrides the function stored in `MessageContext`.
 
-| Type                                                       | Default            |
-| ---------------------------------------------------------- | ------------------ |
-| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
+| Type                   | Default                     |
+| ---------------------- | --------------------------- |
+| { created_at: number } | reverse chronological order |
 
 ### sortReactions
 
 Comparator function to sort reactions. Should have the same signature as an array's `sort` method. This prop overrides the function stored in `MessageContext`.
 
-| Type                                                     | Default            |
-| -------------------------------------------------------- | ------------------ |
-| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
+| Type                                                     | Default             |
+| -------------------------------------------------------- | ------------------- |
+| (this: ReactionSummary, that: ReactionSummary) => number | chronological order |
 
 ## SimpleReactionsList Props
 
