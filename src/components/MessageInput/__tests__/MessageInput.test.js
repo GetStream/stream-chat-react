@@ -20,6 +20,7 @@ import {
   generateChannel,
   generateMember,
   generateMessage,
+  generateScrapedDataAttachment,
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
@@ -32,6 +33,7 @@ const FILE_INPUT_TEST_ID = 'file-input';
 const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
 const SEND_BTN_TEST_ID = 'send-button';
 const SEND_BTN_EDIT_FORM_TEST_ID = 'send-button-edit-form';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-list-scroll-container';
 
 const inputPlaceholder = 'Type your message';
 const userId = 'userId';
@@ -274,8 +276,6 @@ function axeNoViolations(container) {
 
     describe('Attachments', () => {
       it('Pasting images and files should result in uploading the files and showing previews', async () => {
-        // FIXME: act is missing somewhere within this test which results in unwanted warning
-
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
@@ -315,6 +315,7 @@ function axeNoViolations(container) {
           expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
           expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
           expect(filenameText).toBeInTheDocument();
+          expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
         });
 
         const results = await axe(container);
@@ -568,16 +569,96 @@ function axeNoViolations(container) {
         });
       });
 
-      // todo: adjust tests once merged PR: feat: remove legacy style components #2394
-      it.todo('should show attachment previews if at least 1 file uploaded');
-      it.todo('should show attachment previews if at least one non-scraped attachments available');
-      it.todo('should not show scraped content in attachment previews');
-      it.todo(
-        'should not show attachment previews if no files uploaded and no attachments available',
-      );
-      it.todo(
-        'should not show attachment previews if no files uploaded and attachments available are only link previews',
-      );
+      it('should show attachment previews if at least one non-scraped attachments available', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [{ type: 'xxx' }] },
+          },
+        });
+        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not show scraped content in attachment previews', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [generateScrapedDataAttachment(), { type: 'xxx' }] },
+          },
+        });
+        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not show attachment previews if no files uploaded and no attachments available', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: {},
+          },
+        });
+        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not show attachment previews if no files uploaded and attachments available are only link previews', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [generateScrapedDataAttachment()] },
+          },
+        });
+        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not show attachment preview list if only failed uploads are available', async () => {
+        const cause = new Error('failed to upload');
+        const doFileUploadRequest = mockFaultyUploadApi(cause);
+
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest,
+          },
+        });
+        jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile();
+
+        act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+        });
+      });
+
+      it('should show attachment preview list if not only failed uploads are available', async () => {
+        const cause = new Error('failed to upload');
+        const doFileUploadRequest = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.reject(cause))
+          .mockImplementationOnce(() =>
+            Promise.resolve({
+              file: fileUploadUrl,
+            }),
+          );
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest,
+          },
+        });
+        jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile();
+
+        await act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+          expect(screen.getByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID)).toBeInTheDocument();
+        });
+
+        await act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          const previewList = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+          expect(previewList).toBeInTheDocument();
+          expect(previewList.children).toHaveLength(2);
+        });
+      });
 
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
       // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
