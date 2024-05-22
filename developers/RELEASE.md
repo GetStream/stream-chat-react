@@ -17,7 +17,7 @@ At the moment these manual actions have to be taken to achieve a successfull rel
 2. make sure that the peer dependencies `@stream-io/stream-chat-css` and `stream-chat-js` are installed at their latest version (see `package.json`, `yarn.lock`) (if applicable)
 3. squash-merge required pull requests to `master` branch with appropriate message name, for example: `fix(scope): new feature`, if this feature is breaking, make sure to include `BREAKING CHANGE: <reason>` in the message footer
 4. navigate to ["Actions"](https://github.com/GetStream/stream-chat-react/actions) and in the left bar select the "Release" workflow
-5. click "Run workflow" and select the branch you want to release from then adjust the prompt options and click "Run workflow", note that allowed branches for __PACKAGE RELEASE__ are: `master`, `release-v9` and `rc`, there's _is no such limititation_ for the __DOCUMENTATION RELEASE__, extend the workflow condition and `.releaserc.json` as needed
+5. click "Run workflow" and select the branch you want to release from then adjust the prompt options and click "Run workflow", note that allowed branches for __PACKAGE RELEASE__ are: branch names starting with `release` and `master`, there _is no such limititation_ for the __DOCUMENTATION RELEASE__, extend the workflow condition and `.releaserc.json` as needed. The `master` branch is the release-candidate branch.
 
 ## Available release prompt options
 
