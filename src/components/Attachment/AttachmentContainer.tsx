@@ -27,7 +27,7 @@ import type {
   ImageAttachmentConfiguration,
   VideoAttachmentConfiguration,
 } from '../../types/types';
-import type { Attachment } from '../../../../stream-chat-js';
+import type { Attachment } from 'stream-chat';
 
 export type AttachmentContainerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
