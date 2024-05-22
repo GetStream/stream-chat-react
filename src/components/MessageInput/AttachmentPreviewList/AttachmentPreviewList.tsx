@@ -23,6 +23,7 @@ import {
   isLocalImageAttachment,
   isLocalMediaAttachment,
   isLocalVoiceRecordingAttachment,
+  isScrapedContent,
 } from '../../Attachment';
 import { useMessageInputContext } from '../../../context';
 
@@ -66,6 +67,7 @@ export const AttachmentPreviewList = <
         data-testid='attachment-list-scroll-container'
       >
         {attachments.map((attachment) => {
+          if (isScrapedContent(attachment)) return null;
           if (isLocalVoiceRecordingAttachment(attachment)) {
             return (
               <VoiceRecordingPreview

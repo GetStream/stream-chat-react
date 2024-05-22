@@ -279,9 +279,11 @@ const MessageInputV2 = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {isUploadEnabled && !!(numberOfUploads || attachments.length) && (
-              <AttachmentPreviewList />
-            )}
+            {isUploadEnabled &&
+              !!(
+                numberOfUploads ||
+                (attachments.length && attachments.length !== linkPreviews.size)
+              ) && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
