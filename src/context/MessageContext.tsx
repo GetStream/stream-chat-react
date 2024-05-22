@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type { Mute, ReactionResponse, UserResponse } from 'stream-chat';
+import type { Mute, ReactionResponse, ReactionSort, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from './ChannelActionContext';
 import type { StreamMessage } from './ChannelStateContext';
@@ -11,7 +11,11 @@ import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { GroupStyle } from '../components/MessageList/utils';
-import type { ReactionDetailsComparator, ReactionsComparator } from '../components/Reactions/types';
+import type {
+  ReactionDetailsComparator,
+  ReactionsComparator,
+  ReactionType,
+} from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
 import type { DefaultStreamChatGenerics, UnknownType } from '../types/types';
@@ -46,7 +50,10 @@ export type MessageContextValue<
   /** Function to edit a message in a Channel */
   handleEdit: ReactEventHandler;
   /** Function to fetch the message reactions */
-  handleFetchReactions: () => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
+  handleFetchReactions: (
+    reactionType?: ReactionType<StreamChatGenerics>,
+    sort?: ReactionSort<StreamChatGenerics>,
+  ) => Promise<Array<ReactionResponse<StreamChatGenerics>>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
   /** Function to mark message and the messages that follow it as unread in a Channel */
@@ -115,6 +122,8 @@ export type MessageContextValue<
   mutes?: Mute<StreamChatGenerics>[];
   /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
   pinPermissions?: PinPermissions;
+  /** Sort options to provide to a reactions query */
+  reactionDetailsSort?: ReactionSort<StreamChatGenerics>;
   /** A list of users that have read this Message */
   readBy?: UserResponse<StreamChatGenerics>[];
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
@@ -123,9 +132,11 @@ export type MessageContextValue<
     mentioned_users?: UserResponse<StreamChatGenerics>[],
     options?: RenderTextOptions,
   ) => JSX.Element | null;
-  /** Comparator function to sort the list of reacted users, defaults to alphabetical order */
+  /** Comparator function to sort the list of reacted users
+   * @deprecated use `reactionDetailsSort` instead
+   */
   sortReactionDetails?: ReactionDetailsComparator;
-  /** Comparator function to sort reactions, defaults to alphabetical order */
+  /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
   /** Whether or not the Message is in a Thread */
   threadList?: boolean;

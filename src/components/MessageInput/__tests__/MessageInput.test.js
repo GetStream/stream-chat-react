@@ -568,6 +568,17 @@ function axeNoViolations(container) {
         });
       });
 
+      // todo: adjust tests once merged PR: feat: remove legacy style components #2394
+      it.todo('should show attachment previews if at least 1 file uploaded');
+      it.todo('should show attachment previews if at least one non-scraped attachments available');
+      it.todo('should not show scraped content in attachment previews');
+      it.todo(
+        'should not show attachment previews if no files uploaded and no attachments available',
+      );
+      it.todo(
+        'should not show attachment previews if no files uploaded and attachments available are only link previews',
+      );
+
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
       // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
     });

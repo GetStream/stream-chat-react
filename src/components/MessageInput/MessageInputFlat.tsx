@@ -185,9 +185,11 @@ export const MessageInputFlat = <
           </div>
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
-            {isUploadEnabled && !!(numberOfUploads + failedUploadsCount || attachments.length) && (
-              <AttachmentPreviewList />
-            )}
+            {isUploadEnabled &&
+              !!(
+                numberOfUploads + failedUploadsCount ||
+                (attachments.length && attachments.length !== linkPreviews.size)
+              ) && <AttachmentPreviewList />}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />

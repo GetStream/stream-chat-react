@@ -71,6 +71,7 @@ type VirtualizedMessageListPropsForContext =
   | 'Message'
   | 'messageActions'
   | 'shouldGroupByUser'
+  | 'reactionDetailsSort'
   | 'sortReactions'
   | 'sortReactionDetails'
   | 'threadList';
@@ -205,6 +206,7 @@ const VirtualizedMessageListWithContext = <
     separateGiphyPreview = false,
     shouldGroupByUser = false,
     showUnreadNotificationAlways,
+    reactionDetailsSort,
     sortReactionDetails,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
@@ -459,6 +461,7 @@ const VirtualizedMessageListWithContext = <
               numItemsPrepended,
               ownMessagesReadByOthers,
               processedMessages,
+              reactionDetailsSort,
               shouldGroupByUser,
               sortReactionDetails,
               sortReactions,
@@ -507,6 +510,7 @@ type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'customMessageActions'
   | 'messageActions'
+  | 'reactionDetailsSort'
   | 'sortReactions'
   | 'sortReactionDetails';
 
