@@ -2,6 +2,7 @@
   "branches": [
     {
       "name": "master",
+      "channel": "rc",
       "prerelease": true
     },
     {
@@ -10,10 +11,12 @@
     },
     {
       "name": "release-v10",
+      "channel": "v10",
       "range": "10.x"
     },
     {
       "name": "release-v9",
+      "channel": "v9",
       "range": "9.x"
     }
   ],
