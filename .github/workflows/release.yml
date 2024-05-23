@@ -24,7 +24,7 @@ jobs:
     name: Release from "${{ github.ref_name }}" branch
     runs-on: ubuntu-latest
     # GH does not allow to limit branches in the workflow_dispatch settings so this here is a safety measure
-    if: ${{ !inputs.docs_only && startsWith(github.ref_name, 'release') || startsWith(github.ref_name, 'master') }}
+    if: ${{ !inputs.docs_only && (startsWith(github.ref_name, 'release') || startsWith(github.ref_name, 'master')) }}
     env:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
