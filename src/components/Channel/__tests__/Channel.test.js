@@ -30,6 +30,7 @@ import { MessageList } from '../../MessageList';
 import { Thread } from '../../Thread';
 import { MessageProvider } from '../../../context';
 import { MessageActionsBox } from '../../MessageActions';
+import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 
 jest.mock('../../Loading', () => ({
   LoadingErrorIndicator: jest.fn(() => <div />),
@@ -558,39 +559,68 @@ describe('Channel', () => {
       await waitFor(() => expect(hasThread).toHaveBeenCalledWith(threadMessage.id));
     });
 
-    it('should be able to load more messages in a thread', async () => {
+    it('should be able to load more messages in a thread until reaching the end', async () => {
       const { channel, chatClient } = await initClient();
       const getRepliesSpy = jest.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
-
-      const replies = [generateMessage({ parent_id: threadMessage.id })];
+      const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, () =>
+        generateMessage({ parent_id: threadMessage.id }),
+      );
 
       useMockedApis(chatClient, [threadRepliesApi(replies)]);
 
       const hasThreadMessages = jest.fn();
 
-      await renderComponent(
-        { channel, chatClient },
-        ({ loadMoreThread, openThread, thread, threadMessages }) => {
-          if (!thread) {
-            // first, open a thread
-            openThread(threadMessage, { preventDefault: () => null });
-          } else if (!threadMessages.length) {
-            // then, load more messages in the thread
-            loadMoreThread();
-          } else {
-            // then, call our mock fn so we can verify what was passed as threadMessages
-            hasThreadMessages(threadMessages);
-          }
-        },
+      let callback = ({ loadMoreThread, openThread, thread, threadMessages }) => {
+        if (!thread) {
+          // first, open a thread
+          openThread(threadMessage, { preventDefault: () => null });
+        } else if (!threadMessages.length) {
+          // then, load more messages in the thread
+          loadMoreThread();
+        } else {
+          // then, call our mock fn so we can verify what was passed as threadMessages
+          hasThreadMessages(threadMessages);
+        }
+      };
+      const { rerender } = await render(
+        <Chat client={chatClient}>
+          <Channel channel={channel}>
+            <CallbackEffectWithChannelContexts callback={callback} />
+          </Channel>
+        </Chat>,
       );
 
       await waitFor(() => {
+        expect(getRepliesSpy).toHaveBeenCalledTimes(1);
         expect(getRepliesSpy).toHaveBeenCalledWith(threadMessage.id, expect.any(Object));
-      });
-      await waitFor(() => {
         expect(hasThreadMessages).toHaveBeenCalledWith(replies);
       });
+
+      useMockedApis(chatClient, [threadRepliesApi([])]);
+      callback = ({ loadMoreThread }) => {
+        loadMoreThread();
+      };
+      await act(() => {
+        rerender(
+          <Chat client={chatClient}>
+            <Channel channel={channel}>
+              <CallbackEffectWithChannelContexts callback={callback} />
+            </Channel>
+          </Chat>,
+        );
+      });
+      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
+      await act(() => {
+        rerender(
+          <Chat client={chatClient}>
+            <Channel channel={channel}>
+              <CallbackEffectWithChannelContexts callback={callback} />
+            </Channel>
+          </Chat>,
+        );
+      });
+      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should allow closing a thread after it has been opened', async () => {
