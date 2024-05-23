@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat, UR } from 'stream-chat';
 import {
   Chat,
@@ -9,9 +9,20 @@ import {
   MessageInput,
   Thread,
   Window,
+  useCreateChatClient,
 } from 'stream-chat-react';
 
 import './App.css';
+
+declare module 'stream-chat' {
+  interface UserEx {
+    customUserField: string;
+  }
+
+  interface ReactionEx {
+    customReactionField: string;
+  }
+}
 
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
 const userId = process.env.REACT_APP_USER_ID as string;
@@ -29,38 +40,39 @@ type LocalMessageType = Record<string, unknown>;
 type LocalReactionType = Record<string, unknown>;
 type LocalUserType = Record<string, unknown>;
 
-type StreamChatGenerics = {
-  attachmentType: LocalAttachmentType;
-  channelType: LocalChannelType;
-  commandType: LocalCommandType;
-  eventType: LocalEventType;
-  messageType: LocalMessageType;
-  reactionType: LocalReactionType;
-  userType: LocalUserType;
-  pollType: UR;
-  pollOptionType: UR;
+const App = () => {
+  const chatClient = useCreateChatClient({
+    apiKey,
+    tokenOrProvider: userToken,
+    userData: { id: userId, customUserField: 'field' },
+  });
+
+  useEffect(() => {
+    (async () => {
+      if (chatClient) {
+        const { reactions } = await chatClient.queryReactions('dummy', {});
+        console.log(reactions[0].customReactionField);
+      }
+    })();
+  }, [chatClient]);
+
+  if (!chatClient) {
+    return null;
+  }
+
+  return (
+    <Chat client={chatClient}>
+      <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
+      <Channel>
+        <Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageInput focus />
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  );
 };
-
-const chatClient = StreamChat.getInstance<StreamChatGenerics>(apiKey);
-
-if (process.env.REACT_APP_CHAT_SERVER_ENDPOINT) {
-  chatClient.setBaseURL(process.env.REACT_APP_CHAT_SERVER_ENDPOINT);
-}
-
-chatClient.connectUser({ id: userId }, userToken);
-
-const App = () => (
-  <Chat client={chatClient}>
-    <ChannelList filters={filters} sort={sort} options={options} showChannelSearch />
-    <Channel>
-      <Window>
-        <ChannelHeader />
-        <MessageList />
-        <MessageInput focus />
-      </Window>
-      <Thread />
-    </Channel>
-  </Chat>
-);
 
 export default App;
