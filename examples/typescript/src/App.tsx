@@ -32,14 +32,6 @@ const filters: ChannelFilters = { type: 'messaging', members: { $in: [userId] } 
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
-type LocalAttachmentType = Record<string, unknown>;
-type LocalChannelType = Record<string, unknown>;
-type LocalCommandType = string;
-type LocalEventType = Record<string, unknown>;
-type LocalMessageType = Record<string, unknown>;
-type LocalReactionType = Record<string, unknown>;
-type LocalUserType = Record<string, unknown>;
-
 const App = () => {
   const chatClient = useCreateChatClient({
     apiKey,
@@ -52,6 +44,7 @@ const App = () => {
       if (chatClient) {
         const { reactions } = await chatClient.queryReactions('dummy', {});
         console.log(reactions[0].customReactionField);
+        console.log(reactions[0].user?.customUserField);
       }
     })();
   }, [chatClient]);
