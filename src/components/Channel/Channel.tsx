@@ -1144,7 +1144,7 @@ const ChannelInner = <
 
   const loadMoreThread = async (limit: number = DEFAULT_THREAD_PAGE_SIZE) => {
     // FIXME: should prevent loading more, if state.thread.reply_count === channel.state.threads[parentID].length
-    if (state.threadLoadingMore || !state.thread) return;
+    if (state.threadLoadingMore || !state.thread || !state.threadHasMore) return;
 
     dispatch({ type: 'startLoadingThread' });
     const parentId = state.thread.id;
