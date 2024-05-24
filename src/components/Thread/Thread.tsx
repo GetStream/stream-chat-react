@@ -18,11 +18,13 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
+import { useSimpleStateStore, useThreadContext } from '../../components/Threads';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { InferStoreValueType, Thread as ThreadType } from 'stream-chat';
 
 export type ThreadProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -62,12 +64,16 @@ export const Thread = <
   props: ThreadProps<StreamChatGenerics, V>,
 ) => {
   const { channel, channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('Thread');
+  const threadInstance = useThreadContext();
 
-  if (!thread || channelConfig?.replies === false) return null;
+  if ((!thread && !threadInstance.channel) || channelConfig?.replies === false) return null;
 
   // The wrapper ensures a key variable is set and the component recreates on thread switch
-  return <ThreadInner {...props} key={`thread-${thread.id}-${channel?.cid}`} />;
+  return <ThreadInner {...props} key={`thread-${(thread ?? threadInstance).id}-${channel?.cid}`} />;
 };
+
+const selector = (nextValue: InferStoreValueType<ThreadType>) =>
+  [nextValue.latestReplies, nextValue.loadingPreviousPage, nextValue.parentMessage] as const;
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -88,6 +94,12 @@ const ThreadInner = <
     messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
+
+  const threadInstance = useThreadContext();
+  const [latestReplies, loadingPreviousPage, parentMessage] = useSimpleStateStore(
+    threadInstance.state,
+    selector,
+  );
 
   const {
     thread,
@@ -123,7 +135,7 @@ const ThreadInner = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!thread) return null;
+  if (!thread && !parentMessage) return null;
 
   const threadClass =
     customClasses?.thread ||
@@ -134,8 +146,8 @@ const ThreadInner = <
 
   const head = (
     <ThreadHead
-      key={thread.id}
-      message={thread}
+      key={thread?.id ?? threadInstance.id}
+      message={thread ?? parentMessage!}
       Message={MessageUIComponent}
       {...additionalParentMessageProps}
     />
@@ -143,16 +155,16 @@ const ThreadInner = <
 
   return (
     <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={thread} />
+      <ThreadHeader closeThread={closeThread} thread={thread ?? parentMessage!} />
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}
         hasMore={threadHasMore}
         head={head}
-        loadingMore={threadLoadingMore}
-        loadMore={loadMoreThread}
+        loadingMore={parentMessage ? loadingPreviousPage : threadLoadingMore}
+        loadMore={parentMessage ? threadInstance.loadPreviousPage : loadMoreThread}
         Message={MessageUIComponent}
         messageActions={messageActions}
-        messages={threadMessages || []}
+        messages={threadInstance.channel ? latestReplies : threadMessages ?? []}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList
         {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
@@ -160,7 +172,7 @@ const ThreadInner = <
       <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
-        parent={thread}
+        parent={thread ?? parentMessage}
         publishTypingEvent={false}
         {...additionalMessageInputProps}
       />
