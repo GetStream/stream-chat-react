@@ -1,11 +1,40 @@
-import { useChatContext } from '../../context/ChatContext';
-import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
+import React, { createContext, useContext } from 'react';
+
+import { Channel } from '../../components';
 
 import type { PropsWithChildren } from 'react';
-import type { Thread } from 'stream-chat';
+import { Thread } from 'stream-chat';
+import { useChatContext } from '../../context';
 
-// temporarily, this context will provide loading functions for threads (loadNextPage/loadPreviousPage)
-// but later should probably cease to exist as everything should live within client
+export type ThreadContextValue = Thread | undefined;
+
+export const ThreadContext = createContext<ThreadContextValue>(undefined);
+
+export const useThreadContext = () => {
+  const { client } = useChatContext();
+  const thread = useContext(ThreadContext);
+
+  if (!thread) return new Thread({ client, registerEventHandlers: false, threadData: {} });
+
+  return thread;
+};
+
+export const ThreadProvider = ({ children, thread }: PropsWithChildren<{ thread?: Thread }>) => (
+  <ThreadContext.Provider value={thread}>
+    <Channel channel={thread?.channel}>{children}</Channel>
+  </ThreadContext.Provider>
+);
+
+// export const ThreadFacilitator = ({
+//   children,
+//   thread,
+// }: PropsWithChildren<{
+//   thread: Thread;
+// }>) => {
+//   <ThreadProvider thread={thread}>
+//     <Channel channel={thread.channel}>{children}</Channel>;
+//   </ThreadProvider>;
+// };
 
 /**
  *
@@ -14,56 +43,19 @@ import type { Thread } from 'stream-chat';
  *
  *  threads: {
  *    unreadCount,
- *    instances[]
+ *    instances: Thread[]
  *  } -> have connections to channels
  * }
  *
  */
 
-export type ThreadContextValue = {
-  loadNextPage: null | (() => void);
-  threads: Thread[];
-};
-
-export const ThreadContext = createContext<ThreadContextValue>({
-  loadNextPage: null,
-  threads: [],
-});
-
-export const Threads = ({ children }: PropsWithChildren) => {
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const nextRef = useRef<string | undefined>(undefined);
-  const { client } = useChatContext();
-
-  const loadNextPage = useCallback(async () => {
-    if (nextRef.current === 'finished') return;
-
-    const data = await client.queryThreads({ next: nextRef.current });
-
-    nextRef.current = data.next || 'finished';
-
-    setThreads((pv) => [...pv, ...data.threads]);
-  }, [client]);
-
-  // TODO: initial load, temporary but clean this up
-  useEffect(() => {
-    loadNextPage();
-  }, [loadNextPage]);
-
-  return (
-    <ThreadContext.Provider value={{ loadNextPage, threads }}>{children}</ThreadContext.Provider>
-  );
-};
-
 /**
- * <Threads threads={[...]} > <- allow integrators to supply own list including loading and stuff
+ * <Threads> --> at this point just ui stuff probably
  *  <ThreadList />
- *  <Thread>
- *      <ThreadHeader/>
- *      <ThreadMessageList />
- *      <ThreadMessageInput />
- *  </Thread>
+ *  {thread && <ThreadFacilitator thread={thread}> (provider + Channel -> thread.channel)
+ *      <Thread /> <- adjustment here (thread = useThreadContext(), use thread data, otherwise use channel stuff)
+ *  </ThreadFacilitator>}
+ * </Threads>
  *
  *  <InteractiveThreadList /> <- TBD (out of scope for MVP)
- * </Threads>
  */

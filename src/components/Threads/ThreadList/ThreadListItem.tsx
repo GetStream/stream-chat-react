@@ -1,16 +1,17 @@
 import React from 'react';
 
-import type { Thread } from 'stream-chat';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
+import type { InferStoreValueType, Thread } from 'stream-chat';
+
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 import { Avatar } from '../../Avatar';
 
 export type ThreadListItemProps = {
   thread: Thread;
   ThreadListItemUi?: ComponentType<ThreadListItemUiProps>;
-};
+} & ComponentProps<'button'>;
 
-export type ThreadListItemUiProps = Pick<ThreadListItemProps, 'thread'>;
+export type ThreadListItemUiProps = Omit<ThreadListItemProps, 'ThreadListItemUi'>;
 
 // Bl - business logic
 // Ui - user interface
@@ -24,18 +25,18 @@ export type ThreadListItemUiProps = Pick<ThreadListItemProps, 'thread'>;
  * - move styling to CSS library and clean it up (separate layout and theme)
  * - figure out why some data is unavailable/adjust types accordingly
  * - use Moment/DayJs for proper created_at formatting (replace toLocaleTimeString)
+ * - handle deleted message
  */
 
-export const ThreadListItemUi = ({ thread }: ThreadListItemUiProps) => {
-  const [latestReply, channelData, parentMessage] = useSimpleStateStore(thread.state, (data) => [
-    data.latestReplies.at(-1),
-    data.channelData,
-    data.parentMessage,
-  ]);
+const selector = (nextValue: InferStoreValueType<Thread>) =>
+  [nextValue.latestReplies.at(-1), nextValue.parentMessage, nextValue.channelData] as const;
+
+export const ThreadListItemUi = ({ thread, ...rest }: ThreadListItemUiProps) => {
+  const [latestReply, parentMessage, channelData] = useSimpleStateStore(thread.state, selector);
 
   return (
-    <button className='str-chat__thread-list-item'>
-      <div className='str-chat__thread-list-item__channel'>💬 {channelData.name || 'N/A'}</div>
+    <button className='str-chat__thread-list-item' {...rest}>
+      <div className='str-chat__thread-list-item__channel'>💬 {channelData?.name || 'N/A'}</div>
       <div className='str-chat__thread-list-item__parent-message'>
         replied to: {parentMessage?.text || 'Unknown message'}
       </div>
