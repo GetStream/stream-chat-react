@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import React, { useState } from 'react';
+import { Thread as ThreadType, ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -10,8 +10,8 @@ import {
   Thread,
   Window,
   useCreateChatClient,
-  Threads,
   ThreadList,
+  ThreadProvider,
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
@@ -52,6 +52,8 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const threadOnly = userId !== 'john';
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
@@ -63,20 +65,53 @@ const App = () => {
 
   return (
     <Chat client={chatClient}>
-      <ChannelList filters={filters} options={options} sort={sort} />
-      <Channel>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput focus />
-        </Window>
-        <Thread />
-      </Channel>
-      <Threads>
-        <ThreadList />
-      </Threads>
+      {!threadOnly && (
+        <>
+          <ChannelList filters={filters} options={options} sort={sort} />
+          <Channel>
+            <Window>
+              <ChannelHeader />
+              <MessageList returnAllReadData />
+              <MessageInput focus />
+            </Window>
+            <Thread />
+          </Channel>
+        </>
+      )}
+      {threadOnly && <Threads />}
     </Chat>
   );
 };
+
+const Threads = () => {
+  const [state, setState] = useState<ThreadType | undefined>(undefined);
+
+  return (
+    <div className='str-chat threads'>
+      <ThreadList onItemPointerDown={(_, thread) => setState(thread)} />
+      <ThreadProvider thread={state}>
+        <Thread virtualized />
+      </ThreadProvider>
+    </div>
+  );
+};
+
+/* {activeThread && (
+            <ThreadProvider thread={activeThread}>
+              <ThreadHeader />
+              <MessageList />
+              <MessageInput />
+            </ThreadProvider>
+          )} */
+
+// const Wrapper = () => {
+//   const { activeThread } = useThreadContext();
+
+//   console.log({ activeThread });
+
+//   if (!activeThread) return;
+
+//   return <VirtualizedMessageList />;
+// };
 
 export default App;
