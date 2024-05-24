@@ -61,22 +61,18 @@ Replace the render functions in your custom components with container components
 Until now, it was possible to import two stylesheets as follows:
 
 ```
-import 'stream-chat-react/css/index.css';
-```
-
-```
 import 'stream-chat-react/dist/css/v2/index.css';
 ```
 
 The legacy stylesheet has been removed from the SDK bundle, and therefore it is only possible to import one stylesheet from now on:
 
 ```
-import 'stream-chat-react/css/index.css';
+import 'stream-chat-react/dist/css/v2/index.css';
 ```
 
 :::important
 **Action required**<br/>
-Make sure you are importing the default styles correctly as `import 'stream-chat-react/css/index.css';`
+Make sure you are importing the default styles correctly as `import 'stream-chat-react/dist/css/v2/index.css';`
 :::
 
 ## Removal of legacy styles

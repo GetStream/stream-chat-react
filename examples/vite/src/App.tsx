@@ -10,7 +10,7 @@ import {
   Window,
   useCreateChatClient,
 } from 'stream-chat-react';
-import 'stream-chat-react/css/index.css';
+import 'stream-chat-react/css/v2/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
