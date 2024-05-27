@@ -18,7 +18,7 @@ const { channel, watchers } = useChannelStateContext();
 
 ### acceptedFiles
 
-A list of accepted file upload types.
+The value is forwarded to the context from the `Channel` component [prop `acceptedFiles`](../../components/core-components/channel.mdx#acceptedfiles).
 
 | Type     |
 | -------- |
@@ -48,9 +48,24 @@ The configurations object for the currently active channel.
 | ------ |
 | object |
 
+### channelUnreadUiState
+
+The read state maintained for use by components representing channel unread state (for example `UnreadMessagesSeparator`, `UnreadMessagesNotification`).
+
+| Property                    | Type                    | Description                                                                                                                                                                                               |
+| --------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **last_read**               | `Date`                  | Date when the channel was marked read the last time.                                                                                                                                                      |
+| **unread_messages**         | `number`                | The count of unread messages in a given channel. Unread count refers only to foreign (not own) unread messages.                                                                                           |
+| **first_unread_message_id** | `string` or `undefined` | The ID of the message that was marked unread (`notification.mark_unread` event). The value is available only when a message is marked unread. Therefore, cannot be relied on to place unread messages UI. |
+| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message.                                                                                                                                                 |
+
+| Type                   |
+| ---------------------- |
+| `ChannelUnreadUiState` |
+
 ### dragAndDropWindow
 
-If true, chat users will be able to drag and drop file uploads to the entire channel window.
+The value is forwarded to the context from the `Channel` component [prop `dragAndDropWindow`](../../components/core-components/channel.mdx#draganddropwindow).
 
 | Type    | Default |
 | ------- | ------- |
@@ -66,8 +81,7 @@ Number of milliseconds to debounce firing the URL enrichment queries when typing
 
 ### enrichURLForPreview
 
-A global flag to toggle the URL enrichment and link previews in `MessageInput`. By default, the feature is disabled. It can be overridden on Thread and MessageList level through `additionalMessageInputProps`
-or directly on `MessageInput` level through `urlEnrichmentConfig` prop.
+The value is forwarded to the context from the `Channel` component [prop `enrichURLForPreview`](../../components/core-components/channel.mdx#enrichurlforpreview).
 
 | Type    | Default |
 | ------- | ------- |
@@ -91,18 +105,18 @@ Custom function to identify URLs in a string for later generation of link previe
 
 ### giphyVersion
 
-The giphy version to use when displaying giphies.
+The value is forwarded to the context from the `Channel` component [prop `giphyVersion`](../../components/core-components/channel.mdx#giphyversion).
 
-| Type                                                                                                                                                                  |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `'original'` \| `'fixed_height'` \| `'fixed_height_still'` \| `'fixed_height_downsampled'` \| `'fixed_width'` \| `'fixed_width_still'` \| `'fixed_width_downsampled'` |
+| Type   | Default        |
+| ------ | -------------- |
+| string | 'fixed_height' |
 
 ### imageAttachmentSizeHandler
 
-A custom function to provide size configuration for image attachments
+The value is forwarded to the context from the `Channel` component [prop `imageAttachmentSizeHandler`](../../components/core-components/channel.mdx#imageattachmentsizehandler).
 
-| Type                                                             |
-| ---------------------------------------------------------------- |
+| Type                                                              |
+| ----------------------------------------------------------------- |
 | `(a: Attachment, e: HTMLElement) => ImageAttachmentConfiguration` |
 
 ### hasMore
@@ -145,7 +159,7 @@ Boolean for the `channel` loading more messages.
 | ------- |
 | boolean |
 
-### loadingMoreNewer?
+### loadingMoreNewer
 
 Flag signalling whether newer messages are being loaded as the user scrolls down in the message list. Used internally by `VirtualizedMessageList`.
 
@@ -155,7 +169,7 @@ Flag signalling whether newer messages are being loaded as the user scrolls down
 
 ### maxNumberOfFiles
 
-The maximum number of attachments allowed per `message`, defaults to the Stream Chat API maximum.
+The value is forwarded to the context from the `Channel` component [prop `maxNumberOfFiles`](../../components/core-components/channel.mdx#maxnumberoffiles).
 
 | Type   | Default |
 | ------ | ------- |
@@ -179,7 +193,7 @@ Array of [message objects](https://getstream.io/chat/docs/javascript/message_for
 
 ### multipleUploads
 
-Whether to allow multiple attachment uploads on a message.
+The value is forwarded to the context from the `Channel` component [prop `multipleUploads`](../../components/core-components/channel.mdx#multipleuploads).
 
 | Type    | Default |
 | ------- | ------- |
@@ -208,21 +222,6 @@ Custom function to react to link preview dismissal. See the guide [Link Previews
 | Type                                 |
 | ------------------------------------ |
 | `(linkPreview: LinkPreview) => void` |
-
-### channelUnreadUiState
-
-The read state maintained for use by components representing channel unread state (for example `UnreadMessagesSeparator`, `UnreadMessagesNotification`).
-
-| Property                    | Type                    | Description                                                                                                                                                                                               |
-|-----------------------------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **last_read**               | `Date`                  | Date when the channel was marked read the last time.                                                                                                                                                      |
-| **unread_messages**         | `number`                | The count of unread messages in a given channel. Unread count refers only to foreign (not own) unread messages.                                                                                           |
-| **first_unread_message_id** | `string` or `undefined` | The ID of the message that was marked unread (`notification.mark_unread` event). The value is available only when a message is marked unread. Therefore, cannot be relied on to place unread messages UI. |
-| **last_read_message_id**    | `string` or `undefined` | The ID of the message preceding the first unread message.                                                                                                                                                 |
-
-| Type                  |
-|-----------------------|
-| `ChannelUnreadUiState` |
 
 ### pinnedMessages
 
@@ -258,7 +257,7 @@ Flag signalling whether the scroll to the bottom is prevented. Used internally b
 
 ### shouldGenerateVideoThumbnail
 
-You can turn on/off thumbnail generation for video attachments
+The value is forwarded to the context from the `Channel` component [prop `shouldGenerateVideoThumbnail`](../../components/core-components/channel.mdx#shouldgeneratevideothumbnail).
 
 | Type      |
 | --------- |
@@ -306,7 +305,7 @@ Flag signalling whether the scroll to the bottom is prevented in thread. Used in
 
 ### videoAttachmentSizeHandler
 
-A custom function to provide size configuration for video attachments
+The value is forwarded to the context from the `Channel` component [prop `videoAttachmentSizeHandler`](../../components/core-components/channel.mdx#videoattachmentsizehandler).
 
 | Type                                                              |
 | ----------------------------------------------------------------- |

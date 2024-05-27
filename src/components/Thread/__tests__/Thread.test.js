@@ -9,7 +9,6 @@ import {
   ChatProvider,
   ComponentProvider,
   TranslationProvider,
-  useMessageInputContext,
 } from '../../../context';
 
 import {
@@ -22,7 +21,7 @@ import {
 } from '../../../mock-builders';
 
 import { Message as MessageMock } from '../../Message/Message';
-import { MessageInputSmall as MessageInputSmallMock } from '../../MessageInput/MessageInputSmall';
+import { MessageInput as MessageInputMock } from '../../MessageInput/MessageInput';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
 
@@ -35,8 +34,8 @@ jest.mock('../../MessageList/MessageList', () => ({
 jest.mock('../../MessageList/VirtualizedMessageList', () => ({
   VirtualizedMessageList: jest.fn(() => <div />),
 }));
-jest.mock('../../MessageInput/MessageInputSmall', () => ({
-  MessageInputSmall: jest.fn(() => <div />),
+jest.mock('../../MessageInput/MessageInput', () => ({
+  MessageInput: jest.fn(() => <div />),
 }));
 
 let chatClient;
@@ -169,37 +168,75 @@ describe('Thread', () => {
   });
 
   it('should render the default MessageInput if nothing was passed into the prop', () => {
-    const additionalMessageInputProps = { propName: 'value' };
+    const props = {
+      additionalMessageInputProps: { propName: 'value' },
+      autoFocus: true,
+    };
     renderComponent({
       chatClient,
-      threadProps: {
-        additionalMessageInputProps,
-        autoFocus: true,
-      },
+      threadProps: props,
     });
 
-    expect(MessageInputSmallMock).toHaveBeenCalledWith({}, {});
+    expect(MessageInputMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focus: props.autoFocus,
+        Input: expect.any(Function),
+        parent: expect.objectContaining(parentMessage),
+        publishTypingEvent: false,
+        ...props.additionalMessageInputProps,
+      }),
+      {},
+    );
   });
 
   it('should render a custom MessageInput if it is passed as a prop', () => {
-    const additionalMessageInputProps = { propName: 'value' };
-    const messageInputContextConsumerFn = jest.fn();
-    const CustomMessageInputMock = jest.fn(() => {
-      messageInputContextConsumerFn(useMessageInputContext());
-      return <div />;
-    });
+    const CustomMessageInputMock = jest.fn();
+    const CustomMessageInputMockAdditional = jest.fn();
+    const props = {
+      additionalMessageInputProps: { Input: CustomMessageInputMockAdditional, propName: 'value' },
+      autoFocus: true,
+      Input: CustomMessageInputMock,
+    };
 
     renderComponent({
       chatClient,
-      threadProps: {
-        additionalMessageInputProps,
-        autoFocus: true,
-        Input: CustomMessageInputMock,
-      },
+      threadProps: props,
     });
 
-    expect(CustomMessageInputMock).toHaveBeenCalledWith({}, {});
-    expect(messageInputContextConsumerFn).toHaveBeenCalledWith(expect.any(Object));
+    expect(MessageInputMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focus: props.autoFocus,
+        Input: CustomMessageInputMock,
+        parent: expect.objectContaining(parentMessage),
+        publishTypingEvent: false,
+        ...props.additionalMessageInputProps,
+      }),
+      {},
+    );
+  });
+
+  it('should render a custom MessageInput from additional props', () => {
+    const CustomMessageInputMockAdditional = jest.fn();
+    const props = {
+      additionalMessageInputProps: { Input: CustomMessageInputMockAdditional, propName: 'value' },
+      autoFocus: true,
+    };
+
+    renderComponent({
+      chatClient,
+      threadProps: props,
+    });
+
+    expect(MessageInputMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        focus: props.autoFocus,
+        Input: CustomMessageInputMockAdditional,
+        parent: expect.objectContaining(parentMessage),
+        publishTypingEvent: false,
+        ...props.additionalMessageInputProps,
+      }),
+      {},
+    );
   });
 
   it('should render a custom ThreadHeader if it is passed as a prop', async () => {

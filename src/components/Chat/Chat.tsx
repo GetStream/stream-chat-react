@@ -3,9 +3,8 @@ import React, { PropsWithChildren } from 'react';
 import { useChat } from './hooks/useChat';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
-import { CustomStyles, darkModeTheme, useCustomStyles } from './hooks/useCustomStyles';
 
-import { ChatProvider, CustomClasses, ThemeVersion } from '../../context/ChatContext';
+import { ChatProvider, CustomClasses } from '../../context/ChatContext';
 import { SupportedTranslations, TranslationProvider } from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
@@ -14,20 +13,6 @@ import type { Streami18n } from '../../i18n/Streami18n';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-/**
- * @deprecated will be removed with the complete transition to the theming V2 (next major release - `v11.0.0`)
- */
-export type Theme<T extends string = string> =
-  | 'commerce dark'
-  | 'commerce light'
-  | 'livestream dark'
-  | 'livestream light'
-  | 'messaging dark'
-  | 'messaging light'
-  | 'team dark'
-  | 'team light'
-  | T;
-
 export type ChatProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -35,16 +20,6 @@ export type ChatProps<
   client: StreamChat<StreamChatGenerics>;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
-  /**
-   * @desc object containing custom styles to override the default CSS variables
-   * @deprecated will be removed with the complete transition to the theming v2 (next major release - `v11.0.0`)
-   */
-  customStyles?: CustomStyles;
-  /**
-   * @desc if true, toggles the CSS variables to the default dark mode color palette
-   * @deprecated will be removed with the complete transition to the theming v2 (next major release - `v11.0.0`)
-   */
-  darkMode?: boolean;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
   defaultLanguage?: SupportedTranslations;
   /** Instance of Stream i18n */
@@ -76,8 +51,6 @@ export const Chat = <
     children,
     client,
     customClasses,
-    customStyles,
-    darkMode = false,
     defaultLanguage,
     i18nInstance,
     initialNavOpen = true,
@@ -98,15 +71,6 @@ export const Chat = <
   } = useChat({ client, defaultLanguage, i18nInstance, initialNavOpen });
 
   const channelsQueryState = useChannelsQueryState();
-  const themeVersion: ThemeVersion =
-    typeof window !== 'undefined'
-      ? ((window
-          .getComputedStyle(document.documentElement)
-          .getPropertyValue('--str-chat__theme-version')
-          .replace(' ', '') || '1') as ThemeVersion)
-      : '1';
-
-  useCustomStyles(darkMode ? darkModeTheme : customStyles);
 
   const chatContextValue = useCreateChatContext({
     channel,
@@ -121,7 +85,6 @@ export const Chat = <
     openMobileNav,
     setActiveChannel,
     theme,
-    themeVersion,
     useImageFlagEmojisOnWindows,
   });
 

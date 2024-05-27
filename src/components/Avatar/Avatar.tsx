@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-import { getWholeChar } from '../../utils/getWholeChar';
+import { getWholeChar } from '../../utils';
 
 import type { UserResponse } from 'stream-chat';
 
@@ -8,6 +9,8 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type AvatarProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
+  /** Custom class that will be merged with the default class */
+  className?: string;
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string | null;
   /** Name of the image, used for title tag fallback */
@@ -16,14 +19,6 @@ export type AvatarProps<
   onClick?: (event: React.BaseSyntheticEvent) => void;
   /** mouseOver event handler */
   onMouseOver?: (event: React.BaseSyntheticEvent) => void;
-  /** Shape of the avatar - circle, rounded or square
-   * @default circle
-   */
-  shape?: 'circle' | 'rounded' | 'square';
-  /** Size in pixels
-   * @default 32px
-   */
-  size?: number;
   /** The entire user object for the chat user displayed in the component */
   user?: UserResponse<StreamChatGenerics>;
 };
@@ -37,54 +32,41 @@ export const Avatar = <
   props: AvatarProps<StreamChatGenerics>,
 ) => {
   const {
+    className,
     image,
     name,
     onClick = () => undefined,
     onMouseOver = () => undefined,
-    shape = 'circle',
-    size = 32,
   } = props;
 
   const [error, setError] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setError(false);
-    setLoaded(false);
   }, [image]);
 
   const nameStr = name?.toString() || '';
   const initials = getWholeChar(nameStr, 0);
+  const showImage = image && !error;
 
   return (
     <div
-      className={`str-chat__avatar str-chat__avatar--${shape} str-chat__message-sender-avatar`}
+      className={clsx(`str-chat__avatar str-chat__message-sender-avatar`, className, {
+        ['str-chat__avatar--multiple-letters']: initials.length > 1,
+        ['str-chat__avatar--one-letter']: initials.length === 1,
+      })}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}
-      style={{
-        flexBasis: `${size}px`,
-        fontSize: `${size / 2}px`,
-        height: `${size}px`,
-        lineHeight: `${size}px`,
-        width: `${size}px`,
-      }}
       title={name}
     >
-      {image && !error ? (
+      {showImage ? (
         <img
           alt={initials}
-          className={`str-chat__avatar-image${loaded ? ' str-chat__avatar-image--loaded' : ''}`}
+          className={clsx(`str-chat__avatar-image`)}
           data-testid='avatar-img'
           onError={() => setError(true)}
-          onLoad={() => setLoaded(true)}
           src={image}
-          style={{
-            flexBasis: `${size}px`,
-            height: `${size}px`,
-            objectFit: 'cover',
-            width: `${size}px`,
-          }}
         />
       ) : (
         <div className='str-chat__avatar-fallback' data-testid='avatar-fallback'>
