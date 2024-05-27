@@ -57,9 +57,13 @@ const UnMemoizedChannelPreviewMessenger = <
       role='option'
     >
       <div className='str-chat__channel-preview-messenger--left'>
-        <Avatar image={displayImage} name={avatarName} size={40} />
+        <Avatar
+          className='str-chat__avatar--channel-preview'
+          image={displayImage}
+          name={avatarName}
+        />
       </div>
-      <div className='str-chat__channel-preview-messenger--right str-chat__channel-preview-end'>
+      <div className='str-chat__channel-preview-end'>
         <div className='str-chat__channel-preview-end-first-row'>
           <div className='str-chat__channel-preview-messenger--name'>
             <span>{displayTitle}</span>

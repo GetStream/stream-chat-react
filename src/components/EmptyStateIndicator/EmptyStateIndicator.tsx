@@ -23,9 +23,6 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
           <ChatBubble />
           <p role='listitem'>{text}</p>
         </div>
-        <p className='str-chat__channel-list-empty-v1' role='listitem'>
-          {text}
-        </p>
       </>
     );
   }

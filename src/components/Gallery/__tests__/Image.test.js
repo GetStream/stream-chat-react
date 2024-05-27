@@ -113,7 +113,7 @@ describe('Image', () => {
     expect(result.container).toMatchInlineSnapshot(`
       <div>
         <div
-          class="str-chat messaging light str-chat-channel str-chat__channel"
+          class="str-chat messaging light str-chat__channel"
         >
           <div
             class="str-chat__container"

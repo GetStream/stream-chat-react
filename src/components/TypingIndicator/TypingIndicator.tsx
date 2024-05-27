@@ -1,23 +1,14 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
-export type TypingIndicatorProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
-  /** Avatar size in pixels, @default 32px */
-  avatarSize?: number;
+export type TypingIndicatorProps = {
   /** Whether the typing indicator is in a thread */
   threadList?: boolean;
 };
@@ -36,18 +27,14 @@ const useJoinTypingUsers = (names: string[]) => {
 
   const MAX_JOINED_USERS = 3;
 
-  const isLargeArray = names.length > MAX_JOINED_USERS;
-
-  const joinedUsers = (isLargeArray ? names.slice(0, MAX_JOINED_USERS) : rest).join(', ').trim();
-
-  if (isLargeArray)
+  if (names.length > MAX_JOINED_USERS)
     return t('{{ users }} and more are typing...', {
-      users: joinedUsers,
+      users: names.slice(0, MAX_JOINED_USERS).join(', ').trim(),
     });
 
   return t('{{ users }} and {{ user }} are typing...', {
     user: name,
-    users: joinedUsers,
+    users: rest.join(', ').trim(),
   });
 };
 
@@ -57,16 +44,13 @@ const useJoinTypingUsers = (names: string[]) => {
 const UnMemoizedTypingIndicator = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  props: TypingIndicatorProps<StreamChatGenerics>,
+  props: TypingIndicatorProps,
 ) => {
-  const { Avatar: PropAvatar, avatarSize = 32, threadList } = props;
+  const { threadList } = props;
 
   const { channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('TypingIndicator');
-  const { client, themeVersion } = useChatContext<StreamChatGenerics>('TypingIndicator');
-  const { Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>('TypingIndicator');
+  const { client } = useChatContext<StreamChatGenerics>('TypingIndicator');
   const { typing = {} } = useTypingContext<StreamChatGenerics>('TypingIndicator');
-
-  const Avatar = PropAvatar || ContextAvatar || DefaultAvatar;
 
   const typingInChannel = !threadList
     ? Object.values(typing).filter(
@@ -93,48 +77,21 @@ const UnMemoizedTypingIndicator = <
     return null;
   }
 
-  if (themeVersion === '2') {
-    if (!isTypingActive) return null;
-    return (
-      <div
-        className={clsx('str-chat__typing-indicator', {
-          'str-chat__typing-indicator--typing': isTypingActive,
-        })}
-        data-testid='typing-indicator'
-      >
-        <div className='str-chat__typing-indicator__dots'>
-          <span className='str-chat__typing-indicator__dot'></span>
-          <span className='str-chat__typing-indicator__dot'></span>
-          <span className='str-chat__typing-indicator__dot'></span>
-        </div>
-        <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
-          {joinedTypingUsers}
-        </div>
-      </div>
-    );
-  }
-
+  if (!isTypingActive) return null;
   return (
     <div
       className={clsx('str-chat__typing-indicator', {
         'str-chat__typing-indicator--typing': isTypingActive,
       })}
+      data-testid='typing-indicator'
     >
-      <div className='str-chat__typing-indicator__avatars'>
-        {(threadList ? typingInThread : typingInChannel).map(({ user }, i) => (
-          <Avatar
-            image={user?.image}
-            key={`${user?.id}-${i}`}
-            name={user?.name || user?.id}
-            size={avatarSize}
-            user={user}
-          />
-        ))}
-      </div>
       <div className='str-chat__typing-indicator__dots'>
-        <span className='str-chat__typing-indicator__dot' />
-        <span className='str-chat__typing-indicator__dot' />
-        <span className='str-chat__typing-indicator__dot' />
+        <span className='str-chat__typing-indicator__dot'></span>
+        <span className='str-chat__typing-indicator__dot'></span>
+        <span className='str-chat__typing-indicator__dot'></span>
+      </div>
+      <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
+        {joinedTypingUsers}
       </div>
     </div>
   );

@@ -59,9 +59,7 @@ describe('ChannelHeader', () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
-    expect(
-      container.querySelector('.str-chat__header-livestream-left--livelabel'),
-    ).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__header-livestream-livelabel')).toBeInTheDocument();
   });
 
   it("should display avatar with fallback image only if other user's name is available", async () => {
@@ -102,34 +100,6 @@ describe('ChannelHeader', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
     expect(getByText('test subtitle')).toBeInTheDocument();
-  });
-
-  it('should display bigger image if channelType is commerce', async () => {
-    const { container, getByTestId } = await renderComponent(
-      null,
-      {
-        image: 'image.jpg',
-        name: 'test-channel-1',
-        subtitle: 'test subtitle',
-      },
-      'commerce',
-    );
-    const results = await axe(container);
-    expect(results).toHaveNoViolations();
-    expect(getByTestId('avatar-img')).toHaveStyle({
-      flexBasis: '60px',
-      height: '60px',
-      objectFit: 'cover',
-      width: '60px',
-    });
-    expect(getByTestId('avatar')).toHaveStyle({
-      flexBasis: '60px',
-      fontSize: 30,
-      height: '60px',
-      lineHeight: '60px',
-      width: '60px',
-    });
-    expect(getByTestId('avatar')).toHaveClass('str-chat__avatar str-chat__avatar--rounded');
   });
 
   it('should display watcher_count', async () => {

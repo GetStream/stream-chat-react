@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { iconMap, IconType, IconVersion } from './iconMap';
+import { iconMap, IconType } from './iconMap';
 
 export type FileIconProps = {
   big?: boolean;
@@ -10,15 +10,10 @@ export type FileIconProps = {
   size?: number; // big icon on sent attachment
   sizeSmall?: number; // small icon on file upload preview
   type?: IconType;
-  version?: IconVersion;
 };
 
-export function mimeTypeToIcon(
-  type: IconType = 'standard',
-  version: IconVersion = '1',
-  mimeType?: string,
-) {
-  const theMap = iconMap[version]?.[type] || iconMap[version]['standard'];
+export function mimeTypeToIcon(type: IconType = 'standard', mimeType?: string) {
+  const theMap = iconMap[type] || iconMap['standard'];
 
   if (!mimeType) return theMap.fallback;
 
@@ -34,17 +29,9 @@ export function mimeTypeToIcon(
 }
 
 export const FileIcon = (props: FileIconProps) => {
-  const {
-    big = false,
-    mimeType,
-    size = 50,
-    sizeSmall = 20,
-    type = 'standard',
-    version = '1',
-    ...rest
-  } = props;
+  const { big = false, mimeType, size = 50, sizeSmall = 20, type = 'standard', ...rest } = props;
 
-  const Icon = mimeTypeToIcon(type, version, mimeType);
+  const Icon = mimeTypeToIcon(type, mimeType);
 
   return <Icon {...rest} size={big ? size : sizeSmall} />;
 };

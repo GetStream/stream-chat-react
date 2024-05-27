@@ -40,7 +40,7 @@ export const useUserTrigger = <
 
   const [searching, setSearching] = useState(false);
 
-  const { client, mutes, themeVersion } = useChatContext<StreamChatGenerics>('useUserTrigger');
+  const { client, mutes } = useChatContext<StreamChatGenerics>('useUserTrigger');
   const { channel } = useChannelStateContext<StreamChatGenerics>('useUserTrigger');
 
   const { members } = channel.state;
@@ -173,7 +173,7 @@ export const useUserTrigger = <
 
         const matchingUsers = searchLocalUsers<StreamChatGenerics>(params);
 
-        const usersToShow = mentionQueryParams.options?.limit ?? (themeVersion === '2' ? 7 : 10);
+        const usersToShow = mentionQueryParams.options?.limit ?? 7;
         const data = matchingUsers.slice(0, usersToShow);
 
         if (onReady) onReady(filterMutes(data), query);

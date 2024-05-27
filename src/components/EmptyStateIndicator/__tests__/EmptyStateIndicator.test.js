@@ -25,8 +25,7 @@ describe('EmptyStateIndicator', () => {
 
   it('should display correct text when listType is channel', () => {
     render(<EmptyStateIndicator listType='channel' />);
-    // rendering the same text twice for backwards compatibility with css styling v1
-    expect(screen.queryAllByText('You have no channels currently')).toHaveLength(2);
+    expect(screen.queryByText('You have no channels currently')).toBeInTheDocument();
   });
 
   it('should return null if listType is thread', () => {
