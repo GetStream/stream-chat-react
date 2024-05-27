@@ -1,7 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-// import '@stream-io/stream-chat-css/dist/css/index.css';
-// import '@stream-io/stream-chat-css/dist/v2/css/index.css';
 import 'stream-chat-react/dist/css/v2/index.css';
 import './index.scss';
 import App from './App';

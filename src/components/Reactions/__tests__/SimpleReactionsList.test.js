@@ -3,22 +3,20 @@ import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import * as utils from '../utils/utils';
 import { SimpleReactionsList } from '../SimpleReactionsList';
 import { defaultReactionOptions } from '../reactionOptions';
-
-import { ChatProvider } from '../../../context/ChatContext';
 import { MessageProvider } from '../../../context/MessageContext';
 
 import { generateReaction } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context';
 
+expect.extend(toHaveNoViolations);
+
 const handleReactionMock = jest.fn();
 // const loveEmojiTestId = 'emoji-love';
 
-const renderComponent = ({ reaction_groups = {}, themeVersion = '1', ...props }) => {
+const renderComponent = ({ reaction_groups = {}, ...props }) => {
   const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
     Array(count)
       .fill()
@@ -27,18 +25,16 @@ const renderComponent = ({ reaction_groups = {}, themeVersion = '1', ...props })
 
   return {
     ...render(
-      <ChatProvider value={{ themeVersion }}>
-        <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
-          <MessageProvider value={{}}>
-            <SimpleReactionsList
-              handleReaction={handleReactionMock}
-              reaction_groups={reaction_groups}
-              reactions={reactions}
-              {...props}
-            />
-          </MessageProvider>
-        </ComponentProvider>
-      </ChatProvider>,
+      <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+        <MessageProvider value={{}}>
+          <SimpleReactionsList
+            handleReaction={handleReactionMock}
+            reaction_groups={reaction_groups}
+            reactions={reactions}
+            {...props}
+          />
+        </MessageProvider>
+      </ComponentProvider>,
     ),
     reactions,
   };
@@ -46,13 +42,12 @@ const renderComponent = ({ reaction_groups = {}, themeVersion = '1', ...props })
 
 const USER_ID = 'mark';
 
-describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
+describe('SimpleReactionsList', () => {
   afterEach(jest.clearAllMocks);
 
   it('should not render anything if there are no reactions', async () => {
     const { container } = renderComponent({
       reaction_counts: {},
-      themeVersion,
     });
     expect(container).toBeEmptyDOMElement();
     const results = await axe(container);
@@ -65,7 +60,6 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
         haha: { count: 2 },
         love: { count: 5 },
       },
-      themeVersion,
     });
     const count = getByText('7');
     expect(count).toBeInTheDocument();
@@ -83,7 +77,7 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
     jest.spyOn(utils, 'getImageDimensions').mockRejectedValue('Error');
     jest.spyOn(console, 'error').mockImplementation(null);
 
-    const { container } = renderComponent({ reaction_groups, themeVersion });
+    const { container } = renderComponent({ reaction_groups });
 
     expect(container).toMatchSnapshot();
     const results = await axe(container);
@@ -102,7 +96,6 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
         { emoji: '🍌', id: 'banana' },
         { emoji: '🤠', id: 'cowboy' },
       ],
-      themeVersion,
     });
 
     expect(container).toMatchSnapshot();
@@ -115,7 +108,7 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
       love: { count: 1 },
     };
 
-    const { container, getByText } = renderComponent({ reaction_groups, themeVersion });
+    const { container, getByText } = renderComponent({ reaction_groups });
 
     fireEvent.click(getByText('❤️'));
 
@@ -131,7 +124,6 @@ describe.each(['1', '2'])('SimpleReactionsList v%s', (themeVersion) => {
 
     const { container, getByText, queryByText, reactions } = renderComponent({
       reaction_groups,
-      themeVersion,
     });
 
     fireEvent.mouseEnter(getByText('❤️'));

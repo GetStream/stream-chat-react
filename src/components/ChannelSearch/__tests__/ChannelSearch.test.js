@@ -31,7 +31,7 @@ const renderSearch = async ({ client, props } = { props: {} }) => {
 
   const renderResult = await act(() => {
     render(
-      <ChatProvider value={{ client: chatClient, themeVersion: '2' }}>
+      <ChatProvider value={{ client: chatClient }}>
         <ChannelSearch {...props} />
       </ChatProvider>,
     );

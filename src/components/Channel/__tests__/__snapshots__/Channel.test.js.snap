@@ -3,7 +3,7 @@
 exports[`Channel should render a LoadingIndicator if it is loading 1`] = `
 <DocumentFragment>
   <div
-    class="str-chat messaging light str-chat-channel str-chat__channel"
+    class="str-chat messaging light str-chat__channel"
   >
     <div
       class="str-chat__loading-channel"
@@ -119,7 +119,7 @@ exports[`Channel should render a LoadingIndicator if it is loading 1`] = `
 exports[`Channel should render default loading indicator if channels query is in progress 1`] = `
 <DocumentFragment>
   <div
-    class="str-chat str-chat-channel str-chat__channel"
+    class="str-chat str-chat__channel"
   >
     <div
       class="str-chat__loading-channel"
@@ -235,7 +235,7 @@ exports[`Channel should render default loading indicator if channels query is in
 exports[`Channel should render empty channel container if channel does not have cid 1`] = `
 <DocumentFragment>
   <div
-    class="str-chat str-chat-channel str-chat__channel"
+    class="str-chat str-chat__channel"
   />
 </DocumentFragment>
 `;
@@ -243,7 +243,7 @@ exports[`Channel should render empty channel container if channel does not have 
 exports[`Channel should render empty channel container if channels query failed 1`] = `
 <DocumentFragment>
   <div
-    class="str-chat str-chat-channel str-chat__channel"
+    class="str-chat str-chat__channel"
   />
 </DocumentFragment>
 `;

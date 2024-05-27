@@ -78,7 +78,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
             {playbackRate.toFixed(1)}x
           </PlaybackRateButton>
         ) : (
-          <FileIcon big={true} mimeType={mime_type} size={40} version={'2'} />
+          <FileIcon big={true} mimeType={mime_type} size={40} />
         )}
       </div>
     </div>
@@ -114,7 +114,7 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
           </div>
         </div>
       </div>
-      <FileIcon big={true} mimeType={attachment.mime_type} size={34} version={'2'} />
+      <FileIcon big={true} mimeType={attachment.mime_type} size={34} />
     </div>
   );
 };

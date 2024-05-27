@@ -88,7 +88,7 @@ export function ReactionsListModal<
                     onSelectedReactionTypeChange?.(reactionType as ReactionType<StreamChatGenerics>)
                   }
                 >
-                  <span className='emoji str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
+                  <span className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback'>
                     <EmojiComponent />
                   </span>
                   &nbsp;
@@ -98,7 +98,7 @@ export function ReactionsListModal<
           )}
         </div>
         {SelectedEmojiComponent && (
-          <div className='emoji str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback str-chat__message-reaction-emoji-big'>
+          <div className='str-chat__message-reaction-emoji str-chat__message-reaction-emoji--with-fallback str-chat__message-reaction-emoji-big'>
             <SelectedEmojiComponent />
           </div>
         )}
@@ -112,6 +112,7 @@ export function ReactionsListModal<
             reactionDetailsWithLegacyFallback.map(({ user }) => (
               <div className='str-chat__message-reactions-details-reacting-user' key={user?.id}>
                 <Avatar
+                  className='stream-chat__avatar--reaction'
                   data-testid='avatar'
                   image={user?.image as string | undefined}
                   name={user?.name || user?.id}

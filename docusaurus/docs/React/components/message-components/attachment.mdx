@@ -110,7 +110,7 @@ The following section details how the width and height of images and videos uplo
 
 #### Maximum size
 
-You can control the maximum width and height of images and videos with the [`--str-chat__attachment-max-width`](../../theming/component-variables.mdx) CSS variable (available only in [theme-v2](../../theming/introduction.mdx)). The value of this variable must be a value that can be computed to a valid pixel value using the [`getComputedStyle`](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) method (for example: `300px`, `10rem`, `calc(300px - var(--margin))`, but not `100%`). If you provide an invalid value, the image and video sizing can break, which can lead to scrolling issues inside the message list (for example the message list isn't scrolled to the bottom when you open a channel).
+You can control the maximum width and height of images and videos with the [`--str-chat__attachment-max-width`](../../theming/component-variables.mdx) CSS variable. The value of this variable must be a value that can be computed to a valid pixel value using the [`getComputedStyle`](https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle) method (for example: `300px`, `10rem`, `calc(300px - var(--margin))`, but not `100%`). If you provide an invalid value, the image and video sizing can break, which can lead to scrolling issues inside the message list (for example the message list isn't scrolled to the bottom when you open a channel).
 
 If you set an invalid value to the variable, you'll see a warning on the browser's console:
 
@@ -123,8 +123,6 @@ Based on the CSS settings provided for images and videos (see [Maximum size](#ma
 For example if an image has `max-width` and `max-height` set to `300px` and the original image has the following dimensions: `965 × 1280` it's enough to load an image with a reduced file size, file size reduction is done by Stream's CDN.
 
 #### Aspect ratio
-
-The following description is applicable for [theme-v2](../../theming/introduction.mdx).
 
 The SDK will try to display images and videos with their original aspect ratio, however this isn't always guaranteed (in those cases a cropped image will be displayed). Three notable exceptions are:
 

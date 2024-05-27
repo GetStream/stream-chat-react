@@ -23,8 +23,6 @@ export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
 type ChannelCID = string; // e.g.: "messaging:general"
 
-export type ThemeVersion = '1' | '2';
-
 export type ChatContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
@@ -48,10 +46,6 @@ export type ChatContextValue<
     watchers?: { limit?: number; offset?: number },
     event?: React.BaseSyntheticEvent,
   ) => void;
-  /**
-   * Allows to opt out of the use of legacy CSS (version "1") and opt into the use of the latest SDK's CSS (version "2").
-   */
-  themeVersion: ThemeVersion;
   useImageFlagEmojisOnWindows: boolean;
   /**
    * Active channel used to render the contents of the Channel component.

@@ -6,7 +6,7 @@ title: Channel
 import GHComponentLink from '../../_docusaurus-components/GHComponentLink';
 
 The `Channel` component is a React Context provider that wraps all the logic, functionality, and UI for an individual chat channel.
-It provides five separate contexts to its children:
+It provides four separate contexts to its children:
 
 - [`ChannelStateContext`](../contexts/channel-state-context.mdx) - stateful data (ex: `messages` or `members`)
 - [`ChannelActionContext`](../contexts/channel-action-context.mdx) - action handlers (ex: `sendMessage` or `openThread`)
@@ -141,14 +141,6 @@ Custom UI component to display an attachment previews in `MessageInput`.
 | Type      | Default                                                                                        |
 | --------- | ---------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx'/> |
-
-### AutocompleteSuggestionHeader
-
-Custom UI component to override the default suggestion header component.
-
-| Type      | Default                                                                  |
-| --------- | ------------------------------------------------------------------------ |
-| component | <GHComponentLink text='Header' path='/AutoCompleteTextarea/Header.tsx'/> |
 
 ### AutocompleteSuggestionItem
 
@@ -439,14 +431,6 @@ export const MessageInput = (props: MessageInputProps) => {
 | ------- | ------- |
 | boolean | true    |
 
-### markReadOnMount
-
-Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount.
-
-| Type    | Default |
-| ------- | ------- |
-| boolean | true    |
-
 ### Input
 
 Custom UI component handling how the message input is rendered.
@@ -478,6 +462,14 @@ Custom UI component to render while the `MessageList` is loading new messages.
 | Type      | Default                                                                         |
 | --------- | ------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='LoadingIndicator' path='/Loading/LoadingIndicator.tsx'/> |
+
+### markReadOnMount
+
+Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount.
+
+| Type    | Default |
+| ------- | ------- |
+| boolean | true    |
 
 ### maxNumberOfFiles
 
@@ -691,11 +683,11 @@ Custom UI component to display the header of a `Thread`.
 
 ### ThreadInput
 
-Custom UI component to replace the `MessageInput` of a `Thread`. For the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
+Custom UI component to replace the `MessageInput` of a `Thread`. The component uses `MessageInputFlat` by default.
 
-| Type      | Default                                                                                                                                                                                             |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/> / <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
+| Type      | Default                                                                              |
+| --------- | ------------------------------------------------------------------------------------ |
+| component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/MessageInputFlat.tsx'/> |
 
 ### ThreadStart
 

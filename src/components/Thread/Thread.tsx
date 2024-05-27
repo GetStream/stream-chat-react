@@ -2,12 +2,7 @@ import React, { useEffect } from 'react';
 import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message';
-import {
-  MessageInput,
-  MessageInputFlat,
-  MessageInputProps,
-  MessageInputSmall,
-} from '../MessageInput';
+import { MessageInput, MessageInputFlat, MessageInputProps } from '../MessageInput';
 import {
   MessageList,
   MessageListProps,
@@ -102,7 +97,7 @@ const ThreadInner = <
     threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
-  const { customClasses, themeVersion } = useChatContext<StreamChatGenerics>('Thread');
+  const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
     ThreadInput: ContextInput,
     Message: ContextMessage,
@@ -112,10 +107,7 @@ const ThreadInner = <
   } = useComponentContext<StreamChatGenerics>('Thread');
 
   const ThreadInput =
-    PropInput ??
-    additionalMessageInputProps?.Input ??
-    ContextInput ??
-    (themeVersion === '2' ? MessageInputFlat : MessageInputSmall);
+    PropInput ?? additionalMessageInputProps?.Input ?? ContextInput ?? MessageInputFlat;
 
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
   const FallbackMessage = virtualized && VirtualMessage ? VirtualMessage : ContextMessage;

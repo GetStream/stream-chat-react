@@ -681,16 +681,12 @@ export class ReactTextareaAutocomplete extends React.Component {
 
     return (
       <div
-        className={clsx(
-          'rta__autocomplete',
-          'str-chat__suggestion-list-container',
-          dropdownClassName,
-        )}
+        className={clsx('str-chat__suggestion-list-container', dropdownClassName)}
         ref={this.setDropdownRef}
         style={dropdownStyle}
       >
         <SuggestionList
-          className={clsx('str-chat__suggestion-list', listClassName)}
+          className={listClassName}
           dropdownScroll={this._dropdownScroll}
           itemClassName={clsx('str-chat__suggestion-list-item', itemClassName)}
           itemStyle={itemStyle}
@@ -728,7 +724,7 @@ export class ReactTextareaAutocomplete extends React.Component {
     return (
       <div
         className={clsx('rta', containerClassName, {
-          'rta--loading': dataLoading,
+          ['rta--loading']: dataLoading,
         })}
         style={containerStyle}
       >

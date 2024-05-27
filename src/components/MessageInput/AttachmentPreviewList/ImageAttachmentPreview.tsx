@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { CloseIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import React, { useCallback, useState } from 'react';
 import { BaseImage as DefaultBaseImage } from '../../Gallery';
-import { useComponentContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import type { AttachmentPreviewProps } from './types';
 import type { LocalImageAttachment } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
@@ -22,6 +22,7 @@ export const ImageAttachmentPreview = <
   handleRetry,
   removeAttachments,
 }: ImageAttachmentPreviewProps<StreamChatGenerics>) => {
+  const { t } = useTranslationContext('ImagePreviewItem');
   const { BaseImage = DefaultBaseImage } = useComponentContext('ImagePreview');
   const [previewError, setPreviewError] = useState(false);
 
@@ -37,6 +38,7 @@ export const ImageAttachmentPreview = <
       data-testid='attachment-preview-image'
     >
       <button
+        aria-label={t('aria/Remove attachment')}
         className='str-chat__attachment-preview-delete'
         data-testid='image-preview-item-delete-button'
         disabled={uploadState === 'uploading'}

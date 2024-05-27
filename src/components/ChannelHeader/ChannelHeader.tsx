@@ -49,7 +49,7 @@ const UnMemoizedChannelHeader = <
   const { member_count, subtitle } = channel?.data || {};
 
   return (
-    <div className='str-chat__header-livestream str-chat__channel-header'>
+    <div className='str-chat__channel-header'>
       <button
         aria-label={t('aria/Menu')}
         className='str-chat__header-hamburger'
@@ -58,20 +58,19 @@ const UnMemoizedChannelHeader = <
         <MenuIcon />
       </button>
       <Avatar
+        className='str-chat__avatar--channel-header'
         image={displayImage}
         name={displayTitle}
-        shape='rounded'
-        size={channel?.type === 'commerce' ? 60 : 40}
       />
-      <div className='str-chat__header-livestream-left str-chat__channel-header-end'>
-        <p className='str-chat__header-livestream-left--title str-chat__channel-header-title'>
+      <div className='str-chat__channel-header-end'>
+        <p className='str-chat__channel-header-title'>
           {displayTitle}{' '}
           {live && (
-            <span className='str-chat__header-livestream-left--livelabel'>{t<string>('live')}</span>
+            <span className='str-chat__header-livestream-livelabel'>{t<string>('live')}</span>
           )}
         </p>
-        {subtitle && <p className='str-chat__header-livestream-left--subtitle'>{subtitle}</p>}
-        <p className='str-chat__header-livestream-left--members str-chat__channel-header-info'>
+        {subtitle && <p className='str-chat__channel-header-subtitle'>{subtitle}</p>}
+        <p className='str-chat__channel-header-info'>
           {!live && !!member_count && member_count > 0 && (
             <>
               {t('{{ memberCount }} members', {

@@ -44,7 +44,7 @@ export const ThreadHeader = <
       </div>
       <button
         aria-label={t('aria/Close thread')}
-        className='str-chat__square-button str-chat__close-thread-button'
+        className='str-chat__close-thread-button'
         data-testid='close-button'
         onClick={closeThread}
       >

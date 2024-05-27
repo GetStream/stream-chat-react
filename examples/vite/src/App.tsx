@@ -5,7 +5,7 @@ import {
   ChannelList,
   Chat,
   MessageInput,
-  MessageList,
+  VirtualizedMessageList as MessageList,
   Thread,
   Window,
   useCreateChatClient,

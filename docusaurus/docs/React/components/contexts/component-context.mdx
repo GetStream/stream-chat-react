@@ -36,14 +36,6 @@ Custom UI component to display a attachment previews in `MessageInput`.
 | --------- | ---------------------------------------------------------------------------------------------- |
 | component | <GHComponentLink text='AttachmentPreviewList' path='/MessageInput/AttachmentPreviewList.tsx'/> |
 
-### AutocompleteSuggestionHeader
-
-Custom UI component to override the default suggestion header component.
-
-| Type      | Default                                                                  |
-| --------- | ------------------------------------------------------------------------ |
-| component | <GHComponentLink text='Header' path='/AutoCompleteTextarea/Header.tsx'/> |
-
 ### AutocompleteSuggestionItem
 
 Custom UI component to override the default suggestion Item component.
@@ -346,11 +338,11 @@ Custom UI component to display the header of a `Thread`.
 
 ### ThreadInput
 
-Custom UI component to replace the `MessageInput` of a `Thread`. For the applications using [theme version 1](../../guides/theming/css-and-theming.mdx), the default is `MessageInputSmall`. Applications using [theme version 2](../../theming/introduction.mdx) will use `MessageInputFlat` by default.
+Custom UI component to replace the `MessageInput` of a `Thread`. The component uses `MessageInputFlat` by default.
 
-| Type      | Default                                                                                                                                                                                             |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| component | <GHComponentLink text='MessageInputSmall (theme v1)' path='/MessageInput/MessageInputSmall.tsx'/> / <GHComponentLink text='MessageInputFlat (theme v2)' path='/MessageInput/MessageInputFlat.tsx'/> |
+| Type      | Default                                                                              |
+| --------- | ------------------------------------------------------------------------------------ |
+| component | <GHComponentLink text='MessageInputFlat' path='/MessageInput/MessageInputFlat.tsx'/> |
 
 ### ThreadStart
 

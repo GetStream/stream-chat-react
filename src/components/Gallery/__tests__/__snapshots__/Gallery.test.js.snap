@@ -213,7 +213,7 @@ exports[`Gallery should render component with default props 1`] = `
 exports[`Gallery should render custom BaseImage component 1`] = `
 <div>
   <div
-    class="str-chat messaging light str-chat-channel str-chat__channel"
+    class="str-chat messaging light str-chat__channel"
   >
     <div
       class="str-chat__container"

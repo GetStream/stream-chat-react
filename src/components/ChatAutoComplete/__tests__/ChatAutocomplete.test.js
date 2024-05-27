@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { ChatAutoComplete } from '../ChatAutoComplete';
@@ -152,15 +152,15 @@ describe('ChatAutoComplete', () => {
   it('should let you select users when you type @<username>', async () => {
     const onSelectItem = jest.fn();
     const userAutocompleteText = `@${mentionUser.name}`;
-    const { getAllByText, textarea, typeText } = await renderComponent({
+    const { textarea, typeText } = await renderComponent({
       onSelectItem,
     });
     typeText(userAutocompleteText);
-    const userText = await getAllByText(mentionUser.name);
+    const userText = await screen.getByText(mentionUser.name);
 
-    expect(userText).toHaveLength(2);
+    expect(userText).toBeInTheDocument();
 
-    fireEvent.click(userText[1]);
+    fireEvent.click(userText);
 
     expect(textarea.value).toContain(mentionUser.name);
   });
@@ -219,9 +219,9 @@ describe('ChatAutoComplete', () => {
   });
 
   it('should disable popup list when the input is in "isComposing" state', async () => {
-    const { findAllByText, findByTestId, queryAllByText, typeText } = await renderComponent();
+    const { typeText } = await renderComponent();
 
-    const messageInput = await findByTestId('message-input');
+    const messageInput = await screen.findByTestId('message-input');
 
     act(() => {
       const cStartEvent = new Event('compositionstart', { bubbles: true });
@@ -231,16 +231,14 @@ describe('ChatAutoComplete', () => {
     const userAutocompleteText = `@${user.name}`;
     typeText(userAutocompleteText);
 
-    // eslint-disable-next-line jest-dom/prefer-in-document
-    expect(await queryAllByText(user.name)).toHaveLength(0);
+    expect(screen.queryByText(user.name)).not.toBeInTheDocument();
 
     act(() => {
       const cEndEvent = new Event('compositionend', { bubbles: true });
       messageInput.dispatchEvent(cEndEvent);
     });
 
-    // eslint-disable-next-line jest-dom/prefer-in-document
-    expect(await findAllByText(user.name)).toHaveLength(2);
+    expect(await screen.findByText(user.name)).toBeInTheDocument();
   });
 
   it('should use the queryMembers API for mentions if a channel has many members', async () => {

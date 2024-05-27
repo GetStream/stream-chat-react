@@ -70,7 +70,7 @@ export const VoiceRecordingPreview = <
         )}
       </div>
       <div className='str-chat__attachment-preview-file-icon'>
-        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} version='2' />
+        <FileIcon filename={attachment.title} mimeType={attachment.mime_type} />
       </div>
     </div>
   );

@@ -6,6 +6,9 @@ module.exports = {
         lastVersion: 'current',
         versions: {
           current: {
+            label: 'v12',
+          },
+          '11.x.x': {
             label: 'v11',
           },
           '11.x.x-legacy': {

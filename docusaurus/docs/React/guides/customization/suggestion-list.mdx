@@ -105,7 +105,7 @@ const CustomSuggestionItem = (props) => {
   if (!('native' in item) && 'id' in item) {
     children = (
       <>
-        <Avatar image={item.image} size={20} />
+        <Avatar image={item.image} />
         {item.name ?? item.id}
       </>
     );

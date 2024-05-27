@@ -1,10 +1,9 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import { useChatContext } from '../../context';
-
 import { ChannelSearchControllerParams, useChannelSearch } from './hooks/useChannelSearch';
 
+import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 import { SearchBar as DefaultSearchBar } from './SearchBar';
 import {
   AdditionalSearchInputProps,
@@ -14,7 +13,6 @@ import {
 import { AdditionalSearchResultsProps, SearchResults } from './SearchResults';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { AdditionalSearchBarProps, SearchBarProps } from './SearchBar';
 
 export type AdditionalChannelSearchProps = {
   /** Custom UI component to display the search bar with text input */
@@ -53,7 +51,6 @@ const UnMemoizedChannelSearch = <
     SearchResultsHeader,
     ...channelSearchParams
   } = props;
-  const { themeVersion } = useChatContext<StreamChatGenerics>('ChannelSearch');
 
   const {
     activateSearch,
@@ -69,8 +66,6 @@ const UnMemoizedChannelSearch = <
     selectResult,
   } = useChannelSearch<StreamChatGenerics>(channelSearchParams);
 
-  const showSearchBarV2 = themeVersion === '2';
-
   return (
     <div
       className={clsx(
@@ -82,35 +77,25 @@ const UnMemoizedChannelSearch = <
       )}
       data-testid='channel-search'
     >
-      {showSearchBarV2 ? (
-        <SearchBar
-          activateSearch={activateSearch}
-          AppMenu={AppMenu}
-          ClearInputIcon={ClearInputIcon}
-          clearState={clearState}
-          disabled={channelSearchParams.disabled}
-          exitSearch={exitSearch}
-          ExitSearchIcon={ExitSearchIcon}
-          inputIsFocused={inputIsFocused}
-          inputRef={inputRef}
-          MenuIcon={MenuIcon}
-          onSearch={onSearch}
-          placeholder={placeholder}
-          query={query}
-          searchBarRef={searchBarRef}
-          SearchInput={SearchInput}
-          SearchInputIcon={SearchInputIcon}
-        />
-      ) : (
-        <SearchInput
-          clearState={clearState}
-          disabled={channelSearchParams.disabled}
-          inputRef={inputRef}
-          onSearch={onSearch}
-          placeholder={placeholder}
-          query={query}
-        />
-      )}
+      <SearchBar
+        activateSearch={activateSearch}
+        AppMenu={AppMenu}
+        ClearInputIcon={ClearInputIcon}
+        clearState={clearState}
+        disabled={channelSearchParams.disabled}
+        exitSearch={exitSearch}
+        ExitSearchIcon={ExitSearchIcon}
+        inputIsFocused={inputIsFocused}
+        inputRef={inputRef}
+        MenuIcon={MenuIcon}
+        onSearch={onSearch}
+        placeholder={placeholder}
+        query={query}
+        searchBarRef={searchBarRef}
+        SearchInput={SearchInput}
+        SearchInputIcon={SearchInputIcon}
+      />
+
       {query && (
         <SearchResults
           popupResults={popupResults}

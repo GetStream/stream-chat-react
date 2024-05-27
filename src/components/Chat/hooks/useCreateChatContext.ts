@@ -21,7 +21,6 @@ export const useCreateChatContext = <
     openMobileNav,
     setActiveChannel,
     theme,
-    themeVersion,
     useImageFlagEmojisOnWindows,
   } = value;
 
@@ -48,7 +47,6 @@ export const useCreateChatContext = <
       openMobileNav,
       setActiveChannel,
       theme,
-      themeVersion,
       useImageFlagEmojisOnWindows,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps

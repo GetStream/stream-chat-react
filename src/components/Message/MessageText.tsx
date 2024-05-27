@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
@@ -73,15 +74,11 @@ const UnMemoizedMessageTextComponent = <
   return (
     <div className={wrapperClass} tabIndex={0}>
       <div
-        className={`
-          ${innerClass}
-          ${hasAttachment ? ` str-chat__message-${theme}-text-inner--has-attachment` : ''}
-          ${
-            isOnlyEmojis(message.text) && !message.quoted_message
-              ? ` str-chat__message-${theme}-text-inner--is-emoji`
-              : ''
-          }
-        `.trim()}
+        className={clsx(innerClass, {
+          [`str-chat__message-${theme}-text-inner--has-attachment`]: hasAttachment,
+          [` str-chat__message-${theme}-text-inner--is-emoji`]:
+            isOnlyEmojis(message.text) && !message.quoted_message,
+        })}
         data-testid='message-text-inner-wrapper'
         onClick={onMentionsClickMessage}
         onMouseOver={onMentionsHoverMessage}

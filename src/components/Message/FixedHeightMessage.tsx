@@ -101,8 +101,6 @@ const UnMemoizedFixedHeightMessage = <
         <Avatar
           image={message.user.image}
           name={message.user.name || message.user.id}
-          shape='rounded'
-          size={38}
           user={message.user}
         />
       )}

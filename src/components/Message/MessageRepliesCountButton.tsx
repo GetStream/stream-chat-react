@@ -1,8 +1,4 @@
 import React, { MouseEventHandler } from 'react';
-
-import { ReplyIcon } from './icons';
-
-import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export type MessageRepliesCountButtonProps = {
@@ -20,7 +16,6 @@ const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonPro
   const { labelPlural, labelSingle, onClick, reply_count = 0 } = props;
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
-  const { themeVersion } = useChatContext('MessageRepliesCountButton');
 
   if (!reply_count) return null;
 
@@ -33,13 +28,12 @@ const UnMemoizedMessageRepliesCountButton = (props: MessageRepliesCountButtonPro
   }
 
   return (
-    <div className='str-chat__message-simple-reply-button str-chat__message-replies-count-button-wrapper'>
+    <div className='str-chat__message-replies-count-button-wrapper'>
       <button
         className='str-chat__message-replies-count-button'
         data-testid='replies-count-button'
         onClick={onClick}
       >
-        {themeVersion === '1' && <ReplyIcon />}
         {replyCountText}
       </button>
     </div>

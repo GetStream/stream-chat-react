@@ -1,0 +1,78 @@
+---
+id: palette-variables
+sidebar_position: 4
+title: Palette variables
+keywords: [v2, theme-v2, theming-v2, theming, palette variables]
+---
+
+import SDKSpecific from './SDKSpecific';
+import V2Warning from './V2Warning';
+
+:::info
+
+<SDKSpecific name='angular'>
+  <V2Warning themingAndCSSPath='../../concepts/themeing' />
+</SDKSpecific>
+
+<SDKSpecific name='react'>
+  <V2Warning themingAndCSSPath='../../customization/css_and_theming' />
+</SDKSpecific>
+
+:::
+
+A color palette is defined inside the library that used to define default values for the [global theme variables](./global-variables.mdx). If you want to work with the default theme but want to adjust the shades (for example, change `blue500` to a lighter color), you can update the palette variables. However, if you want to change the color scheme of the theme (for example, change the primary color from blue to green), you should take a look at [global theme variables](./global-variables.mdx).
+
+| Name                    | Value(s)                                                                |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `--str-chat__blue950`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#001333`</td></tr></table> |
+| `--str-chat__blue900`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#00163d`</td></tr></table> |
+| `--str-chat__blue800`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#002666`</td></tr></table> |
+| `--str-chat__blue700`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#003999`</td></tr></table> |
+| `--str-chat__blue600`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#004ccc`</td></tr></table> |
+| `--str-chat__blue500`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#005fff`</td></tr></table> |
+| `--str-chat__blue400`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#337eff`</td></tr></table> |
+| `--str-chat__blue300`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#669fff`</td></tr></table> |
+| `--str-chat__blue200`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ccdfff`</td></tr></table> |
+| `--str-chat__blue100`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#e0f0ff`</td></tr></table> |
+| `--str-chat__blue50`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ebf5ff`</td></tr></table> |
+| `--str-chat__grey950`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#080707`</td></tr></table> |
+| `--str-chat__grey900`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#17191c`</td></tr></table> |
+| `--str-chat__grey800`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#1c1e22`</td></tr></table> |
+| `--str-chat__grey700`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#272a30`</td></tr></table> |
+| `--str-chat__grey600`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#4c525c`</td></tr></table> |
+| `--str-chat__grey500`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#72767e`</td></tr></table> |
+| `--str-chat__grey400`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#b4b7bb`</td></tr></table> |
+| `--str-chat__grey300`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#dbdde1`</td></tr></table> |
+| `--str-chat__grey200`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#e9eaed`</td></tr></table> |
+| `--str-chat__grey100`   | <table><tr><th>`.str-chat`</th></tr><tr><td>`#f4f4f5`</td></tr></table> |
+| `--str-chat__grey50`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ffffff`</td></tr></table> |
+| `--str-chat__red900`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#330003`</td></tr></table> |
+| `--str-chat__red800`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#660006`</td></tr></table> |
+| `--str-chat__red700`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#990008`</td></tr></table> |
+| `--str-chat__red600`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#cc000b`</td></tr></table> |
+| `--str-chat__red500`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ff000e`</td></tr></table> |
+| `--str-chat__red400`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ff3742`</td></tr></table> |
+| `--str-chat__red300`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ff666e`</td></tr></table> |
+| `--str-chat__red200`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ff999f`</td></tr></table> |
+| `--str-chat__red100`    | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ffe5e7`</td></tr></table> |
+| `--str-chat__green900`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#062d16`</td></tr></table> |
+| `--str-chat__green800`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#0d592c`</td></tr></table> |
+| `--str-chat__green700`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#138643`</td></tr></table> |
+| `--str-chat__green600`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#19b359`</td></tr></table> |
+| `--str-chat__green500`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#20e070`</td></tr></table> |
+| `--str-chat__green400`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#4ce68c`</td></tr></table> |
+| `--str-chat__green300`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#79eca9`</td></tr></table> |
+| `--str-chat__green200`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#a6f2c6`</td></tr></table> |
+| `--str-chat__green100`  | <table><tr><th>`.str-chat`</th></tr><tr><td>`#e9f1ff`</td></tr></table> |
+| `--str-chat__yellow900` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#332500`</td></tr></table> |
+| `--str-chat__yellow800` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#664900`</td></tr></table> |
+| `--str-chat__yellow700` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#996e00`</td></tr></table> |
+| `--str-chat__yellow600` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#cc9200`</td></tr></table> |
+| `--str-chat__yellow500` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ffb700`</td></tr></table> |
+| `--str-chat__yellow400` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ffd466`</td></tr></table> |
+| `--str-chat__yellow300` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#ffe299`</td></tr></table> |
+| `--str-chat__yellow200` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#fff1cc`</td></tr></table> |
+| `--str-chat__yellow100` | <table><tr><th>`.str-chat`</th></tr><tr><td>`#fff8e5`</td></tr></table> |
+
+
+Palette variables are defined in: [https://github.com/GetStream/stream-chat-css/blob/main/src-v2/styles/\_palette-variables.scss](https://github.com/GetStream/stream-chat-css/blob/main/src-v2/styles/_palette-variables.scss)

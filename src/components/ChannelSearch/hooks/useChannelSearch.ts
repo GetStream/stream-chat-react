@@ -103,9 +103,7 @@ export const useChannelSearch = <
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, setActiveChannel, themeVersion } = useChatContext<StreamChatGenerics>(
-    'useChannelSearch',
-  );
+  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
 
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
@@ -147,10 +145,7 @@ export const useChannelSearch = <
 
     const clickListener = (event: MouseEvent) => {
       if (!(event.target instanceof HTMLElement)) return;
-      const isInputClick =
-        themeVersion === '2'
-          ? searchBarRef.current?.contains(event.target)
-          : inputRef.current?.contains(event.target);
+      const isInputClick = searchBarRef.current?.contains(event.target);
 
       if (isInputClick) return;
 
