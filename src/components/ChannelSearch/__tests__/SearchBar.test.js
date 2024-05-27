@@ -14,11 +14,6 @@ import {
   useMockedApis,
 } from '../../../mock-builders';
 
-// SearchBar needs searchBarRef to work correctly. That is not expected to be used with theme version 1.
-jest.spyOn(window, 'getComputedStyle').mockReturnValue({
-  getPropertyValue: jest.fn().mockReturnValue('2'),
-});
-
 let client;
 const inputText = new Date().getTime().toString();
 

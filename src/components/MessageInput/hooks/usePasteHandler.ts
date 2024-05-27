@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import {
-  dataTransferItemsHaveFiles,
+  // dataTransferItemsHaveFiles,
   dataTransferItemsToFiles,
   FileLike,
 } from '../../ReactFileUtilities';
@@ -15,12 +15,8 @@ export const usePasteHandler = (
 ) => {
   const onPaste = useCallback(
     (clipboardEvent: React.ClipboardEvent<HTMLTextAreaElement>) => {
-      if (!isUploadEnabled) return;
       (async (event) => {
-        // TODO: Move this handler to package with ImageDropzone
         const { items } = event.clipboardData;
-        if (!dataTransferItemsHaveFiles(Array.from(items))) return;
-
         event.preventDefault();
         // Get a promise for the plain text in case no files are
         // found. This needs to be done here because chrome cleans
@@ -39,7 +35,7 @@ export const usePasteHandler = (
         }
 
         const fileLikes = await dataTransferItemsToFiles(Array.from(items));
-        if (fileLikes.length) {
+        if (fileLikes.length && isUploadEnabled) {
           uploadNewFiles(fileLikes);
           return;
         }

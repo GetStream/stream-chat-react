@@ -68,7 +68,6 @@ const UnMemoizedScrollToBottomButton = (
       <button
         aria-live='polite'
         className={`
-        str-chat__message-notification-right
         str-chat__message-notification-scroll-to-latest
         str-chat__circle-fab
       `}
@@ -80,7 +79,6 @@ const UnMemoizedScrollToBottomButton = (
           <div
             className={clsx(
               'str-chat__message-notification',
-              'str-chat__message-notification-scroll-to-latest-unread-count',
               'str-chat__jump-to-latest-unread-count',
             )}
             data-testid={'unread-message-notification-counter'}

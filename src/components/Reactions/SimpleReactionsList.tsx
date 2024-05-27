@@ -2,8 +2,6 @@ import React, { PropsWithChildren, useState } from 'react';
 import clsx from 'clsx';
 
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
-
-import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 import { useProcessReactions } from './hooks/useProcessReactions';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
@@ -13,9 +11,9 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 
 type WithTooltipProps = {
-  onMouseEnter: React.MouseEventHandler;
-  onMouseLeave: React.MouseEventHandler;
   title: React.ReactNode;
+  onMouseEnter?: React.MouseEventHandler;
+  onMouseLeave?: React.MouseEventHandler;
 };
 
 const WithTooltip = ({
@@ -30,15 +28,11 @@ const WithTooltip = ({
     onMouseLeave,
   });
 
-  const { themeVersion } = useChatContext('WithTooltip');
-
   return (
     <>
-      {themeVersion === '2' && (
-        <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
-          {title}
-        </PopperTooltip>
-      )}
+      <PopperTooltip referenceElement={referenceElement} visible={tooltipVisible}>
+        {title}
+      </PopperTooltip>
       <span onMouseEnter={handleEnter} onMouseLeave={handleLeave} ref={setReferenceElement}>
         {children}
       </span>
@@ -77,9 +71,6 @@ const UnMemoizedSimpleReactionsList = <
 
   const { existingReactions, hasReactions, totalReactionCount } = useProcessReactions(rest);
 
-  const [tooltipReactionType, setTooltipReactionType] = useState<string | undefined>(undefined);
-  const { themeVersion } = useChatContext('SimpleReactionsList');
-
   const handleReaction = propHandleReaction || contextHandleReaction;
 
   if (!hasReactions) return null;
@@ -89,11 +80,9 @@ const UnMemoizedSimpleReactionsList = <
       <ul
         className='str-chat__simple-reactions-list str-chat__message-reactions'
         data-testid='simple-reaction-list'
-        onMouseLeave={() => setTooltipReactionType(undefined)}
       >
         {existingReactions.map(
           ({ EmojiComponent, isOwnReaction, latestReactedUserNames, reactionType }) => {
-            const tooltipVisible = tooltipReactionType === reactionType;
             const tooltipContent = latestReactedUserNames.join(', ');
 
             return (
@@ -106,19 +95,8 @@ const UnMemoizedSimpleReactionsList = <
                   onClick={(event) => handleReaction(reactionType, event)}
                   onKeyUp={(event) => handleReaction(reactionType, event)}
                 >
-                  <WithTooltip
-                    onMouseEnter={() => setTooltipReactionType(reactionType)}
-                    onMouseLeave={() => setTooltipReactionType(undefined)}
-                    title={tooltipContent}
-                  >
+                  <WithTooltip title={tooltipContent}>
                     <EmojiComponent />
-                    &nbsp;
-                    {tooltipVisible && themeVersion === '1' && (
-                      <div className='str-chat__simple-reactions-list-tooltip'>
-                        <div className='arrow' />
-                        {tooltipContent}
-                      </div>
-                    )}
                   </WithTooltip>
                 </li>
               )

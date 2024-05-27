@@ -6,7 +6,7 @@ import { ChannelPreview } from '../ChannelPreview';
 import { ChannelOrUserResponse, isChannel } from './utils';
 import { Avatar } from '../Avatar';
 
-import { useChatContext, useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -87,33 +87,21 @@ const DefaultSearchResultItem = <
 ) => {
   const { focusedUser, index, result, selectResult } = props;
   const focused = focusedUser === index;
-  const { themeVersion } = useChatContext();
 
   const className = clsx(
     'str-chat__channel-search-result',
-    focused && 'str-chat__channel-search-result--focused focused',
+    focused && 'str-chat__channel-search-result--focused',
   );
 
   if (isChannel(result)) {
     const channel = result;
 
-    return themeVersion === '2' ? (
+    return (
       <ChannelPreview
         channel={channel}
         className={className}
         onSelect={() => selectResult(channel)}
       />
-    ) : (
-      <button
-        aria-label={`Select Channel: ${channel.data?.name || ''}`}
-        className={className}
-        data-testid='channel-search-result-channel'
-        onClick={() => selectResult(channel)}
-        role='option'
-      >
-        <div className='result-hashtag'>#</div>
-        <p className='channel-search__result-text'>{channel.data?.name}</p>
-      </button>
     );
   } else {
     return (
@@ -125,9 +113,9 @@ const DefaultSearchResultItem = <
         role='option'
       >
         <Avatar
+          className='str-chat__avatar--channel-preview'
           image={result.image}
           name={result.name || result.id}
-          size={themeVersion === '2' ? 40 : undefined}
           user={result}
         />
         <div className='str-chat__channel-search-result--display-name'>
@@ -147,10 +135,7 @@ const ResultsContainer = ({
   return (
     <div
       aria-label={t('aria/Channel search results')}
-      className={clsx(
-        `str-chat__channel-search-container str-chat__channel-search-result-list`,
-        popupResults ? 'popup' : 'inline',
-      )}
+      className={clsx(`str-chat__channel-search-result-list`, popupResults ? 'popup' : 'inline')}
     >
       {children}
     </div>

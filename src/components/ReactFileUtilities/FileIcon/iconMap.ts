@@ -1,9 +1,4 @@
-import type { ComponentType } from 'react';
-
-import * as v1 from './FileIconSet/v1';
-import type { IconPropsV1 } from './FileIconSet/v1';
-import * as v2 from './FileIconSet/v2';
-import type { IconPropsV2 } from './FileIconSet/v2';
+import * as fileIconSet from './FileIconSet';
 import {
   archiveFileTypes,
   codeFileTypes,
@@ -13,6 +8,8 @@ import {
   SupportedMimeType,
   wordMimeTypes,
 } from './mimeTypes';
+import type { ComponentType } from 'react';
+import type { IconProps } from './FileIconSet';
 
 type MimeTypeMappedComponent =
   | 'FilePdfIcon'
@@ -95,75 +92,45 @@ function generateGeneralTypeToIconMap<Props>({
 }
 
 export type IconType = 'standard' | 'alt';
-export type IconVersion = '1' | '2';
-
-type IconProps = {
-  '1': IconPropsV1;
-  '2': IconPropsV2;
-};
 
 type IconMap = {
-  [v in IconVersion]: {
-    standard: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps[v]>>;
-    alt?: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps[v]>>;
-  };
+  standard: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps>>;
+  alt?: Record<SupportedMimeType | GeneralType | 'fallback', ComponentType<IconProps>>;
 };
 
 export const iconMap: IconMap = {
-  '1': {
-    alt: {},
-    standard: {
-      ...generateMimeTypeToIconMap<IconPropsV1>({
-        FileArchiveIcon: v1.FileArchiveIcon,
-        FileCodeIcon: v1.FileCodeIcon,
-        FileExcelIcon: v1.FileExcelIcon,
-        FilePdfIcon: v1.FilePdfIcon,
-        FilePowerPointIcon: v1.FilePowerPointIcon,
-        FileWordIcon: v1.FileWordIcon,
-      }),
-      ...generateGeneralTypeToIconMap<IconPropsV1>({
-        FileAltIcon: v1.FileAltIcon,
-        FileAudioIcon: v1.FileAudioIcon,
-        FileImageIcon: v1.FileImageIcon,
-        FileVideoIcon: v1.FileVideoIcon,
-      }),
-      fallback: v1.FileFallbackIcon,
-    },
+  alt: {
+    ...generateMimeTypeToIconMap<IconProps>({
+      FileArchiveIcon: fileIconSet.FileArchiveIconAlt,
+      FileCodeIcon: fileIconSet.FileCodeIconAlt,
+      FileExcelIcon: fileIconSet.FileExcelIconAlt,
+      FilePdfIcon: fileIconSet.FilePdfIcon,
+      FilePowerPointIcon: fileIconSet.FilePowerPointIconAlt,
+      FileWordIcon: fileIconSet.FileWordIconAlt,
+    }),
+    ...generateGeneralTypeToIconMap<IconProps>({
+      FileAltIcon: fileIconSet.FileFallbackIcon,
+      FileAudioIcon: fileIconSet.FileAudioIconAlt,
+      FileImageIcon: fileIconSet.FileImageIcon,
+      FileVideoIcon: fileIconSet.FileVideoIconAlt,
+    }),
+    fallback: fileIconSet.FileFallbackIcon,
   },
-  '2': {
-    alt: {
-      ...generateMimeTypeToIconMap<IconPropsV2>({
-        FileArchiveIcon: v2.FileArchiveIconAlt,
-        FileCodeIcon: v2.FileCodeIconAlt,
-        FileExcelIcon: v2.FileExcelIconAlt,
-        FilePdfIcon: v2.FilePdfIcon,
-        FilePowerPointIcon: v2.FilePowerPointIconAlt,
-        FileWordIcon: v2.FileWordIconAlt,
-      }),
-      ...generateGeneralTypeToIconMap<IconPropsV2>({
-        FileAltIcon: v2.FileFallbackIcon,
-        FileAudioIcon: v2.FileAudioIconAlt,
-        FileImageIcon: v2.FileImageIcon,
-        FileVideoIcon: v2.FileVideoIconAlt,
-      }),
-      fallback: v2.FileFallbackIcon,
-    },
-    standard: {
-      ...generateMimeTypeToIconMap<IconPropsV2>({
-        FileArchiveIcon: v2.FileArchiveIcon,
-        FileCodeIcon: v2.FileCodeIcon,
-        FileExcelIcon: v2.FileExcelIcon,
-        FilePdfIcon: v2.FilePdfIcon,
-        FilePowerPointIcon: v2.FilePowerPointIcon,
-        FileWordIcon: v2.FileWordIcon,
-      }),
-      ...generateGeneralTypeToIconMap<IconPropsV2>({
-        FileAltIcon: v2.FileFallbackIcon,
-        FileAudioIcon: v2.FileAudioIcon,
-        FileImageIcon: v2.FileImageIcon,
-        FileVideoIcon: v2.FileVideoIcon,
-      }),
-      fallback: v2.FileFallbackIcon,
-    },
+  standard: {
+    ...generateMimeTypeToIconMap<IconProps>({
+      FileArchiveIcon: fileIconSet.FileArchiveIcon,
+      FileCodeIcon: fileIconSet.FileCodeIcon,
+      FileExcelIcon: fileIconSet.FileExcelIcon,
+      FilePdfIcon: fileIconSet.FilePdfIcon,
+      FilePowerPointIcon: fileIconSet.FilePowerPointIcon,
+      FileWordIcon: fileIconSet.FileWordIcon,
+    }),
+    ...generateGeneralTypeToIconMap<IconProps>({
+      FileAltIcon: fileIconSet.FileFallbackIcon,
+      FileAudioIcon: fileIconSet.FileAudioIcon,
+      FileImageIcon: fileIconSet.FileImageIcon,
+      FileVideoIcon: fileIconSet.FileVideoIcon,
+    }),
+    fallback: fileIconSet.FileFallbackIcon,
   },
 };
