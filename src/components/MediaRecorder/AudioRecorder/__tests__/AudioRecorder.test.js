@@ -43,7 +43,6 @@ const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
 const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_COMPLETE_BTN_TEST_ID = 'audio-recorder-complete-button';
 
-const CSS_THEME_VERSION = '2';
 const DEFAULT_RENDER_PARAMS = {
   channelActionCtx: {
     addNotification: jest.fn(),
@@ -77,7 +76,6 @@ const renderComponent = async ({
       <ChatProvider
         value={{
           ...{ client, ...DEFAULT_RENDER_PARAMS.chatCtx, ...chatCtx },
-          themeVersion: CSS_THEME_VERSION,
         }}
       >
         <ComponentProvider value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}>

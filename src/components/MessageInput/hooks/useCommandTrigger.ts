@@ -1,7 +1,6 @@
 import { CommandItem } from '../../CommandItem/CommandItem';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context';
 
 import type { CommandResponse } from 'stream-chat';
@@ -18,7 +17,6 @@ type ValidCommand<
 export const useCommandTrigger = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(): CommandTriggerSetting<StreamChatGenerics> => {
-  const { themeVersion } = useChatContext<StreamChatGenerics>('useCommandTrigger');
   const { channelConfig } = useChannelStateContext<StreamChatGenerics>('useCommandTrigger');
   const { t } = useTranslationContext('useCommandTrigger');
 
@@ -55,7 +53,7 @@ export const useCommandTrigger = <
         return 0;
       });
 
-      const result = selectedCommands.slice(0, themeVersion === '2' ? 5 : 10);
+      const result = selectedCommands.slice(0, 5);
       if (onReady)
         onReady(
           result

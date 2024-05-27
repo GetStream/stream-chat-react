@@ -23,13 +23,13 @@ import {
   ChannelSearchProps,
   ChannelSearch as DefaultChannelSearch,
 } from '../ChannelSearch/ChannelSearch';
-import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import {
   EmptyStateIndicator as DefaultEmptyStateIndicator,
   EmptyStateIndicatorProps,
 } from '../EmptyStateIndicator';
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
+import { NullComponent } from '../UtilityComponents';
 
 import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
@@ -72,8 +72,8 @@ export type ChannelListProps<
   filters?: ChannelFilters<StreamChatGenerics>;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
-  /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
-  LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
+  /** Custom UI component to display the loading error indicator, defaults to component that renders null */
+  LoadingErrorIndicator?: React.ComponentType;
   /** Custom UI component to display the loading state, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
   /** When true, channels won't dynamically sort by most recent message */
@@ -168,7 +168,7 @@ const UnMemoizedChannelList = <
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
-    LoadingErrorIndicator = ChatDown,
+    LoadingErrorIndicator = NullComponent,
     LoadingIndicator = LoadingChannels,
     List = ChannelListMessenger,
     lockChannelOrder,
@@ -342,14 +342,14 @@ const UnMemoizedChannelList = <
     return <ChannelPreview {...previewProps} />;
   };
 
+  const baseClass = 'str-chat__channel-list';
   const className = clsx(
     customClasses?.chat ?? 'str-chat',
     theme,
-    customClasses?.channelList ??
-      'str-chat-channel-list str-chat__channel-list str-chat__channel-list-react',
+    customClasses?.channelList ?? `${baseClass} ${baseClass}-react`,
     {
       'str-chat--windows-flags': useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
-      'str-chat-channel-list--open': navOpen,
+      [`${baseClass}--open`]: navOpen,
     },
   );
 

@@ -59,34 +59,7 @@ const CustomMessage = () => {
 `MessageSimple` and `FixedHeightMessage` are both designed to be guides to help build a custom Message UI component. At a high level,
 these pre-built, default components wrap a subset of composable components that each serve specific logic and design-based purposes.
 
-There is a different order in which components are stacked inside the `MessageSimple` component depending on the [`themeVersion`](../contexts/chat-context.mdx/#themeversion).
-
-For example, if we strip `MessageSimple` down to its core pieces, the component resembles the following snippet with the `themeVersion` `'1'`:
-
-```jsx
-<div>
-  <MessageStatus />
-  <Avatar />
-  <div>
-    <MessageOptions />
-    <div>
-      <ReactionsList />
-      <ReactionSelector />
-    </div>
-    <div>
-      <Attachment />
-      <MessageText />
-      <MML />
-    </div>
-    <MessageRepliesCountButton />
-    <div>
-      <MessageTimestamp />
-    </div>
-  </div>
-</div>
-```
-
-The `themeVersion` `'2'` markup is a bit different:
+If we strip `MessageSimple` down to its core pieces, the component resembles the following snippet:
 
 ```jsx
 <div>
@@ -308,10 +281,9 @@ Function that flags a message (overrides the function stored in `MessageContext`
 
 Function that marks the message and all the following messages as unread in a channel. (overrides the function stored in `MessageContext`).
 
-| Type                                                        | Default                                                                         |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Type                                                        | Default                                                                                     |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['handleMarkUnread']](../contexts/message-context.mdx#handleMarkUnread) |
-
 
 ### handleMute
 

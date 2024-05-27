@@ -8,7 +8,6 @@ export * from './ChannelPreview';
 export * from './ChannelSearch';
 export * from './Chat';
 export * from './ChatAutoComplete';
-export * from './ChatDown';
 export * from './CommandItem';
 export * from './DateSeparator';
 export * from './EmoticonItem';

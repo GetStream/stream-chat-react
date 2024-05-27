@@ -12,13 +12,6 @@ export type CustomMessageActionsListProps<
   customMessageActions?: CustomMessageActions<StreamChatGenerics>;
 };
 
-/**
- * @deprecated alias for `CustomMessageActionsListProps`, will be removed in the next major release
- */
-export type CustomMessageActionsType<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = CustomMessageActionsListProps<StreamChatGenerics>;
-
 export const CustomMessageActionsList = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(

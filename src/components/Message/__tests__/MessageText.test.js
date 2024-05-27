@@ -296,42 +296,7 @@ describe('<MessageText />', () => {
       customProps: { customWrapperClass, message },
       renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
-      >
-        <div
-          className="str-chat__message-inner"
-          data-testid="message-inner"
-        >
-          <div />
-          <div
-            className="str-chat__message-reactions-host"
-          />
-          <div
-            className="str-chat__message-bubble"
-          >
-            <div
-              className="str-chat__message-text"
-              tabIndex={0}
-            >
-              <div
-                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-                data-testid="message-text-inner-wrapper"
-                onClick={[Function]}
-                onMouseOver={[Function]}
-              >
-                <div>
-                  <p>
-                    hello world
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `);
+    expect(tree.toJSON()).toMatchSnapshot();
   });
 
   it('should render with a custom inner class when one is set', async () => {
@@ -341,42 +306,7 @@ describe('<MessageText />', () => {
       customProps: { customInnerClass, message },
       renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
-      >
-        <div
-          className="str-chat__message-inner"
-          data-testid="message-inner"
-        >
-          <div />
-          <div
-            className="str-chat__message-reactions-host"
-          />
-          <div
-            className="str-chat__message-bubble"
-          >
-            <div
-              className="str-chat__message-text"
-              tabIndex={0}
-            >
-              <div
-                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-                data-testid="message-text-inner-wrapper"
-                onClick={[Function]}
-                onMouseOver={[Function]}
-              >
-                <div>
-                  <p>
-                    hi mate
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `);
+    expect(tree.toJSON()).toMatchSnapshot();
   });
 
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
@@ -385,41 +315,6 @@ describe('<MessageText />', () => {
       customProps: { message, theme: 'custom' },
       renderer: testRenderer.create,
     });
-    expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message str-chat__message-simple str-chat__message--regular str-chat__message--received str-chat__message--other str-chat__message--has-text"
-      >
-        <div
-          className="str-chat__message-inner"
-          data-testid="message-inner"
-        >
-          <div />
-          <div
-            className="str-chat__message-reactions-host"
-          />
-          <div
-            className="str-chat__message-bubble"
-          >
-            <div
-              className="str-chat__message-text"
-              tabIndex={0}
-            >
-              <div
-                className="str-chat__message-text-inner str-chat__message-simple-text-inner"
-                data-testid="message-text-inner-wrapper"
-                onClick={[Function]}
-                onMouseOver={[Function]}
-              >
-                <div>
-                  <p>
-                    whatup?!
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `);
+    expect(tree.toJSON()).toMatchSnapshot();
   });
 });

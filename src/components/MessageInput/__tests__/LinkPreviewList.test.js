@@ -137,7 +137,6 @@ const tearDown = () => {
 describe('Link preview', () => {
   const LINK_PREVIEW_TEST_ID = 'link-preview-card';
   const LINK_PREVIEW_DISMISS_BTN_TEST_ID = 'link-preview-card-dismiss-btn';
-  const CHAT_CONTEXT_OVERRIDES_COMMON = { themeVersion: '2' };
   const MESSAGE_INPUT_PROPS_COMMON = {
     urlEnrichmentConfig: { enrichURLForPreview: true },
   };
@@ -176,7 +175,6 @@ describe('Link preview', () => {
     const enrichSpy = jest.spyOn(chatClient, 'enrichURL');
     await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -193,9 +191,7 @@ describe('Link preview', () => {
 
   it('does not request URL enrichment + not render if link previews are not enabled through Channel props', async () => {
     const enrichSpy = jest.spyOn(chatClient, 'enrichURL');
-    await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
-    });
+    await renderComponent({});
     await act(async () => {
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
         target: {
@@ -215,7 +211,6 @@ describe('Link preview', () => {
       .mockResolvedValue({ duration: '10ms', ...scrapedData });
     await renderComponent({
       channelProps: { enrichURLForPreview: true },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
     await act(async () => {
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
@@ -236,7 +231,6 @@ describe('Link preview', () => {
       .mockResolvedValue({ duration: '10ms', ...scrapedData });
     await renderComponent({
       channelProps: { enrichURLForPreview: true },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: { urlEnrichmentConfig: { enrichURLForPreview: false } },
     });
     await act(async () => {
@@ -254,7 +248,6 @@ describe('Link preview', () => {
 
   it('does not render if no text', async () => {
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
     await act(async () => {
@@ -270,7 +263,6 @@ describe('Link preview', () => {
 
   it('does not render if no URLs found', async () => {
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
     await act(async () => {
@@ -286,7 +278,6 @@ describe('Link preview', () => {
 
   it('does not render queued or loading links', async () => {
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
     await act(async () => {
@@ -303,7 +294,6 @@ describe('Link preview', () => {
   it('does not render failed-to-fetch links', async () => {
     jest.spyOn(chatClient, 'enrichURL').mockRejectedValueOnce(new Error());
     await renderComponent({
-      chatContextOverrides: { ...CHAT_CONTEXT_OVERRIDES_COMMON },
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -321,7 +311,6 @@ describe('Link preview', () => {
   it('renders for URL with protocol', async () => {
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -341,7 +330,6 @@ describe('Link preview', () => {
   it('renders for URL without protocol', async () => {
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -362,7 +350,6 @@ describe('Link preview', () => {
     const { message } = defaultMessageContextValue;
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageContextOverrides: { message },
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
@@ -382,15 +369,10 @@ describe('Link preview', () => {
   it('renders for all the URLs', async () => {
     jest
       .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
-    jest
-      .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 });
-    jest
-      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 })
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 })
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData3 });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -438,12 +420,8 @@ describe('Link preview', () => {
     const pastedText = `X ${scrapedData1.og_scrape_url} X ${scrapedData2.og_scrape_url} ${scrapedData3.og_scrape_url}`;
     jest
       .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
-    jest
-      .spyOn(chatClient, 'enrichURL')
-      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 });
-    jest
-      .spyOn(chatClient, 'enrichURL')
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 })
+      .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 })
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData3 });
 
     const pastedItem = {
@@ -451,7 +429,6 @@ describe('Link preview', () => {
       kind: 'string',
     };
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -485,7 +462,6 @@ describe('Link preview', () => {
   it('renders as single preview if duplicates are present', async () => {
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -519,7 +495,6 @@ describe('Link preview', () => {
       .spyOn(chatClient, 'enrichURL')
       .mockResolvedValue({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -547,7 +522,6 @@ describe('Link preview', () => {
   it('request enrichment for duplicate URLs where enrichment previously failed', async () => {
     const enrichSpy = jest.spyOn(chatClient, 'enrichURL').mockRejectedValueOnce(new Error());
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -577,7 +551,6 @@ describe('Link preview', () => {
   it('is unmounted when the URL is removed from the textarea value', async () => {
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -609,7 +582,6 @@ describe('Link preview', () => {
     const typedText = `X ${scrapedData.og_scrape_url}`;
     jest.spyOn(chatClient, 'enrichURL').mockResolvedValueOnce({ duration: '10ms', ...scrapedData });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -658,7 +630,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData3 });
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -711,7 +682,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 });
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -756,7 +726,6 @@ describe('Link preview', () => {
     jest.spyOn(chatClient, 'enrichURL').mockRejectedValueOnce();
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -798,7 +767,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData2 });
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -842,7 +810,6 @@ describe('Link preview', () => {
       .spyOn(chatClient, 'enrichURL')
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -876,7 +843,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
 
     const { submit } = await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         ...MESSAGE_INPUT_PROPS_COMMON,
         message: existingMessage,
@@ -917,7 +883,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedImageAttachment });
 
     const { submit } = await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         ...MESSAGE_INPUT_PROPS_COMMON,
         message: existingMessage,
@@ -958,7 +923,6 @@ describe('Link preview', () => {
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedImageAttachment });
 
     const { submit } = await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         message: existingMessage,
       },
@@ -995,7 +959,6 @@ describe('Link preview', () => {
 
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -1033,7 +996,6 @@ describe('Link preview', () => {
 
     const { submit } = await renderComponent({
       channelProps: { channel },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         ...MESSAGE_INPUT_PROPS_COMMON,
         existingMessage,
@@ -1059,7 +1021,6 @@ describe('Link preview', () => {
       .spyOn(chatClient, 'enrichURL')
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
     const { submit } = await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: MESSAGE_INPUT_PROPS_COMMON,
     });
 
@@ -1084,7 +1045,6 @@ describe('Link preview', () => {
       .spyOn(chatClient, 'enrichURL')
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         urlEnrichmentConfig: {
           enrichURLForPreview: true,
@@ -1114,7 +1074,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { findURLFn: findURLFnChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
 
     await act(async () => {
@@ -1140,7 +1099,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { findURLFn: findURLFnChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: { urlEnrichmentConfig: { findURLFn: findURLFnMsgInput } },
     });
 
@@ -1164,7 +1122,6 @@ describe('Link preview', () => {
       .spyOn(chatClient, 'enrichURL')
       .mockResolvedValueOnce({ duration: '10ms', ...scrapedData1 });
     await renderComponent({
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         urlEnrichmentConfig: {
           enrichURLForPreview: true,
@@ -1198,7 +1155,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { onLinkPreviewDismissed: onLinkPreviewDismissedChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
 
     await act(async () => {
@@ -1230,7 +1186,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { onLinkPreviewDismissed: onLinkPreviewDismissedChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         urlEnrichmentConfig: {
           onLinkPreviewDismissed: onLinkPreviewDismissedInput,
@@ -1262,7 +1217,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { debounceURLEnrichmentMs: debounceURLEnrichmentMsChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
 
     await act(async () => {
@@ -1287,7 +1241,6 @@ describe('Link preview', () => {
         enrichURLForPreview: true,
         enrichURLForPreviewConfig: { debounceURLEnrichmentMs: debounceURLEnrichmentMsChannel },
       },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
       messageInputProps: {
         urlEnrichmentConfig: {
           debounceURLEnrichmentMs: debounceURLEnrichmentMsInput,
@@ -1317,7 +1270,6 @@ describe('Link preview', () => {
     const CustomLinkPreviewList = () => <div data-testid={customTestId} />;
     await renderComponent({
       channelProps: { enrichURLForPreview: true, LinkPreviewList: CustomLinkPreviewList },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
     await act(async () => {
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
@@ -1341,7 +1293,6 @@ describe('Link preview', () => {
 
     const { submit } = await renderComponent({
       channelProps: { channel, enrichURLForPreview: true },
-      chatContextOverrides: CHAT_CONTEXT_OVERRIDES_COMMON,
     });
 
     await act(async () => {

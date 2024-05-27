@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import clsx from 'clsx';
 
-import { DeliveredCheckIcon, MessageDeliveredIcon } from './icons';
+import { MessageDeliveredIcon } from './icons';
 import { getReadByTooltipText, mapToUserNameOrId, TooltipUsernameMapper } from './utils';
 
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 import { LoadingIndicator } from '../Loading';
-import { PopperTooltip, Tooltip } from '../Tooltip';
+import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import { useChatContext } from '../../context/ChatContext';
@@ -47,7 +47,7 @@ const UnMemoizedMessageStatus = <
 
   const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client, themeVersion } = useChatContext<StreamChatGenerics>('MessageStatus');
+  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
   const {
     isMyMessage,
@@ -88,21 +88,18 @@ const UnMemoizedMessageStatus = <
     >
       {sending &&
         (MessageSendingStatus ? (
-          <MessageSendingStatus />
+            <MessageSendingStatus />
         ) : (
-          <>
-            {themeVersion === '1' && <Tooltip>{t<string>('Sending...')}</Tooltip>}
-            {themeVersion === '2' && (
-              <PopperTooltip
-                offset={[0, 5]}
-                referenceElement={referenceElement}
-                visible={tooltipVisible}
-              >
-                {t<string>('Sending...')}
-              </PopperTooltip>
-            )}
+        <>
+           <PopperTooltip
+              offset={[0, 5]}
+              referenceElement={referenceElement}
+              visible={tooltipVisible}
+            >
+              {t<string>('Sending...')}
+            </PopperTooltip>
             <LoadingIndicator />
-          </>
+        </>
         ))}
 
       {delivered &&
@@ -111,17 +108,14 @@ const UnMemoizedMessageStatus = <
           <MessageDeliveredStatus />
         ) : (
           <>
-            {themeVersion === '1' && <Tooltip>{t<string>('Delivered')}</Tooltip>}
-            {themeVersion === '2' && (
-              <PopperTooltip
-                offset={[0, 5]}
-                referenceElement={referenceElement}
-                visible={tooltipVisible}
-              >
-                {t<string>('Delivered')}
-              </PopperTooltip>
-            )}
-            {themeVersion === '2' ? <MessageDeliveredIcon /> : <DeliveredCheckIcon />}
+            <PopperTooltip
+            offset={[0, 5]}
+            referenceElement={referenceElement}
+            visible={tooltipVisible}
+          >
+            {t<string>('Delivered')}
+          </PopperTooltip>
+          <MessageDeliveredIcon />
           </>
         ))}
 
@@ -130,22 +124,18 @@ const UnMemoizedMessageStatus = <
           <MessageReadStatus />
         ) : (
           <>
-            {themeVersion === '1' && (
-              <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
-            )}
-            {themeVersion === '2' && (
-              <PopperTooltip
-                offset={[0, 5]}
-                referenceElement={referenceElement}
-                visible={tooltipVisible}
-              >
-                {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
-              </PopperTooltip>
-            )}
+            <PopperTooltip
+            offset={[0, 5]}
+            referenceElement={referenceElement}
+            visible={tooltipVisible}
+          >
+            {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
+          </PopperTooltip>
+
             <Avatar
+              className='str-chat__avatar--message-status'
               image={lastReadUser.image}
               name={lastReadUser.name || lastReadUser.id}
-              size={15}
               user={lastReadUser}
             />
 

@@ -3,17 +3,13 @@ import '@testing-library/jest-dom';
 import renderer from 'react-test-renderer';
 
 import { FileAttachment } from '../FileAttachment';
-
-import { ChatContext } from '../../../context/ChatContext';
 import { TranslationContext } from '../../../context';
 import { mockTranslationContext } from '../../../mock-builders';
 
-const getComponent = ({ attachment, chatContext }) => (
-  <ChatContext.Provider value={chatContext}>
-    <TranslationContext.Provider value={mockTranslationContext}>
-      <FileAttachment attachment={attachment} />
-    </TranslationContext.Provider>
-  </ChatContext.Provider>
+const getComponent = ({ attachment }) => (
+  <TranslationContext.Provider value={mockTranslationContext}>
+    <FileAttachment attachment={attachment} />
+  </TranslationContext.Provider>
 );
 
 const file = {
@@ -26,10 +22,8 @@ const file = {
 };
 
 describe('File', () => {
-  it.each([['1'], ['2']])('should render File component in V%s', (themeVersion) => {
-    const tree = renderer
-      .create(getComponent({ attachment: file, chatContext: { themeVersion } }))
-      .toJSON();
+  it('should render File component', () => {
+    const tree = renderer.create(getComponent({ attachment: file })).toJSON();
     expect(tree).toMatchSnapshot();
   });
 });

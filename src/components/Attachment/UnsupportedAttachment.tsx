@@ -18,7 +18,7 @@ export const UnsupportedAttachment = <
   const { t } = useTranslationContext('UnsupportedAttachment');
   return (
     <div className='str-chat__message-attachment-unsupported' data-testid='attachment-unsupported'>
-      <FileIcon className='str-chat__file-icon' version={'2'} />
+      <FileIcon className='str-chat__file-icon' />
       <div className='str-chat__message-attachment-unsupported__metadata'>
         <div
           className='str-chat__message-attachment-unsupported__title'
@@ -30,5 +30,3 @@ export const UnsupportedAttachment = <
     </div>
   );
 };
-
-export const NullComponent = () => null;
