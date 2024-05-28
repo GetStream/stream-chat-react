@@ -266,6 +266,30 @@ Custom UI component to display a user's avatar (overrides the value from `Compon
 | --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
+### MessageDeliveredStatus
+
+Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'.
+
+| Type      |
+| --------- |
+| component |
+
+### MessageReadStatus
+
+Custom component to render when message is considered delivered and read. The default UI renders the last reader's Avatar and a tooltip with string readers' names.
+
+| Type      |
+| --------- |
+| component |
+
+### MessageSendingStatus
+
+Custom component to render when message is considered as being the in the process of delivery. The default UI renders LoadingIndicator and a tooltip with string 'Sending'.
+
+| Type      |
+| --------- |
+| component |
+
 ### messageType
 
 Message type string to be added to CSS class names.
