@@ -84,7 +84,7 @@ export function defaultRenderMessages<
       );
     } else if (message.type === 'system') {
       renderedMessages.push(
-        <li key={message.id || (message.created_at as string)}>
+        <li data-message-id={message.id} key={message.id || (message.created_at as string)}>
           <MessageSystem message={message} />
         </li>,
       );
