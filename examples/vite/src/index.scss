@@ -16,10 +16,10 @@ body,
   display: flex;
   height: 100%;
 
-  .str-chat__thread-list {
-    width: 50%;
-    height: 100%;
-  }
+  // .str-chat__thread-list {
+  //   width: 50%;
+  //   height: 100%;
+  // }
 
   .str-chat__thread-list-item {
     all: unset;
@@ -114,7 +114,7 @@ body,
   .str-chat__thread {
     flex: 1;
     height: 100%;
-    position: fixed;
+    position: absolute;
     z-index: 1;
   }
 
