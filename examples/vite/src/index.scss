@@ -16,10 +16,10 @@ body,
   display: flex;
   height: 100%;
 
-  .str-chat__thread-list {
-    width: 50%;
-    height: 100%;
-  }
+  // .str-chat__thread-list {
+  //   width: 50%;
+  //   height: 100%;
+  // }
 
   .str-chat__thread-list-item {
     all: unset;
@@ -99,7 +99,7 @@ body,
   .str-chat__thread {
     width: 100%;
     height: 100%;
-    position: fixed;
+    position: absolute;
     z-index: 1;
   }
 
@@ -119,6 +119,18 @@ body,
       svg path {
         fill: var(--primary-color);
       }
+    }
+  }
+
+  .str-chat.threads {
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    .vml {
+      display: flex;
+      flex-direction: column;
+      width: 70%;
     }
   }
 
@@ -146,11 +158,6 @@ body,
       position: initial;
       z-index: 0;
     }
-
-    .str-chat__thread {
-      position: initial;
-      z-index: 0;
-    }
   }
 
   @media screen and (min-width: 1024px) {
@@ -162,8 +169,8 @@ body,
 
     .str-chat__thread {
       width: 45%;
-      //position: initial;
-      //z-index: 0;
+      position: initial;
+      z-index: 0;
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {
