@@ -99,6 +99,7 @@ import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews'
 import { defaultReactionOptions, ReactionOptions } from '../Reactions';
 import { EventComponent } from '../EventComponent';
 import { DateSeparator } from '../DateSeparator';
+import { useThreadContext } from '../Threads';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -399,6 +400,8 @@ const ChannelInner = <
     chatContainerClass,
     windowsEmojiClass,
   } = useChannelContainerClasses({ customClasses });
+
+  const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
   const [notifications, setNotifications] = useState<ChannelNotifications>([]);
@@ -1052,19 +1055,21 @@ const ChannelInner = <
     channel.state.filterErrorMessages();
 
     const messagePreview = {
-      __html: text,
       attachments,
       created_at: new Date(),
       html: text,
       id: customMessageData?.id ?? `${client.userID}-${nanoid()}`,
       mentioned_users,
+      parent_id: parent?.id,
       reactions: [],
       status: 'sending',
       text,
       type: 'regular',
       user: client.user,
-      ...(parent?.id ? { parent_id: parent.id } : null),
     };
+
+    // @ts-expect-error
+    if (thread.channel) thread.upsertReply({ message: messagePreview });
 
     updateMessage(messagePreview);
 

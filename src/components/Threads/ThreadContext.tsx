@@ -1,10 +1,15 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 
 import { Channel } from '../../components';
 
 import type { PropsWithChildren } from 'react';
 import { Thread } from 'stream-chat';
 import { useChatContext } from '../../context';
+
+/**
+ * TODO:
+ * - make it easier for current state of the SDK to use thread methods (meaning thread should be fully initialized and checks like `thread.channel && ...` shouldn't exist (these checks are due to a "placeholder" which is used anytime components are utilised under normal circumstances - not under ThreadContext)
+ */
 
 export type ThreadContextValue = Thread | undefined;
 
@@ -14,7 +19,12 @@ export const useThreadContext = () => {
   const { client } = useChatContext();
   const thread = useContext(ThreadContext);
 
-  if (!thread) return new Thread({ client, registerEventHandlers: false, threadData: {} });
+  const placeholder = useMemo(
+    () => new Thread({ client, registerEventHandlers: false, threadData: {} }),
+    [client],
+  );
+
+  if (!thread) return placeholder;
 
   return thread;
 };
@@ -24,17 +34,6 @@ export const ThreadProvider = ({ children, thread }: PropsWithChildren<{ thread?
     <Channel channel={thread?.channel}>{children}</Channel>
   </ThreadContext.Provider>
 );
-
-// export const ThreadFacilitator = ({
-//   children,
-//   thread,
-// }: PropsWithChildren<{
-//   thread: Thread;
-// }>) => {
-//   <ThreadProvider thread={thread}>
-//     <Channel channel={thread.channel}>{children}</Channel>;
-//   </ThreadProvider>;
-// };
 
 /**
  *

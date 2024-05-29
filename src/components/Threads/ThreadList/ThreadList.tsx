@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { ComputeItemKey, Virtuoso } from 'react-virtuoso';
-import { StreamChat } from 'stream-chat';
 
 import type { ComponentType, PointerEvent } from 'react';
-import type { InferStoreValueType, Thread } from 'stream-chat';
+import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
 
 import { ThreadListItem } from './ThreadListItem';
 import { useChatContext } from '../../../context';
@@ -11,18 +10,28 @@ import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
 import type { ThreadListItemProps } from './ThreadListItem';
 
-const selector = (v: InferStoreValueType<StreamChat['threads']>) => [v.threads] as const;
+/**
+ * TODO:
+ * - add virtuosoProps override \w support for supplying custom threads array (typed virtuoso props, Thread[] only)
+ * - register event handlers of each of the threads (ThreadManager - threads.<de/register>EventHandlers(), maybe simplify API)
+ * - add Header with re-query button + logic to ThreadManager
+ * - add Footer with "Loading"
+ * - move str-chat someplace else, think of a different name (str-chat__thread-list already used)
+ * - move itemContent to a component instead
+ *
+ * NICE TO HAVE:
+ * - probably good idea to move component context up to a Chat component
+ */
+
+const selector = (nextValue: InferStoreValueType<ThreadManager>) => [nextValue.threads] as const;
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
 type ThreadListProps = {
   onItemPointerDown?: (event: PointerEvent<HTMLButtonElement>, thread: Thread) => void;
   ThreadListItem?: ComponentType<ThreadListItemProps>;
-  // TODO: should support supplying custom threads array
   // threads?: Thread[]
 };
-
-// TODO: probably good idea to move component context up to a Chat component
 
 export const ThreadList = ({
   ThreadListItem: PropsThreadListItem = ThreadListItem,
@@ -37,11 +46,7 @@ export const ThreadList = ({
 
   return (
     <Virtuoso
-      atBottomStateChange={(atBottom) =>
-        // TODO: figure out - handle next page load blocking client-side or here?
-        atBottom && client.threads.loadNextPage()
-      }
-      // TODO: str-chat class name does not belong here, str-chat__thread-list is already used (FUCK ME SIDEWAYS)
+      atBottomStateChange={(atBottom) => atBottom && client.threads.loadNextPage()}
       className='str-chat str-chat__thread-list'
       computeItemKey={computeItemKey}
       data={threads}

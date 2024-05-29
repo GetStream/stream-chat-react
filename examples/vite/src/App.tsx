@@ -96,22 +96,4 @@ const Threads = () => {
   );
 };
 
-/* {activeThread && (
-            <ThreadProvider thread={activeThread}>
-              <ThreadHeader />
-              <MessageList />
-              <MessageInput />
-            </ThreadProvider>
-          )} */
-
-// const Wrapper = () => {
-//   const { activeThread } = useThreadContext();
-
-//   console.log({ activeThread });
-
-//   if (!activeThread) return;
-
-//   return <VirtualizedMessageList />;
-// };
-
 export default App;

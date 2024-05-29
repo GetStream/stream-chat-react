@@ -102,7 +102,7 @@ const ThreadInner = <
     thread,
     threadHasMore,
     threadLoadingMore,
-    threadMessages,
+    threadMessages = [],
     threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
@@ -160,7 +160,7 @@ const ThreadInner = <
         loadMore={parentMessage ? threadInstance.loadPreviousPage : loadMoreThread}
         Message={MessageUIComponent}
         messageActions={messageActions}
-        messages={threadInstance.channel ? latestReplies : threadMessages ?? []}
+        messages={parentMessage ? latestReplies : threadMessages}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList
         {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
