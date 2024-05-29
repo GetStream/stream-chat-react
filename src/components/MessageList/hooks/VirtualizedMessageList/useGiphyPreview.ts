@@ -30,8 +30,10 @@ export const useGiphyPreview = <
 
     if (separateGiphyPreview) client.on('message.new', handleEvent);
     return () => client.off('message.new', handleEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [separateGiphyPreview]);
+  }, [client, separateGiphyPreview]);
 
-  return { giphyPreviewMessage, setGiphyPreviewMessage };
+  return {
+    giphyPreviewMessage,
+    setGiphyPreviewMessage: separateGiphyPreview ? setGiphyPreviewMessage : undefined,
+  };
 };

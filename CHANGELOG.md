@@ -1,3 +1,17 @@
+## [11.19.0](https://github.com/GetStream/stream-chat-react/compare/v11.18.1...v11.19.0) (2024-05-23)
+
+
+### Bug Fixes
+
+* fix aria label translations for Portuguese ([28b6dfd](https://github.com/GetStream/stream-chat-react/commit/28b6dfdd028ce1b53707d4fba8495b5722900c75))
+* prevent loading more non-existent thread replies ([#2399](https://github.com/GetStream/stream-chat-react/issues/2399)) ([f2ed479](https://github.com/GetStream/stream-chat-react/commit/f2ed47938d9a042d041198690ac65a3b3f0a934a))
+* prevent showing link previews in AttachmentPreviewList ([#2398](https://github.com/GetStream/stream-chat-react/issues/2398)) ([cf24894](https://github.com/GetStream/stream-chat-react/commit/cf24894f1743ebfb831dcdc2c802164f5807a9a6))
+
+
+### Features
+
+* adopt new queryReactions endpoint ([#2388](https://github.com/GetStream/stream-chat-react/issues/2388)) ([d6ca4ef](https://github.com/GetStream/stream-chat-react/commit/d6ca4effd48272921407100b5c75dfc9dc1961d4))
+
 ## [11.18.1](https://github.com/GetStream/stream-chat-react/compare/v11.18.0...v11.18.1) (2024-05-10)
 
 
