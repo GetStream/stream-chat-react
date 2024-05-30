@@ -150,6 +150,64 @@ describe('Message utils', () => {
       expect(shouldUpdate).toBe(true);
     });
 
+    it('should update if rendered with a different quoted message', () => {
+      const cases = [
+        ['deleted_at', undefined, new Date().toISOString()],
+        ['latest_reactions', [], [1]],
+        ['own_reactions', [], [1]],
+        ['pinned', false, true],
+        ['reply_count', 0, 1],
+        ['status', 'sending', 'received'],
+        ['text', '', 'a'],
+        ['type', 'X', 'Y'],
+        ['updated_at', new Date(1).toISOString(), new Date(2).toISOString()],
+        [
+          'user',
+          { updated_at: new Date(1).toISOString() },
+          { updated_at: new Date(2).toISOString() },
+        ],
+      ];
+      const message = generateMessage();
+      const quotedMessage = generateMessage();
+      cases.forEach(([key, prevVal, nextVal]) => {
+        const shouldUpdate = !areMessagePropsEqual(
+          {
+            message: {
+              ...message,
+              quoted_message: { ...quotedMessage, [key]: prevVal },
+              quoted_message_id: quotedMessage.id,
+            },
+          },
+          {
+            message: {
+              ...message,
+              quoted_message: { ...quotedMessage, [key]: nextVal },
+              quoted_message_id: quotedMessage.id,
+            },
+          },
+        );
+        expect(shouldUpdate).toBe(true);
+      });
+      expect(
+        !areMessagePropsEqual(
+          {
+            message: {
+              ...message,
+              quoted_message: undefined,
+              quoted_message_id: undefined,
+            },
+          },
+          {
+            message: {
+              ...message,
+              quoted_message: quotedMessage,
+              quoted_message_id: quotedMessage.id,
+            },
+          },
+        ),
+      ).toBe(true);
+    });
+
     it('should update if rendered with a different message is read by other users', () => {
       const message = generateMessage();
       const currentReadBy = [alice];
