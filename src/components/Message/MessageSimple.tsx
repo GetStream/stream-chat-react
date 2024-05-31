@@ -149,7 +149,7 @@ const MessageSimpleWithContext = <
   return (
     <>
       {editing && (
-        <Modal onClose={clearEditingState} open={editing}>
+        <Modal className='str-chat__edit-message-modal' onClose={clearEditingState} open={editing}>
           <MessageInput
             clearEditingState={clearEditingState}
             grow

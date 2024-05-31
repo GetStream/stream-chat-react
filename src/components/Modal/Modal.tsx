@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { PropsWithChildren, useEffect, useRef } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
@@ -8,13 +9,15 @@ import { useChatContext, useTranslationContext } from '../../context';
 export type ModalProps = {
   /** If true, modal is opened or visible. */
   open: boolean;
+  /** Custom class to be applied to the modal root div */
+  className?: string;
   /** Callback handler for closing of modal. */
   onClose?: (
     event: React.KeyboardEvent | React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
   ) => void;
 };
 
-export const Modal = ({ children, onClose, open }: PropsWithChildren<ModalProps>) => {
+export const Modal = ({ children, className, onClose, open }: PropsWithChildren<ModalProps>) => {
   const { t } = useTranslationContext('Modal');
   const { themeVersion } = useChatContext('Modal');
 
@@ -42,7 +45,7 @@ export const Modal = ({ children, onClose, open }: PropsWithChildren<ModalProps>
   if (!open) return null;
 
   return (
-    <div className='str-chat__modal str-chat__modal--open' onClick={handleClick}>
+    <div className={clsx('str-chat__modal str-chat__modal--open', className)} onClick={handleClick}>
       <FocusScope autoFocus contain>
         <button className='str-chat__modal__close-button' ref={closeRef} title={t<string>('Close')}>
           {themeVersion === '2' && <CloseIconRound />}

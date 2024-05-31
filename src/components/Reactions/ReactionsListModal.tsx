@@ -68,7 +68,10 @@ export function ReactionsListModal<
   );
 
   return (
-    <Modal {...modalProps}>
+    <Modal
+      {...modalProps}
+      className={clsx('str-chat__message-reactions-details-modal', modalProps.className)}
+    >
       <div className='str-chat__message-reactions-details' data-testid='reactions-list-modal'>
         <div className='str-chat__message-reactions-details-reaction-types'>
           {reactions.map(
