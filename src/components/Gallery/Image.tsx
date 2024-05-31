@@ -61,7 +61,7 @@ export const ImageComponent = <
         {...dimensions}
         {...(innerRef && { ref: innerRef })}
       />
-      <Modal onClose={toggleModal} open={modalIsOpen}>
+      <Modal className='str-chat__image-modal' onClose={toggleModal} open={modalIsOpen}>
         <ModalGallery images={[props]} index={0} />
       </Modal>
     </>

@@ -68,7 +68,7 @@ export function ReactionsListModal<
   );
 
   return (
-    <Modal {...modalProps}>
+    <Modal className='str-chat__message-reactions-details-modal' {...modalProps}>
       <div className='str-chat__message-reactions-details' data-testid='reactions-list-modal'>
         <div className='str-chat__message-reactions-details-reaction-types'>
           {reactions.map(

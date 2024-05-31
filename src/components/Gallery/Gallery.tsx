@@ -104,7 +104,11 @@ const UnMemoizedGallery = <
   return (
     <div className={className}>
       {renderImages}
-      <Modal onClose={() => setModalOpen((modalOpen) => !modalOpen)} open={modalOpen}>
+      <Modal
+        className='str-chat__gallery-modal'
+        onClose={() => setModalOpen((modalOpen) => !modalOpen)}
+        open={modalOpen}
+      >
         <ModalGallery images={images} index={index} />
       </Modal>
     </div>
