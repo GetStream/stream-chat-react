@@ -232,22 +232,31 @@ export const showMessageActionsBox = (
   return true;
 };
 
-const areMessagesEqual = <
+function areMessagesEqual<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   prevMessage: StreamMessage<StreamChatGenerics>,
   nextMessage: StreamMessage<StreamChatGenerics>,
-) =>
-  prevMessage.deleted_at === nextMessage.deleted_at &&
-  prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
-  prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
-  prevMessage.pinned === nextMessage.pinned &&
-  prevMessage.reply_count === nextMessage.reply_count &&
-  prevMessage.status === nextMessage.status &&
-  prevMessage.text === nextMessage.text &&
-  prevMessage.type === nextMessage.type &&
-  prevMessage.updated_at === nextMessage.updated_at &&
-  prevMessage.user?.updated_at === nextMessage.user?.updated_at;
+): boolean {
+  return (
+    prevMessage.deleted_at === nextMessage.deleted_at &&
+    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
+    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+    prevMessage.pinned === nextMessage.pinned &&
+    prevMessage.reply_count === nextMessage.reply_count &&
+    prevMessage.status === nextMessage.status &&
+    prevMessage.text === nextMessage.text &&
+    prevMessage.type === nextMessage.type &&
+    prevMessage.updated_at === nextMessage.updated_at &&
+    prevMessage.user?.updated_at === nextMessage.user?.updated_at &&
+    Boolean(prevMessage.quoted_message) === Boolean(nextMessage.quoted_message) &&
+    (!prevMessage.quoted_message ||
+      areMessagesEqual(
+        prevMessage.quoted_message as StreamMessage<StreamChatGenerics>,
+        nextMessage.quoted_message as StreamMessage<StreamChatGenerics>,
+      ))
+  );
+}
 
 export const areMessagePropsEqual = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
