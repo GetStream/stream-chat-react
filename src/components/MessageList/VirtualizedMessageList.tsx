@@ -37,7 +37,6 @@ import {
   calculateFirstItemIndex,
   calculateItemIndex,
   EmptyPlaceholder,
-  Footer,
   Header,
   Item,
   makeItemsRenderedHandler,
@@ -234,6 +233,7 @@ const VirtualizedMessageListWithContext = <
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
+    TypingIndicator,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
@@ -437,7 +437,6 @@ const VirtualizedMessageListWithContext = <
             className='str-chat__message-list-scroll'
             components={{
               EmptyPlaceholder,
-              Footer,
               Header,
               Item,
               ...virtuosoComponentsFromProps,
@@ -493,6 +492,7 @@ const VirtualizedMessageListWithContext = <
             {...(defaultItemHeight ? { defaultItemHeight } : {})}
           />
         </div>
+        {TypingIndicator && <TypingIndicator />}
       </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}

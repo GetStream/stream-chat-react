@@ -3,7 +3,6 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import {
   EmptyPlaceholder,
-  Footer,
   Header,
   Item,
   messageRenderer,
@@ -203,25 +202,6 @@ describe('VirtualizedMessageComponents', () => {
         componentContext,
       );
       expect(container).toMatchInlineSnapshot(`<div />`);
-    });
-  });
-
-  describe('Footer', () => {
-    it('should render nothing in Footer by default', () => {
-      const { container } = renderElements(<Footer />);
-      expect(container).toMatchInlineSnapshot(`<div />`);
-    });
-    it('should render custom TypingIndicator in Footer', () => {
-      const TypingIndicator = () => <div>Custom TypingIndicator</div>;
-      const componentContext = { TypingIndicator };
-      const { container } = renderElements(<Footer />, componentContext);
-      expect(container).toMatchInlineSnapshot(`
-        <div>
-          <div>
-            Custom TypingIndicator
-          </div>
-        </div>
-      `);
     });
   });
 
