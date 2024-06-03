@@ -32,6 +32,8 @@ type LocalChannelType = Record<string, unknown>;
 type LocalCommandType = string;
 type LocalEventType = Record<string, unknown>;
 type LocalMessageType = Record<string, unknown>;
+type LocalPollOptionType = Record<string, unknown>;
+type LocalPollType = Record<string, unknown>;
 type LocalReactionType = Record<string, unknown>;
 type LocalUserType = Record<string, unknown>;
 
@@ -41,6 +43,8 @@ type StreamChatGenerics = {
   commandType: LocalCommandType;
   eventType: LocalEventType;
   messageType: LocalMessageType;
+  pollOptionType: LocalPollOptionType;
+  pollType: LocalPollType;
   reactionType: LocalReactionType;
   userType: LocalUserType;
 };

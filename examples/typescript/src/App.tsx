@@ -13,9 +13,13 @@ import {
 
 import './App.css';
 
+const params = (new Proxy(new URLSearchParams(window.location.search), {
+  get: (searchParams, property) => searchParams.get(property as string),
+}) as unknown) as Record<string, string | null>;
+
 const apiKey = process.env.REACT_APP_STREAM_KEY as string;
-const userId = process.env.REACT_APP_USER_ID as string;
-const userToken = process.env.REACT_APP_USER_TOKEN as string;
+const userId = params.uid || (process.env.REACT_APP_USER_ID as string);
+const userToken = params.ut || (process.env.REACT_APP_USER_TOKEN as string);
 
 const filters: ChannelFilters = { type: 'messaging', members: { $in: [userId] } };
 const options: ChannelOptions = { state: true, presence: true, limit: 10 };
