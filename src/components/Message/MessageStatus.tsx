@@ -19,6 +19,12 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type MessageStatusProps = {
   /* Custom UI component to display a user's avatar (overrides the value from `ComponentContext`) */
   Avatar?: React.ComponentType<AvatarProps>;
+  /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
+  MessageDeliveredStatus?: React.ComponentType;
+  /* Custom component to render when message is considered delivered and read. The default UI renders the last reader's Avatar and a tooltip with string readers' names. */
+  MessageReadStatus?: React.ComponentType;
+  /* Custom component to render when message is considered as being the in the process of delivery. The default UI renders LoadingIndicator and a tooltip with string 'Sending'. */
+  MessageSendingStatus?: React.ComponentType;
   /* Message type string to be added to CSS class names. */
   messageType?: string;
   /* Allows to customize the username(s) that appear on the message status tooltip */
@@ -32,13 +38,16 @@ const UnMemoizedMessageStatus = <
 ) => {
   const {
     Avatar: propAvatar,
+    MessageDeliveredStatus,
+    MessageReadStatus,
+    MessageSendingStatus,
     messageType = 'simple',
     tooltipUserNameMapper = mapToUserNameOrId,
   } = props;
 
   const { handleEnter, handleLeave, tooltipVisible } = useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext<StreamChatGenerics>('MessageStatus');
+  const { client, themeVersion } = useChatContext<StreamChatGenerics>('MessageStatus');
   const { Avatar: contextAvatar } = useComponentContext<StreamChatGenerics>('MessageStatus');
   const {
     isMyMessage,
@@ -48,7 +57,6 @@ const UnMemoizedMessageStatus = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
-  const { themeVersion } = useChatContext('MessageStatus');
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
   const Avatar = propAvatar || contextAvatar || DefaultAvatar;
@@ -78,69 +86,79 @@ const UnMemoizedMessageStatus = <
       onMouseLeave={handleLeave}
       ref={setReferenceElement}
     >
-      {sending && (
-        <>
-          {themeVersion === '1' && <Tooltip>{t<string>('Sending...')}</Tooltip>}
-          {themeVersion === '2' && (
-            <PopperTooltip
-              offset={[0, 5]}
-              referenceElement={referenceElement}
-              visible={tooltipVisible}
-            >
-              {t<string>('Sending...')}
-            </PopperTooltip>
-          )}
-          <LoadingIndicator />
-        </>
-      )}
+      {sending &&
+        (MessageSendingStatus ? (
+          <MessageSendingStatus />
+        ) : (
+          <>
+            {themeVersion === '1' && <Tooltip>{t<string>('Sending...')}</Tooltip>}
+            {themeVersion === '2' && (
+              <PopperTooltip
+                offset={[0, 5]}
+                referenceElement={referenceElement}
+                visible={tooltipVisible}
+              >
+                {t<string>('Sending...')}
+              </PopperTooltip>
+            )}
+            <LoadingIndicator />
+          </>
+        ))}
 
-      {delivered && !deliveredAndRead && (
-        <>
-          {themeVersion === '1' && <Tooltip>{t<string>('Delivered')}</Tooltip>}
-          {themeVersion === '2' && (
-            <PopperTooltip
-              offset={[0, 5]}
-              referenceElement={referenceElement}
-              visible={tooltipVisible}
-            >
-              {t<string>('Delivered')}
-            </PopperTooltip>
-          )}
-          {themeVersion === '2' ? <MessageDeliveredIcon /> : <DeliveredCheckIcon />}
-        </>
-      )}
+      {delivered &&
+        !deliveredAndRead &&
+        (MessageDeliveredStatus ? (
+          <MessageDeliveredStatus />
+        ) : (
+          <>
+            {themeVersion === '1' && <Tooltip>{t<string>('Delivered')}</Tooltip>}
+            {themeVersion === '2' && (
+              <PopperTooltip
+                offset={[0, 5]}
+                referenceElement={referenceElement}
+                visible={tooltipVisible}
+              >
+                {t<string>('Delivered')}
+              </PopperTooltip>
+            )}
+            {themeVersion === '2' ? <MessageDeliveredIcon /> : <DeliveredCheckIcon />}
+          </>
+        ))}
 
-      {deliveredAndRead && (
-        <>
-          {themeVersion === '1' && (
-            <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
-          )}
-          {themeVersion === '2' && (
-            <PopperTooltip
-              offset={[0, 5]}
-              referenceElement={referenceElement}
-              visible={tooltipVisible}
-            >
-              {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
-            </PopperTooltip>
-          )}
-          <Avatar
-            image={lastReadUser.image}
-            name={lastReadUser.name || lastReadUser.id}
-            size={15}
-            user={lastReadUser}
-          />
+      {deliveredAndRead &&
+        (MessageReadStatus ? (
+          <MessageReadStatus />
+        ) : (
+          <>
+            {themeVersion === '1' && (
+              <Tooltip>{getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}</Tooltip>
+            )}
+            {themeVersion === '2' && (
+              <PopperTooltip
+                offset={[0, 5]}
+                referenceElement={referenceElement}
+                visible={tooltipVisible}
+              >
+                {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
+              </PopperTooltip>
+            )}
+            <Avatar
+              image={lastReadUser.image}
+              name={lastReadUser.name || lastReadUser.id}
+              size={15}
+              user={lastReadUser}
+            />
 
-          {readBy.length > 2 && (
-            <span
-              className={`str-chat__message-${messageType}-status-number`}
-              data-testid='message-status-read-by-many'
-            >
-              {readBy.length - 1}
-            </span>
-          )}
-        </>
-      )}
+            {readBy.length > 2 && (
+              <span
+                className={`str-chat__message-${messageType}-status-number`}
+                data-testid='message-status-read-by-many'
+              >
+                {readBy.length - 1}
+              </span>
+            )}
+          </>
+        ))}
     </span>
   );
 };
