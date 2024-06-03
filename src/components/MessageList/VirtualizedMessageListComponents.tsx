@@ -108,12 +108,7 @@ export const EmptyPlaceholder = <
     </>
   );
 };
-export const Footer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
-  const { TypingIndicator } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
-  return TypingIndicator ? <TypingIndicator /> : null;
-};
+
 export const messageRenderer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(

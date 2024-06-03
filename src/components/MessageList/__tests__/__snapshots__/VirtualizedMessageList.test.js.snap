@@ -64,7 +64,6 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
                 No chats here yet…
               </p>
             </div>
-            <div />
           </div>
         </div>
       </div>
