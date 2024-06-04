@@ -65,6 +65,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { TypingProvider } from '../../context/TypingContext';
 
 import {
+  DEFAULT_HIGHLIGHT_DURATION,
   DEFAULT_INITIAL_CHANNEL_PAGE_SIZE,
   DEFAULT_JUMP_TO_PAGE_SIZE,
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
@@ -753,35 +754,44 @@ const ChannelInner = <
 
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const jumpToMessage = async (messageId: string, messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
-    dispatch({ loadingMore: true, type: 'setLoadingMore' });
-    await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
+  const jumpToMessage = useCallback(
+    async (
+      messageId: string,
+      messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+    ) => {
+      dispatch({ loadingMore: true, type: 'setLoadingMore' });
+      await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
-    /**
-     * if the message we are jumping to has less than half of the page size older messages,
-     * we have jumped to the beginning of the channel.
-     */
-    const indexOfMessage = channel.state.messages.findIndex((message) => message.id === messageId);
-    const hasMoreMessages = indexOfMessage >= Math.floor(messageLimit / 2);
+      /**
+       * if the message we are jumping to has less than half of the page size older messages,
+       * we have jumped to the beginning of the channel.
+       */
+      const indexOfMessage = channel.state.messages.findIndex(
+        (message) => message.id === messageId,
+      );
+      const hasMoreMessages = indexOfMessage >= Math.floor(messageLimit / 2);
 
-    loadMoreFinished(hasMoreMessages, channel.state.messages);
-    dispatch({
-      hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
-      highlightedMessageId: messageId,
-      type: 'jumpToMessageFinished',
-    });
+      loadMoreFinished(hasMoreMessages, channel.state.messages);
+      dispatch({
+        hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+        highlightedMessageId: messageId,
+        type: 'jumpToMessageFinished',
+      });
 
-    if (clearHighlightedMessageTimeoutId.current) {
-      clearTimeout(clearHighlightedMessageTimeoutId.current);
-    }
+      if (clearHighlightedMessageTimeoutId.current) {
+        clearTimeout(clearHighlightedMessageTimeoutId.current);
+      }
 
-    clearHighlightedMessageTimeoutId.current = setTimeout(() => {
-      clearHighlightedMessageTimeoutId.current = null;
-      dispatch({ type: 'clearHighlightedMessage' });
-    }, 500);
-  };
+      clearHighlightedMessageTimeoutId.current = setTimeout(() => {
+        clearHighlightedMessageTimeoutId.current = null;
+        dispatch({ type: 'clearHighlightedMessage' });
+      }, highlightDuration);
+    },
+    [channel, loadMoreFinished],
+  );
 
-  const jumpToLatestMessage = async () => {
+  const jumpToLatestMessage = useCallback(async () => {
     await channel.state.loadMessageIntoState('latest');
     // FIXME: we cannot rely on constant value 25 as the page size can be customized by integrators
     const hasMoreOlder = channel.state.messages.length >= 25;
@@ -789,10 +799,13 @@ const ChannelInner = <
     dispatch({
       type: 'jumpToLatestMessage',
     });
-  };
+  }, [channel, loadMoreFinished]);
 
   const jumpToFirstUnreadMessage = useCallback(
-    async (queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE) => {
+    async (
+      queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
+      highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
+    ) => {
       if (!channelUnreadUiState?.unread_messages) return;
       let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
       let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
@@ -914,7 +927,7 @@ const ChannelInner = <
       clearHighlightedMessageTimeoutId.current = setTimeout(() => {
         clearHighlightedMessageTimeoutId.current = null;
         dispatch({ type: 'clearHighlightedMessage' });
-      }, 500);
+      }, highlightDuration);
     },
     [addNotification, channel, loadMoreFinished, t, channelUnreadUiState],
   );
