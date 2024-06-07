@@ -1,3 +1,24 @@
+## [11.20.0](https://github.com/GetStream/stream-chat-react/compare/v11.19.0...v11.20.0) (2024-06-07)
+
+
+### Bug Fixes
+
+* make it possible to jump to system messages in MessageList ([#2404](https://github.com/GetStream/stream-chat-react/issues/2404)) ([6cb81c5](https://github.com/GetStream/stream-chat-react/commit/6cb81c544c0d134c4b1e754b362976e6d3f78ce0))
+* reflect separateGiphyPreview prop value in VirtualizedMessageList ([#2402](https://github.com/GetStream/stream-chat-react/issues/2402)) ([5d00b56](https://github.com/GetStream/stream-chat-react/commit/5d00b5679eaa0212d18855009ec471e4fd611b1d))
+* update quoting message on update of quoted message ([#2408](https://github.com/GetStream/stream-chat-react/issues/2408)) ([4ec3518](https://github.com/GetStream/stream-chat-react/commit/4ec3518eb8a1598d04de57450f8eb580f0d52feb))
+
+
+### Features
+
+* allow custom class on Modal root div ([#2410](https://github.com/GetStream/stream-chat-react/issues/2410)) ([b614eff](https://github.com/GetStream/stream-chat-react/commit/b614eff37171458fc2dddb36cb81595c7c8f1490))
+* allow to customize MessageStatus UI by message delivery status ([#2405](https://github.com/GetStream/stream-chat-react/issues/2405)) ([7929bc2](https://github.com/GetStream/stream-chat-react/commit/7929bc29432c92ba9e31a87b16b3912bc23a99c4))
+* memoize & add highlightDuration parameter to jumpTo[FirstUnread]Message ([#2414](https://github.com/GetStream/stream-chat-react/issues/2414)) ([305d4f3](https://github.com/GetStream/stream-chat-react/commit/305d4f36d91d84c95b66584634c83e4cf4e2e797))
+
+
+### Chores
+
+* **deps:** bump stream-chat to v8.33.1 ([ded8f05](https://github.com/GetStream/stream-chat-react/commit/ded8f05ef1df2fcbd3e1b5fbb731c8a986a039a0))
+
 ## [11.19.0](https://github.com/GetStream/stream-chat-react/compare/v11.18.1...v11.19.0) (2024-05-23)
 
 
