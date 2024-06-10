@@ -13,7 +13,7 @@ import {
   ThreadList,
   ThreadProvider,
 } from 'stream-chat-react';
-import 'stream-chat-react/css/v2/index.css';
+import '@stream-io/stream-chat-css/dist/v2/css/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
@@ -65,20 +65,22 @@ const App = () => {
 
   return (
     <Chat client={chatClient}>
-      {!threadOnly && (
-        <>
-          <ChannelList filters={filters} options={options} sort={sort} />
-          <Channel>
-            <Window>
-              <ChannelHeader />
-              <MessageList returnAllReadData />
-              <MessageInput focus />
-            </Window>
-            <Thread />
-          </Channel>
-        </>
-      )}
-      {threadOnly && <Threads />}
+      <div className='str-chat'>
+        {!threadOnly && (
+          <>
+            <ChannelList filters={filters} options={options} sort={sort} />
+            <Channel>
+              <Window>
+                <ChannelHeader />
+                <MessageList returnAllReadData />
+                <MessageInput focus />
+              </Window>
+              <Thread virtualized />
+            </Channel>
+          </>
+        )}
+        {threadOnly && <Threads />}
+      </div>
     </Chat>
   );
 };
@@ -87,8 +89,8 @@ const Threads = () => {
   const [state, setState] = useState<ThreadType | undefined>(undefined);
 
   return (
-    <div className='str-chat threads'>
-      <ThreadList onItemPointerDown={(_, thread) => setState(thread)} />
+    <div className='str-chat__threads'>
+      <ThreadList threadListItemProps={{ onPointerDown: (_, t) => setState(t) }} />
       <ThreadProvider thread={state}>
         <Thread virtualized />
       </ThreadProvider>

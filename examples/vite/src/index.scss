@@ -16,70 +16,10 @@ body,
   display: flex;
   height: 100%;
 
-  // .str-chat__thread-list {
-  //   width: 50%;
-  //   height: 100%;
-  // }
-
-  .str-chat__thread-list-item {
-    all: unset;
-    box-sizing: border-box;
-    padding-block: 14px;
-    padding-inline: 8px;
-    gap: 6px;
+  & > div.str-chat {
+    height: 100%;
     width: 100%;
     display: flex;
-    flex-direction: column;
-    cursor: pointer;
-  }
-
-  .str-chat__thread-list-item__channel {
-    font-size: 14px;
-    font-weight: 400;
-  }
-
-  .str-chat__thread-list-item__parent-message {
-    font-size: 12px;
-    font-weight: 400;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .str-chat__thread-list-item__latest-reply-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .str-chat__thread-list-item__latest-reply-details {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    gap: 4px;
-    width: 0;
-  }
-
-  .str-chat__thread-list-item__latest-reply-created-by {
-    font-weight: 500;
-    font-size: 16px;
-  }
-
-  .str-chat__thread-list-item__latest-reply-text {
-    display: flex;
-    font-size: 14px;
-    font-weight: 400;
-    justify-content: space-between;
-
-    & > div:first-child {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    & > div:last-child {
-      white-space: nowrap;
-    }
   }
 
   .str-chat__channel-list {
@@ -88,7 +28,7 @@ body,
     height: 100%;
     width: 0;
     flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 
     &--open {
       width: 30%;
@@ -137,7 +77,6 @@ body,
     }
   }
 
-
   @media screen and (min-width: 768px) {
     .str-chat__channel-list {
       width: 30%;
@@ -172,5 +111,19 @@ body,
     .str-chat__channel-header .str-chat__header-hamburger {
       display: none;
     }
+  }
+}
+
+.str-chat__threads {
+  display: flex;
+  width: 100%;
+
+  .str-chat__thread {
+    width: 100%;
+  }
+
+  .str-chat__thread-list {
+    height: 100%;
+    max-width: 420px;
   }
 }

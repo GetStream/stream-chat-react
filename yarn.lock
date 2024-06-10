@@ -2356,10 +2356,9 @@
     crypto-browserify "^3.11.0"
     process-es6 "^0.11.2"
 
-"@stream-io/stream-chat-css@5.0.0-rc.2":
-  version "5.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@stream-io/stream-chat-css/-/stream-chat-css-5.0.0-rc.2.tgz#05c5195c316f1e0eedf8c2de5b95df96bc6076b5"
-  integrity sha512-YC21H7o4O8lvpCqhLw1aRnXF2b2GJjkLTjmOtLbhFPKRtkN86wlK6wdVyIhpexTS4+nMlImYL9yCAgxr3hmxSQ==
+"@stream-io/stream-chat-css@link:../stream-chat-css":
+  version "0.0.0"
+  uid ""
 
 "@stream-io/transliterate@^1.5.5":
   version "1.5.5"
