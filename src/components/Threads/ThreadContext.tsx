@@ -20,7 +20,7 @@ export const useThreadContext = () => {
   const thread = useContext(ThreadContext);
 
   const placeholder = useMemo(
-    () => new Thread({ client, registerEventHandlers: false, threadData: {} }),
+    () => new Thread({ client, registerSubscriptions: false, threadData: {} }),
     [client],
   );
 
