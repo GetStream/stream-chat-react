@@ -227,18 +227,13 @@ const MessageListWithContext = <
           <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
         )}
         <div
-          className={clsx(messageListClass, {
-            [customClasses?.threadList || 'str-chat__thread-list']: threadList,
-          })}
+          className={clsx(messageListClass, customClasses?.threadList)}
           onScroll={onScroll}
           ref={setListElement}
           tabIndex={0}
         >
           {showEmptyStateIndicator ? (
-            <EmptyStateIndicator
-              key={'empty-state-indicator'}
-              listType={threadList ? 'thread' : 'message'}
-            />
+            <EmptyStateIndicator listType={threadList ? 'thread' : 'message'} />
           ) : (
             <InfiniteScroll
               className='str-chat__message-list-scroll'
