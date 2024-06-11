@@ -66,6 +66,7 @@ type VirtualizedMessageListPropsForContext =
   | 'closeReactionSelectorOnClick'
   | 'customMessageActions'
   | 'customMessageRenderer'
+  | 'formatDate'
   | 'head'
   | 'loadingMore'
   | 'Message'
@@ -181,6 +182,7 @@ const VirtualizedMessageListWithContext = <
     customMessageRenderer,
     defaultItemHeight,
     disableDateSeparator = true,
+    formatDate,
     groupStyles,
     hasMoreNewer,
     head,
@@ -449,6 +451,7 @@ const VirtualizedMessageListWithContext = <
               customMessageRenderer,
               DateSeparator,
               firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
+              formatDate,
               head,
               lastReadDate: channelUnreadUiState?.last_read,
               lastReadMessageId: channelUnreadUiState?.last_read_message_id,
@@ -509,6 +512,7 @@ const VirtualizedMessageListWithContext = <
 type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
   | 'customMessageActions'
+  | 'formatDate'
   | 'messageActions'
   | 'reactionDetailsSort'
   | 'sortReactions'

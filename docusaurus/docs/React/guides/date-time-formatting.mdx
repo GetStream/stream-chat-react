@@ -1,0 +1,182 @@
+---
+id: date-time-formatting
+title: Date and time formatting
+keywords: [date, time, datetime, timestamp, format, formatting]
+---
+
+In this guide we will learn how date a time formatting can be customized within SDK's components.
+
+## SDK components displaying date & time
+
+The following components provided by the SDK display datetime:
+
+- `DateSeparator`- component separating groups of messages in message lists
+- `EventComponent` - component that renders system messages (`message.type === 'system'`)
+- `Timestamp` - component to display non-system message timestamp
+
+## Format customization
+
+The datetime format customization can be done on multiple levels:
+
+1. Override the default component prop values
+2. Supply custom formatting function
+3. Format date via i18n
+
+### Override the component props defaults
+
+All the mentioned components accept timestamp formatter props:
+
+```ts
+export type TimestampFormatterOptions = {
+  /* If true, call the `Day.js` calendar function to get the date string to display (e.g. "Yesterday at 3:58 PM"). */
+  calendar?: boolean | null;
+  /* Object specifying date display formats for dates formatted with calendar extension. Active only if calendar prop enabled. */
+  calendarFormats?: Record<string, string> | null;
+  /* Overrides the default timestamp format if calendar is disabled. */
+  format?: string | null;
+};
+```
+
+If calendar formatting is enabled, the dates are formatted with time-relative words ("yesterday at ...", "last ..."). The calendar strings can be further customized with `calendarFormats` object. It also means that the `format` prop would be ignored. On the other hand, if calendar is disabled, then `calendarFormats` is ignored and `format` string is applied.
+
+All the components can be overridden through `Channel` component context
+
+```tsx
+import {
+  Channel,
+  DateSeparatorProps,
+  DateSeparator,
+  EventComponentProps,
+  EventComponent,
+  MessageTimestampProps,
+  MessageTimestamp,
+} from 'stream-chat-react';
+
+const CustomDateSeparator = (props: DateSeparatorProps) => (
+  <DateSeparator {...props} calendar={false} format={'YYYY'} /> // calendar is enabled by default
+);
+
+const SystemMessage = (props: EventComponentProps) => (
+  <EventComponent {...props} calendar={false} format={'YYYY'} /> // calendar is enabled by default
+);
+
+const CustomMessageTimestamp = (props: MessageTimestampProps) => (
+  <MessageTimestamp {...props} calendar={false} format={'YYYY-MM-DDTHH:mm:ss'} /> // calendar is enabled by default
+);
+
+const App = () => (
+  <Channel
+    DateSeparator={CustomDateSeparator}
+    MessageSystem={SystemMessage}
+    MessageTimestamp={CustomMessageTimestamp}
+  ></Channel>
+);
+```
+
+### Custom formatting function
+
+Custom formatting function can be passed to `MessageList` or `VirtualizedMessageList` via prop `formatDate` (`(date: Date) => string;`). The `Message` component passes down the function to be consumed by the children via `MessageComponentContext`:
+
+```jsx
+import { useMessageContext } from 'stream-chat-react';
+const CustomComponent = () => {
+  const { formatDate } = useMessageContext();
+};
+```
+
+By default, the function is consumed by the `MessageTimestamp` component. This means the formatting via `formatDate` is reduced only to timestamp shown by a message in the message list. Components `DateSeparator`, `EventComponent` would ignore the custom formatting.
+
+### Date & time formatting with i18n service
+
+Until now, the datetime values could be customized within `Channel` at best. Formatting via i18n service allows for SDK wide configuration. The configuration is stored with other translations in JSON files. Formatting with i18n service has the following advantages:
+
+- it is centralized
+- it takes into consideration the locale out of the box
+- allows for high granularity - formatting per string, not component (opposed to props approach)
+- allows for high re-usability - apply the same configuration in multiple places via the same translation key
+- allows for custom formatting logic
+
+#### Change the default configuration
+
+The default datetime formatting configuration is stored in the JSON translation files. The default translation keys are namespaced with prefix `timestamp/` followed by the component name. For example, the message date formatting can be targeted via `timestamp/MessageTimestamp`, because the underlying component is called `MessageTimestamp`.
+
+##### Overriding the prop defaults
+
+The default date and time rendering components in the SDK were created with default prop values that override the configuration parameters provided over JSON translations. Therefore, if we wanted to configure the formatting from JSON translation files, we need to nullify the prop defaults. An example follows:
+
+```jsx
+import {
+  DateSeparatorProps,
+  DateSeparator,
+  EventComponentProps,
+  EventComponent,
+  MessageTimestampProps,
+  MessageTimestamp,
+} from 'stream-chat-react';
+
+const CustomDateSeparator = (props: DateSeparatorProps) => (
+  <DateSeparator {...props} calendar={null} calendarFormats={null} format={null} />
+);
+
+const SystemMessage = (props: EventComponentProps) => (
+  <EventComponent {...props} calendar={null} calendarFormats={null} format={null} />
+);
+
+const CustomMessageTimestamp = (props: MessageTimestampProps) => (
+  <MessageTimestamp {...props} calendar={null} calendarFormats={null} format={null} />
+);
+```
+
+Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `Timestamp`).
+
+```tsx
+import { MessageTimestampProps, MessageTimestamp } from 'stream-chat-react';
+
+const CustomMessageTimestamp = (props: MessageTimestampProps) => (
+  <MessageTimestamp {...props} timestampTranslationKey='customTimestampTranslationKey' />
+);
+```
+
+##### Understanding the formatting syntax
+
+Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example:
+
+```
+"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
+```
+
+Let's dissect the example:
+
+- The curly brackets (`{{`, `}}`) indicate the place where a value will be interpolated (inserted) into the string.
+- variable `timestamp` is the name of variable which value will be inserted into the string
+- `timestampFormatter` is the name of the formatting function that is used to convert the `timestamp` value into desired format
+- the `timestampFormatter` is can be passed the same parameters as the React components (`calendar`, `calendarFormats`, `format`) as if the function was called with these values. The values can be simple scalar values as well as objects (note `calendarFormats` should be an object)
+
+:::note
+The described rules follow the formatting rules required by the i18n library used under the hood - `i18next`. You can learn more about the rules in [the formatting section of the `i18next` documentation](https://www.i18next.com/translation-function/formatting#basic-usage).
+:::
+
+#### Custom datetime formatter functions
+
+Besides overriding the configuration parameters, we can override the default `timestampFormatter` function by providing custom `Streami18n` instance:
+
+```tsx
+import { Chat, Streami18n, useCreateChatClient } from 'stream-chat-react';
+
+const i18n = new Streami18n({
+  formatters: {
+    timestampFormatter: () => (val: string | Date) => {
+      return new Date(val).getTime() + '';
+    },
+  },
+});
+
+export const ChatApp = ({ apiKey, userId, userToken }) => {
+  const chatClient = useCreateChatClient({
+    apiKey,
+    tokenOrProvider: userToken,
+    userData: { id: userId },
+  });
+  return <Chat client={chatClient} i18nInstance={i18n}></Chat>;
+};
+```

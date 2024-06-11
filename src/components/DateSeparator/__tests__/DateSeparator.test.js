@@ -2,7 +2,7 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { DateSeparator } from '../DateSeparator';
@@ -35,9 +35,9 @@ describe('DateSeparator', () => {
 
   it('should render New text if unread prop is true', () => {
     const { Component, t } = withContext({ date: now, unread: true });
-    const { queryByText } = render(Component);
+    render(Component);
 
-    expect(queryByText('New - 03/30/2020')).toBeInTheDocument();
+    expect(screen.getByText('New - 03/30/2020')).toBeInTheDocument();
     expect(t).toHaveBeenCalledWith('New');
   });
 

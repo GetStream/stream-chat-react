@@ -128,6 +128,7 @@ export const messageRenderer = <
     customMessageRenderer,
     DateSeparator,
     firstUnreadMessageId,
+    formatDate,
     lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
@@ -215,6 +216,7 @@ export const messageRenderer = <
         customMessageActions={customMessageActions}
         endOfGroup={endOfGroup}
         firstOfGroup={firstOfGroup}
+        formatDate={formatDate}
         groupedByUser={groupedByUser}
         lastReceivedId={lastReceivedMessageId}
         message={message}
