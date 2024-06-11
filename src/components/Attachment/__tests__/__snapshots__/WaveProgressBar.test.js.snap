@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`WaveProgressBar component is rendered with zero progress by default if waveform data is available 1`] = `
+exports[`WaveProgressBar is rendered with zero progress by default if waveform data is available 1`] = `
 <div>
   <div
     class="str-chat__wave-progress-bar__track"

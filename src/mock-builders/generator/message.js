@@ -6,6 +6,7 @@ export const generateMessage = (options) => ({
   created_at: new Date(),
   html: '<p>regular</p>',
   id: nanoid(),
+  mentioned_users: [],
   pinned_at: null,
   status: 'received',
   text: nanoid(),

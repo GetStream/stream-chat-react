@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 import {
@@ -30,9 +31,9 @@ import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel } from './MessageListMainPanel';
 
-import type { GroupStyle } from './utils';
 import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
+import type { GroupStyle, ProcessMessagesParams } from './utils';
 import type { MessageProps } from '../Message/types';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
@@ -75,11 +76,15 @@ const MessageListWithContext = <
     headerPosition,
     read,
     renderMessages = defaultRenderMessages,
+    reviewProcessedMessage,
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     loadMore: loadMoreCallback,
     loadMoreNewer: loadMoreNewerCallback,
     hasMoreNewer = false,
+    reactionDetailsSort,
     showUnreadNotificationAlways,
+    sortReactionDetails,
+    sortReactions,
     suppressAutoscroll,
     highlightedMessageId,
     jumpToLatestMessage = () => Promise.resolve(),
@@ -136,6 +141,7 @@ const MessageListWithContext = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
+    reviewProcessedMessage,
   });
 
   const elements = useMessageListElements({
@@ -165,8 +171,11 @@ const MessageListWithContext = <
       onUserHover: props.onUserHover,
       openThread: props.openThread,
       pinPermissions,
+      reactionDetailsSort,
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
+      sortReactionDetails,
+      sortReactions,
       unsafeHTML,
     },
     messageGroupStyles,
@@ -177,9 +186,6 @@ const MessageListWithContext = <
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__list';
-  const threadListClass = threadList
-    ? customClasses?.threadList || 'str-chat__list--thread str-chat__thread-list'
-    : '';
 
   const loadMore = React.useCallback(() => {
     if (loadMoreCallback) {
@@ -219,7 +225,9 @@ const MessageListWithContext = <
           <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
         )}
         <div
-          className={`${messageListClass} ${threadListClass}`}
+          className={clsx(messageListClass, {
+            [customClasses?.threadList || 'str-chat__thread-list']: threadList,
+          })}
           onScroll={onScroll}
           ref={setListElement}
           tabIndex={0}
@@ -231,7 +239,7 @@ const MessageListWithContext = <
             />
           ) : (
             <InfiniteScroll
-              className='str-chat__reverse-infinite-scroll  str-chat__message-list-scroll'
+              className='str-chat__message-list-scroll'
               data-testid='reverse-infinite-scroll'
               hasNextPage={props.hasMoreNewer}
               hasPreviousPage={props.hasMore}
@@ -294,6 +302,7 @@ type PropsDrilledToMessage =
   | 'onUserHover'
   | 'openThread'
   | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+  | 'reactionDetailsSort'
   | 'renderText'
   | 'retrySendMessage'
   | 'sortReactions'
@@ -344,6 +353,11 @@ export type MessageListProps<
   renderMessages?: MessageRenderer<StreamChatGenerics>;
   /** If true, `readBy` data supplied to the `Message` components will include all user read states per sent message */
   returnAllReadData?: boolean;
+  /**
+   * Allows to review changes introduced to messages array on per message basis (e.g. date separator injection before a message).
+   * The array returned from the function is appended to the array of messages that are later rendered into React elements in the `MessageList`.
+   */
+  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
   /**
    * The pixel threshold under which the message list is considered to be so near to the bottom,
    * so that if a new message is delivered, the list will be scrolled to the absolute bottom.

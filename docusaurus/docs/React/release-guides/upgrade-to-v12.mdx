@@ -1,0 +1,251 @@
+---
+id: upgrade-to-v12
+title: Upgrade to v12
+keywords: [migration guide, upgrade, v12, breaking changes]
+---
+
+## Avatar changes
+
+The `Avatar` styles are applied through CSS from the version 12 upwards. Therefore, the following changes were applied:
+
+1. Props `shape` and `size` were removed. Subsequently, the class `str-chat__avatar--${shape}` was removed.
+
+2. Another class we removed is `str-chat__avatar-image--loaded` that was applied to `img` element in the `Avatar` component.
+
+3. New prop `className` has been added to `Avatar`. Integrators can now optionally apply custom styles to custom classes.
+
+4. There have also been added new classes to `Avatar` root `div` in different components:
+
+| Component                                   | `Avatar` root CSS class                   |
+| ------------------------------------------- | ----------------------------------------- |
+| `ChannelHeader`                             | `str-chat__avatar--channel-header`        |
+| `ChannelPreviewMessenger`                   | `str-chat__avatar--channel-preview`       |
+| `MessageStatus`                             | `str-chat__avatar--message-status`        |
+| `ReactionsList`                             | `stream-chat__avatar--reaction`           |
+| `QuotedMessage`                             | `str-chat__avatar--quoted-message-sender` |
+| `SearchResultItem`                          | `str-chat__avatar--channel-preview`       |
+| `UserItem` rendered by `SuggestionListItem` | `str-chat__avatar--autocomplete-item`     |
+
+5. As a consequence of the `Avatar` props changes, the `TypingIndicator` prop `avatarSize` have been removed as well.
+
+:::important
+**Action required**<br/>
+1 Migrate CSS applied to `.str-chat__avatar--${shape}` or re-apply the class through `Avatar` `className` prop.<br/>
+2 Migrate CSS applied to `.str-chat__avatar-image--loaded` to `.str-chat__avatar-image` class.<br/>
+3 If needed, apply custom styles to newly added classes based on the component that renders the `Avatar`.<br/>
+:::
+
+## Removal of deprecated components
+
+### Attachment rendering utility functions
+
+The attachment rendering functions were replaced with their component equivalents:
+
+:::important
+**Action required**<br/>
+Replace the render functions in your custom components with container components alternatives.
+:::
+
+| Rendering function                | Component equivalent         |
+| --------------------------------- | ---------------------------- |
+| `renderAttachmentWithinContainer` | `AttachmentWithinContainer`  |
+| `renderAttachmentActions`         | `AttachmentActionsContainer` |
+| `renderGallery`                   | `GalleryContainer`           |
+| `renderImage`                     | `ImageContainer`             |
+| `renderCard`                      | `CardContainer`              |
+| `renderAudio`                     | `AudioContainer`             |
+| `renderMedia`                     | `MediaContainer`             |
+
+## Change import of default styles
+
+Until now, it was possible to import two stylesheets as follows:
+
+```
+import 'stream-chat-react/dist/css/v2/index.css';
+```
+
+The legacy stylesheet has been removed from the SDK bundle, and therefore it is only possible to import one stylesheet from now on:
+
+```
+import 'stream-chat-react/dist/css/v2/index.css';
+```
+
+:::important
+**Action required**<br/>
+Make sure you are importing the default styles correctly as `import 'stream-chat-react/dist/css/v2/index.css';`
+:::
+
+## Removal of legacy styles
+
+With the version 10 of `stream-chat-react` new stylesheet has been introduced. The stylesheet used previously became a legacy stylesheet. Legacy stylesheet had often times CSS classes and SDK components, that were not supported with the new stylesheet. Now, the legacy stylesheet and corresponding CSS classes and SDK component are being removed.
+
+:::caution
+These changes will impact you only, if you have imported the CSS as one of the following (you have used the legacy styles):
+
+```
+import 'stream-chat-react/css/index.css';
+```
+
+```
+import '@stream-io/stream-chat-css/dist/css/index.css';
+```
+
+:::
+
+### Removal of themeVersion from ChatContext
+
+Supporting two stylesheet lead to introduction of a flag `themeVersion` into the `ChatContext`. This flag is no more necessary and has been removed from the context value.
+
+:::important
+**Action required**<br/>
+Make sure you are not using `themeVersion in your custom components.
+:::
+
+### Removal of styles related Chat props
+
+With legacy stylesheet we have removed legacy approach to applying styles via component props. Two `Chat` component props were removed as a consequence:
+
+- `customStyles`
+- `darkMode`
+
+Also associated parts of code were removed:
+
+- `Theme` type
+- `useCustomStyles` hook
+
+:::important
+**Action required**<br/>
+1 The styles applied through `customStyles` should be applied through custom CSS.
+2 Theme (not only dark theme) can be through `Chat` prop `theme` instead of `darkMode`
+:::
+
+### Removal from ComponentContext
+
+- `AutocompleteSuggestionHeader` - the up-to-date SDK markup does not count with a header in the `ChatAutoComplete` suggestion list
+
+:::important
+**Action required**<br/>
+Make sure you are passing these custom components to the `Channel` component.
+:::
+
+### Removal of legacy components
+
+The following components are not available anymore as they were related to legacy stylesheet and are not used by the latest SDK components.
+
+:::important
+**Action required**<br/>
+1 Remove imports of these components from `stream-chat-react` in your custom components.<br/>
+2 If importing `SendIconV2` rename it to `SendIcon`.<br/>
+3 Remove the listed classes if used in your CSS.
+:::
+
+| Component                                                          | Details                                                                                                                                                                                 | Removed CSS classes                                           |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `ChatDown`                                                         | used to be rendered as the default for `LoadingErrorIndicator` by `ChannelListMessenger` (the default `ChannelList` UI component). The default is now a null component (renders `null`) | `str-chat__down` and `str-chat__down-main`                    |
+| `DefaultSuggestionListHeader`                                      | rendered only with legacy stylesheet in the `ChatAutoComplete`. As a consequence the `AutocompleteSuggestionHeader` prop has been removed from `Channel` props                          |                                                               |
+| Icons rendered `Message` component when legacy styles applied      | `ReplyIcon`, `DeliveredCheckIcon`, `ErrorIcon`                                                                                                                                          |                                                               |
+| Icons rendered `MessageInput` component when legacy styles applied | `EmojiIconLarge`, `EmojiIconSmall`, `FileUploadIcon`, `FileUploadIconFlat`, `SendIconV1` (`SendIconV2` renamed to `SendIcon`)                                                           |                                                               |
+| `MessageInputSmall`                                                | Used to be rendered in `Thread`, but was deprecated since v10 and replaced by `MessageInputFlat`                                                                                        | all the classes starting with `str-chat__small-message-input` |
+| `UploadsPreview`                                                   | Used to be rendered in `MessageInput` but was deprecated since v10 and replaced with `AttachmentPreviewList`                                                                            |                                                               |
+| `FilePreviewer` was rendered by `UploadsPreview`                   | Used by component removed from the SDK                                                                                                                                                  |                                                               |
+| `ImagePreviewer` was rendered by `UploadsPreview`                  | Used by component removed from the SDK                                                                                                                                                  |                                                               |
+| `AttachmentIcon`                                                   | Not used by the SDK                                                                                                                                                                     |                                                               |
+| `PictureIcon`                                                      | Not used by the SDK                                                                                                                                                                     |                                                               |
+| `FileUploadButton`                                                 | Not used by the SDK                                                                                                                                                                     |                                                               |
+| `ImageUploadButton`                                                | Not used by the SDK                                                                                                                                                                     |                                                               |
+| `ThumbnailPlaceholder`                                             | Not used by the SDK                                                                                                                                                                     |                                                               |
+| `Thumbnail`                                                        | Not used by the SDK                                                                                                                                                                     |                                                               |
+
+### Removal of legacy attachment file icons
+
+The `FileIcon` component does not accept argument `version` anymore. This parameter used to determine the file icon set. There were two sets - version `'1'` and `'2'`. The icons of version `'1'` have been rendered with legacy stylesheets in the SDK components. The icons displayed under the version `'1'` have been removed now.
+
+:::important
+**Action required**<br/>
+Remove prop `version` if the `FileIcon` is used in your custom components.
+:::
+
+### Removal of legacy CSS classes
+
+We have removed classes that were used in the legacy CSS stylesheet only and thus are redundant. We recommend to use classes that were already available previously and are used by the SDK stylesheet:
+
+:::important
+**Action required**<br/>
+Replace the removed classes with their alternatives in the custom CSS.
+:::
+
+| Component                                                                                 | Class removed                                                                       | Class to be used instead                                                                |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `MediaContainer`                                                                          | `str-chat__attachment-media`                                                        | `str-chat__attachment`                                                                  |
+| suggestion list in `ReactTextAreaAutocomplete`                                            | `rta__autocomplete`                                                                 | `str-chat__suggestion-list-container`                                                   |
+| `Avatar` root `<div/>`                                                                    | `str-chat__avatar--circle`, `str-chat__avatar--square`, `str-chat__avatar--rounded` | `str-chat__avatar` possibly combined with custom class                                  |
+| `Avatar` element `<img/>`                                                                 | `str-chat__avatar-image--loaded`                                                    |
+| `Channel` root `<div/>`                                                                   | `str-chat-channel`                                                                  | `str-chat__channel`                                                                     |
+| `ChannelHeader` root `<div/>`                                                             | `str-chat__header-livestream`                                                       | `str-chat__channel-header`                                                              |
+| `ChannelHeader` root `<div/>` children                                                    | `str-chat__header-livestream-left`                                                  | `str-chat__channel-header-end`                                                          |
+| `ChannelHeader` root `<div/>` children                                                    | `str-chat__header-livestream-left--title`                                           | `str-chat__channel-header-title`                                                        |
+| `ChannelHeader` root `<div/>` children                                                    | `str-chat__header-livestream-left--subtitle`                                        | `str-chat__channel-header-subtitle`                                                     |
+| `ChannelHeader` root `<div/>` children                                                    | `str-chat__header-livestream-left--members`                                         | `str-chat__channel-header-info`                                                         |
+| `ChannelList` root `<div/>`                                                               | `str-chat-channel-list`                                                             | `str-chat__channel-list`                                                                |
+| `ChannelPreviewMessenger` root `<div/>` children                                          | `str-chat__channel-preview-messenger--right`                                        | `str-chat__channel-preview-end`                                                         |
+| `SearchResults` root `<div/>` children                                                    | `str-chat__channel-search-container`                                                | `str-chat__channel-search-result-list`                                                  |
+| `SuggestionList` (rendered by `ChatAutoComplete`) container `<div/>`                      | `str-chat__emojisearch`                                                             | `str-chat__suggestion-list-container`                                                   |
+| `SuggestionList` (rendered by `ChatAutoComplete`) root `<div/>`                           | `str-chat__emojisearch__list`                                                       | `str-chat__suggestion-list`                                                             |
+| `SuggestionListItem` (rendered by `SuggestionList`) root `<div/>`                         | `str-chat__emojisearch__item`                                                       | `str-chat__suggestion-list-item`                                                        |
+| `EmojiPicker` root `<div/>`                                                               | `str-chat__emojiselect-wrapper` (only applied with legacy styles)                   | `str-chat__message-textarea-emoji-picker`                                               |
+| `EmojiPicker` button                                                                      | `str-chat__input-flat-emojiselect` (only applied with legacy styles)                | `str-chat__emoji-picker-button`                                                         |
+| `Emoji` (rendered by `Message`)                                                           | `inline-text-emoji`                                                                 | the `<p/>` element has been removed, no substitute class                                |
+| `MessageRepliesCountButton` (rendered by `Message`) root `<div/>`                         | `str-chat__message-simple-reply-button`                                             | `str-chat__message-replies-count-button-wrapper`                                        |
+| `Message` wrapper `<div/>` around `MessageStatus` & `MessageTimestamp`                    | `str-chat__message-data`, `str-chat__message-simple-data`                           | `str-chat__message-metadata`                                                            |
+| `QuotedMessage` root `<div/>`                                                             | `quoted-message`                                                                    | `str-chat__quoted-message-preview`                                                      |
+| `QuotedMessage` bubble                                                                    | `quoted-message-inner`                                                              | `str-chat__quoted-message-bubble`                                                       |
+| `EditMessageForm`                                                                         | `str-chat__edit-message-form-options`                                               | no alternative                                                                          |
+| `EditMessageForm`                                                                         | `str-chat__fileupload-wrapper`                                                      | no alternative                                                                          |
+| `EditMessageForm`                                                                         | `str-chat__input-fileupload`                                                        | no alternative                                                                          |
+| `MessageInputFlat` root `<div/>`                                                          | all classes starting with `str-chat__input-flat`                                    | see the current implementation of `MessageInputFlat`                                    |
+| `QuotedMessagePreviewHeader` (rendered by `QuotedMessagePreviewHeader`) root `<div/>`     | `quoted-message-preview-header`                                                     | `str-chat__quoted-message-preview-header`                                               |
+| `QuotedMessagePreviewHeader` (rendered by `QuotedMessagePreviewHeader`) child `<button/>` | `str-chat__square-button`                                                           | `str-chat__quoted-message-remove`                                                       |
+| `QuotedMessagePreview` root `<div/>`                                                      | `quoted-message-preview`                                                            | no alternative                                                                          |
+| `QuotedMessagePreview`                                                                    | `quoted-message-preview-content`                                                    | `str-chat__quoted-message-preview`                                                      |
+| `QuotedMessagePreview`                                                                    | `quoted-message-preview-content-inner`                                              | `str-chat__quoted-message-bubble`                                                       |
+| `MessageList`                                                                             | `str-chat__list--thread`                                                            | `str-chat__thread-list`                                                                 |
+| `InfiniteScroll` rendered by `MessageList`                                                | `str-chat__reverse-infinite-scroll`                                                 | `str-chat__message-list-scroll`                                                         |
+| `ScrollToBottomButton`                                                                    | `str-chat__message-notification-right`                                              | `str-chat__message-notification-scroll-to-latest`                                       |
+| `ScrollToBottomButton`                                                                    | `str-chat__message-notification-scroll-to-latest-unread-count`                      | `str-chat__jump-to-latest-unread-count`                                                 |
+| `ReactionsListModal`                                                                      | `emoji`                                                                             | `str-chat__message-reaction-emoji` or `str-chat__message-reaction-emoji--with-fallback` |
+| `SimpleReactionList`                                                                      | `str-chat__simple-reactions-list-tooltip`                                           | no alternative - markup removal                                                         |
+| `ThreadHeader`                                                                            | `str-chat__square-button`                                                           | `str-chat__close-thread-button`                                                         |
+| `TypingIndicator`                                                                         | `str-chat__typing-indicator__avatars`                                               | no alternative - markup removal                                                         |
+
+### Added classes
+
+Migration to non-legacy styles leads to rendering of markup with the following classes:
+
+:::important
+**Action required**<br/>
+Verify your app layout is not broken and adjust the CSS if necessary.
+:::
+
+| Class                        | Details                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `str-chat__main-panel-inner` | A `<div/>` with this class wraps `MessageList` and `VirtualizedMessageList` |
+
+### Removed types
+
+:::important
+**Action required**<br/>
+Import type alternatives if necessary.
+:::
+
+| Removed type               | Details                                                                                                     | To be used instead              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `CustomMessageActionsType` | Props for component `CustomMessageActionsList`, that renders custom messages actions in `MessageActionsBox` | `CustomMessageActionsListProps` |
+
+### TypingIndicator component without Avatars
+
+The `TypingIndicator` component does not render avatars as it used to with legacy stylesheet. Therefore, its prop `Avatar` has been removed.
+
+:::important
+**Action optional**<br/>
+Provide custom `TypingIndicator` through the `Channel` prop.
+:::

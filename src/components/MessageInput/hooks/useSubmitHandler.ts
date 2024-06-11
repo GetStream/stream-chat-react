@@ -2,15 +2,19 @@ import { useEffect, useRef } from 'react';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { LinkPreviewState } from '../types';
 
 import type { Attachment, Message, UpdatedMessage } from 'stream-chat';
 
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { MessageInputProps } from '../MessageInput';
 
-import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  SendMessageOptions,
+} from '../../../types/types';
 import type { EnrichURLsController } from './useLinkPreviews';
-import { LinkPreviewState } from '../types';
 
 const getAttachmentTypeFromMime = (mime: string) => {
   if (mime.includes('video/')) return 'video';
@@ -59,7 +63,7 @@ export const useSubmitHandler = <
     textReference.current.hasChanged = text !== textReference.current.initialText;
   }, [text]);
 
-  const getAttachmentsFromUploads = () => {
+  const getAttachmentsFromUploads = (): Attachment[] => {
     const imageAttachments = imageOrder
       .map((id) => imageUploads[id])
       .filter((upload) => upload.state !== 'failed')
@@ -97,19 +101,22 @@ export const useSubmitHandler = <
         type: getAttachmentTypeFromMime(upload.file.type || ''),
       }));
 
-    return [
-      ...attachments, // from state
-      ...imageAttachments,
-      ...fileAttachments,
-    ];
+    const otherAttachments = attachments
+      .filter((att) => att.localMetadata?.uploadState !== 'failed')
+      .map((localAttachment) => {
+        const { localMetadata: _, ...attachment } = localAttachment;
+        return attachment as Attachment;
+      });
+
+    return [...otherAttachments, ...imageAttachments, ...fileAttachments];
   };
 
   const handleSubmit = async (
-    event: React.BaseSyntheticEvent,
+    event?: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
+    options?: SendMessageOptions,
   ) => {
-    event.preventDefault();
-
+    event?.preventDefault();
     const trimmedMessage = text.trim();
     const isEmptyMessage =
       trimmedMessage === '' ||
@@ -121,12 +128,12 @@ export const useSubmitHandler = <
       trimmedMessage === '__' ||
       trimmedMessage === '****';
 
-    if (isEmptyMessage && numberOfUploads === 0) return;
-
+    if (isEmptyMessage && numberOfUploads === 0 && attachments.length === 0) return;
     // the channel component handles the actual sending of the message
     const someAttachmentsUploading =
       Object.values(imageUploads).some((upload) => upload.state === 'uploading') ||
-      Object.values(fileUploads).some((upload) => upload.state === 'uploading');
+      Object.values(fileUploads).some((upload) => upload.state === 'uploading') ||
+      attachments.some((att) => att.localMetadata?.uploadState === 'uploading');
 
     if (someAttachmentsUploading) {
       return addNotification(t('Wait until all attachments have uploaded'), 'error');
@@ -188,7 +195,11 @@ export const useSubmitHandler = <
       linkPreviewsEnabled &&
       ((!someLinkPreviewsLoading && attachmentsFromLinkPreviews.length > 0) ||
         someLinkPreviewsDismissed);
-    const sendOptions = linkPreviewsEnabled ? { skip_enrich_url } : undefined;
+    const sendOptions =
+      linkPreviewsEnabled || options
+        ? Object.assign(linkPreviewsEnabled ? { skip_enrich_url } : {}, options ?? {})
+        : undefined;
+
     if (message && message.type !== 'error') {
       delete message.i18n;
 

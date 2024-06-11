@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 
-import { getGroupStyles, GroupStyle, insertIntro, processMessages } from '../../utils';
+import {
+  getGroupStyles,
+  GroupStyle,
+  insertIntro,
+  processMessages,
+  ProcessMessagesParams,
+} from '../../utils';
 
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
@@ -27,6 +33,7 @@ export const useEnrichedMessages = <
     noGroupByUser: boolean,
   ) => GroupStyle;
   headerPosition?: number;
+  reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
 }) => {
   const {
     channel,
@@ -37,6 +44,7 @@ export const useEnrichedMessages = <
     hideNewMessageSeparator,
     messages,
     noGroupByUser,
+    reviewProcessedMessage,
   } = args;
 
   const { client } = useChatContext<StreamChatGenerics>('useEnrichedMessages');
@@ -49,12 +57,13 @@ export const useEnrichedMessages = <
   let messagesWithDates =
     !enableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
-      : processMessages({
+      : processMessages<StreamChatGenerics>({
           enableDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,
           lastRead,
           messages,
+          reviewProcessedMessage,
           userId: client.userID || '',
         });
 

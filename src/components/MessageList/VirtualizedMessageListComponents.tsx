@@ -108,12 +108,7 @@ export const EmptyPlaceholder = <
     </>
   );
 };
-export const Footer = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
-  const { TypingIndicator } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
-  return TypingIndicator ? <TypingIndicator avatarSize={24} /> : null;
-};
+
 export const messageRenderer = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
@@ -137,6 +132,7 @@ export const messageRenderer = <
     numItemsPrepended,
     ownMessagesReadByOthers,
     processedMessages: messageList,
+    reactionDetailsSort,
     shouldGroupByUser,
     sortReactionDetails,
     sortReactions,
@@ -219,6 +215,7 @@ export const messageRenderer = <
         message={message}
         Message={MessageUIComponent}
         messageActions={messageActions}
+        reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}

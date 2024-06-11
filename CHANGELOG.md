@@ -1,3 +1,97 @@
+## [11.19.0](https://github.com/GetStream/stream-chat-react/compare/v11.18.1...v11.19.0) (2024-05-23)
+
+
+### Bug Fixes
+
+* fix aria label translations for Portuguese ([28b6dfd](https://github.com/GetStream/stream-chat-react/commit/28b6dfdd028ce1b53707d4fba8495b5722900c75))
+* prevent loading more non-existent thread replies ([#2399](https://github.com/GetStream/stream-chat-react/issues/2399)) ([f2ed479](https://github.com/GetStream/stream-chat-react/commit/f2ed47938d9a042d041198690ac65a3b3f0a934a))
+* prevent showing link previews in AttachmentPreviewList ([#2398](https://github.com/GetStream/stream-chat-react/issues/2398)) ([cf24894](https://github.com/GetStream/stream-chat-react/commit/cf24894f1743ebfb831dcdc2c802164f5807a9a6))
+
+
+### Features
+
+* adopt new queryReactions endpoint ([#2388](https://github.com/GetStream/stream-chat-react/issues/2388)) ([d6ca4ef](https://github.com/GetStream/stream-chat-react/commit/d6ca4effd48272921407100b5c75dfc9dc1961d4))
+
+## [11.18.1](https://github.com/GetStream/stream-chat-react/compare/v11.18.0...v11.18.1) (2024-05-10)
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to v4.16.1 ([d5d5ffa](https://github.com/GetStream/stream-chat-react/commit/d5d5ffa73e67dc397ff66f8901296ecf768f0918))
+
+## [11.18.0](https://github.com/GetStream/stream-chat-react/compare/v11.17.0...v11.18.0) (2024-05-09)
+
+
+### Bug Fixes
+
+* attach class str-chat__message-with-thread-link only if the message has replies ([#2386](https://github.com/GetStream/stream-chat-react/issues/2386)) ([c71f94e](https://github.com/GetStream/stream-chat-react/commit/c71f94e81ad2db4c26c3cfbac1b9246050dc60c9))
+
+
+### Features
+
+* allow custom attachments ([#2383](https://github.com/GetStream/stream-chat-react/issues/2383)) ([c751670](https://github.com/GetStream/stream-chat-react/commit/c751670319bd40784dd2ab56e1e0ff392f9ed79f))
+
+## [11.17.0](https://github.com/GetStream/stream-chat-react/compare/v11.16.1...v11.17.0) (2024-05-02)
+
+
+### Features
+
+* allow to review message processing before rendering in message lists ([#2375](https://github.com/GetStream/stream-chat-react/issues/2375)) ([567bea9](https://github.com/GetStream/stream-chat-react/commit/567bea9fbc90c3a9cf93682671c8025fb1f7f5a1))
+
+## [11.16.1](https://github.com/GetStream/stream-chat-react/compare/v11.16.0...v11.16.1) (2024-05-01)
+
+
+### Bug Fixes
+
+* message input not preventing default on enter on React 16 ([#2380](https://github.com/GetStream/stream-chat-react/issues/2380)) ([ca6761f](https://github.com/GetStream/stream-chat-react/commit/ca6761f1dff8070e07702d3eb5216d18242cd662)), closes [/github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts#L119](https://github.com/GetStream//github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/hooks/useSubmitHandler.ts/issues/L119)
+
+## [11.16.0](https://github.com/GetStream/stream-chat-react/compare/v11.15.2...v11.16.0) (2024-05-01)
+
+
+### Features
+
+* support reaction groups ([#2370](https://github.com/GetStream/stream-chat-react/issues/2370)) ([560df58](https://github.com/GetStream/stream-chat-react/commit/560df589c983dc4007fe4fbe0e2740225d6f4db6))
+
+## [11.15.2](https://github.com/GetStream/stream-chat-react/compare/v11.15.1...v11.15.2) (2024-04-24)
+
+
+### Bug Fixes
+
+* **EmojiPicker:** check whether clicked target is child of shadow root node ([#2369](https://github.com/GetStream/stream-chat-react/issues/2369)) ([c552e2c](https://github.com/GetStream/stream-chat-react/commit/c552e2c7ce7be935826d9621b50777f4712351e1))
+
+## [11.15.1](https://github.com/GetStream/stream-chat-react/compare/v11.15.0...v11.15.1) (2024-04-18)
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to 4.14.0 ([00aab69](https://github.com/GetStream/stream-chat-react/commit/00aab69d62b10660def5d45d5701b6326662f54a))
+
+## [11.15.0](https://github.com/GetStream/stream-chat-react/compare/v11.14.0...v11.15.0) (2024-04-17)
+
+
+### Bug Fixes
+
+* make setChannels prop optional for ChannelSearch ([#2358](https://github.com/GetStream/stream-chat-react/issues/2358)) ([2ad6132](https://github.com/GetStream/stream-chat-react/commit/2ad613216f0bf965b7c0858d112704053f06a852))
+* search results list props ([#2359](https://github.com/GetStream/stream-chat-react/issues/2359)) ([6575d30](https://github.com/GetStream/stream-chat-react/commit/6575d30d889abc16e44d9b635ccba28f793d5652))
+
+
+### Features
+
+* async voice messages recording ([#2339](https://github.com/GetStream/stream-chat-react/issues/2339)) ([b81ab96](https://github.com/GetStream/stream-chat-react/commit/b81ab964ae8705d492a4c819a044d09d404002db))
+
+## [11.14.0](https://github.com/GetStream/stream-chat-react/compare/v11.13.1...v11.14.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* add missing PinIndicator placeholder ([#2352](https://github.com/GetStream/stream-chat-react/issues/2352)) ([e059af8](https://github.com/GetStream/stream-chat-react/commit/e059af8dbd2fd6d00a390d3f071b0525e47869f9))
+* file size formatting ([#2357](https://github.com/GetStream/stream-chat-react/issues/2357)) ([7e98a85](https://github.com/GetStream/stream-chat-react/commit/7e98a85efe60f84241aae316bc16453aca9c2ba9)), closes [#2301](https://github.com/GetStream/stream-chat-react/issues/2301)
+
+
+### Features
+
+* support size_limit in upload config ([#2301](https://github.com/GetStream/stream-chat-react/issues/2301)) ([a8aa524](https://github.com/GetStream/stream-chat-react/commit/a8aa524858b002f837b9859a916948141b97c67e))
+
 ## [11.13.1](https://github.com/GetStream/stream-chat-react/compare/v11.13.0...v11.13.1) (2024-04-02)
 
 

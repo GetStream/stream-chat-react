@@ -31,7 +31,7 @@ The SDK comes with built-in support for adding reactions to messages. The compon
 
 ## Sorting reactions
 
-By default, reactions are sorted alphabetically by type. You can change this behavior by passing the `sortReactions` prop to the `MessageList` (or `VirtualizedMessageList`).
+By default, reactions are sorted chronologically by the first time reaction type was used. You can change this behavior by passing the `sortReactions` prop to the `MessageList` (or `VirtualizedMessageList`).
 
 In this example, we sort the reactions in the descending order by the number of users:
 
@@ -52,9 +52,9 @@ function sortByReactionCount(a, b) {
 </Chat>;
 ```
 
-Similarly, the `sortReactionDetails` prop can be passed to the `MessageList` (or `VirtualizedMessageList`) to sort the list of reacted users. The default implementation used by the reactions list modal dialog sorts users alphabetically by name.
+For better performance, keep the sorting function memoized with `useCallback`, or declare it in either global or module scope.
 
-For better performance, keep the sorting functions memoized with `useCallback`, or declare it in either global or module scope.
+Similarly, the `reactionDetailsSort` object can be passed to the `MessageList` (or `VirtualizedMessageList`) to sort the list of reacted users. The default implementation used by the reactions list modal dialog sorts users in the reverse chronological order of their reactions.
 
 ## Customization
 
@@ -62,7 +62,7 @@ See [Reactions Customization](../../guides/theming/reactions.mdx) guide on how t
 
 ## ReactionSelector Props
 
-### `Avatar`
+### Avatar
 
 Custom UI component to display a user's avatar.
 
@@ -70,7 +70,7 @@ Custom UI component to display a user's avatar.
 | --------- | ---------------------------------------------------------- |
 | component | <GHComponentLink text='Avatar' path='/Avatar/Avatar.tsx'/> |
 
-### `detailedView`
+### detailedView
 
 If true, shows the user's avatar with the reaction.
 
@@ -78,7 +78,7 @@ If true, shows the user's avatar with the reaction.
 | ------- | ------- |
 | boolean | true    |
 
-### `handleReaction`
+### handleReaction
 
 Function that adds/removes a reaction on a message (overrides the function coming from `MessageContext`).
 
@@ -86,7 +86,7 @@ Function that adds/removes a reaction on a message (overrides the function comin
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleReaction']](../contexts/message-context.mdx#handlereaction) |
 
-### `latest_reactions`
+### latest_reactions
 
 An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 
@@ -94,7 +94,7 @@ An array of the reaction objects to display in the list (overrides `message.late
 | ----- |
 | array |
 
-### `own_reactions`
+### own_reactions
 
 An array of own reaction objects to display in the list (overrides `message.own_reactions` from `MessageContext`).
 
@@ -102,15 +102,15 @@ An array of own reaction objects to display in the list (overrides `message.own_
 | ----- |
 | array |
 
-### `reaction_counts`
+### reaction_groups
 
-An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+An object that keeps track of the reactions on a message (overrides `message.reaction_groups` from `MessageContext`).
 
-| Type                            |
-| ------------------------------- |
-| { [key: reactionType]: number } |
+| Type                                           |
+| ---------------------------------------------- |
+| { [key: reactionType]: ReactionGroupResponse } |
 
-### `reactionOptions`
+### reactionOptions
 
 A list of the currently supported reactions on a message.
 
@@ -118,7 +118,7 @@ A list of the currently supported reactions on a message.
 | ----- | ------------------------------------------------------------------------------------------------------- |
 | array | <GHComponentLink text='defaultReactionOptions' branch="v11.0.0" path='/Reactions/reactionOptions.tsx'/> |
 
-### `reverse`
+### reverse
 
 If true, adds a CSS class that reverses the horizontal positioning of the selector.
 
@@ -128,7 +128,7 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 
 ## ReactionsList Props
 
-### `handleFetchReactions`
+### handleFetchReactions
 
 Function that loads the message reactions (overrides the function coming from `MessageContext`).
 
@@ -151,7 +151,7 @@ const MyCustomReactionsList = (props) => {
 };
 ```
 
-### `onClick`
+### onClick
 
 Custom on click handler for an individual reaction in the list (overrides the function coming from `MessageContext`).
 
@@ -159,7 +159,7 @@ Custom on click handler for an individual reaction in the list (overrides the fu
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](../contexts/message-context.mdx#onreactionlistclick) |
 
-### `own_reactions`
+### own_reactions
 
 An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
 
@@ -167,15 +167,15 @@ An array of the own reaction objects to distinguish own reactions visually (over
 | ----- |
 | array |
 
-### `reaction_counts`
+### reaction_groups
 
-An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+An object that keeps track of the reactions on a message (overrides `message.reaction_groups` from `MessageContext`).
 
-| Type                            |
-| ------------------------------- |
-| { [key: reactionType]: number } |
+| Type                                           |
+| ---------------------------------------------- |
+| { [key: reactionType]: ReactionGroupResponse } |
 
-### `reactionOptions`
+### reactionOptions
 
 A list of the currently supported reactions on a message.
 
@@ -183,7 +183,7 @@ A list of the currently supported reactions on a message.
 | ----- | ------------------------------------------------------------------------------------------------------- |
 | array | <GHComponentLink text='defaultReactionOptions' branch="v11.0.0" path='/Reactions/reactionOptions.tsx'/> |
 
-### `reactions`
+### reactions
 
 An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 
@@ -191,7 +191,7 @@ An array of the reaction objects to display in the list (overrides `message.late
 | ----- |
 | array |
 
-### `reverse`
+### reverse
 
 If true, adds a CSS class that reverses the horizontal positioning of the selector.
 
@@ -199,25 +199,25 @@ If true, adds a CSS class that reverses the horizontal positioning of the select
 | ------- | ------- |
 | boolean | false   |
 
-### `sortReactionDetails`
+### reactionDetailsSort
 
-Comparator function to sort the list of reacted users. Should have the same signature as an array's `sort` method. This prop overrides the function stored in `MessageContext`.
+Sort options to provide to a reactions query. Affects the order of reacted users in the default reactions modal. This prop overrides the function stored in `MessageContext`.
 
-| Type                                                       | Default            |
-| ---------------------------------------------------------- | ------------------ |
-| (this: ReactionResponse, that: ReactionResponse) => number | alphabetical order |
+| Type                   | Default                     |
+| ---------------------- | --------------------------- |
+| { created_at: number } | reverse chronological order |
 
-### `sortReactions`
+### sortReactions
 
 Comparator function to sort reactions. Should have the same signature as an array's `sort` method. This prop overrides the function stored in `MessageContext`.
 
-| Type                                                     | Default            |
-| -------------------------------------------------------- | ------------------ |
-| (this: ReactionSummary, that: ReactionSummary) => number | alphabetical order |
+| Type                                                     | Default             |
+| -------------------------------------------------------- | ------------------- |
+| (this: ReactionSummary, that: ReactionSummary) => number | chronological order |
 
 ## SimpleReactionsList Props
 
-### `handleFetchReactions`
+### handleFetchReactions
 
 Function that loads the message reactions (overrides the function coming from `MessageContext`).
 
@@ -225,7 +225,7 @@ Function that loads the message reactions (overrides the function coming from `M
 | -------------------- | --------------------------------------------------------------------------------------------------- |
 | () => Promise<void\> | [MessageContextValue['handleFetchReactions']](../contexts/message-context.mdx#handlefetchreactions) |
 
-### `handleReaction`
+### handleReaction
 
 Function that adds/removes a reaction on a message (overrides the function coming from `MessageContext`).
 
@@ -233,7 +233,7 @@ Function that adds/removes a reaction on a message (overrides the function comin
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | (reactionType: string, event: React.BaseSyntheticEvent) => Promise<void\> | [MessageContextValue['handleReaction']](../contexts/message-context.mdx#handlereaction) |
 
-### `own_reactions`
+### own_reactions
 
 An array of the own reaction objects to distinguish own reactions visually (overrides `message.own_reactions` from `MessageContext`).
 
@@ -241,15 +241,15 @@ An array of the own reaction objects to distinguish own reactions visually (over
 | ----- |
 | array |
 
-### `reaction_counts`
+### reaction_groups
 
-An object that keeps track of the count of each type of reaction on a message (overrides `message.reaction_counts` from `MessageContext`).
+An object that keeps track of the reactions on a message (overrides `message.reaction_groups` from `MessageContext`).
 
-| Type                            |
-| ------------------------------- |
-| { [key: reactionType]: number } |
+| Type                                           |
+| ---------------------------------------------- |
+| { [key: reactionType]: ReactionGroupResponse } |
 
-### `reactionOptions`
+### reactionOptions
 
 A list of the currently supported reactions on a message.
 
@@ -257,7 +257,7 @@ A list of the currently supported reactions on a message.
 | ----- | -------------------------------------------------------------------------------------------------------------- |
 | array | <GHComponentLink text='defaultReactionOptions' branch="feat/reactions" path='/Reactions/reactionOptions.tsx'/> |
 
-### `reactions`
+### reactions
 
 An array of the reaction objects to display in the list (overrides `message.latest_reactions` from `MessageContext`).
 

@@ -4,10 +4,14 @@ import { nanoid } from 'nanoid';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import { useAttachments } from './useAttachments';
+import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
 import { useMessageInputText } from './useMessageInputText';
 import { useSubmitHandler } from './useSubmitHandler';
 import { usePasteHandler } from './usePasteHandler';
+import { RecordingController, useMediaRecorder } from '../../MediaRecorder/hooks/useMediaRecorder';
+import { LinkPreviewState, SetLinkPreviewMode } from '../types';
 
+import type { FileUpload, ImageUpload, LinkPreviewMap, LocalAttachment } from '../types';
 import type { FileLike } from '../../ReactFileUtilities';
 import type { Attachment, Message, OGAttachment, UserResponse } from 'stream-chat';
 
@@ -18,14 +22,12 @@ import type {
   DefaultStreamChatGenerics,
   SendMessageOptions,
 } from '../../../types/types';
-import { EnrichURLsController, useLinkPreviews } from './useLinkPreviews';
-import type { FileUpload, ImageUpload, LinkPreviewMap } from '../types';
-import { LinkPreviewState, SetLinkPreviewMode } from '../types';
+import { mergeDeep } from '../../../utils/mergeDeep';
 
 export type MessageInputState<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  attachments: Attachment<StreamChatGenerics>[];
+  attachments: LocalAttachment<StreamChatGenerics>[];
   fileOrder: string[];
   fileUploads: Record<string, FileUpload>;
   imageOrder: string[];
@@ -34,6 +36,18 @@ export type MessageInputState<
   mentioned_users: UserResponse<StreamChatGenerics>[];
   setText: (text: string) => void;
   text: string;
+};
+
+type UpsertAttachmentsAction<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+> = {
+  attachments: LocalAttachment<StreamChatGenerics>[];
+  type: 'upsertAttachments';
+};
+
+type RemoveAttachmentsAction = {
+  ids: string[];
+  type: 'removeAttachments';
 };
 
 type SetTextAction = {
@@ -96,14 +110,16 @@ export type MessageInputReducerAction<
   | SetLinkPreviewsAction
   | RemoveImageUploadAction
   | RemoveFileUploadAction
-  | AddMentionedUserAction<StreamChatGenerics>;
+  | AddMentionedUserAction<StreamChatGenerics>
+  | UpsertAttachmentsAction
+  | RemoveAttachmentsAction;
 
 export type MessageInputHookProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = EnrichURLsController & {
   handleChange: React.ChangeEventHandler<HTMLTextAreaElement>;
   handleSubmit: (
-    event: React.BaseSyntheticEvent,
+    event?: React.BaseSyntheticEvent,
     customMessageData?: Partial<Message<StreamChatGenerics>>,
     options?: SendMessageOptions,
   ) => void;
@@ -113,12 +129,20 @@ export type MessageInputHookProps<
   numberOfUploads: number;
   onPaste: (event: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onSelectUser: (item: UserResponse<StreamChatGenerics>) => void;
+  recordingController: RecordingController<StreamChatGenerics>;
+  removeAttachments: (ids: string[]) => void;
   removeFile: (id: string) => void;
   removeImage: (id: string) => void;
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | null | undefined>;
+  uploadAttachment: (
+    attachment: LocalAttachment<StreamChatGenerics>,
+  ) => Promise<LocalAttachment<StreamChatGenerics> | undefined>;
   uploadFile: (id: string) => void;
   uploadImage: (id: string) => void;
   uploadNewFiles: (files: FileList | File[]) => void;
+  upsertAttachments: (
+    attachments: (Attachment<StreamChatGenerics> | LocalAttachment<StreamChatGenerics>)[],
+  ) => void;
 };
 
 const makeEmptyMessageInputState = <
@@ -163,7 +187,7 @@ const initState = <
               name: fallback,
             },
             id,
-            og_scrape_url,
+            og_scrape_url, // fixme: why scraped content is mixed with uploaded content?
             state: 'finished',
             text,
             title,
@@ -211,7 +235,15 @@ const initState = <
   const fileOrder = Object.keys(fileUploads);
 
   const attachments =
-    message.attachments?.filter(({ type }) => type !== 'file' && type !== 'image') || [];
+    message.attachments
+      ?.filter(({ type }) => type !== 'file' && type !== 'image')
+      .map(
+        (att) =>
+          ({
+            ...att,
+            localMetadata: { id: nanoid() },
+          } as LocalAttachment<StreamChatGenerics>),
+      ) || [];
 
   const mentioned_users: StreamMessage['mentioned_users'] = message.mentioned_users || [];
 
@@ -243,6 +275,38 @@ const messageInputReducer = <
 
     case 'clear':
       return makeEmptyMessageInputState();
+
+    case 'upsertAttachments': {
+      const attachments = [...state.attachments];
+      action.attachments.forEach((actionAttachment) => {
+        const attachmentIndex = state.attachments.findIndex(
+          (att) =>
+            att.localMetadata?.id && att.localMetadata?.id === actionAttachment.localMetadata?.id,
+        );
+
+        if (attachmentIndex === -1) {
+          attachments.push(actionAttachment);
+        } else {
+          const upsertedAttachment = mergeDeep(
+            state.attachments[attachmentIndex] ?? {},
+            actionAttachment,
+          );
+          attachments.splice(attachmentIndex, 1, upsertedAttachment);
+        }
+      });
+
+      return {
+        ...state,
+        attachments,
+      };
+    }
+
+    case 'removeAttachments': {
+      return {
+        ...state,
+        attachments: state.attachments.filter((att) => !action.ids.includes(att.localMetadata?.id)),
+      };
+    }
 
     case 'setImageUpload': {
       const imageAlreadyExists = state.imageUploads[action.id];
@@ -365,11 +429,18 @@ export const useMessageInputState = <
   MessageInputHookProps<StreamChatGenerics> &
   CommandsListState &
   MentionsListState => {
-  const { additionalTextareaProps, getDefaultValue, message, urlEnrichmentConfig } = props;
+  const {
+    additionalTextareaProps,
+    asyncMessagesMultiSendEnabled,
+    audioRecordingConfig,
+    audioRecordingEnabled,
+    getDefaultValue,
+    message,
+    urlEnrichmentConfig,
+  } = props;
 
   const {
     channelCapabilities = {},
-    channelConfig,
     enrichURLForPreview: enrichURLForPreviewChannelContext,
   } = useChannelStateContext<StreamChatGenerics>('useMessageInputState');
 
@@ -430,11 +501,14 @@ export const useMessageInputState = <
   const {
     maxFilesLeft,
     numberOfUploads,
+    removeAttachments,
     removeFile,
     removeImage,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
   } = useAttachments<StreamChatGenerics, V>(props, state, dispatch, textareaRef);
 
   const { handleSubmit } = useSubmitHandler<StreamChatGenerics, V>(
@@ -444,8 +518,15 @@ export const useMessageInputState = <
     numberOfUploads,
     enrichURLsController,
   );
-  const isUploadEnabled =
-    channelConfig?.uploads !== false && channelCapabilities['upload-file'] !== false;
+  const recordingController = useMediaRecorder({
+    asyncMessagesMultiSendEnabled,
+    enabled: !!audioRecordingEnabled,
+    handleSubmit,
+    recordingConfig: audioRecordingConfig,
+    uploadAttachment,
+  });
+
+  const isUploadEnabled = !!channelCapabilities['upload-file'];
 
   const { onPaste } = usePasteHandler(
     uploadNewFiles,
@@ -477,14 +558,18 @@ export const useMessageInputState = <
     onSelectUser,
     openCommandsList,
     openMentionsList,
+    recordingController,
+    removeAttachments,
     removeFile,
     removeImage,
     setText,
     showCommandsList,
     showMentionsList,
     textareaRef,
+    uploadAttachment,
     uploadFile,
     uploadImage,
     uploadNewFiles,
+    upsertAttachments,
   };
 };

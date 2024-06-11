@@ -7,8 +7,6 @@ import { ImageComponent } from '../Gallery';
 import { SafeAnchor } from '../SafeAnchor';
 import { PlayButton, ProgressBar } from './components';
 import { useAudioController } from './hooks/useAudioController';
-
-import { useChatContext } from '../../context/ChatContext';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
@@ -39,82 +37,6 @@ const UnableToRenderCard = ({ type }: { type?: CardProps['type'] }) => {
           {t<string>('this content could not be displayed')}
         </div>
       </div>
-    </div>
-  );
-};
-
-interface CardV1Props {
-  asset_url?: Attachment['asset_url'];
-  giphy?: Attachment['giphy'];
-  /** The url of the full sized image */
-  image_url?: string;
-  /** The scraped url, used as a fallback if the OG-data doesn't include a link */
-  og_scrape_url?: string;
-  /** Description returned by the OG scraper */
-  text?: string;
-  /** The url for thumbnail sized image */
-  thumb_url?: string;
-  /** Title returned by the OG scraper */
-  title?: string;
-  /** Link returned by the OG scraper */
-  title_link?: string;
-  /** The card type used in the className attribute */
-  type?: string;
-}
-
-const CardV1 = (props: CardV1Props) => {
-  const {
-    asset_url,
-    giphy,
-    image_url,
-    og_scrape_url,
-    text,
-    thumb_url,
-    title,
-    title_link,
-    type,
-  } = props;
-  const { giphyVersion: giphyVersionName } = useChannelStateContext('Card');
-
-  let image = thumb_url || image_url;
-  const dimensions: Dimensions = {};
-
-  if (type === 'giphy' && typeof giphy !== 'undefined') {
-    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
-    image = giphyVersion.url;
-    dimensions.height = giphyVersion.height;
-    dimensions.width = giphyVersion.width;
-  }
-
-  if (!title && !title_link && !asset_url && !image) {
-    return <UnableToRenderCard type={type} />;
-  }
-
-  if (!title_link && !og_scrape_url) {
-    return null;
-  }
-
-  return (
-    <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
-      <CardHeader {...props} dimensions={dimensions} image={image} />
-      {type !== 'video' && (
-        <div className='str-chat__message-attachment-card--content'>
-          <div className='str-chat__message-attachment-card--flex'>
-            {title && <div className='str-chat__message-attachment-card--title'>{title}</div>}
-            {text && <div className='str-chat__message-attachment-card--text'>{text}</div>}
-            {(title_link || og_scrape_url) && (
-              <SafeAnchor
-                className='str-chat__message-attachment-card--url'
-                href={title_link || og_scrape_url}
-                rel='noopener noreferrer'
-                target='_blank'
-              >
-                {getHostFromURL(title_link || og_scrape_url)}
-              </SafeAnchor>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -190,36 +112,12 @@ const CardContent = (props: CardContentProps) => {
   );
 };
 
-const CardV2 = (props: CardProps) => {
-  const { asset_url, giphy, image_url, thumb_url, title, title_link, type } = props;
-  const { giphyVersion: giphyVersionName } = useChannelStateContext('CardHeader');
-
-  let image = thumb_url || image_url;
-  const dimensions: { height?: string; width?: string } = {};
-
-  if (type === 'giphy' && typeof giphy !== 'undefined') {
-    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
-    image = giphyVersion.url;
-    dimensions.height = giphyVersion.height;
-    dimensions.width = giphyVersion.width;
-  }
-
-  if (!title && !title_link && !asset_url && !image) {
-    return <UnableToRenderCard />;
-  }
-
-  return (
-    <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
-      <CardHeader {...props} dimensions={dimensions} image={image} />
-      <CardContent {...props} />
-    </div>
-  );
-};
-
 export const CardAudio = ({
-  og: { asset_url, author_name, og_scrape_url, text, title, title_link },
+  og: { asset_url, author_name, mime_type, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
-  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController();
+  const { audioRef, isPlaying, progress, seek, togglePlay } = useAudioController({
+    mimeType: mime_type,
+  });
 
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
@@ -253,9 +151,29 @@ export const CardAudio = ({
 export type CardProps = RenderAttachmentProps['attachment'];
 
 const UnMemoizedCard = (props: CardProps) => {
-  const { themeVersion } = useChatContext('Card');
+  const { asset_url, giphy, image_url, thumb_url, title, title_link, type } = props;
+  const { giphyVersion: giphyVersionName } = useChannelStateContext('CardHeader');
 
-  return themeVersion === '2' ? <CardV2 {...props} /> : <CardV1 {...props} />;
+  let image = thumb_url || image_url;
+  const dimensions: { height?: string; width?: string } = {};
+
+  if (type === 'giphy' && typeof giphy !== 'undefined') {
+    const giphyVersion = giphy[giphyVersionName as keyof NonNullable<Attachment['giphy']>];
+    image = giphyVersion.url;
+    dimensions.height = giphyVersion.height;
+    dimensions.width = giphyVersion.width;
+  }
+
+  if (!title && !title_link && !asset_url && !image) {
+    return <UnableToRenderCard />;
+  }
+
+  return (
+    <div className={`str-chat__message-attachment-card str-chat__message-attachment-card--${type}`}>
+      <CardHeader {...props} dimensions={dimensions} image={image} />
+      <CardContent {...props} />
+    </div>
+  );
 };
 
 /**

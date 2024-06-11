@@ -1,8 +1,9 @@
-import { StreamMessage, useChannelStateContext, useTranslationContext } from '../../../context';
+import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
 import { DefaultStreamChatGenerics } from '../../../types/types';
-import { Channel, ReactionResponse } from 'stream-chat';
+import { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
+import { ReactionType } from '../../Reactions/types';
 
-export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1200;
+export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 
 type FetchMessageReactionsNotifications<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -17,13 +18,16 @@ export function useReactionsFetcher<
   message: StreamMessage<StreamChatGenerics>,
   notifications: FetchMessageReactionsNotifications<StreamChatGenerics> = {},
 ) {
-  const { channel } = useChannelStateContext<StreamChatGenerics>('useReactionFetcher');
+  const { client } = useChatContext('useRectionsFetcher');
   const { t } = useTranslationContext('useReactionFetcher');
   const { getErrorNotification, notify } = notifications;
 
-  return async () => {
+  return async (
+    reactionType?: ReactionType<StreamChatGenerics>,
+    sort?: ReactionSort<StreamChatGenerics>,
+  ) => {
     try {
-      return await fetchMessageReactions(channel, message.id);
+      return await fetchMessageReactions(client, message.id, reactionType, sort);
     } catch (e) {
       const errorMessage = getErrorNotification?.(message);
       notify?.(errorMessage || t('Error fetching reactions'), 'error');
@@ -34,23 +38,28 @@ export function useReactionsFetcher<
 
 async function fetchMessageReactions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(channel: Channel<StreamChatGenerics>, messageId: string) {
+>(
+  client: StreamChat<StreamChatGenerics>,
+  messageId: string,
+  reactionType?: ReactionType<StreamChatGenerics>,
+  sort?: ReactionSort<StreamChatGenerics>,
+) {
   const reactions: ReactionResponse<StreamChatGenerics>[] = [];
-  const limit = 300;
-  let offset = 0;
-  const reactionsLimit = MAX_MESSAGE_REACTIONS_TO_FETCH;
-  let lastPageSize = limit;
+  const limit = 25;
+  let next: string | undefined;
+  let hasNext = true;
 
-  while (lastPageSize === limit && reactions.length < reactionsLimit) {
-    const response = await channel.getReactions(messageId, {
-      limit,
-      offset,
-    });
-    lastPageSize = response.reactions.length;
-    if (lastPageSize > 0) {
-      reactions.push(...response.reactions);
-    }
-    offset += lastPageSize;
+  while (hasNext && reactions.length < MAX_MESSAGE_REACTIONS_TO_FETCH) {
+    const response = await client.queryReactions(
+      messageId,
+      reactionType ? { type: reactionType } : {},
+      sort,
+      { limit, next },
+    );
+
+    reactions.push(...response.reactions);
+    next = response.next;
+    hasNext = Boolean(next);
   }
 
   return reactions;

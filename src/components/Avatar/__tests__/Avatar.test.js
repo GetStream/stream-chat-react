@@ -5,6 +5,10 @@ import '@testing-library/jest-dom';
 
 import { Avatar } from '../Avatar';
 
+const AVATAR_ROOT_TEST_ID = 'avatar';
+const AVATAR_FALLBACK_TEST_ID = 'avatar-fallback';
+const AVATAR_IMG_TEST_ID = 'avatar-img';
+
 afterEach(cleanup); // eslint-disable-line
 
 describe('Avatar', () => {
@@ -12,19 +16,10 @@ describe('Avatar', () => {
     const tree = renderer.create(<Avatar />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
+        className="str-chat__avatar str-chat__message-sender-avatar"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
-        style={
-          {
-            "flexBasis": "32px",
-            "fontSize": "16px",
-            "height": "32px",
-            "lineHeight": "32px",
-            "width": "32px",
-          }
-        }
       >
         <div
           className="str-chat__avatar-fallback"
@@ -38,68 +33,20 @@ describe('Avatar', () => {
     const tree = renderer.create(<Avatar image='random' />).toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <div
-        className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
+        className="str-chat__avatar str-chat__message-sender-avatar"
         data-testid="avatar"
         onClick={[Function]}
         onMouseOver={[Function]}
-        style={
-          {
-            "flexBasis": "32px",
-            "fontSize": "16px",
-            "height": "32px",
-            "lineHeight": "32px",
-            "width": "32px",
-          }
-        }
       >
         <img
           alt=""
           className="str-chat__avatar-image"
           data-testid="avatar-img"
           onError={[Function]}
-          onLoad={[Function]}
           src="random"
-          style={
-            {
-              "flexBasis": "32px",
-              "height": "32px",
-              "objectFit": "cover",
-              "width": "32px",
-            }
-          }
         />
       </div>
     `);
-  });
-
-  it('should render with different shape', () => {
-    const shape = 'square';
-
-    const { getByTestId } = render(<Avatar shape={shape} />);
-    expect(getByTestId('avatar')).toHaveClass(`str-chat__avatar--${shape}`);
-  });
-
-  it('should render with different size', () => {
-    const size = 24;
-    const { getByTestId } = render(<Avatar size={size} />);
-    expect(getByTestId('avatar')).toHaveStyle({
-      flexBasis: `${size}px`,
-      fontSize: `${size / 2}px`,
-      height: `${size}px`,
-      lineHeight: `${size}px`,
-      width: `${size}px`,
-    });
-  });
-
-  it('should render with different size and image', () => {
-    const size = 24;
-    const { getByTestId } = render(<Avatar image='randomImage' size={size} />);
-    expect(getByTestId('avatar-img')).toHaveStyle({
-      flexBasis: `${size}px`,
-      height: `${size}px`,
-      objectFit: 'cover',
-      width: `${size}px`,
-    });
   });
 
   it('should render initials as alt and title', () => {
@@ -112,8 +59,8 @@ describe('Avatar', () => {
 
   it('should render initials as fallback when no image is supplied', () => {
     const { getByTestId, queryByTestId } = render(<Avatar name='frank N. Stein' />);
-    expect(getByTestId('avatar-fallback')).toHaveTextContent('f');
-    expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
+    expect(getByTestId(AVATAR_FALLBACK_TEST_ID)).toHaveTextContent('f');
+    expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();
   });
 
   it('should call onClick prop on user click', () => {
@@ -122,7 +69,7 @@ describe('Avatar', () => {
     const { getByTestId } = render(<Avatar onClick={onClick} />);
 
     expect(onClick).toHaveBeenCalledTimes(0);
-    fireEvent.click(getByTestId('avatar'));
+    fireEvent.click(getByTestId(AVATAR_ROOT_TEST_ID));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
@@ -132,37 +79,28 @@ describe('Avatar', () => {
     const { getByTestId } = render(<Avatar onMouseOver={onMouseOver} />);
 
     expect(onMouseOver).toHaveBeenCalledTimes(0);
-    fireEvent.mouseOver(getByTestId('avatar'));
+    fireEvent.mouseOver(getByTestId(AVATAR_ROOT_TEST_ID));
     expect(onMouseOver).toHaveBeenCalledTimes(1);
-  });
-
-  it('should update img class on img load', () => {
-    const { getByTestId } = render(<Avatar image='randomImage' />);
-    const img = getByTestId('avatar-img');
-
-    expect(img).not.toHaveClass('str-chat__avatar-image--loaded');
-    fireEvent.load(img);
-    expect(img).toHaveClass('str-chat__avatar-image--loaded');
   });
 
   it('should render fallback initials on img error', () => {
     const { getByTestId, queryByTestId } = render(<Avatar image='randomImage' name='Olive' />);
-    const img = getByTestId('avatar-img');
+    const img = getByTestId(AVATAR_IMG_TEST_ID);
 
     expect(img).toBeInTheDocument();
-    expect(queryByTestId('avatar-fallback')).not.toBeInTheDocument();
+    expect(queryByTestId(AVATAR_FALLBACK_TEST_ID)).not.toBeInTheDocument();
     fireEvent.error(img);
     expect(img).not.toBeInTheDocument();
-    expect(getByTestId('avatar-fallback')).toBeInTheDocument();
+    expect(getByTestId(AVATAR_FALLBACK_TEST_ID)).toBeInTheDocument();
   });
 
   it('should render new img on props change for errored img', () => {
     const { getByTestId, queryByTestId, rerender } = render(<Avatar image='randomImage' />);
 
-    fireEvent.error(getByTestId('avatar-img'));
-    expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
+    fireEvent.error(getByTestId(AVATAR_IMG_TEST_ID));
+    expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();
 
     rerender(<Avatar image='anotherImage' />);
-    expect(getByTestId('avatar-img')).toHaveAttribute('src', 'anotherImage');
+    expect(getByTestId(AVATAR_IMG_TEST_ID)).toHaveAttribute('src', 'anotherImage');
   });
 });

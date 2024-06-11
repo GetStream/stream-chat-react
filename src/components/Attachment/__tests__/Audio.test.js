@@ -1,32 +1,45 @@
 import React from 'react';
-import prettybytes from 'pretty-bytes';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Audio } from '../Audio';
 
-import { ChannelActionProvider, ChatContext } from '../../../context';
-
-import { generateAudioAttachment } from 'mock-builders';
+import { ChannelActionProvider } from '../../../context';
+import { generateAudioAttachment } from '../../../mock-builders';
+import { prettifyFileSize } from '../../MessageInput/hooks/utils';
 
 const AUDIO = generateAudioAttachment();
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+const originalConsoleError = console.error;
+jest.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg) => {
+  const msg = Array.isArray(errorOrTextorArg)
+    ? errorOrTextorArg[0]
+    : errorOrTextorArg.message ?? errorOrTextorArg;
+  if (msg.match('Not implemented')) return;
+  originalConsoleError(...errorOrTextorArg);
+});
+
+const addNotificationSpy = jest.fn();
+const defaultChannelActionContext = { addNotification: addNotificationSpy };
 const renderComponent = (
   props = {
-    chatContext: { themeVersion: '1' },
+    channelActionContext: defaultChannelActionContext,
     og: AUDIO,
   },
 ) =>
   render(
-    <ChatContext.Provider value={props.chatContext}>
-      <ChannelActionProvider value={{}}>
-        <Audio og={props.og} />
-      </ChannelActionProvider>
-    </ChatContext.Provider>,
+    <ChannelActionProvider
+      value={{ ...props.channelActionContext, ...defaultChannelActionContext }}
+    >
+      <Audio og={props.og} />
+    </ChannelActionProvider>,
   );
 
 const playButtonTestId = 'play-audio';
 const pauseButtonTestId = 'pause-audio';
+const playButton = () => screen.queryByTestId(playButtonTestId);
+const pauseButton = () => screen.queryByTestId(pauseButtonTestId);
 
 describe('Audio', () => {
   beforeAll(() => {
@@ -35,30 +48,23 @@ describe('Audio', () => {
     jest.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => {});
     jest.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
   });
-  afterEach(cleanup);
-
-  it('in v1 should render title and render the image with description as alt tag', () => {
-    const { container } = renderComponent({
-      chatContext: { themeVersion: '1' },
-      og: { ...AUDIO, title: 'deterministic' },
-    });
-
-    expect(container).toMatchSnapshot();
+  afterEach(() => {
+    cleanup();
+    jest.resetAllMocks();
   });
 
-  it('in v2 uploaded should render title and file size', () => {
+  it('should render title and file size', () => {
     const { container, getByText } = renderComponent({
-      chatContext: { themeVersion: '2' },
       og: AUDIO,
     });
 
     expect(getByText(AUDIO.title)).toBeInTheDocument();
-    expect(getByText(prettybytes(AUDIO.file_size))).toBeInTheDocument();
+    expect(getByText(prettifyFileSize(AUDIO.file_size))).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
-  it('in v2 should show the correct progress after clicking to the middle of a progress bar (seeking)', async () => {
-    const { getByTestId } = renderComponent({ chatContext: { themeVersion: '2' }, og: AUDIO });
+  it('should show the correct progress after clicking to the middle of a progress bar (seeking)', async () => {
+    const { getByTestId } = renderComponent({ og: AUDIO });
 
     jest
       .spyOn(HTMLDivElement.prototype, 'getBoundingClientRect')
@@ -78,53 +84,159 @@ describe('Audio', () => {
     });
   });
 
-  describe.each([['1'], ['2']])('version %s', (themeVersion) => {
-    it('should render an audio element with the right source', () => {
-      const { getByTestId } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
+  it('should render an audio element with the right source', () => {
+    const { getByTestId } = renderComponent({ og: AUDIO });
 
-      const source = getByTestId('audio-source');
+    const source = getByTestId('audio-source');
 
-      expect(source).toBeInTheDocument();
-      expect(source.src).toBe(AUDIO.asset_url);
-      expect(source.parentElement).toBeInstanceOf(HTMLAudioElement);
+    expect(source).toBeInTheDocument();
+    expect(source.src).toBe(AUDIO.asset_url);
+    expect(source.parentElement).toBeInstanceOf(HTMLAudioElement);
+  });
+
+  it('should show the correct button if the song is paused/playing', async () => {
+    const { container } = renderComponent({
+      og: { ...AUDIO, mime_type: undefined },
+    });
+    const audioPausedMock = jest.spyOn(container.querySelector('audio'), 'paused', 'get');
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    audioPausedMock.mockReturnValueOnce(true);
+    await act(async () => {
+      await fireEvent.click(playButton());
     });
 
-    it('should show the correct button if the song is paused/playing', async () => {
-      const { container, queryByTestId } = renderComponent({
-        chatContext: { themeVersion },
-        og: AUDIO,
-      });
-      const audioPausedMock = jest.spyOn(container.querySelector('audio'), 'paused', 'get');
-      const playButton = () => queryByTestId(playButtonTestId);
-      const pauseButton = () => queryByTestId(pauseButtonTestId);
+    expect(await playButton()).not.toBeInTheDocument();
+    expect(await pauseButton()).toBeInTheDocument();
+
+    audioPausedMock.mockReturnValueOnce(false);
+    await act(async () => {
+      await fireEvent.click(pauseButton());
+    });
+
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+    expect(addNotificationSpy).not.toHaveBeenCalled();
+    audioPausedMock.mockRestore();
+  });
+
+  it('should pause the audio if the playback has not started in 2000ms', async () => {
+    jest.useFakeTimers('modern');
+    const { container } = renderComponent({
+      og: { ...AUDIO, mime_type: undefined },
+    });
+
+    const audio = container.querySelector('audio');
+    const audioPlayMock = jest.spyOn(audio, 'play').mockImplementation(() => delay(3000));
+    const audioPauseMock = jest.spyOn(audio, 'pause');
+
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    await act(async () => {
+      await fireEvent.click(playButton());
+    });
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    jest.advanceTimersByTime(2000);
+
+    await waitFor(async () => {
+      expect(audioPauseMock).toHaveBeenCalledWith();
       expect(await playButton()).toBeInTheDocument();
       expect(await pauseButton()).not.toBeInTheDocument();
+      expect(addNotificationSpy).not.toHaveBeenCalled();
+    });
 
-      audioPausedMock.mockReturnValueOnce(true);
+    jest.useRealTimers();
+    audioPlayMock.mockRestore();
+    audioPauseMock.mockRestore();
+  });
+
+  it('should register error if pausing the audio after 2000ms of inactivity failed', async () => {
+    jest.useFakeTimers('modern');
+    const { container } = renderComponent({
+      og: { ...AUDIO, mime_type: undefined },
+    });
+    const audio = container.querySelector('audio');
+    const audioPlayMock = jest.spyOn(audio, 'play').mockImplementation(() => delay(3000));
+    const audioPauseMock = jest.spyOn(audio, 'pause').mockImplementationOnce(() => {
+      throw new Error('');
+    });
+
+    await act(() => {
       fireEvent.click(playButton());
-
-      expect(await playButton()).not.toBeInTheDocument();
-      expect(await pauseButton()).toBeInTheDocument();
-
-      audioPausedMock.mockReturnValueOnce(false);
-      fireEvent.click(pauseButton());
-
-      expect(await playButton()).toBeInTheDocument();
-      expect(await pauseButton()).not.toBeInTheDocument();
-      audioPausedMock.mockRestore();
+    });
+    jest.advanceTimersByTime(2000);
+    await waitFor(() => {
+      expect(audioPauseMock).toHaveBeenCalledWith();
+      expect(addNotificationSpy).toHaveBeenCalledWith('Failed to play the recording', 'error');
     });
 
-    it('should show the correct progress', async () => {
-      const { container } = renderComponent({ chatContext: { themeVersion }, og: AUDIO });
+    jest.useRealTimers();
+    audioPlayMock.mockRestore();
+    audioPauseMock.mockRestore();
+  });
 
-      jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
-      jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
-      const audioElement = container.querySelector('audio');
-      fireEvent.timeUpdate(audioElement);
+  it('should register error if playing the audio failed', async () => {
+    const errorText = 'Test error';
+    const { container } = renderComponent({
+      og: AUDIO,
+    });
+    const audio = container.querySelector('audio');
+    const audioPlayMock = jest.spyOn(audio, 'play').mockRejectedValueOnce(new Error(errorText));
+    const audioCanPlayTypeMock = jest.spyOn(audio, 'canPlayType').mockReturnValue('maybe');
 
-      await waitFor(() => {
-        expect(screen.getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
-      });
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    await act(async () => {
+      await fireEvent.click(playButton());
+    });
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+    expect(addNotificationSpy).toHaveBeenCalledWith(errorText, 'error');
+    audioPlayMock.mockRestore();
+    audioCanPlayTypeMock.mockRestore();
+  });
+
+  it('should register error if the audio MIME type is not playable', async () => {
+    const { container } = renderComponent({
+      og: AUDIO,
+    });
+    const audio = container.querySelector('audio');
+    const audioPlayMock = jest.spyOn(audio, 'play');
+    const audioCanPlayTypeMock = jest.spyOn(audio, 'canPlayType').mockReturnValue('');
+
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    await act(async () => {
+      await fireEvent.click(playButton());
+    });
+    expect(audioPlayMock).not.toHaveBeenCalled();
+    expect(addNotificationSpy).toHaveBeenCalledWith(
+      'Recording format is not supported and cannot be reproduced',
+      'error',
+    );
+    expect(await playButton()).toBeInTheDocument();
+    expect(await pauseButton()).not.toBeInTheDocument();
+
+    audioPlayMock.mockRestore();
+    audioCanPlayTypeMock.mockRestore();
+  });
+
+  it('should show the correct progress', async () => {
+    const { container } = renderComponent({ og: AUDIO });
+
+    jest.spyOn(HTMLAudioElement.prototype, 'duration', 'get').mockImplementationOnce(() => 100);
+    jest.spyOn(HTMLAudioElement.prototype, 'currentTime', 'get').mockImplementationOnce(() => 50);
+    const audioElement = container.querySelector('audio');
+    fireEvent.timeUpdate(audioElement);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('audio-progress')).toHaveAttribute('data-progress', '50');
     });
   });
 });

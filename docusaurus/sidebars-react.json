@@ -9,8 +9,7 @@
             "theming/themingv2",
             "theming/palette-variables",
             "theming/component-variables",
-            "theming/global-variables",
-            "guides/theming/css_and_theming"
+            "theming/global-variables"
           ]
         },
         { "Chat": ["components/core-components/chat", "components/contexts/chat_context"] },
@@ -28,9 +27,10 @@
             "components/core-components/channel_list",
             "components/contexts/channel_list_context",
             "hooks/channel_list_hooks",
-            "components/utility-components/channel_preview",
             "components/utility-components/channel_preview_ui",
-            "components/utility-components/channel_search"
+            "components/utility-components/channel_search",
+            "guides/channel-list-infinite-scroll",
+            "guides/multiple_channel_lists"
           ]
         },
         {
@@ -54,8 +54,8 @@
             "components/utility-components/base-image",
             {
               "Attachment": [
-              "components/message-components/attachment",
-              "components/message-components/attachment/voice-recording"
+                "components/message-components/attachment",
+                "components/message-components/attachment/voice-recording"
               ]
             },
             "components/message-components/reactions",
@@ -69,6 +69,8 @@
             "hooks/message_input_hooks",
             "components/message-input-components/input_ui",
             "components/message-input-components/ui_components",
+            "components/message-input-components/emoji-picker",
+            "components/message-input-components/audio_recorder",
             "components/contexts/typing_context"
           ]
         },
@@ -82,11 +84,9 @@
         "guides/customization/customization-overview",
         {
           "Channel List": [
-            "guides/channel-list-infinite-scroll",
             "guides/customization/channel_list_preview",
             "guides/customization/channel_search",
-            "guides/channel-user-lists",
-            "guides/multiple_channel_lists"
+            "guides/channel-user-lists"
           ]
         },
         {
@@ -109,6 +109,7 @@
           "Message Input": [
             "guides/theming/input_ui",
             "guides/customization/link-previews",
+            "guides/message-input/attachment_previews",
             "guides/customization/override_submit_handler",
             "guides/customization/persist_input_text_in_localstorage",
             "guides/customization/suggestion_list",
@@ -120,15 +121,14 @@
             "guides/theming/actions/attachment_actions",
             "guides/customization/image_gallery",
             "guides/theming/actions/geolocation_attachment",
-            "guides/customization/giphy_preview"
+            "guides/customization/giphy_preview",
+            "guides/theming/actions/payment_attachment"
           ]
         },
-        {
-          "Emojis": ["guides/customization/emoji_picker"]
-        },
-        {
-          "Misc": ["guides/customization/channel_header", "guides/customization/thread_header"]
-        }
+        "guides/customization/emoji_picker",
+        "guides/customization/app_menu",
+        "guides/customization/channel_header",
+        "guides/customization/thread_header"
       ]
     },
     {
@@ -138,10 +138,11 @@
         "guides/theming/translations",
         "guides/typescript_and_generics",
         "guides/channel_read_state",
-        "guides/video-integration/video-integration-stream"
+        "guides/video-integration/video-integration-stream",
+        "guides/sdk-state-management"
       ]
     },
-    { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },
+    { "Release Guides": ["release-guides/upgrade-to-v12", "release-guides/upgrade-to-v11", "release-guides/upgrade-to-v10"] },
     "troubleshooting/troubleshooting",
     "resources/resources"
   ]

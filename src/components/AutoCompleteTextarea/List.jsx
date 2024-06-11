@@ -2,10 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useComponentContext } from '../../context/ComponentContext';
-import { useChatContext } from '../../context/ChatContext';
 
 import { Item } from './Item';
-import { DefaultSuggestionListHeader } from './Header';
 import { escapeRegExp } from '../Message/renderText';
 
 export const List = ({
@@ -15,7 +13,6 @@ export const List = ({
   dropdownScroll,
   getSelectedItem,
   getTextToReplace,
-  Header: PropHeader,
   itemClassName,
   itemStyle,
   onSelect,
@@ -25,13 +22,8 @@ export const List = ({
   value: propValue,
   values,
 }) => {
-  const { AutocompleteSuggestionHeader, AutocompleteSuggestionItem } = useComponentContext(
-    'SuggestionList',
-  );
-  const { themeVersion } = useChatContext('SuggestionList');
+  const { AutocompleteSuggestionItem } = useComponentContext('SuggestionList');
   const SuggestionItem = PropSuggestionItem || AutocompleteSuggestionItem || Item;
-  const SuggestionHeader =
-    PropHeader || AutocompleteSuggestionHeader || DefaultSuggestionListHeader;
 
   const [selectedItemIndex, setSelectedItemIndex] = useState(undefined);
 
@@ -145,12 +137,7 @@ export const List = ({
   const restructuredValues = useMemo(() => values.map(restructureItem), [values, restructureItem]);
 
   return (
-    <ul className={clsx('rta__list', className)} style={style}>
-      {themeVersion === '1' && (
-        <li className='rta__list-header'>
-          <SuggestionHeader currentTrigger={currentTrigger} value={propValue} />
-        </li>
-      )}
+    <ul className={clsx('str-chat__suggestion-list', className)} style={style}>
       {restructuredValues.map((item, i) => (
         <SuggestionItem
           className={itemClassName}

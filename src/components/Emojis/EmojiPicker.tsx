@@ -5,14 +5,10 @@ import Picker from '@emoji-mart/react';
 
 import type { Options } from '@popperjs/core';
 
-import {
-  ThemeVersion,
-  useChatContext,
-  useMessageInputContext,
-  useTranslationContext,
-} from '../../context';
-import { EmojiIconLarge, EmojiPickerIcon } from '../MessageInput/icons';
-import { Tooltip } from '../Tooltip';
+import { useMessageInputContext, useTranslationContext } from '../../context';
+import { EmojiPickerIcon } from '../MessageInput/icons';
+
+const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
@@ -22,44 +18,36 @@ export type EmojiPickerProps = {
   closeOnEmojiSelect?: boolean;
   /**
    * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
-   * passed to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
+   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
    */
   pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
   /**
    * [React Popper options](https://popper.js.org/docs/v2/constructors/#options) to be
-   * passed to the [react-popper `usePopper`](https://popper.js.org/react-popper/v2/hook/) hook
+   * passed down to the [react-popper `usePopper`](https://popper.js.org/react-popper/v2/hook/) hook
    */
   popperOptions?: Partial<Options>;
 };
 
-const classNames: Record<ThemeVersion, EmojiPickerProps> = {
-  1: {
-    buttonClassName: 'str-chat__input-flat-emojiselect',
-    pickerContainerClassName: undefined,
-    wrapperClassName: 'str-chat__emojiselect-wrapper',
-  },
-  2: {
-    buttonClassName: 'str-chat__emoji-picker-button',
-    pickerContainerClassName: 'str-chat__message-textarea-emoji-picker-container',
-    wrapperClassName: 'str-chat__message-textarea-emoji-picker',
-  },
+const classNames: EmojiPickerProps = {
+  buttonClassName: 'str-chat__emoji-picker-button',
+  pickerContainerClassName: 'str-chat__message-textarea-emoji-picker-container',
+  wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
 
 export const EmojiPicker = (props: EmojiPickerProps) => {
-  const { themeVersion } = useChatContext('EmojiPicker');
   const { t } = useTranslationContext('EmojiPicker');
   const { insertText, textareaRef } = useMessageInputContext('EmojiPicker');
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(null);
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { attributes, styles } = usePopper(referenceElement, popperElement, {
-    placement: themeVersion === '2' ? 'top-end' : 'top-start',
+    placement: 'top-end',
     ...props.popperOptions,
   });
 
-  const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames[themeVersion];
+  const { buttonClassName, pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = themeVersion === '2' ? EmojiPickerIcon : EmojiIconLarge } = props;
+  const { ButtonIconComponent = EmojiPickerIcon } = props;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -67,7 +55,14 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     const handlePointerDown = (e: PointerEvent) => {
       const target = e.target as HTMLElement;
 
-      if (popperElement.contains(target) || referenceElement.contains(target)) return;
+      const rootNode = target.getRootNode();
+
+      if (
+        popperElement.contains(isShadowRoot(rootNode) ? rootNode.host : target) ||
+        referenceElement.contains(target)
+      ) {
+        return;
+      }
 
       setDisplayPicker(false);
     };
@@ -97,11 +92,6 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
             {...props.pickerProps}
           />
         </div>
-      )}
-      {themeVersion === '1' && (
-        <Tooltip>
-          {displayPicker ? t<string>('Close emoji picker') : t<string>('Open emoji picker')}
-        </Tooltip>
       )}
       <button
         aria-expanded={displayPicker}

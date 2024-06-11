@@ -18,19 +18,10 @@ describe('UserItem', () => {
         className="str-chat__user-item"
       >
         <div
-          className="str-chat__avatar str-chat__avatar--circle str-chat__message-sender-avatar"
+          className="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--autocomplete-item"
           data-testid="avatar"
           onClick={[Function]}
           onMouseOver={[Function]}
-          style={
-            {
-              "flexBasis": "20px",
-              "fontSize": "10px",
-              "height": "20px",
-              "lineHeight": "20px",
-              "width": "20px",
-            }
-          }
         >
           <div
             className="str-chat__avatar-fallback"
@@ -41,6 +32,11 @@ describe('UserItem', () => {
           className="str-chat__user-item--name"
           data-testid="user-item-name"
         />
+        <div
+          className="str-chat__user-item-at"
+        >
+          @
+        </div>
       </div>
     `);
   });

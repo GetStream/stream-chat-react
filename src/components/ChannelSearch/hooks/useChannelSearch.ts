@@ -85,7 +85,7 @@ export type ChannelSearchControllerParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = ChannelSearchParams<StreamChatGenerics> & {
   /** Set the array of channels displayed in the ChannelList */
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
+  setChannels?: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>;
 };
 
 export const useChannelSearch = <
@@ -103,9 +103,7 @@ export const useChannelSearch = <
   searchQueryParams,
   setChannels,
 }: ChannelSearchControllerParams<StreamChatGenerics>): SearchController<StreamChatGenerics> => {
-  const { client, setActiveChannel, themeVersion } = useChatContext<StreamChatGenerics>(
-    'useChannelSearch',
-  );
+  const { client, setActiveChannel } = useChatContext<StreamChatGenerics>('useChannelSearch');
 
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [query, setQuery] = useState('');
@@ -147,10 +145,7 @@ export const useChannelSearch = <
 
     const clickListener = (event: MouseEvent) => {
       if (!(event.target instanceof HTMLElement)) return;
-      const isInputClick =
-        themeVersion === '2'
-          ? searchBarRef.current?.contains(event.target)
-          : inputRef.current?.contains(event.target);
+      const isInputClick = searchBarRef.current?.contains(event.target);
 
       if (isInputClick) return;
 
@@ -204,7 +199,7 @@ export const useChannelSearch = <
         setActiveChannel(newChannel);
         selectedChannel = newChannel;
       }
-      setChannels((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
+      setChannels?.((channels) => uniqBy([selectedChannel, ...channels], 'cid'));
       if (clearSearchOnClickOutside) {
         exitSearch();
       }

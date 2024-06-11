@@ -1,24 +1,23 @@
 import React, { PropsWithChildren } from 'react';
 
-import { ChatDown, ChatDownProps } from '../ChatDown/ChatDown';
 import { LoadingChannels } from '../Loading/LoadingChannels';
+import { NullComponent } from '../UtilityComponents';
+import { useTranslationContext } from '../../context';
 
 import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { useTranslationContext } from '../../context';
 
 export type ChannelListMessengerProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Whether or not the channel query request returned an errored response */
+  /** Whether the channel query request returned an errored response */
   error: ErrorFromResponse<APIErrorResponse> | null;
   /** The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true */
   loadedChannels?: Channel<StreamChatGenerics>[];
-  /** Whether or not channels are currently loading */
+  /** Whether the channels are currently loading */
   loading?: boolean;
-  /** Custom UI component to display a loading error, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
-  LoadingErrorIndicator?: React.ComponentType<ChatDownProps>;
+  /** Custom UI component to display the loading error indicator, defaults to component that renders null */
+  LoadingErrorIndicator?: React.ComponentType;
   /** Custom UI component to display a loading indicator, defaults to and accepts same props as: [LoadingChannels](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingChannels.tsx) */
   LoadingIndicator?: React.ComponentType;
   /** Local state hook that resets the currently loaded channels */
@@ -37,13 +36,13 @@ export const ChannelListMessenger = <
     children,
     error = null,
     loading,
-    LoadingErrorIndicator = ChatDown,
+    LoadingErrorIndicator = NullComponent,
     LoadingIndicator = LoadingChannels,
   } = props;
   const { t } = useTranslationContext('ChannelListMessenger');
 
   if (error) {
-    return <LoadingErrorIndicator type='Connection Error' />;
+    return <LoadingErrorIndicator />;
   }
 
   if (loading) {

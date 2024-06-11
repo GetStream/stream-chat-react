@@ -31,10 +31,12 @@ import {
 import {
   countReactions,
   generateChannel,
+  generateFileAttachment,
   generateMessage,
   generateReaction,
   generateUser,
   getTestClientWithUser,
+  groupReactions,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 
@@ -65,7 +67,6 @@ async function renderMessageSimple({
   channelCapabilities = { 'send-reaction': true },
   components = {},
   renderer = render,
-  themeVersion = '1',
 }) {
   const channel = generateChannel({
     getConfig: () => channelConfigOverrides,
@@ -76,7 +77,7 @@ async function renderMessageSimple({
   const client = await getTestClientWithUser(alice);
 
   return renderer(
-    <ChatProvider value={{ client, themeVersion }}>
+    <ChatProvider value={{ client }}>
       <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
         <ChannelActionProvider
           value={{
@@ -236,6 +237,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
       text: undefined,
     });
 
@@ -253,6 +255,7 @@ describe('<MessageSimple />', () => {
     const message = generateAliceMessage({
       latest_reactions: reactions,
       reaction_counts: countReactions(reactions),
+      reaction_groups: groupReactions(reactions),
       text: undefined,
     });
     const CustomReactionsList = ({ reactions = [] }) => (
@@ -564,12 +567,8 @@ describe('<MessageSimple />', () => {
   });
 
   it('should display non image attachments in Attachment component when message has attachments that are not images', async () => {
-    const attachment = {
-      asset_url: 'file.pdf',
-      type: 'file',
-    };
     const message = generateAliceMessage({
-      attachments: [attachment, attachment, attachment],
+      attachments: Array.from({ length: 3 }, generateFileAttachment),
     });
     const { container, queryAllByTestId } = await renderMessageSimple({ message });
     expect(queryAllByTestId('attachment-file')).toHaveLength(3);
@@ -654,7 +653,7 @@ describe('<MessageSimple />', () => {
 
     it('should render error badge for bounced messages', async () => {
       const message = generateAliceMessage(bouncedMessageOptions);
-      const { queryByTestId } = await renderMessageSimple({ message, themeVersion: '2' });
+      const { queryByTestId } = await renderMessageSimple({ message });
       expect(queryByTestId('error')).toBeInTheDocument();
     });
 
@@ -739,7 +738,7 @@ describe('<MessageSimple />', () => {
 
     it('should render error badge for bounced messages', async () => {
       const message = generateAliceMessage(editedMessageOptions);
-      const { queryAllByText } = await renderMessageSimple({ message, themeVersion: '2' });
+      const { queryAllByText } = await renderMessageSimple({ message });
       expect(queryAllByText('Edited', { exact: true })).not.toHaveLength(0);
     });
 
@@ -747,7 +746,6 @@ describe('<MessageSimple />', () => {
       const message = generateAliceMessage(editedMessageOptions);
       const { getByTestId, queryByTestId } = await renderMessageSimple({
         message,
-        themeVersion: '2',
       });
       fireEvent.click(getByTestId('message-inner'));
       expect(queryByTestId('message-edited-timestamp')).toBeInTheDocument();

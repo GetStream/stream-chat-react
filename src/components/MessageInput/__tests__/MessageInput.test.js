@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { toHaveNoViolations } from 'jest-axe';
@@ -7,60 +7,67 @@ import { nanoid } from 'nanoid';
 
 import { MessageInput } from '../MessageInput';
 import { MessageInputFlat } from '../MessageInputFlat';
-import { MessageInputSmall } from '../MessageInputSmall';
 import { EditMessageForm } from '../EditMessageForm';
-
-import { Chat } from '../../Chat/Chat';
 import { Channel } from '../../Channel/Channel';
 import { MessageActionsBox } from '../../MessageActions';
 
 import { MessageProvider } from '../../../context/MessageContext';
 import { useMessageInputContext } from '../../../context/MessageInputContext';
-import { ChatProvider, useChatContext } from '../../../context/ChatContext';
+import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
   dispatchMessageUpdatedEvent,
   generateChannel,
   generateMember,
   generateMessage,
+  generateScrapedDataAttachment,
   generateUser,
-  getOrCreateChannelApi,
-  getTestClientWithUser,
-  useMockedApis,
+  initClientWithChannels,
 } from '../../../mock-builders';
 
 expect.extend(toHaveNoViolations);
 
-jest.mock('../../Channel/utils', () => ({ makeAddNotifications: jest.fn }));
-
-let chatClient;
-let channel;
+const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-image';
+const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
+const FILE_INPUT_TEST_ID = 'file-input';
+const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
+const SEND_BTN_TEST_ID = 'send-button';
+const SEND_BTN_EDIT_FORM_TEST_ID = 'send-button-edit-form';
+const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-list-scroll-container';
 
 const inputPlaceholder = 'Type your message';
 const userId = 'userId';
 const username = 'username';
 const mentionId = 'mention-id';
 const mentionName = 'mention-name';
-const user1 = generateUser({ id: userId, name: username });
+const user = generateUser({ id: userId, name: username });
 const mentionUser = generateUser({
   id: mentionId,
   name: mentionName,
 });
-const mainListMessage = generateMessage({ user: user1 });
+const mainListMessage = generateMessage({ user });
 const threadMessage = generateMessage({
   parent_id: mainListMessage.id,
   type: 'reply',
-  user: user1,
+  user,
 });
 const mockedChannelData = generateChannel({
-  members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
+  channel: { own_capabilities: ['upload-file'] },
+  members: [generateMember({ user }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
 });
 
+const defaultChatContext = {
+  channelsQueryState: { queryInProgress: 'uninitialized' },
+  getAppSettings: jest.fn(),
+  latestMessageDatesByChannels: {},
+  mutes: [],
+};
+
 const cooldown = 30;
 const filename = 'some.txt';
-const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImagePreview will try to load the image
+const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
 
 const getImage = () => new File(['content'], filename, { type: 'image/png' });
 const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
@@ -76,6 +83,11 @@ const mockFaultyUploadApi = (cause) => jest.fn().mockImplementation(() => Promis
 
 const submitMock = jest.fn();
 const editMock = jest.fn();
+const mockAddNotification = jest.fn();
+
+jest.mock('../../Channel/utils', () => ({
+  makeAddNotifications: () => mockAddNotification,
+}));
 
 const defaultMessageContextValue = {
   getMessageActions: () => ['delete', 'edit', 'quote'],
@@ -97,26 +109,31 @@ function dropFile(file, formElement) {
   });
 }
 
-const ActiveChannelSetter = ({ activeChannel }) => {
-  const { setActiveChannel } = useChatContext();
-  useEffect(() => {
-    setActiveChannel(activeChannel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeChannel]);
-  return null;
-};
-
 const makeRenderFn = (InputComponent) => async ({
-  messageInputProps = {},
   channelProps = {},
+  channelData = [],
+  chatContextOverrides = {},
+  customChannel,
+  customClient,
+  customUser,
+  messageInputProps = {},
   messageContextOverrides = {},
   messageActionsBoxProps = {},
 } = {}) => {
+  let channel = customChannel;
+  let client = customClient;
+  if (!(channel || client)) {
+    const result = await initClientWithChannels({
+      channelsData: [{ ...mockedChannelData, ...channelData }],
+      customUser: customUser || user,
+    });
+    channel = result.channels[0];
+    client = result.client;
+  }
   let renderResult;
   await act(() => {
     renderResult = render(
-      <Chat client={chatClient}>
-        <ActiveChannelSetter activeChannel={channel} />
+      <ChatProvider value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}>
         <Channel
           doSendMessageRequest={submitMock}
           doUpdateMessageRequest={editMock}
@@ -130,16 +147,19 @@ const makeRenderFn = (InputComponent) => async ({
           </MessageProvider>
           <MessageInput Input={InputComponent} {...messageInputProps} />
         </Channel>
-      </Chat>,
+      </ChatProvider>,
     );
   });
 
   const submit = async () => {
-    const submitButton = renderResult.findByText('Send') || renderResult.findByTitle('Send');
+    const submitButton =
+      renderResult.queryByTestId(SEND_BTN_EDIT_FORM_TEST_ID) ||
+      renderResult.findByText('Send') ||
+      renderResult.findByTitle('Send');
     fireEvent.click(await submitButton);
   };
 
-  return { submit, ...renderResult };
+  return { channel, client, submit, ...renderResult };
 };
 
 const tearDown = () => {
@@ -155,18 +175,12 @@ function axeNoViolations(container) {
 }
 
 [
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall' },
   { InputComponent: MessageInputFlat, name: 'MessageInputFlat' },
   { InputComponent: EditMessageForm, name: 'EditMessageForm' },
 ].forEach(({ InputComponent, name: componentName }) => {
   const renderComponent = makeRenderFn(InputComponent);
 
   describe(`${componentName}`, () => {
-    beforeEach(async () => {
-      chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
-      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
-    });
     afterEach(tearDown);
 
     it('should render custom EmojiPicker', async () => {
@@ -218,7 +232,7 @@ function axeNoViolations(container) {
       });
     });
 
-    it('Should shift focus to the textarea if the `focus` prop is true', async () => {
+    it('should shift focus to the textarea if the `focus` prop is true', async () => {
       const { container } = await renderComponent({
         messageInputProps: {
           focus: true,
@@ -231,7 +245,7 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should render default file upload icon', async () => {
+    it('should render default file upload icon', async () => {
       const { container } = await renderComponent();
       const fileUploadIcon = await screen.findByTitle('Attach files');
 
@@ -242,7 +256,7 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should render custom file upload svg provided as prop', async () => {
+    it('should render custom file upload svg provided as prop', async () => {
       const FileUploadIcon = () => (
         <svg>
           <title>NotFileUploadIcon</title>
@@ -261,9 +275,7 @@ function axeNoViolations(container) {
     });
 
     describe('Attachments', () => {
-      it('Pasting images and files should result in uploading the files and showing previewers', async () => {
-        // FIXME: act is missing somewhere within this test which results in unwanted warning
-
+      it('Pasting images and files should result in uploading the files and showing previews', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
@@ -299,9 +311,11 @@ function axeNoViolations(container) {
         const filenameText = await screen.findByText(filename);
         await waitFor(() => {
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
-          expect(filenameText).toBeInTheDocument();
-          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
           expect(doImageUploadRequest).toHaveBeenCalledWith(image, expect.any(Object));
+          expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
+          expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
+          expect(filenameText).toBeInTheDocument();
+          expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
         });
 
         const results = await axe(container);
@@ -344,8 +358,9 @@ function axeNoViolations(container) {
         const filenameText = await screen.findByText(filename);
 
         expect(filenameText).toBeInTheDocument();
+        const filePreview = screen.getByTestId(FILE_PREVIEW_TEST_ID);
         await waitFor(() => {
-          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+          expect(filePreview.querySelector('a')).toHaveAttribute('href', fileUploadUrl);
         });
 
         await axeNoViolations(container);
@@ -358,7 +373,7 @@ function axeNoViolations(container) {
           },
         });
         const file = getFile();
-        const input = (await screen.findByTestId('fileinput')).querySelector('input');
+        const input = screen.getByTestId(FILE_INPUT_TEST_ID);
 
         act(() => {
           fireEvent.change(input, {
@@ -368,16 +383,15 @@ function axeNoViolations(container) {
           });
         });
 
-        const filenameText = await screen.findByText(filename);
-
-        expect(filenameText).toBeInTheDocument();
+        expect(screen.getByText(filename)).toBeInTheDocument();
+        const filePreview = screen.getByTestId(FILE_PREVIEW_TEST_ID);
         await waitFor(() => {
-          expect(filenameText.closest('a')).toHaveAttribute('href', fileUploadUrl);
+          expect(filePreview.querySelector('a')).toHaveAttribute('href', fileUploadUrl);
         });
         await axeNoViolations(container);
       });
 
-      it('Should call error handler if an image failed to upload', async () => {
+      it('should call error handler if an image failed to upload', async () => {
         const cause = new Error('failed to upload');
         const doImageUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
@@ -402,7 +416,7 @@ function axeNoViolations(container) {
         await axeNoViolations(container);
       });
 
-      it('Should call error handler if a file failed to upload and allow retrying', async () => {
+      it('should call error handler if a file failed to upload and allow retrying', async () => {
         const cause = new Error('failed to upload');
         const doFileUploadRequest = mockFaultyUploadApi(cause);
         const errorHandler = jest.fn();
@@ -426,13 +440,14 @@ function axeNoViolations(container) {
 
         doFileUploadRequest.mockImplementationOnce(() => Promise.resolve({ file }));
 
-        await act(async () => {
-          fireEvent.click(await screen.findByText('retry'));
+        await act(() => {
+          fireEvent.click(screen.getByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID));
         });
 
-        await waitFor(() =>
-          expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object)),
-        );
+        await waitFor(() => {
+          expect(doFileUploadRequest).toHaveBeenCalledTimes(2);
+          expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
+        });
         await axeNoViolations(container);
       });
 
@@ -442,7 +457,7 @@ function axeNoViolations(container) {
             multipleUploads: false,
           },
         });
-        const input = (await screen.findByTestId('fileinput')).querySelector('input');
+        const input = screen.getByTestId(FILE_INPUT_TEST_ID);
         expect(input).not.toHaveAttribute('multiple');
         await axeNoViolations(container);
       });
@@ -453,7 +468,7 @@ function axeNoViolations(container) {
             multipleUploads: true,
           },
         });
-        const input = (await screen.findByTestId('fileinput')).querySelector('input');
+        const input = screen.getByTestId(FILE_INPUT_TEST_ID);
         expect(input).toHaveAttribute('multiple');
         await axeNoViolations(container);
       });
@@ -509,31 +524,162 @@ function axeNoViolations(container) {
         await axeNoViolations(container);
       });
 
+      it('should show notification if size limit is exceeded', async () => {
+        defaultChatContext.getAppSettings.mockResolvedValueOnce({
+          app: {
+            file_upload_config: { size_limit: 1 },
+            image_upload_config: { size_limit: 1 },
+          },
+        });
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest: mockUploadApi(),
+          },
+        });
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile(filename1);
+        await act(() => dropFile(file, formElement));
+        await waitFor(() => expect(screen.queryByText(filename1)).not.toBeInTheDocument());
+
+        expect(mockAddNotification).toHaveBeenCalledTimes(1);
+        expect(mockAddNotification.mock.calls[0][0]).toContain('File is too large');
+      });
+
+      it('should apply separate limits to files and images', async () => {
+        defaultChatContext.getAppSettings.mockResolvedValueOnce({
+          app: {
+            file_upload_config: { size_limit: 100 },
+            image_upload_config: { size_limit: 1 },
+          },
+        });
+        const doImageUploadRequest = mockUploadApi();
+        await renderComponent({
+          messageInputProps: {
+            doImageUploadRequest,
+          },
+        });
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getImage();
+        await act(() => {
+          dropFile(file, formElement);
+        });
+        await waitFor(() => {
+          expect(mockAddNotification).toHaveBeenCalledTimes(1);
+          expect(mockAddNotification.mock.calls[0][0]).toContain('File is too large');
+        });
+      });
+
+      it('should show attachment previews if at least one non-scraped attachments available', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [{ type: 'xxx' }] },
+          },
+        });
+        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not show scraped content in attachment previews', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [generateScrapedDataAttachment(), { type: 'xxx' }] },
+          },
+        });
+        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+      });
+
+      it('should not show attachment previews if no files uploaded and no attachments available', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: {},
+          },
+        });
+        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not show attachment previews if no files uploaded and attachments available are only link previews', async () => {
+        await renderComponent({
+          messageInputProps: {
+            message: { attachments: [generateScrapedDataAttachment()] },
+          },
+        });
+        expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('should not show attachment preview list if only failed uploads are available', async () => {
+        const cause = new Error('failed to upload');
+        const doFileUploadRequest = mockFaultyUploadApi(cause);
+
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest,
+          },
+        });
+        jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile();
+
+        act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+        });
+      });
+
+      it('should show attachment preview list if not only failed uploads are available', async () => {
+        const cause = new Error('failed to upload');
+        const doFileUploadRequest = jest
+          .fn()
+          .mockImplementationOnce(() => Promise.reject(cause))
+          .mockImplementationOnce(() =>
+            Promise.resolve({
+              file: fileUploadUrl,
+            }),
+          );
+        await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest,
+          },
+        });
+        jest.spyOn(console, 'warn').mockImplementationOnce(() => null);
+        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const file = getFile();
+
+        await act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+          expect(screen.getByTestId(FILE_UPLOAD_RETRY_BTN_TEST_ID)).toBeInTheDocument();
+        });
+
+        await act(() => dropFile(file, formElement));
+
+        await waitFor(() => {
+          const previewList = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+          expect(previewList).toBeInTheDocument();
+          expect(previewList.children).toHaveLength(2);
+        });
+      });
+
       // TODO: Check if pasting plaintext is not prevented -> tricky because recreating exact event is hard
       // TODO: Remove image/file -> difficult because there is no easy selector and components are in react-file-utils
     });
 
-    describe('Uploads disabled in Channel config', () => {
-      let originalConfig;
-      beforeEach(() => {
-        originalConfig = channel.getConfig;
-        channel.getConfig = () => ({ uploads: false });
-      });
-      afterAll(() => {
-        channel.getConfig = originalConfig;
-      });
-
-      it('should not render file upload button', async () => {
-        const { container } = await renderComponent();
-        await waitFor(() => expect(screen.queryByTestId('fileinput')).not.toBeInTheDocument());
+    describe('Uploads disabled', () => {
+      const channelData = { channel: { own_capabilities: [] } };
+      it('should render file upload button disabled', async () => {
+        const { container } = await renderComponent({
+          channelData,
+        });
+        await waitFor(() => expect(screen.getByTestId(FILE_INPUT_TEST_ID)).toBeDisabled());
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
 
-      it('Pasting images and files should do nothing', async () => {
+      it('pasting images and files should do nothing', async () => {
         const doImageUploadRequest = mockUploadApi();
         const doFileUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
+          channelData,
           messageInputProps: {
             doFileUploadRequest,
             doImageUploadRequest,
@@ -551,7 +697,7 @@ function axeNoViolations(container) {
             { getAsFile: () => image, kind: 'file' },
           ],
         };
-        const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+        const formElement = screen.getByPlaceholderText(inputPlaceholder);
 
         await act(() => {
           formElement.dispatchEvent(clipboardEvent);
@@ -569,6 +715,7 @@ function axeNoViolations(container) {
       it('Should not upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
+          channelData,
           messageInputProps: {
             doImageUploadRequest,
           },
@@ -590,8 +737,8 @@ function axeNoViolations(container) {
     });
 
     describe('Submitting', () => {
-      it('Should submit the input value when clicking the submit button', async () => {
-        const { container, submit } = await renderComponent();
+      it('should submit the input value when clicking the submit button', async () => {
+        const { channel, container, submit } = await renderComponent();
 
         const messageText = 'Some text';
 
@@ -644,7 +791,7 @@ function axeNoViolations(container) {
             : {};
 
         const renderComponent = makeRenderFn(CustomInputForm);
-        const { container, submit } = await renderComponent(messageInputProps);
+        const { channel, container, submit } = await renderComponent(messageInputProps);
 
         fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
           target: {
@@ -666,10 +813,10 @@ function axeNoViolations(container) {
         await axeNoViolations(container);
       });
 
-      it('Should use overrideSubmitHandler prop if it is defined', async () => {
+      it('should use overrideSubmitHandler prop if it is defined', async () => {
         const overrideMock = jest.fn().mockImplementation(() => Promise.resolve());
         const customMessageData = undefined;
-        const { container, submit } = await renderComponent({
+        const { channel, container, submit } = await renderComponent({
           messageInputProps: {
             overrideSubmitHandler: overrideMock,
           },
@@ -695,7 +842,7 @@ function axeNoViolations(container) {
         await axeNoViolations(container);
       });
 
-      it('Should not do anything if the message is empty and has no files', async () => {
+      it('should not do anything if the message is empty and has no files', async () => {
         const { container, submit } = await renderComponent();
 
         await act(() => submit());
@@ -706,7 +853,7 @@ function axeNoViolations(container) {
 
       it('should add image as attachment if a message is submitted with an image', async () => {
         const doImageUploadRequest = mockUploadApi();
-        const { container, submit } = await renderComponent({
+        const { channel, container, submit } = await renderComponent({
           messageInputProps: {
             doImageUploadRequest,
           },
@@ -740,7 +887,7 @@ function axeNoViolations(container) {
 
       it('should add file as attachment if a message is submitted with a file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { container, submit } = await renderComponent({
+        const { channel, container, submit } = await renderComponent({
           messageInputProps: {
             doFileUploadRequest,
           },
@@ -774,7 +921,7 @@ function axeNoViolations(container) {
 
       it('should add audio as attachment if a message is submitted with an audio file', async () => {
         const doFileUploadRequest = mockUploadApi();
-        const { container, submit } = await renderComponent({
+        const { channel, container, submit } = await renderComponent({
           messageInputProps: {
             doFileUploadRequest,
           },
@@ -810,7 +957,7 @@ function axeNoViolations(container) {
 
       it('should submit if shouldSubmit function is not provided but keydown events do match', async () => {
         const submitHandler = jest.fn();
-        const { container } = await renderComponent({
+        const { channel, container } = await renderComponent({
           messageInputProps: {
             overrideSubmitHandler: submitHandler,
           },
@@ -818,7 +965,7 @@ function axeNoViolations(container) {
         const input = await screen.findByPlaceholderText(inputPlaceholder);
 
         const messageText = 'Submission text.';
-        act(() =>
+        await act(() =>
           fireEvent.change(input, {
             target: {
               value: messageText,
@@ -850,7 +997,7 @@ function axeNoViolations(container) {
         const input = await screen.findByPlaceholderText(inputPlaceholder);
 
         const messageText = 'Submission text.';
-        act(() =>
+        await act(() =>
           fireEvent.change(input, {
             target: {
               value: messageText,
@@ -858,7 +1005,7 @@ function axeNoViolations(container) {
           }),
         );
 
-        act(() => fireEvent.keyDown(input, { key: 'Enter' }));
+        await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
         expect(submitHandler).not.toHaveBeenCalled();
         await axeNoViolations(container);
@@ -867,7 +1014,7 @@ function axeNoViolations(container) {
       it('should submit if shouldSubmit function is provided and keydown events do match', async () => {
         const submitHandler = jest.fn();
 
-        const { container } = await renderComponent({
+        const { channel, container } = await renderComponent({
           messageInputProps: {
             overrideSubmitHandler: submitHandler,
             shouldSubmit: (e) => e.key === '9',
@@ -930,7 +1077,7 @@ function axeNoViolations(container) {
       });
     });
 
-    it('Should edit a message if it is passed through the message prop', async () => {
+    it('should edit a message if it is passed through the message prop', async () => {
       const file = {
         asset_url: 'somewhere.txt',
         file_size: 1000,
@@ -950,7 +1097,7 @@ function axeNoViolations(container) {
         mentioned_users,
         text: `@${username} what's up!`,
       });
-      const { container, submit } = await renderComponent({
+      const { channel, container, submit } = await renderComponent({
         messageInputProps: {
           clearEditingState: () => {},
           message,
@@ -975,12 +1122,30 @@ function axeNoViolations(container) {
       expect(results).toHaveNoViolations();
     });
 
-    it('Should add a mentioned user if @ is typed and a user is selected', async () => {
-      const { container, submit } = await renderComponent();
+    it('should list all the available users to mention if only @ is typed', async () => {
+      const { channel } = await renderComponent({ customUser: generateUser() });
 
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
 
-      act(() => {
+      await act(() => {
+        fireEvent.change(formElement, {
+          target: {
+            selectionEnd: 1,
+            value: '@',
+          },
+        });
+      });
+
+      const usernameList = screen.getAllByTestId('user-item-name');
+      expect(usernameList).toHaveLength(Object.keys(channel.state.members).length);
+    });
+
+    it('should add a mentioned user if @ is typed and a user is selected', async () => {
+      const { channel, container, submit } = await renderComponent();
+
+      const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
         fireEvent.change(formElement, {
           target: {
             selectionEnd: 1,
@@ -992,7 +1157,7 @@ function axeNoViolations(container) {
       const usernameListItem = await screen.getByTestId('user-item-name');
       expect(usernameListItem).toBeInTheDocument();
 
-      act(() => {
+      await act(() => {
         fireEvent.click(usernameListItem);
       });
 
@@ -1010,7 +1175,7 @@ function axeNoViolations(container) {
     });
 
     it('should remove mentioned users if they are no longer mentioned in the message text', async () => {
-      const { container, submit } = await renderComponent({
+      const { channel, container, submit } = await renderComponent({
         messageInputProps: {
           message: {
             mentioned_users: [{ id: userId, name: username }],
@@ -1021,7 +1186,7 @@ function axeNoViolations(container) {
       // remove all text from input
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
 
-      act(() => {
+      await act(() => {
         fireEvent.change(formElement, {
           target: {
             selectionEnd: 1,
@@ -1075,207 +1240,165 @@ function axeNoViolations(container) {
   });
 });
 
-[
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '1' },
-  { InputComponent: MessageInputSmall, name: 'MessageInputSmall', themeVersion: '2' },
-  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '1' },
-  { InputComponent: MessageInputFlat, name: 'MessageInputFlat', themeVersion: '2' },
-].forEach(({ InputComponent, name: componentName, themeVersion }) => {
-  const makeRenderFn = (InputComponent) => async ({
-    channelProps = {},
-    chatContextOverrides = {},
-    messageInputProps = {},
-    messageContextOverrides = {},
-    messageActionsBoxProps = {},
-  } = {}) => {
-    let renderResult;
-    await act(() => {
-      renderResult = render(
-        <ChatProvider
-          value={{
-            channel,
-            channelsQueryState: { error: null, queryInProgress: false },
-            client: chatClient,
-            latestMessageDatesByChannels: {},
-            ...chatContextOverrides,
-          }}
-        >
-          {/*<ActiveChannelSetter activeChannel={channel} />*/}
-          <Channel
-            doSendMessageRequest={submitMock}
-            doUpdateMessageRequest={editMock}
-            {...channelProps}
-          >
-            <MessageProvider value={{ ...defaultMessageContextValue, ...messageContextOverrides }}>
-              <MessageActionsBox
-                {...messageActionsBoxProps}
-                getMessageActions={defaultMessageContextValue.getMessageActions}
-              />
-            </MessageProvider>
-            <MessageInput Input={InputComponent} {...messageInputProps} />
-          </Channel>
-        </ChatProvider>,
-      );
-    });
-    return renderResult;
-  };
-  const renderComponent = makeRenderFn(InputComponent);
+describe(`MessageInputFlat only`, () => {
+  afterEach(tearDown);
 
-  describe(`${componentName}${themeVersion ? `(theme: ${themeVersion})` : ''}:`, () => {
-    beforeEach(async () => {
-      chatClient = await getTestClientWithUser({ id: user1.id });
-      useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
-      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
+  const renderComponent = makeRenderFn(MessageInputFlat);
+
+  const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { cooldown } }],
+      customUser: user,
     });
 
-    afterEach(tearDown);
-
-    const render = async ({
-      chatContextOverrides = {},
-      messageContextOverrides = {},
-      messageInputProps = {},
-    } = {}) => {
-      const message =
-        componentName === 'MessageInputSmall' ? threadMessage : defaultMessageContextValue.message;
-
-      await renderComponent({
-        chatContextOverrides: { themeVersion, ...chatContextOverrides },
-        messageContextOverrides: { message, ...messageContextOverrides },
-        messageInputProps,
-      });
-
-      return message;
-    };
-
-    const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
-      channel = chatClient.channel('messaging', mockedChannelData.channel.id);
-      channel.data.cooldown = cooldown;
-      channel.initialized = true;
-      const lastSentSecondsAhead = 5;
-      await render({
-        chatContextOverrides: {
-          channel,
-          latestMessageDatesByChannels: {
-            [channel.cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
-          },
+    const lastSentSecondsAhead = 5;
+    await renderComponent({
+      chatContextOverrides: {
+        latestMessageDatesByChannels: {
+          [channel.cid]: new Date(new Date().getTime() + lastSentSecondsAhead * 1000),
         },
-        messageInputProps,
+      },
+      customChannel: channel,
+      customClient: client,
+      messageInputProps,
+    });
+  };
+
+  const initQuotedMessagePreview = async (message) => {
+    await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
+
+    const quoteButton = await screen.findByText(/^reply$/i);
+    await waitFor(() => expect(quoteButton).toBeInTheDocument());
+
+    act(() => {
+      fireEvent.click(quoteButton);
+    });
+  };
+
+  const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
+    await waitFor(() => expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
+  };
+
+  const quotedMessagePreviewIsNotDisplayed = (message) => {
+    expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(message.text)).not.toBeInTheDocument();
+  };
+
+  describe('QuotedMessagePreview', () => {
+    it('is displayed on quote action click', async () => {
+      await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+    });
+
+    it('is updated on original message update', async () => {
+      const { channel, client } = await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      mainListMessage.text = new Date().toISOString();
+      await act(() => {
+        dispatchMessageUpdatedEvent(client, mainListMessage, channel);
       });
-    };
+      await quotedMessagePreviewIsDisplayedCorrectly(mainListMessage);
+    });
 
-    const initQuotedMessagePreview = async (message) => {
-      await waitFor(() => expect(screen.queryByText(message.text)).not.toBeInTheDocument());
+    it('is closed on original message delete', async () => {
+      const { channel, client } = await renderComponent();
+      await initQuotedMessagePreview(mainListMessage);
+      await act(() => {
+        dispatchMessageDeletedEvent(client, mainListMessage, channel);
+      });
+      quotedMessagePreviewIsNotDisplayed(mainListMessage);
+    });
+  });
 
-      const quoteButton = await screen.findByText(/^reply$/i);
-      await waitFor(() => expect(quoteButton).toBeInTheDocument());
+  describe('send button', () => {
+    it('should be renderer for empty input', async () => {
+      await renderComponent();
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+    });
 
+    it('should be rendered when editing a message', async () => {
+      await renderComponent({ messageInputProps: { message: generateMessage() } });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('should not be renderer during active cooldown period', async () => {
+      await renderWithActiveCooldown();
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should not be renderer if explicitly hidden', async () => {
+      await renderComponent({ messageInputProps: { hideSendButton: true } });
+      expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should be disabled if there is no content to be submitted', async () => {
+      await renderComponent();
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeDisabled();
+    });
+    it('should be enabled if there is text to be submitted', async () => {
+      await renderComponent();
+      fireEvent.change(screen.getByPlaceholderText(inputPlaceholder), {
+        target: {
+          value: 'X',
+        },
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+    });
+    it('should be enabled if there are uploads to be submitted', async () => {
+      await renderComponent({
+        messageInputProps: {
+          doFileUploadRequest: mockUploadApi(),
+        },
+      });
+      const file = getFile();
+
+      await act(() => {
+        fireEvent.change(screen.getByTestId(FILE_INPUT_TEST_ID), {
+          target: {
+            files: [file],
+          },
+        });
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+    });
+    it('should be enabled if there are attachments to be submitted', async () => {
+      await renderComponent({
+        messageInputProps: {
+          message: { attachments: [{}] },
+        },
+      });
+      expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeEnabled();
+    });
+    it.todo('should not be enabled if there are failed attachments only');
+  });
+
+  describe('cooldown timer', () => {
+    const COOLDOWN_TIMER_TEST_ID = 'cooldown-timer';
+
+    it('should be renderer during active cool-down period', async () => {
+      await renderWithActiveCooldown();
+      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('should not be renderer if send button explicitly hidden', async () => {
+      await renderWithActiveCooldown({ messageInputProps: { hideSendButton: true } });
+      expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('should be removed after cool-down period elapsed', async () => {
+      jest.useFakeTimers();
+      await renderWithActiveCooldown();
+      expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
       act(() => {
-        fireEvent.click(quoteButton);
+        jest.advanceTimersByTime(cooldown * 1000);
       });
-    };
-
-    const quotedMessagePreviewIsDisplayedCorrectly = async (message) => {
-      await waitFor(() =>
-        expect(screen.queryByTestId('quoted-message-preview')).toBeInTheDocument(),
-      );
-      await waitFor(() => expect(screen.getByText(message.text)).toBeInTheDocument());
-    };
-
-    const quotedMessagePreviewIsNotDisplayed = (message) => {
-      expect(screen.queryByText(/reply to message/i)).not.toBeInTheDocument();
-      expect(screen.queryByText(message.text)).not.toBeInTheDocument();
-    };
-
-    describe('QuotedMessagePreview', () => {
-      it('is displayed on quote action click', async () => {
-        const message = await render();
-        await initQuotedMessagePreview(message);
-        await quotedMessagePreviewIsDisplayedCorrectly(message);
-      });
-
-      it('is updated on original message update', async () => {
-        const message = await render();
-        await initQuotedMessagePreview(message);
-        message.text = nanoid();
-        await act(() => {
-          dispatchMessageUpdatedEvent(chatClient, message, channel);
-        });
-        await quotedMessagePreviewIsDisplayedCorrectly(message);
-      });
-
-      it('is closed on close button click', async () => {
-        // skip trying to cancel reply for theme version 2 as that is not supported
-        if (themeVersion === '2') return;
-        const message = await render();
-        await initQuotedMessagePreview(message);
-        const closeBtn = screen.getByRole('button', { name: /cancel reply/i });
-        await act(() => {
-          fireEvent.click(closeBtn);
-        });
-        quotedMessagePreviewIsNotDisplayed(message);
-      });
-
-      it('is closed on original message delete', async () => {
-        const message = await render();
-        await initQuotedMessagePreview(message);
-        await act(() => {
-          dispatchMessageDeletedEvent(chatClient, message, channel);
-        });
-        quotedMessagePreviewIsNotDisplayed(message);
-      });
-    });
-
-    describe('send button', () => {
-      const SEND_BTN_TEST_ID = 'send-button';
-
-      it('should be renderer for empty input', async () => {
-        await render();
-        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
-      });
-
-      it('should be renderer when editing a message', async () => {
-        await render({ messageInputProps: { message: generateMessage() } });
-        expect(screen.getByTestId(SEND_BTN_TEST_ID)).toBeInTheDocument();
-      });
-
-      it('should not be renderer during active cooldown period', async () => {
-        await renderWithActiveCooldown();
-        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
-      });
-
-      it('should not be renderer if explicitly hidden', async () => {
-        await render({ messageInputProps: { hideSendButton: true } });
-        expect(screen.queryByTestId(SEND_BTN_TEST_ID)).not.toBeInTheDocument();
-      });
-    });
-
-    describe('cooldown timer', () => {
-      const COOLDOWN_TIMER_TEST_ID = 'cooldown-timer';
-
-      it('should be renderer during active cool-down period', async () => {
-        await renderWithActiveCooldown();
-        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
-      });
-
-      it('should not be renderer if send button explicitly hidden only for MessageInputFlat theme 2', async () => {
-        await renderWithActiveCooldown({ messageInputProps: { hideSendButton: true } });
-        if (componentName === 'MessageInputSmall' || themeVersion === '1') {
-          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).toBeInTheDocument();
-        } else {
-          expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
-        }
-      });
-
-      it('should be removed after cool-down period elapsed', async () => {
-        jest.useFakeTimers();
-        await renderWithActiveCooldown();
-        expect(screen.getByTestId(COOLDOWN_TIMER_TEST_ID)).toHaveTextContent(cooldown.toString());
-        act(() => {
-          jest.advanceTimersByTime(cooldown * 1000);
-        });
-        expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
-        jest.useRealTimers();
-      });
+      expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
+      jest.useRealTimers();
     });
   });
 });

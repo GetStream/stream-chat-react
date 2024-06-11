@@ -22,7 +22,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
   const { t } = useTranslationContext('VoiceRecordingPlayer');
   const {
     asset_url,
-    duration,
+    duration = 0,
     mime_type,
     title = t<string>('Voice message'),
     waveform_data,
@@ -39,10 +39,13 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
     togglePlay,
   } = useAudioController({
     durationSeconds: duration ?? 0,
+    mimeType: mime_type,
     playbackRates,
   });
 
   if (!asset_url) return null;
+
+  const displayedDuration = secondsElapsed || duration;
 
   return (
     <div className={rootClassName} data-testid='voice-recording-widget'>
@@ -61,7 +64,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
             {attachment.duration ? (
-              displayDuration(secondsElapsed)
+              displayDuration(displayedDuration)
             ) : (
               <FileSizeIndicator fileSize={attachment.file_size} maximumFractionDigits={0} />
             )}
@@ -75,7 +78,7 @@ export const VoiceRecordingPlayer = ({ attachment, playbackRates }: VoiceRecordi
             {playbackRate.toFixed(1)}x
           </PlaybackRateButton>
         ) : (
-          <FileIcon big={true} mimeType={mime_type} size={40} version={'2'} />
+          <FileIcon big={true} mimeType={mime_type} size={40} />
         )}
       </div>
     </div>
@@ -111,7 +114,7 @@ export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) 
           </div>
         </div>
       </div>
-      <FileIcon big={true} mimeType={attachment.mime_type} size={34} version={'2'} />
+      <FileIcon big={true} mimeType={attachment.mime_type} size={34} />
     </div>
   );
 };

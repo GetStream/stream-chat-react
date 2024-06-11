@@ -1,8 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import { useChatContext } from '../../context/ChatContext';
-
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 export type UserItemProps = {
@@ -27,8 +25,6 @@ export type UserItemProps = {
  * UI component for mentions rendered in suggestion list
  */
 const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) => {
-  const { themeVersion } = useChatContext('UserItem');
-
   const hasEntity = !!Object.keys(entity).length;
   const itemParts = entity?.itemNameParts;
 
@@ -54,11 +50,15 @@ const UnMemoizedUserItem = ({ Avatar = DefaultAvatar, entity }: UserItemProps) =
 
   return (
     <div className='str-chat__user-item'>
-      <Avatar image={entity.image} name={entity.name || entity.id} size={20} />
+      <Avatar
+        className='str-chat__avatar--autocomplete-item'
+        image={entity.image}
+        name={entity.name || entity.id}
+      />
       <span className='str-chat__user-item--name' data-testid={'user-item-name'}>
         {renderName()}
       </span>
-      {themeVersion === '2' && <div className='str-chat__user-item-at'>@</div>}
+      <div className='str-chat__user-item-at'>@</div>
     </div>
   );
 };

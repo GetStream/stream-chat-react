@@ -3,16 +3,32 @@
 import React, { useEffect } from 'react';
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import renderer from 'react-test-renderer';
 import '@testing-library/jest-dom';
 
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import { AttachmentPreviewList, ImagePreviewItem } from '../AttachmentPreviewList';
-import { ComponentProvider, useChatContext } from '../../../context';
+import { AttachmentPreviewList } from '../AttachmentPreviewList';
+import { ImageUploadPreviewAdapter } from '../AttachmentPreviewList/UploadPreviewItem';
+import { ChannelActionProvider, ComponentProvider, useChatContext } from '../../../context';
 import { MessageInputContextProvider } from '../../../context/MessageInputContext';
 
-import { generateUpload, initClientWithChannels } from '../../../mock-builders';
+import {
+  generateAudioAttachment,
+  generateFileAttachment,
+  generateImageAttachment,
+  generateUpload,
+  generateVideoAttachment,
+  generateVoiceRecordingAttachment,
+  initClientWithChannels,
+} from '../../../mock-builders';
+
+jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation();
+
+const RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
+const RETRY_BTN_IMAGE_TEST_ID = 'image-preview-item-retry-button';
+const DELETE_BTN_TEST_ID = 'file-preview-item-delete-button';
+const DELETE_BTN_IMAGE_TEST_ID = 'image-preview-item-delete-button';
+const LOADING_INDICATOR_TEST_ID = 'loading-indicator';
 
 const uploadsReducer = (pv, cv) => {
   pv[cv.id] = cv;
@@ -28,23 +44,30 @@ const capitalize = ([firstLetter, ...restOfTheWord]) =>
 
 const orderMapper = ({ id }) => id;
 
-const generateMessageInputContextValue = ({ files = [], images = [] } = {}) => ({
+const generateMessageInputContextValue = ({ attachments = [], files = [], images = [] } = {}) => ({
+  attachments,
   fileOrder: files.map(orderMapper),
   fileUploads: files.reduce(uploadsReducer, {}),
   imageOrder: images.map(orderMapper),
   imageUploads: images.reduce(uploadsReducer, {}),
+  removeAttachments: jest.fn(),
   removeFile: jest.fn(),
   removeImage: jest.fn(),
+  uploadAttachment: jest.fn(),
   uploadFile: jest.fn(),
   uploadImage: jest.fn(),
 });
 
-const renderComponent = (value = {}, renderFunction = render) =>
-  renderFunction(
+const renderComponent = ({ contextValue, props, renderFunction } = {}) =>
+  (renderFunction ?? render)(
     <ComponentProvider value={{}}>
-      <MessageInputContextProvider value={{ ...generateMessageInputContextValue(), ...value }}>
-        <AttachmentPreviewList />
-      </MessageInputContextProvider>
+      <ChannelActionProvider value={{}}>
+        <MessageInputContextProvider
+          value={{ ...generateMessageInputContextValue(), ...contextValue }}
+        >
+          <AttachmentPreviewList {...props} />
+        </MessageInputContextProvider>
+      </ChannelActionProvider>
     </ComponentProvider>,
   );
 
@@ -60,63 +83,262 @@ describe('AttachmentPreviewList', () => {
 
     expect(attachmentList).toBeEmptyDOMElement();
   });
+  it.each(['uploading', 'failed', 'finished'])('renders previews with state "%s"', (state) => {
+    renderComponent({
+      contextValue: generateMessageInputContextValue({
+        attachments: [
+          generateAudioAttachment({
+            localMetadata: { id: 'audio-attachment-id', uploadState: state },
+            title: `audio-attachment-${state}`,
+          }),
+          generateVoiceRecordingAttachment({
+            localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
+            title: `voice-recording-attachment-${state}`,
+          }),
+          generateVideoAttachment({
+            localMetadata: { id: 'video-attachment-id', uploadState: state },
+            title: `video-attachment-${state}`,
+          }),
+        ],
+        files: [
+          generateUpload({
+            fileOverrides: { name: `file-upload-${state}` },
+            objectOverrides: { state },
+          }),
+        ],
+        images: [
+          generateUpload({
+            fileOverrides: { name: `image-upload-${state}`, type: 'image' },
+            objectOverrides: { state },
+          }),
+        ],
+      }),
+    });
 
-  it.each(['uploading', 'failed', 'finished'])(
-    'renders with one image and one file with state "%s"',
-    (state) => {
-      const [file, image] = [
-        generateUpload({
-          fileOverrides: { name: 'file-upload' },
-          objectOverrides: { state },
-        }),
-        generateUpload({
-          fileOverrides: { name: 'image-upload', type: 'image' },
-          objectOverrides: { state },
-        }),
-      ];
+    expect(screen.getByTitle(`file-upload-${state}`)).toBeInTheDocument();
+    expect(screen.getByTitle(`image-upload-${state}`)).toBeInTheDocument();
+    expect(screen.getByTitle(`audio-attachment-${state}`)).toBeInTheDocument();
+    expect(screen.getByTitle(`voice-recording-attachment-${state}`)).toBeInTheDocument();
+    expect(screen.getByTitle(`video-attachment-${state}`)).toBeInTheDocument();
+  });
 
-      const tree = renderComponent(
-        generateMessageInputContextValue({ files: [file], images: [image] }),
-        renderer.create,
-      ).toJSON();
+  describe.each(['file', 'image'])('%s uploads previews', (type) => {
+    it('retries upload on click', () => {
+      const file = generateUpload({
+        fileOverrides: { type },
+        objectOverrides: { state: 'failed' },
+      });
 
-      expect(tree).toMatchSnapshot();
+      const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+
+      const { getByTestId } = renderComponent({ contextValue });
+
+      const retryButton = getByTestId(`${type}-preview-item-retry-button`);
+
+      fireEvent.click(retryButton);
+
+      expect(contextValue[`upload${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
+    });
+
+    it('renders loading indicator', () => {
+      const file = generateUpload({
+        fileOverrides: { type },
+        objectOverrides: { state: 'uploading' },
+      });
+
+      const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+
+      renderComponent({ contextValue });
+
+      expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
+      expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('removes from state on button click', () => {
+      const file = generateUpload({
+        fileOverrides: { type },
+        objectOverrides: { state: 'finished' },
+      });
+
+      const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+
+      const { getByTestId } = renderComponent({ contextValue });
+
+      const deleteButton = getByTestId(`${type}-preview-item-delete-button`);
+
+      fireEvent.click(deleteButton);
+
+      expect(contextValue[`remove${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
+    });
+
+    it('renders custom component', () => {
+      const file = generateUpload({
+        fileOverrides: { type },
+      });
+      const text = `Custom ${type} component`;
+      const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
+      const CustomPreview = () => <div>{text}</div>;
+      renderComponent({
+        contextValue,
+        props: {
+          [type === 'image' ? 'ImageAttachmentPreview' : 'FileAttachmentPreview']: CustomPreview,
+        },
+      });
+
+      expect(screen.queryByText(text)).toBeInTheDocument();
+    });
+  });
+
+  describe.each(['audio', 'file', 'image', 'unsupported', 'voiceRecording', 'video'])(
+    '%s attachments rendering',
+    (type) => {
+      const customAttachment = {
+        id: new Date().toISOString(),
+        latitude: 456,
+        longitude: 123,
+        mimeType: 'text/plain',
+        title: 'custom-title.txt',
+        type: 'geolocation',
+      };
+
+      const generate = {
+        audio: generateAudioAttachment,
+        file: generateFileAttachment,
+        image: generateImageAttachment,
+        unsupported: () => customAttachment,
+        video: generateVideoAttachment,
+        voiceRecording: generateVoiceRecordingAttachment,
+      };
+
+      it('retries upload on upload button click', () => {
+        const state = 'failed';
+        const title = `${type}-attachment-${state}`;
+        const uploadedAttachmentData = generate[type]({
+          title,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
+        };
+
+        const contextValue = generateMessageInputContextValue({
+          attachments: [localAttachment],
+        });
+
+        renderComponent({ contextValue });
+
+        const retryButton = screen.getByTestId(
+          type === 'image' ? RETRY_BTN_IMAGE_TEST_ID : RETRY_BTN_TEST_ID,
+        );
+
+        fireEvent.click(retryButton);
+
+        expect(contextValue.uploadAttachment).toHaveBeenCalledWith(
+          expect.objectContaining(uploadedAttachmentData),
+        );
+      });
+
+      it('renders loading indicator in preview', () => {
+        const state = 'uploading';
+        const title = `${type}-attachment-${state}`;
+        const uploadedAttachmentData = generate[type]({
+          title,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
+        };
+
+        const contextValue = generateMessageInputContextValue({
+          attachments: [localAttachment],
+        });
+
+        renderComponent({ contextValue });
+
+        expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
+        expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('removes retry button on successful upload', () => {
+        const state = 'finished';
+        const title = `${type}-attachment-${state}`;
+        const uploadedAttachmentData = generate[type]({
+          title,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id: new Date().toISOString(), uploadState: state },
+        };
+
+        const contextValue = generateMessageInputContextValue({
+          attachments: [localAttachment],
+        });
+
+        renderComponent({ contextValue });
+
+        expect(screen.queryByTestId(RETRY_BTN_TEST_ID)).not.toBeInTheDocument();
+      });
+
+      it('removes the preview', () => {
+        const state = 'finished';
+        const title = `${type}-attachment-${state}`;
+        const id = `${type}-id`;
+        const uploadedAttachmentData = generate[type]({
+          title,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id, uploadState: state },
+        };
+
+        const contextValue = generateMessageInputContextValue({
+          attachments: [localAttachment],
+        });
+
+        renderComponent({ contextValue });
+
+        fireEvent.click(
+          screen.getByTestId(type === 'image' ? DELETE_BTN_IMAGE_TEST_ID : DELETE_BTN_TEST_ID),
+        );
+
+        expect(contextValue.removeAttachments).toHaveBeenCalledWith([
+          localAttachment.localMetadata.id,
+        ]);
+      });
+
+      it('renders custom preview component', () => {
+        const previewComponentNames = {
+          audio: 'AudioAttachmentPreview',
+          file: 'FileAttachmentPreview',
+          image: 'ImageAttachmentPreview',
+          unsupported: 'UnsupportedAttachmentPreview',
+          video: 'VideoAttachmentPreview',
+          voiceRecording: 'VoiceRecordingPreview',
+        };
+        const title = `${type}-attachment`;
+        const id = `${type}-id`;
+        const uploadedAttachmentData = generate[type]({
+          title,
+        });
+        const localAttachment = {
+          ...uploadedAttachmentData,
+          localMetadata: { id },
+        };
+
+        const contextValue = generateMessageInputContextValue({
+          attachments: [localAttachment],
+        });
+        const text = `custom-${title}`;
+        const CustomPreviewComponent = () => <div>{text}</div>;
+        renderComponent({
+          contextValue,
+          props: { [previewComponentNames[type]]: CustomPreviewComponent },
+        });
+
+        expect(screen.queryByText(text)).toBeInTheDocument();
+      });
     },
   );
-
-  it.each(['file', 'image'])('tests "retry" click on %s upload', (type) => {
-    const file = generateUpload({
-      fileOverrides: { type },
-      objectOverrides: { state: 'failed' },
-    });
-
-    const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
-
-    const { getByTestId } = renderComponent(contextValue);
-
-    const retryButton = getByTestId(`${type}-preview-item-retry-button`);
-
-    fireEvent.click(retryButton);
-
-    expect(contextValue[`upload${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
-  });
-
-  it.each(['file', 'image'])('tests "remove" click on %s upload', (type) => {
-    const file = generateUpload({
-      fileOverrides: { type },
-      objectOverrides: { state: 'finished' },
-    });
-
-    const contextValue = generateMessageInputContextValue({ [`${type}s`]: [file] });
-
-    const { getByTestId } = renderComponent(contextValue);
-
-    const deleteButton = getByTestId(`${type}-preview-item-delete-button`);
-
-    fireEvent.click(deleteButton);
-
-    expect(contextValue[`remove${capitalize(type)}`]).toHaveBeenCalledWith(file.id);
-  });
 
   it('should render custom BaseImage component', async () => {
     const ActiveChannelSetter = ({ activeChannel }) => {
@@ -158,7 +380,7 @@ describe('AttachmentPreviewList', () => {
   });
 });
 
-describe('ImagePreviewItem', () => {
+describe('ImageUploadPreviewAdapter', () => {
   const BASE_IMAGE_TEST_ID = 'str-chat__base-image';
   const getImage = () => screen.queryByTestId(BASE_IMAGE_TEST_ID);
   const defaultId = '7VZCBda5mQQk49icgNaUJ';
@@ -178,55 +400,55 @@ describe('ImagePreviewItem', () => {
     removeImage: jest.fn(),
     uploadImage: jest.fn(),
   };
-  const renderImagePreviewItem = ({ id, ...inputContext } = {}) =>
+  const renderImageUploadPreviewAdapter = ({ id, ...inputContext } = {}) =>
     render(
       <ComponentProvider value={{}}>
         <MessageInputContextProvider value={{ ...defaultInputContext, ...inputContext }}>
-          <ImagePreviewItem id={id || defaultId} />
+          <ImageUploadPreviewAdapter id={id || defaultId} />
         </MessageInputContextProvider>
       </ComponentProvider>,
     );
 
   it('does not render images not found in the input attachment state', () => {
-    const { container } = renderImagePreviewItem({ id: 'X' });
+    const { container } = renderImageUploadPreviewAdapter({ id: 'X' });
     expect(container).toBeEmptyDOMElement();
   });
   it('does not render scraped images', () => {
-    const { container } = renderImagePreviewItem({
+    const { container } = renderImageUploadPreviewAdapter({
       imageUploads: { [defaultId]: { ...imageUploads[defaultId], og_scrape_url: 'og_scrape_url' } },
     });
-    expect(container).toBeEmpty();
+    expect(container).toBeEmptyDOMElement();
   });
   it('renders uploading state', () => {
-    const { container } = renderImagePreviewItem({
+    const { container } = renderImageUploadPreviewAdapter({
       imageUploads: { [defaultId]: { ...imageUploads[defaultId], state: 'uploading' } },
     });
     expect(container).toMatchSnapshot();
   });
   it('renders upload finished state', () => {
-    const { container } = renderImagePreviewItem();
+    const { container } = renderImageUploadPreviewAdapter();
     expect(container).toMatchSnapshot();
   });
   it('renders upload failed state', () => {
-    const { container } = renderImagePreviewItem({
+    const { container } = renderImageUploadPreviewAdapter({
       imageUploads: { [defaultId]: { ...imageUploads[defaultId], state: 'failed' } },
     });
     expect(container).toMatchSnapshot();
   });
   it('reflects the image load error with str-chat__attachment-preview-image--error class', () => {
-    const { container } = renderImagePreviewItem();
+    const { container } = renderImageUploadPreviewAdapter();
     fireEvent.error(getImage());
     expect(container.children[0].className).toMatch('str-chat__attachment-preview-image--error');
   });
   it('asks to retry uploading the image', () => {
-    renderImagePreviewItem({
+    renderImageUploadPreviewAdapter({
       imageUploads: { [defaultId]: { ...imageUploads[defaultId], state: 'failed' } },
     });
     fireEvent.click(screen.getByTestId('image-preview-item-retry-button'));
     expect(defaultInputContext.uploadImage).toHaveBeenCalledTimes(1);
   });
   it('asks to remove image from input attachment state', () => {
-    renderImagePreviewItem();
+    renderImageUploadPreviewAdapter();
     fireEvent.click(screen.getByTestId('image-preview-item-delete-button'));
     expect(defaultInputContext.removeImage).toHaveBeenCalledTimes(1);
   });

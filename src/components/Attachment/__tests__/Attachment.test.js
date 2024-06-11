@@ -18,6 +18,9 @@ import {
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
 import { generateScrapedVideoAttachment } from '../../../mock-builders';
+import { ChannelStateProvider } from '../../../context';
+
+const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
 
 const Audio = (props) => <div data-testid='audio-attachment'>{props.customTestId}</div>;
 const Card = (props) => <div data-testid='card-attachment'>{props.customTestId}</div>;
@@ -46,23 +49,25 @@ const ATTACHMENTS = {
 
 const renderComponent = (props) =>
   render(
-    <Attachment
-      AttachmentActions={AttachmentActions}
-      Audio={Audio}
-      Card={Card}
-      File={File}
-      Gallery={Gallery}
-      Image={Image}
-      Media={Media}
-      {...props}
-    />,
+    <ChannelStateProvider value={{}}>
+      <Attachment
+        AttachmentActions={AttachmentActions}
+        Audio={Audio}
+        Card={Card}
+        File={File}
+        Gallery={Gallery}
+        Image={Image}
+        Media={Media}
+        {...props}
+      />
+    </ChannelStateProvider>,
   );
 
 describe('attachment', () => {
   describe('non-scraped content', () => {
-    it('should render empty attachment list if unrecognized type', () => {
-      const { container } = renderComponent({ attachments: [{}] });
-      expect(container.firstChild).toBeEmptyDOMElement();
+    it('should render unsupported attachment if unrecognized type', () => {
+      renderComponent({ attachments: [{}] });
+      expect(screen.getByTestId(UNSUPPORTED_ATTACHMENT_TEST_ID)).toBeInTheDocument();
     });
 
     const cases = {
@@ -122,8 +127,8 @@ describe('attachment', () => {
         og_scrape_url: undefined,
         title_link: undefined,
       });
-      const { container } = renderComponent({ attachments: [attachment] });
-      expect(container.firstChild).toBeEmptyDOMElement();
+      renderComponent({ attachments: [attachment] });
+      expect(screen.getByTestId(UNSUPPORTED_ATTACHMENT_TEST_ID)).toBeInTheDocument();
     });
 
     const cases = [

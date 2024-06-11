@@ -44,7 +44,7 @@ export const QuotedMessage = <
   return (
     <>
       <div
-        className={clsx('str-chat__quoted-message-preview quoted-message', { mine: isMyMessage() })}
+        className={clsx('str-chat__quoted-message-preview', { mine: isMyMessage() })}
         data-testid='quoted-message'
         onClickCapture={(e) => {
           e.stopPropagation();
@@ -54,20 +54,19 @@ export const QuotedMessage = <
       >
         {quoted_message.user && (
           <Avatar
+            className='str-chat__avatar--quoted-message-sender'
             image={quoted_message.user.image}
             name={quoted_message.user.name || quoted_message.user.id}
-            size={20}
             user={quoted_message.user}
           />
         )}
-        <div
-          className='quoted-message-inner str-chat__quoted-message-bubble'
-          data-testid='quoted-message-contents'
-        >
+        <div className='str-chat__quoted-message-bubble' data-testid='quoted-message-contents'>
           {quotedMessageAttachment && (
             <Attachment attachments={[quotedMessageAttachment]} isQuoted />
           )}
-          <div data-testid='quoted-message-text'>{quotedMessageText}</div>
+          <div className='str-chat__quoted-message-bubble__text' data-testid='quoted-message-text'>
+            {quotedMessageText}
+          </div>
         </div>
       </div>
       {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}

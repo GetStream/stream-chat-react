@@ -7,7 +7,11 @@ import type { EmptyStateIndicatorProps } from '../components/EmptyStateIndicator
 import type { EventComponentProps } from '../components/EventComponent/EventComponent';
 import type { LoadingIndicatorProps } from '../components/Loading/LoadingIndicator';
 import type { FixedHeightMessageProps } from '../components/Message/FixedHeightMessage';
-import type { MessageUIComponentProps, PinIndicatorProps } from '../components/Message/types';
+import type {
+  MessageProps,
+  MessageUIComponentProps,
+  PinIndicatorProps,
+} from '../components/Message/types';
 import type { MessageDeletedProps } from '../components/Message/MessageDeleted';
 import type { GiphyPreviewMessageProps } from '../components/MessageList/GiphyPreviewMessage';
 import type { MessageListNotificationsProps } from '../components/MessageList/MessageListNotifications';
@@ -15,7 +19,6 @@ import type { MessageNotificationProps } from '../components/MessageList/Message
 import type { MessageOptionsProps } from '../components/Message/MessageOptions';
 import type { EmojiSearchIndex, MessageInputProps } from '../components/MessageInput/MessageInput';
 import type { QuotedMessagePreviewProps } from '../components/MessageInput/QuotedMessagePreview';
-import type { MessageProps } from '../components/Message/types';
 import type { MessageRepliesCountButtonProps } from '../components/Message/MessageRepliesCountButton';
 import type { MessageStatusProps } from '../components/Message/MessageStatus';
 import type { MessageTimestampProps } from '../components/Message/MessageTimestamp';
@@ -27,21 +30,23 @@ import type {
   SuggestionListProps,
 } from '../components/ChatAutoComplete/ChatAutoComplete';
 import { UnreadMessagesSeparatorProps } from '../components/MessageList/UnreadMessagesSeparator';
-import type { SuggestionListHeaderProps } from '../components/AutoCompleteTextarea';
-import type { SendButtonProps } from '../components/MessageInput/icons';
 import type { ThreadHeaderProps } from '../components/Thread/ThreadHeader';
 import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingIndicator';
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
-import type {
+import type { RecordingPermissionDeniedNotificationProps } from '../components';
+import {
   BaseImageProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
+  StartRecordingAudioButtonProps,
 } from '../components';
+import type { AttachmentPreviewListProps } from '../components/MessageInput';
 import type { LinkPreviewListProps } from '../components/MessageInput/LinkPreviewList';
 import type { ReactionOptions } from '../components/Reactions/reactionOptions';
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
 import type { UnreadMessagesNotificationProps } from '../components/MessageList/UnreadMessagesNotification';
+import type { SendButtonProps } from '../components/MessageInput/SendButton';
 import type { TimestampProps } from '../components/Message/Timestamp';
 
 export type ComponentContextValue<
@@ -54,8 +59,8 @@ export type ComponentContextValue<
   MessageSystem: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   reactionOptions: ReactionOptions;
   UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
-  AttachmentPreviewList?: React.ComponentType;
-  AutocompleteSuggestionHeader?: React.ComponentType<SuggestionListHeaderProps>;
+  AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  AudioRecorder?: React.ComponentType;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;
   Avatar?: React.ComponentType<AvatarProps<StreamChatGenerics>>;
@@ -86,7 +91,9 @@ export type ComponentContextValue<
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<StreamChatGenerics>>;
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps<StreamChatGenerics>>;
   ReactionsList?: React.ComponentType<ReactionsListProps<StreamChatGenerics>>;
+  RecordingPermissionDeniedNotification?: React.ComponentType<RecordingPermissionDeniedNotificationProps>;
   SendButton?: React.ComponentType<SendButtonProps<StreamChatGenerics>>;
+  StartRecordingAudioButton?: React.ComponentType<StartRecordingAudioButtonProps>;
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
