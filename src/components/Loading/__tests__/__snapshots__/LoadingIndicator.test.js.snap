@@ -5,7 +5,7 @@ exports[`LoadingIndicator should render with default props 1`] = `
   className="str-chat__loading-indicator"
   data-testid="loading-indicator-wrapper"
   style={
-    Object {
+    {
       "height": 15,
       "width": 15,
     }
@@ -36,7 +36,7 @@ exports[`LoadingIndicator should render with default props 1`] = `
           stopColor="#006CFF"
           stopOpacity="1"
           style={
-            Object {
+            {
               "stopColor": "#006CFF",
             }
           }

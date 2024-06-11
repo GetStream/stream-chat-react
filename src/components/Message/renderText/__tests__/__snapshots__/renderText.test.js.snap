@@ -9,7 +9,7 @@ exports[`htmlToTextPlugin present keeps HTML in text 1`] = `
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a blockquote 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -33,7 +33,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a code block 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -53,7 +53,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a horizontal rule 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -68,7 +68,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a strikethrough 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -86,7 +86,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks around a table 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -106,7 +106,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks between paragraphs 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -204,7 +204,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks between the items
 `;
 
 exports[`keepLineBreaksPlugin absent does not keep line breaks under a heading 1`] = `
-Array [
+[
   "Heading",
   "
 ",
@@ -239,7 +239,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -291,7 +291,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a code block 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -339,7 +339,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a horizontal rule 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -382,7 +382,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a strikethrough 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -428,7 +428,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks around a table 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -476,7 +476,7 @@ Array [
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks between paragraphs 1`] = `
-Array [
+[
   <p>
     a
   </p>,
@@ -658,7 +658,7 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
 `;
 
 exports[`keepLineBreaksPlugin present keeps line breaks under a heading 1`] = `
-Array [
+[
   "Heading",
   "
 ",
@@ -877,7 +877,7 @@ exports[`renderText renders custom mention 1`] = `
 `;
 
 exports[`renderText renders remark-gfm list and strikethrough correctly 1`] = `
-Array [
+[
   <p>
     Pick a time to meet:
   </p>,
