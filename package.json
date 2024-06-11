@@ -135,7 +135,6 @@
     "@commitlint/config-conventional": "^18.4.3",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
-    "@fal-works/esbuild-plugin-global-externals": "^2.1.2",
     "@ladle/react": "^0.16.0",
     "@playwright/test": "^1.42.1",
     "@semantic-release/changelog": "^6.0.2",
@@ -247,5 +246,6 @@
     ">0.2%",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }
