@@ -66,6 +66,7 @@ export const List = ({
 
       modifyText(values[index]);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [modifyText, findItemIndex],
   );
 
@@ -103,6 +104,7 @@ export const List = ({
 
       return null;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [selectedItemIndex, values],
   );
 

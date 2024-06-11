@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // https://github.com/i18next/i18next-parser#options
 module.exports = {
   createOldCatalogs: false,

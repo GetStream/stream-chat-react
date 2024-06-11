@@ -18,7 +18,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           data-test-id="virtuoso-scroller"
           data-virtuoso-scroller={true}
           style={
-            Object {
+            {
               "WebkitOverflowScrolling": "touch",
               "height": "100%",
               "outline": "none",
@@ -32,7 +32,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           <div
             data-viewport-type="element"
             style={
-              Object {
+              {
                 "height": "100%",
                 "position": "absolute",
                 "top": 0,

@@ -9,7 +9,7 @@
     "react-scripts": "5.0.1",
     "stream-chat": "link:../../node_modules/stream-chat",
     "stream-chat-react": "link:../../",
-    "typescript": "4.3.5"
+    "typescript": "^5.4.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
