@@ -18,7 +18,7 @@ describe('CustomMessageActionsList', () => {
     );
 
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      [
         <button
           aria-selected="false"
           className="str-chat__message-actions-list-item str-chat__message-actions-list-item-button"
