@@ -14,6 +14,7 @@ const outDir = resolve(__dirname, '../dist');
 // Those dependencies are distributed as ES modules, and cannot be externalized
 // in our CJS bundle. We convert them to CJS and bundle them instead.
 const bundledDeps = [
+  '@breezystack/lamejs',
   'hast-util-find-and-replace',
   'unist-builder',
   'unist-util-visit',
