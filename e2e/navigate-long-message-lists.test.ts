@@ -1,5 +1,5 @@
 /* eslint-disable jest/expect-expect */
-import { expect, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
 import * as dotenv from 'dotenv';
 
 import selectors from './user/selectors';
@@ -12,7 +12,6 @@ import MessageList from './user/components/MessageList/MessageList';
 import MessageNotification, {
   getMessageNotificationSelector,
 } from './user/components/MessageList/MessageNotification';
-import QuotedMessage from './user/components/Message/QuotedMessage';
 import Thread, { composeThreadSelector } from './user/components/Thread/Thread';
 
 import type { TestingUser } from './user/User';
@@ -29,8 +28,6 @@ const USER1_CHAT_VIEW_CLASSNAME = `.${user1Id}`;
 const NEW_MESSAGE_NOTIFICATION_TEXT = 'New Messages!' as const;
 const LAST_REPLY_TEXT = 'Message 299';
 const MESSAGES_WITH_REPLIES = ['Message 149', 'Message 137', 'Message 124', 'Message 99'];
-const FIRST_MESSAGE_FIRST_PAGE = 'Message 125';
-const QUOTED_MESSAGES = ['Message 99', 'Message 137'];
 
 const scrollInSteps = async (user: TestingUser, msgNumbers = ['142', '135', '128'], cycles = 3) => {
   for (let i = 0; i < cycles; i++) {

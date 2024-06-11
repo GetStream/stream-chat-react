@@ -42,7 +42,9 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.node }}-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: 🔨 Install Dependencies & Build
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: |
+          yarn install --frozen-lockfile --ignore-engines
+          yarn build
 
       - name: 🧪 Lint and Test with ${{ matrix.node }}
         env:
