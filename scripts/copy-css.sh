@@ -3,5 +3,8 @@
 mkdir -p dist/assets dist/css/v2 dist/scss/v2
 
 cp -r node_modules/@stream-io/stream-chat-css/dist/assets/* dist/assets
+cp -r node_modules/@stream-io/stream-chat-css/dist/v2/css/*.css dist/css
+cp -r node_modules/@stream-io/stream-chat-css/dist/v2/scss/* dist/scss
+# Also copy CSS to v2 subdir for reverse compatibility:
 cp -r node_modules/@stream-io/stream-chat-css/dist/v2/css/*.css dist/css/v2
 cp -r node_modules/@stream-io/stream-chat-css/dist/v2/scss/* dist/scss/v2
