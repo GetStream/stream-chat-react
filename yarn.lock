@@ -6463,6 +6463,11 @@ find-versions@^4.0.0:
   dependencies:
     semver-regex "^3.1.2"
 
+fix-webm-duration@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/fix-webm-duration/-/fix-webm-duration-1.0.5.tgz#da4558a92196a677302bfc54780b494dd5336a96"
+  integrity sha512-b6oula3OfSknx0aWoLsxvp4DVIYbwsf+UAkr6EDAK3iuMYk/OSNKzmeSI61GXK0MmFTEuzle19BPvTxMIKjkZg==
+
 flat-cache@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/flat-cache/-/flat-cache-2.0.1.tgz#5d296d6f04bda44a4630a301413bdbc2ec085ec0"
@@ -12308,10 +12313,10 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stream-chat@^8.21.0:
-  version "8.21.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.21.0.tgz#cb12089a886b925d345da21893f7837d999ff80c"
-  integrity sha512-txPDS6U+Jj+lurb6wRYrZaNJaQPhFT1NaXzqupCwmX+rUDk/N6WbwX2/pkN2UVbDetSEAdYqhDk+3MEo9njtSA==
+stream-chat@^8.30.0:
+  version "8.36.0"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-8.36.0.tgz#a241829fc219a409a1e04d82034d726244b8d1f7"
+  integrity sha512-J0s5K6lOJdrncmnHQ1YmPHBfswkozuiJ49xKUwBqGL5T4wvKM/7C+6vhUdp5pILfbBivJtIkGzQHVVizjpzQPw==
   dependencies:
     "@babel/runtime" "^7.16.3"
     "@types/jsonwebtoken" "~9.0.0"
