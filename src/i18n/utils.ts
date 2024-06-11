@@ -12,8 +12,6 @@ import type { Streami18n } from './Streami18n';
 export type TimestampFormatterOptions = {
   /* If true, call the `Day.js` calendar function to get the date string to display (e.g. "Yesterday at 3:58 PM"). */
   calendar?: boolean | null;
-  /* Object specifying date display formats for dates formatted with calendar extension. Active only if calendar prop enabled. */
-  calendarFormats?: Record<string, string> | null;
   /* Overrides the default timestamp format if calendar is disabled. */
   format?: string | null;
 };
@@ -33,7 +31,6 @@ export const noParsingFunctionWarning =
 
 export function getDateString({
   calendar,
-  calendarFormats,
   format,
   formatDate,
   messageCreatedAt,
@@ -56,8 +53,6 @@ export function getDateString({
   if (t && timestampTranslationKey) {
     const options: TimestampFormatterOptions = {};
     if (typeof calendar !== 'undefined' && calendar !== null) options.calendar = calendar;
-    if (typeof calendarFormats !== 'undefined' && calendarFormats !== null)
-      options.calendarFormats = calendarFormats;
     if (typeof format !== 'undefined' && format !== null) options.format = format;
 
     const translatedTimestamp = t(timestampTranslationKey, {
@@ -81,7 +76,7 @@ export function getDateString({
      * available when a user calls dayjs.extend(calendar)
      */
     return calendar && parsedTime.calendar
-      ? parsedTime.calendar(undefined, calendarFormats || undefined)
+      ? parsedTime.calendar()
       : parsedTime.format(format || undefined);
   }
 
@@ -110,32 +105,9 @@ export type PredefinedFormatters = {
 };
 
 export const predefinedFormatters: PredefinedFormatters = {
-  timestampFormatter: (streamI18n) => (
-    value,
-    _,
-    {
-      calendarFormats,
-      ...options
-    }: Pick<TimestampFormatterOptions, 'calendar' | 'format'> & {
-      calendarFormats?: Record<string, string> | string;
-    },
-  ) => {
-    let parsedCalendarFormats;
-    try {
-      if (!options.calendar) {
-        parsedCalendarFormats = {};
-      } else if (typeof calendarFormats === 'string') {
-        parsedCalendarFormats = JSON.parse(calendarFormats);
-      } else if (typeof calendarFormats === 'object') {
-        parsedCalendarFormats = calendarFormats;
-      }
-    } catch (e) {
-      console.error('[TIMESTAMP FORMATTER]', e);
-    }
-
+  timestampFormatter: (streamI18n) => (value, _, options: TimestampFormatterOptions) => {
     const result = getDateString({
       ...options,
-      calendarFormats: parsedCalendarFormats,
       messageCreatedAt: value,
       tDateTimeParser: streamI18n.tDateTimeParser,
     });

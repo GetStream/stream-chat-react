@@ -98,54 +98,40 @@ describe('getDateString', () => {
     ).toBe(expectedValue);
   });
 
-  it.each([
-    ['defined', { x: 'y' }],
-    ['undefined', undefined],
-  ])(
-    'invokes calendar method on dayOrMoment object with calendar formats %s',
-    (_, calendarFormats) => {
-      const dayOrMoment = {
-        calendar: jest.fn(),
-        format: jest.fn(),
-        isSame: true,
-      };
-      getDateString({
-        calendar: true,
-        calendarFormats,
-        format: 'hh:mm A',
-        formatDate: undefined,
-        messageCreatedAt,
-        tDateTimeParser: () => dayOrMoment,
-      });
-      expect(dayOrMoment.calendar).toHaveBeenCalledWith(undefined, calendarFormats);
-      expect(dayOrMoment.format).not.toHaveBeenCalled();
-    },
-  );
+  it('invokes calendar method on dayOrMoment object', () => {
+    const dayOrMoment = {
+      calendar: jest.fn(),
+      format: jest.fn(),
+      isSame: true,
+    };
+    getDateString({
+      calendar: true,
+      format: 'hh:mm A',
+      formatDate: undefined,
+      messageCreatedAt,
+      tDateTimeParser: () => dayOrMoment,
+    });
+    expect(dayOrMoment.calendar).toHaveBeenCalledWith();
+    expect(dayOrMoment.format).not.toHaveBeenCalled();
+  });
 
-  it.each([
-    ['defined', { x: 'y' }],
-    ['undefined', undefined],
-  ])(
-    'invokes format method on dayOrMoment object with calendar formats %s',
-    (_, calendarFormats) => {
-      const dayOrMoment = {
-        calendar: jest.fn(),
-        format: jest.fn(),
-        isSame: true,
-      };
-      const format = 'XY';
-      getDateString({
-        calendar: false,
-        calendarFormats,
-        format,
-        formatDate: undefined,
-        messageCreatedAt,
-        tDateTimeParser: () => dayOrMoment,
-      });
-      expect(dayOrMoment.format).toHaveBeenCalledWith(format);
-      expect(dayOrMoment.calendar).not.toHaveBeenCalled();
-    },
-  );
+  it('invokes format method on dayOrMoment object', () => {
+    const dayOrMoment = {
+      calendar: jest.fn(),
+      format: jest.fn(),
+      isSame: true,
+    };
+    const format = 'XY';
+    getDateString({
+      calendar: false,
+      format,
+      formatDate: undefined,
+      messageCreatedAt,
+      tDateTimeParser: () => dayOrMoment,
+    });
+    expect(dayOrMoment.format).toHaveBeenCalledWith(format);
+    expect(dayOrMoment.calendar).not.toHaveBeenCalled();
+  });
 
   it.each([null, undefined, {}, [], new Set(), true, new RegExp('')])(
     'returns null if datetime formatter does not return either string, number or Date instance',
@@ -161,6 +147,7 @@ describe('getDateString', () => {
       ).toBeNull();
     },
   );
+
   it('gives preference to custom formatDate function before translation', () => {
     const expectedValue = 0;
     const formatDate = jest.fn();
@@ -176,6 +163,7 @@ describe('getDateString', () => {
     expect(t).not.toHaveBeenCalled();
     expect(formatDate).toHaveBeenCalledWith(new Date(messageCreatedAt));
   });
+
   it('does not apply translation if timestampTranslationKey key is missing', () => {
     const expectedValue = new Date().toISOString();
     const result = getDateString({
@@ -188,6 +176,7 @@ describe('getDateString', () => {
     expect(t).not.toHaveBeenCalled();
     expect(result).toBe(expectedValue);
   });
+
   it('does not apply translation if translator function is missing', () => {
     const expectedValue = new Date().toISOString();
     const result = getDateString({
@@ -200,34 +189,14 @@ describe('getDateString', () => {
     expect(t).not.toHaveBeenCalled();
     expect(result).toBe(expectedValue);
   });
+
   it.each([
-    ['all enabled', { calendar: true, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
-    ['calendar disabled', { calendar: false, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
-    ['calendar formats omitted', { calendar: true, calendarFormats: undefined, format: 'hh:mm A' }],
-    ['only format provided', { calendar: false, calendarFormats: undefined, format: 'hh:mm A' }],
-    ['format undefined', { calendar: true, calendarFormats: { x: 'y' }, format: undefined }],
-    [
-      'calendar disabled and format undefined',
-      { calendar: false, calendarFormats: { x: 'y' }, format: undefined },
-    ],
-    [
-      'calendar formats and format undefined',
-      { calendar: true, calendarFormats: undefined, format: undefined },
-    ],
-    [
-      'calendar disabled and rest undefined',
-      { calendar: false, calendarFormats: undefined, format: undefined },
-    ],
-    ['calendar undefined', { calendar: undefined, calendarFormats: { x: 'y' }, format: 'hh:mm A' }],
-    [
-      'calendar and calendar formats undefined',
-      { calendar: undefined, calendarFormats: undefined, format: 'hh:mm A' },
-    ],
-    [
-      'calendar and format undefined',
-      { calendar: undefined, calendarFormats: { x: 'y' }, format: undefined },
-    ],
-    ['all undefined', { calendar: undefined, calendarFormats: undefined, format: undefined }],
+    ['all enabled', { calendar: true, format: 'hh:mm A' }],
+    ['calendar disabled', { calendar: false, format: 'hh:mm A' }],
+    ['format undefined', { calendar: true, format: undefined }],
+    ['calendar disabled and format undefined', { calendar: false, format: undefined }],
+    ['calendar undefined', { calendar: undefined, format: 'hh:mm A' }],
+    ['all undefined', { calendar: undefined, format: undefined }],
   ])(
     'applies formatting via translation service with translation formatting params %s',
     (_, params) => {
@@ -267,32 +236,6 @@ describe('predefinedFormatters', () => {
         expect(
           timestampFormatter(yesterday, 'en', {
             calendar: true,
-            calendarFormats: { sameElse: 'dddd L' },
-          }).startsWith('Yesterday'),
-        ).toBeTruthy();
-      });
-      it('should ignore calendarFormats if calendar is disabled', () => {
-        expect(
-          timestampFormatter(yesterday, 'en', {
-            calendar: false,
-            calendarFormats: { sameElse: 'dddd L' },
-          }).startsWith('Yesterday'),
-        ).toBeFalsy();
-      });
-      it('should log error parsing invalid calendarFormats', () => {
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementationOnce(() => null);
-        timestampFormatter(yesterday, 'en', { calendar: true, calendarFormats: '}' });
-        expect(consoleErrorSpy.mock.calls[0][0]).toBe('[TIMESTAMP FORMATTER]');
-        expect(
-          consoleErrorSpy.mock.calls[0][1].message.startsWith('Unexpected token'),
-        ).toBeTruthy();
-        consoleErrorSpy.mockRestore();
-      });
-      it('should parse calendarFormats', () => {
-        expect(
-          timestampFormatter(yesterday, 'en', {
-            calendar: true,
-            calendarFormats: '{ "sameElse": "dddd L" }',
           }).startsWith('Yesterday'),
         ).toBeTruthy();
       });
@@ -300,7 +243,6 @@ describe('predefinedFormatters', () => {
         expect(
           timestampFormatter(yesterday, 'en', {
             calendar: true,
-            calendarFormats: { sameElse: 'dddd L' },
             format: 'YYYY',
           }).startsWith('Yesterday'),
         ).toBeTruthy();
@@ -309,7 +251,6 @@ describe('predefinedFormatters', () => {
         expect(
           timestampFormatter(yesterday, 'en', {
             calendar: false,
-            calendarFormats: { sameElse: 'dddd L' },
             format: 'YYYY',
           }),
         ).toBe(new Date().getFullYear().toString());
@@ -320,7 +261,6 @@ describe('predefinedFormatters', () => {
       expect(
         timestampFormatter(null, 'en', {
           calendar: false,
-          calendarFormats: { sameElse: 'dddd L' },
           format: 'YYYY',
         }),
       ).toBe('null');
@@ -329,7 +269,6 @@ describe('predefinedFormatters', () => {
       expect(
         timestampFormatter(undefined, 'en', {
           calendar: false,
-          calendarFormats: { sameElse: 'dddd L' },
           format: 'YYYY',
         }),
       ).toBeUndefined();

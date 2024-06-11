@@ -127,7 +127,7 @@
   "searchResultsCount_other": "{{ count }} результатов",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "timestamp/DateSeparator": "{{ timestamp, timestampFormatter(calendar: true) }}",
-  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
+  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; format: dddd L) }}",
   "timestamp/MessageTimestamp": "{{ timestamp, timestampFormatter(calendar: true; format: h:mmA) }}",
   "unban-command-args": "[@имяпользователя]",
   "unban-command-description": "Разблокировать пользователя",

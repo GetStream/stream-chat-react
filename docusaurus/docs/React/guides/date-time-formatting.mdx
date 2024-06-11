@@ -30,14 +30,12 @@ All the mentioned components accept timestamp formatter props:
 export type TimestampFormatterOptions = {
   /* If true, call the `Day.js` calendar function to get the date string to display (e.g. "Yesterday at 3:58 PM"). */
   calendar?: boolean | null;
-  /* Object specifying date display formats for dates formatted with calendar extension. Active only if calendar prop enabled. */
-  calendarFormats?: Record<string, string> | null;
   /* Overrides the default timestamp format if calendar is disabled. */
   format?: string | null;
 };
 ```
 
-If calendar formatting is enabled, the dates are formatted with time-relative words ("yesterday at ...", "last ..."). The calendar strings can be further customized with `calendarFormats` object. It also means that the `format` prop would be ignored. On the other hand, if calendar is disabled, then `calendarFormats` is ignored and `format` string is applied.
+If calendar formatting is enabled, the dates are formatted with time-relative words ("yesterday at ...", "last ..."). When `calendar` is enabled, the `format` prop is ignored and vice versa. If `calendar` is disabled, `format` string will be applied.
 
 All the components can be overridden through `Channel` component context
 
@@ -61,7 +59,7 @@ const SystemMessage = (props: EventComponentProps) => (
 );
 
 const CustomMessageTimestamp = (props: MessageTimestampProps) => (
-  <MessageTimestamp {...props} calendar={false} format={'YYYY-MM-DDTHH:mm:ss'} /> // calendar is enabled by default
+  <MessageTimestamp {...props} format={'YYYY-MM-DDTHH:mm:ss'} /> // calendar is disabled by default
 );
 
 const App = () => (
@@ -88,7 +86,7 @@ By default, the function is consumed by the `MessageTimestamp` component. This m
 
 ### Date & time formatting with i18n service
 
-Until now, the datetime values could be customized within `Channel` at best. Formatting via i18n service allows for SDK wide configuration. The configuration is stored with other translations in JSON files. Formatting with i18n service has the following advantages:
+Until now, the datetime values could be customized within the `Channel` component at best. Formatting via i18n service allows for SDK wide configuration. The configuration is stored with other translations in JSON files. Formatting with i18n service has the following advantages:
 
 - it is centralized
 - it takes into consideration the locale out of the box
@@ -102,7 +100,7 @@ The default datetime formatting configuration is stored in the JSON translation 
 
 ##### Overriding the prop defaults
 
-The default date and time rendering components in the SDK were created with default prop values that override the configuration parameters provided over JSON translations. Therefore, if we wanted to configure the formatting from JSON translation files, we need to nullify the prop defaults. An example follows:
+The default date and time rendering components in the SDK were created with default prop values that override the configuration parameters provided over JSON translations. Therefore, if we wanted to configure the formatting from JSON translation files, we need to nullify the prop defaults first. An example follows:
 
 ```jsx
 import {
@@ -115,19 +113,25 @@ import {
 } from 'stream-chat-react';
 
 const CustomDateSeparator = (props: DateSeparatorProps) => (
-  <DateSeparator {...props} calendar={null} calendarFormats={null} format={null} />
+  <DateSeparator {...props} calendar={null} format={null} />
 );
 
 const SystemMessage = (props: EventComponentProps) => (
-  <EventComponent {...props} calendar={null} calendarFormats={null} format={null} />
+  <EventComponent {...props} calendar={null} format={null} />
 );
 
 const CustomMessageTimestamp = (props: MessageTimestampProps) => (
-  <MessageTimestamp {...props} calendar={null} calendarFormats={null} format={null} />
+  <MessageTimestamp {...props} calendar={null} format={null} />
 );
 ```
 
-Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `Timestamp`).
+Now we can apply custom configuration in all the translation JSON files. It could look similar to the following example key-value pair.
+
+```
+"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(format: YYYY) }}",
+```
+
+Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop. All the above components (`DateSeparator`, `EventComponent`, `Timestamp`) accept this prop.
 
 ```tsx
 import { MessageTimestampProps, MessageTimestamp } from 'stream-chat-react';
@@ -142,7 +146,7 @@ const CustomMessageTimestamp = (props: MessageTimestampProps) => (
 Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example:
 
 ```
-"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
+"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true) }}",
 ```
 
 Let's dissect the example:
@@ -150,7 +154,7 @@ Let's dissect the example:
 - The curly brackets (`{{`, `}}`) indicate the place where a value will be interpolated (inserted) into the string.
 - variable `timestamp` is the name of variable which value will be inserted into the string
 - `timestampFormatter` is the name of the formatting function that is used to convert the `timestamp` value into desired format
-- the `timestampFormatter` is can be passed the same parameters as the React components (`calendar`, `calendarFormats`, `format`) as if the function was called with these values. The values can be simple scalar values as well as objects (note `calendarFormats` should be an object)
+- the `timestampFormatter` is can be passed the same parameters as the React components (`calendar`, `format`) as if the function was called with these values.
 
 :::note
 The described rules follow the formatting rules required by the i18n library used under the hood - `i18next`. You can learn more about the rules in [the formatting section of the `i18next` documentation](https://www.i18next.com/translation-function/formatting#basic-usage).
