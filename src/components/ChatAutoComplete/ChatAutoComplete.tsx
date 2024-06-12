@@ -181,6 +181,7 @@ const UnMemoizedChatAutoComplete = <
       loadingComponent={LoadingIndicator}
       maxRows={messageInput.maxRows}
       minChar={0}
+      minRows={messageInput.minRows}
       onBlur={props.onBlur}
       onChange={props.onChange || messageInput.handleChange}
       onFocus={props.onFocus}

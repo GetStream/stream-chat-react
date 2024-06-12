@@ -94,6 +94,8 @@ export type MessageInputProps<
   mentionQueryParams?: SearchQueryParams<StreamChatGenerics>['userFilters'];
   /** If provided, the existing message will be edited on submit */
   message?: StreamMessage<StreamChatGenerics>;
+  /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageInput prop has to be enabled for `minRows` to take effect. */
+  minRows?: number;
   /** If true, disables file uploads for all attachments except for those with type 'image'. Default: false */
   noFiles?: boolean;
   /** Function to override the default submit handler */
