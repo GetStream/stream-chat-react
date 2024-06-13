@@ -29,9 +29,9 @@ const UnMemoizedEventComponent = <
   props: EventComponentProps<StreamChatGenerics>,
 ) => {
   const {
-    calendar = true,
-    calendarFormats = { sameElse: 'dddd L' },
-    format,
+    calendar,
+    calendarFormats,
+    format = 'dddd L',
     Avatar = DefaultAvatar,
     message,
     timestampTranslationKey = 'timestamp/SystemMessage',

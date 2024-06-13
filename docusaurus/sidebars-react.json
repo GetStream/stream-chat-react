@@ -140,7 +140,8 @@
         "guides/typescript_and_generics",
         "guides/channel_read_state",
         "guides/video-integration/video-integration-stream",
-        "guides/sdk-state-management"
+        "guides/sdk-state-management",
+        "guides/date-time-formatting"
       ]
     },
     { "Release Guides": ["release-guides/upgrade-to-v10", "release-guides/upgrade-to-v11"] },

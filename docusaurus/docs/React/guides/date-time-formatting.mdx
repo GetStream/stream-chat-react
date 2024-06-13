@@ -37,9 +37,26 @@ export type TimestampFormatterOptions = {
 };
 ```
 
-If calendar formatting is enabled, the dates are formatted with time-relative words ("yesterday at ...", "last ..."). The calendar strings can be further customized with `calendarFormats` object. It also means that the `format` prop would be ignored. On the other hand, if calendar is disabled, then `calendarFormats` is ignored and `format` string is applied.
+If calendar formatting is enabled, the dates are formatted with time-relative words ("yesterday at ...", "last ..."). The calendar strings can be further customized with `calendarFormats` object. The `calendarFormats` object has to cover all the formatting cases as shows the example below:
 
-All the components can be overridden through `Channel` component context
+```
+{
+  lastDay: '[gestern um] LT',
+  lastWeek: '[letzten] dddd [um] LT',
+  nextDay: '[morgen um] LT',
+  nextWeek: 'dddd [um] LT',
+  sameDay: '[heute um] LT',
+  sameElse: 'L',
+}
+```
+
+:::important
+If any of the `calendarFormats` keys are missing, then the underlying library will fall back to hard-coded english equivalents
+:::
+
+If `calendar` formatting is enabled, the `format` prop would be ignored. So to apply the `format` string, the `calendar` has to be disabled (applies to `DateSeparator` and `MessageTimestamp`.
+
+All the components can be overridden through `Channel` component context:
 
 ```tsx
 import {
@@ -57,7 +74,7 @@ const CustomDateSeparator = (props: DateSeparatorProps) => (
 );
 
 const SystemMessage = (props: EventComponentProps) => (
-  <EventComponent {...props} calendar={false} format={'YYYY'} /> // calendar is enabled by default
+  <EventComponent {...props} format={'YYYY'} /> // calendar is disabled by default
 );
 
 const CustomMessageTimestamp = (props: MessageTimestampProps) => (
@@ -88,7 +105,7 @@ By default, the function is consumed by the `MessageTimestamp` component. This m
 
 ### Date & time formatting with i18n service
 
-Until now, the datetime values could be customized within `Channel` at best. Formatting via i18n service allows for SDK wide configuration. The configuration is stored with other translations in JSON files. Formatting with i18n service has the following advantages:
+Until now, the datetime values could be customized within the `Channel` component at best. Formatting via i18n service allows for SDK wide configuration. The configuration is stored with other translations in JSON files. Formatting with i18n service has the following advantages:
 
 - it is centralized
 - it takes into consideration the locale out of the box
@@ -102,9 +119,9 @@ The default datetime formatting configuration is stored in the JSON translation 
 
 ##### Overriding the prop defaults
 
-The default date and time rendering components in the SDK were created with default prop values that override the configuration parameters provided over JSON translations. Therefore, if we wanted to configure the formatting from JSON translation files, we need to nullify the prop defaults. An example follows:
+The default date and time rendering components in the SDK were created with default prop values that override the configuration parameters provided over JSON translations. Therefore, if we wanted to configure the formatting from JSON translation files, we need to nullify the prop defaults first. An example follows:
 
-```jsx
+```tsx
 import {
   DateSeparatorProps,
   DateSeparator,
@@ -127,7 +144,13 @@ const CustomMessageTimestamp = (props: MessageTimestampProps) => (
 );
 ```
 
-Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `Timestamp`).
+Now we can apply custom configuration in all the translation JSON files. It could look similar to the following example key-value pair.
+
+```
+"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(format: YYYY) }}",
+```
+
+Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `MessageTimestamp`).
 
 ```tsx
 import { MessageTimestampProps, MessageTimestamp } from 'stream-chat-react';
@@ -139,10 +162,10 @@ const CustomMessageTimestamp = (props: MessageTimestampProps) => (
 
 ##### Understanding the formatting syntax
 
-Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example:
+Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example of German translation for SystemMessage:
 
 ```
-"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
+"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"lastDay: \"[gestern um] LT\", \"lastWeek\": \"[letzten] dddd [um] LT\", \"nextDay\": \"[morgen um] LT\", \"nextWeek\": \"dddd [um] LT\", \"sameDay\": \"[heute um] LT\", \"sameElse\": \"L\"}) }}",
 ```
 
 Let's dissect the example:
