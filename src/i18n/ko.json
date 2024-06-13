@@ -123,7 +123,7 @@
   "searchResultsCount_other": "{{ count }}개 결과",
   "this content could not be displayed": "이 콘텐츠를 표시할 수 없습니다",
   "timestamp/DateSeparator": "{{ timestamp, timestampFormatter(calendar: true) }}",
-  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; format: dddd L) }}",
+  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
   "timestamp/MessageTimestamp": "{{ timestamp, timestampFormatter(calendar: true; format: h:mmA) }}",
   "unban-command-args": "[@사용자이름]",
   "unban-command-description": "사용자 차단 해제",

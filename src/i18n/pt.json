@@ -125,7 +125,7 @@
   "searchResultsCount_other": "{{ count }} resultados",
   "this content could not be displayed": "este conteúdo não pôde ser exibido",
   "timestamp/DateSeparator": "{{ timestamp, timestampFormatter(calendar: true) }}",
-  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; format: dddd L) }}",
+  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
   "timestamp/MessageTimestamp": "{{ timestamp, timestampFormatter(calendar: true; format: h:mmA) }}",
   "unban-command-args": "[@nomedeusuário]",
   "unban-command-description": "Desbanir um usuário",

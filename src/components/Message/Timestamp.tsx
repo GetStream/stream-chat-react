@@ -19,6 +19,7 @@ export const defaultTimestampFormat = 'h:mmA';
 export function Timestamp(props: TimestampProps) {
   const {
     calendar,
+    calendarFormats,
     customClass,
     format = defaultTimestampFormat,
     timestamp,
@@ -34,6 +35,7 @@ export function Timestamp(props: TimestampProps) {
     () =>
       getDateString({
         calendar,
+        calendarFormats,
         format,
         formatDate,
         messageCreatedAt: normalizedTimestamp,
@@ -43,6 +45,7 @@ export function Timestamp(props: TimestampProps) {
       }),
     [
       calendar,
+      calendarFormats,
       format,
       formatDate,
       normalizedTimestamp,

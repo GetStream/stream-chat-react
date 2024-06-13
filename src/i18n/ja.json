@@ -123,7 +123,7 @@
   "searchResultsCount_other": "{{ count }}件の結果",
   "this content could not be displayed": "このコンテンツは表示できませんでした",
   "timestamp/DateSeparator": "{{ timestamp, timestampFormatter(calendar: true) }}",
-  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; format: dddd L) }}",
+  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
   "timestamp/MessageTimestamp": "{{ timestamp, timestampFormatter(calendar: true; format: h:mmA) }}",
   "unban-command-args": "[@ユーザ名]",
   "unban-command-description": "ユーザーの禁止を解除する",

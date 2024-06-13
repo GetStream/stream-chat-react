@@ -124,7 +124,7 @@
   "searchResultsCount_other": "{{ count }} परिणाम",
   "this content could not be displayed": "यह कॉन्टेंट लोड नहीं हो पाया",
   "timestamp/DateSeparator": "{{ timestamp, timestampFormatter(calendar: true) }}",
-  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; format: dddd L) }}",
+  "timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"sameElse\": \"dddd L\"}) }}",
   "timestamp/MessageTimestamp": "{{ timestamp, timestampFormatter(calendar: true; format: h:mmA) }}",
   "unban-command-args": "[@उपयोगकर्तनाम]",
   "unban-command-description": "एक उपयोगकर्ता को प्रतिषेध से मुक्त करें",
