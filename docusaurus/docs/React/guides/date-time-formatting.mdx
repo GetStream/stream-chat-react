@@ -144,7 +144,7 @@ const CustomMessageTimestamp = (props: MessageTimestampProps) => (
 );
 ```
 
-Now we can apply custom configuration in all the translation JSON files. It could look similar to the following example key-value pair.
+Now we can apply custom configuration in all the translation JSON files. It could look similar to the following key-value pair example.
 
 ```json
 {
@@ -152,7 +152,7 @@ Now we can apply custom configuration in all the translation JSON files. It coul
 }
 ```
 
-Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `MessageTimestamp`).
+Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop in all of the above mentioned components (`DateSeparator`, `EventComponent`, `MessageTimestamp`).
 
 ```tsx
 import { MessageTimestampProps, MessageTimestamp } from 'stream-chat-react';
@@ -176,7 +176,7 @@ Let's dissect the example:
 - variable `timestamp` is the name of variable which value will be inserted into the string
 - value separator `|` signals the separation between the interpolated value and the formatting function name
 - `timestampFormatter` is the name of the formatting function that is used to convert the `timestamp` value into desired format
-- the `timestampFormatter` is can be passed the same parameters as the React components (`calendar`, `calendarFormats`, `format`) as if the function was called with these values. The values can be simple scalar values as well as objects (note `calendarFormats` should be an object)
+- the `timestampFormatter` can be passed the same parameters as the React components (`calendar`, `calendarFormats`, `format`) as if the function was called with these values. The values can be simple scalar values as well as objects (note `calendarFormats` should be an object)
 
 :::note
 The described rules follow the formatting rules required by the i18n library used under the hood - `i18next`. You can learn more about the rules in [the formatting section of the `i18next` documentation](https://www.i18next.com/translation-function/formatting#basic-usage).
