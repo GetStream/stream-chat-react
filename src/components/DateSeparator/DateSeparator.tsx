@@ -10,8 +10,6 @@ export type DateSeparatorProps = TimestampFormatterOptions & {
   formatDate?: (date: Date) => string;
   /** Set the position of the date in the separator, options are 'left', 'center', 'right', @default right */
   position?: 'left' | 'center' | 'right';
-  /* Lookup key in the language corresponding translations sheet to perform date formatting */
-  timestampTranslationKey?: string;
   /** If following messages are not new */
   unread?: boolean;
 };
@@ -22,7 +20,6 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
     date: messageCreatedAt,
     formatDate,
     position = 'right',
-    timestampTranslationKey = 'timestamp/DateSeparator',
     unread,
     ...restTimestampFormatterOptions
   } = props;
@@ -36,7 +33,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
     messageCreatedAt,
     t,
     tDateTimeParser,
-    timestampTranslationKey,
+    timestampTranslationKey: 'timestamp/DateSeparator',
   });
 
   return (

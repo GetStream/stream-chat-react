@@ -16,8 +16,6 @@ export type MessageTimestampProps<
   customClass?: string;
   /* The `StreamChat` message object, which provides necessary data to the underlying UI components (overrides the value from `MessageContext`) */
   message?: StreamMessage<StreamChatGenerics>;
-  /* Lookup key in the language corresponding translations sheet to perform date formatting */
-  timestampTranslationKey?: string;
 };
 
 const UnMemoizedMessageTimestamp = <

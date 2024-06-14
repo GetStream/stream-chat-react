@@ -10,8 +10,6 @@ export interface TimestampProps extends TimestampFormatterOptions {
   customClass?: string;
   /* Timestamp to display */
   timestamp?: Date | string;
-  /* Lookup key in the language corresponding translations sheet to perform date formatting */
-  timestampTranslationKey?: string;
 }
 
 export const defaultTimestampFormat = 'h:mmA';
@@ -23,7 +21,6 @@ export function Timestamp(props: TimestampProps) {
     customClass,
     format = defaultTimestampFormat,
     timestamp,
-    timestampTranslationKey = 'timestamp/Timestamp',
   } = props;
 
   const { formatDate } = useMessageContext('MessageTimestamp');
@@ -41,18 +38,9 @@ export function Timestamp(props: TimestampProps) {
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey,
+        timestampTranslationKey: 'timestamp/Timestamp',
       }),
-    [
-      calendar,
-      calendarFormats,
-      format,
-      formatDate,
-      normalizedTimestamp,
-      t,
-      tDateTimeParser,
-      timestampTranslationKey,
-    ],
+    [calendar, calendarFormats, format, formatDate, normalizedTimestamp, t, tDateTimeParser],
   );
 
   if (!when) {

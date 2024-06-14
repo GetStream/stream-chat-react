@@ -16,8 +16,6 @@ export type EventComponentProps<
   message: StreamMessage<StreamChatGenerics>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<AvatarProps>;
-  /* Lookup key in the language corresponding translations sheet to perform date formatting */
-  timestampTranslationKey?: string;
 };
 
 /**
@@ -28,14 +26,7 @@ const UnMemoizedEventComponent = <
 >(
   props: EventComponentProps<StreamChatGenerics>,
 ) => {
-  const {
-    calendar,
-    calendarFormats,
-    format = 'dddd L',
-    Avatar = DefaultAvatar,
-    message,
-    timestampTranslationKey = 'timestamp/SystemMessage',
-  } = props;
+  const { calendar, calendarFormats, format = 'dddd L', Avatar = DefaultAvatar, message } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;
@@ -57,7 +48,7 @@ const UnMemoizedEventComponent = <
               calendarFormats,
               format,
               t,
-              timestampTranslationKey,
+              timestampTranslationKey: 'timestamp/SystemMessage',
             })}
           </strong>
         </div>
