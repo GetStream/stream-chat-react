@@ -271,7 +271,7 @@ describe('Streami18n timezone', () => {
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
           formatters: { timestampFormatter: (s) => () => 'custom' },
-          translationsForLanguage: { abc: '{{ value, timestampFormatter }}' },
+          translationsForLanguage: { abc: '{{ value | timestampFormatter }}' },
         });
         await i18n.init();
         expect(i18n.t('abc')).toBe('custom');
@@ -279,7 +279,7 @@ describe('Streami18n timezone', () => {
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
           formatters: { customFormatter: (s) => () => 'custom' },
-          translationsForLanguage: { abc: '{{ value, customFormatter }}' },
+          translationsForLanguage: { abc: '{{ value | customFormatter }}' },
         });
         await i18n.init();
         expect(i18n.t('abc')).toBe('custom');

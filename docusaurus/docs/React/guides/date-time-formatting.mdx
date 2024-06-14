@@ -132,22 +132,24 @@ import {
 } from 'stream-chat-react';
 
 const CustomDateSeparator = (props: DateSeparatorProps) => (
-  <DateSeparator {...props} calendar={null} calendarFormats={null} format={null} />
+  <DateSeparator {...props} calendar={null} /> // calendarFormats, neither format have default value
 );
 
 const SystemMessage = (props: EventComponentProps) => (
-  <EventComponent {...props} calendar={null} calendarFormats={null} format={null} />
+  <EventComponent {...props} format={null} /> // calendar  neither calendarFormats have default value
 );
 
 const CustomMessageTimestamp = (props: MessageTimestampProps) => (
-  <MessageTimestamp {...props} calendar={null} calendarFormats={null} format={null} />
+  <MessageTimestamp {...props} calendar={null} format={null} /> // calendarFormats do not have default value
 );
 ```
 
 Now we can apply custom configuration in all the translation JSON files. It could look similar to the following example key-value pair.
 
-```
-"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(format: YYYY) }}",
+```json
+{
+  "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: YYYY) }}"
+}
 ```
 
 Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop all the above components (`DateSeparator`, `EventComponent`, `MessageTimestamp`).
@@ -165,13 +167,14 @@ const CustomMessageTimestamp = (props: MessageTimestampProps) => (
 Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example of German translation for SystemMessage:
 
 ```
-"timestamp/SystemMessage": "{{ timestamp, timestampFormatter(calendar: true; calendarFormats: {\"lastDay\": \"[gestern um] LT\", \"lastWeek\": \"[letzten] dddd [um] LT\", \"nextDay\": \"[morgen um] LT\", \"nextWeek\": \"dddd [um] LT\", \"sameDay\": \"[heute um] LT\", \"sameElse\": \"L\"}) }}",
+"timestamp/SystemMessage": "{{ timestamp | timestampFormatter(calendar: true; calendarFormats: {\"lastDay\": \"[gestern um] LT\", \"lastWeek\": \"[letzten] dddd [um] LT\", \"nextDay\": \"[morgen um] LT\", \"nextWeek\": \"dddd [um] LT\", \"sameDay\": \"[heute um] LT\", \"sameElse\": \"L\"}) }}",
 ```
 
 Let's dissect the example:
 
 - The curly brackets (`{{`, `}}`) indicate the place where a value will be interpolated (inserted) into the string.
 - variable `timestamp` is the name of variable which value will be inserted into the string
+- value separator `|` signals the separation between the interpolated value and the formatting function name
 - `timestampFormatter` is the name of the formatting function that is used to convert the `timestamp` value into desired format
 - the `timestampFormatter` is can be passed the same parameters as the React components (`calendar`, `calendarFormats`, `format`) as if the function was called with these values. The values can be simple scalar values as well as objects (note `calendarFormats` should be an object)
 

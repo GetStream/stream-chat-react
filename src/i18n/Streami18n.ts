@@ -467,7 +467,7 @@ export class Streami18n {
   i18nextConfig: {
     debug: boolean;
     fallbackLng: false;
-    interpolation: { escapeValue: boolean };
+    interpolation: { escapeValue: boolean; formatSeparator: string };
     keySeparator: false;
     lng: string;
     nsSeparator: false;
@@ -554,7 +554,7 @@ export class Streami18n {
     this.i18nextConfig = {
       debug: finalOptions.debug,
       fallbackLng: false,
-      interpolation: { escapeValue: false },
+      interpolation: { escapeValue: false, formatSeparator: '|' },
       keySeparator: false,
       lng: this.currentLanguage,
       nsSeparator: false,
