@@ -407,7 +407,7 @@ const ChannelInner = <
   const [quotedMessage, setQuotedMessage] = useState<StreamMessage<StreamChatGenerics>>();
   const [channelUnreadUiState, _setChannelUnreadUiState] = useState<ChannelUnreadUiState>();
 
-  const notificationTimeouts: Array<NodeJS.Timeout> = [];
+  const notificationTimeouts = useRef<Array<NodeJS.Timeout>>([]);
 
   const [state, dispatch] = useReducer<ChannelStateReducer<StreamChatGenerics>>(
     channelReducer,
@@ -641,15 +641,15 @@ const ChannelInner = <
         channel.on(handleEvent);
       }
     })();
+    const notificationTimeoutsRef = notificationTimeouts.current;
 
     return () => {
       if (errored || !done) return;
       channel?.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
-      client.off('user.updated', handleEvent);
       client.off('user.deleted', handleEvent);
-      notificationTimeouts.forEach(clearTimeout);
+      notificationTimeoutsRef.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -671,7 +671,10 @@ const ChannelInner = <
   /** MESSAGE */
 
   // Adds a temporary notification to message list, will be removed after 5 seconds
-  const addNotification = makeAddNotifications(setNotifications, notificationTimeouts);
+  const addNotification = useMemo(
+    () => makeAddNotifications(setNotifications, notificationTimeouts.current),
+    [],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(
