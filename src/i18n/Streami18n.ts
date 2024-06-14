@@ -7,10 +7,12 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import { predefinedFormatters } from './utils';
 
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
+import type { CustomFormatters, PredefinedFormatters } from './utils';
 import type { TDateTimeParser } from '../context/TranslationContext';
 
 import type { UnknownType } from '../types/types';
@@ -30,9 +32,6 @@ import {
   trTranslations,
 } from './translations';
 
-const defaultNS = 'translation';
-const defaultLng = 'en';
-
 import 'dayjs/locale/de';
 import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
@@ -48,6 +47,9 @@ import 'dayjs/locale/tr';
 // So As a last step I am going to import english locale
 // to make sure I don't mess up language at other places in app.
 import 'dayjs/locale/en';
+
+const defaultNS = 'translation';
+const defaultLng = 'en';
 
 type CalendarLocaleConfig = {
   lastDay: string;
@@ -247,6 +249,7 @@ export type Streami18nOptions = {
   dayjsLocaleConfigForLanguage?: Partial<ILocale> & { calendar?: CalendarLocaleConfig };
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
+  formatters?: Partial<PredefinedFormatters> & CustomFormatters;
   language?: TranslationLanguages;
   logger?: (message?: string) => void;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
@@ -460,11 +463,12 @@ export class Streami18n {
   logger: (msg?: string) => void;
   currentLanguage: TranslationLanguages;
   DateTimeParser: DateTimeParserModule;
+  formatters: PredefinedFormatters & CustomFormatters = predefinedFormatters;
   isCustomDateTimeParser: boolean;
   i18nextConfig: {
     debug: boolean;
     fallbackLng: false;
-    interpolation: { escapeValue: boolean };
+    interpolation: { escapeValue: boolean; formatSeparator: string };
     keySeparator: false;
     lng: string;
     nsSeparator: false;
@@ -510,6 +514,7 @@ export class Streami18n {
     this.currentLanguage = finalOptions.language;
     this.DateTimeParser = finalOptions.DateTimeParser;
     this.timezone = finalOptions.timezone;
+    this.formatters = { ...predefinedFormatters, ...options?.formatters };
 
     try {
       if (this.DateTimeParser && isDayJs(this.DateTimeParser)) {
@@ -550,7 +555,7 @@ export class Streami18n {
     this.i18nextConfig = {
       debug: finalOptions.debug,
       fallbackLng: false,
-      interpolation: { escapeValue: false },
+      interpolation: { escapeValue: false, formatSeparator: '|' },
       keySeparator: false,
       lng: this.currentLanguage,
       nsSeparator: false,
@@ -608,6 +613,12 @@ export class Streami18n {
         resources: this.translations,
       });
       this.initialized = true;
+      if (this.formatters) {
+        Object.entries(this.formatters).forEach(([name, formatterFactory]) => {
+          if (!formatterFactory) return;
+          this.i18nInstance.services.formatter?.add(name, formatterFactory(this));
+        });
+      }
     } catch (error) {
       this.logger(`Something went wrong with init: ${JSON.stringify(error)}`);
     }

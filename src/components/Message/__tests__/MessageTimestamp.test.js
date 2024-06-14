@@ -27,7 +27,6 @@ describe('<MessageTimestamp />', () => {
       .toJSON();
     expect(tree).toMatchInlineSnapshot(`
       <time
-        className=""
         dateTime={"2019-04-03T14:42:47.087Z"}
         title={"2019-04-03T14:42:47.087Z"}
       >

@@ -49,11 +49,8 @@ describe('EventComponent', () => {
           className="str-chat__message--system__date"
         >
           <strong>
-            Friday
-             
+            Friday 03/13/2020
           </strong>
-          at 
-          10:18 AM
         </div>
       </div>
     `);

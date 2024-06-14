@@ -7,11 +7,11 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { getDateString } from '../../i18n/utils';
+import { getDateString, TimestampFormatterOptions } from '../../i18n/utils';
 
 export type EventComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
+> = TimestampFormatterOptions & {
   /** Message object */
   message: StreamMessage<StreamChatGenerics>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
@@ -26,9 +26,9 @@ const UnMemoizedEventComponent = <
 >(
   props: EventComponentProps<StreamChatGenerics>,
 ) => {
-  const { Avatar = DefaultAvatar, message } = props;
+  const { calendar, calendarFormats, format = 'dddd L', Avatar = DefaultAvatar, message } = props;
 
-  const { tDateTimeParser } = useTranslationContext('EventComponent');
+  const { t, tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;
   const getDateOptions = { messageCreatedAt: created_at.toString(), tDateTimeParser };
 
@@ -41,8 +41,16 @@ const UnMemoizedEventComponent = <
           <div className='str-chat__message--system__line' />
         </div>
         <div className='str-chat__message--system__date'>
-          <strong>{getDateString({ ...getDateOptions, format: 'dddd' })} </strong>
-          at {getDateString({ ...getDateOptions, format: 'hh:mm A' })}
+          <strong>
+            {getDateString({
+              ...getDateOptions,
+              calendar,
+              calendarFormats,
+              format,
+              t,
+              timestampTranslationKey: 'timestamp/SystemMessage',
+            })}
+          </strong>
         </div>
       </div>
     );

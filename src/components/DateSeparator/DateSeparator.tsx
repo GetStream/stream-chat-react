@@ -1,9 +1,9 @@
 import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { getDateString } from '../../i18n/utils';
+import { getDateString, TimestampFormatterOptions } from '../../i18n/utils';
 
-export type DateSeparatorProps = {
+export type DateSeparatorProps = TimestampFormatterOptions & {
   /** The date to format */
   date: Date;
   /** Override the default formatting of the date. This is a function that has access to the original date object. */
@@ -15,15 +15,25 @@ export type DateSeparatorProps = {
 };
 
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
-  const { date: messageCreatedAt, formatDate, position = 'right', unread } = props;
+  const {
+    calendar = true,
+    date: messageCreatedAt,
+    formatDate,
+    position = 'right',
+    unread,
+    ...restTimestampFormatterOptions
+  } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('DateSeparator');
 
   const formattedDate = getDateString({
-    calendar: true,
+    calendar,
+    ...restTimestampFormatterOptions,
     formatDate,
     messageCreatedAt,
+    t,
     tDateTimeParser,
+    timestampTranslationKey: 'timestamp/DateSeparator',
   });
 
   return (
