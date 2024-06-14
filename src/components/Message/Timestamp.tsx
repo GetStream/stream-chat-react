@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
 import { useMessageContext } from '../../context/MessageContext';
@@ -48,7 +47,7 @@ export function Timestamp(props: TimestampProps) {
   }
 
   return (
-    <time className={clsx(customClass)} dateTime={normalizedTimestamp} title={normalizedTimestamp}>
+    <time className={customClass} dateTime={normalizedTimestamp} title={normalizedTimestamp}>
       {when}
     </time>
   );
