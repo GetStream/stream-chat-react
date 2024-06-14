@@ -1,3 +1,16 @@
+## [11.21.0](https://github.com/GetStream/stream-chat-react/compare/v11.20.0...v11.21.0) (2024-06-14)
+
+
+### Bug Fixes
+
+* allow to pass minRows prop to MessageInput ([#2411](https://github.com/GetStream/stream-chat-react/issues/2411)) ([e6bfd40](https://github.com/GetStream/stream-chat-react/commit/e6bfd40ce8a134070355865ab2829b24450d869a))
+* memoize addNotification function provided by Channel component ([#2423](https://github.com/GetStream/stream-chat-react/issues/2423)) ([b3734a4](https://github.com/GetStream/stream-chat-react/commit/b3734a4a9d3c5a64c794604a92ccb4369663cee7))
+
+
+### Features
+
+* allow to configure date and time format over i18n ([#2419](https://github.com/GetStream/stream-chat-react/issues/2419)) ([cb09dc1](https://github.com/GetStream/stream-chat-react/commit/cb09dc168f5b41a3e09f38134e34c5ae5bc45cbc))
+
 ## [11.20.0](https://github.com/GetStream/stream-chat-react/compare/v11.19.0...v11.20.0) (2024-06-07)
 
 
