@@ -7,11 +7,12 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { CustomFormatters, PredefinedFormatters, predefinedFormatters } from './utils';
+import { predefinedFormatters } from './utils';
 
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
+import type { CustomFormatters, PredefinedFormatters } from './utils';
 import type { TDateTimeParser } from '../context/TranslationContext';
 
 import type { UnknownType } from '../types/types';
