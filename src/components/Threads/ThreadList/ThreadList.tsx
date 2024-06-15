@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
-import type { ComponentType, PointerEvent } from 'react';
+import type { ComponentType } from 'react';
 import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
 
-import { ThreadListItem } from './ThreadListItem';
+import { ThreadListItem, ThreadListItemUi } from './ThreadListItem';
 import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
-import type { ThreadListItemProps } from './ThreadListItem';
+import type { ThreadListItemProps, ThreadListItemUiProps } from './ThreadListItem';
 
 /**
  * TODO:
@@ -31,16 +31,15 @@ const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
 type ThreadListProps = {
   ThreadListItem?: ComponentType<ThreadListItemProps>;
-  threadListItemProps?: Omit<ThreadListItemProps, 'thread' | 'onPointerDown'> & {
-    onPointerDown?: (event: PointerEvent<HTMLButtonElement>, thread: Thread) => void;
-  };
+  ThreadListItemUi?: ComponentType<ThreadListItemUiProps>;
   virtuosoProps?: VirtuosoProps<Thread, unknown>;
 };
 
 export const ThreadList = ({
+  // FIXME: temporary, should be removed when ComponentOverride component is out
+  ThreadListItemUi: PropsThreadListItemUi = ThreadListItemUi,
   ThreadListItem: PropsThreadListItem = ThreadListItem,
   virtuosoProps,
-  threadListItemProps: { onPointerDown, ...restThreadListItemProps } = {},
 }: ThreadListProps) => {
   const { client } = useChatContext();
   const [unreadThreadIds, threads] = useSimpleStateStore(client.threads.state, selector);
@@ -51,11 +50,7 @@ export const ThreadList = ({
 
   return (
     <div className='str-chat__thread-list-container'>
-      {/* TODO: create a replaceable banner component, wait for BE to support "in" keyword for query threads */}
-      {/* TODO:  use query threads with limit (unreadThreadsId.length) - should be top of the list, and prepend
-        - this does not work when we reply to an non-loaded thread and then reply to a loaded thread 
-        - querying afterwards will return only the latest, which was already in the list but not the one we need
-      */}
+      {/* TODO: create a replaceable banner component */}
       {unreadThreadIds.length > 0 && (
         <div className='str-chat__unread-threads-banner'>
           {unreadThreadIds.length} unread threads
@@ -73,11 +68,7 @@ export const ThreadList = ({
         computeItemKey={computeItemKey}
         data={threads}
         itemContent={(_, thread) => (
-          <PropsThreadListItem
-            onPointerDown={(e) => onPointerDown?.(e, thread)}
-            thread={thread}
-            {...restThreadListItemProps}
-          />
+          <PropsThreadListItem thread={thread} ThreadListItemUi={PropsThreadListItemUi} />
         )}
         {...virtuosoProps}
       />

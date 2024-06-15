@@ -32,6 +32,7 @@ export * from './TypingIndicator';
 export * from './UserItem';
 export * from './Window';
 export * from './Threads';
+export * from './Views';
 
 export { UploadButton } from './ReactFileUtilities';
 export type { UploadButtonProps } from './ReactFileUtilities';

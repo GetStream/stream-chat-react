@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Thread as ThreadType, ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import React from 'react';
+import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -11,7 +11,7 @@ import {
   Window,
   useCreateChatClient,
   ThreadList,
-  ThreadProvider,
+  Views,
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/v2/css/index.css';
 
@@ -52,8 +52,6 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-const threadOnly = userId !== 'john';
-
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
@@ -65,36 +63,27 @@ const App = () => {
 
   return (
     <Chat client={chatClient}>
-      <div className='str-chat'>
-        {!threadOnly && (
-          <>
-            <ChannelList filters={filters} options={options} sort={sort} />
-            <Channel>
-              <Window>
-                <ChannelHeader />
-                <MessageList returnAllReadData />
-                <MessageInput focus />
-              </Window>
-              <Thread virtualized />
-            </Channel>
-          </>
-        )}
-        {threadOnly && <Threads />}
-      </div>
+      <Views>
+        <Views.Selector />
+        <Views.Channel>
+          <ChannelList filters={filters} options={options} sort={sort} />
+          <Channel>
+            <Window>
+              <ChannelHeader />
+              <MessageList returnAllReadData />
+              <MessageInput focus />
+            </Window>
+            <Thread virtualized />
+          </Channel>
+        </Views.Channel>
+        <Views.Threads>
+          <ThreadList />
+          <Views.ThreadAdapter>
+            <Thread virtualized />
+          </Views.ThreadAdapter>
+        </Views.Threads>
+      </Views>
     </Chat>
-  );
-};
-
-const Threads = () => {
-  const [state, setState] = useState<ThreadType | undefined>(undefined);
-
-  return (
-    <div className='str-chat__threads'>
-      <ThreadList threadListItemProps={{ onPointerDown: (_, t) => setState(t) }} />
-      <ThreadProvider thread={state}>
-        <Thread virtualized />
-      </ThreadProvider>
-    </div>
   );
 };
 
