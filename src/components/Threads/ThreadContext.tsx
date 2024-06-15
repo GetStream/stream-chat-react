@@ -19,10 +19,7 @@ export const useThreadContext = () => {
   const { client } = useChatContext();
   const thread = useContext(ThreadContext);
 
-  const placeholder = useMemo(
-    () => new Thread({ client, registerSubscriptions: false, threadData: {} }),
-    [client],
-  );
+  const placeholder = useMemo(() => new Thread({ client, threadData: {} }), [client]);
 
   if (!thread) return placeholder;
 
