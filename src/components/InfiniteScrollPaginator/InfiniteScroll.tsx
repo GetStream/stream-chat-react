@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { PropsWithChildren, useEffect, useRef } from 'react';
 import type { PaginatorProps } from '../../types/types';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
@@ -73,6 +73,8 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
   const hasPreviousPageFlag = hasPreviousPage || hasMore;
 
   const scrollComponent = useRef<HTMLElement>();
+  const previousOffset = useRef<number | undefined>();
+  const previousReverseOffset = useRef<number | undefined>();
 
   const scrollListenerRef = useRef<() => void>();
   scrollListenerRef.current = () => {
@@ -93,7 +95,12 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     }
 
     if (isLoading) return;
-    // FIXME: this triggers loadMore call when a user types messages in thread and the scroll container container expands
+    if (previousOffset.current === offset && previousReverseOffset.current === reverseOffset)
+      return;
+    previousOffset.current = offset;
+    previousReverseOffset.current = reverseOffset;
+
+    // FIXME: this triggers loadMore call when a user types messages in thread and the scroll container expands
     if (
       reverseOffset < Number(threshold) &&
       typeof loadPreviousPageFn === 'function' &&
@@ -120,7 +127,7 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const scrollElement = scrollComponent.current?.parentNode;
     if (!scrollElement) return;
 
