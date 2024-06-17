@@ -1,3 +1,25 @@
+## [12.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v11.21.0...v12.0.0-rc.1) (2024-06-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* The VirtualizedMessageList does not provide default
+Footer component
+* The VirtualizedMessageList markup has changed as
+TypingIndicator is rendered as a child of MessageListMainPanel
+* stylesheet import path changed & v1 stylesheet has been dropped, see release guide for more information
+* theme v1 related markup and classNames have been removed
+* `themeVersion` property has been removed from `ChatContext`
+
+### Bug Fixes
+
+* render typing indicator outside the VirtualizedMessageList scroll container ([#2406](https://github.com/GetStream/stream-chat-react/issues/2406)) ([fcaafb6](https://github.com/GetStream/stream-chat-react/commit/fcaafb6a1d41249b904350f9ccdb6527d7e881e5))
+
+
+### Features
+
+* remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([9410153](https://github.com/GetStream/stream-chat-react/commit/94101535d1de9de23a1ab8913423af0e7009bab9))
+
 ## [11.21.0](https://github.com/GetStream/stream-chat-react/compare/v11.20.0...v11.21.0) (2024-06-14)
 
 
