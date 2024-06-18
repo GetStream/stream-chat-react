@@ -61,6 +61,87 @@ const App = () => {
 };
 ```
 
+To organize the components in a chat messenger layout, we provide the following CSS:
+
+```css
+html,
+body,
+#root {
+  margin: unset;
+  padding: unset;
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  height: 100%;
+
+  .str-chat-channel-list {
+    position: fixed;
+    z-index: 1;
+    width: 0;
+
+    &--open {
+      width: 100%;
+    }
+  }
+
+  .str-chat-channel {
+    width: 100%;
+  }
+
+  .str-chat__thread {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+  }
+
+  .str-chat__channel-header .str-chat__header-hamburger {
+    width: 30px;
+    height: 38px;
+    padding: var(--xxs-p);
+    margin-right: var(--xs-m);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+
+    &:hover {
+      svg path {
+        fill: var(--primary-color);
+      }
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .str-chat-channel-list {
+      width: 30%;
+      max-width: 420px;
+      position: initial;
+      z-index: 0;
+    }
+
+    .str-chat__thread {
+      position: initial;
+      z-index: 0;
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    .str-chat__thread {
+      width: 45%;
+    }
+
+    .str-chat__channel-header .str-chat__header-hamburger {
+      display: none;
+    }
+  }
+}
+```
+
 ## Chat Client & Connecting User
 
 To communicate with the Stream Chat API the SDK requires a client with an established connection. The hook mentioned in the code above (`useCreateChatClient`) handles client instantiation, establishes proper connection and handles cleanups and disconnects for you. If you wish to have more control over how all of the previously mentioned is being handled see [Client and User](../guides/client-and-user.mdx) guide.
