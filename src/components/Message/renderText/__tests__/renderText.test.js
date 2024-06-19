@@ -277,6 +277,7 @@ describe('keepLineBreaksPlugin', () => {
   const blockquoteText = `a${lineBreaks}>b${lineBreaks}c`;
   const withStrikeThroughText = `a${lineBreaks}${strikeThroughText}${lineBreaks}b`;
   const tableText = `a${lineBreaks}| a | b  |  c |  d  |\n| - | :- | -: | :-: |\n| a | b  |  c |  d  |${lineBreaks}c`;
+  const multilineWithStrongText = 'This is **the first** line\n\nThis is the second line';
 
   const doRenderText = (text, present) => {
     const Markdown = renderText(
@@ -363,6 +364,10 @@ describe('keepLineBreaksPlugin', () => {
     });
     it(`keeps line breaks around a table`, () => {
       const tree = doRenderText(tableText, present);
+      expect(tree).toMatchSnapshot();
+    });
+    it(`keeps line between lines with strong text`, () => {
+      const tree = doRenderText(multilineWithStrongText, present);
       expect(tree).toMatchSnapshot();
     });
   });

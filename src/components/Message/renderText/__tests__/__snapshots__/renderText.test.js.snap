@@ -214,6 +214,30 @@ Array [
 ]
 `;
 
+exports[`keepLineBreaksPlugin present keeps line between lines with strong text 1`] = `
+Array [
+  <p>
+    This is 
+    <strong>
+      the first
+    </strong>
+     line
+  </p>,
+  "
+",
+  <br />,
+  "
+",
+  "
+",
+  "
+",
+  <p>
+    This is the second line
+  </p>,
+]
+`;
+
 exports[`keepLineBreaksPlugin present keeps line breaks around a blockquote 1`] = `
 Array [
   <p>

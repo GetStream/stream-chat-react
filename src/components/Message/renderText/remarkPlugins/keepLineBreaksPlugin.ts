@@ -12,7 +12,7 @@ const visitor: Visitor = (node, index, parent) => {
   const prevSibling = parent.children.at(index - 1);
   if (!prevSibling?.position) return;
 
-  if (node.position.start.line === prevSibling.position.start.line) return false;
+  if (node.position.start.line === prevSibling.position.start.line) return;
   const ownStartLine = node.position.start.line;
   const prevEndLine = prevSibling.position.end.line;
 
