@@ -98,7 +98,6 @@
     "mml-react": "^0.4.7"
   },
   "peerDependencies": {
-    "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
