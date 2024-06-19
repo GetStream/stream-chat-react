@@ -61,7 +61,6 @@
   "dependencies": {
     "@babel/runtime": "^7.23.6",
     "@braintree/sanitize-url": "^6.0.4",
-    "@breezystack/lamejs": "^1.2.7",
     "@popperjs/core": "^2.11.5",
     "@react-aria/focus": "^3",
     "clsx": "^2.0.0",
@@ -99,6 +98,7 @@
     "mml-react": "^0.4.7"
   },
   "peerDependencies": {
+    "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
@@ -132,6 +132,7 @@
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.12.7",
+    "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@emoji-mart/data": "^1.1.2",
