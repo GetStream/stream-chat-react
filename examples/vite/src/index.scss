@@ -114,7 +114,7 @@ body,
   }
 }
 
-.str-chat__views {
+.str-chat__chat-view {
   display: flex;
   width: 100%;
   height: 100%;
@@ -123,9 +123,18 @@ body,
     display: flex;
     flex-direction: column;
     list-style: none;
+    margin: unset;
+    padding-inline: 8px;
+    padding-block: 16px;
+    gap: 20px;
+
+    & button {
+      display: flex;
+      padding-inline: 19px;
+    }
   }
 
-  &__channel {
+  &__channels {
     display: flex;
     flex-grow: 1;
   }
