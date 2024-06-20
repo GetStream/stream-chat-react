@@ -7,7 +7,7 @@ import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 import { Avatar } from '../../Avatar';
 import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
-import { useThreadsViewContext } from '../../Views';
+import { useThreadsViewContext } from '../../ChatView';
 import clsx from 'clsx';
 
 export type ThreadListItemProps = {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
@@ -11,7 +11,8 @@ import {
   Window,
   useCreateChatClient,
   ThreadList,
-  Views,
+  ChatView,
+  useChannelStateContext,
 } from 'stream-chat-react';
 import '@stream-io/stream-chat-css/dist/v2/css/index.css';
 
@@ -27,7 +28,7 @@ const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
 };
-const options: ChannelOptions = { limit: 10, presence: true, state: true };
+const options: ChannelOptions = { limit: 4, presence: true, state: true };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 type LocalAttachmentType = Record<string, unknown>;
@@ -52,6 +53,12 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
+const C = () => {
+  const { channel } = useChannelStateContext();
+
+  return <button onPointerDown={() => channel.stopWatching()}></button>;
+};
+
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
@@ -59,15 +66,27 @@ const App = () => {
     userData: { id: userId },
   });
 
+  // const channel = useMemo(() => {
+  //   if (!chatClient) return;
+
+  //   const c = chatClient.channel('messaging', 'random-channel-2', {
+  //     members: ['john', 'marco', 'mark'],
+  //     name: 'Random 1',
+  //   });
+  //   c.updatePartial({ set: { name: 'Random 2' } });
+  //   return c
+  // }, [chatClient]);
+
   if (!chatClient) return <>Loading...</>;
 
   return (
     <Chat client={chatClient}>
-      <Views>
-        <Views.Selector />
-        <Views.Channel>
+      <ChatView>
+        <ChatView.Selector />
+        <ChatView.Channels>
           <ChannelList filters={filters} options={options} sort={sort} />
           <Channel>
+            <C />
             <Window>
               <ChannelHeader />
               <MessageList returnAllReadData />
@@ -75,14 +94,14 @@ const App = () => {
             </Window>
             <Thread virtualized />
           </Channel>
-        </Views.Channel>
-        <Views.Threads>
+        </ChatView.Channels>
+        <ChatView.Threads>
           <ThreadList />
-          <Views.ThreadAdapter>
+          <ChatView.ThreadAdapter>
             <Thread virtualized />
-          </Views.ThreadAdapter>
-        </Views.Threads>
-      </Views>
+          </ChatView.ThreadAdapter>
+        </ChatView.Threads>
+      </ChatView>
     </Chat>
   );
 };
