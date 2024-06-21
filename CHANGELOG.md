@@ -1,3 +1,17 @@
+## [11.22.0](https://github.com/GetStream/stream-chat-react/compare/v11.21.0...v11.22.0) (2024-06-21)
+
+
+### Bug Fixes
+
+* adjust ChannelActionContextValue type ([#2434](https://github.com/GetStream/stream-chat-react/issues/2434)) ([977ec39](https://github.com/GetStream/stream-chat-react/commit/977ec392bef7ce310f6efb13a9c900adcd53ff86))
+* avoid eager channel pagination on channel open ([#2425](https://github.com/GetStream/stream-chat-react/issues/2425)) ([c1e8b93](https://github.com/GetStream/stream-chat-react/commit/c1e8b9388f6c0b4db4a854b91e167e1e45a658a0))
+* keep line breaks in message text that contains multiple markdown elements ([#2429](https://github.com/GetStream/stream-chat-react/issues/2429)) ([11e606f](https://github.com/GetStream/stream-chat-react/commit/11e606fbcdd7f03766445b398d6acd1133f34119))
+
+
+### Features
+
+* load lazily mp3 encoding library for audio recorder ([#2432](https://github.com/GetStream/stream-chat-react/issues/2432)) ([2ca3188](https://github.com/GetStream/stream-chat-react/commit/2ca318878de2f22751319b2b7ccac84644583173))
+
 ## [11.21.0](https://github.com/GetStream/stream-chat-react/compare/v11.20.0...v11.21.0) (2024-06-14)
 
 
