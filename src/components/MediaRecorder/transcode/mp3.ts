@@ -1,4 +1,3 @@
-import { Mp3Encoder } from '@breezystack/lamejs';
 import { renderAudio, toAudioBuffer } from './audioProcessing';
 
 const ENCODING_BIT_RATE = 128; // kbps;
@@ -22,10 +21,11 @@ const splitDataByChannel = (audioBuffer: AudioBuffer) =>
   );
 
 export async function encodeToMp3(file: File, sampleRate: number) {
+  const lameJs = await import('@breezystack/lamejs');
   const audioBuffer = await renderAudio(await toAudioBuffer(file), sampleRate);
   const channelCount = audioBuffer.numberOfChannels;
   const dataByChannel = splitDataByChannel(audioBuffer);
-  const mp3Encoder = new Mp3Encoder(channelCount, sampleRate, ENCODING_BIT_RATE);
+  const mp3Encoder = new lameJs.Mp3Encoder(channelCount, sampleRate, ENCODING_BIT_RATE);
 
   const dataBuffer: Int8Array[] = [];
   let remaining = dataByChannel[0].length;
