@@ -1,3 +1,10 @@
+## [12.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.1...v12.0.0-rc.2) (2024-06-21)
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to version 5.0.0-rc.1nvm ([fd27c74](https://github.com/GetStream/stream-chat-react/commit/fd27c74c14d8571bbf97b3b8eee52540e30500c4))
+
 ## [12.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v11.21.0...v12.0.0-rc.1) (2024-06-17)
 
 
