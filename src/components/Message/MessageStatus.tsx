@@ -88,10 +88,10 @@ const UnMemoizedMessageStatus = <
     >
       {sending &&
         (MessageSendingStatus ? (
-            <MessageSendingStatus />
+          <MessageSendingStatus />
         ) : (
-        <>
-           <PopperTooltip
+          <>
+            <PopperTooltip
               offset={[0, 5]}
               referenceElement={referenceElement}
               visible={tooltipVisible}
@@ -99,7 +99,7 @@ const UnMemoizedMessageStatus = <
               {t<string>('Sending...')}
             </PopperTooltip>
             <LoadingIndicator />
-        </>
+          </>
         ))}
 
       {delivered &&
@@ -109,13 +109,13 @@ const UnMemoizedMessageStatus = <
         ) : (
           <>
             <PopperTooltip
-            offset={[0, 5]}
-            referenceElement={referenceElement}
-            visible={tooltipVisible}
-          >
-            {t<string>('Delivered')}
-          </PopperTooltip>
-          <MessageDeliveredIcon />
+              offset={[0, 5]}
+              referenceElement={referenceElement}
+              visible={tooltipVisible}
+            >
+              {t<string>('Delivered')}
+            </PopperTooltip>
+            <MessageDeliveredIcon />
           </>
         ))}
 
@@ -125,12 +125,12 @@ const UnMemoizedMessageStatus = <
         ) : (
           <>
             <PopperTooltip
-            offset={[0, 5]}
-            referenceElement={referenceElement}
-            visible={tooltipVisible}
-          >
-            {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
-          </PopperTooltip>
+              offset={[0, 5]}
+              referenceElement={referenceElement}
+              visible={tooltipVisible}
+            >
+              {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
+            </PopperTooltip>
 
             <Avatar
               className='str-chat__avatar--message-status'
