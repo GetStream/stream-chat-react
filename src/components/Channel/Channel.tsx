@@ -757,9 +757,9 @@ const ChannelInner = <
 
   const clearHighlightedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const jumpToMessage = useCallback(
+  const jumpToMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToMessage'] = useCallback(
     async (
-      messageId: string,
+      messageId,
       messageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
       highlightDuration = DEFAULT_HIGHLIGHT_DURATION,
     ) => {
@@ -794,7 +794,7 @@ const ChannelInner = <
     [channel, loadMoreFinished],
   );
 
-  const jumpToLatestMessage = useCallback(async () => {
+  const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] = useCallback(async () => {
     await channel.state.loadMessageIntoState('latest');
     // FIXME: we cannot rely on constant value 25 as the page size can be customized by integrators
     const hasMoreOlder = channel.state.messages.length >= 25;
@@ -804,7 +804,7 @@ const ChannelInner = <
     });
   }, [channel, loadMoreFinished]);
 
-  const jumpToFirstUnreadMessage = useCallback(
+  const jumpToFirstUnreadMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToFirstUnreadMessage'] = useCallback(
     async (
       queryMessageLimit = DEFAULT_JUMP_TO_PAGE_SIZE,
       highlightDuration = DEFAULT_HIGHLIGHT_DURATION,

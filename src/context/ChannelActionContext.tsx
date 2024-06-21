@@ -68,9 +68,12 @@ export type ChannelActionContextValue<
     message: UpdatedMessage<StreamChatGenerics>,
     options?: UpdateMessageOptions,
   ) => Promise<UpdateMessageAPIResponse<StreamChatGenerics> | void>;
-  jumpToFirstUnreadMessage: (queryMessageLimit?: number) => Promise<void>;
+  jumpToFirstUnreadMessage: (
+    queryMessageLimit?: number,
+    highlightDuration?: number,
+  ) => Promise<void>;
   jumpToLatestMessage: () => Promise<void>;
-  jumpToMessage: (messageId: string, limit?: number) => Promise<void>;
+  jumpToMessage: (messageId: string, limit?: number, highlightDuration?: number) => Promise<void>;
   loadMore: (limit?: number) => Promise<number>;
   loadMoreNewer: (limit?: number) => Promise<number>;
   loadMoreThread: () => Promise<void>;
