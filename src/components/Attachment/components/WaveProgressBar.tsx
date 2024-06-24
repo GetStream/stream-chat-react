@@ -1,7 +1,9 @@
+import throttle from 'lodash.throttle';
 import React, {
   PointerEventHandler,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -19,17 +21,27 @@ type WaveProgressBarProps = {
   amplitudesCount?: number;
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress?: number;
+  relativeAmplitudeBarWidth?: number;
+  relativeAmplitudeGap?: number;
 };
 
 export const WaveProgressBar = ({
   amplitudesCount = 40,
   progress = 0,
+  relativeAmplitudeBarWidth = 2,
+  relativeAmplitudeGap = 1,
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
   const [progressIndicator, setProgressIndicator] = useState<HTMLDivElement | null>(null);
   const isDragging = useRef(false);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+  const [trackAxisX, setTrackAxisX] = useState<{
+    barCount: number;
+    barWidth: number;
+    gap: number;
+  }>();
+  const lastRootWidth = useRef<number>();
 
   const handleDragStart: PointerEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
@@ -51,10 +63,34 @@ export const WaveProgressBar = ({
     progressIndicator.style.removeProperty('cursor');
   }, [progressIndicator]);
 
-  const resampledWaveformData = useMemo(() => resampleWaveformData(waveformData, amplitudesCount), [
-    amplitudesCount,
-    waveformData,
-  ]);
+  const getTrackAxisX = useMemo(
+    () =>
+      throttle((root: HTMLDivElement) => {
+        const { width: rootWidth } = root.getBoundingClientRect();
+        if (rootWidth === lastRootWidth.current) return;
+        lastRootWidth.current = rootWidth;
+        const possibleAmpCount = Math.floor(
+          rootWidth / (relativeAmplitudeGap + relativeAmplitudeBarWidth),
+        );
+        const tooManyAmplitudesToRender = possibleAmpCount < amplitudesCount;
+        const barCount = tooManyAmplitudesToRender ? possibleAmpCount : amplitudesCount;
+        const amplitudeBarWidthToGapRatio =
+          relativeAmplitudeBarWidth / (relativeAmplitudeBarWidth + relativeAmplitudeGap);
+        const barWidth = (rootWidth / barCount) * amplitudeBarWidthToGapRatio;
+
+        setTrackAxisX({
+          barCount,
+          barWidth,
+          gap: barWidth * (relativeAmplitudeGap / relativeAmplitudeBarWidth),
+        });
+      }, 1),
+    [relativeAmplitudeBarWidth, relativeAmplitudeGap, amplitudesCount],
+  );
+
+  const resampledWaveformData = useMemo(
+    () => (trackAxisX ? resampleWaveformData(waveformData, trackAxisX.barCount) : []),
+    [trackAxisX, waveformData],
+  );
 
   useEffect(() => {
     document.addEventListener('pointerup', handleDragStop);
@@ -63,7 +99,24 @@ export const WaveProgressBar = ({
     };
   }, [handleDragStop]);
 
-  if (!waveformData.length) return null;
+  useEffect(() => {
+    if (!root) return;
+    const handleResize = () => {
+      getTrackAxisX.cancel();
+      getTrackAxisX(root);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [getTrackAxisX, root]);
+
+  useLayoutEffect(() => {
+    if (!root) return;
+    getTrackAxisX(root);
+  }, [getTrackAxisX, root]);
+
+  if (!waveformData.length || trackAxisX?.barCount === 0) return null;
 
   return (
     <div
@@ -73,8 +126,14 @@ export const WaveProgressBar = ({
       onPointerDown={handleDragStart}
       onPointerMove={handleDrag}
       onPointerUp={handleDragStop}
-      ref={rootRef}
+      ref={setRoot}
       role='progressbar'
+      style={
+        {
+          '--count': trackAxisX?.barCount,
+          '--str-chat__voice-recording-amplitude-bar-gap': trackAxisX?.gap + 'px',
+        } as React.CSSProperties
+      }
     >
       {resampledWaveformData.map((amplitude, i) => (
         <div
@@ -86,6 +145,7 @@ export const WaveProgressBar = ({
           key={`amplitude-${i}`}
           style={
             {
+              '--str-chat__voice-recording-amplitude-bar-width': trackAxisX?.barWidth + 'px',
               '--str-chat__wave-progress-bar__amplitude-bar-height': amplitude
                 ? amplitude * 100 + '%'
                 : '0%',
