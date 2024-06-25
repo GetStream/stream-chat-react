@@ -208,6 +208,7 @@ export const channelReducer = <
       return {
         ...state,
         thread: message,
+        threadHasMore: true,
         threadMessages: message.id ? { ...channel.state.threads }[message.id] || [] : [],
         threadSuppressAutoscroll: false,
       };
