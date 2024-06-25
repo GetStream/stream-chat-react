@@ -130,7 +130,7 @@ export const WaveProgressBar = ({
       role='progressbar'
       style={
         {
-          '--str-chat__voice-recording-amplitude-bar-gap': trackAxisX?.gap + 'px',
+          '--str-chat__voice-recording-amplitude-bar-gap-width': trackAxisX?.gap + 'px',
         } as React.CSSProperties
       }
     >

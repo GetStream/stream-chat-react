@@ -35,7 +35,7 @@ describe('WaveProgressBar', () => {
   it('renders with default number of bars', () => {
     render(<WaveProgressBar seek={jest.fn()} waveformData={originalSample} />);
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap')).toBe(
+    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
       '1px',
     );
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);
@@ -58,7 +58,7 @@ describe('WaveProgressBar', () => {
       />,
     );
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap')).toBe(
+    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
       '5px',
     );
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);
@@ -80,7 +80,7 @@ describe('WaveProgressBar', () => {
       activeObserver.cb([{ contentRect: { width: 21 } }]);
     });
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
-    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap')).toBe(
+    expect(root.style.getPropertyValue('--str-chat__voice-recording-amplitude-bar-gap-width')).toBe(
       '1px',
     );
     const bars = screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID);

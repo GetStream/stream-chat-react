@@ -382,7 +382,7 @@ exports[`AudioRecorder renders audio recording stopped UI with recording preview
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
           role="progressbar"
-          style="--str-chat__voice-recording-amplitude-bar-gap: 1px;"
+          style="--str-chat__voice-recording-amplitude-bar-gap-width: 1px;"
         >
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"

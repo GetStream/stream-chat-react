@@ -6,7 +6,7 @@ exports[`WaveProgressBar is rendered with zero progress by default if waveform d
     class="str-chat__wave-progress-bar__track"
     data-testid="wave-progress-bar-track"
     role="progressbar"
-    style="--str-chat__voice-recording-amplitude-bar-gap: 8px;"
+    style="--str-chat__voice-recording-amplitude-bar-gap-width: 8px;"
   >
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
