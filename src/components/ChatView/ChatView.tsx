@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { ThreadProvider } from '../Threads';
+import { ThreadProvider, useSimpleStateStore } from '../Threads';
+import { useChatContext } from '../../context';
 
 import type { PropsWithChildren } from 'react';
-import type { Thread } from 'stream-chat';
+import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
 
 const availableChatViews = ['channels', 'threads'] as const;
 
@@ -119,8 +120,14 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
+const selector = (nextValue: InferStoreValueType<ThreadManager>) => [
+  nextValue.unreadThreads.combinedCount,
+];
+
 const ChatViewSelector = () => {
+  const { client } = useChatContext();
   const { setActiveChatView } = useContext(ChatViewContext);
+  const [unreadThreads] = useSimpleStateStore(client.threads.state, selector);
 
   return (
     <ul className='str-chat__chat-view__selector'>
@@ -128,7 +135,7 @@ const ChatViewSelector = () => {
         <button onPointerDown={() => setActiveChatView('channels')}>Channels</button>
       </li>
       <li>
-        <button onPointerDown={() => setActiveChatView('threads')}>Threads</button>
+        <button onPointerDown={() => setActiveChatView('threads')}>Threads {unreadThreads}</button>
       </li>
     </ul>
   );

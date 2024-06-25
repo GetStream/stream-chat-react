@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
 import type { ComponentType } from 'react';
@@ -44,8 +44,20 @@ export const ThreadList = ({
   const { client } = useChatContext();
   const [unreadThreadIds, threads] = useSimpleStateStore(client.threads.state, selector);
 
+  const handlerRef = useRef<() => void>();
+
+  handlerRef.current = () => {
+    if (!threads.length) client.threads.loadNextPage();
+  };
+
   useEffect(() => {
-    client.threads.loadNextPage();
+    handlerRef.current?.();
+
+    client.threads.activate();
+
+    return () => {
+      client.threads.deactivate();
+    };
   }, [client]);
 
   return (
