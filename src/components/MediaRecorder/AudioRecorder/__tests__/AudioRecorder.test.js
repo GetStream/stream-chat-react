@@ -27,6 +27,7 @@ import {
   AudioContextMock,
   EventEmitterMock,
   MediaRecorderMock,
+  ResizeObserverMock,
 } from '../../../../mock-builders/browser';
 import { generateDataavailableEvent } from '../../../../mock-builders/browser/events/dataavailable';
 import { AudioRecorder } from '../AudioRecorder';
@@ -54,6 +55,10 @@ const DEFAULT_RENDER_PARAMS = {
   },
   componentCtx: {},
 };
+
+window.ResizeObserver = ResizeObserverMock;
+
+jest.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 120 });
 
 const renderComponent = async ({
   channelActionCtx,

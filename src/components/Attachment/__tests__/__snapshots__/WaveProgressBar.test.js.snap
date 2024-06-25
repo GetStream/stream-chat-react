@@ -6,31 +6,32 @@ exports[`WaveProgressBar is rendered with zero progress by default if waveform d
     class="str-chat__wave-progress-bar__track"
     data-testid="wave-progress-bar-track"
     role="progressbar"
+    style="--str-chat__voice-recording-amplitude-bar-gap: 8px;"
   >
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 0%;"
+      style="--str-chat__voice-recording-amplitude-bar-width: 16px; --str-chat__wave-progress-bar__amplitude-bar-height: 0%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 200%;"
+      style="--str-chat__voice-recording-amplitude-bar-width: 16px; --str-chat__wave-progress-bar__amplitude-bar-height: 200%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 500%;"
+      style="--str-chat__voice-recording-amplitude-bar-width: 16px; --str-chat__wave-progress-bar__amplitude-bar-height: 500%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 700%;"
+      style="--str-chat__voice-recording-amplitude-bar-width: 16px; --str-chat__wave-progress-bar__amplitude-bar-height: 700%;"
     />
     <div
       class="str-chat__wave-progress-bar__amplitude-bar"
       data-testid="amplitude-bar"
-      style="--str-chat__wave-progress-bar__amplitude-bar-height: 900%;"
+      style="--str-chat__voice-recording-amplitude-bar-width: 16px; --str-chat__wave-progress-bar__amplitude-bar-height: 900%;"
     />
     <div
       class="str-chat__wave-progress-bar__progress-indicator"

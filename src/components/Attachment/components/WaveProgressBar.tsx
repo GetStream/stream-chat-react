@@ -65,8 +65,7 @@ export const WaveProgressBar = ({
 
   const getTrackAxisX = useMemo(
     () =>
-      throttle((root: HTMLDivElement) => {
-        const { width: rootWidth } = root.getBoundingClientRect();
+      throttle((rootWidth: number) => {
         if (rootWidth === lastRootWidth.current) return;
         lastRootWidth.current = rootWidth;
         const possibleAmpCount = Math.floor(
@@ -76,7 +75,7 @@ export const WaveProgressBar = ({
         const barCount = tooManyAmplitudesToRender ? possibleAmpCount : amplitudesCount;
         const amplitudeBarWidthToGapRatio =
           relativeAmplitudeBarWidth / (relativeAmplitudeBarWidth + relativeAmplitudeGap);
-        const barWidth = (rootWidth / barCount) * amplitudeBarWidthToGapRatio;
+        const barWidth = barCount && (rootWidth / barCount) * amplitudeBarWidthToGapRatio;
 
         setTrackAxisX({
           barCount,
@@ -100,20 +99,21 @@ export const WaveProgressBar = ({
   }, [handleDragStop]);
 
   useEffect(() => {
-    if (!root) return;
-    const handleResize = () => {
-      getTrackAxisX.cancel();
-      getTrackAxisX(root);
-    };
-    window.addEventListener('resize', handleResize);
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      getTrackAxisX(entry.contentRect.width);
+    });
+    observer.observe(root);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      observer.disconnect();
     };
   }, [getTrackAxisX, root]);
 
   useLayoutEffect(() => {
     if (!root) return;
-    getTrackAxisX(root);
+    const { width: rootWidth } = root.getBoundingClientRect();
+    getTrackAxisX(rootWidth);
   }, [getTrackAxisX, root]);
 
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
@@ -130,7 +130,6 @@ export const WaveProgressBar = ({
       role='progressbar'
       style={
         {
-          '--count': trackAxisX?.barCount,
           '--str-chat__voice-recording-amplitude-bar-gap': trackAxisX?.gap + 'px',
         } as React.CSSProperties
       }

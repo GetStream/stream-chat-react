@@ -382,206 +382,207 @@ exports[`AudioRecorder renders audio recording stopped UI with recording preview
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
           role="progressbar"
+          style="--str-chat__voice-recording-amplitude-bar-gap: 1px;"
         >
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 31.399506330490112%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 31.399506330490112%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 24.018539488315582%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 24.018539488315582%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 18.365363776683807%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.365363776683807%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 59.02017951011658%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 59.02017951011658%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 26.63217782974243%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 26.63217782974243%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 62.37155795097351%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.37155795097351%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 82.78987407684326%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 82.78987407684326%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 15.16059935092926%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 15.16059935092926%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 47.57987558841705%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 47.57987558841705%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 62.29274868965149%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.29274868965149%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 55.40405511856079%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 55.40405511856079%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 85.32787561416626%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 85.32787561416626%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 57.56412744522095%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 57.56412744522095%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 83.30334424972534%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 83.30334424972534%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 75.42996406555176%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 75.42996406555176%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 46.48399353027344%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 46.48399353027344%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 77.82987952232361%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.82987952232361%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 62.917882204055786%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.917882204055786%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 71.56173586845398%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 71.56173586845398%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 7.107513397932053%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 7.107513397932053%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 14.29901123046875%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.29901123046875%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 14.445610344409943%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.445610344409943%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 95.34039497375488%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 95.34039497375488%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 48.61070513725281%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 48.61070513725281%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 62.09651231765747%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.09651231765747%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 8.803673088550568%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 8.803673088550568%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 49.2523193359375%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 49.2523193359375%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 3.940269351005554%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 3.940269351005554%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 77.68490314483643%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.68490314483643%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 18.697471916675568%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.697471916675568%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 4.977691546082497%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.977691546082497%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 5.717025697231293%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 5.717025697231293%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 4.073379561305046%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.073379561305046%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 14.73514586687088%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.73514586687088%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 94.67474222183228%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 94.67474222183228%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 54.55475449562073%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 54.55475449562073%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 81.71653747558594%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.71653747558594%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 61.83612942695618%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 61.83612942695618%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 81.5593957901001%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.5593957901001%;"
           />
           <div
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
-            style="--str-chat__wave-progress-bar__amplitude-bar-height: 89.80446457862854%;"
+            style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 89.80446457862854%;"
           />
           <div
             class="str-chat__wave-progress-bar__progress-indicator"
