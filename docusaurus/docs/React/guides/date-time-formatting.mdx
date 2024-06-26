@@ -152,16 +152,6 @@ Now we can apply custom configuration in all the translation JSON files. It coul
 }
 ```
 
-Besides overriding the formatting parameters above, we can customize the translation key via `timestampTranslationKey` prop in all of the above mentioned components (`DateSeparator`, `EventComponent`, `MessageTimestamp`).
-
-```tsx
-import { MessageTimestampProps, MessageTimestamp } from 'stream-chat-react';
-
-const CustomMessageTimestamp = (props: MessageTimestampProps) => (
-  <MessageTimestamp {...props} timestampTranslationKey='customTimestampTranslationKey' />
-);
-```
-
 ##### Understanding the formatting syntax
 
 Once the default prop values are nullified, we override the default formatting rules in the JSON translation value. We can take a look at an example of German translation for SystemMessage:
