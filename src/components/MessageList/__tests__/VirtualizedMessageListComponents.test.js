@@ -21,6 +21,7 @@ import {
   ChatProvider,
   ComponentProvider,
   TranslationProvider,
+  useMessageContext,
 } from '../../../context';
 import { MessageSimple } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
@@ -164,7 +165,7 @@ describe('VirtualizedMessageComponents', () => {
 
   describe('EmptyPlaceholder', () => {
     const EmptyStateIndicator = ({ listType }) => (
-      <div data-listType={listType}>Custom EmptyStateIndicator</div>
+      <div data-listtype={listType}>Custom EmptyStateIndicator</div>
     );
     const NullEmptyStateIndicator = null;
     const componentContext = { EmptyStateIndicator };
@@ -249,6 +250,40 @@ describe('VirtualizedMessageComponents', () => {
     });
 
     describe('default item rendering logic', () => {
+      it('should forward message group styles', () => {
+        const virtuosoRef = { current: {} };
+        let groupStylesMessageContext;
+        const Message = () => {
+          const { groupStyles } = useMessageContext();
+          groupStylesMessageContext = groupStyles;
+          return null;
+        };
+        const processedMessages = [generateMessage()];
+        const messageGroupStyles = { [processedMessages[0].id]: 'xy' };
+        renderElements(
+          <>
+            {processedMessages.map((_, numItemsPrepended) => {
+              const virtuosoContext = {
+                Message,
+                messageGroupStyles,
+                numItemsPrepended,
+                ownMessagesReadByOthers: {},
+                prependOffset,
+                processedMessages,
+                virtuosoRef,
+              };
+              return (
+                <div key={numItemsPrepended}>
+                  {messageRenderer(virtuosoIndex, undefined, virtuosoContext)}
+                </div>
+              );
+            })}
+          </>,
+        );
+        expect(groupStylesMessageContext).toStrictEqual([
+          messageGroupStyles[processedMessages[0].id],
+        ]);
+      });
       it('should render nothing if MessageSystem component is undefined for system messages', () => {
         const virtuosoContext = {
           numItemsPrepended,
@@ -343,6 +378,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -376,6 +412,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadDate: new Date(1),
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -409,6 +446,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -433,6 +471,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -466,6 +505,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -489,6 +529,7 @@ describe('VirtualizedMessageComponents', () => {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               Message,
+              messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesReadByOthers: {},
               processedMessages: messages,
@@ -531,6 +572,7 @@ describe('VirtualizedMessageComponents', () => {
               {processedMessages.map((_, numItemsPrepended) => {
                 const virtuosoContext = {
                   Message: MessageSimple,
+                  messageGroupStyles: {},
                   numItemsPrepended,
                   ownMessagesReadByOthers: {},
                   prependOffset,
