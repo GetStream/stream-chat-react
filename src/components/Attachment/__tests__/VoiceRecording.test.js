@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 import { generateVoiceRecordingAttachment } from '../../../mock-builders';
 import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChannelActionProvider } from '../../../context';
+import { ResizeObserverMock } from '../../../mock-builders/browser';
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
@@ -12,6 +13,10 @@ const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 const FALLBACK_TITLE = 'Voice message';
 
 const attachment = generateVoiceRecordingAttachment();
+
+window.ResizeObserver = ResizeObserverMock;
+
+jest.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 120 });
 
 const clickPlay = async () => {
   await act(async () => {
