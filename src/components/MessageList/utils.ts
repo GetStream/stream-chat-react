@@ -292,6 +292,7 @@ export const getGroupStyles = <
   previousMessage: StreamMessage<StreamChatGenerics>,
   nextMessage: StreamMessage<StreamChatGenerics>,
   noGroupByUser: boolean,
+  maxTimeBetweenGroupedMessages?: number,
 ): GroupStyle => {
   if (message.customType === CUSTOM_MESSAGE_TYPE.date) return '';
   if (message.customType === CUSTOM_MESSAGE_TYPE.intro) return '';
@@ -303,24 +304,29 @@ export const getGroupStyles = <
     previousMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
     previousMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     previousMessage.type === 'system' ||
+    previousMessage.type === 'error' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
-    previousMessage.type === 'error' ||
     previousMessage.deleted_at ||
     (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
     isMessageEdited(previousMessage);
 
   const isBottomMessage =
     !nextMessage ||
+    nextMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
     nextMessage.customType === CUSTOM_MESSAGE_TYPE.date ||
     nextMessage.type === 'system' ||
-    nextMessage.customType === CUSTOM_MESSAGE_TYPE.intro ||
+    nextMessage.type === 'error' ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
-    nextMessage.type === 'error' ||
     nextMessage.deleted_at ||
     (nextMessage.reaction_groups && Object.keys(nextMessage.reaction_groups).length > 0) ||
-    isMessageEdited(message);
+    isMessageEdited(message) ||
+    (maxTimeBetweenGroupedMessages !== undefined &&
+      nextMessage.created_at &&
+      message.created_at &&
+      new Date(nextMessage.created_at).getTime() - new Date(message.created_at).getTime() >
+        maxTimeBetweenGroupedMessages);
 
   if (!isTopMessage && !isBottomMessage) {
     if (message.deleted_at || message.type === 'error') return 'single';

@@ -64,6 +64,7 @@ const MessageListWithContext = <
       threshold: loadMoreScrollThreshold = DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD,
       ...restInternalInfiniteScrollProps
     } = {},
+    maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     messages = [],
     notifications,
@@ -138,6 +139,7 @@ const MessageListWithContext = <
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
+    maxTimeBetweenGroupedMessages,
     messages,
     noGroupByUser,
     reviewProcessedMessage,
@@ -320,6 +322,7 @@ export type MessageListProps<
     previousMessage: StreamMessage<StreamChatGenerics>,
     nextMessage: StreamMessage<StreamChatGenerics>,
     noGroupByUser: boolean,
+    maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
   /** Whether the list has more items to load */
   hasMore?: boolean;
@@ -343,6 +346,8 @@ export type MessageListProps<
   loadMore?: ChannelActionContextValue['loadMore'] | (() => Promise<void>);
   /** Function called when newer messages are to be loaded, defaults to function stored in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   loadMoreNewer?: ChannelActionContextValue['loadMoreNewer'] | (() => Promise<void>);
+  /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
+  maxTimeBetweenGroupedMessages?: number;
   /** The limit to use when paginating messages */
   messageLimit?: number;
   /** The messages to render in the list, defaults to messages stored in [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/) */

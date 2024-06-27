@@ -1,6 +1,6 @@
-import { generateMessage } from '../../../mock-builders';
+import { generateFileAttachment, generateMessage, generateUser } from '../../../mock-builders';
 
-import { makeDateMessageId, processMessages } from '../utils';
+import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
@@ -419,5 +419,177 @@ describe('processMessages', () => {
     messages.forEach((msg, i) => {
       expect(reviewProcessedMessage.mock.calls[i][0].changes[0].id).toBe(msg.id);
     });
+  });
+});
+
+describe('getGroupStyles', () => {
+  const user = generateUser();
+  let message;
+  let previousMessage;
+  let nextMessage;
+  let noGroupByUser;
+  beforeEach(() => {
+    message = generateMessage({ created_at: new Date(2), user });
+    previousMessage = generateMessage({ created_at: new Date(1), user });
+    nextMessage = generateMessage({ created_at: new Date(100), user });
+    noGroupByUser = false;
+  });
+
+  describe.each([
+    ['bottom', 'next'],
+    ['top', 'previous'],
+  ])('marks a message as %s when %s message', (position) => {
+    it('does not exist', () => {
+      if (position === 'bottom') {
+        nextMessage = undefined;
+      }
+      if (position === 'top') {
+        previousMessage = undefined;
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is intro message', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, customType: CUSTOM_MESSAGE_TYPE.intro };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.intro };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is date message', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.date };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is a system message', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, type: 'system' };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, type: 'system' };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is an error message', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, type: 'error' };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, type: 'error' };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('has attachments', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, attachments: [generateFileAttachment()] };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, attachments: [generateFileAttachment()] };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is posted by another user', () => {
+      const user = generateUser({ id: 'XX' });
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, user };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, user };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+
+    it('is deleted', () => {
+      if (position === 'bottom') {
+        nextMessage = { ...nextMessage, deleted_at: new Date() };
+      }
+      if (position === 'top') {
+        previousMessage = { ...previousMessage, deleted_at: new Date() };
+      }
+      expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(position);
+    });
+  });
+
+  it('marks a message as bottom when the message is edited', () => {
+    message = { ...message, message_text_updated_at: new Date() };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('bottom');
+  });
+
+  it('marks a message as top when the previous message is edited', () => {
+    previousMessage = { ...previousMessage, message_text_updated_at: new Date() };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('top');
+  });
+
+  it('marks a message a top if it has reactions', () => {
+    message = { ...message, reaction_groups: { X: 'Y' } };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('top');
+  });
+
+  it('marks a message a bottom if next message has reactions', () => {
+    nextMessage = { ...nextMessage, reaction_groups: { X: 'Y' } };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('bottom');
+  });
+
+  it('marks a message as bottom when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
+    const maxTimeBetweenGroupedMessages = 10;
+    expect(
+      getGroupStyles(
+        message,
+        previousMessage,
+        nextMessage,
+        noGroupByUser,
+        maxTimeBetweenGroupedMessages,
+      ),
+    ).toBe('bottom');
+  });
+
+  it('marks a message as middle when next message is created earlier than maxTimeBetweenGroupedMessages milliseconds', () => {
+    const maxTimeBetweenGroupedMessages = 1000;
+    expect(
+      getGroupStyles(
+        message,
+        previousMessage,
+        nextMessage,
+        noGroupByUser,
+        maxTimeBetweenGroupedMessages,
+      ),
+    ).toBe('middle');
+  });
+
+  it('marks message as middle if not being top, neither bottom message', () => {
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('middle');
+  });
+
+  it('marks message as single if not being top, neither bottom message being deleted', () => {
+    message = { ...message, deleted_at: new Date() };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+  });
+
+  it('marks message as single if not being top, neither bottom message being error message', () => {
+    message = { ...message, type: 'error' };
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+  });
+
+  it('marks message at the bottom as single being deleted message', () => {
+    message = { ...message, deleted_at: new Date() };
+    nextMessage = undefined;
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
+  });
+
+  it('marks message at the bottom as single being error message', () => {
+    message = { ...message, type: 'error' };
+    nextMessage = undefined;
+    expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('single');
   });
 });
