@@ -541,7 +541,7 @@ describe('getGroupStyles', () => {
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe('bottom');
   });
 
-  it('marks a message as bottom when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
+  it('marks a message as top when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
     expect(
       getGroupStyles(
@@ -552,6 +552,35 @@ describe('getGroupStyles', () => {
         maxTimeBetweenGroupedMessages,
       ),
     ).toBe('bottom');
+  });
+
+  it('marks a message as bottom when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
+    const maxTimeBetweenGroupedMessages = 10;
+    message = { ...message, created_at: new Date(12) };
+    nextMessage = { ...nextMessage, created_at: new Date(14) };
+    expect(
+      getGroupStyles(
+        message,
+        previousMessage,
+        nextMessage,
+        noGroupByUser,
+        maxTimeBetweenGroupedMessages,
+      ),
+    ).toBe('top');
+  });
+
+  it('marks a message as single when next and previous message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
+    const maxTimeBetweenGroupedMessages = 10;
+    message = { ...message, created_at: new Date(12) };
+    expect(
+      getGroupStyles(
+        message,
+        previousMessage,
+        nextMessage,
+        noGroupByUser,
+        maxTimeBetweenGroupedMessages,
+      ),
+    ).toBe('single');
   });
 
   it('marks a message as middle when next message is created earlier than maxTimeBetweenGroupedMessages milliseconds', () => {

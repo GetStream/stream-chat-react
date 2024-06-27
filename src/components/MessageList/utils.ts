@@ -309,7 +309,12 @@ export const getGroupStyles = <
     message.user?.id !== previousMessage.user?.id ||
     previousMessage.deleted_at ||
     (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
-    isMessageEdited(previousMessage);
+    isMessageEdited(previousMessage) ||
+    (maxTimeBetweenGroupedMessages !== undefined &&
+      previousMessage.created_at &&
+      message.created_at &&
+      new Date(message.created_at).getTime() - new Date(previousMessage.created_at).getTime() >
+        maxTimeBetweenGroupedMessages);
 
   const isBottomMessage =
     !nextMessage ||
