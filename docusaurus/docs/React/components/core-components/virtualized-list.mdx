@@ -129,9 +129,9 @@ If true, disables the injection of date separator UI components.
 
 Callback function to set group styles for each message.
 
-| Type                                                                                                                       |
-| -------------------------------------------------------------------------------------------------------------------------- |
-| (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean) => GroupStyle |
+| Type                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean, maxTimeBetweenGroupedMessages?: number) => GroupStyle |
 
 ### hasMore
 
@@ -172,6 +172,14 @@ Function called when more messages are to be loaded, provide your own function t
 | Type     | Default                                                                                  |
 | -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
+
+### maxTimeBetweenGroupedMessages
+
+Maximum time in milliseconds that should occur between messages to still consider them grouped together.
+
+| Type   |
+| ------ |
+| number |
 
 ### Message
 

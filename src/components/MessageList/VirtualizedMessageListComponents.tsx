@@ -174,6 +174,8 @@ export const messageRenderer = <
     messageList[streamMessageIndex - 1];
   const maybeNextMessage: StreamMessage<StreamChatGenerics> | undefined =
     messageList[streamMessageIndex + 1];
+
+  // FIXME: firstOfGroup & endOfGroup should be derived from groupStyles which apply a more complex logic
   const firstOfGroup =
     shouldGroupByUser &&
     (message.user?.id !== maybePrevMessage?.user?.id ||

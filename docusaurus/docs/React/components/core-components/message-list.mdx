@@ -242,9 +242,9 @@ pinned [message object](https://getstream.io/chat/docs/javascript/message_format
 
 Callback function to map each message in the list to a group style (` 'middle' | 'top' | 'bottom' | 'single'`).
 
-| Type                                                                                                                       |
-| -------------------------------------------------------------------------------------------------------------------------- |
-| (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean) => GroupStyle |
+| Type                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| (message: StreamMessage, previousMessage: StreamMessage, nextMessage: StreamMessage, noGroupByUser: boolean, maxTimeBetweenGroupedMessages?: number) => GroupStyle |
 
 ### hasMore
 
@@ -301,6 +301,14 @@ Function called when more messages are to be loaded, provide your own function t
 | Type     | Default                                                                                  |
 | -------- | ---------------------------------------------------------------------------------------- |
 | function | [ChannelActionContextValue['loadMore']](../contexts/channel-action-context.mdx#loadmore) |
+
+### maxTimeBetweenGroupedMessages
+
+Maximum time in milliseconds that should occur between messages to still consider them grouped together.
+
+| Type   |
+| ------ |
+| number |
 
 ### Message
 

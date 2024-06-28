@@ -31,8 +31,10 @@ export const useEnrichedMessages = <
     previousMessage: StreamMessage<StreamChatGenerics>,
     nextMessage: StreamMessage<StreamChatGenerics>,
     noGroupByUser: boolean,
+    maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
   headerPosition?: number;
+  maxTimeBetweenGroupedMessages?: number;
   reviewProcessedMessage?: ProcessMessagesParams<StreamChatGenerics>['reviewProcessedMessage'];
 }) => {
   const {
@@ -42,6 +44,7 @@ export const useEnrichedMessages = <
     headerPosition,
     hideDeletedMessages,
     hideNewMessageSeparator,
+    maxTimeBetweenGroupedMessages,
     messages,
     noGroupByUser,
     reviewProcessedMessage,
@@ -80,12 +83,13 @@ export const useEnrichedMessages = <
           messagesWithDates[i - 1],
           messagesWithDates[i + 1],
           noGroupByUser,
+          maxTimeBetweenGroupedMessages,
         );
         if (style) acc[message.id] = style;
         return acc;
       }, {}),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messagesWithDates, noGroupByUser],
+    [maxTimeBetweenGroupedMessages, messagesWithDates, noGroupByUser],
   );
 
   return { messageGroupStyles, messages: messagesWithDates };
