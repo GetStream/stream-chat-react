@@ -1,3 +1,18 @@
+## [11.23.0](https://github.com/GetStream/stream-chat-react/compare/v11.22.0...v11.23.0) (2024-06-28)
+
+
+### Bug Fixes
+
+* adapt audio recording wave form to the available space ([#2435](https://github.com/GetStream/stream-chat-react/issues/2435)) ([aed0360](https://github.com/GetStream/stream-chat-react/commit/aed03606304f7464eae826a9cf34aee846e2162d))
+* always load thread replies on Thread opening ([#2436](https://github.com/GetStream/stream-chat-react/issues/2436)) ([579953c](https://github.com/GetStream/stream-chat-react/commit/579953c167e5fb90120db1d39b73af83c980030a))
+* forward groupStyles to Message in VirtualizedMessageList ([#2440](https://github.com/GetStream/stream-chat-react/issues/2440)) ([241f5d7](https://github.com/GetStream/stream-chat-react/commit/241f5d72a4c9881e766a01fd7848ca9d1c9df952))
+* reflect correctly the translation key in Timestamp component ([741e9ce](https://github.com/GetStream/stream-chat-react/commit/741e9ce87f552a4d4473821012d9231628ea82de))
+
+
+### Features
+
+* configure message group size by max time between messages ([#2439](https://github.com/GetStream/stream-chat-react/issues/2439)) ([0d094cb](https://github.com/GetStream/stream-chat-react/commit/0d094cb989e75f7405e4661e42f8fd52fb35e379))
+
 ## [11.22.0](https://github.com/GetStream/stream-chat-react/compare/v11.21.0...v11.22.0) (2024-06-21)
 
 
