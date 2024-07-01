@@ -2,76 +2,182 @@ import React from 'react';
 import renderer from 'react-test-renderer';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
+import { Chat } from '../../Chat';
 import { DateSeparator } from '../DateSeparator';
-import { TranslationContext } from '../../../context';
+import { getTestClient } from '../../../mock-builders';
+import { Streami18n } from '../../../i18n';
 
 Dayjs.extend(calendar);
 
 afterEach(cleanup); // eslint-disable-line
 
-const now = new Date('2020-03-30T22:57:47.173Z');
+const DATE_SEPARATOR_TEST_ID = 'date-separator';
+const dateMock = 'the date';
+const date = new Date('2020-03-30T22:57:47.173Z');
+const formatDate = () => dateMock;
 
-const withContext = (props) => {
-  const t = jest.fn((key) => key);
-  const tDateTimeParser = jest.fn((input) => Dayjs(input));
-  const Component = (
-    <TranslationContext.Provider value={{ t, tDateTimeParser }}>
-      <DateSeparator {...props} />
-    </TranslationContext.Provider>
-  );
-
-  return { Component, t, tDateTimeParser };
+const renderComponent = async ({ chatProps, props }) => {
+  let result;
+  await act(() => {
+    result = render(
+      <Chat client={getTestClient()} {...chatProps}>
+        <DateSeparator {...props} />
+      </Chat>,
+    );
+  });
+  return result;
 };
 
 describe('DateSeparator', () => {
-  it('should use formatDate if it is provided', () => {
-    const { queryByText } = render(<DateSeparator date={now} formatDate={() => 'the date'} />);
+  it('should use the default formatting with calendar', async () => {
+    await renderComponent({ props: { date } });
+    expect(screen.queryByText(Dayjs(date.toISOString()).calendar())).toBeInTheDocument();
+  });
 
+  it('should apply custom formatting options from i18n service', async () => {
+    await renderComponent({
+      chatProps: {
+        i18nInstance: new Streami18n({
+          translationsForLanguage: {
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
+          },
+        }),
+      },
+      props: { date },
+    });
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
+      date.getFullYear().toString(),
+    );
+  });
+
+  it('should combine default formatting options from 18n service with those passed through props', async () => {
+    await renderComponent({
+      props: {
+        calendarFormats: {
+          lastDay: 'A YYYY',
+          lastWeek: 'B YYYY',
+          nextDay: 'C YYYY',
+          nextWeek: 'D YYYY',
+          sameDay: 'E YYYY',
+          sameElse: 'F YYYY',
+        },
+        date,
+      },
+    });
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
+      `F ${date.getFullYear().toString()}`,
+    );
+  });
+
+  it('ignores calendarFormats if calendar is not enabled', async () => {
+    await renderComponent({
+      chatProps: {
+        i18nInstance: new Streami18n({
+          translationsForLanguage: {
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
+          },
+        }),
+      },
+      props: {
+        calendarFormats: {
+          lastDay: 'A YYYY',
+          lastWeek: 'B YYYY',
+          nextDay: 'C YYYY',
+          nextWeek: 'D YYYY',
+          sameDay: 'E YYYY',
+          sameElse: 'F YYYY',
+        },
+        date,
+      },
+    });
+
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
+      date.getFullYear().toString(),
+    );
+  });
+
+  it('should combine custom formatting options from i18n service with those passed through props', async () => {
+    await renderComponent({
+      chatProps: {
+        i18nInstance: new Streami18n({
+          translationsForLanguage: {
+            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+          },
+        }),
+      },
+      props: { date, format: 'YYYY' },
+    });
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
+      date.getFullYear().toString(),
+    );
+  });
+
+  it('should format date with formatDate instead of defaults provided with i18n service', async () => {
+    const { queryByText } = await renderComponent({
+      props: { date, formatDate },
+    });
     expect(queryByText('the date')).toBeInTheDocument();
   });
 
-  it('should render New text if unread prop is true', () => {
-    const { Component, t } = withContext({ date: now, unread: true });
-    render(Component);
-
-    expect(screen.getByText('New - 03/30/2020')).toBeInTheDocument();
-    expect(t).toHaveBeenCalledWith('New');
+  it('should format date with formatDate instead of customs provided with i18n service', async () => {
+    await renderComponent({
+      chatProps: {
+        i18nInstance: new Streami18n({
+          translationsForLanguage: {
+            'timestamp/DateSeparator':
+              '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
+          },
+        }),
+      },
+      props: { date, formatDate },
+    });
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(dateMock);
   });
 
-  it('should render properly for unread', () => {
-    const { Component } = withContext({ date: now, unread: true });
-    const tree = renderer.create(Component).toJSON();
-    expect(tree).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__date-separator"
-        data-testid="date-separator"
-      >
-        <hr
-          className="str-chat__date-separator-line"
-        />
+  it('should format date with formatDate instead of customs provided via props', async () => {
+    await renderComponent({
+      chatProps: {
+        i18nInstance: new Streami18n({
+          translationsForLanguage: {
+            'timestamp/DateSeparator': '{{ timestamp | timestampFormatter(calendar: false) }}',
+          },
+        }),
+      },
+      props: { date, format: 'YYYY', formatDate },
+    });
+    expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(dateMock);
+  });
+
+  it('should render New text if unread prop is true', async () => {
+    const { container } = await renderComponent({ props: { date, unread: true } });
+    expect(container).toMatchInlineSnapshot(`
+      <div>
         <div
-          className="str-chat__date-separator-date"
+          class="str-chat__date-separator"
+          data-testid="date-separator"
         >
-          New - 03/30/2020
+          <hr
+            class="str-chat__date-separator-line"
+          />
+          <div
+            class="str-chat__date-separator-date"
+          >
+            New - 03/30/2020
+          </div>
         </div>
       </div>
     `);
-  });
-
-  it("should use tDateTimeParser's calendar method by default", () => {
-    const { Component, tDateTimeParser } = withContext({ date: now });
-    const { queryByText } = render(Component);
-
-    expect(tDateTimeParser).toHaveBeenCalledWith(now);
-    expect(queryByText(Dayjs(now.toISOString()).calendar())).toBeInTheDocument();
+    expect(screen.getByText('New - 03/30/2020')).toBeInTheDocument();
   });
 
   describe('Position prop', () => {
     const renderWithPosition = (position) => (
-      <DateSeparator date={now} formatDate={() => 'the date'} position={position} />
+      <DateSeparator date={date} formatDate={formatDate} position={position} />
     );
 
     const defaultPosition = renderer.create(renderWithPosition()).toJSON();
