@@ -215,7 +215,7 @@ exports[`keepLineBreaksPlugin absent does not keep line breaks under a heading 1
 `;
 
 exports[`keepLineBreaksPlugin present keeps line between lines with strong text 1`] = `
-Array [
+[
   <p>
     This is 
     <strong>
