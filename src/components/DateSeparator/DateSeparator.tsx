@@ -16,7 +16,7 @@ export type DateSeparatorProps = TimestampFormatterOptions & {
 
 const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
   const {
-    calendar = true,
+    calendar,
     date: messageCreatedAt,
     formatDate,
     position = 'right',

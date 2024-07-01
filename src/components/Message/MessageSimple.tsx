@@ -218,7 +218,7 @@ const MessageSimpleWithContext = <
                   {message.user.name || message.user.id}
                 </span>
               )}
-              <MessageTimestamp calendar customClass='str-chat__message-simple-timestamp' />
+              <MessageTimestamp customClass='str-chat__message-simple-timestamp' />
               {isEdited && (
                 <span className='str-chat__mesage-simple-edited'>{t<string>('Edited')}</span>
               )}

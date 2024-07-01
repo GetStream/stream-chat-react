@@ -26,7 +26,7 @@ const UnMemoizedEventComponent = <
 >(
   props: EventComponentProps<StreamChatGenerics>,
 ) => {
-  const { calendar, calendarFormats, format = 'dddd L', Avatar = DefaultAvatar, message } = props;
+  const { calendar, calendarFormats, format, Avatar = DefaultAvatar, message } = props;
 
   const { t, tDateTimeParser } = useTranslationContext('EventComponent');
   const { created_at = '', event, text, type } = message;

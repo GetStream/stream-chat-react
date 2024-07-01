@@ -1,18 +1,17 @@
 import React from 'react';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import { toHaveNoViolations } from 'jest-axe';
 import { axe } from '../../../../axe-helper';
-expect.extend(toHaveNoViolations);
-
 import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
 import { MessageOptions as MessageOptionsMock } from '../MessageOptions';
 import { MessageText as MessageTextMock } from '../MessageText';
 import { MESSAGE_ACTIONS } from '../utils';
 
+import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { EditMessageForm, MessageInput as MessageInputMock } from '../../MessageInput';
@@ -21,13 +20,7 @@ import { MML as MMLMock } from '../../MML';
 import { Modal as ModalMock } from '../../Modal';
 import { defaultReactionOptions } from '../../Reactions';
 
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
-  ComponentProvider,
-  TranslationProvider,
-} from '../../../context';
+import { ChannelActionProvider, ChannelStateProvider, ComponentProvider } from '../../../context';
 import {
   countReactions,
   generateChannel,
@@ -39,6 +32,8 @@ import {
   groupReactions,
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
+
+expect.extend(toHaveNoViolations);
 
 Dayjs.extend(calendar);
 
@@ -56,7 +51,6 @@ const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
 const openThreadMock = jest.fn();
-const tDateTimeParserMock = jest.fn((date) => Dayjs(date));
 const retrySendMessageMock = jest.fn();
 const removeMessageMock = jest.fn();
 
@@ -75,18 +69,19 @@ async function renderMessageSimple({
 
   const channelConfig = channel.getConfig();
   const client = await getTestClientWithUser(alice);
+  let result;
 
-  return renderer(
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
-        <ChannelActionProvider
-          value={{
-            openThread: openThreadMock,
-            removeMessage: removeMessageMock,
-            retrySendMessage: retrySendMessageMock,
-          }}
-        >
-          <TranslationProvider value={{ t: (key) => key, tDateTimeParser: tDateTimeParserMock }}>
+  await act(() => {
+    result = renderer(
+      <Chat client={client}>
+        <ChannelStateProvider value={{ channel, channelCapabilities, channelConfig }}>
+          <ChannelActionProvider
+            value={{
+              openThread: openThreadMock,
+              removeMessage: removeMessageMock,
+              retrySendMessage: retrySendMessageMock,
+            }}
+          >
             <ComponentProvider
               value={{
                 Attachment: AttachmentMock,
@@ -104,11 +99,12 @@ async function renderMessageSimple({
                 {...props}
               />
             </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>,
-  );
+          </ChannelActionProvider>
+        </ChannelStateProvider>
+      </Chat>,
+    );
+  });
+  return result;
 }
 
 function generateAliceMessage(messageOptions) {

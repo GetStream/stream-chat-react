@@ -11,16 +11,8 @@ export interface TimestampProps extends TimestampFormatterOptions {
   timestamp?: Date | string;
 }
 
-export const defaultTimestampFormat = 'h:mmA';
-
 export function Timestamp(props: TimestampProps) {
-  const {
-    calendar,
-    calendarFormats,
-    customClass,
-    format = defaultTimestampFormat,
-    timestamp,
-  } = props;
+  const { calendar, calendarFormats, customClass, format, timestamp } = props;
 
   const { formatDate } = useMessageContext('MessageTimestamp');
   const { t, tDateTimeParser } = useTranslationContext('MessageTimestamp');

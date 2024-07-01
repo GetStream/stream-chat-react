@@ -7,8 +7,6 @@ import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { TimestampFormatterOptions } from '../../i18n/utils';
 
-export const defaultTimestampFormat = 'h:mmA';
-
 export type MessageTimestampProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = TimestampFormatterOptions & {

@@ -4,6 +4,21 @@ title: Upgrade to v12
 keywords: [migration guide, upgrade, v12, breaking changes]
 ---
 
+## Date & time formatting
+
+The components that display date and time are:
+
+- `DateSeparator` - separates message groups in message lists
+- `EventComponent` - displays system messages
+- `MessageTimestamp` - displays the creation timestamp for a message in a message list
+
+These components had previously default values for props like `format` or `calendar`. This setup required for a custom formatting to be set up via i18n service, the default values had to be nullified. For a better developer experience we decided to remove the default prop values and rely on default configuration provided via i18n translations. The value `null` is not a valid value for `format`, `calendar` or `calendarFormats` props.
+
+:::important
+**Action required**<br/>
+If you are not using the default translations provided with the SDK, make sure to follow the [date & time formatting guide](../guides/date-time-formatting) to verify that your dates are formatted according to your needs.
+:::
+
 ## Avatar changes
 
 The `Avatar` styles are applied through CSS from the version 12 upwards. Therefore, the following changes were applied:

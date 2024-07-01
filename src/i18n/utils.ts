@@ -11,11 +11,11 @@ import type { Streami18n } from './Streami18n';
 
 export type TimestampFormatterOptions = {
   /* If true, call the `Day.js` calendar function to get the date string to display (e.g. "Yesterday at 3:58 PM"). */
-  calendar?: boolean | null;
+  calendar?: boolean;
   /* Object specifying date display formats for dates formatted with calendar extension. Active only if calendar prop enabled. */
-  calendarFormats?: Record<string, string> | null;
+  calendarFormats?: Record<string, string>;
   /* Overrides the default timestamp format if calendar is disabled. */
-  format?: string | null;
+  format?: string;
 };
 
 type DateFormatterOptions = TimestampFormatterOptions & {
