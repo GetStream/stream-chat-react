@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { useComponentContext, useMessageContext } from '../../../context';
+import { defaultReactionOptions } from '../reactionOptions';
 
 import type { ReactionsListProps } from '../ReactionsList';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
@@ -40,9 +41,9 @@ export const useProcessReactions = <
   const { message, sortReactions: contextSortReactions } = useMessageContext<StreamChatGenerics>(
     'useProcessReactions',
   );
-  const { reactionOptions: contextReactionOptions } = useComponentContext<StreamChatGenerics>(
-    'useProcessReactions',
-  );
+  const {
+    reactionOptions: contextReactionOptions = defaultReactionOptions,
+  } = useComponentContext<StreamChatGenerics>('useProcessReactions');
 
   const reactionOptions = propReactionOptions ?? contextReactionOptions;
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;

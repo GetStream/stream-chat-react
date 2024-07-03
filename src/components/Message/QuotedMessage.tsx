@@ -11,13 +11,15 @@ import { useChannelActionContext } from '../../context/ChannelActionContext';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { Attachment as DefaultAttachment } from '../Attachment';
 
 export const QuotedMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const { Attachment, Avatar: ContextAvatar } = useComponentContext<StreamChatGenerics>(
-    'QuotedMessage',
-  );
+  const {
+    Attachment = DefaultAttachment,
+    Avatar: ContextAvatar,
+  } = useComponentContext<StreamChatGenerics>('QuotedMessage');
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');

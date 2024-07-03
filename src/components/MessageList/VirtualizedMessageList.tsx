@@ -43,6 +43,8 @@ import {
   messageRenderer,
 } from './VirtualizedMessageListComponents';
 
+import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from '../MessageList';
+
 import {
   ChannelActionContextValue,
   useChannelActionContext,
@@ -232,7 +234,7 @@ const VirtualizedMessageListWithContext = <
     MessageNotification = DefaultMessageNotification,
     MessageSystem,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-    UnreadMessagesSeparator,
+    UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
     TypingIndicator,
   } = useComponentContext<StreamChatGenerics>('VirtualizedMessageList');
