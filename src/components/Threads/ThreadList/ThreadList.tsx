@@ -1,15 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
-import type { ComponentType } from 'react';
 import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
 
-import { ThreadListItem, ThreadListItemUi } from './ThreadListItem';
+import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { Icon } from '../icons';
-import { useChatContext } from '../../../context';
+import { useChatContext, useComponentContext } from '../../../context';
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
-
-import type { ThreadListItemProps, ThreadListItemUiProps } from './ThreadListItem';
 
 /**
  * TODO:
@@ -25,24 +22,21 @@ import type { ThreadListItemProps, ThreadListItemUiProps } from './ThreadListIte
  */
 
 const selector = (nextValue: InferStoreValueType<ThreadManager>) =>
-  [nextValue.unreadThreads.newIds, nextValue.threads] as const;
+  [nextValue.unseenThreadIds, nextValue.threads] as const;
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
 type ThreadListProps = {
-  ThreadListItem?: ComponentType<ThreadListItemProps>;
-  ThreadListItemUi?: ComponentType<ThreadListItemUiProps>;
   virtuosoProps?: VirtuosoProps<Thread, unknown>;
 };
 
 export const ThreadList = ({
   // FIXME: temporary, should be removed when ComponentOverride component is out
-  ThreadListItemUi: PropsThreadListItemUi = ThreadListItemUi,
-  ThreadListItem: PropsThreadListItem = ThreadListItem,
   virtuosoProps,
 }: ThreadListProps) => {
   const { client } = useChatContext();
-  const [unreadThreadIds, threads] = useSimpleStateStore(client.threads.state, selector);
+  const { ThreadListItem = DefaultThreadListItem } = useComponentContext();
+  const [unseenThreadIds, threads] = useSimpleStateStore(client.threads.state, selector);
 
   const handlerRef = useRef<() => void>();
 
@@ -63,9 +57,9 @@ export const ThreadList = ({
   return (
     <div className='str-chat__thread-list-container'>
       {/* TODO: create a replaceable banner component */}
-      {unreadThreadIds.length > 0 && (
+      {unseenThreadIds.length > 0 && (
         <div className='str-chat__unread-threads-banner'>
-          {unreadThreadIds.length} unread threads
+          {unseenThreadIds.length} unread threads
           <button
             className='str-chat__unread-threads-banner__button'
             onClick={client.threads.loadUnreadThreads}
@@ -79,9 +73,7 @@ export const ThreadList = ({
         className='str-chat__thread-list'
         computeItemKey={computeItemKey}
         data={threads}
-        itemContent={(_, thread) => (
-          <PropsThreadListItem thread={thread} ThreadListItemUi={PropsThreadListItemUi} />
-        )}
+        itemContent={(_, thread) => <ThreadListItem thread={thread} />}
         {...virtuosoProps}
       />
     </div>

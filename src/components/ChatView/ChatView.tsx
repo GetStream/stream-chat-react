@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { ThreadProvider, useSimpleStateStore } from '../Threads';
+import { Icon } from '../Threads/icons';
 import { useChatContext } from '../../context';
 
 import type { PropsWithChildren } from 'react';
@@ -73,6 +74,7 @@ const useThreadBl = ({ thread }: { thread?: Thread }) => {
   useEffect(() => {
     if (!thread) return;
 
+    // TODO: maybe move this whole thing to the client?
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && document.hasFocus()) {
         thread.activate();
@@ -120,24 +122,37 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
-const selector = (nextValue: InferStoreValueType<ThreadManager>) => [
-  nextValue.unreadThreads.combinedCount,
-];
+const selector = (nextValue: InferStoreValueType<ThreadManager>) => [nextValue.unreadThreadsCount];
 
 const ChatViewSelector = () => {
   const { client } = useChatContext();
-  const { setActiveChatView } = useContext(ChatViewContext);
-  const [unreadThreads] = useSimpleStateStore(client.threads.state, selector);
+  const [unreadThreadsCount] = useSimpleStateStore(client.threads.state, selector);
+
+  const { activeChatView, setActiveChatView } = useContext(ChatViewContext);
 
   return (
-    <ul className='str-chat__chat-view__selector'>
-      <li>
-        <button onPointerDown={() => setActiveChatView('channels')}>Channels</button>
-      </li>
-      <li>
-        <button onPointerDown={() => setActiveChatView('threads')}>Threads {unreadThreads}</button>
-      </li>
-    </ul>
+    <div className='str-chat__chat-view__selector'>
+      <button
+        aria-selected={activeChatView === 'channels'}
+        className='str-chat__chat-view__selector-button'
+        onPointerDown={() => setActiveChatView('channels')}
+        role='tab'
+      >
+        <Icon.MessageBubbleEmpty />
+        <div className='str-chat__chat-view__selector-button-text'>Channels</div>
+      </button>
+      <button
+        aria-selected={activeChatView === 'threads'}
+        className='str-chat__chat-view__selector-button'
+        onPointerDown={() => setActiveChatView('threads')}
+        role='tab'
+      >
+        <Icon.MessageBubble />
+        <div className='str-chat__chat-view__selector-button-text'>
+          Threads {unreadThreadsCount}
+        </div>
+      </button>
+    </div>
   );
 };
 
