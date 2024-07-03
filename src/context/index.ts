@@ -9,3 +9,4 @@ export * from './MessageInputContext';
 export * from './MessageListContext';
 export * from './TranslationContext';
 export * from './TypingContext';
+export * from './WithComponents';

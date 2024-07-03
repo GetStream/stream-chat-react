@@ -39,30 +39,27 @@ import { useEditMessageHandler } from './hooks/useEditMessageHandler';
 import { useIsMounted } from './hooks/useIsMounted';
 import { OnMentionAction, useMentionsHandlers } from './hooks/useMentionsHandlers';
 
-import { Attachment as DefaultAttachment } from '../Attachment/Attachment';
 import {
   LoadingErrorIndicator as DefaultLoadingErrorIndicator,
   LoadingErrorIndicatorProps,
 } from '../Loading';
 import { LoadingChannel as DefaultLoadingIndicator } from './LoadingChannel';
-import { MessageSimple } from '../Message/MessageSimple';
 import { DropzoneProvider } from '../MessageInput/DropzoneProvider';
 
 import {
   ChannelActionContextValue,
   ChannelActionProvider,
-  MarkReadWrapperOptions,
-  MessageToSend,
-} from '../../context/ChannelActionContext';
-import {
   ChannelNotifications,
   ChannelStateProvider,
+  ComponentContextValue,
+  MarkReadWrapperOptions,
+  MessageToSend,
   StreamMessage,
-} from '../../context/ChannelStateContext';
-import { ComponentContextValue, ComponentProvider } from '../../context/ComponentContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useTranslationContext } from '../../context/TranslationContext';
-import { TypingProvider } from '../../context/TypingContext';
+  TypingProvider,
+  useChatContext,
+  useTranslationContext,
+  WithComponents,
+} from '../../context';
 
 import {
   DEFAULT_HIGHLIGHT_DURATION,
@@ -72,14 +69,14 @@ import {
   DEFAULT_THREAD_PAGE_SIZE,
 } from '../../constants/limits';
 
-import type { UnreadMessagesNotificationProps } from '../MessageList';
-import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList';
+import { hasMoreMessagesProbably } from '../MessageList';
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
 
-import type { MessageProps } from '../Message/types';
-import type { MessageInputProps } from '../MessageInput/MessageInput';
+import type { UnreadMessagesNotificationProps } from '../MessageList';
+import type { MessageProps } from '../Message';
+import type { MessageInputProps } from '../MessageInput';
 
 import type {
   ChannelUnreadUiState,
@@ -96,9 +93,7 @@ import {
   getVideoAttachmentConfiguration,
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
-import { defaultReactionOptions, ReactionOptions } from '../Reactions';
-import { EventComponent } from '../EventComponent';
-import { DateSeparator } from '../DateSeparator';
+import { ReactionOptions } from '../Reactions';
 import { useThreadContext } from '../Threads';
 
 type ChannelPropsForwardedToComponentContext<
@@ -1244,9 +1239,10 @@ const ChannelInner = <
     ],
   );
 
-  const componentContextValue: ComponentContextValue<StreamChatGenerics> = useMemo(
+  // @ts-expect-error
+  const componentContextValue: Partial<ComponentContextValue> = useMemo(
     () => ({
-      Attachment: props.Attachment || DefaultAttachment,
+      Attachment: props.Attachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
       AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
@@ -1255,7 +1251,7 @@ const ChannelInner = <
       BaseImage: props.BaseImage,
       CooldownTimer: props.CooldownTimer,
       CustomMessageActionsList: props.CustomMessageActionsList,
-      DateSeparator: props.DateSeparator || DateSeparator,
+      DateSeparator: props.DateSeparator,
       EditMessageInput: props.EditMessageInput,
       EmojiPicker: props.EmojiPicker,
       emojiSearchIndex: props.emojiSearchIndex,
@@ -1266,7 +1262,7 @@ const ChannelInner = <
       Input: props.Input,
       LinkPreviewList: props.LinkPreviewList,
       LoadingIndicator: props.LoadingIndicator,
-      Message: props.Message || MessageSimple,
+      Message: props.Message,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
       MessageListNotifications: props.MessageListNotifications,
@@ -1274,13 +1270,13 @@ const ChannelInner = <
       MessageOptions: props.MessageOptions,
       MessageRepliesCountButton: props.MessageRepliesCountButton,
       MessageStatus: props.MessageStatus,
-      MessageSystem: props.MessageSystem || EventComponent,
+      MessageSystem: props.MessageSystem,
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
-      reactionOptions: props.reactionOptions ?? defaultReactionOptions,
+      reactionOptions: props.reactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
       SendButton: props.SendButton,
@@ -1292,11 +1288,59 @@ const ChannelInner = <
       TriggerProvider: props.TriggerProvider,
       TypingIndicator: props.TypingIndicator,
       UnreadMessagesNotification: props.UnreadMessagesNotification,
-      UnreadMessagesSeparator: props.UnreadMessagesSeparator || UnreadMessagesSeparator,
+      UnreadMessagesSeparator: props.UnreadMessagesSeparator,
       VirtualMessage: props.VirtualMessage,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.reactionOptions],
+    [
+      props.Attachment,
+      props.AttachmentPreviewList,
+      props.AudioRecorder,
+      props.AutocompleteSuggestionItem,
+      props.AutocompleteSuggestionList,
+      props.Avatar,
+      props.BaseImage,
+      props.CooldownTimer,
+      props.CustomMessageActionsList,
+      props.DateSeparator,
+      props.EditMessageInput,
+      props.EmojiPicker,
+      props.EmptyStateIndicator,
+      props.FileUploadIcon,
+      props.GiphyPreviewMessage,
+      props.HeaderComponent,
+      props.Input,
+      props.LinkPreviewList,
+      props.LoadingIndicator,
+      props.Message,
+      props.MessageBouncePrompt,
+      props.MessageDeleted,
+      props.MessageListNotifications,
+      props.MessageNotification,
+      props.MessageOptions,
+      props.MessageRepliesCountButton,
+      props.MessageStatus,
+      props.MessageSystem,
+      props.MessageTimestamp,
+      props.ModalGallery,
+      props.PinIndicator,
+      props.QuotedMessage,
+      props.QuotedMessagePreview,
+      props.ReactionSelector,
+      props.ReactionsList,
+      props.SendButton,
+      props.StartRecordingAudioButton,
+      props.ThreadHead,
+      props.ThreadHeader,
+      props.ThreadStart,
+      props.Timestamp,
+      props.TriggerProvider,
+      props.TypingIndicator,
+      props.UnreadMessagesNotification,
+      props.UnreadMessagesSeparator,
+      props.VirtualMessage,
+      props.emojiSearchIndex,
+      props.reactionOptions,
+    ],
   );
 
   const typingContextValue = useCreateTypingContext({
@@ -1333,7 +1377,7 @@ const ChannelInner = <
     <div className={clsx(className, windowsEmojiClass)}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
-          <ComponentProvider value={componentContextValue}>
+          <WithComponents overrides={componentContextValue}>
             <TypingProvider value={typingContextValue}>
               <div className={`${chatContainerClass}`}>
                 {dragAndDropWindow && (
@@ -1342,7 +1386,7 @@ const ChannelInner = <
                 {!dragAndDropWindow && <>{children}</>}
               </div>
             </TypingProvider>
-          </ComponentProvider>
+          </WithComponents>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </div>

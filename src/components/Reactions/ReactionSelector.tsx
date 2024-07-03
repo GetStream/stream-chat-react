@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
-import { isMutableRef } from './utils/utils';
-
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
-
-import { useComponentContext } from '../../context/ComponentContext';
-import { useMessageContext } from '../../context/MessageContext';
-
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 
+import { isMutableRef } from './utils/utils';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
+import { defaultReactionOptions } from './reactionOptions';
+
+import type { AvatarProps } from '../Avatar';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 
@@ -33,7 +33,10 @@ export type ReactionSelectorProps<
   reaction_counts?: Record<string, number>;
   /** An object containing summary for each reaction type on a message */
   reaction_groups?: Record<string, ReactionGroupResponse>;
-  /** A list of the currently supported reactions on a message */
+  /**
+   * @deprecated
+   * A list of the currently supported reactions on a message
+   * */
   reactionOptions?: ReactionOptions;
   /** If true, adds a CSS class that reverses the horizontal positioning of the selector */
   reverse?: boolean;
@@ -57,7 +60,7 @@ const UnMemoizedReactionSelector = React.forwardRef(
 
     const {
       Avatar: contextAvatar,
-      reactionOptions: contextReactionOptions,
+      reactionOptions: contextReactionOptions = defaultReactionOptions,
     } = useComponentContext<StreamChatGenerics>('ReactionSelector');
     const {
       handleReaction: contextHandleReaction,

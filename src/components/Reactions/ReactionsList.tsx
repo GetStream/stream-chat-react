@@ -29,7 +29,10 @@ export type ReactionsListProps<
   reaction_counts?: Record<string, number>;
   /** An object containing summary for each reaction type on a message */
   reaction_groups?: Record<string, ReactionGroupResponse>;
-  /** A list of the currently supported reactions on a message */
+  /**
+   * @deprecated
+   * A list of the currently supported reactions on a message
+   * */
   reactionOptions?: ReactionOptions;
   /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse<StreamChatGenerics>[];
