@@ -44,6 +44,8 @@ import {
 } from './VirtualizedMessageListComponents';
 
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from '../MessageList';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
+import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
 import {
   ChannelActionContextValue,
@@ -125,7 +127,6 @@ type VirtualizedMessageListWithContextProps<
   loadingMore: boolean;
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
-  channelUnreadUiState?: ChannelStateContextValue['channelUnreadUiState'];
   read?: StreamChannelState<StreamChatGenerics>['read'];
 };
 
@@ -228,11 +229,11 @@ const VirtualizedMessageListWithContext = <
   useCaptureResizeObserverExceededError();
 
   const {
-    DateSeparator,
+    DateSeparator = DefaultDateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
-    MessageSystem,
+    MessageSystem = DefaultMessageSystem,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,
@@ -527,6 +528,7 @@ export type VirtualizedMessageListProps<
 > = Partial<Pick<MessageProps<StreamChatGenerics>, PropsDrilledToMessage>> & {
   /** Additional props to be passed the underlying [`react-virtuoso` virtualized list dependency](https://virtuoso.dev/virtuoso-api-reference/) */
   additionalVirtuosoProps?: VirtuosoProps<UnknownType, VirtuosoContext<StreamChatGenerics>>;
+  channelUnreadUiState?: ChannelStateContextValue['channelUnreadUiState'];
   /** If true, picking a reaction from the `ReactionSelector` component will close the selector */
   closeReactionSelectorOnClick?: boolean;
   /** Custom render function, if passed, certain UI props are ignored */
@@ -658,7 +660,7 @@ export function VirtualizedMessageList<
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
-      channelUnreadUiState={channelUnreadUiState}
+      channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
       hasMore={!!hasMore}
       hasMoreNewer={!!hasMoreNewer}
       highlightedMessageId={highlightedMessageId}

@@ -7,11 +7,6 @@ import {
   StartRecordingAudioButtonProps,
 } from '../components';
 
-import { EventComponent } from '../components/EventComponent';
-import { MessageSimple } from '../components/Message';
-import { DateSeparator } from '../components/DateSeparator';
-import { UnreadMessagesSeparator } from '../components/MessageList';
-
 import type {
   AttachmentPreviewListProps,
   AttachmentProps,
@@ -60,10 +55,6 @@ export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
 > = {
-  DateSeparator: React.ComponentType<DateSeparatorProps>;
-  Message: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
-  MessageSystem: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
-  UnreadMessagesSeparator: React.ComponentType<UnreadMessagesSeparatorProps>;
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   AudioRecorder?: React.ComponentType;
@@ -73,6 +64,7 @@ export type ComponentContextValue<
   BaseImage?: React.ComponentType<BaseImageProps>;
   CooldownTimer?: React.ComponentType<CooldownTimerProps>;
   CustomMessageActionsList?: React.ComponentType<CustomMessageActionsListProps<StreamChatGenerics>>;
+  DateSeparator?: React.ComponentType<DateSeparatorProps>;
   EditMessageInput?: React.ComponentType<MessageInputProps<StreamChatGenerics>>;
   EmojiPicker?: React.ComponentType;
   emojiSearchIndex?: EmojiSearchIndex;
@@ -83,6 +75,7 @@ export type ComponentContextValue<
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   LinkPreviewList?: React.ComponentType<LinkPreviewListProps>;
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
@@ -90,6 +83,7 @@ export type ComponentContextValue<
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   MessageStatus?: React.ComponentType<MessageStatusProps>;
+  MessageSystem?: React.ComponentType<EventComponentProps<StreamChatGenerics>>;
   MessageTimestamp?: React.ComponentType<MessageTimestampProps<StreamChatGenerics>>;
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
@@ -111,15 +105,11 @@ export type ComponentContextValue<
   TriggerProvider?: React.ComponentType;
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
+  UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   VirtualMessage?: React.ComponentType<FixedHeightMessageProps<StreamChatGenerics>>;
 };
 
-export const ComponentContext = React.createContext<ComponentContextValue>({
-  DateSeparator,
-  Message: MessageSimple,
-  MessageSystem: EventComponent,
-  UnreadMessagesSeparator,
-});
+export const ComponentContext = React.createContext<ComponentContextValue>({});
 
 export const ComponentProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

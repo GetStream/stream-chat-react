@@ -5,6 +5,7 @@ export const Icon = {
   // eslint-disable-next-line react/display-name
   MessageBubble: (props: ComponentPropsWithoutRef<'svg'>) => (
     <svg
+      className='str-chat__icon str-chat__icon--message-bubble'
       fill='none'
       height='14'
       viewBox='0 0 14 14'
@@ -19,8 +20,26 @@ export const Icon = {
     </svg>
   ),
   // eslint-disable-next-line react/display-name
+  MessageBubbleEmpty: (props: ComponentPropsWithoutRef<'svg'>) => (
+    <svg
+      className='str-chat__icon str-chat__icon--message-bubble-empty'
+      fill='none'
+      height='20'
+      viewBox='0 0 20 20'
+      width='20'
+      xmlns='http://www.w3.org/2000/svg'
+      {...props}
+    >
+      <path
+        d='M18 0H2C0.9 0 0 0.9 0 2V20L4 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM18 14H4L2 16V2H18V14Z'
+        fill='currentColor'
+      />
+    </svg>
+  ),
+  // eslint-disable-next-line react/display-name
   Reload: (props: ComponentPropsWithoutRef<'svg'>) => (
     <svg
+      className='str-chat__icon str-chat__icon--reload'
       fill='none'
       height='22'
       viewBox='0 0 16 22'
