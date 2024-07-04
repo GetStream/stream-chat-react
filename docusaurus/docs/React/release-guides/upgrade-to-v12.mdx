@@ -254,6 +254,13 @@ Provide custom `TypingIndicator` through the `Channel` prop.
 
 Version 12 targets browsers that support ES2020. In particular, the code includes `async` functions, optional chaining (`?.`), and nullish coalescing (`??`). These features have been supported by all major desktop and mobile browsers for years, so it made sense for us to raise the baseline.
 
+The following browsers [support ES2020](https://caniuse.com/?feats=mdn-javascript_operators_optional_chaining,mdn-javascript_operators_nullish_coalescing,mdn-javascript_builtins_globalthis,es6-module-dynamic-import,bigint,mdn-javascript_builtins_promise_allsettled,mdn-javascript_builtins_string_matchall,mdn-javascript_statements_export_namespace,mdn-javascript_operators_import_meta) and should be able to run the SDK as-is:
+
+- Chrome 80 and later
+- Safari 14.1 and later on desktops, 14.5 and later on iOS
+- Edge 80 and later
+- Firefox 80 and later
+
 If you need to support older browsers, you should transpile your bundle using `babel` or a similar tool.
 
 :::important
