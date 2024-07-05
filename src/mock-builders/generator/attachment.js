@@ -30,15 +30,17 @@ export const generateLocalAttachmentData = () => ({
   },
 });
 
-export const generateLocalFileUploadAttachmentData = (overrides) => ({
+export const generateLocalFileUploadAttachmentData = (overrides, attachmentData) => ({
   localMetadata: {
     ...generateLocalAttachmentData().localMetadata,
     ...overrides,
     file: generateFile(overrides?.file ?? {}),
   },
+  type: 'file',
+  ...attachmentData,
 });
 
-export const generateLocalImageUploadAttachmentData = (overrides) => ({
+export const generateLocalImageUploadAttachmentData = (overrides, attachmentData) => ({
   localMetadata: {
     ...generateLocalFileUploadAttachmentData().localMetadata,
     previewUri: 'image-preview-uri',
@@ -46,6 +48,8 @@ export const generateLocalImageUploadAttachmentData = (overrides) => ({
     // eslint-disable-next-line sort-keys
     file: generateImageFile(overrides?.file ?? {}),
   },
+  type: 'image',
+  ...attachmentData,
 });
 
 export const generateFileAttachment = (a) => ({

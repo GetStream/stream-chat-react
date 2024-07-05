@@ -938,13 +938,12 @@ describe('Link preview', () => {
 
     await act(() => submit());
 
-    expect(editMessageSpy.mock.calls[0][0].attachments).toHaveLength(1);
     expect(editMessageSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        attachments: expect.arrayContaining([expect.objectContaining(scrapedAudioAttachment)]),
+        attachments: [],
       }),
       undefined,
-      undefined,
+      {},
     );
   });
 

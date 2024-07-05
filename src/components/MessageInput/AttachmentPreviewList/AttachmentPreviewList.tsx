@@ -11,7 +11,6 @@ import {
   FileAttachmentPreview as DefaultFilePreview,
   FileAttachmentPreviewProps,
 } from './FileAttachmentPreview';
-import { FileUploadPreviewAdapter, ImageUploadPreviewAdapter } from './UploadPreviewItem';
 import {
   ImageAttachmentPreview as DefaultImagePreview,
   ImageAttachmentPreviewProps,
@@ -54,8 +53,6 @@ export const AttachmentPreviewList = <
 }: AttachmentPreviewListProps<StreamChatGenerics>) => {
   const {
     attachments,
-    fileOrder,
-    imageOrder,
     removeAttachments,
     uploadAttachment,
   } = useMessageInputContext<StreamChatGenerics>('AttachmentPreviewList');
@@ -125,12 +122,6 @@ export const AttachmentPreviewList = <
           }
           return null;
         })}
-        {imageOrder.map((id) => (
-          <ImageUploadPreviewAdapter id={id} key={id} Preview={ImageAttachmentPreview} />
-        ))}
-        {fileOrder.map((id) => (
-          <FileUploadPreviewAdapter id={id} key={id} Preview={FileAttachmentPreview} />
-        ))}
       </div>
     </div>
   );

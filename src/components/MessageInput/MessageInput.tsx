@@ -11,6 +11,7 @@ import { MessageInputContextProvider } from '../../context/MessageInputContext';
 
 import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
 
+import type { BaseLocalAttachmentMetadata, LocalAttachmentUploadMetadata } from './types';
 import type { SearchQueryParams } from '../ChannelSearch/hooks/useChannelSearch';
 import type { MessageToSend } from '../../context/ChannelActionContext';
 import type {
@@ -20,7 +21,6 @@ import type {
   UnknownType,
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
-import type { FileUpload, ImageUpload } from './types';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 
 export type EmojiSearchIndexResult = {
@@ -60,12 +60,12 @@ export type MessageInputProps<
   disableMentions?: boolean;
   /** Function to override the default file upload request */
   doFileUploadRequest?: (
-    file: FileUpload['file'],
+    file: LocalAttachmentUploadMetadata['file'],
     channel: Channel<StreamChatGenerics>,
   ) => Promise<SendFileAPIResponse>;
   /** Function to override the default image upload request */
   doImageUploadRequest?: (
-    file: ImageUpload['file'],
+    file: LocalAttachmentUploadMetadata['file'],
     channel: Channel<StreamChatGenerics>,
   ) => Promise<SendFileAPIResponse>;
   /** Mechanism to be used with autocomplete and text replace features of the `MessageInput` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
@@ -74,7 +74,7 @@ export type MessageInputProps<
   errorHandler?: (
     error: Error,
     type: string,
-    file: (FileUpload | ImageUpload)['file'] & { id?: string },
+    file: LocalAttachmentUploadMetadata['file'] & BaseLocalAttachmentMetadata,
   ) => void;
   /** If true, focuses the text input on component mount */
   focus?: boolean;

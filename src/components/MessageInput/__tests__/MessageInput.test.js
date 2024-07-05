@@ -34,6 +34,7 @@ const FILE_UPLOAD_RETRY_BTN_TEST_ID = 'file-preview-item-retry-button';
 const SEND_BTN_TEST_ID = 'send-button';
 const SEND_BTN_EDIT_FORM_TEST_ID = 'send-button-edit-form';
 const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-list-scroll-container';
+const UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID = 'attachment-preview-unknown';
 
 const inputPlaceholder = 'Type your message';
 const userId = 'userId';
@@ -375,7 +376,7 @@ function axeNoViolations(container) {
         const file = getFile();
         const input = screen.getByTestId(FILE_INPUT_TEST_ID);
 
-        act(() => {
+        await act(() => {
           fireEvent.change(input, {
             target: {
               files: [file],
@@ -410,7 +411,7 @@ function axeNoViolations(container) {
         });
 
         await waitFor(() => {
-          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-image', expect.any(Object));
+          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-attachment', expect.any(Object));
           expect(doImageUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
         await axeNoViolations(container);
@@ -434,7 +435,7 @@ function axeNoViolations(container) {
         act(() => dropFile(file, formElement));
 
         await waitFor(() => {
-          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-file', expect.any(Object));
+          expect(errorHandler).toHaveBeenCalledWith(cause, 'upload-attachment', expect.any(Object));
           expect(doFileUploadRequest).toHaveBeenCalledWith(file, expect.any(Object));
         });
 
@@ -575,7 +576,13 @@ function axeNoViolations(container) {
             message: { attachments: [{ type: 'xxx' }] },
           },
         });
-        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+        const previewListContainer = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+        expect(previewListContainer).toBeInTheDocument();
+        expect(previewListContainer.children).toHaveLength(1);
+        expect(previewListContainer.children[0]).toHaveAttribute(
+          'data-testid',
+          UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID,
+        );
       });
 
       it('should not show scraped content in attachment previews', async () => {
@@ -584,7 +591,13 @@ function axeNoViolations(container) {
             message: { attachments: [generateScrapedDataAttachment(), { type: 'xxx' }] },
           },
         });
-        expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
+        const previewListContainer = screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID);
+        expect(previewListContainer).toBeInTheDocument();
+        expect(previewListContainer.children).toHaveLength(1);
+        expect(previewListContainer.children[0]).toHaveAttribute(
+          'data-testid',
+          UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID,
+        );
       });
 
       it('should not show attachment previews if no files uploaded and no attachments available', async () => {
@@ -755,7 +768,7 @@ function axeNoViolations(container) {
           expect.objectContaining({
             text: messageText,
           }),
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -807,7 +820,7 @@ function axeNoViolations(container) {
           expect(calledMock).toHaveBeenCalledWith(
             isEdit ? channel.cid : channel,
             expect.objectContaining(customMessageData),
-            undefined,
+            {},
           );
         });
         await axeNoViolations(container);
@@ -837,7 +850,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           customMessageData,
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -880,7 +893,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -914,7 +927,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -950,7 +963,7 @@ function axeNoViolations(container) {
               }),
             ]),
           }),
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -981,7 +994,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           undefined,
-          undefined,
+          {},
         );
         await axeNoViolations(container);
       });
@@ -1041,7 +1054,7 @@ function axeNoViolations(container) {
           }),
           channel.cid,
           undefined,
-          undefined,
+          {},
         );
 
         await axeNoViolations(container);
@@ -1116,7 +1129,7 @@ function axeNoViolations(container) {
           mentioned_users: [{ id: userId, name: username }],
           text: message.text,
         }),
-        undefined,
+        {},
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1168,7 +1181,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: expect.arrayContaining([mentionId]),
         }),
-        undefined,
+        {},
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -1202,7 +1215,7 @@ function axeNoViolations(container) {
         expect.objectContaining({
           mentioned_users: [],
         }),
-        undefined,
+        {},
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();

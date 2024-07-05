@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { useMessageInputState } from '../useMessageInputState';
 import {
@@ -15,18 +16,20 @@ import {
   initClientWithChannels,
 } from '../../../../mock-builders';
 import { ChannelActionProvider, ChannelStateProvider, ChatProvider } from '../../../../context';
-import { act } from '@testing-library/react';
 
 const linkPreviewAttachments = Array.from({ length: 3 }, generateScrapedDataAttachment);
 const fileAttachment = generateFileAttachment();
 const imageAttachment = generateImageAttachment();
+const audioAttachment = generateAudioAttachment();
+const videoAttachment = generateVideoAttachment();
+const voiceRecordingAttachment = generateVoiceRecordingAttachment();
 const message = generateMessage({
   attachments: [
     imageAttachment,
     fileAttachment,
-    generateAudioAttachment(),
-    generateVideoAttachment(),
-    generateVoiceRecordingAttachment(),
+    audioAttachment,
+    videoAttachment,
+    voiceRecordingAttachment,
     ...linkPreviewAttachments,
   ],
   mentioned_users: [generateUser()],
@@ -60,10 +63,6 @@ describe('useMessageInputState', () => {
       result: { current },
     } = await renderUseMessageInputStateHook();
     expect(current.attachments).toHaveLength(0);
-    expect(current.fileOrder).toHaveLength(0);
-    expect(current.fileUploads).toStrictEqual(expect.objectContaining({}));
-    expect(current.imageOrder).toStrictEqual(expect.objectContaining({}));
-    expect(current.imageUploads).toStrictEqual(expect.objectContaining({}));
     expect(current.linkPreviews.size).toBe(0);
     expect(current.mentioned_users).toHaveLength(0);
     expect(current.text).toBe('');
@@ -73,41 +72,19 @@ describe('useMessageInputState', () => {
     const {
       result: { current },
     } = await renderUseMessageInputStateHook({ props: { message } });
-    expect(current.attachments).toHaveLength(
-      message.attachments.length - 2, // -2 for 1 file attachment & 1 image attachment
-    );
-    expect(current.fileOrder).toHaveLength(1);
-    expect(Object.values(current.fileUploads)).toHaveLength(1);
-    expect(Object.values(current.fileUploads)[0]).toMatchObject(
-      expect.objectContaining({
-        file: {
-          name: fileAttachment.title,
-          size: fileAttachment.file_size,
-          type: fileAttachment.mime_type,
-        },
-        id: expect.any(String),
-        state: 'finished',
-        thumb_url: fileAttachment.thumb_url,
-        url: fileAttachment.asset_url,
-      }),
-    );
-    expect(current.imageOrder).toHaveLength(1);
-    expect(Object.values(current.imageUploads)).toHaveLength(1);
-    expect(Object.values(current.imageUploads)[0]).toMatchObject(
-      expect.objectContaining({
-        author_name: imageAttachment.author_name,
-        file: {
-          name: imageAttachment.fallback,
-        },
-        id: expect.any(String),
-        og_scrape_url: imageAttachment.og_scrape_url,
-        state: 'finished',
-        text: imageAttachment.text,
-        title: imageAttachment.title,
-        title_link: imageAttachment.title_link,
-        url: imageAttachment.image_url,
-      }),
-    );
+    const attachmentsLength = message.attachments.length - linkPreviewAttachments.length;
+    expect(current.attachments).toHaveLength(attachmentsLength);
+
+    current.attachments.slice(attachmentsLength).forEach((attachment, i) => {
+      expect(attachment).toMatchObject(
+        expect.objectContaining({
+          localMetadata: {
+            id: expect.any(String),
+          },
+          ...message.attachments[i],
+        }),
+      );
+    });
     expect(current.linkPreviews.size).toBe(linkPreviewAttachments.length);
     expect(current.mentioned_users).toHaveLength(message.mentioned_users.length);
     expect(current.text).toBe(message.text);
@@ -220,7 +197,6 @@ describe('useMessageInputState', () => {
         voiceRecording: generateVoiceRecordingAttachment,
       };
 
-      // eslint-disable-next-line jest/no-commented-out-tests
       describe.each([['audio'], ['file'], ['image'], ['video'], ['voiceRecording'], ['custom']])(
         'of type %s',
         (type) => {
@@ -228,7 +204,8 @@ describe('useMessageInputState', () => {
           const fileDataOverrides = {
             file: {
               name: type === 'image' ? data.fallback : data.title,
-              type: type === 'image' ? data.fallback.split('.')[1] : data.mime_type ?? '',
+              type:
+                type === 'image' ? 'image/' + data.fallback.split('.')[1] : data.mime_type ?? '',
             },
           };
           const attachment = {

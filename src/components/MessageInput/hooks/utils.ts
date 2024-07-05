@@ -1,4 +1,3 @@
-import type { ImageUpload } from '../../ReactFileUtilities';
 import type { AppSettingsAPIResponse, FileUploadConfig, UserResponse } from 'stream-chat';
 
 import type { ChannelActionContextValue } from '../../../context/ChannelActionContext';
@@ -116,7 +115,7 @@ type CheckUploadPermissionsParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   addNotification: ChannelActionContextValue<StreamChatGenerics>['addNotification'];
-  file: ImageUpload['file'];
+  file: File;
   getAppSettings: ChatContextValue<StreamChatGenerics>['getAppSettings'];
   t: TranslationContextValue['t'];
   uploadType: 'image' | 'file';

@@ -29,6 +29,7 @@ export const ImageAttachmentPreview = <
   const { id, uploadState } = attachment.localMetadata ?? {};
 
   const handleLoadError = useCallback(() => setPreviewError(true), []);
+  const assetUrl = attachment.image_url || attachment.localMetadata.previewUri;
 
   return (
     <div
@@ -63,13 +64,13 @@ export const ImageAttachmentPreview = <
         </div>
       )}
 
-      {attachment.image_url && (
+      {assetUrl && (
         <BaseImage
-          alt={attachment.title}
+          alt={attachment.fallback}
           className='str-chat__attachment-preview-thumbnail'
           onError={handleLoadError}
-          src={attachment.image_url}
-          title={attachment.title}
+          src={assetUrl}
+          title={attachment.fallback}
         />
       )}
     </div>
