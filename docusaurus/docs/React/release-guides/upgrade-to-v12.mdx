@@ -4,6 +4,65 @@ title: Upgrade to v12
 keywords: [migration guide, upgrade, v12, breaking changes]
 ---
 
+## Removal of duplicate uploads state in MessageInput
+
+As of the version 12 of `stream-chat-react` the `MessageInputContext` will not expose the following state variables:
+
+- `fileOrder` - An array of IDs for non-image uploaded attachments. Its purpose was just to keep order in which the attachments were added.
+- `imageOrder` - An array of IDs for image uploaded attachments. Its purpose was just to keep order in which the attachments were added.
+- `fileUploads` - A mapping of ID to attachment representing the uploaded non-image file.
+- `imageUploads` - A mapping of ID to attachment representing the uploaded image file.
+
+These four variables' purpose was to render the attachment previews in a given order. All the non-image attachments were assigned type `"file"` until the message was sent at which point the audio files were assigned type `"audio"` and video file type `"video"`. Also, the attachment objects structure used to change upon submission. Some keys were renamed and other just removed.
+
+The shortcomings of the above approach have been adjusted as follows:
+
+1. All the attachments except the link preview attachments (objects that contain `og_scrape_url` attribute) are now stored in `attachments` array of `MessageInputContext`. Array keeps order and the attachment type can be determined by the `attachment.type` property.
+
+2. The previously removed "local" data is now stored on each attachment object under `localMetadata` key. This key is removed upon submission. Every `localMetadata` object has to at least contain the `id` attribute that allows us to update or remove the given attachment from the state. The attachments that represent an uploaded file has to also include the `localMetadata.file` reference.
+
+3. Attachments representing uploaded files will be identified by the `file` attribute as `attachment.localMetadata.file`. Default attachment types recognized by the SDK are:
+
+- `audio`
+- `file`
+- `image`
+- `video`
+- `voiceRecording`
+
+4. The attachment `type` is assigned upon the upload and not upon the submission. Also, there is no renaming of attachment attributes upon submission, but the attachment objects are assigned the attributes that are kept from the upload until the submission. These attributes are:
+
+5. We have removed the following API tied to uploads state from the MessageInput state
+
+- `uploadFile` -> from now on, use `uploadAttachment`
+- `uploadImage` -> from now on, use `uploadAttachment`
+- `removeFile` -> from now on, use `removeAttachments`
+- `removeImage` -> from now on, use `removeAttachments`
+
+The function `uploadNewFiles` has been kept.
+
+To sum up, the attachments management API in MessageInput is from now on only:
+
+- `attachments` - An array that keeps all the message attachment objects except for link previews that should be accessed via [`linkPreviews`](../../components/contexts/message_input_context#linkpreviews) (see the [guide on how to use `linkPreviews`](../../guides/customization/link-previews)).
+- `uploadAttachment` - Uploads a single attachment. The provided attachment should contain a `localMetadata` object with `file` (references a `File` instance to be uploaded) and `id` properties.
+- `uploadNewFiles` - Expects an array of `File` or `Blob` objects, generates an array of well-formed attachments and uploads the files with `uploadAttachment` function
+- `upsertAttachments` - Expects an array of attachment object where each of those should contain `localMetadata.id`. Creates or updates the attachment attributes based on the given id in the `attachments` array of `MessageInputContext`.
+- `removeAttachments` - Expects and array of strings representing attachment IDs and removes those attachment objects from the state.
+
+:::important
+**Action required**<br/>
+Make sure you are not using any of the removed API elements (for example you have implemented a custom `AttachmentPreviewList`):
+
+- `fileOrder`
+- `imageOrder`
+- `fileUploads`
+- `imageUploads`
+- `uploadFile`
+- `uploadImage`
+- `removeFile`
+- `removeImage`
+
+:::
+
 ## Avatar changes
 
 The `Avatar` styles are applied through CSS from the version 12 upwards. Therefore, the following changes were applied:
