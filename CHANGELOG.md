@@ -1,3 +1,10 @@
+## [11.23.1](https://github.com/GetStream/stream-chat-react/compare/v11.23.0...v11.23.1) (2024-07-08)
+
+
+### Bug Fixes
+
+* acknowledge the use of LAME ([dbce6dc](https://github.com/GetStream/stream-chat-react/commit/dbce6dc551d182d9975f17006ea08ff1ca38f4ff))
+
 ## [11.23.0](https://github.com/GetStream/stream-chat-react/compare/v11.22.0...v11.23.0) (2024-06-28)
 
 
