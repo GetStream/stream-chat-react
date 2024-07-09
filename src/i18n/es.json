@@ -128,7 +128,7 @@
   "searchResultsCount_other": "{{ count }} resultados",
   "this content could not be displayed": "este contenido no se pudo mostrar",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
-  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true; format: h:mmA) }}",
+  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
   "unban-command-args": "[@usuario]",
   "unban-command-description": "Quitar la prohibición a un usuario",

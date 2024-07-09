@@ -130,7 +130,7 @@
   "searchResultsCount_other": "{{ count }} результатов",
   "this content could not be displayed": "Этот контент не может быть отображен в данный момент",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
-  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true; format: h:mmA) }}",
+  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
   "unban-command-args": "[@имяпользователя]",
   "unban-command-description": "Разблокировать пользователя",

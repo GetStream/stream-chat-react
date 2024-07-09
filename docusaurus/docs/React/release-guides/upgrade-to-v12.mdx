@@ -63,6 +63,21 @@ Make sure you are not using any of the removed API elements (for example you hav
 
 :::
 
+## Date & time formatting
+
+The components that display date and time are:
+
+- `DateSeparator` - separates message groups in message lists
+- `EventComponent` - displays system messages
+- `MessageTimestamp` - displays the creation timestamp for a message in a message list
+
+These components had previously default values for props like `format` or `calendar`. This setup required for a custom formatting to be set up via i18n service, the default values had to be nullified. For a better developer experience we decided to remove the default prop values and rely on default configuration provided via i18n translations. The value `null` is not a valid value for `format`, `calendar` or `calendarFormats` props.
+
+:::important
+**Action required**<br/>
+If you are not using the default translations provided with the SDK, make sure to follow the [date & time formatting guide](../guides/date-time-formatting) to verify that your dates are formatted according to your needs.
+:::
+
 ## Avatar changes
 
 The `Avatar` styles are applied through CSS from the version 12 upwards. Therefore, the following changes were applied:
@@ -88,10 +103,10 @@ The `Avatar` styles are applied through CSS from the version 12 upwards. Therefo
 5. As a consequence of the `Avatar` props changes, the `TypingIndicator` prop `avatarSize` have been removed as well.
 
 :::important
-**Action required**<br/>
-1 Migrate CSS applied to `.str-chat__avatar--${shape}` or re-apply the class through `Avatar` `className` prop.<br/>
-2 Migrate CSS applied to `.str-chat__avatar-image--loaded` to `.str-chat__avatar-image` class.<br/>
-3 If needed, apply custom styles to newly added classes based on the component that renders the `Avatar`.<br/>
+**Action required**  
+1\. Migrate CSS applied to `.str-chat__avatar--${shape}` or re-apply the class through `Avatar` `className` prop.  
+2\. Migrate CSS applied to `.str-chat__avatar-image--loaded` to `.str-chat__avatar-image` class.  
+3\. If needed, apply custom styles to newly added classes based on the component that renders the `Avatar`.
 :::
 
 ## Removal of deprecated components
@@ -101,7 +116,7 @@ The `Avatar` styles are applied through CSS from the version 12 upwards. Therefo
 The attachment rendering functions were replaced with their component equivalents:
 
 :::important
-**Action required**<br/>
+**Action required**  
 Replace the render functions in your custom components with container components alternatives.
 :::
 
@@ -120,7 +135,7 @@ Replace the render functions in your custom components with container components
 Until now, it was possible to import two stylesheets as follows:
 
 ```
-import 'stream-chat-react/dist/css/v2/index.css';
+import 'stream-chat-react/dist/css/v1/index.css';
 ```
 
 The legacy stylesheet has been removed from the SDK bundle, and therefore it is only possible to import one stylesheet from now on:
@@ -130,7 +145,7 @@ import 'stream-chat-react/dist/css/v2/index.css';
 ```
 
 :::important
-**Action required**<br/>
+**Action required**  
 Make sure you are importing the default styles correctly as `import 'stream-chat-react/dist/css/v2/index.css';`
 :::
 
@@ -139,7 +154,7 @@ Make sure you are importing the default styles correctly as `import 'stream-chat
 With the version 10 of `stream-chat-react` new stylesheet has been introduced. The stylesheet used previously became a legacy stylesheet. Legacy stylesheet had often times CSS classes and SDK components, that were not supported with the new stylesheet. Now, the legacy stylesheet and corresponding CSS classes and SDK component are being removed.
 
 :::caution
-These changes will impact you only, if you have imported the CSS as one of the following (you have used the legacy styles):
+These changes will impact you only if you have imported the CSS as one of the following (you have used the legacy styles):
 
 ```
 import 'stream-chat-react/css/index.css';
@@ -156,8 +171,8 @@ import '@stream-io/stream-chat-css/dist/css/index.css';
 Supporting two stylesheet lead to introduction of a flag `themeVersion` into the `ChatContext`. This flag is no more necessary and has been removed from the context value.
 
 :::important
-**Action required**<br/>
-Make sure you are not using `themeVersion in your custom components.
+**Action required**  
+Make sure you are not using `themeVersion` in your custom components.
 :::
 
 ### Removal of styles related Chat props
@@ -173,9 +188,9 @@ Also associated parts of code were removed:
 - `useCustomStyles` hook
 
 :::important
-**Action required**<br/>
-1 The styles applied through `customStyles` should be applied through custom CSS.
-2 Theme (not only dark theme) can be through `Chat` prop `theme` instead of `darkMode`
+**Action required**  
+1\. The styles applied through `customStyles` should be applied through custom CSS.  
+2\. Theme (not only dark theme) can be through `Chat` prop `theme` instead of `darkMode`
 :::
 
 ### Removal from ComponentContext
@@ -183,7 +198,7 @@ Also associated parts of code were removed:
 - `AutocompleteSuggestionHeader` - the up-to-date SDK markup does not count with a header in the `ChatAutoComplete` suggestion list
 
 :::important
-**Action required**<br/>
+**Action required**  
 Make sure you are passing these custom components to the `Channel` component.
 :::
 
@@ -192,10 +207,10 @@ Make sure you are passing these custom components to the `Channel` component.
 The following components are not available anymore as they were related to legacy stylesheet and are not used by the latest SDK components.
 
 :::important
-**Action required**<br/>
-1 Remove imports of these components from `stream-chat-react` in your custom components.<br/>
-2 If importing `SendIconV2` rename it to `SendIcon`.<br/>
-3 Remove the listed classes if used in your CSS.
+**Action required**  
+1\. Remove imports of these components from `stream-chat-react` in your custom components.  
+2\. If importing `SendIconV2` rename it to `SendIcon`.  
+3\. Remove the listed classes if used in your CSS.
 :::
 
 | Component                                                          | Details                                                                                                                                                                                 | Removed CSS classes                                           |
@@ -220,7 +235,7 @@ The following components are not available anymore as they were related to legac
 The `FileIcon` component does not accept argument `version` anymore. This parameter used to determine the file icon set. There were two sets - version `'1'` and `'2'`. The icons of version `'1'` have been rendered with legacy stylesheets in the SDK components. The icons displayed under the version `'1'` have been removed now.
 
 :::important
-**Action required**<br/>
+**Action required**  
 Remove prop `version` if the `FileIcon` is used in your custom components.
 :::
 
@@ -229,7 +244,7 @@ Remove prop `version` if the `FileIcon` is used in your custom components.
 We have removed classes that were used in the legacy CSS stylesheet only and thus are redundant. We recommend to use classes that were already available previously and are used by the SDK stylesheet:
 
 :::important
-**Action required**<br/>
+**Action required**  
 Replace the removed classes with their alternatives in the custom CSS.
 :::
 
@@ -281,7 +296,7 @@ Replace the removed classes with their alternatives in the custom CSS.
 Migration to non-legacy styles leads to rendering of markup with the following classes:
 
 :::important
-**Action required**<br/>
+**Action required**  
 Verify your app layout is not broken and adjust the CSS if necessary.
 :::
 
@@ -292,7 +307,7 @@ Verify your app layout is not broken and adjust the CSS if necessary.
 ### Removed types
 
 :::important
-**Action required**<br/>
+**Action required**  
 Import type alternatives if necessary.
 :::
 
@@ -305,6 +320,32 @@ Import type alternatives if necessary.
 The `TypingIndicator` component does not render avatars as it used to with legacy stylesheet. Therefore, its prop `Avatar` has been removed.
 
 :::important
-**Action optional**<br/>
+**Action optional**  
 Provide custom `TypingIndicator` through the `Channel` prop.
 :::
+
+## Updated browser target
+
+Version 12 targets browsers that support ES2020. In particular, the code includes `async` functions, optional chaining (`?.`), and nullish coalescing (`??`). These features have been supported by all major desktop and mobile browsers for years, so it made sense for us to raise the baseline.
+
+The following browsers [support ES2020](https://caniuse.com/?feats=mdn-javascript_operators_optional_chaining,mdn-javascript_operators_nullish_coalescing,mdn-javascript_builtins_globalthis,es6-module-dynamic-import,bigint,mdn-javascript_builtins_promise_allsettled,mdn-javascript_builtins_string_matchall,mdn-javascript_statements_export_namespace,mdn-javascript_operators_import_meta) and should be able to run the SDK as-is:
+
+- Chrome 80 and later
+- Safari 14.1 and later on desktops, 14.5 and later on iOS
+- Edge 80 and later
+- Firefox 80 and later
+
+If you need to support older browsers, you should transpile your bundle using `babel` or a similar tool.
+
+:::important
+**Action optional**  
+If you're targeting browsers that don't support ES2020, use a transpilation tool like `babel` to process your bundle.
+:::
+
+## Browser bundle removed from the package
+
+Prior to version 12, we included the browser bundle in the package, which could be added to the page using the `<script>` tag. We no longer ship the browser bundle.
+
+Using the browser bundle was never recommended, and it was mostly for testing purposes. If you still want to quickly add the SDK using the `<script>` tag, you can use services such as [https://esm.sh/](esm.sh) or [https://www.unpkg.com/](unpkg.com).
+
+Installing the package from NPM and then bundling it with your application is still the best way to use the SDK.

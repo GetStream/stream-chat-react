@@ -110,3 +110,13 @@ We recently closed a [$38 million Series B funding round](https://techcrunch.com
 Our APIs are used by more than a billion end-users, and by working at Stream, you have the chance to make a huge impact on a team of very strong engineers.
 
 Check out our current openings and apply via [Stream's website](https://getstream.io/team/#jobs).
+
+## Acknowledgements
+
+### Lamejs
+
+This project uses `lamejs` library under the LGPL license to convert the recorded audio to mp3 format.
+The library source code is dynamically imported and used only if audio recording is enabled.
+
+You can obtain the source code for `lamejs` from the [lamejs repository](https://github.com/gideonstele/lamejs) that is a fork of [the original JS library](https://github.com/zhuker/lamejs).
+You can find the source code for LAME at https://lame.sourceforge.net  and its license at: https://lame.sourceforge.net/license.txt
