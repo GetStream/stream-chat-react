@@ -51,6 +51,21 @@ The dialog can be customized by passing own component to `Channel` component con
 <Channel RecordingPermissionDeniedNotification={CustomComponent}>
 ```
 
+## Custom encoding
+
+By default, the recording is encoded into `audio/wav` format. In order to reduce the size and keep the inter-browser format compatibility, you can use an MP3 encoder that is based on [`lamejs` implementation](https://github.com/gideonstele/lamejs). Follow these steps to achieve the MP3 encoding capability.
+
+1. The library `@breezystack/lamejs` has to be installed as this is a peer dependency to `stream-chat-react`.
+
+2. The MP3 encoder has to be imported separately as a plugin:
+
+```tsx
+import { MessageInput } from 'stream-chat-react';
+import { encodeToMp3 } from 'stream-chat-react/mp3-encoder';
+
+<MessageInput focus audioRecordingConfig={{ transcoderConfig: { encoder: encodeToMp3 } }} />;
+```
+
 ## Audio recorder states
 
 The `AudioRecorder` UI switches between the following states

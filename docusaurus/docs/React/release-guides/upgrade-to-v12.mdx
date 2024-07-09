@@ -4,6 +4,26 @@ title: Upgrade to v12
 keywords: [migration guide, upgrade, v12, breaking changes]
 ---
 
+## Audio recordings transcoding
+
+Until now, the audio recordings were transcoded to `audio/mp3` format for inter-browser compatibility and size reduction. However, as of the v12, the MIME type `audio/wav` will be the default. The mp3 encoder used by the library is licensed under LGPL and integrators will have to opt-in to using the library in their apps.
+
+:::important
+**Action required**<br/>
+
+1. The library `@breezystack/lamejs` has to be installed as this is a peer dependency to `stream-chat-react`.
+
+2. The MP3 encoder has to be imported separately as a plugin:
+
+```tsx
+import { MessageInput } from 'stream-chat-react';
+import { encodeToMp3 } from 'stream-chat-react/mp3-encoder';
+
+<MessageInput focus audioRecordingConfig={{ transcoderConfig: { encoder: encodeToMp3 } }} />;
+```
+
+:::
+
 ## Removal of duplicate uploads state in MessageInput
 
 As of the version 12 of `stream-chat-react` the `MessageInputContext` will not expose the following state variables:

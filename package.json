@@ -26,6 +26,12 @@
       "import": "./dist/components/Emojis/index.js",
       "default": "./dist/components/Emojis/index.js"
     },
+    "./mp3-encoder": {
+      "types": "./dist/plugins/encoders/mp3.d.ts",
+      "require": "./dist/plugins/encoders/mp3.cjs.js",
+      "import": "./dist/plugins/encoders/mp3.js",
+      "default": "./dist/plugins/encoders/mp3.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -60,7 +66,6 @@
   ],
   "dependencies": {
     "@braintree/sanitize-url": "^6.0.4",
-    "@breezystack/lamejs": "^1.2.7",
     "@popperjs/core": "^2.11.5",
     "@react-aria/focus": "^3",
     "clsx": "^2.0.0",
@@ -98,6 +103,7 @@
     "mml-react": "^0.4.7"
   },
   "peerDependencies": {
+    "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
@@ -106,6 +112,9 @@
     "stream-chat": "^8.33.1"
   },
   "peerDependenciesMeta": {
+    "@breezystack/lamejs": {
+      "optional": true
+    },
     "emoji-mart": {
       "optional": true
     },
@@ -131,6 +140,7 @@
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.12.7",
+    "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
     "@emoji-mart/data": "^1.1.2",
