@@ -24,6 +24,20 @@ import { encodeToMp3 } from 'stream-chat-react/mp3-encoder';
 
 :::
 
+## EmojiPickerIcon extraction to emojis plugin
+
+The default `EmojiPickerIcon` has been moved to emojis plugin from which we already import `EmojiPicker` component.
+
+:::important
+**Action required**<br/>
+In case you are importing `EmojiPickerIcon` in your code, make sure to adjust the import as follows:
+
+```tsx
+import { EmojiPickerIcon } from 'stream-chat-react/emojis';
+```
+
+:::
+
 ## Removal of duplicate uploads state in MessageInput
 
 As of the version 12 of `stream-chat-react` the `MessageInputContext` will not expose the following state variables:
