@@ -118,7 +118,7 @@
   "searchResultsCount_other": "{{ count }} results",
   "this content could not be displayed": "this content could not be displayed",
   "timestamp/DateSeparator": "{{ timestamp | timestampFormatter(calendar: true) }}",
-  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true; format: h:mmA) }}",
+  "timestamp/MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: true) }}",
   "timestamp/SystemMessage": "{{ timestamp | timestampFormatter(format: dddd L) }}",
   "unreadMessagesSeparatorText_one": "1 unread message",
   "unreadMessagesSeparatorText_other": "{{count}} unread messages",
