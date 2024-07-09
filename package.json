@@ -21,10 +21,10 @@
       "default": "./dist/index.js"
     },
     "./emojis": {
-      "types": "./dist/components/Emojis/index.d.ts",
-      "require": "./dist/components/Emojis/index.cjs.js",
-      "import": "./dist/components/Emojis/index.js",
-      "default": "./dist/components/Emojis/index.js"
+      "types": "./dist/plugins/Emojis/index.d.ts",
+      "require": "./dist/plugins/Emojis/index.cjs.js",
+      "import": "./dist/plugins/Emojis/index.js",
+      "default": "./dist/plugins/Emojis/index.js"
     },
     "./mp3-encoder": {
       "types": "./dist/plugins/encoders/mp3.d.ts",

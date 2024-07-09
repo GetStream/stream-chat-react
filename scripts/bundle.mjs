@@ -8,7 +8,7 @@ import * as esbuild from 'esbuild';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const sdkEntrypoint = resolve(__dirname, '../src/index.ts');
-const emojiEntrypoint = resolve(__dirname, '../src/components/Emojis/index.ts');
+const emojiEntrypoint = resolve(__dirname, '../src/plugins/Emojis/index.ts');
 const mp3EncoderEntrypoint = resolve(__dirname, '../src/plugins/encoders/mp3.ts');
 const outDir = resolve(__dirname, '../dist');
 
