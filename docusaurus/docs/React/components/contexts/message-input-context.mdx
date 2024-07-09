@@ -29,11 +29,11 @@ Additional props to be passed to the underlying `AutoCompleteTextarea` component
 
 ### attachments
 
-An array of attachments added to the current message.
+An array of attachments added to the current message. Every attachment object carries attribute `localMetadata` that is internally used to manage the attachment state in the composer (update, remove attachments from the state, keep reference to uploaded files, keep information about the file upload state). The `localMetadata` object is discarded from each attachment object before sending the resulting message to the server. The attachments array does not contain attachments created by URL enrichment. These scraped attachments are kept in `linkPreviews` map.
 
-| Type         |
-| ------------ |
-| Attachment[] |
+| Type              |
+| ----------------- |
+| LocalAttachment[] |
 
 ### autocompleteTriggers
 
@@ -181,22 +181,6 @@ Custom error handler function to be called with a file/image upload fails.
 | ------------------------------------------------------------------------------------------------- |
 | (error: Error, type: string, file: (FileUpload \| ImageUpload)['file'] & { id?: string }) => void |
 
-### fileOrder
-
-The order in which file attachments have been added to the current message.
-
-| Type     |
-| -------- |
-| string[] |
-
-### fileUploads
-
-A mapping of the file attachments added to the current message.
-
-| Type                         |
-| ---------------------------- |
-| { [id: string]: FileUpload } |
-
 ### findAndEnqueueURLsToEnrich
 
 A function responsible for initiating URL discovery and their subsequent enrichment. It is available only if link preview rendering is enabled. Link previews are disabled by default.
@@ -253,22 +237,6 @@ Allows to hide MessageInput's send button. Used by `MessageSimple` to hide the s
 | ------- | ------- |
 | boolean | false   |
 
-### imageOrder
-
-The order in which image attachments have been added to the current message.
-
-| Type     |
-| -------- |
-| string[] |
-
-### imageUploads
-
-A mapping of the image attachments added to the current message.
-
-| Type                          |
-| ----------------------------- |
-| { [id: string]: ImageUpload } |
-
 ### insertText
 
 Function to insert text into the value of the underlying `textarea` component.
@@ -304,7 +272,7 @@ If specified, this function overrides the default behavior specified previously.
 
 ### maxFilesLeft
 
-The maximum number of allowed uploads minus the current number of uploads.
+The maximum number of allowed uploads minus the current number of successful uploads.
 
 | Type   |
 | ------ |
@@ -368,7 +336,7 @@ If true, disables file uploads for all attachments except for those with type 'i
 
 ### numberOfUploads
 
-The number of file uploads on the current message.
+The number of successfully uploaded files for the current message.
 
 | Type   |
 | ------ |
@@ -468,22 +436,6 @@ const Component = () => {
 };
 ```
 
-### removeFile
-
-Function to remove a file from the `fileUploads` mapping.
-
-| Type                 |
-| -------------------- |
-| (id: string) => void |
-
-### removeImage
-
-Function to remove an image from the `imageUploads` mapping.
-
-| Type                 |
-| -------------------- |
-| (id: string) => void |
-
 ### setCooldownRemaining
 
 React state hook function that sets the `cooldownRemaining` value.
@@ -532,25 +484,30 @@ React mutable ref placed on the underlying `textarea` component.
 | -------------------------------------------- |
 | React.MutableRefObject<HTMLTextAreaElement\> |
 
-### uploadFile
+### uploadAttachment
 
-Function to upload a file to the `fileUploads` mapping.
+Uploads the file that comes as a part of the `attachment` object argument. The function expects the `attachment` object to contain attribute `localMetadata`, which in turn should contain `file` attribute referring to the file to be uploaded and an attribute `id` with attachment's unique identifier string. The `localMetadata` object is discarded when the message is posted.
 
-| Type                 |
-| -------------------- |
-| (id: string) => void |
+So the minimum required `attachment` object for upload would be:
 
-### uploadImage
+```
+type MinimumUploadAttachment = {
+    localMetadata: {
+        file: File | Blob;
+        id: string;
+    }
+}
+```
 
-Function to upload an image.
+The function returns `undefined` if, custom upload function (`doImageUploadRequest`, `doFileUploadRequest`) fails.
 
-| Type                 |
-| -------------------- |
-| (id: string) => void |
+| Type                                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------- |
+| `(attachment: LocalAttachment<StreamChatGenerics>) => Promise<LocalAttachment<StreamChatGenerics> \| undefined>` |
 
 ### uploadNewFiles
 
-Function to upload an array of files to the `fileUploads` and `imageUploads` mappings.
+Function to upload an array of files and store the results as `LocalAttachment` objects in `attachments` array of the `MessageInputContext`.
 
 | Type                                |
 | ----------------------------------- |

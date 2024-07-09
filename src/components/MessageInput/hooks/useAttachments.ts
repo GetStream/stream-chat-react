@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { nanoid } from 'nanoid';
 
-import { useImageUploads } from './useImageUploads';
-import { useFileUploads } from './useFileUploads';
 import { checkUploadPermissions } from './utils';
-import { isLocalAttachment, isLocalImageAttachment, isUploadedImage } from '../../Attachment';
+import { isLocalAttachment, isLocalImageAttachment } from '../../Attachment';
+import type { FileLike } from '../../ReactFileUtilities';
+import { createFileFromBlobs, generateFileName, isBlobButNotFile } from '../../ReactFileUtilities';
 
 import {
   useChannelActionContext,
@@ -21,10 +21,21 @@ import type {
   BaseLocalAttachmentMetadata,
   LocalAttachment,
 } from '../types';
-import type { FileLike } from '../../ReactFileUtilities';
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../../types/types';
 
 const apiMaxNumberOfFiles = 10;
+
+// const isAudioFile = (file: FileLike) => file.type.includes('audio/');
+const isImageFile = (file: FileLike) =>
+  file.type.startsWith('image/') && !file.type.endsWith('.photoshop'); // photoshop files begin with 'image/'
+// const isVideoFile = (file: FileLike) => file.type.includes('video/');
+
+const getAttachmentTypeFromMime = (mimeType: string) => {
+  if (mimeType.startsWith('image/') && !mimeType.endsWith('.photoshop')) return 'image';
+  if (mimeType.includes('video/')) return 'video';
+  if (mimeType.includes('audio/')) return 'audio';
+  return 'file';
+};
 
 const ensureIsLocalAttachment = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -54,7 +65,6 @@ export const useAttachments = <
   textareaRef: React.MutableRefObject<HTMLTextAreaElement | undefined>,
 ) => {
   const { doFileUploadRequest, doImageUploadRequest, errorHandler, noFiles } = props;
-  const { fileUploads, imageUploads } = state;
   const { getAppSettings } = useChatContext<StreamChatGenerics>('useAttachments');
   const { t } = useTranslationContext('useAttachments');
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('useAttachments');
@@ -62,55 +72,15 @@ export const useAttachments = <
     'useAttachments',
   );
 
-  const { removeFile, uploadFile } = useFileUploads<StreamChatGenerics, V>(props, state, dispatch);
-
-  const { removeImage, uploadImage } = useImageUploads<StreamChatGenerics, V>(
-    props,
-    state,
-    dispatch,
-  );
-
   // Number of files that the user can still add. Should never be more than the amount allowed by the API.
   // If multipleUploads is false, we only want to allow a single upload.
   const maxFilesAllowed = !multipleUploads ? 1 : maxNumberOfFiles || apiMaxNumberOfFiles;
 
-  // OG attachments should not be counted towards "numberOfImages"
-  const numberOfImages = Object.values(imageUploads).filter(
-    ({ og_scrape_url, state }) => state !== 'failed' && !og_scrape_url,
+  const numberOfUploads = Object.values(state.attachments).filter(
+    ({ localMetadata }) => localMetadata.uploadState && localMetadata.uploadState !== 'failed',
   ).length;
-  const numberOfFiles = Object.values(fileUploads).filter(({ state }) => state !== 'failed').length;
-  const numberOfUploads = numberOfImages + numberOfFiles;
 
   const maxFilesLeft = maxFilesAllowed - numberOfUploads;
-
-  const uploadNewFiles = useCallback(
-    (files: FileList | File[] | FileLike[]) => {
-      Array.from(files)
-        .slice(0, maxFilesLeft)
-        .forEach((file) => {
-          const id = nanoid();
-
-          if (
-            file.type.startsWith('image/') &&
-            !file.type.endsWith('.photoshop') // photoshop files begin with 'image/'
-          ) {
-            dispatch({
-              file,
-              id,
-              previewUri: URL.createObjectURL?.(file),
-              state: 'uploading',
-              type: 'setImageUpload',
-            });
-          } else if (file instanceof File && !noFiles) {
-            dispatch({ file, id, state: 'uploading', type: 'setFileUpload' });
-          }
-        });
-
-      textareaRef?.current?.focus();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [maxFilesLeft, noFiles],
-  );
 
   const removeAttachments = useCallback(
     (ids: string[]) => {
@@ -135,12 +105,14 @@ export const useAttachments = <
     async (
       att: LocalAttachment<StreamChatGenerics>,
     ): Promise<LocalAttachment<StreamChatGenerics> | undefined> => {
-      const { localMetadata, ...attachment } = att;
+      const { localMetadata, ...providedAttachmentData } = att;
+
       if (!localMetadata?.file) return att;
 
-      const isImage = isUploadedImage(attachment);
-      const id = localMetadata?.id ?? nanoid();
       const { file } = localMetadata;
+      const isImage = isImageFile(file);
+
+      if (noFiles && !isImage) return att;
 
       const canUpload = await checkUploadPermissions({
         addNotification,
@@ -150,19 +122,32 @@ export const useAttachments = <
         uploadType: isImage ? 'image' : 'file',
       });
 
-      if (!canUpload) {
-        const notificationText = t('Missing permissions to upload the attachment');
-        console.error(new Error(notificationText));
-        addNotification(notificationText, 'error');
-        return att;
+      if (!canUpload) return att;
+
+      localMetadata.id = localMetadata?.id ?? nanoid();
+      const finalAttachment: Attachment<StreamChatGenerics> = {
+        type: getAttachmentTypeFromMime(file.type),
+      };
+      if (isImage) {
+        localMetadata.previewUri = URL.createObjectURL?.(file);
+        if (file instanceof File) {
+          finalAttachment.fallback = file.name;
+        }
+      } else {
+        finalAttachment.file_size = file.size;
+        finalAttachment.mime_type = file.type;
+        if (file instanceof File) {
+          finalAttachment.title = file.name;
+        }
       }
+
+      Object.assign(finalAttachment, providedAttachmentData);
 
       upsertAttachments([
         {
-          ...attachment,
+          ...finalAttachment,
           localMetadata: {
             ...localMetadata,
-            id,
             uploadState: 'uploading',
           },
         },
@@ -189,7 +174,7 @@ export const useAttachments = <
         addNotification(finalError.message, 'error');
 
         const failedAttachment: LocalAttachment<StreamChatGenerics> = {
-          ...attachment,
+          ...finalAttachment,
           localMetadata: {
             ...localMetadata,
             uploadState: 'failed' as AttachmentLoadingState,
@@ -199,23 +184,23 @@ export const useAttachments = <
         upsertAttachments([failedAttachment]);
 
         if (errorHandler) {
-          errorHandler(finalError as Error, 'upload-attachment', file);
+          errorHandler(finalError as Error, 'upload-attachment', { ...file, id: localMetadata.id });
         }
 
         return failedAttachment;
       }
 
       if (!response) {
-        // Copied this from useImageUpload / useFileUpload. Not sure how failure could be handled on app level.
+        // Copied this from useImageUpload / useFileUpload.
 
         // If doUploadRequest returns any falsy value, then don't create the upload preview.
         // This is for the case if someone wants to handle failure on app level.
-        removeAttachments([id]);
+        removeAttachments([localMetadata.id]);
         return;
       }
 
       const uploadedAttachment: LocalAttachment<StreamChatGenerics> = {
-        ...attachment,
+        ...finalAttachment,
         localMetadata: {
           ...localMetadata,
           uploadState: 'finished' as AttachmentLoadingState,
@@ -231,6 +216,10 @@ export const useAttachments = <
       } else {
         uploadedAttachment.asset_url = response.file;
       }
+      if (response.thumb_url) {
+        uploadedAttachment.thumb_url = response.thumb_url;
+      }
+
       upsertAttachments([uploadedAttachment]);
 
       return uploadedAttachment;
@@ -242,21 +231,42 @@ export const useAttachments = <
       doImageUploadRequest,
       errorHandler,
       getAppSettings,
+      noFiles,
       removeAttachments,
       t,
       upsertAttachments,
     ],
   );
 
+  const uploadNewFiles = useCallback(
+    (files: FileList | File[] | FileLike[]) => {
+      const filesToBeUploaded = noFiles ? Array.from(files).filter(isImageFile) : Array.from(files);
+
+      filesToBeUploaded.slice(0, maxFilesLeft).forEach((fileLike) => {
+        uploadAttachment({
+          localMetadata: {
+            file: isBlobButNotFile(fileLike)
+              ? createFileFromBlobs({
+                  blobsArray: [fileLike],
+                  fileName: generateFileName(fileLike.type),
+                  mimeType: fileLike.type,
+                })
+              : fileLike,
+            id: nanoid(),
+          },
+        });
+      });
+
+      textareaRef.current?.focus();
+    },
+    [maxFilesLeft, noFiles, textareaRef, uploadAttachment],
+  );
+
   return {
     maxFilesLeft,
     numberOfUploads,
     removeAttachments,
-    removeFile,
-    removeImage,
     uploadAttachment,
-    uploadFile,
-    uploadImage,
     uploadNewFiles,
     upsertAttachments,
   };

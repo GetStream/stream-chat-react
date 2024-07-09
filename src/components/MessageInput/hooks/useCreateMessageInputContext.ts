@@ -28,16 +28,12 @@ export const useCreateMessageInputContext = <
     doImageUploadRequest,
     emojiSearchIndex,
     errorHandler,
-    fileOrder,
-    fileUploads,
     findAndEnqueueURLsToEnrich,
     focus,
     grow,
     handleChange,
     handleSubmit,
     hideSendButton,
-    imageOrder,
-    imageUploads,
     insertText,
     isUploadEnabled,
     linkPreviews,
@@ -59,8 +55,6 @@ export const useCreateMessageInputContext = <
     publishTypingEvent,
     recordingController,
     removeAttachments,
-    removeFile,
-    removeImage,
     setCooldownRemaining,
     setText,
     shouldSubmit,
@@ -69,22 +63,12 @@ export const useCreateMessageInputContext = <
     text,
     textareaRef,
     uploadAttachment,
-    uploadFile,
-    uploadImage,
     uploadNewFiles,
     upsertAttachments,
     useMentionsTransliteration,
   } = value;
 
   const editing = message?.editing;
-  const fileUploadsValue = Object.entries(fileUploads)
-    // eslint-disable-next-line
-    .map(([_, value]) => value.state)
-    .join();
-  const imageUploadsValue = Object.entries(imageUploads)
-    // eslint-disable-next-line
-    .map(([_, value]) => value.state)
-    .join();
   const linkPreviewsValue = Array.from(linkPreviews.values()).join();
   const mentionedUsersLength = mentioned_users.length;
   const parentId = parent?.id;
@@ -109,16 +93,12 @@ export const useCreateMessageInputContext = <
       doImageUploadRequest,
       emojiSearchIndex,
       errorHandler,
-      fileOrder,
-      fileUploads,
       findAndEnqueueURLsToEnrich,
       focus,
       grow,
       handleChange,
       handleSubmit,
       hideSendButton,
-      imageOrder,
-      imageUploads,
       insertText,
       isUploadEnabled,
       linkPreviews,
@@ -140,8 +120,6 @@ export const useCreateMessageInputContext = <
       publishTypingEvent,
       recordingController,
       removeAttachments,
-      removeFile,
-      removeImage,
       setCooldownRemaining,
       setText,
       shouldSubmit,
@@ -150,8 +128,6 @@ export const useCreateMessageInputContext = <
       text,
       textareaRef,
       uploadAttachment,
-      uploadFile,
-      uploadImage,
       uploadNewFiles,
       upsertAttachments,
       useMentionsTransliteration,
@@ -159,6 +135,7 @@ export const useCreateMessageInputContext = <
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       asyncMessagesMultiSendEnabled,
+      attachments,
       audioRecordingEnabled,
       cancelURLEnrichment,
       cooldownInterval,
@@ -166,11 +143,9 @@ export const useCreateMessageInputContext = <
       dismissLinkPreview,
       editing,
       emojiSearchIndex,
-      fileUploadsValue,
       findAndEnqueueURLsToEnrich,
       handleSubmit,
       hideSendButton,
-      imageUploadsValue,
       isUploadEnabled,
       linkPreviewsValue,
       mentionedUsersLength,

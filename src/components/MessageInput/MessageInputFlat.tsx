@@ -41,11 +41,9 @@ export const MessageInputFlat = <
     asyncMessagesMultiSendEnabled,
     attachments,
     cooldownRemaining,
-    fileUploads,
     findAndEnqueueURLsToEnrich,
     handleSubmit,
     hideSendButton,
-    imageUploads,
     isUploadEnabled,
     linkPreviews,
     maxFilesLeft,
@@ -86,15 +84,9 @@ export const MessageInputFlat = <
   }, []);
 
   const id = useMemo(() => nanoid(), []);
-  const failedAttachmentsCount = useMemo(
+  const failedUploadsCount = useMemo(
     () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
     [attachments],
-  );
-  const failedUploadsCount = useMemo(
-    () =>
-      Object.values(fileUploads).filter((upload) => upload.state === 'failed').length +
-      Object.values(imageUploads).filter((upload) => upload.state === 'failed').length,
-    [fileUploads, imageUploads],
   );
 
   const accept = useMemo(
@@ -186,10 +178,9 @@ export const MessageInputFlat = <
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
             {isUploadEnabled &&
-              !!(
-                numberOfUploads + failedUploadsCount ||
-                (attachments.length && attachments.length !== linkPreviews.size)
-              ) && <AttachmentPreviewList />}
+              !!(numberOfUploads + failedUploadsCount || attachments.length > 0) && (
+                <AttachmentPreviewList />
+              )}
 
             <div className='str-chat__message-textarea-with-emoji-picker'>
               <ChatAutoComplete />
@@ -210,7 +201,7 @@ export const MessageInputFlat = <
                     disabled={
                       !numberOfUploads &&
                       !text.length &&
-                      attachments.length - failedAttachmentsCount === 0
+                      attachments.length - failedUploadsCount === 0
                     }
                     sendMessage={handleSubmit}
                   />

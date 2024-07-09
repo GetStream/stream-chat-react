@@ -3,42 +3,6 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type AttachmentLoadingState = 'uploading' | 'finished' | 'failed';
 
-export type FileUpload = {
-  file: {
-    name: string;
-    lastModified?: number;
-    lastModifiedDate?: Date;
-    size?: number;
-    type?: string;
-    uri?: string;
-  };
-  id: string;
-  state: AttachmentLoadingState;
-  thumb_url?: string;
-  url?: string;
-};
-export type ImageUpload<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = {
-  file: {
-    name: string;
-    height?: number;
-    lastModified?: number;
-    lastModifiedDate?: Date;
-    size?: number;
-    type?: string;
-    uri?: string;
-    width?: number;
-  };
-  id: string;
-  state: AttachmentLoadingState;
-  previewUri?: string;
-  url?: string;
-} & Pick<
-  Attachment<StreamChatGenerics>,
-  'og_scrape_url' | 'title' | 'title_link' | 'author_name' | 'text'
->;
-
 export enum LinkPreviewState {
   /** Link preview has been dismissed using MessageInputContextValue.dismissLinkPreview **/
   DISMISSED = 'dismissed',
@@ -196,3 +160,12 @@ export type LocalAttachment<
   | LocalAudioAttachment<StreamChatGenerics>
   | LocalVideoAttachment<StreamChatGenerics>
   | LocalVoiceRecordingAttachment<StreamChatGenerics>;
+
+export type LocalAttachmentToUpload<
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
+  CustomLocalMetadata = Record<string, unknown>
+> = Partial<Attachment<StreamChatGenerics>> & {
+  localMetadata: Partial<BaseLocalAttachmentMetadata> &
+    LocalAttachmentUploadMetadata &
+    CustomLocalMetadata;
+};

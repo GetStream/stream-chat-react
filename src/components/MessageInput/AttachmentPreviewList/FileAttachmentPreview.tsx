@@ -1,13 +1,15 @@
 import React from 'react';
 import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
+import { useTranslationContext } from '../../../context';
+
 import type { AttachmentPreviewProps } from './types';
 import { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';
-import { useTranslationContext } from '../../../context';
 
 type FileLikeAttachment = {
   asset_url?: string;
+  file_size?: number;
   mime_type?: string;
   title?: string;
 };
@@ -62,11 +64,13 @@ export const FileAttachmentPreview = <
         </div>
         {attachment.localMetadata?.uploadState === 'finished' && !!attachment.asset_url && (
           <a
+            aria-label={t('aria/Download attachment')}
             className='str-chat__attachment-preview-file-download'
             download
             href={attachment.asset_url}
             rel='noreferrer'
             target='_blank'
+            title={t('Download attachment {{ name }}', { name: attachment.title })}
           >
             <DownloadIcon />
           </a>

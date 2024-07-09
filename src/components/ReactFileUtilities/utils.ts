@@ -98,6 +98,9 @@ const extractImageSources = (s: string) => {
   return Array.from(imageTags, (tag) => tag.src).filter((tag) => tag);
 };
 
+export const isBlobButNotFile = (obj: unknown): obj is Blob =>
+  obj instanceof Blob && !(obj instanceof File);
+
 export const createFileFromBlobs = ({
   blobsArray,
   fileName,
@@ -134,3 +137,6 @@ export const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> =>
 
     fileReader.readAsArrayBuffer(file);
   });
+
+export const generateFileName = (mimeType: string) =>
+  `file_${new Date().toISOString()}.${getExtensionFromMimeType(mimeType)}`;
