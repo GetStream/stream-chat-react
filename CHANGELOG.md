@@ -27,6 +27,13 @@ TypingIndicator is rendered as a child of MessageListMainPanel
 
 * remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([9410153](https://github.com/GetStream/stream-chat-react/commit/94101535d1de9de23a1ab8913423af0e7009bab9))
 
+## [11.23.2](https://github.com/GetStream/stream-chat-react/compare/v11.23.1...v11.23.2) (2024-07-10)
+
+
+### Bug Fixes
+
+* reflect Message groupStyles prop in the component memoization ([#2448](https://github.com/GetStream/stream-chat-react/issues/2448)) ([251eb08](https://github.com/GetStream/stream-chat-react/commit/251eb08a637b32851b50795db2505c75fd6ece19))
+
 ## [11.23.1](https://github.com/GetStream/stream-chat-react/compare/v11.23.0...v11.23.1) (2024-07-08)
 
 
