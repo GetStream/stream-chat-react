@@ -316,6 +316,7 @@ export const areMessageUIPropsEqual = <
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
   if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
+  if (prevProps.groupStyles !== nextProps.groupStyles) return false;
 
   if (prevProps.showDetailedReactions !== nextProps.showDetailedReactions) {
     return false;
