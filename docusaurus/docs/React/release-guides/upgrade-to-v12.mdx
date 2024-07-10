@@ -6,12 +6,20 @@ keywords: [migration guide, upgrade, v12, breaking changes]
 
 ## Audio recordings transcoding
 
-Until now, the audio recordings were transcoded to `audio/mp3` format for inter-browser compatibility and size reduction. However, as of the v12, the MIME type `audio/wav` will be the default. The mp3 encoder used by the library is licensed under LGPL and integrators will have to opt-in to using the library in their apps.
+Until now, the audio recordings were transcoded to `audio/mp3` format for inter-browser compatibility and size reduction. However, as of the v12, the MIME type `audio/wav` will be the default. The MP3 encoder use is opt-in from now on.
 
 :::important
 **Action required**<br/>
 
 1. The library `@breezystack/lamejs` has to be installed as this is a peer dependency to `stream-chat-react`.
+
+```shell
+npm install @breezystack/lamejs
+```
+
+```shell
+yarn add @breezystack/lamejs
+```
 
 2. The MP3 encoder has to be imported separately as a plugin:
 
