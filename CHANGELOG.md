@@ -1,3 +1,34 @@
+## [12.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.2...v12.0.0-rc.3) (2024-07-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* MP3 audio encoder has to be explicitly imported and
+used as a plugin for audio recordings. The default audio recording
+format is audio/wav.
+* @breezystack/lamejs became a peer dependency and has to
+be installed by the integrator so that the MP3 audio encoder can work
+properly.
+* Removed fileOrder, imageOrder, fileUploads,
+imageUploads, uploadFile, uploadImage, removeFile, removeImage from the
+MessageInputContext. Use attachments, uploadAttachment, uploadNewFiles, upsertAttachments, removeAttachments instead.
+* Removed default values for timestamp formatting props
+like calendar or format for DateSeparator, EventComponent,
+MessageTimestamp. The formatting configuration now entirely relies on
+i18n translations.
+
+### Bug Fixes
+
+* acknowledge the use of LAME ([dbce6dc](https://github.com/GetStream/stream-chat-react/commit/dbce6dc551d182d9975f17006ea08ff1ca38f4ff))
+* extract MP3 encoder plugin ([#2447](https://github.com/GetStream/stream-chat-react/issues/2447)) ([625196f](https://github.com/GetStream/stream-chat-react/commit/625196f38fc0666f66492905584933da656afef0))
+* reflect Message groupStyles prop in the component memoization ([#2448](https://github.com/GetStream/stream-chat-react/issues/2448)) ([251eb08](https://github.com/GetStream/stream-chat-react/commit/251eb08a637b32851b50795db2505c75fd6ece19))
+
+
+### Features
+
+* keep attachments array and remove file and image uploads in MessageInput state ([#2445](https://github.com/GetStream/stream-chat-react/issues/2445)) ([238e801](https://github.com/GetStream/stream-chat-react/commit/238e801f3ecd1997017ad56e7a24b52d81acb1a0))
+* remove default timestamp formatting props from DateSeparator, EventComponent, MessageTimestamp ([#2442](https://github.com/GetStream/stream-chat-react/issues/2442)) ([6431954](https://github.com/GetStream/stream-chat-react/commit/64319549249503c0381a8834e17dd3e8befeb953))
+
 ## [12.0.0-rc.2](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.1...v12.0.0-rc.2) (2024-06-21)
 
 
