@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MessageInputContextValue, useTranslationContext } from '../../../context';
-import { AudioRecorderConfig, MediaRecorderController, MediaRecordingState } from '../classes';
+import {
+  CustomAudioRecordingConfig,
+  MediaRecorderController,
+  MediaRecordingState,
+} from '../classes';
 
 import type { LocalVoiceRecordingAttachment } from '../../MessageInput';
 import type { DefaultStreamChatGenerics } from '../../../types';
-
-export type CustomAudioRecordingConfig = Partial<AudioRecorderConfig>;
 
 export type RecordingController<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

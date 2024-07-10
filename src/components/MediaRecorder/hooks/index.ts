@@ -1,1 +1,1 @@
-export type { CustomAudioRecordingConfig, RecordingController } from './useMediaRecorder';
+export type { RecordingController } from './useMediaRecorder';

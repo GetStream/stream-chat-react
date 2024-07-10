@@ -1,4 +1,7 @@
-import { renderAudio, toAudioBuffer } from './audioProcessing';
+import {
+  renderAudio,
+  toAudioBuffer,
+} from '../../components/MediaRecorder/transcode/audioProcessing';
 
 const ENCODING_BIT_RATE = 128; // kbps;
 const COUNT_SAMPLES_PER_ENCODED_BLOCK = 1152;

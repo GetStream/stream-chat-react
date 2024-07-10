@@ -7,7 +7,7 @@ import {
 } from './AmplitudeRecorder';
 import { BrowserPermission } from './BrowserPermission';
 import { BehaviorSubject, Subject } from '../observable';
-import { transcode } from '../transcode';
+import { transcode, TranscoderConfig } from '../transcode';
 import { resampleWaveformData } from '../../Attachment';
 import {
   createFileFromBlobs,
@@ -30,8 +30,6 @@ const RECORDED_MIME_TYPE_BY_BROWSER = {
   },
 } as const;
 
-export const POSSIBLE_TRANSCODING_MIME_TYPES = ['audio/wav', 'audio/mp3'] as const;
-
 export const DEFAULT_MEDIA_RECORDER_CONFIG: MediaRecorderConfig = {
   mimeType: isSafari()
     ? RECORDED_MIME_TYPE_BY_BROWSER.audio.safari
@@ -40,7 +38,6 @@ export const DEFAULT_MEDIA_RECORDER_CONFIG: MediaRecorderConfig = {
 
 export const DEFAULT_AUDIO_TRANSCODER_CONFIG: TranscoderConfig = {
   sampleRate: 16000,
-  targetMimeType: 'audio/mp3',
 } as const;
 
 const disposeOfMediaStream = (stream?: MediaStream) => {
@@ -53,15 +50,6 @@ const disposeOfMediaStream = (stream?: MediaStream) => {
 
 const logError = (e?: Error) => e && console.error('[MEDIA RECORDER ERROR]', e);
 
-type SupportedTranscodeMimeTypes = typeof POSSIBLE_TRANSCODING_MIME_TYPES[number];
-
-export type TranscoderConfig = {
-  // defaults to 16000Hz
-  sampleRate: number;
-  // Defaults to audio/mp3;
-  targetMimeType: SupportedTranscodeMimeTypes;
-};
-
 type MediaRecorderConfig = Omit<MediaRecorderOptions, 'mimeType'> &
   Required<Pick<MediaRecorderOptions, 'mimeType'>>;
 
@@ -71,8 +59,12 @@ export type AudioRecorderConfig = {
   transcoderConfig: TranscoderConfig;
 };
 
+type PartialValues<T> = { [P in keyof T]?: Partial<T[P]> };
+
+export type CustomAudioRecordingConfig = PartialValues<AudioRecorderConfig>;
+
 export type AudioRecorderOptions = {
-  config?: Partial<AudioRecorderConfig>;
+  config?: CustomAudioRecordingConfig;
   generateRecordingTitle?: (mimeType: string) => string;
   t?: TranslationContextValue['t'];
 };
@@ -135,9 +127,6 @@ export class MediaRecorderController<
       { ...config?.transcoderConfig },
       DEFAULT_AUDIO_TRANSCODER_CONFIG,
     );
-    if (!POSSIBLE_TRANSCODING_MIME_TYPES.includes(this.transcoderConfig.targetMimeType)) {
-      this.transcoderConfig.targetMimeType = DEFAULT_AUDIO_TRANSCODER_CONFIG.targetMimeType;
-    }
 
     const mediaType = getRecordedMediaTypeFromMimeType(this.mediaRecorderConfig.mimeType);
     if (!mediaType) {

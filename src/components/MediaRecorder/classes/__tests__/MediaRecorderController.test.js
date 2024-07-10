@@ -1,5 +1,6 @@
 import fixWebmDuration from 'fix-webm-duration';
 import * as transcoder from '../../transcode';
+import * as wavTranscoder from '../../transcode/wav';
 import {
   DEFAULT_AUDIO_TRANSCODER_CONFIG,
   DEFAULT_MEDIA_RECORDER_CONFIG,
@@ -25,17 +26,19 @@ jest.mock('nanoid', () => ({
   nanoid: () => nanoidMockValue,
 }));
 
-jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
+jest
+  .spyOn(wavTranscoder, 'encodeToWaw')
+  .mockImplementation((file) => Promise.resolve(new Blob([file], { type: 'audio/wav' })));
 
-const transcodeSpy = jest
-  .spyOn(transcoder, 'transcode')
-  .mockImplementation((opts) =>
-    Promise.resolve(new Blob([opts.blob], { type: opts.targetMimeType })),
-  );
+const mp3EncoderMock = jest.fn((file) => Promise.resolve(new Blob([file], { type: 'audio/mp3' })));
+
+jest.mock('fix-webm-duration', () => jest.fn((blob) => blob));
 
 jest.spyOn(audioSampling, 'resampleWaveformData').mockReturnValue(dataPoints);
 
-jest.spyOn(reactFileUtils, 'createFileFromBlobs').mockReturnValue(fileMock);
+const createFileFromBlobsSpy = jest
+  .spyOn(reactFileUtils, 'createFileFromBlobs')
+  .mockReturnValue(fileMock);
 
 const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 const expectRegistersError = async ({ action, controller, errorMsg, notificationMsg }) => {
@@ -457,6 +460,12 @@ describe('MediaRecorderController', () => {
       ['transcodes', 'audio/webm'],
       ['transcodes', 'audio/ogg'],
     ])('%s recording of MIME type %s', async (_, mimeType) => {
+      const transcodeSpy = jest
+        .spyOn(transcoder, 'transcode')
+        .mockImplementation((opts) =>
+          Promise.resolve(new Blob([opts.blob], { type: 'audio/wav' })),
+        );
+
       const controller = new MediaRecorderController({
         config: { mediaRecorderConfig: { mimeType } },
       });
@@ -467,12 +476,13 @@ describe('MediaRecorderController', () => {
       } else {
         expect(transcodeSpy).toHaveBeenCalledTimes(1);
       }
+      transcodeSpy.mockRestore();
     });
 
     it.each([
       ['audio/mp4', 'audio/mp4'],
-      ['audio/mp3', 'audio/webm'],
-      ['audio/mp3', 'audio/ogg'],
+      ['audio/wav', 'audio/webm'],
+      ['audio/wav', 'audio/ogg'],
     ])(
       'generates recording of MIME type %s for original recording of MIME type %s',
       async (targetMimeType, recordedMimeType) => {
@@ -484,6 +494,9 @@ describe('MediaRecorderController', () => {
           new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
         ];
         controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
+        const recordedFile = new File(controller.recordedData, fileMock);
+        createFileFromBlobsSpy.mockReturnValue(recordedFile);
+
         const recording = await controller.makeVoiceRecording();
 
         expect(recording).toStrictEqual(
@@ -492,16 +505,98 @@ describe('MediaRecorderController', () => {
             duration: dataPoints.reduce((acc, n) => acc + n),
             file_size: recordedChunkCount,
             localMetadata: {
-              file: fileMock,
+              file: recordedFile,
               id: nanoidMockValue,
             },
             mime_type: targetMimeType,
-            title: fileMock.name,
+            title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
             waveform_data: dataPoints,
           }),
         );
+        createFileFromBlobsSpy.mockReturnValue(fileMock);
       },
     );
+
+    it.each([
+      ['audio/mp3', 'audio/webm'],
+      ['audio/mp3', 'audio/ogg'],
+    ])(
+      'executes the custom MP3 encoder for MIME type %s',
+      async (targetMimeType, recordedMimeType) => {
+        const controller = new MediaRecorderController({
+          config: {
+            mediaRecorderConfig: { mimeType: recordedMimeType },
+            transcoderConfig: { encoder: mp3EncoderMock },
+          },
+        });
+
+        controller.recordedData = [
+          new Blob(new Uint8Array(dataPoints), { type: recordedMimeType }),
+        ];
+        controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
+        const recordedFile = new File(controller.recordedData, fileMock);
+        createFileFromBlobsSpy.mockReturnValue(recordedFile);
+
+        const recording = await controller.makeVoiceRecording();
+
+        expect(mp3EncoderMock).toHaveBeenCalledWith(
+          recordedFile,
+          DEFAULT_AUDIO_TRANSCODER_CONFIG.sampleRate,
+        );
+        expect(recording).toStrictEqual(
+          expect.objectContaining({
+            asset_url: fileObjectURL,
+            duration: dataPoints.reduce((acc, n) => acc + n),
+            file_size: recordedChunkCount,
+            localMetadata: {
+              file: recordedFile,
+              id: nanoidMockValue,
+            },
+            mime_type: targetMimeType,
+            title: recordedFile.name,
+            type: RecordingAttachmentType.VOICE_RECORDING,
+            waveform_data: dataPoints,
+          }),
+        );
+        createFileFromBlobsSpy.mockReturnValue(fileMock);
+      },
+    );
+
+    it('does not executed custom encoder for MIME type audio/mp4', async () => {
+      const targetMimeType = 'audio/mp4';
+      const recordedMimeType = 'audio/mp4';
+      const controller = new MediaRecorderController({
+        config: {
+          mediaRecorderConfig: { mimeType: recordedMimeType },
+          transcoderConfig: { encoder: mp3EncoderMock },
+        },
+      });
+
+      controller.recordedData = [new Blob(new Uint8Array(dataPoints), { type: recordedMimeType })];
+      controller.recordedChunkDurations = dataPoints.map((n) => n * 1000);
+      const recordedFile = new File(controller.recordedData, fileMock);
+      createFileFromBlobsSpy.mockReturnValue(recordedFile);
+
+      const recording = await controller.makeVoiceRecording();
+
+      expect(mp3EncoderMock).not.toHaveBeenCalled();
+      expect(recording).toStrictEqual(
+        expect.objectContaining({
+          asset_url: fileObjectURL,
+          duration: dataPoints.reduce((acc, n) => acc + n),
+          file_size: recordedChunkCount,
+          localMetadata: {
+            file: recordedFile,
+            id: nanoidMockValue,
+          },
+          mime_type: targetMimeType,
+          title: recordedFile.name,
+          type: RecordingAttachmentType.VOICE_RECORDING,
+          waveform_data: dataPoints,
+        }),
+      );
+      createFileFromBlobsSpy.mockReturnValue(fileMock);
+    });
   });
 });

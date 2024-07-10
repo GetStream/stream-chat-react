@@ -6,7 +6,7 @@ import Picker from '@emoji-mart/react';
 import type { Options } from '@popperjs/core';
 
 import { useMessageInputContext, useTranslationContext } from '../../context';
-import { EmojiPickerIcon } from '../MessageInput/icons';
+import { EmojiPickerIcon } from './icons';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
