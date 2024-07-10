@@ -1,3 +1,10 @@
+## [11.23.2](https://github.com/GetStream/stream-chat-react/compare/v11.23.1...v11.23.2) (2024-07-10)
+
+
+### Bug Fixes
+
+* reflect Message groupStyles prop in the component memoization ([#2448](https://github.com/GetStream/stream-chat-react/issues/2448)) ([251eb08](https://github.com/GetStream/stream-chat-react/commit/251eb08a637b32851b50795db2505c75fd6ece19))
+
 ## [11.23.1](https://github.com/GetStream/stream-chat-react/compare/v11.23.0...v11.23.1) (2024-07-08)
 
 
