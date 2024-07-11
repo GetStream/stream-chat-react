@@ -1,3 +1,10 @@
+## [12.0.0-rc.4](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.3...v12.0.0-rc.4) (2024-07-11)
+
+
+### Bug Fixes
+
+* export typeVersions correctly for emojis and mp3-encoder ([#2449](https://github.com/GetStream/stream-chat-react/issues/2449)) ([17218db](https://github.com/GetStream/stream-chat-react/commit/17218dba4fedbbfbf17bb49ec6df0271671488f4))
+
 ## [12.0.0-rc.3](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.2...v12.0.0-rc.3) (2024-07-10)
 
 
