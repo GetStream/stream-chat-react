@@ -48,7 +48,10 @@
   "typesVersions": {
     "*": {
       "emojis": [
-        "./dist/components/Emojis/index.d.ts"
+        "./dist/plugins/Emojis/index.d.ts"
+      ],
+      "mp3-encoder": [
+        "./dist/plugins/encoders/mp3.d.ts"
       ]
     }
   },
