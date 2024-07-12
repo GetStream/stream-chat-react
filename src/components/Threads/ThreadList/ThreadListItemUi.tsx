@@ -1,5 +1,4 @@
 import React from 'react';
-import clsx from 'clsx';
 
 import type { InferStoreValueType, Thread } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
@@ -13,18 +12,12 @@ import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
 export type ThreadListItemUiProps = ComponentPropsWithoutRef<'button'>;
 
-// Bl - business logic
-// Ui - user interface
-
 /**
  * TODO:
- * - add selected class name "str-chat__thread-list-item--selected"
  * - maybe hover state? ask design
  * - move styling to CSS library and clean it up (separate layout and theme)
- * - figure out why some data is unavailable/adjust types accordingly
  * - use Moment/DayJs for proper created_at formatting (replace toLocaleTimeString)
  * - handle deleted message [in progress]
- * - handle markRead when loading a thread
  */
 
 const selector = (nextValue: InferStoreValueType<Thread>) =>
@@ -77,24 +70,22 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
 
   return (
     <button
-      className={clsx('str-chat__thread-list-item', {
-        'str-chat__thread-list-item--active': activeThread === thread,
-      })}
+      aria-selected={activeThread === thread}
+      className='str-chat__thread-list-item'
       onPointerDown={() => setActiveThread(thread)}
       {...props}
     >
       <div className='str-chat__thread-list-item__channel'>
-        <Icon.MessageBubble className='str-chat__thread-list-item__channel-icon' />
+        <Icon.MessageBubble />
         <div className='str-chat__thread-list-item__channel-text'>{channelData?.name || 'N/A'}</div>
       </div>
       <div className='str-chat__thread-list-item__parent-message'>
         <div className='str-chat__thread-list-item__parent-message-text'>
+          {/* TODO: use thread.title instead */}
           replied to: {parentMessage?.text || 'Unknown message'}
         </div>
         {unreadMessagesCount > 0 && !deletedAt && (
-          <div className='str-chat__thread-list-item__parent-message-unread-count'>
-            {unreadMessagesCount}
-          </div>
+          <div className='str-chat__thread-list-item__unread-count'>{unreadMessagesCount}</div>
         )}
       </div>
       <div className='str-chat__thread-list-item__latest-reply'>

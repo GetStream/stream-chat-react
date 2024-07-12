@@ -148,9 +148,10 @@ const ChatViewSelector = () => {
         role='tab'
       >
         <Icon.MessageBubble />
-        <div className='str-chat__chat-view__selector-button-text'>
-          Threads {unreadThreadsCount}
-        </div>
+        {unreadThreadsCount > 0 && (
+          <div className='str-chat__unread-count-badge'>{unreadThreadsCount}</div>
+        )}
+        <div className='str-chat__chat-view__selector-button-text'>Threads</div>
       </button>
     </div>
   );
