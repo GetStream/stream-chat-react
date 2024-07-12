@@ -1,17 +1,15 @@
 import React from 'react';
-import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat, UR } from 'stream-chat';
+import { ChannelFilters, ChannelOptions, ChannelSort, StreamChat } from 'stream-chat';
 import {
-  Chat,
   Channel,
   ChannelHeader,
   ChannelList,
-  VirtualizedMessageList as MessageList,
+  Chat,
   MessageInput,
   Thread,
+  VirtualizedMessageList as MessageList,
   Window,
 } from 'stream-chat-react';
-
-import './App.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
