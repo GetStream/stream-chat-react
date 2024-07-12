@@ -7,64 +7,48 @@ import { Window } from '../Window';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { generateMessage } from '../../../mock-builders';
 
-const renderComponent = ({ channelStateContextMock, children, props }) =>
+const renderComponent = ({ channelStateContextMock, props }) =>
   render(
-    <ChannelStateProvider value={channelStateContextMock}>
-      <Window {...props}>{children}</Window>
+    <ChannelStateProvider value={channelStateContextMock ?? {}}>
+      <Window {...props} />
     </ChannelStateProvider>,
   );
 
 const thread = generateMessage();
-const HIDE_CLASS_NAME = 'str-chat__main-panel--hideOnThread';
+const THREAD_OPEN_CLASS_NAME = 'str-chat__main-panel--thread-open';
 
 describe('Window', () => {
-  it('should render its children if hideOnThread is false and thread is truthy', () => {
-    const { getByText } = renderComponent({
+  it.each([
+    ['add', thread],
+    ['', undefined],
+  ])('should %s class str-chat__main-panel--thread-open when thread is open', (_, thread) => {
+    const { container } = renderComponent({
       channelStateContextMock: {
         thread,
       },
-      children: [<div key='bla'>bla</div>],
-      props: { hideOnThread: false },
     });
-
-    expect(getByText('bla')).toBeInTheDocument();
+    if (thread) {
+      expect(container.firstChild).toHaveClass(THREAD_OPEN_CLASS_NAME);
+    } else {
+      expect(container.firstChild).not.toHaveClass(THREAD_OPEN_CLASS_NAME);
+    }
   });
 
-  it('should render its children if hideOnThread is true and thread is falsy', () => {
-    const { getByText } = renderComponent({
-      channelStateContextMock: {
-        thread: undefined,
-      },
-      children: [<div key='bla'>bla</div>],
-      props: { hideOnThread: true },
-    });
-
-    expect(getByText('bla')).toBeInTheDocument();
-  });
   it.each([
-    ['not add', 'truthy', 'falsy', 'falsy', true, undefined, undefined],
-    ['add', 'truthy', 'truthy', 'falsy', true, thread, undefined],
-    ['add', 'truthy', 'falsy', 'truthy', true, undefined, thread],
-    ['add', 'truthy', 'truthy', 'truthy', true, thread, thread],
-    ['not add', 'falsy', 'falsy', 'falsy', false, undefined, undefined],
-    ['not add', 'falsy', 'truthy', 'falsy', false, thread, undefined],
-    ['not add', 'falsy', 'falsy', 'truthy', false, undefined, thread],
-    ['not add', 'falsy', 'truthy', 'truthy', false, thread, thread],
+    ['add', thread],
+    ['', undefined],
   ])(
-    'should %s class str-chat__main-panel--hideOnThread if hideOnThread is %s, prop thread is %s, context thread is %s',
-    (expectation, _, __, ___, hideOnThread, propThread, contextThread) => {
+    'should %s class str-chat__main-panel--thread-open when thread is passed via prop',
+    (_, thread) => {
       const { container } = renderComponent({
-        channelStateContextMock: {
-          thread: contextThread,
-        },
-        children: [<div key='bla'>bla</div>],
-        props: { hideOnThread, thread: propThread },
+        props: { thread },
       });
 
-      if (expectation === 'add')
-        expect(container.querySelector(`.${HIDE_CLASS_NAME}`)).toBeInTheDocument();
-      if (expectation === 'not add')
-        expect(container.querySelector(`.${HIDE_CLASS_NAME}`)).not.toBeInTheDocument();
+      if (thread) {
+        expect(container.firstChild).toHaveClass(THREAD_OPEN_CLASS_NAME);
+      } else {
+        expect(container.firstChild).not.toHaveClass(THREAD_OPEN_CLASS_NAME);
+      }
     },
   );
 });
