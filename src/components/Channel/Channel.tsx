@@ -1052,6 +1052,17 @@ const ChannelInner = <
           errorStatusCode: parsedError.status || undefined,
           status: 'failed',
         });
+
+        if (thread.channel)
+          thread.upsertReply({
+            // @ts-expect-error
+            message: {
+              ...message,
+              error: parsedError,
+              errorStatusCode: parsedError.status || undefined,
+              status: 'failed',
+            },
+          });
       }
     }
   };

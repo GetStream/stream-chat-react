@@ -98,8 +98,11 @@ export type ComponentContextValue<
   ThreadHead?: React.ComponentType<MessageProps<StreamChatGenerics>>;
   ThreadHeader?: React.ComponentType<ThreadHeaderProps<StreamChatGenerics>>;
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
+  ThreadListEmptyPlaceholder?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUi?: React.ComponentType<ThreadListItemUiProps>;
+  ThreadListLoadingIndicator?: React.ComponentType;
+  ThreadListUnseenThreadsBanner?: React.ComponentType;
   ThreadStart?: React.ComponentType;
   Timestamp?: React.ComponentType<TimestampProps>;
   TriggerProvider?: React.ComponentType;

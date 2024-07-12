@@ -71,12 +71,7 @@ export const Thread = <
 };
 
 const selector = (nextValue: InferStoreValueType<ThreadType>) =>
-  [
-    nextValue.latestReplies,
-    nextValue.loadingPreviousPage,
-    nextValue.parentMessage,
-    nextValue.read,
-  ] as const;
+  [nextValue.latestReplies, nextValue.loadingPreviousPage, nextValue.parentMessage] as const;
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -186,8 +181,6 @@ const ThreadInner = <
         head={head}
         Message={MessageUIComponent}
         messageActions={messageActions}
-        // TODO: allow passing read object?
-        // read={read}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList
         {...threadProps}
