@@ -83,13 +83,16 @@ export const Header = <
   const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext<StreamChatGenerics>(
     'VirtualizedMessageListHeader',
   );
-  if (!context?.loadingMore) return null;
-  return LoadingIndicator ? (
-    <div className='str-chat__virtual-list__loading'>
-      <LoadingIndicator size={20} />
-    </div>
-  ) : (
-    context?.head || null
+
+  return (
+    <>
+      {context?.head}
+      {context?.loadingMore && LoadingIndicator && (
+        <div className='str-chat__virtual-list__loading'>
+          <LoadingIndicator size={20} />
+        </div>
+      )}
+    </>
   );
 };
 export const EmptyPlaceholder = <
@@ -138,6 +141,7 @@ export const messageRenderer = <
     shouldGroupByUser,
     sortReactionDetails,
     sortReactions,
+    threadList,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
     virtuosoRef,
@@ -225,6 +229,7 @@ export const messageRenderer = <
         readBy={ownMessagesReadByOthers[message.id] || []}
         sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
+        threadList={threadList}
       />
       {showUnreadSeparatorBelow && (
         <div className='str-chat__unread-messages-separator-wrapper'>
