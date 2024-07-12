@@ -153,7 +153,7 @@
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
-    "@stream-io/stream-chat-css": "5.0.0-rc.1",
+    "@stream-io/stream-chat-css": "5.0.0-rc.2",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/react-hooks": "^8.0.0",
