@@ -20,19 +20,34 @@ body,
   .str-chat__channel-list {
     position: fixed;
     z-index: 1;
+    height: 100%;
     width: 0;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);;
 
     &--open {
-      width: 100%;
+      width: 30%;
+      position: fixed;
     }
+    transition: width 0.3s ease-out;
   }
 
   .str-chat__channel {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .str-chat__main-panel {
+    min-width: 0;
+    flex: 1;
+
+    &--thread-open {
+      display: none;
+    }
   }
 
   .str-chat__thread {
-    width: 100%;
+    flex: 1;
     height: 100%;
     position: fixed;
     z-index: 1;
@@ -57,27 +72,10 @@ body,
     }
   }
 
-  @media screen and (min-width: 768px) {
-    //.str-chat__channel-list.thread-open {
-    //  &.menu-open {
-    //    width: 30%;
-    //    height: 100%;
-    //    position: fixed;
-    //    z-index: 1;
-    //  }
-    //
-    //  &.menu-close {
-    //    width: 0;
-    //  }
-    //
-    //  & + .channel .menu-button {
-    //    display: block;
-    //  }
-    //}
 
+  @media screen and (min-width: 768px) {
     .str-chat__channel-list {
       width: 30%;
-      max-width: 420px;
       position: initial;
       z-index: 0;
     }
@@ -85,20 +83,25 @@ body,
     .str-chat__thread {
       position: initial;
       z-index: 0;
+    }
+
+    .str-chat__channel-header .str-chat__header-hamburger {
+      display: none;
     }
   }
 
   @media screen and (min-width: 1024px) {
-    //.str-chat__channel-list {
-    //  max-width: 420px;
-    //  position: initial;
-    //  z-index: 0;
-    //}
+    .str-chat__main-panel {
+      min-width: 0;
+
+      &--thread-open {
+        max-width: 55%;
+        display: flex;
+      }
+    }
 
     .str-chat__thread {
-      width: 45%;
-      //position: initial;
-      //z-index: 0;
+      max-width: 45%;
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {

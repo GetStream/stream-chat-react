@@ -284,16 +284,6 @@ describe('Thread', () => {
     );
   });
 
-  it('should assign the str-chat__thread--full modifier class if the fullWidth prop is set to true', () => {
-    const { container } = renderComponent({ chatClient, threadProps: { fullWidth: true } });
-    expect(container.querySelector('.str-chat__thread--full')).toBeInTheDocument();
-  });
-
-  it('should not assign the str-chat__thread--full modifier class if the fullWidth prop is set to false', () => {
-    const { container } = renderComponent({ chatClient });
-    expect(container.querySelector('.str-chat__thread--full')).not.toBeInTheDocument();
-  });
-
   it('should assign str-chat__thread--virtualized class to the root in virtualized mode', () => {
     const { container } = renderComponent({
       chatClient,
