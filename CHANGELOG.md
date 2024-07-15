@@ -1,3 +1,15 @@
+## [12.0.0-rc.5](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.4...v12.0.0-rc.5) (2024-07-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* removed Thread prop fullWidth, removed class str-chat__thread--full
+* removed Window prop hideOnThread, replaced class str-chat__main-panel--hideOnThread with str-chat__main-panel--thread-open
+
+### Features
+
+* remove fullWidth prop from Thread & hideOnThread prop from Window ([#2450](https://github.com/GetStream/stream-chat-react/issues/2450)) ([32c8fc0](https://github.com/GetStream/stream-chat-react/commit/32c8fc08d3b6798cf0c9717200724b4b78a82e56))
+
 ## [12.0.0-rc.4](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.3...v12.0.0-rc.4) (2024-07-11)
 
 
