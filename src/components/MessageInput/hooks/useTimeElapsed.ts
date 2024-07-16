@@ -10,6 +10,7 @@ export const useTimeElapsed = ({ startOnMount }: UseTimeElapsedParams = {}) => {
   const updateInterval = useRef<ReturnType<typeof setInterval>>();
 
   const startCounter = useCallback(() => {
+    if (updateInterval.current) return;
     updateInterval.current = setInterval(() => {
       setSecondsElapsed((prev) => prev + 1);
     }, 1000);
@@ -17,17 +18,16 @@ export const useTimeElapsed = ({ startOnMount }: UseTimeElapsedParams = {}) => {
 
   const stopCounter = useCallback(() => {
     clearInterval(updateInterval.current);
+    updateInterval.current = undefined;
   }, []);
 
   useEffect(() => {
     if (!startOnMount) return;
-    updateInterval.current = setInterval(() => {
-      setSecondsElapsed((prev) => prev + 1);
-    }, 1000);
+    startCounter();
     return () => {
       stopCounter();
     };
-  }, [startOnMount, stopCounter]);
+  }, [startCounter, startOnMount, stopCounter]);
 
   return {
     secondsElapsed,
