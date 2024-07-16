@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
 import { ThreadProvider, useSimpleStateStore } from '../Threads';
 import { Icon } from '../Threads/icons';
+import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext } from '../../context';
 
 import type { PropsWithChildren } from 'react';
@@ -78,7 +80,6 @@ const useThreadBl = ({ thread }: { thread?: Thread }) => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && document.hasFocus()) {
         thread.activate();
-        thread.markAsRead();
       }
       if (document.visibilityState === 'hidden' || !document.hasFocus()) {
         thread.deactivate();
@@ -147,10 +148,9 @@ const ChatViewSelector = () => {
         onPointerDown={() => setActiveChatView('threads')}
         role='tab'
       >
-        <Icon.MessageBubble />
-        {unreadThreadsCount > 0 && (
-          <div className='str-chat__unread-count-badge'>{unreadThreadsCount}</div>
-        )}
+        <UnreadCountBadge count={unreadThreadsCount} position='top-right'>
+          <Icon.MessageBubble />
+        </UnreadCountBadge>
         <div className='str-chat__chat-view__selector-button-text'>Threads</div>
       </button>
     </div>
