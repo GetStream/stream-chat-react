@@ -1,10 +1,12 @@
 import React from 'react';
+import clsx from 'clsx';
 
-import type { InferStoreValueType, Thread } from 'stream-chat';
+import type { FormatMessageResponse, InferStoreValueType, Thread } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Avatar } from '../../Avatar';
 import { Icon } from '../icons';
+import { UnreadCountBadge } from '../UnreadCountBadge';
 import { useChatContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
@@ -37,6 +39,42 @@ export const attachmentTypeIconMap = {
   voiceRecording: '🎙️',
 } as const;
 
+// TODO: translations
+const getTitleFromMessage = ({
+  currentUserId,
+  message,
+}: {
+  currentUserId?: string;
+  message?: FormatMessageResponse;
+}) => {
+  const attachment = message?.attachments?.at(0);
+
+  let attachmentIcon = '';
+
+  if (attachment) {
+    attachmentIcon +=
+      attachmentTypeIconMap[(attachment.type as keyof typeof attachmentTypeIconMap) ?? 'file'] ??
+      attachmentTypeIconMap.file;
+  }
+
+  const messageBelongsToCurrentUser = message?.user?.id === currentUserId;
+
+  if (message?.deleted_at && message.parent_id)
+    return clsx(messageBelongsToCurrentUser && 'You:', 'This reply was deleted.');
+
+  if (message?.deleted_at && !message.parent_id)
+    return clsx(messageBelongsToCurrentUser && 'You:', 'The source message was deleted.');
+
+  if (attachment?.type === 'voiceRecording')
+    return clsx(attachmentIcon, messageBelongsToCurrentUser && 'You:', 'Voice message');
+
+  return clsx(
+    attachmentIcon,
+    messageBelongsToCurrentUser && 'You:',
+    message?.text || attachment?.fallback || 'N/A',
+  );
+};
+
 export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -52,22 +90,6 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
   const unreadMessagesCount = read[client.user!.id]?.unread_messages ?? 0;
   const avatarProps = deletedAt ? null : latestReply?.user;
 
-  // const getRepliedToTitle = () => {
-  //   const attachment = parentMessage?.attachments?.at(0);
-
-  //   let attachmentIcon = '';
-
-  //   if (attachment) {
-  //     attachmentIcon +=
-  //       attachmentTypeIconMap[attachment.type ?? 'file'] ?? attachmentTypeIconMap.file;
-  //   }
-
-  //   let text = ''
-
-  //   if (attachment?.type === 'audio') {text = 'Voice message'}
-  //   if (parentMessage?.text)
-  // };
-
   return (
     <button
       aria-selected={activeThread === thread}
@@ -81,12 +103,10 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
       </div>
       <div className='str-chat__thread-list-item__parent-message'>
         <div className='str-chat__thread-list-item__parent-message-text'>
-          {/* TODO: use thread.title instead */}
-          replied to: {parentMessage?.text || 'Unknown message'}
+          {/* TODO: use thread.title instead? */}
+          replied to: {getTitleFromMessage({ message: parentMessage })}
         </div>
-        {unreadMessagesCount > 0 && !deletedAt && (
-          <div className='str-chat__thread-list-item__unread-count'>{unreadMessagesCount}</div>
-        )}
+        {!deletedAt && <UnreadCountBadge count={unreadMessagesCount} />}
       </div>
       <div className='str-chat__thread-list-item__latest-reply'>
         <Avatar {...avatarProps} />
@@ -99,10 +119,8 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
           <div className='str-chat__thread-list-item__latest-reply-text-and-timestamp'>
             <div className='str-chat__thread-list-item__latest-reply-text'>
               {deletedAt
-                ? 'This thread has been deleted'
-                : latestReply?.deleted_at
-                ? 'This message has been deleted'
-                : latestReply?.text || 'N/A'}
+                ? 'This thread was deleted'
+                : getTitleFromMessage({ currentUserId: client.user?.id, message: latestReply })}
             </div>
             <div className='str-chat__thread-list-item__latest-reply-timestamp'>
               {deletedAt

@@ -6,7 +6,8 @@ import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
-const selector = (v: InferStoreValueType<ThreadManager>) => [v.unseenThreadIds] as const;
+const selector = (nextValue: InferStoreValueType<ThreadManager>) =>
+  [nextValue.unseenThreadIds] as const;
 
 export const ThreadListUnseenThreadsBanner = () => {
   const { client } = useChatContext();

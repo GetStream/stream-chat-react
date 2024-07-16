@@ -1054,7 +1054,7 @@ const ChannelInner = <
         });
 
         if (thread.channel)
-          thread.upsertReply({
+          thread.upsertReplyLocally({
             // @ts-expect-error
             message: {
               ...message,
@@ -1094,7 +1094,7 @@ const ChannelInner = <
     };
 
     // @ts-expect-error
-    if (thread.channel) thread.upsertReply({ message: messagePreview });
+    if (thread.channel) thread.upsertReplyLocally({ message: messagePreview });
 
     updateMessage(messagePreview);
 
