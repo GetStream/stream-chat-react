@@ -52,8 +52,12 @@ export const AudioRecordingInProgress = () => {
 
   useEffect(() => {
     if (!recorder?.mediaRecorder) return;
-
     const { mediaRecorder } = recorder;
+
+    if (mediaRecorder.state === 'recording') {
+      startCounter();
+    }
+
     mediaRecorder.addEventListener('start', startCounter);
     mediaRecorder.addEventListener('resume', startCounter);
     mediaRecorder.addEventListener('stop', stopCounter);
