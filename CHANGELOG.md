@@ -1,3 +1,10 @@
+## [11.23.3](https://github.com/GetStream/stream-chat-react/compare/v11.23.2...v11.23.3) (2024-07-22)
+
+
+### Bug Fixes
+
+* start audio recorder timer if already recording ([#2453](https://github.com/GetStream/stream-chat-react/issues/2453)) ([836917e](https://github.com/GetStream/stream-chat-react/commit/836917e3b231f3c1f30a98004bce367d37cf4a63))
+
 ## [11.23.2](https://github.com/GetStream/stream-chat-react/compare/v11.23.1...v11.23.2) (2024-07-10)
 
 
