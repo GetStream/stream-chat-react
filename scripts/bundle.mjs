@@ -35,7 +35,7 @@ const cjsBundleConfig = {
   entryPoints: [sdkEntrypoint, emojiEntrypoint, mp3EncoderEntrypoint],
   bundle: true,
   format: 'cjs',
-  platform: 'node',
+  platform: 'browser',
   target: 'es2020',
   external,
   outdir: outDir,
