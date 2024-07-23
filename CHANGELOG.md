@@ -1,3 +1,10 @@
+## [12.0.0-rc.7](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.6...v12.0.0-rc.7) (2024-07-23)
+
+
+### Bug Fixes
+
+* change platform for CJS bundle from node to browser ([#2454](https://github.com/GetStream/stream-chat-react/issues/2454)) ([4bc2d35](https://github.com/GetStream/stream-chat-react/commit/4bc2d3591900963290d87408279dc2b516206715))
+
 ## [12.0.0-rc.6](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.5...v12.0.0-rc.6) (2024-07-22)
 
 
