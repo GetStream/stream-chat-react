@@ -84,9 +84,11 @@ body,
       z-index: 0;
     }
 
-    .str-chat__thread {
-      position: initial;
-      z-index: 0;
+    .str-chat__chat-view__channels {
+      .str-chat__thread {
+        position: initial;
+        z-index: 0;
+      }
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {
@@ -104,12 +106,18 @@ body,
       }
     }
 
-    .str-chat__thread {
-      max-width: 45%;
+    .str-chat__chat-view__channels {
+      .str-chat__thread {
+        max-width: 45%;
+      }
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {
       display: none;
     }
+  }
+
+  .str-chat__thread-list-container {
+    max-width: 350px;
   }
 }
