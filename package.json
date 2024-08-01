@@ -77,7 +77,6 @@
     "fix-webm-duration": "^1.0.5",
     "hast-util-find-and-replace": "^5.0.1",
     "i18next": "^21.6.14",
-    "isomorphic-ws": "^4.0.1",
     "linkifyjs": "^4.1.0",
     "lodash.debounce": "^4.0.8",
     "lodash.defaultsdeep": "^4.6.1",
