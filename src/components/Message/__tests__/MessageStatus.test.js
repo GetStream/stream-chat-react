@@ -9,11 +9,12 @@ import {
   TranslationProvider,
 } from '../../../context';
 import { MessageStatus } from '../MessageStatus';
-import { getTestClientWithUser } from '../../../mock-builders';
+import { generateMessage, generateUser, getTestClientWithUser } from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
 const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-received';
 const MESSAGE_STATUS_READ_TEST_ID = 'message-status-read-by';
+const MESSAGE_STATUS_READ_COUNT_TEST_ID = 'message-status-read-by-many';
 
 const rootClassName = `str-chat__message-simple-status str-chat__message-status`;
 
@@ -32,6 +33,8 @@ const foreignMsg = {
   updated_at: '2024-05-28T15:13:20.900Z',
   user: null,
 };
+
+const ownMessage = generateMessage({ user });
 const errorMsg = { ...foreignMsg, type: 'error', user };
 const sendingMsg = { ...foreignMsg, status: 'sending', user };
 const deliveredMsg = { ...foreignMsg, user };
@@ -235,5 +238,32 @@ describe('MessageStatus', () => {
       expect(container.children[0]).not.toHaveClass('str-chat__message-simple-status');
       expect(container.children[0]).toHaveClass('str-chat__message-XXX-status');
     });
+  });
+
+  it('does not render count if read by own user only', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: { message: ownMessage, readBy: [user] },
+    });
+    expect(screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('does not render count if read by 1 other user', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: { message: ownMessage, readBy: [generateUser()] },
+    });
+    expect(screen.queryByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID)).not.toBeInTheDocument();
+  });
+
+  it('renders count if read by 2 other users', async () => {
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: { message: ownMessage, readBy: [generateUser(), generateUser()] },
+    });
+    expect(screen.getByTestId(MESSAGE_STATUS_READ_COUNT_TEST_ID)).toHaveTextContent('2');
   });
 });

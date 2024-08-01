@@ -70,9 +70,10 @@ const UnMemoizedMessageStatus = <
   const delivered = message.status === 'received' && message.id === lastReceivedId && !threadList;
   const deliveredAndRead = !!(readBy?.length && !threadList && !justReadByMe);
 
-  const [lastReadUser] = deliveredAndRead
+  const readersWithoutOwnUser = deliveredAndRead
     ? readBy.filter((item) => item.id !== client.user?.id)
     : [];
+  const [lastReadUser] = readersWithoutOwnUser;
 
   return (
     <span
@@ -149,12 +150,12 @@ const UnMemoizedMessageStatus = <
               user={lastReadUser}
             />
 
-            {readBy.length > 2 && (
+            {readersWithoutOwnUser.length > 1 && (
               <span
                 className={`str-chat__message-${messageType}-status-number`}
                 data-testid='message-status-read-by-many'
               >
-                {readBy.length - 1}
+                {readersWithoutOwnUser.length}
               </span>
             )}
           </>
