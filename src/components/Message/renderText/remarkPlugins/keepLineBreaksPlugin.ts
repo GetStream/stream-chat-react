@@ -2,11 +2,11 @@ import { visit, Visitor } from 'unist-util-visit';
 import { u } from 'unist-builder';
 
 import type { Break } from 'mdast';
-import type { Nodes } from 'react-markdown/lib';
+import type { Nodes } from 'hast-util-find-and-replace/lib';
 
 const visitor: Visitor = (node, index, parent) => {
-  if (typeof index === 'undefined' || index === 0) return;
-  if (typeof parent === 'undefined') return;
+  if (index === null || typeof index === 'undefined' || index === 0) return;
+  if (parent === null || typeof parent === 'undefined') return;
   if (!node.position) return;
 
   const prevSibling = parent.children.at(index - 1);

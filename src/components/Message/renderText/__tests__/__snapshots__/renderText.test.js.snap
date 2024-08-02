@@ -260,8 +260,6 @@ Array [
   "
 ",
   <blockquote>
-    
-
     <p>
       b
     </p>
@@ -551,8 +549,6 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
   
 
   <li>
-    
-
     <p>
       item 2
     </p>
@@ -576,8 +572,6 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
   
 
   <li>
-    
-
     <p>
       item 3
     </p>
@@ -619,8 +613,6 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
   
 
   <li>
-    
-
     <p>
       item 2
     </p>
@@ -644,8 +636,6 @@ exports[`keepLineBreaksPlugin present keeps line breaks between the items in an 
   
 
   <li>
-    
-
     <p>
       item 3
     </p>
