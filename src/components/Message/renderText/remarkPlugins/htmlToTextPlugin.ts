@@ -1,6 +1,6 @@
 import { visit, Visitor } from 'unist-util-visit';
 
-import type { Nodes } from 'react-markdown/lib';
+import type { Nodes } from 'hast-util-find-and-replace/lib';
 
 const visitor: Visitor = (node) => {
   if (node.type !== 'html') return;
