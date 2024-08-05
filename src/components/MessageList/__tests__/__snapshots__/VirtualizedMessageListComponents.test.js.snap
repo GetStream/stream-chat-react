@@ -50,6 +50,9 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render for main me
 
 exports[`VirtualizedMessageComponents Header should not render custom head in Header when loading more messages, but the LoadingIndicator 1`] = `
 <div>
+  <div>
+    Custom head
+  </div>
   <div
     class="str-chat__virtual-list__loading"
   >
