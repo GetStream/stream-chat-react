@@ -5,9 +5,7 @@ import type { Break } from 'mdast';
 import type { Nodes } from 'hast-util-find-and-replace/lib';
 
 const visitor: Visitor = (node, index, parent) => {
-  if (index === null || typeof index === 'undefined' || index === 0) return;
-  if (parent === null || typeof parent === 'undefined') return;
-  if (!node.position) return;
+  if (!(index && parent && node.position)) return;
 
   const prevSibling = parent.children.at(index - 1);
   if (!prevSibling?.position) return;
