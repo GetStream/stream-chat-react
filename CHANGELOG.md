@@ -1,3 +1,11 @@
+## [11.23.4](https://github.com/GetStream/stream-chat-react/compare/v11.23.3...v11.23.4) (2024-08-05)
+
+
+### Bug Fixes
+
+* downgrade react-markdown to v8 that supports React version < v18 ([#2461](https://github.com/GetStream/stream-chat-react/issues/2461)) ([5e6fea0](https://github.com/GetStream/stream-chat-react/commit/5e6fea0f6224c7266ef2eabc32c087cad81e3a8b))
+* prevent including own user in read count displayed in MessageStatus ([#2459](https://github.com/GetStream/stream-chat-react/issues/2459)) ([061d1a3](https://github.com/GetStream/stream-chat-react/commit/061d1a3eff7e029f9ce61e24206ed6497364b556))
+
 ## [11.23.3](https://github.com/GetStream/stream-chat-react/compare/v11.23.2...v11.23.3) (2024-07-22)
 
 
