@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 
-import type { FormatMessageResponse, InferStoreValueType, Thread } from 'stream-chat';
+import type { FormatMessageResponse, ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Avatar } from '../../Avatar';
@@ -22,7 +22,7 @@ export type ThreadListItemUiProps = ComponentPropsWithoutRef<'button'>;
  * - handle deleted message [in progress]
  */
 
-const selector = (nextValue: InferStoreValueType<Thread>) =>
+const selector = (nextValue: ThreadState) =>
   [
     nextValue.latestReplies.at(-1),
     nextValue.read,
@@ -94,7 +94,8 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
     <button
       aria-selected={activeThread === thread}
       className='str-chat__thread-list-item'
-      onPointerDown={() => setActiveThread(thread)}
+      onClick={() => setActiveThread(thread)}
+      role='option'
       {...props}
     >
       <div className='str-chat__thread-list-item__channel'>

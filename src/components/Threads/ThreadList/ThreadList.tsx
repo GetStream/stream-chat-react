@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ComputeItemKey, Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
-import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
+import type { Thread, ThreadManagerState } from 'stream-chat';
 
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
@@ -16,7 +16,7 @@ import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
  * - add Footer with "Loading"
  */
 
-const selector = (nextValue: InferStoreValueType<ThreadManager>) => [nextValue.threads] as const;
+const selector = (nextValue: ThreadManagerState) => [nextValue.threads] as const;
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
