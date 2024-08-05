@@ -1,13 +1,12 @@
 import React from 'react';
 
-import type { InferStoreValueType, ThreadManager } from 'stream-chat';
+import type { ThreadManagerState } from 'stream-chat';
 
 import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
-const selector = (nextValue: InferStoreValueType<ThreadManager>) =>
-  [nextValue.unseenThreadIds] as const;
+const selector = (nextValue: ThreadManagerState) => [nextValue.unseenThreadIds] as const;
 
 export const ThreadListUnseenThreadsBanner = () => {
   const { client } = useChatContext();

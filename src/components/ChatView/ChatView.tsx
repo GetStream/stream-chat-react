@@ -6,7 +6,7 @@ import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext } from '../../context';
 
 import type { PropsWithChildren } from 'react';
-import type { InferStoreValueType, Thread, ThreadManager } from 'stream-chat';
+import type { Thread, ThreadManagerState } from 'stream-chat';
 
 const availableChatViews = ['channels', 'threads'] as const;
 
@@ -123,7 +123,7 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
-const selector = (nextValue: InferStoreValueType<ThreadManager>) => [nextValue.unreadThreadsCount];
+const selector = (nextValue: ThreadManagerState) => [nextValue.unreadThreadsCount];
 
 const ChatViewSelector = () => {
   const { client } = useChatContext();

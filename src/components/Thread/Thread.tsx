@@ -24,7 +24,7 @@ import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
-import type { InferStoreValueType, Thread as ThreadType } from 'stream-chat';
+import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -70,7 +70,7 @@ export const Thread = <
   return <ThreadInner {...props} key={`thread-${(thread ?? threadInstance).id}-${channel?.cid}`} />;
 };
 
-const selector = (nextValue: InferStoreValueType<ThreadType>) =>
+const selector = (nextValue: ThreadState) =>
   [nextValue.latestReplies, nextValue.loadingPreviousPage, nextValue.parentMessage] as const;
 
 const ThreadInner = <
