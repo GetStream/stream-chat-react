@@ -148,6 +148,35 @@ To communicate with the Stream Chat API the SDK requires a client with an establ
 
 :::important
 The hook `useCreateChatClient` accepts parameter `options`. This is an object forwarded to the `StreamChat` constructor. Please make sure the `options` object is created outside the scope of the component invoking `useCreateChatClient` to prevent unnecessary re-renders and thus reconnects.
+
+```
+import {
+  Chat,
+  StreamChatOptions,
+  useCreateChatClient,
+} from 'stream-chat-react';
+
+const streamChatOptions: StreamChatOptions = {
+  timeout: 6000
+}
+
+const App = () => {
+  const client = useCreateChatClient({
+    apiKey,
+    options: streamChatOptions,
+    tokenOrProvider: token,
+    userData: { id: userId },
+  });
+
+  if (!client) return <div>Loading...</div>;
+
+  return (
+    <Chat client={client}>
+    </Chat>
+  );
+}
+```
+
 :::
 
 ## Creating a Channel
