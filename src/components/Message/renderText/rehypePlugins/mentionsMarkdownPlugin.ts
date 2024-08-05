@@ -4,9 +4,9 @@ import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
 import type { Nodes } from 'hast-util-find-and-replace/lib';
-import type { Element } from 'react-markdown/lib';
+import type { Element } from 'react-markdown/lib/ast-to-react';
 import type { UserResponse } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../../../types/types';
+import type { DefaultStreamChatGenerics } from '../../../../types';
 
 export const mentionsMarkdownPlugin = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
