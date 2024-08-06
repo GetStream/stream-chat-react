@@ -32,8 +32,10 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
     setCachedUserData(userData);
   }
 
+  const [cachedOptions] = useState(options);
+
   useEffect(() => {
-    const client = new StreamChat<SCG>(apiKey, undefined, options);
+    const client = new StreamChat<SCG>(apiKey, undefined, cachedOptions);
     let didUserConnectInterrupt = false;
 
     const connectionPromise = client.connectUser(cachedUserData, tokenOrProvider).then(() => {
@@ -49,7 +51,7 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
           console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-  }, [apiKey, cachedUserData, options, tokenOrProvider]);
+  }, [apiKey, cachedUserData, cachedOptions, tokenOrProvider]);
 
   return chatClient;
 };
