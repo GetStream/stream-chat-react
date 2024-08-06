@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { StreamChat } from 'stream-chat';
 
@@ -32,8 +32,11 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
     setCachedUserData(userData);
   }
 
+  const optionsRef = useRef<StreamChatOptions | undefined>(undefined);
+  optionsRef.current = options;
+
   useEffect(() => {
-    const client = new StreamChat<SCG>(apiKey, undefined, options);
+    const client = new StreamChat<SCG>(apiKey, undefined, optionsRef.current);
     let didUserConnectInterrupt = false;
 
     const connectionPromise = client.connectUser(cachedUserData, tokenOrProvider).then(() => {
@@ -49,7 +52,7 @@ export const useCreateChatClient = <SCG extends ExtendableGenerics = DefaultGene
           console.log(`Connection for user "${cachedUserData.id}" has been closed`);
         });
     };
-  }, [apiKey, cachedUserData, options, tokenOrProvider]);
+  }, [apiKey, cachedUserData, tokenOrProvider]);
 
   return chatClient;
 };
