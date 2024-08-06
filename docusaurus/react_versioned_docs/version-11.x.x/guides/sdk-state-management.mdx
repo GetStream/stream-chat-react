@@ -46,7 +46,7 @@ Before you can access the _reactive_ channel state you'll need to set the channe
     useEffect(() => {
       if (!channelId) return;
 
-      const channel = client.channel(channelId, channelType);
+      const channel = client.channel(channelType, channelId);
 
       setActiveChannel(channel);
     }, [channelId, channelType]);
@@ -65,7 +65,7 @@ Before you can access the _reactive_ channel state you'll need to set the channe
     const { client, setActiveChannel } = useChatContext();
 
     useEffect(() => {
-      const channel = client.channel(channelId, channelType);
+      const channel = client.channel(channelType, channelId);
       setActiveChannel(channel);
     }, [channelType, channelId]);
 
