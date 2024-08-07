@@ -1,7 +1,6 @@
 // As the community transitions to ESM, we can easily break our CJS bundle.
 // This smoke test can help to detect this early.
 
-// First, set up minimal browser-like environment:
 const { JSDOM } = require('jsdom');
 const dom = new JSDOM('', {
   url: 'https://localhost',
@@ -15,5 +14,4 @@ for (const key of Object.keys(window)) {
   }
 }
 
-// Then, try importing our CJS bundle:
-require('../dist/index.cjs.js');
+require('../dist/index.browser.cjs');
