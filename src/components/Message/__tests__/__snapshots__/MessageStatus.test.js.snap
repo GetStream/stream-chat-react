@@ -31,6 +31,7 @@ exports[`MessageStatus renders default read UI for the last message 1`] = `
   <div
     class="str-chat__avatar str-chat__message-sender-avatar str-chat__avatar--message-status str-chat__avatar--one-letter"
     data-testid="avatar"
+    role="button"
     title="other-user"
   >
     <div

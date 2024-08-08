@@ -18,6 +18,7 @@ import {
 } from './utils';
 
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
@@ -30,11 +31,11 @@ import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import type { MessageUIComponentProps } from './types';
-
-import type { DefaultStreamChatGenerics } from '../../types/types';
 import { useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
+
+import type { MessageUIComponentProps } from './types';
+import type { DefaultStreamChatGenerics } from '../../types/types';
 
 type MessageSimpleWithContextProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -72,7 +73,7 @@ const MessageSimpleWithContext = <
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
 
   const {
-    Attachment,
+    Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
     MessageDeleted = DefaultMessageDeleted,

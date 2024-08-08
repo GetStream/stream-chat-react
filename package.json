@@ -152,7 +152,7 @@
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
-    "@stream-io/stream-chat-css": "5.0.0-rc.2",
+    "@stream-io/stream-chat-css": "link:../stream-chat-css/",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/react-hooks": "^8.0.0",
@@ -221,7 +221,7 @@
     "react-dom": "^18.1.0",
     "react-test-renderer": "^18.1.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "^8.33.1",
+    "stream-chat": "link:../stream-chat-js/",
     "ts-jest": "^29.1.4",
     "typescript": "^5.4.5"
   },

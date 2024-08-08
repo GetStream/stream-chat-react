@@ -28,6 +28,8 @@ import {
   useComponentContext,
 } from '../../context';
 
+import { MessageSimple as DefaultMessage } from './MessageSimple';
+
 import type { MessageProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -84,7 +86,7 @@ const MessageWithContext = <
   const { Message: contextMessage } = useComponentContext<StreamChatGenerics>('Message');
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
-  const MessageUIComponent = propMessage || contextMessage;
+  const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessage;
 
   const { clearEdit, editing, setEdit } = useEditHandler();
 
