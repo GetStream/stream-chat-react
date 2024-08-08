@@ -14,10 +14,11 @@ yarn vercel link --yes --scope getstreamio --project stream-threads-demo
 yarn vercel pull
 ```
 
-4. Deploy:
+4. Build and deploy:
 
 ```sh
-yarn vercel deploy
+yarn vercel build
+yarn vercel deploy --prebuilt
 ```
 
 The deployed app will use the app, user and token specified in Vercel environment variables. You can override these values in URL search params:
