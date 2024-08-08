@@ -1,20 +1,14 @@
 ## Deploying the Threads Demo
 
 1. Build and link `stream-chat` and `stream-chat-css` from the `feat/threads-v2` branch
-2. Build this demo app:
-
-```sh
-yarn build
-```
-
-3. Link to the demo Vercel project and pull default environment variables:
+2. Link to the demo Vercel project and pull default environment variables:
 
 ```sh
 yarn vercel link --yes --scope getstreamio --project stream-threads-demo
 yarn vercel pull
 ```
 
-4. Build and deploy:
+3. Build and deploy:
 
 ```sh
 yarn vercel build
