@@ -333,7 +333,7 @@ const UnMemoizedChannelList = <
       channel: item,
       // forces the update of preview component on channel update
       channelUpdateCount,
-      key: item.id,
+      key: item.cid,
       Preview,
       setActiveChannel,
       watchers,
