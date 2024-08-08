@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
@@ -20,7 +19,7 @@ const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
 }) as unknown) as Record<string, string | null>;
 
-const apiKey = import.meta.env.VITE_STREAM_KEY as string;
+const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
 const userId = params.uid ?? (import.meta.env.VITE_USER_ID as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
 
