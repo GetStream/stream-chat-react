@@ -1,0 +1,22 @@
+---
+id: thread-context
+title: ThreadContext
+---
+
+`ThreadContext` - just like any other React context - is used for dependency injection. What makes it different in this case is `ThreadProvider`.
+
+## ThreadProvider
+
+Is a provider which wraps [`Channel`](../core-components/channel.mdx) component and takes [`Thread` instance]() as a value. The [`Channel`](../core-components/channel.mdx) wrapper acts as a temporary measure to make [`Thread` component](../core-components/thread.mdx) compatible with the new architecture which relies on [`Thread` instance](). The reliance on channel is temporary and will become deprecated in the future.
+
+Thread component newly prioritizes [`Thread` instance]() if rendered under [`ThreadProvider`](../contexts/thread-context.mdx#threadprovider) otherwise falls back to accessing thread from [`Channel` state](../contexts/channel-state-context.mdx).
+
+### Basic Usage
+
+```tsx
+import { Thread, ThreadProvider } from 'stream-chat-react';
+
+<ThreadProvider thread={/*...*/}>
+  <Thread />
+</ThreadProvider>;
+```

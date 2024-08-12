@@ -18,6 +18,33 @@ Pull values from context with our custom hook:
 const { Attachment, Avatar, Message } = useComponentContext();
 ```
 
+## WithComponents
+
+A component override functionality which utilises `ComponentContext` under the hood. This is direct replacement for a prop-based component overrides which are now slowly being deprecated.
+
+### Basic Usage of WithComponents
+
+```tsx
+const MessageInputUi1 = () => {
+  /*...*/
+};
+const MessageInputUi2 = () => {
+  /*...*/
+};
+
+<Channel>
+  <WithComponents overrides={{ Input: MessageInputUi1 }}>
+    <Window>
+      <MessageList />
+      <MessageInput focus />
+    </Window>
+    <WithComponents overrides={{ Input: MessageInputUi2 }}>
+      <Thread />
+    </WithComponents>
+  </WithComponents>
+</Channel>;
+```
+
 ## Values
 
 ### Attachment

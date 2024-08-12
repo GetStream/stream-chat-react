@@ -165,17 +165,26 @@ const selector = (nextValue: ThreadManagerState) => [
 2. Selectors should live outside components scope or should be memoized if it requires "outside" information (`userId` for `read` object for example). Not memoizing selectors (or not stabilizing them) will lead to bad performance as each time your component re-renders, the selector function is created anew and `useSimpleStateStore` goes through unsubscribe and resubscribe process unnecessarily.
 
 ```tsx
+// ❌ not okay
+const Component1 = () => {
+  const [latestReply] = useThreadState((nextValue: ThreadState) => [
+    nextValue.latestReplies.at(-1),
+  ]);
+
+  return <div>{latestReply.text}</div>;
+};
+
 // ✅ okay
 const selector = (nextValue: ThreadState) => [nextValue.latestReplies.at(-1)];
 
-const Component1 = () => {
+const Component2 = () => {
   const [latestReply] = useThreadState(selector);
 
   return <div>{latestReply.text}</div>;
 };
 
 // ✅ also okay
-const Component2 = ({ userId }: { userId: string }) => {
+const Component3 = ({ userId }: { userId: string }) => {
   const selector = useCallback(
     (nextValue: ThreadState) => [nextValue.read[userId].unread_messages],
     [userId],

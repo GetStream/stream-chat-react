@@ -4,6 +4,91 @@ title: Upgrade to v12
 keywords: [migration guide, upgrade, v12, breaking changes]
 ---
 
+## Introducing Threads 2.0
+
+With the release of v12 of our SDK we're also releasing new thread functionality - specifically "thread view", which consists of [`ThreadList`](../components/core-components/thread-list.mdx) and [`Thread`](../components/core-components/thread.mdx) components allowing your users to quickly go over threaded conversations they're part of. To implement this simple view see [thread and channel view guide](../guides/chat-view.mdx).
+
+### Thread & ThreadManager
+
+Both [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) and [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) are new classes within [`stream-chat` package](https://www.npmjs.com/package/stream-chat) with own logic which updates their respective state objects to which integrators can subscribe to and render their UI accordingly. These classes (or rather instances of these classes) are utilised within React SDK. Read more about accessing state of these classes in our [SDK State Management documentation](../guides/sdk-state-management.mdx#thread-and-threadmanager).
+
+### ThreadList & ThreadListItem
+
+[`ThreadList`](../components/core-components/thread-list.mdx) component represents a [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instance while [`ThreadListItem`](../components/core-components/thread-list-item.mdx) represents individual [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instances. UI of both of these components reflects latest state of their appropriate "controllers" but apart from communicating with their controllers via available methods these components do not manage any extra logic.
+
+### ThreadProvider
+
+[`ThreadProvider`](../components/contexts/thread-context.mdx#threadprovider) is an "adapter" which allows existing [`Thread`](../components/core-components/thread.mdx) component to consume methods and state of the [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instance.
+
+```tsx
+<ThreadProvider thread={thread}>
+  <Thread />
+</ThreadProvider>
+```
+
+### ChatView & ChatView.ThreadAdapter
+
+`ChatView` is component itself and a set of components which allow for a drop-in implementation of different chat views - the channel view and thread view. This drop-in solution allows your users to easily switch between said views without having to implement such mechanism yourself. Read more about it in our [`ChatView` documentation](../components/utility-components/view-components.mdx).
+
+## Introducing WithComponents & Dropping Defaults
+
+We know that component overrides are 90% of our SDK and providing these overrides only through [`Channel`](../components/core-components/channel.mdx) component isn't optimal. In the upcoming minor releases we'll be deprecating component overrides through individual component props and rather provide these overrides through `WithComponents`, you can read more about this component in our [`WithComponents` documentation](../components/contexts/component-context.mdx#with-components).
+
+## Dropped ComponentContext Defaults
+
+These components are no longer provided through the [`ComponentContext`](../components/contexts/component-context.mdx) as default values but have moved to their respective components:
+
+- `Attachment`
+- `DateSeparator`
+- `Message`
+- `MessageSystem`
+- `reactionOptions`
+- `UnreadMessagesSeparator`
+
+### Before and After
+
+Previous solution for component overrides:
+
+```tsx
+const MessageInputUi1 = () => {
+  /*...*/
+};
+const MessageInputUi2 = () => {
+  /*...*/
+};
+
+<Channel Input={MessageInputUi1}>
+  <Window>
+    <MessageList />
+    <MessageInput focus />
+  </Window>
+  <Thread Input={MessageInputUi2} virtualized />
+</Channel>;
+```
+
+Current solution utilising `WithComponents`:
+
+```tsx
+const MessageInputUi1 = () => {
+  /*...*/
+};
+const MessageInputUi2 = () => {
+  /*...*/
+};
+
+<Channel>
+  <WithComponents overrides={{ Input: MessageInputUi1 }}>
+    <Window>
+      <MessageList />
+      <MessageInput focus />
+    </Window>
+    <WithComponents overrides={{ Input: MessageInputUi2 }}>
+      <Thread virtualized />
+    </WithComponents>
+  </WithComponents>
+</Channel>;
+```
+
 ## Audio recordings transcoding
 
 Until now, the audio recordings were transcoded to `audio/mp3` format for inter-browser compatibility and size reduction. However, as of the v12, the MIME type `audio/wav` will be the default. The MP3 encoder use is opt-in from now on.
