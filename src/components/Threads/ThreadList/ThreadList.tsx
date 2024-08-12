@@ -10,12 +10,6 @@ import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from 
 import { useChatContext, useComponentContext } from '../../../context';
 import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
 
-/**
- * TODO:
- * - register event handlers of each of the threads (ThreadManager - threads.<de/register>EventHandlers(), maybe simplify API)
- * - add Footer with "Loading"
- */
-
 const selector = (nextValue: ThreadManagerState) => [nextValue.threads] as const;
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
