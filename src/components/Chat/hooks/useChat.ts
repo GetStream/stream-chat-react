@@ -57,13 +57,19 @@ export const useChat = <
   };
 
   useEffect(() => {
-    if (client) {
-      const userAgent = client.getUserAgent();
-      if (!userAgent.includes('stream-chat-react')) {
-        // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
-        client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
-      }
+    if (!client) return;
+
+    const userAgent = client.getUserAgent();
+    if (!userAgent.includes('stream-chat-react')) {
+      // result looks like: 'stream-chat-react-2.3.2-stream-chat-javascript-client-browser-2.2.2'
+      client.setUserAgent(`stream-chat-react-${version}-${userAgent}`);
     }
+
+    client.threads.registerSubscriptions();
+
+    return () => {
+      client.threads.deregisterSubscriptions();
+    };
   }, [client]);
 
   useEffect(() => {
