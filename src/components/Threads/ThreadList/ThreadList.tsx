@@ -18,6 +18,23 @@ type ThreadListProps = {
   virtuosoProps?: VirtuosoProps<Thread, unknown>;
 };
 
+const useThreadList = () => {
+  const { client } = useChatContext();
+
+  useEffect(() => {
+    const { threads } = client.threads.state.getLatestValue();
+
+    // load threads upon "initial" ThreadList render
+    if (!threads.length) client.threads.loadNextPage();
+
+    client.threads.activate();
+
+    return () => {
+      client.threads.deactivate();
+    };
+  }, [client]);
+};
+
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
   const {
@@ -28,21 +45,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   } = useComponentContext();
   const [threads] = useSimpleStateStore(client.threads.state, selector);
 
-  const handlerRef = useRef<() => void>();
-
-  handlerRef.current = () => {
-    if (!threads.length) client.threads.loadNextPage();
-  };
-
-  useEffect(() => {
-    handlerRef.current?.();
-
-    client.threads.activate();
-
-    return () => {
-      client.threads.deactivate();
-    };
-  }, [client]);
+  useThreadList();
 
   return (
     <div className='str-chat__thread-list-container'>

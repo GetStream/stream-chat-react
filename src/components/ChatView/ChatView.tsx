@@ -72,17 +72,16 @@ const ThreadsView = ({ children }: PropsWithChildren) => {
 };
 
 // thread business logic that's impossible to keep within client but encapsulated for ease of use
-const useThreadBl = ({ thread }: { thread?: Thread }) => {
+export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => {
   useEffect(() => {
-    if (!thread) return;
+    if (!activeThread) return;
 
-    // TODO: maybe move this whole thing to the client?
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && document.hasFocus()) {
-        thread.activate();
+        activeThread.activate();
       }
       if (document.visibilityState === 'hidden' || !document.hasFocus()) {
-        thread.deactivate();
+        activeThread.deactivate();
       }
     };
 
@@ -91,12 +90,13 @@ const useThreadBl = ({ thread }: { thread?: Thread }) => {
     window.addEventListener('focus', handleVisibilityChange);
     window.addEventListener('blur', handleVisibilityChange);
     return () => {
-      thread.deactivate();
+      activeThread.deactivate();
       window.addEventListener('blur', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };
-  }, [thread]);
+  }, [activeThread]);
 };
+
 // ThreadList under View.Threads context, will access setting function and on item click will set activeThread
 // which can be accessed for the ease of use by ThreadAdapter which forwards it to required ThreadProvider
 // ThreadList can easily live without this context and click handler can be overriden, ThreadAdapter is then no longer needed
@@ -118,7 +118,7 @@ const useThreadBl = ({ thread }: { thread?: Thread }) => {
 const ThreadAdapter = ({ children }: PropsWithChildren) => {
   const { activeThread } = useThreadsViewContext();
 
-  useThreadBl({ thread: activeThread });
+  useActiveThread({ activeThread });
 
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };

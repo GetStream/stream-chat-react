@@ -13,12 +13,8 @@ const ThreadListItemContext = createContext<Thread | undefined>(undefined);
 
 export const useThreadListItemContext = () => useContext(ThreadListItemContext);
 
-export const ThreadListItem = (props: ThreadListItemProps) => {
-  const { thread } = props;
-
+export const ThreadListItem = ({ thread }: ThreadListItemProps) => {
   const { ThreadListItemUi = DefaultThreadListItemUi } = useComponentContext();
-
-  // useThreadListItemBl();
 
   return (
     <ThreadListItemContext.Provider value={thread}>
