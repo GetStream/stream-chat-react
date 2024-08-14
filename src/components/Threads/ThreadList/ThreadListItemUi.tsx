@@ -94,6 +94,7 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
     <button
       aria-selected={activeThread === thread}
       className='str-chat__thread-list-item'
+      data-thread-id={thread.id}
       onClick={() => setActiveThread(thread)}
       role='option'
       {...props}

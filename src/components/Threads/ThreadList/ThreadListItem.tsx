@@ -5,20 +5,23 @@ import type { Thread } from 'stream-chat';
 import { useComponentContext } from '../../../context';
 import { ThreadListItemUi as DefaultThreadListItemUi } from './ThreadListItemUi';
 
+import type { ThreadListItemUiProps } from './ThreadListItemUi';
+
 export type ThreadListItemProps = {
   thread: Thread;
+  threadListItemUiProps?: ThreadListItemUiProps;
 };
 
 const ThreadListItemContext = createContext<Thread | undefined>(undefined);
 
 export const useThreadListItemContext = () => useContext(ThreadListItemContext);
 
-export const ThreadListItem = ({ thread }: ThreadListItemProps) => {
+export const ThreadListItem = ({ thread, threadListItemUiProps }: ThreadListItemProps) => {
   const { ThreadListItemUi = DefaultThreadListItemUi } = useComponentContext();
 
   return (
     <ThreadListItemContext.Provider value={thread}>
-      <ThreadListItemUi />
+      <ThreadListItemUi {...threadListItemUiProps} />
     </ThreadListItemContext.Provider>
   );
 };
