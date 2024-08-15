@@ -4,13 +4,15 @@ import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
 
+import type { PluggableList } from 'react-markdown/lib/react-markdown';
+import type { UserResponse } from 'stream-chat';
+
 import { Anchor, Emoji, Mention, MentionProps } from './componentRenderers';
 import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from './regex';
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
+import { ErrorBoundary } from '../../UtilityComponents';
 
-import type { PluggableList } from 'react-markdown/lib/react-markdown';
-import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
 export type RenderTextPluginConfigurator = (defaultPlugins: PluggableList) => PluggableList;
@@ -158,19 +160,21 @@ export const renderText = <
   }
 
   return (
-    <ReactMarkdown
-      allowedElements={allowedTagNames}
-      components={{
-        ...markDownRenderers,
-        ...customMarkDownRenderers,
-      }}
-      rehypePlugins={getRehypePlugins(rehypePlugins)}
-      remarkPlugins={getRemarkPlugins(remarkPlugins)}
-      skipHtml
-      transformLinkUri={urlTransform}
-      unwrapDisallowed
-    >
-      {newText}
-    </ReactMarkdown>
+    <ErrorBoundary fallback={<>{text}</>}>
+      <ReactMarkdown
+        allowedElements={allowedTagNames}
+        components={{
+          ...markDownRenderers,
+          ...customMarkDownRenderers,
+        }}
+        rehypePlugins={getRehypePlugins(rehypePlugins)}
+        remarkPlugins={getRemarkPlugins(remarkPlugins)}
+        skipHtml
+        transformLinkUri={urlTransform}
+        unwrapDisallowed
+      >
+        {newText}
+      </ReactMarkdown>
+    </ErrorBoundary>
   );
 };
