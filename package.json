@@ -94,7 +94,7 @@
     "react-popper": "^2.3.0",
     "react-textarea-autosize": "^8.3.0",
     "react-virtuoso": "^2.16.5",
-    "remark-gfm": "^4.0.0",
+    "remark-gfm": "^3.0.1",
     "textarea-caret": "^3.1.0",
     "tslib": "^2.6.2",
     "unist-builder": "^3.0.0",

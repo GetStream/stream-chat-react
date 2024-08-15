@@ -91,6 +91,15 @@ TypingIndicator is rendered as a child of MessageListMainPanel
 
 * remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([9410153](https://github.com/GetStream/stream-chat-react/commit/94101535d1de9de23a1ab8913423af0e7009bab9))
 
+## [11.23.5](https://github.com/GetStream/stream-chat-react/compare/v11.23.4...v11.23.5) (2024-08-08)
+
+
+### Bug Fixes
+
+* do not rerender on client options update ([#2465](https://github.com/GetStream/stream-chat-react/issues/2465)) ([81f33ba](https://github.com/GetStream/stream-chat-react/commit/81f33bae3933c7637e3a2a93b9c53be0511b45f6))
+* forward StreamChat constructor options via useCreateChatClient ([#2463](https://github.com/GetStream/stream-chat-react/issues/2463)) ([310835d](https://github.com/GetStream/stream-chat-react/commit/310835dc17e1228cd76d825a1dadb0f681ea552b))
+* prevent ChannelPreviews with duplicate keys ([1a075ad](https://github.com/GetStream/stream-chat-react/commit/1a075ad54f834c8a205fd615207e3fde5febf8c2))
+
 ## [11.23.4](https://github.com/GetStream/stream-chat-react/compare/v11.23.3...v11.23.4) (2024-08-05)
 
 
