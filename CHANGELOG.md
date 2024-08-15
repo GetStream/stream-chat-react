@@ -1,3 +1,22 @@
+## [12.0.0-rc.8](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.7...v12.0.0-rc.8) (2024-08-15)
+
+
+### Bug Fixes
+
+* **deps:** drop remark-gfm version ([#2471](https://github.com/GetStream/stream-chat-react/issues/2471)) ([1b359f7](https://github.com/GetStream/stream-chat-react/commit/1b359f7e4a5d4cca6edc3abbd97dee42b55c4a79))
+* do not rerender on client options update ([#2465](https://github.com/GetStream/stream-chat-react/issues/2465)) ([81f33ba](https://github.com/GetStream/stream-chat-react/commit/81f33bae3933c7637e3a2a93b9c53be0511b45f6))
+* do not rerender on client options update ([#2465](https://github.com/GetStream/stream-chat-react/issues/2465)) ([3899352](https://github.com/GetStream/stream-chat-react/commit/389935255e9d159827936f91a900d1b92573f633))
+* downgrade react-markdown to v8 that supports React version < v18 ([#2461](https://github.com/GetStream/stream-chat-react/issues/2461)) ([5e6fea0](https://github.com/GetStream/stream-chat-react/commit/5e6fea0f6224c7266ef2eabc32c087cad81e3a8b))
+* forward StreamChat constructor options via useCreateChatClient ([#2463](https://github.com/GetStream/stream-chat-react/issues/2463)) ([310835d](https://github.com/GetStream/stream-chat-react/commit/310835dc17e1228cd76d825a1dadb0f681ea552b))
+* prevent ChannelPreviews with duplicate keys ([1a075ad](https://github.com/GetStream/stream-chat-react/commit/1a075ad54f834c8a205fd615207e3fde5febf8c2))
+* prevent including own user in read count displayed in MessageStatus ([#2459](https://github.com/GetStream/stream-chat-react/issues/2459)) ([061d1a3](https://github.com/GetStream/stream-chat-react/commit/061d1a3eff7e029f9ce61e24206ed6497364b556))
+* provide both browser and node cjs bundles ([#2457](https://github.com/GetStream/stream-chat-react/issues/2457)) ([273ea2a](https://github.com/GetStream/stream-chat-react/commit/273ea2aa481c4519013e095950fed8697f1fb9f8))
+
+
+### Chores
+
+* **deps:** remove unused isomorphic-ws from dependencies ([853bd8b](https://github.com/GetStream/stream-chat-react/commit/853bd8bdcb61f50362c0f1183190146c5bcac103))
+
 ## [12.0.0-rc.7](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.6...v12.0.0-rc.7) (2024-07-23)
 
 
