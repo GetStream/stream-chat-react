@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import ReactMarkdown, { defaultUrlTransform, Options } from 'react-markdown';
+import ReactMarkdown, { Options, uriTransformer } from 'react-markdown';
 import { find } from 'linkifyjs';
 import uniqBy from 'lodash.uniqby';
 import remarkGfm from 'remark-gfm';
@@ -9,7 +9,7 @@ import { detectHttp, escapeRegExp, matchMarkdownLinks, messageCodeBlocks } from 
 import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
 import { htmlToTextPlugin, keepLineBreaksPlugin } from './remarkPlugins';
 
-import type { PluggableList } from 'react-markdown/lib';
+import type { PluggableList } from 'react-markdown/lib/react-markdown';
 import type { UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
@@ -51,7 +51,7 @@ function encodeDecode(url: string) {
   }
 }
 
-const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : defaultUrlTransform(uri));
+const urlTransform = (uri: string) => (uri.startsWith('app://') ? uri : uriTransformer(uri));
 
 const getPluginsForward: RenderTextPluginConfigurator = (plugins: PluggableList) => plugins;
 
@@ -167,8 +167,8 @@ export const renderText = <
       rehypePlugins={getRehypePlugins(rehypePlugins)}
       remarkPlugins={getRemarkPlugins(remarkPlugins)}
       skipHtml
+      transformLinkUri={urlTransform}
       unwrapDisallowed
-      urlTransform={urlTransform}
     >
       {newText}
     </ReactMarkdown>

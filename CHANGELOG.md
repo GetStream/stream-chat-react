@@ -91,6 +91,21 @@ TypingIndicator is rendered as a child of MessageListMainPanel
 
 * remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([9410153](https://github.com/GetStream/stream-chat-react/commit/94101535d1de9de23a1ab8913423af0e7009bab9))
 
+## [11.23.4](https://github.com/GetStream/stream-chat-react/compare/v11.23.3...v11.23.4) (2024-08-05)
+
+
+### Bug Fixes
+
+* downgrade react-markdown to v8 that supports React version < v18 ([#2461](https://github.com/GetStream/stream-chat-react/issues/2461)) ([5e6fea0](https://github.com/GetStream/stream-chat-react/commit/5e6fea0f6224c7266ef2eabc32c087cad81e3a8b))
+* prevent including own user in read count displayed in MessageStatus ([#2459](https://github.com/GetStream/stream-chat-react/issues/2459)) ([061d1a3](https://github.com/GetStream/stream-chat-react/commit/061d1a3eff7e029f9ce61e24206ed6497364b556))
+
+## [11.23.3](https://github.com/GetStream/stream-chat-react/compare/v11.23.2...v11.23.3) (2024-07-22)
+
+
+### Bug Fixes
+
+* start audio recorder timer if already recording ([#2453](https://github.com/GetStream/stream-chat-react/issues/2453)) ([836917e](https://github.com/GetStream/stream-chat-react/commit/836917e3b231f3c1f30a98004bce367d37cf4a63))
+
 ## [11.23.2](https://github.com/GetStream/stream-chat-react/compare/v11.23.1...v11.23.2) (2024-07-10)
 
 
