@@ -1,3 +1,10 @@
+## [11.23.6](https://github.com/GetStream/stream-chat-react/compare/v11.23.5...v11.23.6) (2024-08-15)
+
+
+### Bug Fixes
+
+* **deps:** drop remark-gfm version ([#2471](https://github.com/GetStream/stream-chat-react/issues/2471)) ([1b359f7](https://github.com/GetStream/stream-chat-react/commit/1b359f7e4a5d4cca6edc3abbd97dee42b55c4a79))
+
 ## [11.23.5](https://github.com/GetStream/stream-chat-react/compare/v11.23.4...v11.23.5) (2024-08-08)
 
 
