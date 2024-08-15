@@ -13,6 +13,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, { hasError: boo
     return { hasError: true };
   }
 
+  componentDidCatch(error: unknown, information: unknown) {
+    console.error(error, information);
+  }
+
   render() {
     if (this.state.hasError) {
       return this.props.fallback;
