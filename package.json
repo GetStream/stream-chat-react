@@ -16,23 +16,38 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "node": "./dist/index.node.cjs",
-      "require": "./dist/index.browser.cjs",
-      "import": "./dist/index.js",
+      "node": {
+        "require": "./dist/index.node.cjs",
+        "import": "./dist/index.js"
+      },
+      "browser": {
+        "require": "./dist/index.browser.cjs",
+        "import": "./dist/index.js"
+      },
       "default": "./dist/index.js"
     },
     "./emojis": {
       "types": "./dist/plugins/Emojis/index.d.ts",
-      "node": "./dist/plugins/Emojis/index.node.cjs",
-      "require": "./dist/plugins/Emojis/index.browser.cjs",
-      "import": "./dist/plugins/Emojis/index.js",
+      "node": {
+        "require": "./dist/plugins/Emojis/index.node.cjs",
+        "import": "./dist/plugins/Emojis/index.js"
+      },
+      "browser": {
+        "require": "./dist/plugins/Emojis/index.browser.cjs",
+        "import": "./dist/plugins/Emojis/index.js"
+      },
       "default": "./dist/plugins/Emojis/index.js"
     },
     "./mp3-encoder": {
       "types": "./dist/plugins/encoders/mp3.d.ts",
-      "node": "./dist/plugins/encoders/mp3.node.cjs",
-      "require": "./dist/plugins/encoders/mp3.browser.cjs",
-      "import": "./dist/plugins/encoders/mp3.js",
+      "node": {
+        "require": "./dist/plugins/encoders/mp3.node.cjs",
+        "import": "./dist/plugins/encoders/mp3.js"
+      },
+      "browser": {
+        "require": "./dist/plugins/encoders/mp3.browser.cjs",
+        "import": "./dist/plugins/encoders/mp3.js"
+      },
       "default": "./dist/plugins/encoders/mp3.js"
     },
     "./dist/css/*": {
