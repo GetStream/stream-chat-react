@@ -10,26 +10,44 @@
     "url": "https://github.com/GetStream/stream-chat-react.git"
   },
   "types": "dist/index.d.ts",
-  "main": "dist/index.cjs.js",
+  "main": "dist/index.node.cjs",
   "module": "dist/index.js",
   "jsdelivr": "./dist/browser.full-bundle.min.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs.js",
-      "import": "./dist/index.js",
+      "node": {
+        "require": "./dist/index.node.cjs",
+        "import": "./dist/index.js"
+      },
+      "browser": {
+        "require": "./dist/index.browser.cjs",
+        "import": "./dist/index.js"
+      },
       "default": "./dist/index.js"
     },
     "./emojis": {
       "types": "./dist/plugins/Emojis/index.d.ts",
-      "require": "./dist/plugins/Emojis/index.cjs.js",
-      "import": "./dist/plugins/Emojis/index.js",
+      "node": {
+        "require": "./dist/plugins/Emojis/index.node.cjs",
+        "import": "./dist/plugins/Emojis/index.js"
+      },
+      "browser": {
+        "require": "./dist/plugins/Emojis/index.browser.cjs",
+        "import": "./dist/plugins/Emojis/index.js"
+      },
       "default": "./dist/plugins/Emojis/index.js"
     },
     "./mp3-encoder": {
       "types": "./dist/plugins/encoders/mp3.d.ts",
-      "require": "./dist/plugins/encoders/mp3.cjs.js",
-      "import": "./dist/plugins/encoders/mp3.js",
+      "node": {
+        "require": "./dist/plugins/encoders/mp3.node.cjs",
+        "import": "./dist/plugins/encoders/mp3.js"
+      },
+      "browser": {
+        "require": "./dist/plugins/encoders/mp3.browser.cjs",
+        "import": "./dist/plugins/encoders/mp3.js"
+      },
       "default": "./dist/plugins/encoders/mp3.js"
     },
     "./dist/css/*": {
@@ -242,7 +260,7 @@
     "test": "jest",
     "types": "tsc --noEmit --skipLibCheck false",
     "validate-translations": "node scripts/validate-translations.js",
-    "validate-cjs": "node scripts/validate-cjs-bundle.cjs",
+    "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
     "browse-examples": "ladle serve",
     "e2e": "playwright test",
