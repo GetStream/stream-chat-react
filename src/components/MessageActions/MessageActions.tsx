@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import clsx from 'clsx';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
@@ -65,7 +66,6 @@ export const MessageActions = <
 
   const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
   const {
-    customMessageActions,
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
@@ -98,7 +98,6 @@ export const MessageActions = <
     }
     setActionsBoxOpen(false);
   }, []);
-  const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
   useEffect(() => {
@@ -132,8 +131,6 @@ export const MessageActions = <
     placement: isMine ? 'top-end' : 'top-start',
     referenceElement: actionsBoxButtonRef.current,
   });
-
-  if (!messageActions.length && !customMessageActions) return null;
 
   return (
     <MessageActionsWrapper
@@ -178,10 +175,11 @@ export type MessageActionsWrapperProps = {
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
-  const defaultWrapperClass = `
-  str-chat__message-simple__actions__action
-  str-chat__message-simple__actions__action--options
-  str-chat__message-actions-container`;
+  const defaultWrapperClass = clsx(
+    'str-chat__message-simple__actions__action',
+    'str-chat__message-simple__actions__action--options',
+    'str-chat__message-actions-container',
+  );
 
   const wrapperClass = customWrapperClass || defaultWrapperClass;
 

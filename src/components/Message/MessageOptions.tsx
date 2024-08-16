@@ -5,14 +5,14 @@ import {
   ReactionIcon as DefaultReactionIcon,
   ThreadIcon as DefaultThreadIcon,
 } from './icons';
-import { MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
+import { MESSAGE_ACTIONS, shouldRenderMessageActions } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -57,13 +57,20 @@ const UnMemoizedMessageOptions = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
+  const { CustomMessageActionsList } = useComponentContext('MessageOptions');
+
   const { t } = useTranslationContext('MessageOptions');
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const showActionsBox =
-    showMessageActionsBox(messageActions, threadList) || !!customMessageActions;
+  const renderMessageActions = shouldRenderMessageActions({
+    // @ts-ignore
+    customMessageActions,
+    CustomMessageActionsList,
+    inThread: threadList,
+    messageActions,
+  });
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =
@@ -85,7 +92,7 @@ const UnMemoizedMessageOptions = <
 
   return (
     <div className={rootClassName} data-testid='message-options'>
-      {showActionsBox && (
+      {renderMessageActions && (
         <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
       )}
       {shouldShowReplies && (
