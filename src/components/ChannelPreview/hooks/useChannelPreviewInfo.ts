@@ -4,7 +4,7 @@ import type { Channel } from 'stream-chat';
 import { getDisplayImage, getDisplayTitle } from '../utils';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
-import { useChatContext } from '../../../context';
+import { useChatContext } from '../../../context/ChatContext';
 
 export type ChannelPreviewInfoParams<StreamChatGenerics extends DefaultStreamChatGenerics> = {
   channel: Channel<StreamChatGenerics>;

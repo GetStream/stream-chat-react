@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileIcon } from '../../ReactFileUtilities';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
-import { useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { AttachmentPreviewProps } from './types';
 import { LocalAttachmentCast, LocalAttachmentUploadMetadata } from '../types';

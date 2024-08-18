@@ -6,12 +6,10 @@ import { isLocalAttachment, isLocalImageAttachment } from '../../Attachment';
 import type { FileLike } from '../../ReactFileUtilities';
 import { createFileFromBlobs, generateFileName, isBlobButNotFile } from '../../ReactFileUtilities';
 
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../../context';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import { useChatContext } from '../../../context/ChatContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { Attachment, SendFileAPIResponse } from 'stream-chat';
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';

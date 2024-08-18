@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTimeElapsed } from '../../MessageInput/hooks/useTimeElapsed';
-import { useMessageInputContext } from '../../../context';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 import { RecordingTimer } from './RecordingTimer';
 
 type WaveformProps = {

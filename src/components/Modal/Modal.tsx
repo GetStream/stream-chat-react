@@ -4,7 +4,7 @@ import { FocusScope } from '@react-aria/focus';
 
 import { CloseIconRound } from './icons';
 
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ModalProps = {
   /** If true, modal is opened or visible. */

@@ -4,7 +4,9 @@ import React, { useMemo } from 'react';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { isOnlyEmojis, messageHasAttachments } from './utils';
 
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { renderText as defaultRenderText } from './renderText';
 import { MessageErrorText } from './MessageErrorText';
 

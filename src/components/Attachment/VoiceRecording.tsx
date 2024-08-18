@@ -5,7 +5,7 @@ import { FileSizeIndicator, PlaybackRateButton, PlayButton, WaveProgressBar } fr
 import { useAudioController } from './hooks/useAudioController';
 import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types';
 

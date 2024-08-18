@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
-import { useComponentContext, useMessageContext } from '../../../context';
-
+import { useMessageContext } from '../../../context/MessageContext';
+import { useComponentContext } from '../../../context/ComponentContext';
 import type { ReactionsListProps } from '../ReactionsList';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { ReactionsComparator, ReactionSummary } from '../types';

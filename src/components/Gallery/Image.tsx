@@ -4,7 +4,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { BaseImage as DefaultBaseImage } from './BaseImage';
 import { Modal } from '../Modal';
 import { ModalGallery as DefaultModalGallery } from './ModalGallery';
-import { useComponentContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics, Dimensions } from '../../types/types';

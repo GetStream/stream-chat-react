@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import ImageGallery, { ReactImageGalleryItem } from 'react-image-gallery';
 import { BaseImage } from './BaseImage';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';

@@ -3,7 +3,7 @@ import { useMessageContext } from './MessageContext';
 import { DefaultStreamChatGenerics, PropsWithChildrenOnly } from '../types/types';
 import { StreamMessage } from './ChannelStateContext';
 import { useChannelActionContext } from './ChannelActionContext';
-import { isMessageBounced } from '../components';
+import { isMessageBounced } from '../components/Message/utils';
 
 export interface MessageBounceContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

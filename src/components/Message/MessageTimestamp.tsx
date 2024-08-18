@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMessageContext } from '../../context/MessageContext';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
-import { useComponentContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';

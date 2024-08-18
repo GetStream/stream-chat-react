@@ -7,7 +7,8 @@ import { Modal, ModalProps } from '../Modal';
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { LoadingIndicator } from '../Loading';
 import { Avatar } from '../Avatar';
-import { MessageContextValue, useMessageContext } from '../../context';
+import { MessageContextValue } from '../../context/MessageContext';
+import { useMessageContext } from '../../context/MessageContext';
 import { DefaultStreamChatGenerics } from '../../types/types';
 import { ReactionSort } from 'stream-chat';
 

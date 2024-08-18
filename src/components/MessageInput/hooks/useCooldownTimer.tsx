@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import type { ChannelResponse } from 'stream-chat';
 
-import { useChannelStateContext, useChatContext } from '../../../context';
+import { useChatContext } from '../../../context/ChatContext';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 

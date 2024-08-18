@@ -1,6 +1,7 @@
 import React from 'react';
 import { CloseIcon } from './icons';
-import { useChannelActionContext, useTranslationContext } from '../../context';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export type UnreadMessagesNotificationProps = {
   /**

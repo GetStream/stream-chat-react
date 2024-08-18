@@ -1,4 +1,6 @@
-import { StreamMessage, useChatContext, useTranslationContext } from '../../../context';
+import { useChatContext } from '../../../context/ChatContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import type { StreamMessage } from '../../../context';
 import { DefaultStreamChatGenerics } from '../../../types/types';
 import { ReactionResponse, ReactionSort, StreamChat } from 'stream-chat';
 import { ReactionType } from '../../Reactions/types';

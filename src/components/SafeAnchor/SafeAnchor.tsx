@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from 'react';
 import { sanitizeUrl } from '@braintree/sanitize-url';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 /**
  * Similar to a regular anchor tag, but it sanitizes the href value and prevents XSS

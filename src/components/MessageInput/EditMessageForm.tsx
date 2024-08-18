@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { MessageInputFlat } from './MessageInputFlat';
 
-import { useMessageInputContext, useTranslationContext } from '../../context';
+import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
 

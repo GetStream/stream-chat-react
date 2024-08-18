@@ -1,5 +1,6 @@
 import React from 'react';
-import { useMessageBounceContext, useTranslationContext } from '../../context';
+import { useMessageBounceContext } from '../../context/MessageBounceContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { MouseEventHandler, PropsWithChildren } from 'react';
 import type { DefaultStreamChatGenerics } from '../../types/types';

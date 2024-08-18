@@ -15,7 +15,7 @@ import {
   getRecordedMediaTypeFromMimeType,
   RecordedMediaType,
 } from '../../ReactFileUtilities';
-import { TranslationContextValue } from '../../../context';
+import { TranslationContextValue } from '../../../context/TranslationContext';
 import { defaultTranslatorFunction } from '../../../i18n';
 import { isSafari } from '../../../utils/browsers';
 import { mergeDeepUndefined } from '../../../utils/mergeDeep';

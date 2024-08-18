@@ -24,7 +24,7 @@ import {
   isLocalVoiceRecordingAttachment,
   isScrapedContent,
 } from '../../Attachment';
-import { useMessageInputContext } from '../../../context';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types';
 

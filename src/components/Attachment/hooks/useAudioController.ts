@@ -1,6 +1,7 @@
 import throttle from 'lodash.throttle';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useChannelActionContext, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import { useChannelActionContext } from '../../../context/ChannelActionContext';
 
 const isSeekable = (audioElement: HTMLAudioElement) =>
   !(audioElement.duration === Infinity || isNaN(audioElement.duration));

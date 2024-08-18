@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
 

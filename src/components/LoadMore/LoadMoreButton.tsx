@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useEffect } from 'react';
 import { LoadingIndicator } from '../Loading';
 import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export type LoadMoreButtonProps = {
   /** onClick handler load more button. Pagination logic should be executed in this handler. */
