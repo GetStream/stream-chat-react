@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { StreamMessage } from '../../../../context';
+import type { StreamMessage } from '../../../../context';
 import { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type UseMessageSetKeyParams<

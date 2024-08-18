@@ -35,7 +35,7 @@ import type { TypingIndicatorProps } from '../components/TypingIndicator/TypingI
 
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
 import type { RecordingPermissionDeniedNotificationProps } from '../components';
-import {
+import type {
   BaseImageProps,
   CooldownTimerProps,
   CustomMessageActionsListProps,
