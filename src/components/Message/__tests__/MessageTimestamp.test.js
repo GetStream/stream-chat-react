@@ -10,7 +10,6 @@ import { notValidDateWarning } from '../../../i18n/utils';
 import { Chat } from '../../Chat';
 import { getTestClient } from '../../../mock-builders';
 import { Streami18n } from '../../../i18n';
-
 Dayjs.extend(calendar);
 
 const calendarFormats = {
@@ -124,7 +123,7 @@ describe('<MessageTimestamp />', () => {
         }),
       },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
   });
 
   it('should render with custom format provided via i18n service', async () => {
@@ -172,7 +171,7 @@ describe('<MessageTimestamp />', () => {
       },
       props: { calendarFormats },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
   });
 
   it('should reflect the custom calendarFormats if calendar is enabled', async () => {
