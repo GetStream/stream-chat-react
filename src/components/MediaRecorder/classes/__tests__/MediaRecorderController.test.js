@@ -9,7 +9,7 @@ import {
   RecordingAttachmentType,
 } from '../MediaRecorderController';
 import { AmplitudeRecorderState, DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../AmplitudeRecorder';
-import { defaultTranslatorFunction } from '../../../../i18n';
+import { defaultTranslatorFunction } from '../../../../i18n/utils';
 import * as audioSampling from '../../../Attachment/audioSampling';
 import * as reactFileUtils from '../../../ReactFileUtilities/utils';
 import { generateVoiceRecordingAttachment } from '../../../../mock-builders';
