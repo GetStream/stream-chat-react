@@ -223,7 +223,34 @@
           "asc",
           { "caseSensitive": false, "natural": true }
         ],
-        "valid-typeof": 2
+        "valid-typeof": 2,
+        "@typescript-eslint/no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "../../context",
+                "message": "Importing from top-level barrel files is not allowed. Import from specific files instead.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "../../../context",
+                "message": "Importing from top-level barrel files is not allowed. Import from specific files instead.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "../../components",
+                "message": "Importing from top-level barrel files is not allowed. Import from specific files instead.",
+                "allowTypeImports": true
+              },
+              {
+                "name": "../../../components",
+                "message": "Importing from top-level barrel files is not allowed. Import from specific files instead.",
+                "allowTypeImports": true
+              }
+            ]
+          }
+        ]
       }
     }
   ]
