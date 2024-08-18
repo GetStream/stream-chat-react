@@ -26,6 +26,18 @@
       },
       "default": "./dist/index.js"
     },
+    "./*": {
+      "types": "./dist/*",
+      "node": {
+        "require": "./dist/*",
+        "import": "./dist/*"
+      },
+      "browser": {
+        "require": "./dist/*",
+        "import": "./dist/*"
+      },
+      "default": "./dist/*"
+    },
     "./emojis": {
       "types": "./dist/plugins/Emojis/index.d.ts",
       "node": {
