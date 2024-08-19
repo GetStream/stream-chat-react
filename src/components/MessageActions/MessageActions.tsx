@@ -11,14 +11,14 @@ import clsx from 'clsx';
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-import { isUserMuted } from '../Message/utils';
+import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 import { useMessageActionsBoxPopper } from './hooks';
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -65,7 +65,9 @@ export const MessageActions = <
   } = props;
 
   const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
+
   const {
+    customMessageActions,
     getMessageActions: contextGetMessageActions,
     handleDelete: contextHandleDelete,
     handleFlag: contextHandleFlag,
@@ -75,7 +77,10 @@ export const MessageActions = <
     isMyMessage,
     message: contextMessage,
     setEditingState,
+    threadList,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
+
+  const { CustomMessageActionsList } = useComponentContext('MessageActions');
 
   const { t } = useTranslationContext('MessageActions');
 
@@ -91,6 +96,16 @@ export const MessageActions = <
   const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
+
+  const messageActions = getMessageActions();
+
+  const renderMessageActions = shouldRenderMessageActions({
+    // @ts-expect-error
+    customMessageActions,
+    CustomMessageActionsList,
+    inThread: threadList,
+    messageActions,
+  });
 
   const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
     if (event instanceof KeyboardEvent && event.key !== 'Escape') {
@@ -131,6 +146,8 @@ export const MessageActions = <
     placement: isMine ? 'top-end' : 'top-start',
     referenceElement: actionsBoxButtonRef.current,
   });
+
+  if (!renderMessageActions) return null;
 
   return (
     <MessageActionsWrapper

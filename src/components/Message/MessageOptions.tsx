@@ -5,14 +5,14 @@ import {
   ReactionIcon as DefaultReactionIcon,
   ThreadIcon as DefaultThreadIcon,
 } from './icons';
-import { MESSAGE_ACTIONS, shouldRenderMessageActions } from './utils';
+import { MESSAGE_ACTIONS } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -47,7 +47,6 @@ const UnMemoizedMessageOptions = <
   } = props;
 
   const {
-    customMessageActions,
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
@@ -57,20 +56,11 @@ const UnMemoizedMessageOptions = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
-  const { CustomMessageActionsList } = useComponentContext('MessageOptions');
-
   const { t } = useTranslationContext('MessageOptions');
 
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const renderMessageActions = shouldRenderMessageActions({
-    // @ts-ignore
-    customMessageActions,
-    CustomMessageActionsList,
-    inThread: threadList,
-    messageActions,
-  });
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =
@@ -92,9 +82,7 @@ const UnMemoizedMessageOptions = <
 
   return (
     <div className={rootClassName} data-testid='message-options'>
-      {renderMessageActions && (
-        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
-      )}
+      <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
       {shouldShowReplies && (
         <button
           aria-label={t('aria/Open Thread')}

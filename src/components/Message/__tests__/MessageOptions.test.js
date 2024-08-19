@@ -197,7 +197,7 @@ describe('<MessageOptions />', () => {
       channelStateOpts: { channelCapabilities: minimumCapabilitiesToRenderMessageActions },
       customMessageProps: { messageActions: [] },
     });
-    expect(MessageActionsMock).not.toHaveBeenCalled();
+    expect(MessageActionsMock).;
   });
 
   it('should not show actions box for message in thread if only non-thread actions are available', async () => {
