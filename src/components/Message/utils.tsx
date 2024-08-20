@@ -219,15 +219,17 @@ export const showMessageActionsBox = (
   inThread?: boolean | undefined,
 ) => shouldRenderMessageActions({ inThread, messageActions: actions });
 
-export const shouldRenderMessageActions = ({
+export const shouldRenderMessageActions = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
   customMessageActions,
   CustomMessageActionsList,
   inThread,
   messageActions,
 }: {
   messageActions: MessageActionsArray;
-  customMessageActions?: CustomMessageActions;
-  CustomMessageActionsList?: ComponentContextValue['CustomMessageActionsList'];
+  customMessageActions?: CustomMessageActions<SCG>;
+  CustomMessageActionsList?: ComponentContextValue<SCG>['CustomMessageActionsList'];
   inThread?: boolean;
 }) => {
   if (

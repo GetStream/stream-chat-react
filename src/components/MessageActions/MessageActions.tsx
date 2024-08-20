@@ -80,7 +80,7 @@ export const MessageActions = <
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
 
-  const { CustomMessageActionsList } = useComponentContext('MessageActions');
+  const { CustomMessageActionsList } = useComponentContext<StreamChatGenerics>('MessageActions');
 
   const { t } = useTranslationContext('MessageActions');
 
@@ -99,8 +99,7 @@ export const MessageActions = <
 
   const messageActions = getMessageActions();
 
-  const renderMessageActions = shouldRenderMessageActions({
-    // @ts-expect-error
+  const renderMessageActions = shouldRenderMessageActions<StreamChatGenerics>({
     customMessageActions,
     CustomMessageActionsList,
     inThread: threadList,
