@@ -90,7 +90,9 @@ const ActiveChannelSetter = ({ activeChannel }) => {
 const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' });
 
 // create a full message state so that we can properly test `loadMore`
-const messages = Array.from({ length: 25 }, () => generateMessage({ user }));
+const messages = Array.from({ length: 25 }, (_, i) =>
+  generateMessage({ created_at: new Date((i + 1) * 1000000), user }),
+);
 
 const pinnedMessages = [generateMessage({ pinned: true, user })];
 
@@ -701,6 +703,20 @@ describe('Channel', () => {
 
     describe('loading more messages', () => {
       const limit = 10;
+      it("should initiate the hasMore flag with the current message set's pagination hasPrev value", async () => {
+        const { channel, chatClient } = await initClient();
+        let hasMore;
+        await renderComponent({ channel, chatClient }, ({ hasMore: hasMoreCtx }) => {
+          hasMore = hasMoreCtx;
+        });
+        expect(hasMore).toBe(true);
+
+        channel.state.messageSets[0].pagination.hasPrev = false;
+        await renderComponent({ channel, chatClient }, ({ hasMore: hasMoreCtx }) => {
+          hasMore = hasMoreCtx;
+        });
+        expect(hasMore).toBe(false);
+      });
       it('should be able to load more messages', async () => {
         const { channel, chatClient } = await initClient();
         const channelQuerySpy = jest.spyOn(channel, 'query');
@@ -740,7 +756,7 @@ describe('Channel', () => {
       it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
         const { channel, chatClient } = await initClient();
         let channelHasMore = false;
-        const newMessages = [generateMessage()];
+        const newMessages = [generateMessage({ created_at: new Date(1000) })];
         await renderComponent(
           { channel, chatClient },
           ({ hasMore, loadMore, messages: contextMessages }) => {
@@ -822,8 +838,12 @@ describe('Channel', () => {
 
       it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
         const { channel, chatClient } = await initClient();
-        const firstPageMessages = Array.from({ length: 25 }, generateMessage);
-        const secondPageMessages = Array.from({ length: 15 }, generateMessage);
+        const firstPageMessages = Array.from({ length: 25 }, (_, i) =>
+          generateMessage({ created_at: new Date((i + 16) * 100000) }),
+        );
+        const secondPageMessages = Array.from({ length: 15 }, (_, i) =>
+          generateMessage({ created_at: new Date((i + 1) * 100000) }),
+        );
         useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageMessages, channel)]);
         let queryNextPageSpy;
         let contextMessageCount;
@@ -896,8 +916,12 @@ describe('Channel', () => {
         const channelQueryOptions = {
           messages: { limit: equalCount },
         };
-        const firstPageMessages = Array.from({ length: equalCount }, generateMessage);
-        const secondPageMessages = Array.from({ length: equalCount - 1 }, generateMessage);
+        const firstPageMessages = Array.from({ length: equalCount }, (_, i) =>
+          generateMessage({ created_at: new Date((i + 1 + equalCount) * 100000) }),
+        );
+        const secondPageMessages = Array.from({ length: equalCount - 1 }, (_, i) =>
+          generateMessage({ created_at: new Date((i + 1) * 100000) }),
+        );
         useMockedApis(chatClient, [queryChannelWithNewMessages(firstPageMessages, channel)]);
         let queryNextPageSpy;
         let contextMessageCount;
