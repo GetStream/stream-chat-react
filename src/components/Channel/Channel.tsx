@@ -413,7 +413,11 @@ const ChannelInner = <
     channelReducer,
     // channel.initialized === false if client.channel().query() was not called, e.g. ChannelList is not used
     // => Channel will call channel.watch() in useLayoutEffect => state.loading is used to signal the watch() call state
-    { ...initialState, loading: !channel.initialized },
+    {
+      ...initialState,
+      hasMore: channel.state.messagePagination.hasPrev,
+      loading: !channel.initialized,
+    },
   );
 
   const isMounted = useIsMounted();
@@ -571,7 +575,6 @@ const ChannelInner = <
   useLayoutEffect(() => {
     let errored = false;
     let done = false;
-    let channelInitializedExternally = true;
 
     (async () => {
       if (!channel.initialized && initializeOnMount) {
@@ -597,7 +600,6 @@ const ChannelInner = <
           await getChannel({ channel, client, members, options: channelQueryOptions });
           const config = channel.getConfig();
           setChannelConfig(config);
-          channelInitializedExternally = false;
         } catch (e) {
           dispatch({ error: e as Error, type: 'setError' });
           errored = true;
@@ -610,12 +612,7 @@ const ChannelInner = <
       if (!errored) {
         dispatch({
           channel,
-          hasMore:
-            channelInitializedExternally ||
-            hasMoreMessagesProbably(
-              channel.state.messages.length,
-              channelQueryOptions.messages.limit,
-            ),
+          hasMore: channel.state.messagePagination.hasPrev,
           type: 'initStateFromChannel',
         });
 
@@ -690,7 +687,8 @@ const ChannelInner = <
   );
 
   const loadMore = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (!online.current || !window.navigator.onLine || !state.hasMore) return 0;
+    if (!online.current || !window.navigator.onLine || !channel.state.messagePagination.hasPrev)
+      return 0;
 
     // prevent duplicate loading events...
     const oldestMessage = state?.messages?.[0];
@@ -716,14 +714,14 @@ const ChannelInner = <
       return 0;
     }
 
-    const hasMoreMessages = queryResponse.messages.length === perPage;
-    loadMoreFinished(hasMoreMessages, channel.state.messages);
+    loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
 
     return queryResponse.messages.length;
   };
 
   const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
-    if (!online.current || !window.navigator.onLine || !state.hasMoreNewer) return 0;
+    if (!online.current || !window.navigator.onLine || !channel.state.messagePagination.hasNext)
+      return 0;
 
     const newestMessage = state?.messages?.[state?.messages?.length - 1];
     if (state.loadingMore || state.loadingMoreNewer) return 0;
@@ -745,10 +743,8 @@ const ChannelInner = <
       return 0;
     }
 
-    const hasMoreNewerMessages = channel.state.messages !== channel.state.latestMessages;
-
     dispatch({
-      hasMoreNewer: hasMoreNewerMessages,
+      hasMoreNewer: channel.state.messagePagination.hasNext,
       messages: channel.state.messages,
       type: 'loadMoreNewerFinished',
     });
@@ -766,18 +762,9 @@ const ChannelInner = <
       dispatch({ loadingMore: true, type: 'setLoadingMore' });
       await channel.state.loadMessageIntoState(messageId, undefined, messageLimit);
 
-      /**
-       * if the message we are jumping to has less than half of the page size older messages,
-       * we have jumped to the beginning of the channel.
-       */
-      const indexOfMessage = channel.state.messages.findIndex(
-        (message) => message.id === messageId,
-      );
-      const hasMoreMessages = indexOfMessage >= Math.floor(messageLimit / 2);
-
-      loadMoreFinished(hasMoreMessages, channel.state.messages);
+      loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
       dispatch({
-        hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+        hasMoreNewer: channel.state.messagePagination.hasNext,
         highlightedMessageId: messageId,
         type: 'jumpToMessageFinished',
       });
@@ -796,9 +783,7 @@ const ChannelInner = <
 
   const jumpToLatestMessage: ChannelActionContextValue<StreamChatGenerics>['jumpToLatestMessage'] = useCallback(async () => {
     await channel.state.loadMessageIntoState('latest');
-    // FIXME: we cannot rely on constant value 25 as the page size can be customized by integrators
-    const hasMoreOlder = channel.state.messages.length >= 25;
-    loadMoreFinished(hasMoreOlder, channel.state.messages);
+    loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
     dispatch({
       type: 'jumpToLatestMessage',
     });
@@ -813,7 +798,6 @@ const ChannelInner = <
       let lastReadMessageId = channelUnreadUiState?.last_read_message_id;
       let firstUnreadMessageId = channelUnreadUiState?.first_unread_message_id;
       let isInCurrentMessageSet = false;
-      let hasMoreMessages = true;
 
       if (firstUnreadMessageId) {
         const result = findInMsgSetById(firstUnreadMessageId, channel.state.messages);
@@ -852,14 +836,14 @@ const ChannelInner = <
             ).messages;
           } catch (e) {
             addNotification(t('Failed to jump to the first unread message'), 'error');
-            loadMoreFinished(hasMoreMessages, channel.state.messages);
+            loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
             return;
           }
 
           const firstMessageWithCreationDate = messages.find((msg) => msg.created_at);
           if (!firstMessageWithCreationDate) {
             addNotification(t('Failed to jump to the first unread message'), 'error');
-            loadMoreFinished(hasMoreMessages, channel.state.messages);
+            loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
             return;
           }
           const firstMessageTimestamp = new Date(
@@ -868,13 +852,11 @@ const ChannelInner = <
           if (lastReadTimestamp < firstMessageTimestamp) {
             // whole channel is unread
             firstUnreadMessageId = firstMessageWithCreationDate.id;
-            hasMoreMessages = false;
           } else {
             const result = findInMsgSetByDate(channelUnreadUiState.last_read, messages);
             lastReadMessageId = result.target?.id;
-            hasMoreMessages = result.index >= Math.floor(queryMessageLimit / 2);
           }
-          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
         }
       }
 
@@ -895,13 +877,12 @@ const ChannelInner = <
           const indexOfTarget = channel.state.messages.findIndex(
             (message) => message.id === targetId,
           ) as number;
-          hasMoreMessages = indexOfTarget >= Math.floor(queryMessageLimit / 2);
-          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
           firstUnreadMessageId =
             firstUnreadMessageId ?? channel.state.messages[indexOfTarget + 1]?.id;
         } catch (e) {
           addNotification(t('Failed to jump to the first unread message'), 'error');
-          loadMoreFinished(hasMoreMessages, channel.state.messages);
+          loadMoreFinished(channel.state.messagePagination.hasPrev, channel.state.messages);
           return;
         }
       }
@@ -918,7 +899,7 @@ const ChannelInner = <
         });
 
       dispatch({
-        hasMoreNewer: channel.state.messages !== channel.state.latestMessages,
+        hasMoreNewer: channel.state.messagePagination.hasNext,
         highlightedMessageId: firstUnreadMessageId,
         type: 'jumpToMessageFinished',
       });
