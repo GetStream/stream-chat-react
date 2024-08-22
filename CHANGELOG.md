@@ -110,6 +110,20 @@ TypingIndicator is rendered as a child of MessageListMainPanel
 
 * remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([9410153](https://github.com/GetStream/stream-chat-react/commit/94101535d1de9de23a1ab8913423af0e7009bab9))
 
+## [11.23.7](https://github.com/GetStream/stream-chat-react/compare/v11.23.6...v11.23.7) (2024-08-22)
+
+
+### Bug Fixes
+
+* use the client pagination indicators for ChannelStateContext's hasMore and hasMoreNewer flags ([#2478](https://github.com/GetStream/stream-chat-react/issues/2478)) ([eb13bd5](https://github.com/GetStream/stream-chat-react/commit/eb13bd51ec296f36f9a09edd28704ea2d22f3ed1))
+
+## [11.23.6](https://github.com/GetStream/stream-chat-react/compare/v11.23.5...v11.23.6) (2024-08-15)
+
+
+### Bug Fixes
+
+* **deps:** drop remark-gfm version ([#2471](https://github.com/GetStream/stream-chat-react/issues/2471)) ([1b359f7](https://github.com/GetStream/stream-chat-react/commit/1b359f7e4a5d4cca6edc3abbd97dee42b55c4a79))
+
 ## [11.23.5](https://github.com/GetStream/stream-chat-react/compare/v11.23.4...v11.23.5) (2024-08-08)
 
 
