@@ -1,5 +1,5 @@
 import { useChatContext } from 'context';
-import { useSimpleStateStore } from './useSimpleStateStore';
+import { useStateStore } from './useStateStore';
 import { ThreadManagerState } from 'stream-chat';
 
 export const useThreadManagerState = <T extends readonly unknown[]>(
@@ -7,5 +7,5 @@ export const useThreadManagerState = <T extends readonly unknown[]>(
 ) => {
   const { client } = useChatContext();
 
-  return useSimpleStateStore(client.threads.state, selector);
+  return useStateStore(client.threads.state, selector);
 };

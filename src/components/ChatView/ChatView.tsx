@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { ThreadProvider, useSimpleStateStore } from '../Threads';
+import { ThreadProvider, useStateStore } from '../Threads';
 import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext } from '../../context';
@@ -127,7 +127,7 @@ const selector = (nextValue: ThreadManagerState) => [nextValue.unreadThreadsCoun
 
 const ChatViewSelector = () => {
   const { client } = useChatContext();
-  const [unreadThreadsCount] = useSimpleStateStore(client.threads.state, selector);
+  const [unreadThreadsCount] = useStateStore(client.threads.state, selector);
 
   const { activeChatView, setActiveChatView } = useContext(ChatViewContext);
 

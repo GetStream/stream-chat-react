@@ -1,5 +1,5 @@
 import { ThreadState } from 'stream-chat';
-import { useSimpleStateStore } from './useSimpleStateStore';
+import { useStateStore } from './useStateStore';
 import { useThreadListItemContext } from '../ThreadList';
 import { useThreadContext } from '../ThreadContext';
 
@@ -12,5 +12,5 @@ export const useThreadState = <T extends readonly unknown[]>(
   const listItemThread = useThreadListItemContext();
   const thread = useThreadContext();
 
-  return useSimpleStateStore(listItemThread?.state ?? thread.state, selector);
+  return useStateStore(listItemThread?.state ?? thread.state, selector);
 };

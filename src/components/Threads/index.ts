@@ -1,3 +1,3 @@
 export * from './ThreadContext';
 export * from './ThreadList';
-export * from './hooks/useSimpleStateStore';
+export * from './hooks/useStateStore';

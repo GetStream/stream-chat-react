@@ -18,7 +18,7 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
-import { useSimpleStateStore, useThreadContext } from '../../components/Threads';
+import { useStateStore, useThreadContext } from '../../components/Threads';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
@@ -93,7 +93,7 @@ const ThreadInner = <
   } = props;
 
   const threadInstance = useThreadContext();
-  const [latestReplies, loadingPreviousPage, parentMessage] = useSimpleStateStore(
+  const [latestReplies, loadingPreviousPage, parentMessage] = useStateStore(
     threadInstance.state,
     selector,
   );

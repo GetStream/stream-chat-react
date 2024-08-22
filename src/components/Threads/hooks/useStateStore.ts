@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import type { SimpleStateStore } from 'stream-chat';
+import type { StateStore } from 'stream-chat';
 
-export const useSimpleStateStore = <T, O extends readonly unknown[]>(
-  store: SimpleStateStore<T>,
+export const useStateStore = <T extends Record<string, unknown>, O extends readonly unknown[]>(
+  store: StateStore<T>,
   selector: (v: T) => O,
 ) => {
   const [state, setState] = useState<O>(selector(store.getLatestValue()));

@@ -4,13 +4,13 @@ import type { ThreadManagerState } from 'stream-chat';
 
 import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
-import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
+import { useStateStore } from '../hooks/useStateStore';
 
 const selector = (nextValue: ThreadManagerState) => [nextValue.unseenThreadIds] as const;
 
 export const ThreadListUnseenThreadsBanner = () => {
   const { client } = useChatContext();
-  const [unseenThreadIds] = useSimpleStateStore(client.threads.state, selector);
+  const [unseenThreadIds] = useStateStore(client.threads.state, selector);
 
   if (!unseenThreadIds.length) return null;
 

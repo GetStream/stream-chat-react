@@ -10,7 +10,7 @@ import { UnreadCountBadge } from '../UnreadCountBadge';
 import { useChatContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
-import { useSimpleStateStore } from '../hooks/useSimpleStateStore';
+import { useStateStore } from '../hooks/useStateStore';
 
 export type ThreadListItemUiProps = ComponentPropsWithoutRef<'button'>;
 
@@ -27,7 +27,7 @@ const selector = (nextValue: ThreadState) =>
     nextValue.latestReplies.at(-1),
     nextValue.read,
     nextValue.parentMessage,
-    nextValue.channelData,
+    nextValue.channel,
     nextValue.deletedAt,
   ] as const;
 
@@ -79,7 +79,7 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
-  const [latestReply, read, parentMessage, channelData, deletedAt] = useSimpleStateStore(
+  const [latestReply, read, parentMessage, channelData, deletedAt] = useStateStore(
     thread.state,
     selector,
   );
@@ -101,7 +101,9 @@ export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
     >
       <div className='str-chat__thread-list-item__channel'>
         <Icon.MessageBubble />
-        <div className='str-chat__thread-list-item__channel-text'>{channelData?.name || 'N/A'}</div>
+        <div className='str-chat__thread-list-item__channel-text'>
+          {channelData.data?.name || 'N/A'}
+        </div>
       </div>
       <div className='str-chat__thread-list-item__parent-message'>
         <div className='str-chat__thread-list-item__parent-message-text'>
