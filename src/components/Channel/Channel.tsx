@@ -1327,10 +1327,6 @@ const ChannelInner = <
     );
   }
 
-  // @ts-ignore
-  window['channel'] = channel;
-  // @ts-ignore
-  window['client'] = client;
   return (
     <div className={clsx(className, windowsEmojiClass)}>
       <ChannelStateProvider value={channelStateContextValue}>
