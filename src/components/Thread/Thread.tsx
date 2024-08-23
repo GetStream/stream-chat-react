@@ -64,10 +64,13 @@ export const Thread = <
   const { channel, channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('Thread');
   const threadInstance = useThreadContext();
 
-  if ((!thread && !threadInstance.channel) || channelConfig?.replies === false) return null;
+  if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
 
   // The wrapper ensures a key variable is set and the component recreates on thread switch
-  return <ThreadInner {...props} key={`thread-${(thread ?? threadInstance).id}-${channel?.cid}`} />;
+  return (
+    // FIXME: TS is having trouble here as at least one of the two would always be defined
+    <ThreadInner {...props} key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`} />
+  );
 };
 
 const selector = (nextValue: ThreadState) =>
@@ -93,10 +96,8 @@ const ThreadInner = <
   } = props;
 
   const threadInstance = useThreadContext();
-  const [latestReplies, loadingPreviousPage, parentMessage] = useStateStore(
-    threadInstance.state,
-    selector,
-  );
+  const [latestReplies, loadingPreviousPage, parentMessage] =
+    useStateStore(threadInstance?.state, selector) ?? [];
 
   const {
     thread,
@@ -141,7 +142,7 @@ const ThreadInner = <
     | 'loadMore'
     | 'loadingMore'
     | 'messages'
-  > = threadInstance.channel
+  > = threadInstance
     ? {
         loadingMore: loadingPreviousPage,
         loadMore: threadInstance.loadPreviousPage,

@@ -1034,16 +1034,15 @@ const ChannelInner = <
           status: 'failed',
         });
 
-        if (thread.channel)
-          thread.upsertReplyLocally({
-            // @ts-expect-error
-            message: {
-              ...message,
-              error: parsedError,
-              errorStatusCode: parsedError.status || undefined,
-              status: 'failed',
-            },
-          });
+        thread?.upsertReplyLocally({
+          // @ts-expect-error
+          message: {
+            ...message,
+            error: parsedError,
+            errorStatusCode: parsedError.status || undefined,
+            status: 'failed',
+          },
+        });
       }
     }
   };
@@ -1074,8 +1073,10 @@ const ChannelInner = <
       user: client.user,
     };
 
-    // @ts-expect-error
-    if (thread.channel) thread.upsertReplyLocally({ message: messagePreview });
+    thread?.upsertReplyLocally({
+      // @ts-expect-error
+      message: messagePreview,
+    });
 
     updateMessage(messagePreview);
 

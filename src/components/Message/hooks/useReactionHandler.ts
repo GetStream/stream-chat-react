@@ -96,7 +96,7 @@ export const useReactionHandler = <
 
     try {
       updateMessage(tempMessage);
-      if (thread.channel) thread.upsertReplyLocally({ message: tempMessage });
+      thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
         ? await channel.sendReaction(id, { type } as Reaction<StreamChatGenerics>)
@@ -107,7 +107,7 @@ export const useReactionHandler = <
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      if (thread.channel) thread.upsertReplyLocally({ message });
+      thread?.upsertReplyLocally({ message });
     }
   }, 1000);
 
