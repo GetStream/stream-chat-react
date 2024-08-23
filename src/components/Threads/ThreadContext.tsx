@@ -1,10 +1,9 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext } from 'react';
 
 import { Channel } from '../../components';
 
 import type { PropsWithChildren } from 'react';
 import { Thread } from 'stream-chat';
-import { useChatContext } from '../../context';
 
 /**
  * TODO:
@@ -16,14 +15,9 @@ export type ThreadContextValue = Thread | undefined;
 export const ThreadContext = createContext<ThreadContextValue>(undefined);
 
 export const useThreadContext = () => {
-  const { client } = useChatContext();
   const thread = useContext(ThreadContext);
 
-  const placeholder = useMemo(() => new Thread({ client, threadData: {} }), [client]);
-
-  if (!thread) return placeholder;
-
-  return thread;
+  return thread ?? undefined;
 };
 
 export const ThreadProvider = ({ children, thread }: PropsWithChildren<{ thread?: Thread }>) => (
