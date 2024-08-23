@@ -12,7 +12,7 @@ import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../hooks/useStateStore';
 
-export type ThreadListItemUiProps = ComponentPropsWithoutRef<'button'>;
+export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 
 /**
  * TODO:
@@ -75,7 +75,7 @@ const getTitleFromMessage = ({
   );
 };
 
-export const ThreadListItemUi = (props: ThreadListItemUiProps) => {
+export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;

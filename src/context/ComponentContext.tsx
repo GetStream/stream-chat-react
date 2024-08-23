@@ -41,7 +41,7 @@ import type {
   SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
-  ThreadListItemUiProps,
+  ThreadListItemUIProps,
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
@@ -100,7 +100,7 @@ export type ComponentContextValue<
   ThreadInput?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
-  ThreadListItemUi?: React.ComponentType<ThreadListItemUiProps>;
+  ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;
   ThreadListLoadingIndicator?: React.ComponentType;
   ThreadListUnseenThreadsBanner?: React.ComponentType;
   ThreadStart?: React.ComponentType;
