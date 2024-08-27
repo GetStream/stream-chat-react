@@ -1,3 +1,10 @@
+## [12.0.0-rc.9](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.8...v12.0.0-rc.9) (2024-08-22)
+
+
+### Bug Fixes
+
+* use the client pagination indicators for ChannelStateContext's hasMore and hasMoreNewer flags ([#2478](https://github.com/GetStream/stream-chat-react/issues/2478)) ([eb13bd5](https://github.com/GetStream/stream-chat-react/commit/eb13bd51ec296f36f9a09edd28704ea2d22f3ed1))
+
 ## [12.0.0-rc.8](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.7...v12.0.0-rc.8) (2024-08-15)
 
 
