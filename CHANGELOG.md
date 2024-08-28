@@ -1,3 +1,10 @@
+## [11.23.8](https://github.com/GetStream/stream-chat-react/compare/v11.23.7...v11.23.8) (2024-08-28)
+
+
+### Chores
+
+* **deps:** bump version of stream-chat in peerDeps ([#2481](https://github.com/GetStream/stream-chat-react/issues/2481)) ([466385d](https://github.com/GetStream/stream-chat-react/commit/466385daeb4eeb2fb22964738e533c177a5ef29f))
+
 ## [11.23.7](https://github.com/GetStream/stream-chat-react/compare/v11.23.6...v11.23.7) (2024-08-22)
 
 
