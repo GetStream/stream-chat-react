@@ -96,6 +96,7 @@ export const useReactionHandler = <
 
     try {
       updateMessage(tempMessage);
+      // @ts-expect-error
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
@@ -107,6 +108,7 @@ export const useReactionHandler = <
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
+      // @ts-expect-error
       thread?.upsertReplyLocally({ message });
     }
   }, 1000);

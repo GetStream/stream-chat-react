@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import clsx from 'clsx';
 
 import type { FormatMessageResponse, ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
+import { Timestamp } from '../../Message/Timestamp';
 import { Avatar } from '../../Avatar';
 import { Icon } from '../icons';
 import { UnreadCountBadge } from '../UnreadCountBadge';
@@ -21,15 +22,6 @@ export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
  * - use Moment/DayJs for proper created_at formatting (replace toLocaleTimeString)
  * - handle deleted message [in progress]
  */
-
-const selector = (nextValue: ThreadState) =>
-  [
-    nextValue.latestReplies.at(-1),
-    nextValue.read,
-    nextValue.parentMessage,
-    nextValue.channel,
-    nextValue.deletedAt,
-  ] as const;
 
 export const attachmentTypeIconMap = {
   audio: '🔈',
@@ -79,15 +71,26 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
-  const [latestReply, read, parentMessage, channelData, deletedAt] = useStateStore(
+
+  const selector = useCallback(
+    (nextValue: ThreadState) =>
+      [
+        nextValue.replies.at(-1),
+        (client.userID && nextValue.read[client.userID]?.unreadMessageCount) || 0,
+        nextValue.parentMessage,
+        nextValue.channel,
+        nextValue.deletedAt,
+      ] as const,
+    [client],
+  );
+
+  const [latestReply, ownUnreadMessageCount, parentMessage, channelData, deletedAt] = useStateStore(
     thread.state,
     selector,
   );
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const unreadMessagesCount = read[client.user!.id]?.unread_messages ?? 0;
   const avatarProps = deletedAt ? null : latestReply?.user;
 
   return (
@@ -110,7 +113,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
           {/* TODO: use thread.title instead? */}
           replied to: {getTitleFromMessage({ message: parentMessage })}
         </div>
-        {!deletedAt && <UnreadCountBadge count={unreadMessagesCount} />}
+        {!deletedAt && <UnreadCountBadge count={ownUnreadMessageCount} />}
       </div>
       <div className='str-chat__thread-list-item__latest-reply'>
         <Avatar {...avatarProps} />
@@ -127,9 +130,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
                 : getTitleFromMessage({ currentUserId: client.user?.id, message: latestReply })}
             </div>
             <div className='str-chat__thread-list-item__latest-reply-timestamp'>
-              {deletedAt
-                ? deletedAt.toLocaleTimeString()
-                : latestReply?.created_at.toLocaleTimeString() || 'N/A'}
+              <Timestamp timestamp={deletedAt ?? latestReply?.created_at} />
             </div>
           </div>
         </div>

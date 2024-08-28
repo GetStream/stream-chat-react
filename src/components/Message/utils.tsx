@@ -206,7 +206,6 @@ export const getMessageActions = (
 
 export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.pin,
-  MESSAGE_ACTIONS.react,
   MESSAGE_ACTIONS.reply,
   MESSAGE_ACTIONS.markUnread,
 ];

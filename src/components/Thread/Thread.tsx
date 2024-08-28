@@ -74,7 +74,7 @@ export const Thread = <
 };
 
 const selector = (nextValue: ThreadState) =>
-  [nextValue.latestReplies, nextValue.loadingPreviousPage, nextValue.parentMessage] as const;
+  [nextValue.replies, nextValue.pagination.isLoadingPrev, nextValue.parentMessage] as const;
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -145,7 +145,7 @@ const ThreadInner = <
   > = threadInstance
     ? {
         loadingMore: loadingPreviousPage,
-        loadMore: threadInstance.loadPreviousPage,
+        loadMore: threadInstance.loadPrevPage,
         messages: latestReplies,
       }
     : {

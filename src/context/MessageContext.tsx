@@ -162,15 +162,12 @@ export const MessageProvider = <
 export const useMessageContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  componentName?: string,
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  _componentName?: string,
 ) => {
   const contextValue = useContext(MessageContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useMessageContext hook was called outside of the MessageContext provider. Make sure this hook is called within the Message's UI component. The errored call is located in the ${componentName} component.`,
-    );
-
     return {} as MessageContextValue<StreamChatGenerics>;
   }
 
