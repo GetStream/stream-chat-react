@@ -6,15 +6,14 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 import { useChatContext, useComponentContext } from '../../../context';
 import { useStateStore } from '../hooks/useStateStore';
 
-const selector = (nextValue: ThreadManagerState) => [nextValue.loadingNextPage];
+const selector = (nextValue: ThreadManagerState) => [nextValue.pagination.isLoadingNext];
 
 export const ThreadListLoadingIndicator = () => {
   const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
   const { client } = useChatContext();
-  const [loadingNextPage] = useStateStore(client.threads.state, selector);
+  const [isLoadingNext] = useStateStore(client.threads.state, selector);
 
-  // TODO: figure out both loading directions once applicable (maybe Virtuoso context?)
-  if (!loadingNextPage) return null;
+  if (!isLoadingNext) return null;
 
   return (
     <div className='str-chat__thread-list-loading-indicator'>

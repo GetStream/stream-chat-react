@@ -68,7 +68,7 @@ export const useChat = <
     client.threads.registerSubscriptions();
 
     return () => {
-      client.threads.deregisterSubscriptions();
+      client.threads.unregisterSubscriptions();
     };
   }, [client]);
 
