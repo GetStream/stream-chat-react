@@ -66,7 +66,7 @@ export const Thread = <
 
   if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
 
-  // The wrapper ensures a key variable is set and the component recreates on thread switch
+  // the wrapper ensures a key variable is set and the component recreates on thread switch
   return (
     // FIXME: TS is having trouble here as at least one of the two would always be defined
     <ThreadInner {...props} key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`} />
@@ -74,7 +74,12 @@ export const Thread = <
 };
 
 const selector = (nextValue: ThreadState) =>
-  [nextValue.replies, nextValue.pagination.isLoadingPrev, nextValue.parentMessage] as const;
+  [
+    nextValue.replies,
+    nextValue.pagination.isLoadingPrev,
+    nextValue.pagination.isLoadingNext,
+    nextValue.parentMessage,
+  ] as const;
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -96,7 +101,7 @@ const ThreadInner = <
   } = props;
 
   const threadInstance = useThreadContext();
-  const [latestReplies, loadingPreviousPage, parentMessage] =
+  const [latestReplies, isLoadingPrev, isLoadingNext, parentMessage] =
     useStateStore(threadInstance?.state, selector) ?? [];
 
   const {
@@ -144,8 +149,10 @@ const ThreadInner = <
     | 'messages'
   > = threadInstance
     ? {
-        loadingMore: loadingPreviousPage,
+        loadingMore: isLoadingPrev,
+        loadingMoreNewer: isLoadingNext,
         loadMore: threadInstance.loadPrevPage,
+        loadMoreNewer: threadInstance.loadNextPage,
         messages: latestReplies,
       }
     : {

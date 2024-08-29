@@ -18,19 +18,27 @@ type ThreadListProps = {
   virtuosoProps?: VirtuosoProps<Thread, unknown>;
 };
 
-const useThreadList = () => {
+export const useThreadList = () => {
   const { client } = useChatContext();
 
   useEffect(() => {
-    const { threads } = client.threads.state.getLatestValue();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && document.hasFocus()) {
+        client.threads.activate();
+      }
+      if (document.visibilityState === 'hidden' || !document.hasFocus()) {
+        client.threads.deactivate();
+      }
+    };
 
-    // load threads upon "initial" ThreadList render
-    if (!threads.length) client.threads.loadNextPage();
+    handleVisibilityChange();
 
-    client.threads.activate();
-
+    window.addEventListener('focus', handleVisibilityChange);
+    window.addEventListener('blur', handleVisibilityChange);
     return () => {
       client.threads.deactivate();
+      window.addEventListener('blur', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
     };
   }, [client]);
 };
