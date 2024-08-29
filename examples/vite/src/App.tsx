@@ -11,23 +11,30 @@ import {
   useCreateChatClient,
   ThreadList,
   ChatView,
-  useChannelStateContext,
 } from 'stream-chat-react';
-import '@stream-io/stream-chat-css/dist/v2/css/index.css';
+import 'stream-chat-react/css/v2/index.css';
 
 const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
 }) as unknown) as Record<string, string | null>;
 
+const geUserIdFromToken = (token: string) => {
+  const [, payload] = token.split('.');
+
+  if (!payload) throw new Error('Token is missing payload');
+
+  return JSON.parse(atob(payload))?.user_id;
+};
+
 const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
-const userId = params.uid ?? (import.meta.env.VITE_USER_ID as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
+const userId = geUserIdFromToken(userToken);
 
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
 };
-const options: ChannelOptions = { limit: 4, presence: true, state: true };
+const options: ChannelOptions = { limit: 3, presence: true, state: true };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 type LocalAttachmentType = Record<string, unknown>;
@@ -52,29 +59,12 @@ type StreamChatGenerics = {
   userType: LocalUserType;
 };
 
-const C = () => {
-  const { channel } = useChannelStateContext();
-
-  return <button onPointerDown={() => channel.stopWatching()}></button>;
-};
-
 const App = () => {
   const chatClient = useCreateChatClient<StreamChatGenerics>({
     apiKey,
     tokenOrProvider: userToken,
     userData: { id: userId },
   });
-
-  // const channel = useMemo(() => {
-  //   if (!chatClient) return;
-
-  //   const c = chatClient.channel('messaging', 'random-channel-2', {
-  //     members: ['john', 'marco', 'mark'],
-  //     name: 'Random 1',
-  //   });
-  //   c.updatePartial({ set: { name: 'Random 2' } });
-  //   return c
-  // }, [chatClient]);
 
   if (!chatClient) return <>Loading...</>;
 
@@ -85,7 +75,6 @@ const App = () => {
         <ChatView.Channels>
           <ChannelList filters={filters} options={options} sort={sort} />
           <Channel>
-            <C />
             <Window>
               <ChannelHeader />
               <MessageList returnAllReadData />
