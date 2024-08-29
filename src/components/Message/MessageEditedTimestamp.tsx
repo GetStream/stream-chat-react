@@ -1,7 +1,9 @@
 import React from 'react';
 
 import clsx from 'clsx';
-import { useComponentContext, useMessageContext, useTranslationContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useMessageContext } from '../../context/MessageContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { isMessageEdited } from './utils';
 

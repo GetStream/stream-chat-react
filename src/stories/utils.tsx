@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useEffect, useState } from 'react';
-import { Chat } from '../';
+import { Chat } from '../components/Chat/Chat';
 import {
   DefaultGenerics,
   ExtendableGenerics,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export const MenuIcon = ({ title }: { title?: string }) => {
   const { t } = useTranslationContext('MenuIcon');

@@ -1,7 +1,9 @@
 import { find } from 'linkifyjs';
 import { Dispatch, useCallback, useEffect, useRef } from 'react';
 import debounce from 'lodash.debounce';
-import { useChannelStateContext, useChatContext } from '../../../context';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChatContext } from '../../../context/ChatContext';
+
 import type { MessageInputReducerAction, MessageInputState } from './useMessageInputState';
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { LinkPreview, LinkPreviewMap } from '../types';

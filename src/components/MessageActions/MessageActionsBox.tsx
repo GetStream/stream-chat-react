@@ -3,13 +3,10 @@ import clsx from 'clsx';
 
 import { MESSAGE_ACTIONS } from '../Message/utils';
 
-import {
-  MessageContextValue,
-  useChannelActionContext,
-  useComponentContext,
-  useMessageContext,
-  useTranslationContext,
-} from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 

@@ -7,7 +7,8 @@ import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyState
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { isMessageEdited, Message } from '../Message';
 
-import { StreamMessage, useComponentContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
+import type { StreamMessage } from '../../context/ChannelStateContext';
 import { isDateSeparatorMessage } from './utils';
 
 import type { GroupStyle } from './utils';

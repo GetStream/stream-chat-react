@@ -31,7 +31,7 @@ import { LoadingChannels } from '../Loading/LoadingChannels';
 import { LoadMorePaginator, LoadMorePaginatorProps } from '../LoadMore/LoadMorePaginator';
 import { NullComponent } from '../UtilityComponents';
 
-import { ChannelListContextProvider } from '../../context';
+import { ChannelListContextProvider } from '../../context/ChannelListContext';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';

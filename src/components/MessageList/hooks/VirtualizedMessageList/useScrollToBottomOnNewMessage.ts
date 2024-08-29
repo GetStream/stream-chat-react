@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { StreamMessage } from '../../../../context';
+import type { StreamMessage } from '../../../../context';
 import { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type UseScrollToBottomOnNewMessageParams<

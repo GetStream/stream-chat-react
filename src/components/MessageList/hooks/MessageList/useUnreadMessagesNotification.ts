@@ -1,4 +1,4 @@
-import { useChannelStateContext } from '../../../../context';
+import { useChannelStateContext } from '../../../../context/ChannelStateContext';
 import { useEffect, useRef, useState } from 'react';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageListMainPanel';
 import { UNREAD_MESSAGE_SEPARATOR_CLASS } from '../../UnreadMessagesSeparator';

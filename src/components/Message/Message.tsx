@@ -19,14 +19,11 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
-import {
-  MessageContextValue,
-  MessageProvider,
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-  useComponentContext,
-} from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { MessageContextValue, MessageProvider } from '../../context/MessageContext';
 
 import type { MessageProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';

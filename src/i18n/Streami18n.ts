@@ -7,7 +7,7 @@ import localeData from 'dayjs/plugin/localeData';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import { predefinedFormatters } from './utils';
+import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
@@ -417,8 +417,6 @@ const defaultStreami18nOptions = {
   language: 'en' as TranslationLanguages,
   logger: (message?: string) => console.warn(message),
 };
-
-export const defaultTranslatorFunction: TFunction = <tResult = string>(key: tResult) => key;
 
 export class Streami18n {
   i18nInstance = i18n.createInstance();

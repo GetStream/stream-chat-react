@@ -1,6 +1,6 @@
 import React, { ComponentType, PropsWithChildren } from 'react';
 import { Modal, ModalProps } from '../Modal';
-import { MessageBounceProvider } from '../../context';
+import { MessageBounceProvider } from '../../context/MessageBounceContext';
 import { MessageBouncePromptProps } from './MessageBouncePrompt';
 
 export type MessageBounceModalProps = PropsWithChildren<

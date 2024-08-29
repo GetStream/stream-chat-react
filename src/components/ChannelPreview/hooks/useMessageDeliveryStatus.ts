@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Channel, Event } from 'stream-chat';
 
-import { useChatContext } from '../../../context';
+import { useChatContext } from '../../../context/ChatContext';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 import type { StreamMessage } from '../../../context';

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Action, Attachment } from 'stream-chat';
 
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { DefaultStreamChatGenerics } from '../../types/types';

@@ -2,7 +2,7 @@ import React, { Fragment, ReactNode } from 'react';
 
 import { GroupStyle, isDateSeparatorMessage } from './utils';
 import { Message, MessageProps } from '../Message';
-import { ComponentContextValue, CustomClasses } from '../../context';
+import type { ComponentContextValue, CustomClasses } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
 import type { UserResponse } from 'stream-chat';

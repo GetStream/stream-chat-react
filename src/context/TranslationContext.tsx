@@ -10,7 +10,7 @@ import type { Moment } from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { UnknownType } from '../types/types';
-import { defaultTranslatorFunction } from '../i18n';
+import { defaultTranslatorFunction } from '../i18n/utils';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useChannelStateContext, useMessageInputContext } from '../../context';
+import { useMessageInputContext } from '../../context/MessageInputContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { LinkPreview } from './types';
 import { LinkPreviewState } from './types';
 import { CloseIcon, LinkIcon } from './icons';

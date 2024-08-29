@@ -145,3 +145,5 @@ export const predefinedFormatters: PredefinedFormatters = {
     return result;
   },
 };
+
+export const defaultTranslatorFunction: TFunction = <tResult = string>(key: tResult) => key;

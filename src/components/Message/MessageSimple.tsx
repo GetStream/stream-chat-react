@@ -33,7 +33,7 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 import type { MessageUIComponentProps } from './types';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
 
 type MessageSimpleWithContextProps<

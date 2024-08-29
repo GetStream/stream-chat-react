@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React, { PropsWithChildren, useCallback, useMemo } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 export type ImageDropzoneProps = {
   /**

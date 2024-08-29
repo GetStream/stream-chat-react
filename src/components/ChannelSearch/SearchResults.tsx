@@ -6,7 +6,7 @@ import { ChannelPreview } from '../ChannelPreview';
 import { ChannelOrUserResponse, isChannel } from './utils';
 import { Avatar } from '../Avatar';
 
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 

@@ -10,7 +10,7 @@ import {
   PauseIcon,
   SendIcon,
 } from '../../MessageInput';
-import { useMessageInputContext } from '../../../context';
+import { useMessageInputContext } from '../../../context/MessageInputContext';
 
 export const AudioRecorder = () => {
   const {

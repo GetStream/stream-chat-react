@@ -2,7 +2,7 @@ import React, { PropsWithChildren } from 'react';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { NullComponent } from '../UtilityComponents';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';

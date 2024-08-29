@@ -3,7 +3,7 @@ import React from 'react';
 import { Message, MessageProps } from '../Message';
 import { ThreadStart as DefaultThreadStart } from './ThreadStart';
 
-import { useComponentContext } from '../../context';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 

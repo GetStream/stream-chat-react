@@ -1,7 +1,7 @@
 import { CommandItem } from '../../CommandItem/CommandItem';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { CommandResponse } from 'stream-chat';
 

@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import type { Event } from 'stream-chat';
 
 import { CustomNotification } from './CustomNotification';
-import { useChatContext, useTranslationContext } from '../../context';
+import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedConnectionStatus = <

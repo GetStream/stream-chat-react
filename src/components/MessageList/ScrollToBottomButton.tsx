@@ -3,7 +3,8 @@ import clsx from 'clsx';
 
 import { ArrowDown } from './icons';
 
-import { useChannelStateContext, useChatContext } from '../../context';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
 
 import type { Event } from 'stream-chat';
 import type { MessageNotificationProps } from './MessageNotification';

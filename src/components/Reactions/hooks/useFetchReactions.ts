@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ReactionResponse, ReactionSort } from 'stream-chat';
-import { MessageContextValue, useMessageContext } from '../../../context';
+import { MessageContextValue, useMessageContext } from '../../../context/MessageContext';
 import { DefaultStreamChatGenerics } from '../../../types/types';
 import { ReactionType } from '../types';
 

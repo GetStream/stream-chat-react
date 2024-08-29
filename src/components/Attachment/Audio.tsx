@@ -2,7 +2,10 @@ import React from 'react';
 
 import type { Attachment } from 'stream-chat';
 
-import { DownloadButton, FileSizeIndicator, PlayButton, ProgressBar } from './components';
+import { DownloadButton } from './components/DownloadButton';
+import { FileSizeIndicator } from './components/FileSizeIndicator';
+import { PlayButton } from './components/PlayButton';
+import { ProgressBar } from './components/ProgressBar';
 import { useAudioController } from './hooks/useAudioController';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';

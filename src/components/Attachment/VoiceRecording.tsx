@@ -1,11 +1,14 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator, PlaybackRateButton, PlayButton, WaveProgressBar } from './components';
+import { FileSizeIndicator } from './components/FileSizeIndicator';
+import { PlaybackRateButton } from './components/PlaybackRateButton';
+import { WaveProgressBar } from './components/WaveProgressBar';
+import { PlayButton } from './components/PlayButton';
 import { useAudioController } from './hooks/useAudioController';
 import { displayDuration } from './utils';
 import { FileIcon } from '../ReactFileUtilities';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { DefaultStreamChatGenerics } from '../../types';
 

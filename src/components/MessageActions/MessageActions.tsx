@@ -17,7 +17,7 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 import { useMessageActionsBoxPopper } from './hooks';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'

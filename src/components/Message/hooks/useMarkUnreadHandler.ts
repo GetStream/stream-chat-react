@@ -1,5 +1,6 @@
 import { validateAndGetMessage } from '../utils';
-import { useChannelStateContext, useTranslationContext } from '../../../context';
+import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { StreamMessage } from '../../../context';
 import type { ReactEventHandler } from '../types';

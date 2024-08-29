@@ -1,7 +1,7 @@
 import React from 'react';
 import { CloseIcon, DownloadIcon, LoadingIndicatorIcon, RetryIcon } from '../icons';
 import { FileIcon } from '../../ReactFileUtilities';
-import { useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context/TranslationContext';
 import type { AttachmentPreviewProps } from './types';
 import type { AnyLocalAttachment } from '../types';
 import type { DefaultStreamChatGenerics } from '../../../types';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileIcon } from '../ReactFileUtilities';
-import { useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context/TranslationContext';
 import type { Attachment } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 

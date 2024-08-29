@@ -10,7 +10,8 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 import type { ReactionDetailsComparator, ReactionsComparator, ReactionType } from './types';
 import { ReactionsListModal } from './ReactionsListModal';
-import { MessageContextValue, useTranslationContext } from '../../context';
+import { MessageContextValue } from '../../context/MessageContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 export type ReactionsListProps<

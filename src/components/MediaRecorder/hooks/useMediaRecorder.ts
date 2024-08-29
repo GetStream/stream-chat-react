@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MessageInputContextValue, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import type { MessageInputContextValue } from '../../../context/MessageInputContext';
 import {
   CustomAudioRecordingConfig,
   MediaRecorderController,

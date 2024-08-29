@@ -12,12 +12,10 @@ import {
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
-import {
-  useChannelActionContext,
-  useChannelStateContext,
-  useChatContext,
-  useComponentContext,
-} from '../../context';
+import { useChannelActionContext } from '../../context/ChannelActionContext';
+import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
