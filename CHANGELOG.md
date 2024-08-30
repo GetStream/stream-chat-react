@@ -1,3 +1,10 @@
+## [12.0.0-rc.10](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.9...v12.0.0-rc.10) (2024-08-30)
+
+
+### Bug Fixes
+
+* address the circular dependencies among TranslationContext and Streami18n ([#2483](https://github.com/GetStream/stream-chat-react/issues/2483)) ([b91fd9a](https://github.com/GetStream/stream-chat-react/commit/b91fd9aa6fcdbdd9ec1fe7342c58011a0d34116d))
+
 ## [12.0.0-rc.9](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.8...v12.0.0-rc.9) (2024-08-22)
 
 
