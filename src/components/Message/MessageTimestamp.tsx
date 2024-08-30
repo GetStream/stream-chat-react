@@ -4,8 +4,8 @@ import { Timestamp as DefaultTimestamp } from './Timestamp';
 import { useComponentContext } from '../../context';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { TimestampFormatterOptions } from '../../i18n/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import type { TimestampFormatterOptions } from '../../i18n/utils';
 
 export type MessageTimestampProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

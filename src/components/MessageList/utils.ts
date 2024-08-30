@@ -2,13 +2,12 @@
 import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
-
-import { isDate } from '../../context/TranslationContext';
+import { isMessageEdited } from '../Message/utils';
+import { isDate } from '../../i18n';
 
 import type { MessageLabel, UserResponse } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
-import { isMessageEdited } from '../Message/utils';
 
 type ProcessMessagesContext = {
   /** the connected user ID */

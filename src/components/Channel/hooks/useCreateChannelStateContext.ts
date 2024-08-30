@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { isDate, isDayOrMoment } from '../../../context/TranslationContext';
+import { isDate, isDayOrMoment } from '../../../i18n';
 
 import type { ChannelStateContextValue } from '../../../context/ChannelStateContext';
 

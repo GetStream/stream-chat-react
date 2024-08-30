@@ -1,35 +1,29 @@
-import {
-  isDate,
-  isDayOrMoment,
-  isNumberOrString,
-  MessageContextValue,
-  TDateTimeParser,
-} from '../context';
+import Dayjs from 'dayjs';
 
 import type { TFunction } from 'i18next';
-import type { Streami18n } from './Streami18n';
-
-export type TimestampFormatterOptions = {
-  /* If true, call the `Day.js` calendar function to get the date string to display (e.g. "Yesterday at 3:58 PM"). */
-  calendar?: boolean;
-  /* Object specifying date display formats for dates formatted with calendar extension. Active only if calendar prop enabled. */
-  calendarFormats?: Record<string, string>;
-  /* Overrides the default timestamp format if calendar is disabled. */
-  format?: string;
-};
-
-type DateFormatterOptions = TimestampFormatterOptions & {
-  formatDate?: MessageContextValue['formatDate'];
-  messageCreatedAt?: string | Date;
-  t?: TFunction;
-  tDateTimeParser?: TDateTimeParser;
-  timestampTranslationKey?: string;
-};
+import type { Moment } from 'moment-timezone';
+import type {
+  DateFormatterOptions,
+  PredefinedFormatters,
+  SupportedTranslations,
+  TDateTimeParserInput,
+  TDateTimeParserOutput,
+  TimestampFormatterOptions,
+} from './types';
 
 export const notValidDateWarning =
   'MessageTimestamp was called without a message, or message has invalid created_at date.';
 export const noParsingFunctionWarning =
   'MessageTimestamp was called but there is no datetime parsing function available';
+
+export const isNumberOrString = (output: TDateTimeParserOutput): output is number | string =>
+  typeof output === 'string' || typeof output === 'number';
+
+export const isDayOrMoment = (output: TDateTimeParserOutput): output is Dayjs.Dayjs | Moment =>
+  !!(output as Dayjs.Dayjs | Moment)?.isSame;
+
+export const isDate = (output: TDateTimeParserOutput): output is Date =>
+  !!(output as Date)?.getMonth;
 
 export function getDateString({
   calendar,
@@ -96,19 +90,6 @@ export function getDateString({
   return null;
 }
 
-export type FormatterFactory<V> = (
-  streamI18n: Streami18n,
-) => (value: V, lng: string | undefined, options: Record<string, unknown>) => string;
-
-// Here is any used, because we do not want to enforce any specific rules and
-// want to leave the type declaration to the integrator
-/* eslint-disable-next-line  @typescript-eslint/no-explicit-any */
-export type CustomFormatters = Record<string, FormatterFactory<any>>;
-
-export type PredefinedFormatters = {
-  timestampFormatter: FormatterFactory<string | Date>;
-};
-
 export const predefinedFormatters: PredefinedFormatters = {
   timestampFormatter: (streamI18n) => (
     value,
@@ -144,4 +125,13 @@ export const predefinedFormatters: PredefinedFormatters = {
     }
     return result;
   },
+};
+
+export const defaultTranslatorFunction: TFunction = <tResult = string>(key: tResult) => key;
+
+export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
+
+export const isLanguageSupported = (language: string): language is SupportedTranslations => {
+  const translations = ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'];
+  return translations.some((translation) => language === translation);
 };

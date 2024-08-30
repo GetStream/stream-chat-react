@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { getDateString, TimestampFormatterOptions } from '../../i18n/utils';
+import { getDateString } from '../../i18n/utils';
+
+import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type DateSeparatorProps = TimestampFormatterOptions & {
   /** The date to format */

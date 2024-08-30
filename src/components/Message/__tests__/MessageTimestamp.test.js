@@ -25,8 +25,10 @@ const calendarFormats = {
 const dateMock = 'the date';
 const formatDate = () => dateMock;
 
+const createdAt = new Date('2019-04-03T14:42:47.087869Z');
+
 const messageMock = generateMessage({
-  created_at: new Date('2019-04-03T14:42:47.087869Z'),
+  created_at: createdAt,
 });
 
 const renderComponent = async ({ chatProps, componentCtx, messageCtx, props } = {}) => {
@@ -124,7 +126,7 @@ describe('<MessageTimestamp />', () => {
         }),
       },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
   });
 
   it('should render with custom format provided via i18n service', async () => {
@@ -172,7 +174,7 @@ describe('<MessageTimestamp />', () => {
       },
       props: { calendarFormats },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
   });
 
   it('should reflect the custom calendarFormats if calendar is enabled', async () => {

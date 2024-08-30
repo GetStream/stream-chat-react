@@ -3,11 +3,11 @@ import React from 'react';
 import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
 
 import { useTranslationContext } from '../../context/TranslationContext';
+import { getDateString } from '../../i18n/utils';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { getDateString, TimestampFormatterOptions } from '../../i18n/utils';
+import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type EventComponentProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
