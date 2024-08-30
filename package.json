@@ -205,7 +205,7 @@
     "core-js": "^3.6.5",
     "dotenv": "^8.6.0",
     "emoji-mart": "^5.5.2",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.23.1",
     "eslint": "7.14.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^6.15.0",
