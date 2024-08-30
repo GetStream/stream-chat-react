@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 
 import { useMessageContext } from '../../context/MessageContext';
-import { isDate, useTranslationContext } from '../../context/TranslationContext';
-import { getDateString, TimestampFormatterOptions } from '../../i18n/utils';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { getDateString, isDate } from '../../i18n/utils';
+import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export interface TimestampProps extends TimestampFormatterOptions {
   /* Adds a CSS class name to the component's outer `time` container. */

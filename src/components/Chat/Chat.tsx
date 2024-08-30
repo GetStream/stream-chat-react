@@ -5,12 +5,12 @@ import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 
 import { ChatProvider, CustomClasses } from '../../context/ChatContext';
-import { SupportedTranslations, TranslationProvider } from '../../context/TranslationContext';
+import { TranslationProvider } from '../../context/TranslationContext';
 
 import type { StreamChat } from 'stream-chat';
 
+import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChatProps<

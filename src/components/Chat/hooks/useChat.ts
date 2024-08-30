@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { TranslationContextValue } from '../../../context/TranslationContext';
 import {
   defaultDateTimeParser,
   isLanguageSupported,
+  Streami18n,
   SupportedTranslations,
-  TranslationContextValue,
-} from '../../../context/TranslationContext';
-import { Streami18n } from '../../../i18n';
+} from '../../../i18n';
 import { version } from '../../../version';
 
 import type { AppSettingsAPIResponse, Channel, Event, Mute, StreamChat } from 'stream-chat';
