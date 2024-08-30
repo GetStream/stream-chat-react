@@ -75,7 +75,7 @@
   },
   "sideEffects": [
     "*.css",
-    "./src/i18n/Streami18n.ts"
+    "./dist/i18n/Streami18n.js"
   ],
   "keywords": [
     "chat",
