@@ -123,11 +123,11 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
-const selector = (nextValue: ThreadManagerState) => [nextValue.unreadThreadsCount];
+const selector = (nextValue: ThreadManagerState) => [nextValue.unreadThreadCount];
 
 const ChatViewSelector = () => {
   const { client } = useChatContext();
-  const [unreadThreadsCount] = useStateStore(client.threads.state, selector);
+  const [unreadThreadCount] = useStateStore(client.threads.state, selector);
 
   const { activeChatView, setActiveChatView } = useContext(ChatViewContext);
 
@@ -148,7 +148,7 @@ const ChatViewSelector = () => {
         onPointerDown={() => setActiveChatView('threads')}
         role='tab'
       >
-        <UnreadCountBadge count={unreadThreadsCount} position='top-right'>
+        <UnreadCountBadge count={unreadThreadCount} position='top-right'>
           <Icon.MessageBubble />
         </UnreadCountBadge>
         <div className='str-chat__chat-view__selector-button-text'>Threads</div>
