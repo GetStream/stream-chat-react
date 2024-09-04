@@ -23,22 +23,20 @@ export const useThreadList = () => {
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && document.hasFocus()) {
+      if (document.visibilityState === 'visible') {
         client.threads.activate();
       }
-      if (document.visibilityState === 'hidden' || !document.hasFocus()) {
+      if (document.visibilityState === 'hidden') {
         client.threads.deactivate();
       }
     };
 
     handleVisibilityChange();
 
-    window.addEventListener('focus', handleVisibilityChange);
-    window.addEventListener('blur', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       client.threads.deactivate();
-      window.addEventListener('blur', handleVisibilityChange);
-      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [client]);
 };
