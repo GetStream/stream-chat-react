@@ -5,7 +5,12 @@ import type { TFunction } from 'i18next';
 import type { MessageResponse, Mute, StreamChat, UserResponse } from 'stream-chat';
 import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
-import type { MessageContextValue, StreamMessage } from '../../context';
+import type {
+  ComponentContextValue,
+  CustomMessageActions,
+  MessageContextValue,
+  StreamMessage,
+} from '../../context';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 /**
@@ -206,26 +211,55 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.markUnread,
 ];
 
+/**
+ * @deprecated use `shouldRenderMessageActions` instead
+ */
 export const showMessageActionsBox = (
   actions: MessageActionsArray,
   inThread?: boolean | undefined,
-) => {
-  if (actions.length === 0) {
-    return false;
-  }
+) => shouldRenderMessageActions({ inThread, messageActions: actions });
+
+export const shouldRenderMessageActions = <
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  customMessageActions,
+  CustomMessageActionsList,
+  inThread,
+  messageActions,
+}: {
+  messageActions: MessageActionsArray;
+  customMessageActions?: CustomMessageActions<SCG>;
+  CustomMessageActionsList?: ComponentContextValue<SCG>['CustomMessageActionsList'];
+  inThread?: boolean;
+}) => {
+  if (
+    typeof CustomMessageActionsList !== 'undefined' ||
+    typeof customMessageActions !== 'undefined'
+  )
+    return true;
+
+  if (!messageActions.length) return false;
 
   if (
     inThread &&
-    actions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
+    messageActions.filter((action) => !ACTIONS_NOT_WORKING_IN_THREAD.includes(action)).length === 0
   ) {
     return false;
   }
 
-  if (actions.length === 1 && (actions.includes('react') || actions.includes('reply'))) {
+  if (
+    messageActions.length === 1 &&
+    (messageActions.includes(MESSAGE_ACTIONS.react) ||
+      messageActions.includes(MESSAGE_ACTIONS.reply))
+  ) {
     return false;
   }
 
-  if (actions.length === 2 && actions.includes('react') && actions.includes('reply')) {
+  if (
+    messageActions.length === 2 &&
+    messageActions.includes(MESSAGE_ACTIONS.react) &&
+    messageActions.includes(MESSAGE_ACTIONS.reply)
+  ) {
     return false;
   }
 
