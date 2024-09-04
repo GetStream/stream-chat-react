@@ -174,8 +174,7 @@ export const useReactionClick = <
 
       setShowDetailedReactions(false);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setShowDetailedReactions, reactionSelectorRef],
+    [closeReactionSelectorOnClick, setShowDetailedReactions, reactionSelectorRef],
   );
 
   useEffect(() => {
@@ -184,18 +183,12 @@ export const useReactionClick = <
     if (showDetailedReactions && !hasListener.current) {
       hasListener.current = true;
       document.addEventListener('click', closeDetailedReactions);
-
-      if (messageWrapper) {
-        messageWrapper.addEventListener('mouseleave', closeDetailedReactions);
-      }
+      messageWrapper?.addEventListener('mouseleave', closeDetailedReactions);
     }
 
     if (!showDetailedReactions && hasListener.current) {
       document.removeEventListener('click', closeDetailedReactions);
-
-      if (messageWrapper) {
-        messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
-      }
+      messageWrapper?.removeEventListener('mouseleave', closeDetailedReactions);
 
       hasListener.current = false;
     }
