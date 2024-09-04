@@ -18,11 +18,13 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
+import { useStateStore, useThreadContext } from '../../components/Threads';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 
 import type { CustomTrigger, DefaultStreamChatGenerics } from '../../types/types';
+import type { ThreadState } from 'stream-chat';
 
 export type ThreadProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -60,12 +62,24 @@ export const Thread = <
   props: ThreadProps<StreamChatGenerics, V>,
 ) => {
   const { channel, channelConfig, thread } = useChannelStateContext<StreamChatGenerics>('Thread');
+  const threadInstance = useThreadContext();
 
-  if (!thread || channelConfig?.replies === false) return null;
+  if ((!thread && !threadInstance) || channelConfig?.replies === false) return null;
 
-  // The wrapper ensures a key variable is set and the component recreates on thread switch
-  return <ThreadInner {...props} key={`thread-${thread.id}-${channel?.cid}`} />;
+  // the wrapper ensures a key variable is set and the component recreates on thread switch
+  return (
+    // FIXME: TS is having trouble here as at least one of the two would always be defined
+    <ThreadInner {...props} key={`thread-${(thread ?? threadInstance)?.id}-${channel?.cid}`} />
+  );
 };
+
+const selector = (nextValue: ThreadState) =>
+  [
+    nextValue.replies,
+    nextValue.pagination.isLoadingPrev,
+    nextValue.pagination.isLoadingNext,
+    nextValue.parentMessage,
+  ] as const;
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -86,11 +100,15 @@ const ThreadInner = <
     virtualized,
   } = props;
 
+  const threadInstance = useThreadContext();
+  const [latestReplies, isLoadingPrev, isLoadingNext, parentMessage] =
+    useStateStore(threadInstance?.state, selector) ?? [];
+
   const {
     thread,
     threadHasMore,
     threadLoadingMore,
-    threadMessages,
+    threadMessages = [],
     threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
@@ -118,9 +136,35 @@ const ThreadInner = <
       loadMoreThread();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [thread, loadMoreThread]);
 
-  if (!thread) return null;
+  const threadProps: Pick<
+    VirtualizedMessageListProps<StreamChatGenerics>,
+    | 'hasMoreNewer'
+    | 'loadMoreNewer'
+    | 'loadingMoreNewer'
+    | 'hasMore'
+    | 'loadMore'
+    | 'loadingMore'
+    | 'messages'
+  > = threadInstance
+    ? {
+        loadingMore: isLoadingPrev,
+        loadingMoreNewer: isLoadingNext,
+        loadMore: threadInstance.loadPrevPage,
+        loadMoreNewer: threadInstance.loadNextPage,
+        messages: latestReplies,
+      }
+    : {
+        hasMore: threadHasMore,
+        loadingMore: threadLoadingMore,
+        loadMore: loadMoreThread,
+        messages: threadMessages,
+      };
+
+  const messageAsThread = thread ?? parentMessage;
+
+  if (!messageAsThread) return null;
 
   const threadClass =
     customClasses?.thread ||
@@ -130,8 +174,8 @@ const ThreadInner = <
 
   const head = (
     <ThreadHead
-      key={thread.id}
-      message={thread}
+      key={messageAsThread.id}
+      message={messageAsThread}
       Message={MessageUIComponent}
       {...additionalParentMessageProps}
     />
@@ -139,24 +183,21 @@ const ThreadInner = <
 
   return (
     <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={thread} />
+      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}
-        hasMore={threadHasMore}
         head={head}
-        loadingMore={threadLoadingMore}
-        loadMore={loadMoreThread}
         Message={MessageUIComponent}
         messageActions={messageActions}
-        messages={threadMessages || []}
         suppressAutoscroll={threadSuppressAutoscroll}
         threadList
+        {...threadProps}
         {...(virtualized ? additionalVirtualizedMessageListProps : additionalMessageListProps)}
       />
       <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
-        parent={thread}
+        parent={thread ?? parentMessage}
         publishTypingEvent={false}
         {...additionalMessageInputProps}
       />

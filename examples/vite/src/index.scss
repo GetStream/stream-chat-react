@@ -12,10 +12,15 @@ body,
   height: 100%;
 }
 
-
 #root {
   display: flex;
   height: 100%;
+
+  & > div.str-chat {
+    height: 100%;
+    width: 100%;
+    display: flex;
+  }
 
   .str-chat__channel-list {
     position: fixed;
@@ -23,7 +28,7 @@ body,
     height: 100%;
     width: 0;
     flex-shrink: 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
 
     &--open {
       width: 30%;
@@ -49,7 +54,7 @@ body,
   .str-chat__thread {
     flex: 1;
     height: 100%;
-    position: fixed;
+    position: absolute;
     z-index: 1;
   }
 
@@ -72,7 +77,6 @@ body,
     }
   }
 
-
   @media screen and (min-width: 768px) {
     .str-chat__channel-list {
       width: 30%;
@@ -80,9 +84,11 @@ body,
       z-index: 0;
     }
 
-    .str-chat__thread {
-      position: initial;
-      z-index: 0;
+    .str-chat__chat-view__channels {
+      .str-chat__thread {
+        position: initial;
+        z-index: 0;
+      }
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {
@@ -100,12 +106,18 @@ body,
       }
     }
 
-    .str-chat__thread {
-      max-width: 45%;
+    .str-chat__chat-view__channels {
+      .str-chat__thread {
+        max-width: 45%;
+      }
     }
 
     .str-chat__channel-header .str-chat__header-hamburger {
       display: none;
     }
+  }
+
+  .str-chat__thread-list-container {
+    max-width: 350px;
   }
 }

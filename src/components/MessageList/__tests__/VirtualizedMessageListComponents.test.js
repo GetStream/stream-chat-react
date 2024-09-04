@@ -141,7 +141,13 @@ describe('VirtualizedMessageComponents', () => {
     it('should not render custom head in Header when not loading more messages', () => {
       const context = { head };
       const { container } = renderElements(<Header context={context} />);
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div>
+            Custom head
+          </div>
+        </div>
+      `);
     });
 
     it('should render custom LoadingIndicator instead of head when loading more', () => {
@@ -150,6 +156,9 @@ describe('VirtualizedMessageComponents', () => {
       const { container } = renderElements(<Header context={context} />, componentContext);
       expect(container).toMatchInlineSnapshot(`
         <div>
+          <div>
+            Custom head
+          </div>
           <div
             class="str-chat__virtual-list__loading"
           >

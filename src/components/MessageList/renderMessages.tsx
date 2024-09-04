@@ -1,13 +1,18 @@
 import React, { Fragment, ReactNode } from 'react';
 
+import type { UserResponse } from 'stream-chat';
+
 import { GroupStyle, isDateSeparatorMessage } from './utils';
-import { Message, MessageProps } from '../Message';
+import { Message } from '../Message';
+import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
+import { EventComponent as DefaultMessageSystem } from '../EventComponent';
+import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
 import { ComponentContextValue, CustomClasses } from '../../context';
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 
-import type { UserResponse } from 'stream-chat';
 import type { ChannelUnreadUiState, DefaultStreamChatGenerics } from '../../types';
 import type { StreamMessage } from '../../context/ChannelStateContext';
+import type { MessageProps } from '../Message';
 
 export interface RenderMessagesOptions<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -61,7 +66,13 @@ export function defaultRenderMessages<
   readData,
   sharedMessageProps: messageProps,
 }: RenderMessagesOptions<StreamChatGenerics>) {
-  const { DateSeparator, HeaderComponent, MessageSystem, UnreadMessagesSeparator } = components;
+  const {
+    DateSeparator = DefaultDateSeparator,
+    HeaderComponent,
+    MessageSystem = DefaultMessageSystem,
+    UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
+  } = components;
+
   const renderedMessages = [];
   let firstMessage;
   for (let index = 0; index < messages.length; index++) {

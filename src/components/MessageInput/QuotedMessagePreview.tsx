@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { TranslationLanguages } from 'stream-chat';
 
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { CloseIcon } from './icons';
 
@@ -44,9 +45,10 @@ export const QuotedMessagePreview = <
 >({
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
-  const { Attachment, Avatar = DefaultAvatar } = useComponentContext<StreamChatGenerics>(
-    'QuotedMessagePreview',
-  );
+  const {
+    Attachment = DefaultAttachment,
+    Avatar = DefaultAvatar,
+  } = useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 
   const quotedMessageText =

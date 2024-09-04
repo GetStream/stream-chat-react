@@ -9,6 +9,8 @@ import {
   Thread,
   Window,
   useCreateChatClient,
+  ThreadList,
+  ChatView,
 } from 'stream-chat-react';
 import 'stream-chat-react/css/v2/index.css';
 
@@ -16,15 +18,23 @@ const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
 }) as unknown) as Record<string, string | null>;
 
-const apiKey = import.meta.env.VITE_STREAM_KEY as string;
-const userId = params.uid ?? (import.meta.env.VITE_USER_ID as string);
+const parseUserIdFromToken = (token: string) => {
+  const [, payload] = token.split('.');
+
+  if (!payload) throw new Error('Token is missing');
+
+  return JSON.parse(atob(payload))?.user_id;
+};
+
+const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
+const userId = parseUserIdFromToken(userToken);
 
 const filters: ChannelFilters = {
   members: { $in: [userId] },
   type: 'messaging',
 };
-const options: ChannelOptions = { limit: 10, presence: true, state: true };
+const options: ChannelOptions = { limit: 3, presence: true, state: true };
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 type LocalAttachmentType = Record<string, unknown>;
@@ -60,15 +70,26 @@ const App = () => {
 
   return (
     <Chat client={chatClient}>
-      <ChannelList filters={filters} options={options} sort={sort} />
-      <Channel>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput focus />
-        </Window>
-        <Thread />
-      </Channel>
+      <ChatView>
+        <ChatView.Selector />
+        <ChatView.Channels>
+          <ChannelList filters={filters} options={options} sort={sort} />
+          <Channel>
+            <Window>
+              <ChannelHeader />
+              <MessageList returnAllReadData />
+              <MessageInput focus />
+            </Window>
+            <Thread virtualized />
+          </Channel>
+        </ChatView.Channels>
+        <ChatView.Threads>
+          <ThreadList />
+          <ChatView.ThreadAdapter>
+            <Thread virtualized />
+          </ChatView.ThreadAdapter>
+        </ChatView.Threads>
+      </ChatView>
     </Chat>
   );
 };

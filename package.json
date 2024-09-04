@@ -130,7 +130,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
-    "stream-chat": "^8.39.0"
+    "stream-chat": "^8.40.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -171,7 +171,7 @@
     "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "@stream-io/rollup-plugin-node-builtins": "^2.1.5",
-    "@stream-io/stream-chat-css": "5.0.0-rc.2",
+    "@stream-io/stream-chat-css": "^5.0.0-rc.3",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.1.1",
     "@testing-library/react-hooks": "^8.0.0",
@@ -240,7 +240,7 @@
     "react-dom": "^18.1.0",
     "react-test-renderer": "^18.1.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "8.39.0",
+    "stream-chat": "^8.40.0",
     "ts-jest": "^29.1.4",
     "typescript": "^5.4.5"
   },

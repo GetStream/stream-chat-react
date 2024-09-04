@@ -1,8 +1,10 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-import { getWholeChar } from '../../utils';
 
 import type { UserResponse } from 'stream-chat';
+
+import { Icon } from '../Threads/icons';
+import { getWholeChar } from '../../utils';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -53,25 +55,32 @@ export const Avatar = <
     <div
       className={clsx(`str-chat__avatar str-chat__message-sender-avatar`, className, {
         ['str-chat__avatar--multiple-letters']: initials.length > 1,
+        ['str-chat__avatar--no-letters']: !initials.length,
         ['str-chat__avatar--one-letter']: initials.length === 1,
       })}
       data-testid='avatar'
       onClick={onClick}
       onMouseOver={onMouseOver}
+      role='button'
       title={name}
     >
       {showImage ? (
         <img
           alt={initials}
-          className={clsx(`str-chat__avatar-image`)}
+          className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}
           src={image}
         />
       ) : (
-        <div className='str-chat__avatar-fallback' data-testid='avatar-fallback'>
-          {initials}
-        </div>
+        <>
+          {!!initials.length && (
+            <div className={clsx('str-chat__avatar-fallback')} data-testid='avatar-fallback'>
+              {initials}
+            </div>
+          )}
+          {!initials.length && <Icon.User />}
+        </>
       )}
     </div>
   );

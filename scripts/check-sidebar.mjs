@@ -42,7 +42,7 @@ const walkFiles = async (docsPath) => {
   while (files.length) {
     const fileOrDirectory = files.pop();
 
-    const completePath = resolve(fileOrDirectory.path, fileOrDirectory.name);
+    const completePath = resolve(fileOrDirectory.parentPath, fileOrDirectory.name);
 
     if (fileOrDirectory.isDirectory()) {
       const d = await fsPromises.readdir(completePath, { withFileTypes: true });
@@ -58,11 +58,11 @@ const walkFiles = async (docsPath) => {
     }
   }
 
-  const paths = (await Promise.allSettled(extractIdPromises))
+  const finalPaths = (await Promise.allSettled(extractIdPromises))
     .filter((v) => v.status === 'fulfilled')
     .map((v) => v.value.replace(resolvedPath + path.sep, ''));
 
-  return paths;
+  return finalPaths;
 };
 
 const extractIdFromFile = async (resolvedPath) => {
@@ -72,18 +72,24 @@ const extractIdFromFile = async (resolvedPath) => {
   let limit = 8;
   const id = await new Promise((resolve, reject) => {
     rli.on('line', (line) => {
-      if (limit === 0) return reject('Line read limit reached');
-      limit--;
+      if (!limit) return rli.pause();
 
       if (!line.startsWith('id:')) return;
 
       const id = line.replace(/^(id:)\s*/, '').trim();
 
-      rli.close();
       resolve(id);
+    });
+
+    rli.on('pause', () => {
+      // extractIdFromFile executed "sync" unless this is here
+      setTimeout(() => {
+        reject('EOF');
+      }, 50);
     });
   });
 
+  rli.close();
   rs.close();
 
   const d = resolvedPath.split(path.sep);

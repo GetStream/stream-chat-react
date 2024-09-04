@@ -11,6 +11,8 @@ import type { Reaction, ReactionResponse } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
 
+import { useThreadContext } from '../../Threads';
+
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
@@ -19,6 +21,7 @@ export const useReactionHandler = <
 >(
   message?: StreamMessage<StreamChatGenerics>,
 ) => {
+  const thread = useThreadContext();
   const { updateMessage } = useChannelActionContext<StreamChatGenerics>('useReactionHandler');
   const { channel, channelCapabilities } = useChannelStateContext<StreamChatGenerics>(
     'useReactionHandler',
@@ -93,15 +96,20 @@ export const useReactionHandler = <
 
     try {
       updateMessage(tempMessage);
+      // @ts-expect-error
+      thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
         ? await channel.sendReaction(id, { type } as Reaction<StreamChatGenerics>)
         : await channel.deleteReaction(id, type);
 
+      // seems useless as we're expecting WS event to come in and replace this anyway
       updateMessage(messageResponse.message);
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
+      // @ts-expect-error
+      thread?.upsertReplyLocally({ message });
     }
   }, 1000);
 

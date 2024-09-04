@@ -18,6 +18,35 @@ Pull values from context with our custom hook:
 const { Attachment, Avatar, Message } = useComponentContext();
 ```
 
+## WithComponents
+
+A component override functionality which utilises `ComponentContext` under the hood. This is direct replacement for a prop-based component overrides which are now slowly being deprecated.
+
+### Basic Usage of WithComponents
+
+In this case, top-level [`MessageInput`](../message-input-components/message-input.mdx) component reaches for the closest overrides and applies `MessageInputUi1`, the [`Thread`](../core-components/thread.mdx) component uses [`MessageInput`](../message-input-components/message-input.mdx) internally and its UI can be also overriden - in this case, the closest one provides override with component `MessageInputUi2`. If we were to remove this `WithComponents` wrapper over [`Thread`](../core-components/thread.mdx) component, the closest override for [`Thread`](../core-components/thread.mdx)'s [`MessageInput`](../message-input-components/message-input.mdx) component would be `MessageInputUi1`.
+
+```tsx
+const MessageInputUi1 = () => {
+  /*...*/
+};
+const MessageInputUi2 = () => {
+  /*...*/
+};
+
+<Channel>
+  <WithComponents overrides={{ Input: MessageInputUi1 }}>
+    <Window>
+      <MessageList />
+      <MessageInput focus />
+    </Window>
+    <WithComponents overrides={{ Input: MessageInputUi2 }}>
+      <Thread />
+    </WithComponents>
+  </WithComponents>
+</Channel>;
+```
+
 ## Values
 
 ### Attachment
