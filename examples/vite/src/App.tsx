@@ -18,17 +18,17 @@ const params = (new Proxy(new URLSearchParams(window.location.search), {
   get: (searchParams, property) => searchParams.get(property as string),
 }) as unknown) as Record<string, string | null>;
 
-const geUserIdFromToken = (token: string) => {
+const parseUserIdFromToken = (token: string) => {
   const [, payload] = token.split('.');
 
-  if (!payload) throw new Error('Token is missing payload');
+  if (!payload) throw new Error('Token is missing');
 
   return JSON.parse(atob(payload))?.user_id;
 };
 
 const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
-const userId = geUserIdFromToken(userToken);
+const userId = parseUserIdFromToken(userToken);
 
 const filters: ChannelFilters = {
   members: { $in: [userId] },
