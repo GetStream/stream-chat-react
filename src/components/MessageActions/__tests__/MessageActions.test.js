@@ -65,10 +65,7 @@ describe('<MessageActions /> component', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <div
-        className="
-        str-chat__message-simple__actions__action
-        str-chat__message-simple__actions__action--options
-        str-chat__message-actions-container"
+        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
         data-testid="message-actions"
         onClick={[Function]}
       >
@@ -276,10 +273,7 @@ describe('<MessageActions /> component', () => {
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       <span
-        className="
-        str-chat__message-simple__actions__action
-        str-chat__message-simple__actions__action--options
-        str-chat__message-actions-container"
+        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
         data-testid="message-actions"
         onClick={[Function]}
       >

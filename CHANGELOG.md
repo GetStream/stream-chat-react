@@ -1,9 +1,21 @@
+## [11.23.9](https://github.com/GetStream/stream-chat-react/compare/v11.23.8...v11.23.9) (2024-09-04)
+
+
+* MessageActions adjustments ([#2472](https://github.com/GetStream/stream-chat-react/issues/2472)) ([fbd1b6f](https://github.com/GetStream/stream-chat-react/commit/fbd1b6fd0843d94f250de4158b144ee65eb9bdaf))
+
 ## [12.0.0-rc.10](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.9...v12.0.0-rc.10) (2024-08-30)
 
 
 ### Bug Fixes
 
 * address the circular dependencies among TranslationContext and Streami18n ([#2483](https://github.com/GetStream/stream-chat-react/issues/2483)) ([b91fd9a](https://github.com/GetStream/stream-chat-react/commit/b91fd9aa6fcdbdd9ec1fe7342c58011a0d34116d))
+
+## [11.23.8](https://github.com/GetStream/stream-chat-react/compare/v11.23.7...v11.23.8) (2024-08-28)
+
+
+### Chores
+
+* **deps:** bump version of stream-chat in peerDeps ([#2481](https://github.com/GetStream/stream-chat-react/issues/2481)) ([466385d](https://github.com/GetStream/stream-chat-react/commit/466385daeb4eeb2fb22964738e533c177a5ef29f))
 
 ## [12.0.0-rc.9](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.8...v12.0.0-rc.9) (2024-08-22)
 

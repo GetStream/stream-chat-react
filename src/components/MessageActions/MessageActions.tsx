@@ -6,18 +6,19 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import clsx from 'clsx';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
-import { isUserMuted } from '../Message/utils';
+import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
 import { useMessageActionsBoxPopper } from './hooks';
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -64,6 +65,7 @@ export const MessageActions = <
   } = props;
 
   const { mutes } = useChatContext<StreamChatGenerics>('MessageActions');
+
   const {
     customMessageActions,
     getMessageActions: contextGetMessageActions,
@@ -75,7 +77,10 @@ export const MessageActions = <
     isMyMessage,
     message: contextMessage,
     setEditingState,
+    threadList,
   } = useMessageContext<StreamChatGenerics>('MessageActions');
+
+  const { CustomMessageActionsList } = useComponentContext<StreamChatGenerics>('MessageActions');
 
   const { t } = useTranslationContext('MessageActions');
 
@@ -92,13 +97,21 @@ export const MessageActions = <
 
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
 
+  const messageActions = getMessageActions();
+
+  const renderMessageActions = shouldRenderMessageActions<StreamChatGenerics>({
+    customMessageActions,
+    CustomMessageActionsList,
+    inThread: threadList,
+    messageActions,
+  });
+
   const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
     if (event instanceof KeyboardEvent && event.key !== 'Escape') {
       return;
     }
     setActionsBoxOpen(false);
   }, []);
-  const messageActions = getMessageActions();
   const messageDeletedAt = !!message?.deleted_at;
 
   useEffect(() => {
@@ -133,7 +146,7 @@ export const MessageActions = <
     referenceElement: actionsBoxButtonRef.current,
   });
 
-  if (!messageActions.length && !customMessageActions) return null;
+  if (!renderMessageActions) return null;
 
   return (
     <MessageActionsWrapper
@@ -178,10 +191,11 @@ export type MessageActionsWrapperProps = {
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
   const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
 
-  const defaultWrapperClass = `
-  str-chat__message-simple__actions__action
-  str-chat__message-simple__actions__action--options
-  str-chat__message-actions-container`;
+  const defaultWrapperClass = clsx(
+    'str-chat__message-simple__actions__action',
+    'str-chat__message-simple__actions__action--options',
+    'str-chat__message-actions-container',
+  );
 
   const wrapperClass = customWrapperClass || defaultWrapperClass;
 
