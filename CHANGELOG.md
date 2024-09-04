@@ -1,3 +1,10 @@
+## [11.23.9](https://github.com/GetStream/stream-chat-react/compare/v11.23.8...v11.23.9) (2024-09-04)
+
+
+### Bug Fixes
+
+* MessageActions adjustments ([#2472](https://github.com/GetStream/stream-chat-react/issues/2472)) ([fbd1b6f](https://github.com/GetStream/stream-chat-react/commit/fbd1b6fd0843d94f250de4158b144ee65eb9bdaf))
+
 ## [11.23.8](https://github.com/GetStream/stream-chat-react/compare/v11.23.7...v11.23.8) (2024-08-28)
 
 
