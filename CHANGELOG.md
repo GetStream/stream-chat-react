@@ -1,3 +1,25 @@
+## [12.0.0-rc.11](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.10...v12.0.0-rc.11) (2024-09-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* ComponentContext no longer provides any defaults
+
+### Bug Fixes
+
+* MessageActions adjustments ([#2472](https://github.com/GetStream/stream-chat-react/issues/2472)) ([fbd1b6f](https://github.com/GetStream/stream-chat-react/commit/fbd1b6fd0843d94f250de4158b144ee65eb9bdaf))
+* quote replies in threads ([#2487](https://github.com/GetStream/stream-chat-react/issues/2487)) ([0e4a6f1](https://github.com/GetStream/stream-chat-react/commit/0e4a6f17a53ce9ac6604c83d1d4688a8e29dc366))
+
+
+### Features
+
+* add ThreadList and ThreadProvider (Threads 2.0) ([#2407](https://github.com/GetStream/stream-chat-react/issues/2407)) ([941707d](https://github.com/GetStream/stream-chat-react/commit/941707db13db1fb28a4feae2216f71f04656f197))
+
+
+### Chores
+
+* **deps:** bump version of stream-chat in peerDeps ([#2481](https://github.com/GetStream/stream-chat-react/issues/2481)) ([466385d](https://github.com/GetStream/stream-chat-react/commit/466385daeb4eeb2fb22964738e533c177a5ef29f))
+
 ## [11.23.9](https://github.com/GetStream/stream-chat-react/compare/v11.23.8...v11.23.9) (2024-09-04)
 
 
