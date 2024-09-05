@@ -21,6 +21,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { DialogsManagerProvider } from '../../../context';
 
 const MESSAGE_ACTIONS_TEST_ID = 'message-actions';
 
@@ -55,32 +56,34 @@ async function renderMessageOptions({
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
-        <ChannelActionProvider
-          value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-          }}
-        >
-          <ComponentProvider
+      <DialogsManagerProvider id='message-options-dialogs-provider'>
+        <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
+          <ChannelActionProvider
             value={{
-              Attachment,
-              // eslint-disable-next-line react/display-name
-              Message: () => (
-                <MessageSimple
-                  channelConfig={channelConfig}
-                  onReactionListClick={customMessageProps?.onReactionListClick}
-                />
-              ),
+              openThread: jest.fn(),
+              removeMessage: jest.fn(),
+              updateMessage: jest.fn(),
             }}
           >
-            <Message {...defaultMessageProps} {...customMessageProps}>
-              <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
-            </Message>
-          </ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+            <ComponentProvider
+              value={{
+                Attachment,
+                // eslint-disable-next-line react/display-name
+                Message: () => (
+                  <MessageSimple
+                    channelConfig={channelConfig}
+                    onReactionListClick={customMessageProps?.onReactionListClick}
+                  />
+                ),
+              }}
+            >
+              <Message {...defaultMessageProps} {...customMessageProps}>
+                <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
+              </Message>
+            </ComponentProvider>
+          </ChannelActionProvider>
+        </ChannelStateProvider>
+      </DialogsManagerProvider>
     </ChatProvider>,
   );
 }
