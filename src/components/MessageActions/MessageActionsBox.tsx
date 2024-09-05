@@ -47,6 +47,7 @@ const UnMemoizedMessageActionsBox = <
     handleMute,
     handlePin,
     isUserMuted,
+    mine,
     open,
     ...restDivProps
   } = props;
