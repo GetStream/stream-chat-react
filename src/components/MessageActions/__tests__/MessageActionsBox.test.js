@@ -18,7 +18,7 @@ import {
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
-import { ChatProvider } from '../../../context';
+import { ChatProvider, ComponentProvider, DialogsManagerProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -34,19 +34,27 @@ async function renderComponent(boxProps, messageContext = {}) {
   return render(
     <ChatProvider value={{ client }}>
       <TranslationProvider value={{ t: (key) => key }}>
-        <ChannelActionProvider
-          value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-          }}
-        >
-          <MessageProvider
-            value={{ ...defaultMessageContextValue, ...messageContext, message: boxProps.message }}
+        <ComponentProvider value={{}}>
+          <ChannelActionProvider
+            value={{
+              openThread: jest.fn(),
+              removeMessage: jest.fn(),
+              updateMessage: jest.fn(),
+            }}
           >
-            <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
-          </MessageProvider>
-        </ChannelActionProvider>
+            <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+              <MessageProvider
+                value={{
+                  ...defaultMessageContextValue,
+                  ...messageContext,
+                  message: boxProps.message,
+                }}
+              >
+                <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
+              </MessageProvider>
+            </DialogsManagerProvider>
+          </ChannelActionProvider>
+        </ComponentProvider>
       </TranslationProvider>
     </ChatProvider>,
   );
@@ -72,7 +80,9 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['flag']);
     const handleFlag = jest.fn();
     const { container, getByText } = await renderComponent({ handleFlag });
-    fireEvent.click(getByText('Flag'));
+    await act(async () => {
+      await fireEvent.click(getByText('Flag'));
+    });
     expect(handleFlag).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -85,7 +95,9 @@ describe('MessageActionsBox', () => {
       handleMute,
       isUserMuted: () => false,
     });
-    fireEvent.click(getByText('Mute'));
+    await act(async () => {
+      await fireEvent.click(getByText('Mute'));
+    });
     expect(handleMute).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -98,7 +110,9 @@ describe('MessageActionsBox', () => {
       handleMute,
       isUserMuted: () => true,
     });
-    fireEvent.click(getByText('Unmute'));
+    await act(async () => {
+      await fireEvent.click(getByText('Unmute'));
+    });
     expect(handleMute).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -108,7 +122,9 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['edit']);
     const handleEdit = jest.fn();
     const { container, getByText } = await renderComponent({ handleEdit });
-    fireEvent.click(getByText('Edit Message'));
+    await act(async () => {
+      await fireEvent.click(getByText('Edit Message'));
+    });
     expect(handleEdit).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -118,7 +134,9 @@ describe('MessageActionsBox', () => {
     getMessageActionsMock.mockImplementationOnce(() => ['delete']);
     const handleDelete = jest.fn();
     const { container, getByText } = await renderComponent({ handleDelete });
-    fireEvent.click(getByText('Delete'));
+    await act(async () => {
+      await fireEvent.click(getByText('Delete'));
+    });
     expect(handleDelete).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -129,7 +147,9 @@ describe('MessageActionsBox', () => {
     const handlePin = jest.fn();
     const message = generateMessage({ pinned: false });
     const { container, getByText } = await renderComponent({ handlePin, message });
-    fireEvent.click(getByText('Pin'));
+    await act(async () => {
+      await fireEvent.click(getByText('Pin'));
+    });
     expect(handlePin).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -140,7 +160,9 @@ describe('MessageActionsBox', () => {
     const handlePin = jest.fn();
     const message = generateMessage({ pinned: true });
     const { container, getByText } = await renderComponent({ handlePin, message });
-    fireEvent.click(getByText('Unpin'));
+    await act(async () => {
+      await fireEvent.click(getByText('Unpin'));
+    });
     expect(handlePin).toHaveBeenCalledTimes(1);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -195,16 +217,18 @@ describe('MessageActionsBox', () => {
       'upload-file',
     ];
     const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }) =>
-      await act(() => {
-        render(
+      await act(async () => {
+        await render(
           <Chat {...chatProps}>
             <Channel {...channelProps}>
-              <Message
-                lastReceivedId={lastReceivedId}
-                message={message}
-                threadList={false}
-                {...messageProps}
-              />
+              <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+                <Message
+                  lastReceivedId={lastReceivedId}
+                  message={message}
+                  threadList={false}
+                  {...messageProps}
+                />
+              </DialogsManagerProvider>
             </Channel>
           </Chat>,
         );
@@ -230,8 +254,8 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
@@ -257,8 +281,8 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message: myMessage },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
       expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
@@ -277,8 +301,8 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message, threadList: true },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
@@ -312,8 +336,8 @@ describe('MessageActionsBox', () => {
         });
       });
 
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
       expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
@@ -341,8 +365,8 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message: messageWithoutID },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
       });
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
@@ -374,12 +398,14 @@ describe('MessageActionsBox', () => {
         customUser: me,
       });
 
-      await act(() => {
-        render(
+      await act(async () => {
+        await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <Message lastReceivedId={otherMsg.id} message={message} threadList={false} />
-              <Message lastReceivedId={otherMsg.id} message={otherMsg} threadList={false} />
+              <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+                <Message lastReceivedId={otherMsg.id} message={message} threadList={false} />
+                <Message lastReceivedId={otherMsg.id} message={otherMsg} threadList={false} />
+              </DialogsManagerProvider>
             </Channel>
           </Chat>,
         );
@@ -405,9 +431,9 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-        fireEvent.click(screen.getByText(ACTION_TEXT));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+        await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(channel.markUnread).toHaveBeenCalledWith(
         expect.objectContaining({ message_id: message.id }),
@@ -430,9 +456,9 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { getMarkMessageUnreadSuccessNotification, message },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-        fireEvent.click(screen.getByText(ACTION_TEXT));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+        await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(getMarkMessageUnreadSuccessNotification).toHaveBeenCalledWith(
         expect.objectContaining(message),
@@ -455,9 +481,9 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { getMarkMessageUnreadErrorNotification, message },
       });
-      await act(() => {
-        fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-        fireEvent.click(screen.getByText(ACTION_TEXT));
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+        await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
       expect(getMarkMessageUnreadErrorNotification).toHaveBeenCalledWith(
         expect.objectContaining(message),

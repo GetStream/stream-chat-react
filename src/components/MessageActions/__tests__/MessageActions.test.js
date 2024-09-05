@@ -1,15 +1,19 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 import testRenderer from 'react-test-renderer';
-import { cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 import { MessageActions } from '../MessageActions';
 import { MessageActionsBox as MessageActionsBoxMock } from '../MessageActionsBox';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import { MessageProvider } from '../../../context/MessageContext';
-import { TranslationProvider } from '../../../context/TranslationContext';
+import {
+  ChannelStateProvider,
+  ChatProvider,
+  ComponentProvider,
+  DialogsManagerProvider,
+  MessageProvider,
+  TranslationProvider,
+} from '../../../context';
 
 import { generateMessage, getTestClient, mockTranslationContext } from '../../../mock-builders';
 
@@ -45,17 +49,22 @@ const chatClient = getTestClient();
 function renderMessageActions(customProps, renderer = render) {
   return renderer(
     <ChatProvider value={{ client: chatClient }}>
-      <ChannelStateProvider value={{}}>
-        <TranslationProvider value={mockTranslationContext}>
-          <MessageProvider value={{ ...messageContextValue }}>
-            <MessageActions {...defaultProps} {...customProps} />
-          </MessageProvider>
-        </TranslationProvider>
-      </ChannelStateProvider>
+      <DialogsManagerProvider id='dialogs-manager-provider-id'>
+        <ChannelStateProvider value={{}}>
+          <ComponentProvider value={{}}>
+            <TranslationProvider value={mockTranslationContext}>
+              <MessageProvider value={{ ...messageContextValue }}>
+                <MessageActions {...defaultProps} {...customProps} />
+              </MessageProvider>
+            </TranslationProvider>
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </DialogsManagerProvider>
     </ChatProvider>,
   );
 }
 
+const dialogOverlayTestId = 'str-chat__dialog-overlay';
 const messageActionsTestId = 'message-actions';
 describe('<MessageActions /> component', () => {
   afterEach(cleanup);
@@ -64,32 +73,44 @@ describe('<MessageActions /> component', () => {
   it('should render correctly', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
-        data-testid="message-actions"
-        onClick={[Function]}
-      >
-        <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
-          className="str-chat__message-actions-box-button"
+      Array [
+        <div
+          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
+          data-testid="message-actions"
+          onClick={[Function]}
         >
-          <svg
-            className="str-chat__message-action-icon"
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            aria-expanded={false}
+            aria-haspopup="true"
+            aria-label="Open Message Actions Menu"
+            className="str-chat__message-actions-box-button"
           >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
-      </div>
+            <svg
+              className="str-chat__message-action-icon"
+              height="4"
+              viewBox="0 0 11 4"
+              width="11"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+                fillRule="nonzero"
+              />
+            </svg>
+          </button>
+        </div>,
+        <div
+          className="str-chat__dialog-overlay"
+          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-testid="str-chat__dialog-overlay"
+          onClick={[Function]}
+          style={
+            Object {
+              "--str-chat__dialog-overlay-height": "0",
+            }
+          }
+        />,
+      ]
     `);
   });
 
@@ -101,77 +122,98 @@ describe('<MessageActions /> component', () => {
     expect(queryByTestId(messageActionsTestId)).toBeNull();
   });
 
-  it('should open message actions box on click', () => {
+  it('should open message actions box on click', async () => {
     const { getByTestId } = renderMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
-    fireEvent.click(getByTestId(messageActionsTestId));
+    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
+    expect(dialogOverlay.children).toHaveLength(1);
+    await act(async () => {
+      await fireEvent.click(getByTestId(messageActionsTestId));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
+    expect(dialogOverlay.children).toHaveLength(1);
   });
 
-  it('should close message actions box on icon click if already opened', () => {
+  it('should close message actions box on icon click if already opened', async () => {
     const { getByTestId } = renderMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
-    fireEvent.click(getByTestId(messageActionsTestId));
+    await act(async () => {
+      await fireEvent.click(getByTestId(messageActionsTestId));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    fireEvent.click(getByTestId(messageActionsTestId));
+    await act(async () => {
+      await fireEvent.click(getByTestId(messageActionsTestId));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
   });
 
-  it('should close message actions box when user clicks anywhere in the document if it is already opened', () => {
+  it('should close message actions box when user clicks overlay if it is already opened', async () => {
     const { getByRole } = renderMessageActions();
-    fireEvent.click(getByRole('button'));
-
+    await act(async () => {
+      await fireEvent.click(getByRole('button'));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    fireEvent.click(document);
+    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
+    await act(async () => {
+      await fireEvent.click(dialogOverlay);
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
   });
 
-  it('should close message actions box when user presses Escape key', () => {
+  it('should close message actions box when user presses Escape key', async () => {
     const { getByRole } = renderMessageActions();
-    fireEvent.click(getByRole('button'));
+    await act(async () => {
+      await fireEvent.click(getByRole('button'));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
+    await act(async () => {
+      await fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
     );
   });
 
-  it('should close actions box open on mouseleave if container ref provided', () => {
+  it('should close actions box open on mouseleave if container ref provided', async () => {
     const customProps = {
       messageWrapperRef: { current: wrapperMock },
     };
     const { getByRole } = renderMessageActions(customProps);
-    fireEvent.click(getByRole('button'));
+    await act(async () => {
+      await fireEvent.click(getByRole('button'));
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    fireEvent.mouseLeave(customProps.messageWrapperRef.current);
+    await act(async () => {
+      await fireEvent.mouseLeave(customProps.messageWrapperRef.current);
+    });
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: false }),
       {},
@@ -196,12 +238,13 @@ describe('<MessageActions /> component', () => {
     );
   });
 
-  it('should not register click and keyup event listeners to close actions box until opened', () => {
+  it('should not register click and keyup event listeners to close actions box until opened', async () => {
     const { getByRole } = renderMessageActions();
     const addEventListener = jest.spyOn(document, 'addEventListener');
     expect(document.addEventListener).not.toHaveBeenCalled();
-    fireEvent.click(getByRole('button'));
-    expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    await act(async () => {
+      await fireEvent.click(getByRole('button'));
+    });
     expect(document.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     addEventListener.mockClear();
   });
@@ -216,13 +259,14 @@ describe('<MessageActions /> component', () => {
     removeEventListener.mockClear();
   });
 
-  it('should remove event listener when unmounted', () => {
+  it('should remove event listener when unmounted', async () => {
     const { getByRole, unmount } = renderMessageActions();
     const removeEventListener = jest.spyOn(document, 'removeEventListener');
-    fireEvent.click(getByRole('button'));
+    await act(async () => {
+      await fireEvent.click(getByRole('button'));
+    });
     expect(document.removeEventListener).not.toHaveBeenCalled();
     unmount();
-    expect(document.removeEventListener).toHaveBeenCalledWith('click', expect.any(Function));
     expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     removeEventListener.mockClear();
   });
@@ -235,32 +279,44 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <div
-        className="custom-wrapper-class"
-        data-testid="message-actions"
-        onClick={[Function]}
-      >
-        <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
-          className="str-chat__message-actions-box-button"
+      Array [
+        <div
+          className="custom-wrapper-class"
+          data-testid="message-actions"
+          onClick={[Function]}
         >
-          <svg
-            className="str-chat__message-action-icon"
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            aria-expanded={false}
+            aria-haspopup="true"
+            aria-label="Open Message Actions Menu"
+            className="str-chat__message-actions-box-button"
           >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
-      </div>
+            <svg
+              className="str-chat__message-action-icon"
+              height="4"
+              viewBox="0 0 11 4"
+              width="11"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+                fillRule="nonzero"
+              />
+            </svg>
+          </button>
+        </div>,
+        <div
+          className="str-chat__dialog-overlay"
+          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-testid="str-chat__dialog-overlay"
+          onClick={[Function]}
+          style={
+            Object {
+              "--str-chat__dialog-overlay-height": "0",
+            }
+          }
+        />,
+      ]
     `);
   });
 
@@ -272,32 +328,44 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      <span
-        className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
-        data-testid="message-actions"
-        onClick={[Function]}
-      >
-        <div />
-        <button
-          aria-expanded={false}
-          aria-haspopup="true"
-          aria-label="Open Message Actions Menu"
-          className="str-chat__message-actions-box-button"
+      Array [
+        <span
+          className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
+          data-testid="message-actions"
+          onClick={[Function]}
         >
-          <svg
-            className="str-chat__message-action-icon"
-            height="4"
-            viewBox="0 0 11 4"
-            width="11"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            aria-expanded={false}
+            aria-haspopup="true"
+            aria-label="Open Message Actions Menu"
+            className="str-chat__message-actions-box-button"
           >
-            <path
-              d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
-              fillRule="nonzero"
-            />
-          </svg>
-        </button>
-      </span>
+            <svg
+              className="str-chat__message-action-icon"
+              height="4"
+              viewBox="0 0 11 4"
+              width="11"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M1.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"
+                fillRule="nonzero"
+              />
+            </svg>
+          </button>
+        </span>,
+        <div
+          className="str-chat__dialog-overlay"
+          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-testid="str-chat__dialog-overlay"
+          onClick={[Function]}
+          style={
+            Object {
+              "--str-chat__dialog-overlay-height": "0",
+            }
+          }
+        />,
+      ]
     `);
   });
 });
