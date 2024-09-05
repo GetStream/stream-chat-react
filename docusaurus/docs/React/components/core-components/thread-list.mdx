@@ -3,9 +3,9 @@ id: thread-list
 title: ThreadList
 ---
 
-`ThreadList` is a component which renders individual thread instances ([`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts)) stored within `ThreadManager`. It handles pagination triggers and virtualization through the help of the [Virtuoso](https://virtuoso.dev) virtualized list component. The rest of the business logic lives within ThreadManager and Thread classes. ThreadManager instance gets activated whenever ThreadList renders - activation is necessary as it tells the SDK that user "sees" this list and can update state accordingly whenever appropriate events arrive.
+`ThreadList` is a component which renders individual thread instances ([`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts)) stored within [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread_manager.ts). It handles pagination triggers and virtualization through the help of the [Virtuoso](https://virtuoso.dev) virtualized list component. The rest of the business logic lives within ThreadManager and Thread classes. ThreadManager instance gets activated whenever ThreadList renders - activation is necessary as it tells the SDK that user "sees" this list and can update state accordingly whenever appropriate events arrive.
 
-If used in default form and rendered within `ThreadView` component it also allows to set active thread and handles `Thread` activation (similar to `ThreadManager` activation).
+If used in default form and rendered within [`ThreadView` component](../utility-components/chat-view.mdx) it also allows to set active thread and handles [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) activation (similar to [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread_manager.ts) activation).
 
 ## Basic Usage
 
