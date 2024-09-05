@@ -226,7 +226,7 @@ const MessageListWithContext = <
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
-        <DialogsManagerProvider>
+        <DialogsManagerProvider id='message-list-dialogs-manager'>
           {!threadList && showUnreadMessagesNotification && (
             <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
           )}
