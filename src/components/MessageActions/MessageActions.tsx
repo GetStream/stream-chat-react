@@ -149,6 +149,7 @@ export const MessageActions = <
         id={dialogId}
         placement={isMine ? 'top-end' : 'top-start'}
         referenceElement={actionsBoxButtonRef.current}
+        trapFocus
       >
         <MessageActionsBox
           getMessageActions={getMessageActions}

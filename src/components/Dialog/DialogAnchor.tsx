@@ -49,14 +49,18 @@ export function useDialogAnchor<T extends HTMLElement>({
 
 type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
   id: string;
+  focus?: boolean;
+  trapFocus?: boolean;
 } & ComponentProps<'div'>;
 
 export const DialogAnchor = ({
   children,
   className,
+  focus = true,
   id,
   placement = 'auto',
   referenceElement = null,
+  trapFocus,
   ...restDivProps
 }: DialogAnchorProps) => {
   const open = useDialogIsOpen(id);
@@ -65,6 +69,43 @@ export const DialogAnchor = ({
     placement,
     referenceElement,
   });
+
+  // handle focus and focus trap inside the dialog
+  useEffect(() => {
+    if (!popperElementRef.current || !focus || !open) return;
+    const container = popperElementRef.current;
+    container.focus();
+
+    if (!trapFocus) return;
+    const handleKeyDownWithTabRoundRobin = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+
+      const focusableElements = getFocusableElements(container);
+      if (focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+      if (firstElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+
+      // Trap focus within the group
+      if (event.shiftKey && document.activeElement === firstElement) {
+        // If Shift + Tab on the first element, move focus to the last element
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        // If Tab on the last element, move focus to the first element
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    container.addEventListener('keydown', handleKeyDownWithTabRoundRobin);
+
+    return () => container.removeEventListener('keydown', handleKeyDownWithTabRoundRobin);
+  }, [focus, popperElementRef, open, trapFocus]);
 
   return (
     <DialogPortalEntry dialogId={id}>
@@ -75,9 +116,16 @@ export const DialogAnchor = ({
         data-testid='str-chat__dialog-contents'
         ref={popperElementRef}
         style={styles.popper}
+        tabIndex={0}
       >
         {children}
       </div>
     </DialogPortalEntry>
   );
 };
+
+function getFocusableElements(container: HTMLElement) {
+  return container.querySelectorAll(
+    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+  );
+}
