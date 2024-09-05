@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { PropsWithChildrenOnly } from '../types/types';
+import React, { PropsWithChildren, useContext, useState } from 'react';
 import { DialogsManager } from '../components/Dialog/DialogsManager';
 import { DialogPortalDestination } from '../components/Dialog/DialogPortal';
 
@@ -11,8 +10,8 @@ const DialogsManagerProviderContext = React.createContext<
   DialogsManagerProviderContextValue | undefined
 >(undefined);
 
-export const DialogsManagerProvider = ({ children }: PropsWithChildrenOnly) => {
-  const [dialogsManager] = useState<DialogsManager>(() => new DialogsManager());
+export const DialogsManagerProvider = ({ children, id }: PropsWithChildren<{ id?: string }>) => {
+  const [dialogsManager] = useState<DialogsManager>(() => new DialogsManager({ id }));
 
   return (
     <DialogsManagerProviderContext.Provider value={{ dialogsManager }}>
