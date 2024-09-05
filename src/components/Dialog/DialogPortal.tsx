@@ -18,22 +18,17 @@ export const DialogPortalDestination = () => {
   );
 
   return (
-    <>
-      <div
-        className='str-chat__dialog-overlay'
-        onClick={() => dialogsManager.closeAll()}
-        style={{
-          height: '100%',
-          inset: '0',
-          overflow: 'hidden',
-          position: 'absolute',
-          width: '100%',
-          zIndex: shouldRender ? '2' : '-1',
-        }}
-      >
-        <div data-str-chat__portal-id={dialogsManager.id} />
-      </div>
-    </>
+    <div
+      className='str-chat__dialog-overlay'
+      data-str-chat__portal-id={dialogsManager.id}
+      data-testid='str-chat__dialog-overlay'
+      onClick={() => dialogsManager.closeAll()}
+      style={
+        {
+          '--str-chat__dialog-overlay-height': shouldRender ? '100%' : '0',
+        } as React.CSSProperties
+      }
+    ></div>
   );
 };
 

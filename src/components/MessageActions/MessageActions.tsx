@@ -146,9 +146,6 @@ export const MessageActions = <
       toggleOpen={dialog?.toggleSingle}
     >
       <DialogAnchor
-        className={clsx('str-chat__message-actions-box', {
-          'str-chat__message-actions-box--open': dialogIsOpen,
-        })}
         id={dialogId}
         placement={isMine ? 'top-end' : 'top-start'}
         referenceElement={actionsBoxButtonRef.current}
@@ -162,6 +159,8 @@ export const MessageActions = <
           handleMute={handleMute}
           handlePin={handlePin}
           isUserMuted={isMuted}
+          mine={isMine}
+          open={dialogIsOpen}
         />
       </DialogAnchor>
       <button
