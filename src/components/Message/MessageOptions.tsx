@@ -5,7 +5,7 @@ import {
   ReactionIcon as DefaultReactionIcon,
   ThreadIcon as DefaultThreadIcon,
 } from './icons';
-import { MESSAGE_ACTIONS, showMessageActionsBox } from './utils';
+import { MESSAGE_ACTIONS } from './utils';
 
 import { MessageActions } from '../MessageActions';
 
@@ -47,7 +47,6 @@ const UnMemoizedMessageOptions = <
   } = props;
 
   const {
-    customMessageActions,
     getMessageActions,
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
@@ -62,8 +61,6 @@ const UnMemoizedMessageOptions = <
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
-  const showActionsBox =
-    showMessageActionsBox(messageActions, threadList) || !!customMessageActions;
 
   const shouldShowReactions = messageActions.indexOf(MESSAGE_ACTIONS.react) > -1;
   const shouldShowReplies =
@@ -85,9 +82,7 @@ const UnMemoizedMessageOptions = <
 
   return (
     <div className={rootClassName} data-testid='message-options'>
-      {showActionsBox && (
-        <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
-      )}
+      <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
       {shouldShowReplies && (
         <button
           aria-label={t('aria/Open Thread')}
