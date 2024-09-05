@@ -77,7 +77,6 @@ import { hasMoreMessagesProbably, UnreadMessagesSeparator } from '../MessageList
 import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { DateSeparator } from '../DateSeparator';
-import { DialogsManagerProvider } from '../Dialog';
 import { EventComponent } from '../EventComponent';
 import { defaultReactionOptions, ReactionOptions } from '../Reactions';
 import { getChannel } from '../../utils';
@@ -1330,22 +1329,20 @@ const ChannelInner = <
 
   return (
     <div className={clsx(className, windowsEmojiClass)}>
-      <DialogsManagerProvider>
-        <ChannelStateProvider value={channelStateContextValue}>
-          <ChannelActionProvider value={channelActionContextValue}>
-            <ComponentProvider value={componentContextValue}>
-              <TypingProvider value={typingContextValue}>
-                <div className={`${chatContainerClass}`}>
-                  {dragAndDropWindow && (
-                    <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
-                  )}
-                  {!dragAndDropWindow && <>{children}</>}
-                </div>
-              </TypingProvider>
-            </ComponentProvider>
-          </ChannelActionProvider>
-        </ChannelStateProvider>
-      </DialogsManagerProvider>
+      <ChannelStateProvider value={channelStateContextValue}>
+        <ChannelActionProvider value={channelActionContextValue}>
+          <ComponentProvider value={componentContextValue}>
+            <TypingProvider value={typingContextValue}>
+              <div className={`${chatContainerClass}`}>
+                {dragAndDropWindow && (
+                  <DropzoneProvider {...optionalMessageInputProps}>{children}</DropzoneProvider>
+                )}
+                {!dragAndDropWindow && <>{children}</>}
+              </div>
+            </TypingProvider>
+          </ComponentProvider>
+        </ChannelActionProvider>
+      </ChannelStateProvider>
     </div>
   );
 };

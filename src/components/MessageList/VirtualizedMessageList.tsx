@@ -44,6 +44,7 @@ import {
   messageRenderer,
 } from './VirtualizedMessageListComponents';
 
+import { DialogsManagerProvider } from '../../context';
 import {
   ChannelActionContextValue,
   useChannelActionContext,
@@ -427,74 +428,76 @@ const VirtualizedMessageListWithContext = <
   return (
     <>
       <MessageListMainPanel>
-        {!threadList && showUnreadMessagesNotification && (
-          <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
-        )}
-        <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
-          <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
-            atBottomStateChange={atBottomStateChange}
-            atBottomThreshold={100}
-            atTopStateChange={atTopStateChange}
-            atTopThreshold={100}
-            className='str-chat__message-list-scroll'
-            components={{
-              EmptyPlaceholder,
-              Footer,
-              Header,
-              Item,
-              ...virtuosoComponentsFromProps,
-            }}
-            computeItemKey={computeItemKey}
-            context={{
-              additionalMessageInputProps,
-              closeReactionSelectorOnClick,
-              customClasses,
-              customMessageActions,
-              customMessageRenderer,
-              DateSeparator,
-              firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
-              formatDate,
-              head,
-              lastReadDate: channelUnreadUiState?.last_read,
-              lastReadMessageId: channelUnreadUiState?.last_read_message_id,
-              lastReceivedMessageId,
-              loadingMore,
-              Message: MessageUIComponent,
-              messageActions,
-              messageGroupStyles,
-              MessageSystem,
-              numItemsPrepended,
-              ownMessagesReadByOthers,
-              processedMessages,
-              reactionDetailsSort,
-              shouldGroupByUser,
-              sortReactionDetails,
-              sortReactions,
-              threadList,
-              unreadMessageCount: channelUnreadUiState?.unread_messages,
-              UnreadMessagesSeparator,
-              virtuosoRef: virtuoso,
-            }}
-            firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
-            followOutput={followOutput}
-            increaseViewportBy={{ bottom: 200, top: 0 }}
-            initialTopMostItemIndex={calculateInitialTopMostItemIndex(
-              processedMessages,
-              highlightedMessageId,
-            )}
-            itemContent={messageRenderer}
-            itemSize={fractionalItemSize}
-            itemsRendered={handleItemsRendered}
-            key={messageSetKey}
-            overscan={overscan}
-            ref={virtuoso}
-            style={{ overflowX: 'hidden' }}
-            totalCount={processedMessages.length}
-            {...overridingVirtuosoProps}
-            {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-            {...(defaultItemHeight ? { defaultItemHeight } : {})}
-          />
-        </div>
+        <DialogsManagerProvider>
+          {!threadList && showUnreadMessagesNotification && (
+            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
+          )}
+          <div className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}>
+            <Virtuoso<UnknownType, VirtuosoContext<StreamChatGenerics>>
+              atBottomStateChange={atBottomStateChange}
+              atBottomThreshold={100}
+              atTopStateChange={atTopStateChange}
+              atTopThreshold={100}
+              className='str-chat__message-list-scroll'
+              components={{
+                EmptyPlaceholder,
+                Footer,
+                Header,
+                Item,
+                ...virtuosoComponentsFromProps,
+              }}
+              computeItemKey={computeItemKey}
+              context={{
+                additionalMessageInputProps,
+                closeReactionSelectorOnClick,
+                customClasses,
+                customMessageActions,
+                customMessageRenderer,
+                DateSeparator,
+                firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
+                formatDate,
+                head,
+                lastReadDate: channelUnreadUiState?.last_read,
+                lastReadMessageId: channelUnreadUiState?.last_read_message_id,
+                lastReceivedMessageId,
+                loadingMore,
+                Message: MessageUIComponent,
+                messageActions,
+                messageGroupStyles,
+                MessageSystem,
+                numItemsPrepended,
+                ownMessagesReadByOthers,
+                processedMessages,
+                reactionDetailsSort,
+                shouldGroupByUser,
+                sortReactionDetails,
+                sortReactions,
+                threadList,
+                unreadMessageCount: channelUnreadUiState?.unread_messages,
+                UnreadMessagesSeparator,
+                virtuosoRef: virtuoso,
+              }}
+              firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
+              followOutput={followOutput}
+              increaseViewportBy={{ bottom: 200, top: 0 }}
+              initialTopMostItemIndex={calculateInitialTopMostItemIndex(
+                processedMessages,
+                highlightedMessageId,
+              )}
+              itemContent={messageRenderer}
+              itemSize={fractionalItemSize}
+              itemsRendered={handleItemsRendered}
+              key={messageSetKey}
+              overscan={overscan}
+              ref={virtuoso}
+              style={{ overflowX: 'hidden' }}
+              totalCount={processedMessages.length}
+              {...overridingVirtuosoProps}
+              {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
+              {...(defaultItemHeight ? { defaultItemHeight } : {})}
+            />
+          </div>
+        </DialogsManagerProvider>
       </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={newMessagesNotification}
