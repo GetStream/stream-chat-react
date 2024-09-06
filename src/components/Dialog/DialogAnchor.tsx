@@ -1,9 +1,10 @@
 import clsx from 'clsx';
 import { Placement } from '@popperjs/core';
-import React, { ComponentProps, PropsWithChildren, useEffect, useRef } from 'react';
+import React, { ComponentProps, PropsWithChildren, useEffect, useState } from 'react';
+import { FocusScope } from '@react-aria/focus';
 import { usePopper } from 'react-popper';
-import { useDialogIsOpen } from './hooks';
 import { DialogPortalEntry } from './DialogPortal';
+import { useDialog, useDialogIsOpen } from './hooks';
 
 export interface DialogAnchorOptions {
   open: boolean;
@@ -16,8 +17,8 @@ export function useDialogAnchor<T extends HTMLElement>({
   placement,
   referenceElement,
 }: DialogAnchorOptions) {
-  const popperElementRef = useRef<T>(null);
-  const { attributes, styles, update } = usePopper(referenceElement, popperElementRef.current, {
+  const [popperElement, setPopperElement] = useState<T | null>(null);
+  const { attributes, styles, update } = usePopper(referenceElement, popperElement, {
     modifiers: [
       {
         name: 'eventListeners',
@@ -33,16 +34,17 @@ export function useDialogAnchor<T extends HTMLElement>({
   });
 
   useEffect(() => {
-    if (open) {
+    if (open && popperElement) {
       // Since the popper's reference element might not be (and usually is not) visible
       // all the time, it's safer to force popper update before showing it.
+      // update is non-null only if popperElement is non-null
       update?.();
     }
-  }, [open, update]);
+  }, [open, popperElement, update]);
 
   return {
     attributes,
-    popperElementRef,
+    setPopperElement,
     styles,
   };
 }
@@ -63,69 +65,55 @@ export const DialogAnchor = ({
   trapFocus,
   ...restDivProps
 }: DialogAnchorProps) => {
+  const dialog = useDialog({ id });
   const open = useDialogIsOpen(id);
-  const { attributes, popperElementRef, styles } = useDialogAnchor<HTMLDivElement>({
+  const { attributes, setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
     open,
     placement,
     referenceElement,
   });
 
-  // handle focus and focus trap inside the dialog
   useEffect(() => {
-    if (!popperElementRef.current || !focus || !open) return;
-    const container = popperElementRef.current;
-    container.focus();
-
-    if (!trapFocus) return;
-    const handleKeyDownWithTabRoundRobin = (event: KeyboardEvent) => {
-      if (event.key !== 'Tab') return;
-
-      const focusableElements = getFocusableElements(container);
-      if (focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0] as HTMLElement;
-      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-      if (firstElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-
-      // Trap focus within the group
-      if (event.shiftKey && document.activeElement === firstElement) {
-        // If Shift + Tab on the first element, move focus to the last element
-        event.preventDefault();
-        lastElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
-        // If Tab on the last element, move focus to the first element
-        event.preventDefault();
-        firstElement.focus();
-      }
+    if (!open) return;
+    const hideOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      dialog?.close();
     };
 
-    container.addEventListener('keydown', handleKeyDownWithTabRoundRobin);
+    document.addEventListener('keyup', hideOnEscape);
 
-    return () => container.removeEventListener('keydown', handleKeyDownWithTabRoundRobin);
-  }, [focus, popperElementRef, open, trapFocus]);
+    return () => {
+      document.removeEventListener('keyup', hideOnEscape);
+    };
+  }, [dialog, open]);
+
+  useEffect(() => {
+    if (!open) {
+      // setting element reference back to null allows to re-run the usePopper component once the component is re-rendered
+      setPopperElement(null);
+    }
+  }, [open, setPopperElement]);
+
+  // prevent rendering the dialog contents if the dialog should not be open / shown
+  if (!open) {
+    return null;
+  }
 
   return (
     <DialogPortalEntry dialogId={id}>
-      <div
-        {...restDivProps}
-        {...attributes.popper}
-        className={clsx('str-chat__dialog-contents', className)}
-        data-testid='str-chat__dialog-contents'
-        ref={popperElementRef}
-        style={styles.popper}
-        tabIndex={0}
-      >
-        {children}
-      </div>
+      <FocusScope autoFocus={focus} contain={trapFocus} restoreFocus>
+        <div
+          {...restDivProps}
+          {...attributes.popper}
+          className={clsx('str-chat__dialog-contents', className)}
+          data-testid='str-chat__dialog-contents'
+          ref={setPopperElement}
+          style={styles.popper}
+          tabIndex={0}
+        >
+          {children}
+        </div>
+      </FocusScope>
     </DialogPortalEntry>
   );
 };
-
-function getFocusableElements(container: HTMLElement) {
-  return container.querySelectorAll(
-    'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
-  );
-}
