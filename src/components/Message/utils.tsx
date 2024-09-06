@@ -314,6 +314,10 @@ export const areMessagePropsEqual = <
     return false;
   }
 
+  if (nextProps.closeReactionSelectorOnClick !== prevProps.closeReactionSelectorOnClick) {
+    return false;
+  }
+
   const messagesAreEqual = areMessagesEqual(prevMessage, nextMessage);
   if (!messagesAreEqual) return false;
 

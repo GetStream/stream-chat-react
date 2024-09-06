@@ -70,10 +70,6 @@ export type MessageContextValue<
   handleRetry: ChannelActionContextValue<StreamChatGenerics>['retrySendMessage'];
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
-  /** @deprecated will be removed in the next major release.
-   *  Whether sending reactions is enabled for the active channel.
-   */
-  isReactionEnabled: boolean;
   /** The message object */
   message: StreamMessage<StreamChatGenerics>;
   /** Indicates whether a message has not been read yet or has been marked unread */
@@ -82,22 +78,18 @@ export type MessageContextValue<
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
   onMentionsHoverMessage: ReactEventHandler;
-  /** Handler function for a click event on the reaction list */
-  onReactionListClick: ReactEventHandler;
   /** Handler function for a click event on the user that posted the Message */
   onUserClick: ReactEventHandler;
   /** Handler function for a hover event on the user that posted the Message */
   onUserHover: ReactEventHandler;
-  /** Ref to be placed on the reaction selector component */
-  reactionSelectorRef: React.MutableRefObject<HTMLDivElement | null>;
   /** Function to toggle the edit state on a Message */
   setEditingState: ReactEventHandler;
-  /** Whether or not to show reaction list details */
-  showDetailedReactions: boolean;
   /** Additional props for underlying MessageInput component, [available props](https://getstream.io/chat/docs/sdk/react/message-input-components/message_input/#props) */
   additionalMessageInputProps?: MessageInputProps<StreamChatGenerics>;
   /** Call this function to keep message list scrolled to the bottom when the scroll height increases, e.g. an element appears below the last message (only used in the `VirtualizedMessageList`) */
   autoscrollToBottom?: () => void;
+  /** Message component configuration prop. If true, picking a reaction from the `ReactionSelector` component will close the selector */
+  closeReactionSelectorOnClick?: boolean;
   /** Object containing custom message actions and function handlers */
   customMessageActions?: CustomMessageActions<StreamChatGenerics>;
   /** If true, the message is the last one in a group sent by a specific user (only used in the `VirtualizedMessageList`) */

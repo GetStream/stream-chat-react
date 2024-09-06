@@ -1,11 +1,9 @@
-import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { StreamMessage, useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
-
-import type { ReactEventHandler } from '../types';
 
 import type { Reaction, ReactionResponse } from 'stream-chat';
 
@@ -139,95 +137,5 @@ export const useReactionHandler = <
     } catch (error) {
       console.log({ error });
     }
-  };
-};
-
-export const useReactionClick = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  message?: StreamMessage<StreamChatGenerics>,
-  reactionSelectorRef?: RefObject<HTMLDivElement | null>,
-  messageWrapperRef?: RefObject<HTMLDivElement | null>,
-  closeReactionSelectorOnClick?: boolean,
-) => {
-  const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
-    'useReactionClick',
-  );
-
-  const [showDetailedReactions, setShowDetailedReactions] = useState(false);
-
-  const hasListener = useRef(false);
-
-  const isReactionEnabled = channelCapabilities['send-reaction'];
-
-  const messageDeleted = !!message?.deleted_at;
-
-  const closeDetailedReactions: EventListener = useCallback(
-    (event) => {
-      if (
-        event.target instanceof HTMLElement &&
-        reactionSelectorRef?.current?.contains(event.target) &&
-        !closeReactionSelectorOnClick
-      ) {
-        return;
-      }
-
-      setShowDetailedReactions(false);
-    },
-    [closeReactionSelectorOnClick, setShowDetailedReactions, reactionSelectorRef],
-  );
-
-  useEffect(() => {
-    const messageWrapper = messageWrapperRef?.current;
-
-    if (showDetailedReactions && !hasListener.current) {
-      hasListener.current = true;
-      document.addEventListener('click', closeDetailedReactions);
-      messageWrapper?.addEventListener('mouseleave', closeDetailedReactions);
-    }
-
-    if (!showDetailedReactions && hasListener.current) {
-      document.removeEventListener('click', closeDetailedReactions);
-      messageWrapper?.removeEventListener('mouseleave', closeDetailedReactions);
-
-      hasListener.current = false;
-    }
-
-    return () => {
-      if (hasListener.current) {
-        document.removeEventListener('click', closeDetailedReactions);
-
-        if (messageWrapper) {
-          messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
-        }
-
-        hasListener.current = false;
-      }
-    };
-  }, [showDetailedReactions, closeDetailedReactions, messageWrapperRef]);
-
-  useEffect(() => {
-    const messageWrapper = messageWrapperRef?.current;
-
-    if (messageDeleted && hasListener.current) {
-      document.removeEventListener('click', closeDetailedReactions);
-
-      if (messageWrapper) {
-        messageWrapper.removeEventListener('mouseleave', closeDetailedReactions);
-      }
-
-      hasListener.current = false;
-    }
-  }, [messageDeleted, closeDetailedReactions, messageWrapperRef]);
-
-  const onReactionListClick: ReactEventHandler = (event) => {
-    event?.stopPropagation?.();
-    setShowDetailedReactions((prev) => !prev);
-  };
-
-  return {
-    isReactionEnabled,
-    onReactionListClick,
-    showDetailedReactions,
   };
 };

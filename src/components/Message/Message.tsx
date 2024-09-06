@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import {
   useActionHandler,
@@ -10,7 +10,6 @@ import {
   useMuteHandler,
   useOpenThreadHandler,
   usePinHandler,
-  useReactionClick,
   useReactionHandler,
   useReactionsFetcher,
   useRetryHandler,
@@ -44,14 +43,10 @@ type MessageContextPropsToPick =
   | 'handleReaction'
   | 'handleFetchReactions'
   | 'handleRetry'
-  | 'isReactionEnabled'
   | 'mutes'
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
-  | 'onReactionListClick'
-  | 'reactionSelectorRef'
   | 'reactionDetailsSort'
-  | 'showDetailedReactions'
   | 'sortReactions'
   | 'sortReactionDetails';
 
@@ -218,8 +213,6 @@ export const Message = <
   const { addNotification } = useChannelActionContext<StreamChatGenerics>('Message');
   const { highlightedMessageId, mutes } = useChannelStateContext<StreamChatGenerics>('Message');
 
-  const reactionSelectorRef = useRef<HTMLDivElement | null>(null);
-
   const handleAction = useActionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
@@ -264,13 +257,6 @@ export const Message = <
     notify: addNotification,
   });
 
-  const { isReactionEnabled, onReactionListClick, showDetailedReactions } = useReactionClick(
-    message,
-    reactionSelectorRef,
-    undefined,
-    closeReactionSelectorOnClick,
-  );
-
   const highlighted = highlightedMessageId === message.id;
 
   return (
@@ -278,6 +264,7 @@ export const Message = <
       additionalMessageInputProps={props.additionalMessageInputProps}
       autoscrollToBottom={props.autoscrollToBottom}
       canPin={canPin}
+      closeReactionSelectorOnClick={closeReactionSelectorOnClick}
       customMessageActions={props.customMessageActions}
       disableQuotedMessages={props.disableQuotedMessages}
       endOfGroup={props.endOfGroup}
@@ -297,7 +284,6 @@ export const Message = <
       handleRetry={handleRetry}
       highlighted={highlighted}
       initialMessage={props.initialMessage}
-      isReactionEnabled={isReactionEnabled}
       lastReceivedId={props.lastReceivedId}
       message={message}
       Message={props.Message}
@@ -306,15 +292,12 @@ export const Message = <
       mutes={mutes}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}
-      onReactionListClick={onReactionListClick}
       onUserClick={props.onUserClick}
       onUserHover={props.onUserHover}
       pinPermissions={props.pinPermissions}
       reactionDetailsSort={reactionDetailsSort}
-      reactionSelectorRef={reactionSelectorRef}
       readBy={props.readBy}
       renderText={props.renderText}
-      showDetailedReactions={showDetailedReactions}
       sortReactionDetails={sortReactionDetails}
       sortReactions={sortReactions}
       threadList={props.threadList}

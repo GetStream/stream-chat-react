@@ -6,13 +6,15 @@ import {
   ThreadIcon as DefaultThreadIcon,
 } from './icons';
 import { MESSAGE_ACTIONS } from './utils';
-
 import { MessageActions } from '../MessageActions';
 
+import { useTranslationContext } from '../../context';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
-import { useTranslationContext } from '../../context';
+import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
+import { useDialogIsOpen } from '../Dialog';
+import clsx from 'clsx';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -21,8 +23,6 @@ export type MessageOptionsProps<
   ActionsIcon?: React.ComponentType<IconProps>;
   /* If true, show the `ThreadIcon` and enable navigation into a `Thread` component. */
   displayReplies?: boolean;
-  /* React mutable ref that can be placed on the message root `div` of MessageActions component */
-  messageWrapperRef?: React.RefObject<HTMLDivElement>;
   /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
   ReactionIcon?: React.ComponentType<IconProps>;
   /* Theme string to be added to CSS class names. */
@@ -40,7 +40,6 @@ const UnMemoizedMessageOptions = <
     ActionsIcon = DefaultActionsIcon,
     displayReplies = true,
     handleOpenThread: propHandleOpenThread,
-    messageWrapperRef,
     ReactionIcon = DefaultReactionIcon,
     theme = 'simple',
     ThreadIcon = DefaultThreadIcon,
@@ -51,13 +50,12 @@ const UnMemoizedMessageOptions = <
     handleOpenThread: contextHandleOpenThread,
     initialMessage,
     message,
-    onReactionListClick,
-    showDetailedReactions,
     threadList,
   } = useMessageContext<StreamChatGenerics>('MessageOptions');
 
   const { t } = useTranslationContext('MessageOptions');
-
+  const messageActionsDialogIsOpen = useDialogIsOpen(`message-actions--${message.id}`);
+  const reactionSelectorDialogIsOpen = useDialogIsOpen(`reaction-selector--${message.id}`);
   const handleOpenThread = propHandleOpenThread || contextHandleOpenThread;
 
   const messageActions = getMessageActions();
@@ -78,11 +76,15 @@ const UnMemoizedMessageOptions = <
     return null;
   }
 
-  const rootClassName = `str-chat__message-${theme}__actions str-chat__message-options`;
-
   return (
-    <div className={rootClassName} data-testid='message-options'>
-      <MessageActions ActionsIcon={ActionsIcon} messageWrapperRef={messageWrapperRef} />
+    <div
+      className={clsx(`str-chat__message-${theme}__actions str-chat__message-options`, {
+        'str-chat__message-options--active':
+          messageActionsDialogIsOpen || reactionSelectorDialogIsOpen,
+      })}
+      data-testid='message-options'
+    >
+      <MessageActions ActionsIcon={ActionsIcon} />
       {shouldShowReplies && (
         <button
           aria-label={t('aria/Open Thread')}
@@ -94,15 +96,7 @@ const UnMemoizedMessageOptions = <
         </button>
       )}
       {shouldShowReactions && (
-        <button
-          aria-expanded={showDetailedReactions}
-          aria-label={t('aria/Open Reaction Selector')}
-          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
-          data-testid='message-reaction-action'
-          onClick={onReactionListClick}
-        >
-          <ReactionIcon className='str-chat__message-action-icon' />
-        </button>
+        <ReactionSelectorWithButton ReactionIcon={ReactionIcon} theme={theme} />
       )}
     </div>
   );
