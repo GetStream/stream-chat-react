@@ -43,7 +43,6 @@ const onMentionsClickMock = jest.fn();
 const defaultProps = {
   initialMessage: false,
   message: generateMessage(),
-  messageWrapperRef: { current: document.createElement('div') },
   onReactionListClick: () => {},
   threadList: false,
 };

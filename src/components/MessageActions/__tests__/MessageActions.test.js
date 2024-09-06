@@ -66,24 +66,30 @@ function renderMessageActions(customProps, renderer = render) {
 
 const dialogOverlayTestId = 'str-chat__dialog-overlay';
 const messageActionsTestId = 'message-actions';
+
+const toggleOpenMessageActions = async () => {
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+};
 describe('<MessageActions /> component', () => {
   afterEach(cleanup);
   beforeEach(jest.clearAllMocks);
 
-  it('should render correctly', () => {
+  it('should render correctly when not open', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
       Array [
         <div
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
             aria-expanded={false}
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"
@@ -123,50 +129,34 @@ describe('<MessageActions /> component', () => {
   });
 
   it('should open message actions box on click', async () => {
-    const { getByTestId } = renderMessageActions();
-    expect(MessageActionsBoxMock).toHaveBeenCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
+    renderMessageActions();
+    expect(MessageActionsBoxMock).not.toHaveBeenCalled();
     const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
-    expect(dialogOverlay.children).toHaveLength(1);
-    await act(async () => {
-      await fireEvent.click(getByTestId(messageActionsTestId));
-    });
+    expect(dialogOverlay.children).toHaveLength(0);
+    await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    expect(dialogOverlay.children).toHaveLength(1);
+    expect(dialogOverlay.children.length).toBeGreaterThan(0);
   });
 
   it('should close message actions box on icon click if already opened', async () => {
-    const { getByTestId } = renderMessageActions();
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
-    await act(async () => {
-      await fireEvent.click(getByTestId(messageActionsTestId));
-    });
+    renderMessageActions();
+    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
+    expect(MessageActionsBoxMock).not.toHaveBeenCalled();
+    await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
     );
-    await act(async () => {
-      await fireEvent.click(getByTestId(messageActionsTestId));
-    });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
+    await toggleOpenMessageActions();
+    expect(dialogOverlay.children).toHaveLength(0);
   });
 
   it('should close message actions box when user clicks overlay if it is already opened', async () => {
-    const { getByRole } = renderMessageActions();
-    await act(async () => {
-      await fireEvent.click(getByRole('button'));
-    });
+    renderMessageActions();
+    await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({ open: true }),
       {},
@@ -175,53 +165,24 @@ describe('<MessageActions /> component', () => {
     await act(async () => {
       await fireEvent.click(dialogOverlay);
     });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
+    expect(MessageActionsBoxMock).toHaveBeenCalledTimes(1);
+    expect(dialogOverlay.children).toHaveLength(0);
   });
 
   it('should close message actions box when user presses Escape key', async () => {
-    const { getByRole } = renderMessageActions();
-    await act(async () => {
-      await fireEvent.click(getByRole('button'));
-    });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: true }),
-      {},
-    );
+    renderMessageActions();
+    const dialogOverlay = screen.getByTestId(dialogOverlayTestId);
+    await toggleOpenMessageActions();
     await act(async () => {
       await fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
     });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
+    expect(MessageActionsBoxMock).toHaveBeenCalledTimes(1);
+    expect(dialogOverlay.children).toHaveLength(0);
   });
 
-  it('should close actions box open on mouseleave if container ref provided', async () => {
-    const customProps = {
-      messageWrapperRef: { current: wrapperMock },
-    };
-    const { getByRole } = renderMessageActions(customProps);
-    await act(async () => {
-      await fireEvent.click(getByRole('button'));
-    });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: true }),
-      {},
-    );
-    await act(async () => {
-      await fireEvent.mouseLeave(customProps.messageWrapperRef.current);
-    });
-    expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
-      expect.objectContaining({ open: false }),
-      {},
-    );
-  });
-
-  it('should render the message actions box correctly', () => {
+  it('should render the message actions box correctly', async () => {
     renderMessageActions();
+    await toggleOpenMessageActions();
     expect(MessageActionsBoxMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
         getMessageActions: defaultProps.getMessageActions,
@@ -232,40 +193,26 @@ describe('<MessageActions /> component', () => {
         handlePin: defaultProps.handlePin,
         isUserMuted: expect.any(Function),
         mine: false,
-        open: false,
+        open: true,
       }),
       {},
     );
   });
 
   it('should not register click and keyup event listeners to close actions box until opened', async () => {
-    const { getByRole } = renderMessageActions();
+    renderMessageActions();
     const addEventListener = jest.spyOn(document, 'addEventListener');
     expect(document.addEventListener).not.toHaveBeenCalled();
-    await act(async () => {
-      await fireEvent.click(getByRole('button'));
-    });
+    await toggleOpenMessageActions();
     expect(document.addEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     addEventListener.mockClear();
   });
 
-  it('should not remove click and keyup event listeners when unmounted if actions box not opened', () => {
+  it('should remove keyup event listener when unmounted if actions box not opened', async () => {
     const { unmount } = renderMessageActions();
     const removeEventListener = jest.spyOn(document, 'removeEventListener');
     expect(document.removeEventListener).not.toHaveBeenCalled();
-    unmount();
-    expect(document.removeEventListener).not.toHaveBeenCalledWith('click', expect.any(Function));
-    expect(document.removeEventListener).not.toHaveBeenCalledWith('keyup', expect.any(Function));
-    removeEventListener.mockClear();
-  });
-
-  it('should remove event listener when unmounted', async () => {
-    const { getByRole, unmount } = renderMessageActions();
-    const removeEventListener = jest.spyOn(document, 'removeEventListener');
-    await act(async () => {
-      await fireEvent.click(getByRole('button'));
-    });
-    expect(document.removeEventListener).not.toHaveBeenCalled();
+    await toggleOpenMessageActions();
     unmount();
     expect(document.removeEventListener).toHaveBeenCalledWith('keyup', expect.any(Function));
     removeEventListener.mockClear();
@@ -283,13 +230,13 @@ describe('<MessageActions /> component', () => {
         <div
           className="custom-wrapper-class"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
             aria-expanded={false}
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"
@@ -332,13 +279,13 @@ describe('<MessageActions /> component', () => {
         <span
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
-          onClick={[Function]}
         >
           <button
             aria-expanded={false}
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"

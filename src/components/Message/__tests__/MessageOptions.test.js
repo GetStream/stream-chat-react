@@ -34,9 +34,7 @@ const defaultMessageProps = {
   onReactionListClick: () => {},
   threadList: false,
 };
-const defaultOptionsProps = {
-  messageWrapperRef: { current: document.createElement('div') },
-};
+const defaultOptionsProps = {};
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
