@@ -128,6 +128,7 @@ export const MessageActions = <
         aria-haspopup='true'
         aria-label={t('aria/Open Message Actions Menu')}
         className='str-chat__message-actions-box-button'
+        data-testid='message-actions-toggle-button'
         onClick={dialog?.toggleSingle}
         ref={actionsBoxButtonRef}
       >

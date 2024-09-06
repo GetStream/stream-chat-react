@@ -29,6 +29,13 @@ const defaultMessageContextValue = {
   messageListRect: {},
 };
 
+const TOGGLE_ACTIONS_BUTTON_TEST_ID = 'message-actions-toggle-button';
+const toggleOpenMessageActions = async (i = 0) => {
+  await act(async () => {
+    await fireEvent.click(screen.getAllByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID)[i]);
+  });
+};
+
 async function renderComponent(boxProps, messageContext = {}) {
   const { client } = await initClientWithChannels();
   return render(
@@ -171,7 +178,6 @@ describe('MessageActionsBox', () => {
   describe('mark message unread', () => {
     afterEach(jest.restoreAllMocks);
     const ACTION_TEXT = 'Mark as unread';
-    const TOGGLE_ACTIONS_BUTTON_TEST_ID = 'message-actions';
     const me = generateUser();
     const otherUser = generateUser();
     const message = generateMessage({ user: otherUser });
@@ -254,9 +260,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message },
       });
-      await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-      });
+      await toggleOpenMessageActions();
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
@@ -281,9 +285,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message: myMessage },
       });
-      await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-      });
+      await toggleOpenMessageActions();
       expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
 
@@ -301,9 +303,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message, threadList: true },
       });
-      await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-      });
+      await toggleOpenMessageActions();
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
@@ -336,9 +336,7 @@ describe('MessageActionsBox', () => {
         });
       });
 
-      await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-      });
+      await toggleOpenMessageActions();
       expect(screen.queryByText(ACTION_TEXT)).toBeInTheDocument();
     });
 
@@ -365,20 +363,18 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message: messageWithoutID },
       });
-      await act(async () => {
-        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
-      });
+      await toggleOpenMessageActions();
       expect(screen.queryByText(ACTION_TEXT)).not.toBeInTheDocument();
     });
 
-    it('should be displayed as an option for messages other than message marked unread', async () => {
+    it('should be displayed as an option for messages not marked and marked unread', async () => {
       const otherMsg = generateMessage({
-        created_at: new Date(new Date(message.created_at).getTime() + 1000),
+        created_at: new Date(new Date(message.created_at).getTime() + 2000),
       });
       const read = [
         {
-          first_unread_message_id: message.id,
-          last_read: new Date(new Date(message.created_at).getTime() - 1000),
+          first_unread_message_id: otherMsg.id,
+          last_read: new Date(new Date(otherMsg.created_at).getTime() - 1000),
           // last_read_message_id: message.id, // optional
           unread_messages: 2,
           user: me,
@@ -410,10 +406,17 @@ describe('MessageActionsBox', () => {
           </Chat>,
         );
       });
+      await toggleOpenMessageActions(0);
+      let boxes = screen.getAllByTestId('message-actions-box');
+      // eslint-disable-next-line jest-dom/prefer-in-document
+      expect(boxes).toHaveLength(1);
+      expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
 
-      const [actionsBox1, actionsBox2] = screen.getAllByTestId('message-actions-box');
-      expect(actionsBox1).toHaveTextContent(ACTION_TEXT);
-      expect(actionsBox2).toHaveTextContent(ACTION_TEXT);
+      await toggleOpenMessageActions(1);
+      boxes = screen.getAllByTestId('message-actions-box');
+      // eslint-disable-next-line jest-dom/prefer-in-document
+      expect(boxes).toHaveLength(1);
+      expect(boxes[0]).toHaveTextContent(ACTION_TEXT);
     });
 
     it('should be displayed and execute API request', async () => {
@@ -431,6 +434,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { message },
       });
+      await toggleOpenMessageActions();
       await act(async () => {
         await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));
@@ -456,6 +460,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { getMarkMessageUnreadSuccessNotification, message },
       });
+      await toggleOpenMessageActions();
       await act(async () => {
         await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));
@@ -481,6 +486,7 @@ describe('MessageActionsBox', () => {
         chatProps: { client },
         messageProps: { getMarkMessageUnreadErrorNotification, message },
       });
+      await toggleOpenMessageActions();
       await act(async () => {
         await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
         await fireEvent.click(screen.getByText(ACTION_TEXT));

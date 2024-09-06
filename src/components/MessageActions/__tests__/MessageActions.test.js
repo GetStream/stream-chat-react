@@ -89,6 +89,7 @@ describe('<MessageActions /> component', () => {
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            data-testid="message-actions-toggle-button"
             onClick={[Function]}
           >
             <svg
@@ -236,6 +237,7 @@ describe('<MessageActions /> component', () => {
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            data-testid="message-actions-toggle-button"
             onClick={[Function]}
           >
             <svg
@@ -285,6 +287,7 @@ describe('<MessageActions /> component', () => {
             aria-haspopup="true"
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
+            data-testid="message-actions-toggle-button"
             onClick={[Function]}
           >
             <svg
