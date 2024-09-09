@@ -46,7 +46,7 @@ const messageContextValue = {
 
 const chatClient = getTestClient();
 
-function renderMessageActions(customProps, renderer = render) {
+function renderMessageActions(customProps = {}, renderer = render) {
   return renderer(
     <ChatProvider value={{ client: chatClient }}>
       <DialogsManagerProvider id='dialogs-manager-provider-id'>
@@ -83,6 +83,7 @@ describe('<MessageActions /> component', () => {
         <div
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
+          onClick={[Function]}
         >
           <button
             aria-expanded={false}
@@ -90,7 +91,6 @@ describe('<MessageActions /> component', () => {
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
-            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"
@@ -231,6 +231,7 @@ describe('<MessageActions /> component', () => {
         <div
           className="custom-wrapper-class"
           data-testid="message-actions"
+          onClick={[Function]}
         >
           <button
             aria-expanded={false}
@@ -238,7 +239,6 @@ describe('<MessageActions /> component', () => {
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
-            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"
@@ -281,6 +281,7 @@ describe('<MessageActions /> component', () => {
         <span
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
+          onClick={[Function]}
         >
           <button
             aria-expanded={false}
@@ -288,7 +289,6 @@ describe('<MessageActions /> component', () => {
             aria-label="Open Message Actions Menu"
             className="str-chat__message-actions-box-button"
             data-testid="message-actions-toggle-button"
-            onClick={[Function]}
           >
             <svg
               className="str-chat__message-action-icon"

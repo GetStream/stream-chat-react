@@ -103,7 +103,11 @@ export const MessageActions = <
   if (!renderMessageActions) return null;
 
   return (
-    <MessageActionsWrapper customWrapperClass={customWrapperClass} inline={inline}>
+    <MessageActionsWrapper
+      customWrapperClass={customWrapperClass}
+      inline={inline}
+      toggleOpen={dialog?.toggleSingle}
+    >
       <DialogAnchor
         id={dialogId}
         placement={isMine ? 'top-end' : 'top-start'}
@@ -129,7 +133,6 @@ export const MessageActions = <
         aria-label={t('aria/Open Message Actions Menu')}
         className='str-chat__message-actions-box-button'
         data-testid='message-actions-toggle-button'
-        onClick={dialog?.toggleSingle}
         ref={actionsBoxButtonRef}
       >
         <ActionsIcon className='str-chat__message-action-icon' />
@@ -141,10 +144,11 @@ export const MessageActions = <
 export type MessageActionsWrapperProps = {
   customWrapperClass?: string;
   inline?: boolean;
+  toggleOpen?: () => void;
 };
 
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
-  const { children, customWrapperClass, inline } = props;
+  const { children, customWrapperClass, inline, toggleOpen } = props;
 
   const defaultWrapperClass = clsx(
     'str-chat__message-simple__actions__action',
@@ -155,6 +159,7 @@ const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperPro
   const wrapperProps = {
     className: customWrapperClass || defaultWrapperClass,
     'data-testid': 'message-actions',
+    onClick: toggleOpen,
   };
 
   if (inline) return <span {...wrapperProps}>{children}</span>;
