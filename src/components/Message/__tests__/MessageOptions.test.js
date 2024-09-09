@@ -1,6 +1,6 @@
 /* eslint-disable jest-dom/prefer-to-have-class */
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Message } from '../Message';
@@ -21,6 +21,8 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
+import { DialogsManagerProvider } from '../../../context';
+import { defaultReactionOptions } from '../../Reactions';
 
 const MESSAGE_ACTIONS_TEST_ID = 'message-actions';
 
@@ -33,9 +35,7 @@ const defaultMessageProps = {
   onReactionListClick: () => {},
   threadList: false,
 };
-const defaultOptionsProps = {
-  messageWrapperRef: { current: document.createElement('div') },
-};
+const defaultOptionsProps = {};
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
@@ -55,32 +55,35 @@ async function renderMessageOptions({
 
   return render(
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
-        <ChannelActionProvider
-          value={{
-            openThread: jest.fn(),
-            removeMessage: jest.fn(),
-            updateMessage: jest.fn(),
-          }}
-        >
-          <ComponentProvider
+      <DialogsManagerProvider id='message-options-dialogs-provider'>
+        <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
+          <ChannelActionProvider
             value={{
-              Attachment,
-              // eslint-disable-next-line react/display-name
-              Message: () => (
-                <MessageSimple
-                  channelConfig={channelConfig}
-                  onReactionListClick={customMessageProps?.onReactionListClick}
-                />
-              ),
+              openThread: jest.fn(),
+              removeMessage: jest.fn(),
+              updateMessage: jest.fn(),
             }}
           >
-            <Message {...defaultMessageProps} {...customMessageProps}>
-              <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
-            </Message>
-          </ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+            <ComponentProvider
+              value={{
+                Attachment,
+                // eslint-disable-next-line react/display-name
+                Message: () => (
+                  <MessageSimple
+                    channelConfig={channelConfig}
+                    onReactionListClick={customMessageProps?.onReactionListClick}
+                  />
+                ),
+                reactionOptions: defaultReactionOptions,
+              }}
+            >
+              <Message {...defaultMessageProps} {...customMessageProps}>
+                <MessageOptions {...defaultOptionsProps} {...customOptionsProps} />
+              </Message>
+            </ComponentProvider>
+          </ChannelActionProvider>
+        </ChannelStateProvider>
+      </DialogsManagerProvider>
     </ChatProvider>,
   );
 }
@@ -179,6 +182,85 @@ describe('<MessageOptions />', () => {
       },
     });
     expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
+  });
+
+  it('should not render ReactionsSelector until open', async () => {
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+      },
+    });
+    expect(screen.queryByTestId('reaction-selector')).not.toBeInTheDocument();
+    await act(async () => {
+      await fireEvent.click(queryByTestId(reactionActionTestId));
+    });
+    expect(screen.getByTestId('reaction-selector')).toBeInTheDocument();
+  });
+
+  it('should unmount ReactionsSelector when closed by click on dialog overlay', async () => {
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+      },
+    });
+    await act(async () => {
+      await fireEvent.click(queryByTestId(reactionActionTestId));
+    });
+    await act(async () => {
+      await fireEvent.click(screen.getByTestId('str-chat__dialog-overlay'));
+    });
+    expect(screen.queryByTestId('reaction-selector')).not.toBeInTheDocument();
+  });
+
+  it('should unmount ReactionsSelector when closed pressed Esc button', async () => {
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+      },
+    });
+    await act(async () => {
+      await fireEvent.click(queryByTestId(reactionActionTestId));
+    });
+    await act(async () => {
+      await fireEvent.keyUp(document, { charCode: 27, code: 'Escape', key: 'Escape' });
+    });
+    expect(screen.queryByTestId('reaction-selector')).not.toBeInTheDocument();
+  });
+
+  it('should unmount ReactionsSelector when closed on reaction selection and closeReactionSelectorOnClick enabled', async () => {
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+      },
+      customMessageProps: {
+        closeReactionSelectorOnClick: true,
+      },
+    });
+    await act(async () => {
+      await fireEvent.click(queryByTestId(reactionActionTestId));
+    });
+    await act(async () => {
+      await fireEvent.click(screen.queryAllByTestId('select-reaction-button')[0]);
+    });
+    expect(screen.queryByTestId('reaction-selector')).not.toBeInTheDocument();
+  });
+
+  it('should not unmount ReactionsSelector when closed on reaction selection and closeReactionSelectorOnClick enabled', async () => {
+    const { queryByTestId } = await renderMessageOptions({
+      channelStateOpts: {
+        channelCapabilities: { 'send-reaction': true },
+      },
+      customMessageProps: {
+        closeReactionSelectorOnClick: false,
+      },
+    });
+    await act(async () => {
+      await fireEvent.click(queryByTestId(reactionActionTestId));
+    });
+    await act(async () => {
+      await fireEvent.click(screen.queryAllByTestId('select-reaction-button')[0]);
+    });
+    expect(screen.queryByTestId('reaction-selector')).toBeInTheDocument();
   });
 
   it('should render message actions', async () => {
