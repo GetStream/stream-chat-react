@@ -42,6 +42,10 @@ export function useDialogAnchor<T extends HTMLElement>({
     }
   }, [open, popperElement, update]);
 
+  if (popperElement && !open) {
+    setPopperElement(null);
+  }
+
   return {
     attributes,
     setPopperElement,
@@ -86,13 +90,6 @@ export const DialogAnchor = ({
       document.removeEventListener('keyup', hideOnEscape);
     };
   }, [dialog, open]);
-
-  useEffect(() => {
-    if (!open) {
-      // setting element reference back to null allows to re-run the usePopper component once the component is re-rendered
-      setPopperElement(null);
-    }
-  }, [open, setPopperElement]);
 
   // prevent rendering the dialog contents if the dialog should not be open / shown
   if (!open) {
