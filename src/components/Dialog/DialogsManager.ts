@@ -2,7 +2,6 @@ type DialogId = string;
 
 export type GetOrCreateParams = {
   id: DialogId;
-  isOpen?: boolean;
 };
 
 export type Dialog = {
@@ -15,7 +14,7 @@ export type Dialog = {
   toggleSingle: () => void;
 };
 
-type DialogEvent = { type: 'close' | 'open' | 'openCountChange' };
+type DialogEvent = { type: 'close' | 'open' };
 
 const dialogsManagerEvents = ['openCountChange'] as const;
 type DialogsManagerEvent = { type: typeof dialogsManagerEvents[number] };
@@ -46,7 +45,7 @@ export class DialogsManager {
     this.id = id ?? new Date().getTime().toString();
   }
 
-  getOrCreate({ id, isOpen = false }: GetOrCreateParams) {
+  getOrCreate({ id }: GetOrCreateParams) {
     let dialog = this.dialogs[id];
     if (!dialog) {
       dialog = {
@@ -54,7 +53,7 @@ export class DialogsManager {
           this.close(id);
         },
         id,
-        isOpen,
+        isOpen: false,
         open: () => {
           this.open({ id });
         },
@@ -88,10 +87,11 @@ export class DialogsManager {
     if (!id) return noop;
 
     if (!this.dialogEventListeners[id]) {
-      this.dialogEventListeners[id] = { close: [], open: [] };
+      this.dialogEventListeners[id] = {};
     }
-    this.dialogEventListeners[id][eventType] = [
-      ...(this.dialogEventListeners[id][eventType] ?? []),
+
+    this.dialogEventListeners[id][eventType as DialogEvent['type']] = [
+      ...(this.dialogEventListeners[id][eventType as DialogEvent['type']] ?? []),
       listener as DialogEventHandler,
     ];
     return () => {
@@ -104,18 +104,33 @@ export class DialogsManager {
     { id, listener }: { listener: DialogEventHandler | DialogsManagerEventHandler; id?: DialogId },
   ) {
     if (dialogsManagerEvents.includes(eventType as DialogsManagerEvent['type'])) {
-      const eventListeners = this.dialogsManagerEventListeners[
+      if (!this.dialogsManagerEventListeners[eventType as DialogsManagerEvent['type']]?.length)
+        return;
+
+      this.dialogsManagerEventListeners[
         eventType as DialogsManagerEvent['type']
-      ];
-      eventListeners?.filter((l) => l !== listener);
+      ] = this.dialogsManagerEventListeners[eventType as DialogsManagerEvent['type']]?.filter(
+        (l) => l !== listener,
+      );
       return;
     }
 
     if (!id) return;
 
-    const eventListeners = this.dialogEventListeners[id]?.[eventType];
+    const eventListeners = this.dialogEventListeners[id]?.[eventType as DialogEvent['type']];
     if (!eventListeners) return;
-    this.dialogEventListeners[id][eventType] = eventListeners.filter((l) => l !== listener);
+
+    this.dialogEventListeners[id][eventType as DialogEvent['type']] = eventListeners.filter(
+      (l) => l !== listener,
+    );
+
+    if (!this.dialogEventListeners[id][eventType as DialogEvent['type']]?.length) {
+      delete this.dialogEventListeners[id][eventType as DialogEvent['type']];
+    }
+
+    if (!Object.keys(this.dialogEventListeners[id]).length) {
+      delete this.dialogEventListeners[id];
+    }
   }
 
   open(params: GetOrCreateParams, single?: boolean) {
@@ -127,7 +142,7 @@ export class DialogsManager {
     this.dialogs[params.id].isOpen = true;
     this.openDialogCount++;
     this.dialogsManagerEventListeners.openCountChange.forEach((listener) => listener(this));
-    this.dialogEventListeners[params.id].open?.forEach((listener) => listener(dialog));
+    this.dialogEventListeners[params.id]?.open?.forEach((listener) => listener(dialog));
   }
 
   close(id: DialogId) {
@@ -135,7 +150,7 @@ export class DialogsManager {
     if (!dialog?.isOpen) return;
     dialog.isOpen = false;
     this.openDialogCount--;
-    this.dialogEventListeners[id].close?.forEach((listener) => listener(dialog));
+    this.dialogEventListeners[id]?.close?.forEach((listener) => listener(dialog));
     this.dialogsManagerEventListeners.openCountChange.forEach((listener) => listener(this));
   }
 
@@ -144,7 +159,7 @@ export class DialogsManager {
   }
 
   toggleOpen(params: GetOrCreateParams) {
-    if (this.dialogs[params.id].isOpen) {
+    if (this.dialogs[params.id]?.isOpen) {
       this.close(params.id);
     } else {
       this.open(params);
@@ -152,7 +167,7 @@ export class DialogsManager {
   }
 
   toggleOpenSingle(params: GetOrCreateParams) {
-    if (this.dialogs[params.id].isOpen) {
+    if (this.dialogs[params.id]?.isOpen) {
       this.close(params.id);
     } else {
       this.open(params, true);
@@ -160,8 +175,8 @@ export class DialogsManager {
   }
 
   remove(id: DialogId) {
-    const dialogs = { ...this.dialogs };
-    if (!dialogs[id]) return;
+    const dialog = this.dialogs[id];
+    if (!dialog) return;
 
     const countListeners =
       !!this.dialogEventListeners[id] &&
@@ -172,7 +187,10 @@ export class DialogsManager {
 
     if (!countListeners) {
       delete this.dialogEventListeners[id];
-      delete dialogs[id];
+      if (dialog.isOpen) {
+        this.openDialogCount--;
+      }
+      delete this.dialogs[id];
     }
   }
 }

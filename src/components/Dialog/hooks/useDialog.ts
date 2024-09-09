@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDialogsManager } from '../../../context/DialogsManagerContext';
 import type { GetOrCreateParams } from '../DialogsManager';
 
-export const useDialog = ({ id, isOpen }: GetOrCreateParams) => {
+export const useDialog = ({ id }: GetOrCreateParams) => {
   const { dialogsManager } = useDialogsManager();
 
   useEffect(
@@ -12,7 +12,7 @@ export const useDialog = ({ id, isOpen }: GetOrCreateParams) => {
     [dialogsManager, id],
   );
 
-  return dialogsManager.getOrCreate({ id, isOpen });
+  return dialogsManager.getOrCreate({ id });
 };
 
 export const useDialogIsOpen = (id: string, source?: string) => {
