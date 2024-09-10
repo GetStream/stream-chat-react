@@ -67,18 +67,18 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
           </div>
         </div>
       </div>
-    </div>
-    <div
-      className="str-chat__dialog-overlay"
-      data-str-chat__portal-id="virtualized-message-list-dialogs-manager"
-      data-testid="str-chat__dialog-overlay"
-      onClick={[Function]}
-      style={
-        Object {
-          "--str-chat__dialog-overlay-height": "0",
+      <div
+        className="str-chat__dialog-overlay"
+        data-str-chat__portal-id="virtualized-message-list-dialogs-manager"
+        data-testid="str-chat__dialog-overlay"
+        onClick={[Function]}
+        style={
+          {
+            "--str-chat__dialog-overlay-height": "0",
+          }
         }
-      }
-    />
+      />
+    </div>
     <div
       className="str-chat__list-notifications"
     />

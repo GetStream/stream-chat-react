@@ -19,14 +19,17 @@ export const useDialogIsOpen = (id: string, source?: string) => {
   const { dialogsManager } = useDialogsManager();
   const [open, setOpen] = useState<boolean>(false);
 
-  useEffect(() => {
-    const unsubscribeOpen = dialogsManager.on('open', { id, listener: () => setOpen(true) });
-    const unsubscribeClose = dialogsManager.on('close', { id, listener: () => setOpen(false) });
-    return () => {
-      unsubscribeOpen();
-      unsubscribeClose();
-    };
-  }, [dialogsManager, id, source]);
+  useEffect(
+    () =>
+      dialogsManager.state.subscribeWithSelector<boolean[]>(
+        ({ dialogs }) => [!!dialogs[id]?.isOpen],
+        ([isOpen]) => {
+          setOpen(isOpen);
+        },
+        // id,
+      ),
+    [dialogsManager, id, source],
+  );
 
   return open;
 };

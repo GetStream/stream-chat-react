@@ -1,19 +1,22 @@
 import React, { PropsWithChildren, useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import type { DialogsManager } from './DialogsManager';
 import { useDialogIsOpen } from './hooks';
 import { useDialogsManager } from '../../context';
 
 export const DialogPortalDestination = () => {
   const { dialogsManager } = useDialogsManager();
-  const [shouldRender, setShouldRender] = useState(!!dialogsManager.openDialogCount);
+  const [shouldRender, setShouldRender] = useState(
+    !!dialogsManager.state.getLatestValue().openDialogCount,
+  );
+
   useEffect(
     () =>
-      dialogsManager.on('openCountChange', {
-        listener: (dm: DialogsManager) => {
-          setShouldRender(dm.openDialogCount > 0);
+      dialogsManager.state.subscribeWithSelector<number[]>(
+        ({ openDialogCount }) => [openDialogCount],
+        ([openDialogCount]) => {
+          setShouldRender(openDialogCount > 0);
         },
-      }),
+      ),
     [dialogsManager],
   );
 

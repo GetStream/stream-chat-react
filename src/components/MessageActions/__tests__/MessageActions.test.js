@@ -79,7 +79,7 @@ describe('<MessageActions /> component', () => {
   it('should render correctly when not open', () => {
     const tree = renderMessageActions({}, testRenderer.create);
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      [
         <div
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
@@ -112,7 +112,7 @@ describe('<MessageActions /> component', () => {
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={
-            Object {
+            {
               "--str-chat__dialog-overlay-height": "0",
             }
           }
@@ -227,7 +227,7 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      [
         <div
           className="custom-wrapper-class"
           data-testid="message-actions"
@@ -260,7 +260,7 @@ describe('<MessageActions /> component', () => {
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={
-            Object {
+            {
               "--str-chat__dialog-overlay-height": "0",
             }
           }
@@ -277,7 +277,7 @@ describe('<MessageActions /> component', () => {
       testRenderer.create,
     );
     expect(tree.toJSON()).toMatchInlineSnapshot(`
-      Array [
+      [
         <span
           className="str-chat__message-simple__actions__action str-chat__message-simple__actions__action--options str-chat__message-actions-container"
           data-testid="message-actions"
@@ -310,7 +310,7 @@ describe('<MessageActions /> component', () => {
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={
-            Object {
+            {
               "--str-chat__dialog-overlay-height": "0",
             }
           }
