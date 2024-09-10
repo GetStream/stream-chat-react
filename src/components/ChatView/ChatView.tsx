@@ -7,6 +7,7 @@ import { useChatContext } from '../../context';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
+import clsx from 'clsx';
 
 const availableChatViews = ['channels', 'threads'] as const;
 
@@ -25,11 +26,13 @@ export const ChatView = ({ children }: PropsWithChildren) => {
     'channels',
   );
 
+  const { theme } = useChatContext();
+
   const value = useMemo(() => ({ activeChatView, setActiveChatView }), [activeChatView]);
 
   return (
     <ChatViewContext.Provider value={value}>
-      <div className='str-chat str-chat__chat-view'>{children}</div>
+      <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{children}</div>
     </ChatViewContext.Provider>
   );
 };
