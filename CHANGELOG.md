@@ -1,3 +1,10 @@
+## [12.0.0-rc.13](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.12...v12.0.0-rc.13) (2024-09-10)
+
+
+### Bug Fixes
+
+* add theme to ChatView component ([#2494](https://github.com/GetStream/stream-chat-react/issues/2494)) ([d477072](https://github.com/GetStream/stream-chat-react/commit/d4770722b54f236d88bd1d0c5c207402e012ae12))
+
 ## [12.0.0-rc.12](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.11...v12.0.0-rc.12) (2024-09-06)
 
 
