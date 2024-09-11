@@ -34,7 +34,6 @@ const defaultMessageProps = {
   initialMessage: false,
   message: generateMessage(),
   messageActions: Object.keys(MESSAGE_ACTIONS),
-  onReactionListClick: () => {},
   threadList: false,
 };
 const defaultOptionsProps = {};
@@ -70,12 +69,7 @@ async function renderMessageOptions({
               value={{
                 Attachment,
                 // eslint-disable-next-line react/display-name
-                Message: () => (
-                  <MessageSimple
-                    channelConfig={channelConfig}
-                    onReactionListClick={customMessageProps?.onReactionListClick}
-                  />
-                ),
+                Message: () => <MessageSimple channelConfig={channelConfig} />,
                 reactionOptions: defaultReactionOptions,
               }}
             >

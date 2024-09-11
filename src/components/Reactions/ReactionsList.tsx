@@ -4,8 +4,6 @@ import clsx from 'clsx';
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 
 import { useProcessReactions } from './hooks/useProcessReactions';
-
-import type { ReactEventHandler } from '../Message/types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import type { ReactionOptions } from './reactionOptions';
 import type { ReactionDetailsComparator, ReactionsComparator, ReactionType } from './types';
@@ -18,8 +16,6 @@ export type ReactionsListProps<
 > = Partial<
   Pick<MessageContextValue<StreamChatGenerics>, 'handleFetchReactions' | 'reactionDetailsSort'>
 > & {
-  /** Custom on click handler for an individual reaction, defaults to `onReactionListClick` from the `MessageContext` */
-  onClick?: ReactEventHandler;
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse<StreamChatGenerics>[];
   /**
