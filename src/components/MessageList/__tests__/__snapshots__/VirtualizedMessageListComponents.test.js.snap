@@ -9,7 +9,7 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render custom Empt
   </div>
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -25,7 +25,7 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render custom Empt
   </div>
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -59,7 +59,7 @@ exports[`VirtualizedMessageComponents EmptyPlaceholder should render for main me
   </div>
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -117,7 +117,7 @@ exports[`VirtualizedMessageComponents Header should not render custom head in He
   </div>
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -172,7 +172,7 @@ exports[`VirtualizedMessageComponents Header should render LoadingIndicator in H
   </div>
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -187,7 +187,7 @@ exports[`VirtualizedMessageComponents Item should render wrapper with custom cla
   />
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -202,7 +202,7 @@ exports[`VirtualizedMessageComponents Item should render wrapper with custom cla
   />
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -217,7 +217,7 @@ exports[`VirtualizedMessageComponents Item should render wrapper without custom 
   />
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />
@@ -232,7 +232,7 @@ exports[`VirtualizedMessageComponents Item should render wrapper without custom 
   />
   <div
     class="str-chat__dialog-overlay"
-    data-str-chat__portal-id="vml-components-dialogs-manager"
+    data-str-chat__portal-id="vml-components-dialog-manager"
     data-testid="str-chat__dialog-overlay"
     style="--str-chat__dialog-overlay-height: 0;"
   />

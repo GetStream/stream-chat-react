@@ -1,4 +1,4 @@
 export * from './DialogAnchor';
-export * from './DialogsManager';
-export * from '../../context/DialogsManagerContext';
+export * from './DialogManager';
+export * from './DialogPortal';
 export * from './hooks';

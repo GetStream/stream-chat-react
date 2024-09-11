@@ -1,31 +1,31 @@
 import React, { PropsWithChildren, useEffect, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useDialogIsOpen } from './hooks';
-import { useDialogsManager } from '../../context';
+import { useDialogManager } from '../../context';
 
 export const DialogPortalDestination = () => {
-  const { dialogsManager } = useDialogsManager();
+  const { dialogManager } = useDialogManager();
   const [shouldRender, setShouldRender] = useState(
-    !!dialogsManager.state.getLatestValue().openDialogCount,
+    !!dialogManager.state.getLatestValue().openDialogCount,
   );
 
   useEffect(
     () =>
-      dialogsManager.state.subscribeWithSelector<number[]>(
+      dialogManager.state.subscribeWithSelector<number[]>(
         ({ openDialogCount }) => [openDialogCount],
         ([openDialogCount]) => {
           setShouldRender(openDialogCount > 0);
         },
       ),
-    [dialogsManager],
+    [dialogManager],
   );
 
   return (
     <div
       className='str-chat__dialog-overlay'
-      data-str-chat__portal-id={dialogsManager.id}
+      data-str-chat__portal-id={dialogManager.id}
       data-testid='str-chat__dialog-overlay'
-      onClick={() => dialogsManager.closeAll()}
+      onClick={() => dialogManager.closeAll()}
       style={
         {
           '--str-chat__dialog-overlay-height': shouldRender ? '100%' : '0',
@@ -43,16 +43,16 @@ export const DialogPortalEntry = ({
   children,
   dialogId,
 }: PropsWithChildren<DialogPortalEntryProps>) => {
-  const { dialogsManager } = useDialogsManager();
+  const { dialogManager } = useDialogManager();
   const dialogIsOpen = useDialogIsOpen(dialogId);
   const [portalDestination, setPortalDestination] = useState<Element | null>(null);
   useLayoutEffect(() => {
     const destination = document.querySelector(
-      `div[data-str-chat__portal-id="${dialogsManager.id}"]`,
+      `div[data-str-chat__portal-id="${dialogManager.id}"]`,
     );
     if (!destination) return;
     setPortalDestination(destination);
-  }, [dialogsManager, dialogIsOpen]);
+  }, [dialogManager, dialogIsOpen]);
 
   if (!portalDestination) return null;
 

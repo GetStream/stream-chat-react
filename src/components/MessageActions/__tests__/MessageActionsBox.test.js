@@ -18,7 +18,7 @@ import {
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
-import { ChatProvider, ComponentProvider, DialogsManagerProvider } from '../../../context';
+import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
 
 expect.extend(toHaveNoViolations);
 
@@ -49,7 +49,7 @@ async function renderComponent(boxProps, messageContext = {}) {
               updateMessage: jest.fn(),
             }}
           >
-            <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+            <DialogManagerProvider id='message-actions-box-dialog-manager'>
               <MessageProvider
                 value={{
                   ...defaultMessageContextValue,
@@ -59,7 +59,7 @@ async function renderComponent(boxProps, messageContext = {}) {
               >
                 <MessageActionsBox {...boxProps} getMessageActions={getMessageActionsMock} />
               </MessageProvider>
-            </DialogsManagerProvider>
+            </DialogManagerProvider>
           </ChannelActionProvider>
         </ComponentProvider>
       </TranslationProvider>
@@ -227,14 +227,14 @@ describe('MessageActionsBox', () => {
         await render(
           <Chat {...chatProps}>
             <Channel {...channelProps}>
-              <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+              <DialogManagerProvider id='message-actions-box-dialog-manager'>
                 <Message
                   lastReceivedId={lastReceivedId}
                   message={message}
                   threadList={false}
                   {...messageProps}
                 />
-              </DialogsManagerProvider>
+              </DialogManagerProvider>
             </Channel>
           </Chat>,
         );
@@ -398,10 +398,10 @@ describe('MessageActionsBox', () => {
         await render(
           <Chat client={client}>
             <Channel channel={channel}>
-              <DialogsManagerProvider id='message-actions-box-dialogs-manager'>
+              <DialogManagerProvider id='message-actions-box-dialog-manager'>
                 <Message lastReceivedId={otherMsg.id} message={message} threadList={false} />
                 <Message lastReceivedId={otherMsg.id} message={otherMsg} threadList={false} />
-              </DialogsManagerProvider>
+              </DialogManagerProvider>
             </Channel>
           </Chat>,
         );

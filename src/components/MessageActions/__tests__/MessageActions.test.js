@@ -10,7 +10,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  DialogsManagerProvider,
+  DialogManagerProvider,
   MessageProvider,
   TranslationProvider,
 } from '../../../context';
@@ -49,7 +49,7 @@ const chatClient = getTestClient();
 function renderMessageActions(customProps = {}, renderer = render) {
   return renderer(
     <ChatProvider value={{ client: chatClient }}>
-      <DialogsManagerProvider id='dialogs-manager-provider-id'>
+      <DialogManagerProvider id='dialog-manager-provider-id'>
         <ChannelStateProvider value={{}}>
           <ComponentProvider value={{}}>
             <TranslationProvider value={mockTranslationContext}>
@@ -59,7 +59,7 @@ function renderMessageActions(customProps = {}, renderer = render) {
             </TranslationProvider>
           </ComponentProvider>
         </ChannelStateProvider>
-      </DialogsManagerProvider>
+      </DialogManagerProvider>
     </ChatProvider>,
   );
 }
@@ -108,7 +108,7 @@ describe('<MessageActions /> component', () => {
         </div>,
         <div
           className="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={
@@ -256,7 +256,7 @@ describe('<MessageActions /> component', () => {
         </div>,
         <div
           className="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={
@@ -306,7 +306,7 @@ describe('<MessageActions /> component', () => {
         </span>,
         <div
           className="str-chat__dialog-overlay"
-          data-str-chat__portal-id="dialogs-manager-provider-id"
+          data-str-chat__portal-id="dialog-manager-provider-id"
           data-testid="str-chat__dialog-overlay"
           onClick={[Function]}
           style={

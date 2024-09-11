@@ -21,7 +21,7 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { DialogsManagerProvider } from '../../../context';
+import { DialogManagerProvider } from '../../../context';
 import { defaultReactionOptions } from '../../Reactions';
 
 const MESSAGE_ACTIONS_TEST_ID = 'message-actions';
@@ -55,7 +55,7 @@ async function renderMessageOptions({
 
   return render(
     <ChatProvider value={{ client }}>
-      <DialogsManagerProvider id='message-options-dialogs-provider'>
+      <DialogManagerProvider id='message-options-dialog-provider'>
         <ChannelStateProvider value={{ channel, ...channelStateOpts }}>
           <ChannelActionProvider
             value={{
@@ -83,7 +83,7 @@ async function renderMessageOptions({
             </ComponentProvider>
           </ChannelActionProvider>
         </ChannelStateProvider>
-      </DialogsManagerProvider>
+      </DialogManagerProvider>
     </ChatProvider>,
   );
 }

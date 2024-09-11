@@ -19,7 +19,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
-  DialogsManagerProvider,
+  DialogManagerProvider,
   TranslationProvider,
   useMessageContext,
 } from '../../../context';
@@ -39,9 +39,9 @@ const Wrapper = ({ children, componentContext = {} }) => (
     <ChannelStateProvider value={{ channel }}>
       <ChannelActionProvider value={{ addNotification: jest.fn() }}>
         <ComponentProvider value={componentContext}>
-          <DialogsManagerProvider id='vml-components-dialogs-manager'>
+          <DialogManagerProvider id='vml-components-dialog-manager'>
             {children}
-          </DialogsManagerProvider>
+          </DialogManagerProvider>
         </ComponentProvider>
       </ChannelActionProvider>
     </ChannelStateProvider>
@@ -92,7 +92,7 @@ describe('VirtualizedMessageComponents', () => {
         <div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -121,7 +121,7 @@ describe('VirtualizedMessageComponents', () => {
           </div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -136,7 +136,7 @@ describe('VirtualizedMessageComponents', () => {
         <div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -165,7 +165,7 @@ describe('VirtualizedMessageComponents', () => {
           </div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -183,7 +183,7 @@ describe('VirtualizedMessageComponents', () => {
           </div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -209,7 +209,7 @@ describe('VirtualizedMessageComponents', () => {
           </div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -235,7 +235,7 @@ describe('VirtualizedMessageComponents', () => {
         <div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -262,7 +262,7 @@ describe('VirtualizedMessageComponents', () => {
         <div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />
@@ -280,7 +280,7 @@ describe('VirtualizedMessageComponents', () => {
         <div>
           <div
             class="str-chat__dialog-overlay"
-            data-str-chat__portal-id="vml-components-dialogs-manager"
+            data-str-chat__portal-id="vml-components-dialog-manager"
             data-testid="str-chat__dialog-overlay"
             style="--str-chat__dialog-overlay-height: 0;"
           />

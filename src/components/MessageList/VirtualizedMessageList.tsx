@@ -47,7 +47,7 @@ import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from '../Me
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
-import { DialogsManagerProvider } from '../../context';
+import { DialogManagerProvider } from '../../context';
 import {
   ChannelActionContextValue,
   useChannelActionContext,
@@ -431,7 +431,7 @@ const VirtualizedMessageListWithContext = <
   return (
     <>
       <MessageListMainPanel>
-        <DialogsManagerProvider id='virtualized-message-list-dialogs-manager'>
+        <DialogManagerProvider id='virtualized-message-list-dialog-manager'>
           {!threadList && showUnreadMessagesNotification && (
             <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
           )}
@@ -499,7 +499,7 @@ const VirtualizedMessageListWithContext = <
               {...(defaultItemHeight ? { defaultItemHeight } : {})}
             />
           </div>
-        </DialogsManagerProvider>
+        </DialogManagerProvider>
         {TypingIndicator && <TypingIndicator />}
       </MessageListMainPanel>
       <MessageListNotifications

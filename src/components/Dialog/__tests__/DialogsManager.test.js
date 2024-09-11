@@ -1,22 +1,22 @@
-import { DialogsManager } from '../DialogsManager';
+import { DialogManager } from '../DialogManager';
 
 const dialogId = 'dialogId';
 
 describe('DialogManager', () => {
   it('initiates with provided options', () => {
     const id = 'XX';
-    const dm = new DialogsManager({ id });
+    const dm = new DialogManager({ id });
     expect(dm.id).toBe(id);
   });
   it('initiates with default options', () => {
     const mockedId = '12345';
     const spy = jest.spyOn(Date.prototype, 'getTime').mockReturnValueOnce(mockedId);
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     expect(dm.id).toBe(mockedId);
     spy.mockRestore();
   });
   it('creates a new closed dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(0);
     expect(dm.getOrCreate({ id: dialogId })).toMatchObject({
       close: expect.any(Function),
@@ -32,7 +32,7 @@ describe('DialogManager', () => {
   });
 
   it('retrieves an existing dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.state.next((current) => ({
       ...current,
       dialogs: { ...current.dialogs, [dialogId]: { id: dialogId, isOpen: true } },
@@ -45,7 +45,7 @@ describe('DialogManager', () => {
   });
 
   it('creates a dialog if it does not exist on open', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.open({ id: dialogId });
     expect(dm.state.getLatestValue().dialogs[dialogId]).toMatchObject({
       close: expect.any(Function),
@@ -60,7 +60,7 @@ describe('DialogManager', () => {
   });
 
   it('opens existing dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.getOrCreate({ id: dialogId });
     dm.open({ id: dialogId });
     expect(dm.state.getLatestValue().dialogs[dialogId].isOpen).toBeTruthy();
@@ -68,7 +68,7 @@ describe('DialogManager', () => {
   });
 
   it('does not open already open dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.getOrCreate({ id: dialogId });
     dm.open({ id: dialogId });
     dm.open({ id: dialogId });
@@ -76,7 +76,7 @@ describe('DialogManager', () => {
   });
 
   it('closes all other dialogs before opening the target', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.open({ id: 'xxx' });
     dm.open({ id: 'yyy' });
     expect(dm.state.getLatestValue().openDialogCount).toBe(2);
@@ -89,7 +89,7 @@ describe('DialogManager', () => {
   });
 
   it('closes opened dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.open({ id: dialogId });
     dm.close(dialogId);
     expect(dm.state.getLatestValue().dialogs[dialogId].isOpen).toBeFalsy();
@@ -97,7 +97,7 @@ describe('DialogManager', () => {
   });
 
   it('does not close already closed dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.open({ id: 'xxx' });
     dm.open({ id: dialogId });
     dm.close(dialogId);
@@ -106,7 +106,7 @@ describe('DialogManager', () => {
   });
 
   it('toggles the open state of a dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.open({ id: 'xxx' });
     dm.open({ id: 'yyy' });
     dm.toggleOpen({ id: dialogId });
@@ -116,7 +116,7 @@ describe('DialogManager', () => {
   });
 
   it('keeps single opened dialog when the toggling open dialog state', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
 
     dm.open({ id: 'xxx' });
     dm.open({ id: 'yyy' });
@@ -128,7 +128,7 @@ describe('DialogManager', () => {
   });
 
   it('removes a dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.getOrCreate({ id: dialogId });
     dm.open({ id: dialogId });
     dm.remove(dialogId);
@@ -137,7 +137,7 @@ describe('DialogManager', () => {
   });
 
   it('handles attempt to remove non-existent dialog', () => {
-    const dm = new DialogsManager();
+    const dm = new DialogManager();
     dm.getOrCreate({ id: dialogId });
     dm.open({ id: dialogId });
     dm.remove('xxx');

@@ -21,7 +21,7 @@ import {
   ChannelStateContextValue,
   useChannelStateContext,
 } from '../../context/ChannelStateContext';
-import { DialogsManagerProvider } from '../../context';
+import { DialogManagerProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageListContextProvider } from '../../context/MessageListContext';
@@ -224,7 +224,7 @@ const MessageListWithContext = <
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
-        <DialogsManagerProvider id='message-list-dialogs-manager'>
+        <DialogManagerProvider id='message-list-dialog-manager'>
           {!threadList && showUnreadMessagesNotification && (
             <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
           )}
@@ -263,7 +263,7 @@ const MessageListWithContext = <
               </InfiniteScroll>
             )}
           </div>
-        </DialogsManagerProvider>
+        </DialogManagerProvider>
       </MessageListMainPanel>
       <MessageListNotifications
         hasNewMessages={hasNewMessages}

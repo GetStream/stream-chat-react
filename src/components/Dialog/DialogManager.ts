@@ -22,14 +22,14 @@ type DialogInitOptions = {
 
 type Dialogs = Record<DialogId, Dialog>;
 
-type DialogsManagerState = {
+type DialogManagerState = {
   dialogs: Dialogs;
   openDialogCount: number;
 };
 
-export class DialogsManager {
+export class DialogManager {
   id: string;
-  state = new StateStore<DialogsManagerState>({
+  state = new StateStore<DialogManagerState>({
     dialogs: {},
     openDialogCount: 0,
   });
@@ -84,7 +84,6 @@ export class DialogsManager {
   close(id: DialogId) {
     const dialog = this.state.getLatestValue().dialogs[id];
     if (!dialog?.isOpen) return;
-    dialog.isOpen = false;
     this.state.next((current) => ({
       ...current,
       dialogs: { ...current.dialogs, [dialog.id]: { ...dialog, isOpen: false } },
@@ -117,17 +116,16 @@ export class DialogsManager {
     const dialog = state.dialogs[id];
     if (!dialog) return;
 
-    this.state.next((current) => ({
-      ...current,
-      dialogs: Object.entries(current.dialogs).reduce<Dialogs>((acc, [dialogId, dialog]) => {
-        if (id !== dialogId) {
-          acc[id] = dialog;
-        }
-        return acc;
-      }, {}),
-      openDialogCount:
-        current.openDialogCount &&
-        (dialog.isOpen ? current.openDialogCount - 1 : current.openDialogCount),
-    }));
+    this.state.next((current) => {
+      const newDialogs = { ...current.dialogs };
+      delete newDialogs[id];
+      return {
+        ...current,
+        dialogs: newDialogs,
+        openDialogCount:
+          current.openDialogCount &&
+          (dialog.isOpen ? current.openDialogCount - 1 : current.openDialogCount),
+      };
+    });
   }
 }

@@ -1,34 +1,34 @@
 import { useEffect, useState } from 'react';
-import { useDialogsManager } from '../../../context/DialogsManagerContext';
-import type { GetOrCreateParams } from '../DialogsManager';
+import { useDialogManager } from '../../../context/DialogManagerContext';
+import type { GetOrCreateParams } from '../DialogManager';
 
 export const useDialog = ({ id }: GetOrCreateParams) => {
-  const { dialogsManager } = useDialogsManager();
+  const { dialogManager } = useDialogManager();
 
   useEffect(
     () => () => {
-      dialogsManager.remove(id);
+      dialogManager.remove(id);
     },
-    [dialogsManager, id],
+    [dialogManager, id],
   );
 
-  return dialogsManager.getOrCreate({ id });
+  return dialogManager.getOrCreate({ id });
 };
 
 export const useDialogIsOpen = (id: string, source?: string) => {
-  const { dialogsManager } = useDialogsManager();
+  const { dialogManager } = useDialogManager();
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(
     () =>
-      dialogsManager.state.subscribeWithSelector<boolean[]>(
+      dialogManager.state.subscribeWithSelector<boolean[]>(
         ({ dialogs }) => [!!dialogs[id]?.isOpen],
         ([isOpen]) => {
           setOpen(isOpen);
         },
         // id,
       ),
-    [dialogsManager, id, source],
+    [dialogManager, id, source],
   );
 
   return open;

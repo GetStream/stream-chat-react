@@ -69,7 +69,7 @@ exports[`VirtualizedMessageList should render the list without any message 1`] =
       </div>
       <div
         className="str-chat__dialog-overlay"
-        data-str-chat__portal-id="virtualized-message-list-dialogs-manager"
+        data-str-chat__portal-id="virtualized-message-list-dialog-manager"
         data-testid="str-chat__dialog-overlay"
         onClick={[Function]}
         style={
