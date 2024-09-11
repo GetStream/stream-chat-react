@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useDialogManager } from '../../../context/DialogManagerContext';
-import type { GetOrCreateParams } from '../DialogManager';
+import { useCallback, useEffect } from 'react';
+import { useDialogManager } from '../../../context';
+import { useStateStore } from '../../../store';
 
-export const useDialog = ({ id }: GetOrCreateParams) => {
+import type { DialogManagerState, GetOrCreateDialogParams } from '../DialogManager';
+
+export const useDialog = ({ id }: GetOrCreateDialogParams) => {
   const { dialogManager } = useDialogManager();
 
   useEffect(
@@ -15,21 +17,26 @@ export const useDialog = ({ id }: GetOrCreateParams) => {
   return dialogManager.getOrCreate({ id });
 };
 
-export const useDialogIsOpen = (id: string, source?: string) => {
+export const useDialogIsOpen = (id: string) => {
   const { dialogManager } = useDialogManager();
-  const [open, setOpen] = useState<boolean>(false);
-
-  useEffect(
-    () =>
-      dialogManager.state.subscribeWithSelector<boolean[]>(
-        ({ dialogsById }) => [!!dialogsById[id]?.isOpen],
-        ([isOpen]) => {
-          setOpen(isOpen);
-        },
-        // id,
-      ),
-    [dialogManager, id, source],
+  const dialogIsOpenSelector = useCallback(
+    ({ dialogsById }: DialogManagerState) => [!!dialogsById[id]?.isOpen],
+    [id],
   );
+  return useStateStore<DialogManagerState, boolean[]>(dialogManager.state, dialogIsOpenSelector)[0];
+};
 
-  return open;
+const openedDialogCountSelector = (nextValue: DialogManagerState) => [
+  Object.values(nextValue.dialogsById).reduce((count, dialog) => {
+    if (dialog.isOpen) return count + 1;
+    return count;
+  }, 0),
+];
+
+export const useOpenedDialogCount = () => {
+  const { dialogManager } = useDialogManager();
+  return useStateStore<DialogManagerState, number[]>(
+    dialogManager.state,
+    openedDialogCountSelector,
+  )[0];
 };

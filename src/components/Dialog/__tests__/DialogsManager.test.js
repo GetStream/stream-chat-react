@@ -5,20 +5,20 @@ const dialogId = 'dialogId';
 describe('DialogManager', () => {
   it('initiates with provided options', () => {
     const id = 'XX';
-    const dm = new DialogManager({ id });
-    expect(dm.id).toBe(id);
+    const dialogManager = new DialogManager({ id });
+    expect(dialogManager.id).toBe(id);
   });
   it('initiates with default options', () => {
     const mockedId = '12345';
     const spy = jest.spyOn(Date.prototype, 'getTime').mockReturnValueOnce(mockedId);
-    const dm = new DialogManager();
-    expect(dm.id).toBe(mockedId);
+    const dialogManager = new DialogManager();
+    expect(dialogManager.id).toBe(mockedId);
     spy.mockRestore();
   });
   it('creates a new closed dialog', () => {
-    const dm = new DialogManager();
-    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(0);
-    expect(dm.getOrCreate({ id: dialogId })).toMatchObject({
+    const dialogManager = new DialogManager();
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
+    expect(dialogManager.getOrCreate({ id: dialogId })).toMatchObject({
       close: expect.any(Function),
       id: 'dialogId',
       isOpen: false,
@@ -27,27 +27,27 @@ describe('DialogManager', () => {
       toggle: expect.any(Function),
       toggleSingle: expect.any(Function),
     });
-    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
-    expect(dm.state.getLatestValue().openDialogCount).toBe(0);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
+    expect(dialogManager.openDialogCount).toBe(0);
   });
 
   it('retrieves an existing dialog', () => {
-    const dm = new DialogManager();
-    dm.state.next((current) => ({
+    const dialogManager = new DialogManager();
+    dialogManager.state.next((current) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialogId]: { id: dialogId, isOpen: true } },
     }));
-    expect(dm.getOrCreate({ id: dialogId })).toMatchObject({
+    expect(dialogManager.getOrCreate({ id: dialogId })).toMatchObject({
       id: 'dialogId',
       isOpen: true,
     });
-    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
   });
 
   it('creates a dialog if it does not exist on open', () => {
-    const dm = new DialogManager();
-    dm.open({ id: dialogId });
-    expect(dm.state.getLatestValue().dialogsById[dialogId]).toMatchObject({
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: dialogId });
+    expect(dialogManager.state.getLatestValue().dialogsById[dialogId]).toMatchObject({
       close: expect.any(Function),
       id: 'dialogId',
       isOpen: true,
@@ -56,92 +56,92 @@ describe('DialogManager', () => {
       toggle: expect.any(Function),
       toggleSingle: expect.any(Function),
     });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    expect(dialogManager.openDialogCount).toBe(1);
   });
 
   it('opens existing dialog', () => {
-    const dm = new DialogManager();
-    dm.getOrCreate({ id: dialogId });
-    dm.open({ id: dialogId });
-    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    expect(dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
+    expect(dialogManager.openDialogCount).toBe(1);
   });
 
   it('does not open already open dialog', () => {
-    const dm = new DialogManager();
-    dm.getOrCreate({ id: dialogId });
-    dm.open({ id: dialogId });
-    dm.open({ id: dialogId });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    expect(dialogManager.openDialogCount).toBe(1);
   });
 
   it('closes all other dialogsById before opening the target', () => {
-    const dm = new DialogManager();
-    dm.open({ id: 'xxx' });
-    dm.open({ id: 'yyy' });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(2);
-    dm.open({ id: dialogId }, true);
-    const dialogs = dm.state.getLatestValue().dialogsById;
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'xxx' });
+    dialogManager.open({ id: 'yyy' });
+    expect(dialogManager.openDialogCount).toBe(2);
+    dialogManager.open({ id: dialogId }, true);
+    const dialogs = dialogManager.state.getLatestValue().dialogsById;
     expect(dialogs.xxx.isOpen).toBeFalsy();
     expect(dialogs.yyy.isOpen).toBeFalsy();
-    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    expect(dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
+    expect(dialogManager.openDialogCount).toBe(1);
   });
 
   it('closes opened dialog', () => {
-    const dm = new DialogManager();
-    dm.open({ id: dialogId });
-    dm.close(dialogId);
-    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeFalsy();
-    expect(dm.state.getLatestValue().openDialogCount).toBe(0);
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: dialogId });
+    dialogManager.close(dialogId);
+    expect(dialogManager.state.getLatestValue().dialogsById[dialogId].isOpen).toBeFalsy();
+    expect(dialogManager.openDialogCount).toBe(0);
   });
 
   it('does not close already closed dialog', () => {
-    const dm = new DialogManager();
-    dm.open({ id: 'xxx' });
-    dm.open({ id: dialogId });
-    dm.close(dialogId);
-    dm.close(dialogId);
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'xxx' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.close(dialogId);
+    dialogManager.close(dialogId);
+    expect(dialogManager.openDialogCount).toBe(1);
   });
 
   it('toggles the open state of a dialog', () => {
-    const dm = new DialogManager();
-    dm.open({ id: 'xxx' });
-    dm.open({ id: 'yyy' });
-    dm.toggleOpen({ id: dialogId });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(3);
-    dm.toggleOpen({ id: dialogId });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(2);
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'xxx' });
+    dialogManager.open({ id: 'yyy' });
+    dialogManager.toggleOpen({ id: dialogId });
+    expect(dialogManager.openDialogCount).toBe(3);
+    dialogManager.toggleOpen({ id: dialogId });
+    expect(dialogManager.openDialogCount).toBe(2);
   });
 
   it('keeps single opened dialog when the toggling open dialog state', () => {
-    const dm = new DialogManager();
+    const dialogManager = new DialogManager();
 
-    dm.open({ id: 'xxx' });
-    dm.open({ id: 'yyy' });
-    dm.toggleOpenSingle({ id: dialogId });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
+    dialogManager.open({ id: 'xxx' });
+    dialogManager.open({ id: 'yyy' });
+    dialogManager.toggleOpenSingle({ id: dialogId });
+    expect(dialogManager.openDialogCount).toBe(1);
 
-    dm.toggleOpenSingle({ id: dialogId });
-    expect(dm.state.getLatestValue().openDialogCount).toBe(0);
+    dialogManager.toggleOpenSingle({ id: dialogId });
+    expect(dialogManager.openDialogCount).toBe(0);
   });
 
   it('removes a dialog', () => {
-    const dm = new DialogManager();
-    dm.getOrCreate({ id: dialogId });
-    dm.open({ id: dialogId });
-    dm.remove(dialogId);
-    expect(dm.state.getLatestValue().openDialogCount).toBe(0);
-    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(0);
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    dialogManager.remove(dialogId);
+    expect(dialogManager.openDialogCount).toBe(0);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
   it('handles attempt to remove non-existent dialog', () => {
-    const dm = new DialogManager();
-    dm.getOrCreate({ id: dialogId });
-    dm.open({ id: dialogId });
-    dm.remove('xxx');
-    expect(dm.state.getLatestValue().openDialogCount).toBe(1);
-    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
+    const dialogManager = new DialogManager();
+    dialogManager.getOrCreate({ id: dialogId });
+    dialogManager.open({ id: dialogId });
+    dialogManager.remove('xxx');
+    expect(dialogManager.openDialogCount).toBe(1);
+    expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
   });
 });

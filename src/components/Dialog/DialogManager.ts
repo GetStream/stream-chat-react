@@ -1,10 +1,10 @@
 import { StateStore } from 'stream-chat';
 
-type DialogId = string;
-
-export type GetOrCreateParams = {
+export type GetOrCreateDialogParams = {
   id: DialogId;
 };
+
+type DialogId = string;
 
 export type Dialog = {
   close: () => void;
@@ -16,29 +16,34 @@ export type Dialog = {
   toggleSingle: () => void;
 };
 
-type DialogInitOptions = {
+export type DialogManagerOptions = {
   id?: string;
 };
 
 type Dialogs = Record<DialogId, Dialog>;
 
-type DialogManagerState = {
+export type DialogManagerState = {
   dialogsById: Dialogs;
-  openDialogCount: number;
 };
 
 export class DialogManager {
   id: string;
   state = new StateStore<DialogManagerState>({
     dialogsById: {},
-    openDialogCount: 0,
   });
 
-  constructor({ id }: DialogInitOptions = {}) {
+  constructor({ id }: DialogManagerOptions = {}) {
     this.id = id ?? new Date().getTime().toString();
   }
 
-  getOrCreate({ id }: GetOrCreateParams) {
+  get openDialogCount() {
+    return Object.values(this.state.getLatestValue().dialogsById).reduce((count, dialog) => {
+      if (dialog.isOpen) return count + 1;
+      return count;
+    }, 0);
+  }
+
+  getOrCreate({ id }: GetOrCreateDialogParams) {
     let dialog = this.state.getLatestValue().dialogsById[id];
     if (!dialog) {
       dialog = {
@@ -68,7 +73,7 @@ export class DialogManager {
     return dialog;
   }
 
-  open(params: GetOrCreateParams, closeRest?: boolean) {
+  open(params: GetOrCreateDialogParams, closeRest?: boolean) {
     const dialog = this.getOrCreate(params);
     if (dialog.isOpen) return;
     if (closeRest) {
@@ -77,7 +82,6 @@ export class DialogManager {
     this.state.next((current) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialog.id]: { ...dialog, isOpen: true } },
-      openDialogCount: ++current.openDialogCount,
     }));
   }
 
@@ -87,7 +91,6 @@ export class DialogManager {
     this.state.next((current) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialog.id]: { ...dialog, isOpen: false } },
-      openDialogCount: --current.openDialogCount,
     }));
   }
 
@@ -95,7 +98,7 @@ export class DialogManager {
     Object.values(this.state.getLatestValue().dialogsById).forEach((dialog) => dialog.close());
   }
 
-  toggleOpen(params: GetOrCreateParams) {
+  toggleOpen(params: GetOrCreateDialogParams) {
     if (this.state.getLatestValue().dialogsById[params.id]?.isOpen) {
       this.close(params.id);
     } else {
@@ -103,7 +106,7 @@ export class DialogManager {
     }
   }
 
-  toggleOpenSingle(params: GetOrCreateParams) {
+  toggleOpenSingle(params: GetOrCreateDialogParams) {
     if (this.state.getLatestValue().dialogsById[params.id]?.isOpen) {
       this.close(params.id);
     } else {
@@ -122,9 +125,6 @@ export class DialogManager {
       return {
         ...current,
         dialogsById: newDialogs,
-        openDialogCount:
-          current.openDialogCount &&
-          (dialog.isOpen ? current.openDialogCount - 1 : current.openDialogCount),
       };
     });
   }

@@ -1,24 +1,11 @@
-import React, { PropsWithChildren, useEffect, useLayoutEffect, useState } from 'react';
+import React, { PropsWithChildren, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useDialogIsOpen } from './hooks';
+import { useDialogIsOpen, useOpenedDialogCount } from './hooks';
 import { useDialogManager } from '../../context';
 
 export const DialogPortalDestination = () => {
   const { dialogManager } = useDialogManager();
-  const [shouldRender, setShouldRender] = useState(
-    !!dialogManager.state.getLatestValue().openDialogCount,
-  );
-
-  useEffect(
-    () =>
-      dialogManager.state.subscribeWithSelector<number[]>(
-        ({ openDialogCount }) => [openDialogCount],
-        ([openDialogCount]) => {
-          setShouldRender(openDialogCount > 0);
-        },
-      ),
-    [dialogManager],
-  );
+  const openedDialogCount = useOpenedDialogCount();
 
   return (
     <div
@@ -28,7 +15,7 @@ export const DialogPortalDestination = () => {
       onClick={() => dialogManager.closeAll()}
       style={
         {
-          '--str-chat__dialog-overlay-height': shouldRender ? '100%' : '0',
+          '--str-chat__dialog-overlay-height': openedDialogCount > 0 ? '100%' : '0',
         } as React.CSSProperties
       }
     ></div>
