@@ -20,23 +20,21 @@ export const useDialog = ({ id }: GetOrCreateDialogParams) => {
 export const useDialogIsOpen = (id: string) => {
   const { dialogManager } = useDialogManager();
   const dialogIsOpenSelector = useCallback(
-    ({ dialogsById }: DialogManagerState) => [!!dialogsById[id]?.isOpen],
+    ({ dialogsById }: DialogManagerState) => [!!dialogsById[id]?.isOpen] as const,
     [id],
   );
-  return useStateStore<DialogManagerState, boolean[]>(dialogManager.state, dialogIsOpenSelector)[0];
+  return useStateStore(dialogManager.state, dialogIsOpenSelector)[0];
 };
 
-const openedDialogCountSelector = (nextValue: DialogManagerState) => [
-  Object.values(nextValue.dialogsById).reduce((count, dialog) => {
-    if (dialog.isOpen) return count + 1;
-    return count;
-  }, 0),
-];
+const openedDialogCountSelector = (nextValue: DialogManagerState) =>
+  [
+    Object.values(nextValue.dialogsById).reduce((count, dialog) => {
+      if (dialog.isOpen) return count + 1;
+      return count;
+    }, 0),
+  ] as const;
 
 export const useOpenedDialogCount = () => {
   const { dialogManager } = useDialogManager();
-  return useStateStore<DialogManagerState, number[]>(
-    dialogManager.state,
-    openedDialogCountSelector,
-  )[0];
+  return useStateStore(dialogManager.state, openedDialogCountSelector)[0];
 };
