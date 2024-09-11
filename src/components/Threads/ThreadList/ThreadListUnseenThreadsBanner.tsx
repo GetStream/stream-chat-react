@@ -4,7 +4,7 @@ import type { ThreadManagerState } from 'stream-chat';
 
 import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
-import { useStateStore } from '../hooks/useStateStore';
+import { useStateStore } from '../../../store';
 
 const selector = (nextValue: ThreadManagerState) => [nextValue.unseenThreadIds] as const;
 

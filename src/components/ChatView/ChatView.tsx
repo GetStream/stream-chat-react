@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-import { ThreadProvider, useStateStore } from '../Threads';
+import { ThreadProvider } from '../Threads';
 import { Icon } from '../Threads/icons';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import { useChatContext } from '../../context';
+import { useStateStore } from '../../store';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';

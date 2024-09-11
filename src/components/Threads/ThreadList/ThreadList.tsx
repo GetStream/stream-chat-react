@@ -8,7 +8,7 @@ import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from 
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { useChatContext, useComponentContext } from '../../../context';
-import { useStateStore } from '../hooks/useStateStore';
+import { useStateStore } from '../../../store';
 
 const selector = (nextValue: ThreadManagerState) => [nextValue.threads] as const;
 

@@ -4,7 +4,7 @@ import type { ThreadManagerState } from 'stream-chat';
 
 import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 import { useChatContext, useComponentContext } from '../../../context';
-import { useStateStore } from '../hooks/useStateStore';
+import { useStateStore } from '../../../store';
 
 const selector = (nextValue: ThreadManagerState) => [nextValue.pagination.isLoadingNext];
 

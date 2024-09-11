@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 
 import {
@@ -7,14 +8,13 @@ import {
 } from './icons';
 import { MESSAGE_ACTIONS } from './utils';
 import { MessageActions } from '../MessageActions';
+import { useDialogIsOpen } from '../Dialog';
+import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 
-import { useTranslationContext } from '../../context';
-import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { useMessageContext, useTranslationContext } from '../../context';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
-import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
-import { useDialogIsOpen } from '../Dialog';
-import clsx from 'clsx';
+import type { MessageContextValue } from '../../context/MessageContext';
 
 export type MessageOptionsProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

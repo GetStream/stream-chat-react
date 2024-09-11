@@ -9,11 +9,15 @@ import { MessageSimple } from '../MessageSimple';
 import { ACTIONS_NOT_WORKING_IN_THREAD, MESSAGE_ACTIONS } from '../utils';
 
 import { Attachment } from '../../Attachment';
+import { defaultReactionOptions } from '../../Reactions';
 
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import { ComponentProvider } from '../../../context/ComponentContext';
+import {
+  ChannelActionProvider,
+  ChannelStateProvider,
+  ChatProvider,
+  ComponentProvider,
+  DialogManagerProvider,
+} from '../../../context';
 
 import {
   generateChannel,
@@ -21,8 +25,6 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { DialogManagerProvider } from '../../../context';
-import { defaultReactionOptions } from '../../Reactions';
 
 const MESSAGE_ACTIONS_TEST_ID = 'message-actions';
 
