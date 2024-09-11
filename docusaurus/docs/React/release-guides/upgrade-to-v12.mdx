@@ -117,6 +117,38 @@ import { encodeToMp3 } from 'stream-chat-react/mp3-encoder';
 
 :::
 
+## Unified dialog management
+
+Dialogs will be managed centrally. At the moment, this applies to display of `ReactionSelector` and `MessageActionsBox`. They will be displayed on a transparent overlay that prevents users from opening other dialogs in the message list. Once an option from a dialog is selected or the overlay is clicked, the dialog will disappear. This adjust brings new API and removes some properties from `MessageContextValue`.
+
+### Removed properties from MessageContextValue
+
+- `isReactionEnabled` - served to signal the permission to send reactions by the current user in a given channel. With the current permissions implementation, the permission can be determined by doing the following:
+
+```
+import { useMessageContext } from 'stream-chat-react';
+
+const { getMessageActions } = useMessageContext();
+const messageActions = getMessageActions();
+const canReact = messageActions.includes(MESSAGE_ACTIONS.react);
+```
+
+- `onReactionListClick` - handler function that toggled the open state of `ReactionSelector` represented by another removed value - `showDetailedReactions`
+- `showDetailedReactions` - flag used to decide, whether the reaction selector should be shown or not
+- `reactionSelectorRef` - ref to the root of the reaction selector component (served to control the display of the component)
+
+Also prop `messageWrapperRef` was removed as part of the change from `MessageOptions` and `MessageActions` props.
+
+On the other hand, the `Message` prop (configuration parameter) `closeReactionSelectorOnClick` is now available in the `MessageContextValue`.
+
+:::important
+If you used any of these values in your customizations, please make sure to adjust your implementation according to the newly recommended use of Dialog API in [Dialog management guide](../../guides/dialog-management).
+:::
+
+### New dialog management API
+
+To learn about the new API, please, take a look at our [Dialog management guide](../../guides/dialog-management).
+
 ## EmojiPickerIcon extraction to emojis plugin
 
 The default `EmojiPickerIcon` has been moved to emojis plugin from which we already import `EmojiPicker` component.
