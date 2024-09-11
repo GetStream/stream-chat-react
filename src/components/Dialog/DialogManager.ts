@@ -68,10 +68,10 @@ export class DialogManager {
     return dialog;
   }
 
-  open(params: GetOrCreateParams, single?: boolean) {
+  open(params: GetOrCreateParams, closeRest?: boolean) {
     const dialog = this.getOrCreate(params);
     if (dialog.isOpen) return;
-    if (single) {
+    if (closeRest) {
       this.closeAll();
     }
     this.state.next((current) => ({
