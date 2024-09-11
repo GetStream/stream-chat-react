@@ -22,7 +22,7 @@ export const useDialogIsOpen = (id: string, source?: string) => {
   useEffect(
     () =>
       dialogManager.state.subscribeWithSelector<boolean[]>(
-        ({ dialogs }) => [!!dialogs[id]?.isOpen],
+        ({ dialogsById }) => [!!dialogsById[id]?.isOpen],
         ([isOpen]) => {
           setOpen(isOpen);
         },

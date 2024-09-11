@@ -17,7 +17,7 @@ describe('DialogManager', () => {
   });
   it('creates a new closed dialog', () => {
     const dm = new DialogManager();
-    expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(0);
+    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(0);
     expect(dm.getOrCreate({ id: dialogId })).toMatchObject({
       close: expect.any(Function),
       id: 'dialogId',
@@ -27,7 +27,7 @@ describe('DialogManager', () => {
       toggle: expect.any(Function),
       toggleSingle: expect.any(Function),
     });
-    expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(1);
+    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
     expect(dm.state.getLatestValue().openDialogCount).toBe(0);
   });
 
@@ -35,19 +35,19 @@ describe('DialogManager', () => {
     const dm = new DialogManager();
     dm.state.next((current) => ({
       ...current,
-      dialogs: { ...current.dialogs, [dialogId]: { id: dialogId, isOpen: true } },
+      dialogsById: { ...current.dialogsById, [dialogId]: { id: dialogId, isOpen: true } },
     }));
     expect(dm.getOrCreate({ id: dialogId })).toMatchObject({
       id: 'dialogId',
       isOpen: true,
     });
-    expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(1);
+    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
   });
 
   it('creates a dialog if it does not exist on open', () => {
     const dm = new DialogManager();
     dm.open({ id: dialogId });
-    expect(dm.state.getLatestValue().dialogs[dialogId]).toMatchObject({
+    expect(dm.state.getLatestValue().dialogsById[dialogId]).toMatchObject({
       close: expect.any(Function),
       id: 'dialogId',
       isOpen: true,
@@ -63,7 +63,7 @@ describe('DialogManager', () => {
     const dm = new DialogManager();
     dm.getOrCreate({ id: dialogId });
     dm.open({ id: dialogId });
-    expect(dm.state.getLatestValue().dialogs[dialogId].isOpen).toBeTruthy();
+    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
     expect(dm.state.getLatestValue().openDialogCount).toBe(1);
   });
 
@@ -75,16 +75,16 @@ describe('DialogManager', () => {
     expect(dm.state.getLatestValue().openDialogCount).toBe(1);
   });
 
-  it('closes all other dialogs before opening the target', () => {
+  it('closes all other dialogsById before opening the target', () => {
     const dm = new DialogManager();
     dm.open({ id: 'xxx' });
     dm.open({ id: 'yyy' });
     expect(dm.state.getLatestValue().openDialogCount).toBe(2);
     dm.open({ id: dialogId }, true);
-    const dialogs = dm.state.getLatestValue().dialogs;
+    const dialogs = dm.state.getLatestValue().dialogsById;
     expect(dialogs.xxx.isOpen).toBeFalsy();
     expect(dialogs.yyy.isOpen).toBeFalsy();
-    expect(dm.state.getLatestValue().dialogs[dialogId].isOpen).toBeTruthy();
+    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeTruthy();
     expect(dm.state.getLatestValue().openDialogCount).toBe(1);
   });
 
@@ -92,7 +92,7 @@ describe('DialogManager', () => {
     const dm = new DialogManager();
     dm.open({ id: dialogId });
     dm.close(dialogId);
-    expect(dm.state.getLatestValue().dialogs[dialogId].isOpen).toBeFalsy();
+    expect(dm.state.getLatestValue().dialogsById[dialogId].isOpen).toBeFalsy();
     expect(dm.state.getLatestValue().openDialogCount).toBe(0);
   });
 
@@ -133,7 +133,7 @@ describe('DialogManager', () => {
     dm.open({ id: dialogId });
     dm.remove(dialogId);
     expect(dm.state.getLatestValue().openDialogCount).toBe(0);
-    expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(0);
+    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
   it('handles attempt to remove non-existent dialog', () => {
@@ -142,6 +142,6 @@ describe('DialogManager', () => {
     dm.open({ id: dialogId });
     dm.remove('xxx');
     expect(dm.state.getLatestValue().openDialogCount).toBe(1);
-    expect(Object.keys(dm.state.getLatestValue().dialogs)).toHaveLength(1);
+    expect(Object.keys(dm.state.getLatestValue().dialogsById)).toHaveLength(1);
   });
 });
