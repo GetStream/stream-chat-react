@@ -47,40 +47,30 @@ export const getLatestMessagePreview = <
   return t('Empty message...');
 };
 
+const getChannelDisplayInfo = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  info: 'name' | 'image',
+  channel: Channel<StreamChatGenerics>,
+  currentUser?: UserResponse<StreamChatGenerics>,
+) => {
+  if (channel.data?.[info]) return channel.data[info];
+  const members = Object.values(channel.state.members);
+  if (members.length !== 2) return;
+  const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
+  return otherMember?.user?.[info];
+};
+
 export const getDisplayTitle = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   channel: Channel<StreamChatGenerics>,
   currentUser?: UserResponse<StreamChatGenerics>,
-) => {
-  let title = channel.data?.name;
-  const members = Object.values(channel.state.members);
-
-  if (!title && members.length === 2) {
-    const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
-    if (otherMember?.user?.name) {
-      title = otherMember.user.name;
-    }
-  }
-
-  return title;
-};
+) => getChannelDisplayInfo('name', channel, currentUser);
 
 export const getDisplayImage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   channel: Channel<StreamChatGenerics>,
   currentUser?: UserResponse<StreamChatGenerics>,
-) => {
-  let image = channel.data?.image;
-  const members = Object.values(channel.state.members);
-
-  if (!image && members.length === 2) {
-    const otherMember = members.find((member) => member.user?.id !== currentUser?.id);
-    if (otherMember?.user?.image) {
-      image = otherMember.user.image;
-    }
-  }
-
-  return image;
-};
+) => getChannelDisplayInfo('image', channel, currentUser);

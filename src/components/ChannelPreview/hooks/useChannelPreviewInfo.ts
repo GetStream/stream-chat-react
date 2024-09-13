@@ -21,28 +21,29 @@ export const useChannelPreviewInfo = <
 ) => {
   const { channel, overrideImage, overrideTitle } = props;
 
-  const { client } = useChatContext<StreamChatGenerics>('ChannelPreview');
-  const [displayTitle, setDisplayTitle] = useState(getDisplayTitle(channel, client.user));
-  const [displayImage, setDisplayImage] = useState(getDisplayImage(channel, client.user));
+  const { client } = useChatContext<StreamChatGenerics>('useChannelPreviewInfo');
+  const [displayTitle, setDisplayTitle] = useState(
+    overrideTitle || getDisplayTitle(channel, client.user),
+  );
+  const [displayImage, setDisplayImage] = useState(
+    overrideImage || getDisplayImage(channel, client.user),
+  );
 
   useEffect(() => {
-    const handleEvent = () => {
-      setDisplayTitle((displayTitle) => {
-        const newDisplayTitle = getDisplayTitle(channel, client.user);
-        return displayTitle !== newDisplayTitle ? newDisplayTitle : displayTitle;
-      });
-      setDisplayImage((displayImage) => {
-        const newDisplayImage = getDisplayImage(channel, client.user);
-        return displayImage !== newDisplayImage ? newDisplayImage : displayImage;
-      });
+    if (overrideTitle && overrideImage) return;
+
+    const updateTitles = () => {
+      if (!overrideTitle) setDisplayTitle(getDisplayTitle(channel, client.user));
+      if (!overrideImage) setDisplayImage(getDisplayImage(channel, client.user));
     };
 
-    client.on('user.updated', handleEvent);
+    updateTitles();
+
+    client.on('user.updated', updateTitles);
     return () => {
-      client.off('user.updated', handleEvent);
+      client.off('user.updated', updateTitles);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channel, channel.data, client, overrideImage, overrideTitle]);
 
   return {
     displayImage: overrideImage || displayImage,
