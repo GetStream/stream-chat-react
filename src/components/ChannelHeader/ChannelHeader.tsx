@@ -24,7 +24,10 @@ export type ChannelHeaderProps = {
   title?: string;
 };
 
-const UnMemoizedChannelHeader = <
+/**
+ * The ChannelHeader component renders some basic information about a Channel.
+ */
+export const ChannelHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   props: ChannelHeaderProps,
@@ -86,8 +89,3 @@ const UnMemoizedChannelHeader = <
     </div>
   );
 };
-
-/**
- * The ChannelHeader component renders some basic information about a Channel.
- */
-export const ChannelHeader = React.memo(UnMemoizedChannelHeader) as typeof UnMemoizedChannelHeader;
