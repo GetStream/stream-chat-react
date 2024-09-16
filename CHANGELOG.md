@@ -1,3 +1,22 @@
+## [12.0.0-rc.15](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.14...v12.0.0-rc.15) (2024-09-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* - own user will not anymore be filtered out of the selection list of users to mention if `mentionAllAppUsers` is enabled on MessageInput
+* - removes the following variables from `MessageContext`: isReactionEnabled, onReactionListClick, showDetailedReactions, reactionSelectorRef
+- removes prop `messageWrapperRef` from `MessageOptions` and `MessageActions` props.
+
+### Bug Fixes
+
+* remove the use of deprecated query operator $ne ([#2504](https://github.com/GetStream/stream-chat-react/issues/2504)) ([09614f6](https://github.com/GetStream/stream-chat-react/commit/09614f688a9fbeed66584202ac5c669fd0b5c0a4))
+* update ChannelHeader and ChannelPreview titles and images on channel.updated ([#2500](https://github.com/GetStream/stream-chat-react/issues/2500)) ([f32fbb6](https://github.com/GetStream/stream-chat-react/commit/f32fbb6a9621e228a97c282ecdef43ef70eef075))
+
+
+### Features
+
+* add centralized dialog management ([#2489](https://github.com/GetStream/stream-chat-react/issues/2489)) ([8235d45](https://github.com/GetStream/stream-chat-react/commit/8235d45140e5ef4ffdb7f79c7c27fe5ac874f962))
+
 ## [12.0.0-rc.14](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.13...v12.0.0-rc.14) (2024-09-10)
 
 
