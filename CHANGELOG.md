@@ -1,3 +1,10 @@
+## [11.23.10](https://github.com/GetStream/stream-chat-react/compare/v11.23.9...v11.23.10) (2024-09-16)
+
+
+### Bug Fixes
+
+* update ChannelHeader and ChannelPreview titles and images on channel.updated ([#2500](https://github.com/GetStream/stream-chat-react/issues/2500)) ([f32fbb6](https://github.com/GetStream/stream-chat-react/commit/f32fbb6a9621e228a97c282ecdef43ef70eef075))
+
 ## [11.23.9](https://github.com/GetStream/stream-chat-react/compare/v11.23.8...v11.23.9) (2024-09-04)
 
 
