@@ -44,7 +44,7 @@ export const ReactionSelectorWithButton = <
         aria-label={t('aria/Open Reaction Selector')}
         className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
         data-testid='message-reaction-action'
-        onClick={dialog.toggleSingle}
+        onClick={() => dialog?.toggle()}
         ref={buttonRef}
       >
         <ReactionIcon className='str-chat__message-action-icon' />

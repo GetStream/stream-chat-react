@@ -106,7 +106,7 @@ export const MessageActions = <
     <MessageActionsWrapper
       customWrapperClass={customWrapperClass}
       inline={inline}
-      toggleOpen={dialog?.toggleSingle}
+      toggleOpen={dialog?.toggle}
     >
       <DialogAnchor
         id={dialogId}

@@ -25,7 +25,6 @@ describe('DialogManager', () => {
       open: expect.any(Function),
       remove: expect.any(Function),
       toggle: expect.any(Function),
-      toggleSingle: expect.any(Function),
     });
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
     expect(dialogManager.openDialogCount).toBe(0);
@@ -54,7 +53,6 @@ describe('DialogManager', () => {
       open: expect.any(Function),
       remove: expect.any(Function),
       toggle: expect.any(Function),
-      toggleSingle: expect.any(Function),
     });
     expect(dialogManager.openDialogCount).toBe(1);
   });
@@ -109,9 +107,9 @@ describe('DialogManager', () => {
     const dialogManager = new DialogManager();
     dialogManager.open({ id: 'xxx' });
     dialogManager.open({ id: 'yyy' });
-    dialogManager.toggleOpen({ id: dialogId });
+    dialogManager.toggle({ id: dialogId });
     expect(dialogManager.openDialogCount).toBe(3);
-    dialogManager.toggleOpen({ id: dialogId });
+    dialogManager.toggle({ id: dialogId });
     expect(dialogManager.openDialogCount).toBe(2);
   });
 
@@ -120,10 +118,10 @@ describe('DialogManager', () => {
 
     dialogManager.open({ id: 'xxx' });
     dialogManager.open({ id: 'yyy' });
-    dialogManager.toggleOpenSingle({ id: dialogId });
+    dialogManager.toggle({ id: dialogId }, true);
     expect(dialogManager.openDialogCount).toBe(1);
 
-    dialogManager.toggleOpenSingle({ id: dialogId });
+    dialogManager.toggle({ id: dialogId }, true);
     expect(dialogManager.openDialogCount).toBe(0);
   });
 

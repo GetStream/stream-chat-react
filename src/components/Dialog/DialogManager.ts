@@ -12,8 +12,7 @@ export type Dialog = {
   isOpen: boolean | undefined;
   open: (zIndex?: number) => void;
   remove: () => void;
-  toggle: () => void;
-  toggleSingle: () => void;
+  toggle: (closeAll?: boolean) => void;
 };
 
 export type DialogManagerOptions = {
@@ -26,6 +25,16 @@ export type DialogManagerState = {
   dialogsById: Dialogs;
 };
 
+/**
+ * Keeps a map of Dialog objects.
+ * Dialog can be controlled via `Dialog` object retrieved using `useDialog()` hook.
+ * The hook returns an object with the following API:
+ *
+ * - `dialog.open()` - opens the dialog
+ * - `dialog.close()` - closes the dialog
+ * - `dialog.toggle()` - toggles the dialog open state. Accepts boolean argument closeAll. If enabled closes any other dialog that would be open.
+ * - `dialog.remove()` - removes the dialog object reference from the state (primarily for cleanup purposes)
+ */
 export class DialogManager {
   id: string;
   state = new StateStore<DialogManagerState>({
@@ -58,11 +67,8 @@ export class DialogManager {
         remove: () => {
           this.remove(id);
         },
-        toggle: () => {
-          this.toggleOpen({ id });
-        },
-        toggleSingle: () => {
-          this.toggleOpenSingle({ id });
+        toggle: (closeAll = false) => {
+          this.toggle({ id }, closeAll);
         },
       };
       this.state.next((current) => ({
@@ -98,19 +104,11 @@ export class DialogManager {
     Object.values(this.state.getLatestValue().dialogsById).forEach((dialog) => dialog.close());
   }
 
-  toggleOpen(params: GetOrCreateDialogParams) {
+  toggle(params: GetOrCreateDialogParams, closeAll = false) {
     if (this.state.getLatestValue().dialogsById[params.id]?.isOpen) {
       this.close(params.id);
     } else {
-      this.open(params);
-    }
-  }
-
-  toggleOpenSingle(params: GetOrCreateDialogParams) {
-    if (this.state.getLatestValue().dialogsById[params.id]?.isOpen) {
-      this.close(params.id);
-    } else {
-      this.open(params, true);
+      this.open(params, closeAll);
     }
   }
 

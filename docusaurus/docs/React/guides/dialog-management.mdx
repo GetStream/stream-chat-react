@@ -79,8 +79,7 @@ Dialog can be controlled via `Dialog` object retrieved using `useDialog()` hook.
 
 - `dialog.open()` - opens the dialog
 - `dialog.close()` - closes the dialog
-- `dialog.toggleOpen()` - flips the dialog open state and does not close any other dialog that could be open
-- `dialog.toggleOpenSingle()` - flips the open state and does close any other dialog that could be open
+- `dialog.toggle()` - toggles the dialog open state. Accepts boolean argument `closeAll`. If enabled closes any other dialog that would be open.
 - `dialog.remove()` - removes the dialog object reference from the state (primarily for cleanup purposes)
 
 Every `Dialog` object carries its own `id` and `isOpen` flag.
