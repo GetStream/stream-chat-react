@@ -23,10 +23,10 @@ export const useChannelPreviewInfo = <
 
   const { client } = useChatContext<StreamChatGenerics>('useChannelPreviewInfo');
   const [displayTitle, setDisplayTitle] = useState(
-    overrideTitle || getDisplayTitle(channel, client.user),
+    () => overrideTitle || getDisplayTitle(channel, client.user),
   );
   const [displayImage, setDisplayImage] = useState(
-    overrideImage || getDisplayImage(channel, client.user),
+    () => overrideImage || getDisplayImage(channel, client.user),
   );
 
   useEffect(() => {
