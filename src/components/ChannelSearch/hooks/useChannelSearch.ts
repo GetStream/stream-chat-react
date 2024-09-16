@@ -216,7 +216,6 @@ export const useChannelSearch = <
           // @ts-expect-error
           {
             $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
-            id: { $ne: client.userID },
             ...searchQueryParams?.userFilters?.filters,
           },
           { id: 1, ...searchQueryParams?.userFilters?.sort },
@@ -226,7 +225,7 @@ export const useChannelSearch = <
         if (!searchForChannels) {
           searchQueryPromiseInProgress.current = userQueryPromise;
           const { users } = await searchQueryPromiseInProgress.current;
-          results = users;
+          results = users.filter((u) => u.id !== client.user?.id);
         } else {
           const channelQueryPromise = client.queryChannels(
             // @ts-expect-error
@@ -245,7 +244,7 @@ export const useChannelSearch = <
 
           const [channels, { users }] = await searchQueryPromiseInProgress.current;
 
-          results = [...channels, ...users];
+          results = [...channels, ...users.filter((u) => u.id !== client.user?.id)];
         }
       } catch (error) {
         console.error(error);

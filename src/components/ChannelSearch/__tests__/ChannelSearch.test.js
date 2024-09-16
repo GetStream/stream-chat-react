@@ -125,9 +125,11 @@ describe('ChannelSearch', () => {
   });
 
   it('search is performed by default on users and not channels', async () => {
+    const limit = 8;
+    const otherUsers = Array.from({ length: limit }, generateUser);
     jest.useFakeTimers('modern');
     const client = await getTestClientWithUser(user);
-    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [user] });
+    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [...otherUsers, user] });
     jest.spyOn(client, 'queryChannels').mockImplementation();
     const { typeText } = await renderSearch({ client });
     await act(() => {
@@ -141,21 +143,26 @@ describe('ChannelSearch', () => {
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
         $or: [{ id: { $autocomplete: typedText } }, { name: { $autocomplete: typedText } }],
-        id: { $ne: 'id' },
       }),
       { id: 1 },
-      { limit: 8 },
+      { limit },
     );
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
     expect(client.queryChannels).not.toHaveBeenCalled();
+    otherUsers.forEach((user) => {
+      expect(screen.queryByText(user.name)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(user.name)).not.toBeInTheDocument();
 
     jest.useRealTimers();
   });
 
   it('search is performed on users and channels if enabled', async () => {
+    const limit = 8;
+    const otherUsers = Array.from({ length: limit }, generateUser);
     jest.useFakeTimers('modern');
     const client = await getTestClientWithUser(user);
-    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [user] });
+    jest.spyOn(client, 'queryUsers').mockResolvedValue({ users: [...otherUsers, user] });
     jest.spyOn(client, 'queryChannels').mockResolvedValue([channelResponseData]);
 
     const { typeText } = await renderSearch({ client, props: { searchForChannels: true } });
@@ -169,7 +176,10 @@ describe('ChannelSearch', () => {
 
     expect(client.queryUsers).toHaveBeenCalledTimes(1);
     expect(client.queryChannels).toHaveBeenCalledTimes(1);
-
+    otherUsers.forEach((user) => {
+      expect(screen.queryByText(user.name)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(user.name)).not.toBeInTheDocument();
     jest.useRealTimers();
   });
 
@@ -270,7 +280,6 @@ describe('ChannelSearch', () => {
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
         $or: [{ id: { $autocomplete: textToQuery } }, { name: { $autocomplete: textToQuery } }],
-        id: { $ne: 'id' },
       }),
       { id: 1 },
       { limit: 8 },
@@ -311,7 +320,6 @@ describe('ChannelSearch', () => {
     expect(client.queryUsers).toHaveBeenCalledWith(
       expect.objectContaining({
         $or: [{ id: { $autocomplete: textToQuery } }, { name: { $autocomplete: textToQuery } }],
-        id: { $ne: 'id' },
       }),
       { id: 1 },
       { limit: 8 },

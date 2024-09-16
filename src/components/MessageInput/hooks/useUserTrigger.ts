@@ -103,7 +103,6 @@ export const useUserTrigger = <
         // @ts-expect-error
         {
           $or: [{ id: { $autocomplete: query } }, { name: { $autocomplete: query } }],
-          id: { $ne: client.userID },
           ...(typeof mentionQueryParams.filters === 'function'
             ? mentionQueryParams.filters(query)
             : mentionQueryParams.filters),
