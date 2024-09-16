@@ -19,6 +19,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  DialogManagerProvider,
   TranslationProvider,
   useMessageContext,
 } from '../../../context';
@@ -37,7 +38,11 @@ const Wrapper = ({ children, componentContext = {} }) => (
   <ChatProvider value={{ client }}>
     <ChannelStateProvider value={{ channel }}>
       <ChannelActionProvider value={{ addNotification: jest.fn() }}>
-        <ComponentProvider value={componentContext}>{children}</ComponentProvider>
+        <ComponentProvider value={componentContext}>
+          <DialogManagerProvider id='vml-components-dialog-manager'>
+            {children}
+          </DialogManagerProvider>
+        </ComponentProvider>
       </ChannelActionProvider>
     </ChannelStateProvider>
   </ChatProvider>
@@ -83,7 +88,16 @@ describe('VirtualizedMessageComponents', () => {
     const CustomLoadingIndicator = () => <div>Custom Loading Indicator</div>;
     it('should render empty div in Header when not loading more messages', () => {
       const { container } = renderElements(<Header />);
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
+        </div>
+      `);
     });
 
     it('should render LoadingIndicator in Header when loading more messages', () => {
@@ -105,6 +119,12 @@ describe('VirtualizedMessageComponents', () => {
               Custom Loading Indicator
             </div>
           </div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
         </div>
       `);
     });
@@ -112,7 +132,16 @@ describe('VirtualizedMessageComponents', () => {
     it('should not render custom LoadingIndicator in Header when not loading more messages', () => {
       const componentContext = { LoadingIndicator: CustomLoadingIndicator };
       const { container } = renderElements(<Header />, componentContext);
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
+        </div>
+      `);
     });
 
     // FIXME: this is a crazy pattern of having to set LoadingIndicator to null so that additionalVirtuosoProps.head can be rendered.
@@ -134,6 +163,12 @@ describe('VirtualizedMessageComponents', () => {
           <div>
             Custom head
           </div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
         </div>
       `);
     });
@@ -146,6 +181,12 @@ describe('VirtualizedMessageComponents', () => {
           <div>
             Custom head
           </div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
         </div>
       `);
     });
@@ -166,6 +207,12 @@ describe('VirtualizedMessageComponents', () => {
               Custom Loading Indicator
             </div>
           </div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
         </div>
       `);
     });
@@ -184,7 +231,16 @@ describe('VirtualizedMessageComponents', () => {
 
     it('should render empty for thread by default', () => {
       const { container } = renderElements(<EmptyPlaceholder context={{ threadList: true }} />);
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
+        </div>
+      `);
     });
     it('should render custom EmptyStateIndicator for main message list', () => {
       const { container } = renderElements(<EmptyPlaceholder />, componentContext);
@@ -202,7 +258,16 @@ describe('VirtualizedMessageComponents', () => {
     it('should render empty if EmptyStateIndicator nullified', () => {
       const componentContext = { EmptyStateIndicator: NullEmptyStateIndicator };
       const { container } = renderElements(<EmptyPlaceholder />, componentContext);
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
+        </div>
+      `);
     });
 
     it('should render empty in thread if EmptyStateIndicator nullified', () => {
@@ -211,7 +276,16 @@ describe('VirtualizedMessageComponents', () => {
         <EmptyPlaceholder context={{ threadList: true }} />,
         componentContext,
       );
-      expect(container).toMatchInlineSnapshot(`<div />`);
+      expect(container).toMatchInlineSnapshot(`
+        <div>
+          <div
+            class="str-chat__dialog-overlay"
+            data-str-chat__portal-id="vml-components-dialog-manager"
+            data-testid="str-chat__dialog-overlay"
+            style="--str-chat__dialog-overlay-height: 0;"
+          />
+        </div>
+      `);
     });
   });
 

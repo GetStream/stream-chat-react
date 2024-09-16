@@ -10,6 +10,7 @@ export * from './Chat';
 export * from './ChatAutoComplete';
 export * from './CommandItem';
 export * from './DateSeparator';
+export * from './Dialog';
 export * from './EmoticonItem';
 export * from './EmptyStateIndicator';
 export * from './EventComponent';

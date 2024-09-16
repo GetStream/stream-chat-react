@@ -397,14 +397,6 @@ Function that runs on hover of an @mention in a message (overrides the function 
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onMentionsHoverMessage']](../contexts/channel-action-context.mdx#onmentionshovermessage) |
 
-### onReactionListClick
-
-Function that runs on click of the reactions list component (overrides the function stored in `MessageContext`).
-
-| Type                                                        | Default                                                                                                  |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| (event: React.BaseSyntheticEvent) => Promise<void\> \| void | [MessageContextValue['onReactionListClick']](../contexts/channel-action-context.mdx#onreactionlistclick) |
-
 ### onUserClick
 
 Function that runs on click of a user avatar (overrides the function stored in `MessageContext`).
@@ -429,14 +421,6 @@ The user roles allowed to pin messages in various channel types (deprecated in f
 | ------ | -------------------------------------------------------------------------------------------------------------------- |
 | object | [defaultPinPermissions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/utils.tsx) |
 
-### reactionSelectorRef
-
-Ref to be placed on the reaction selector component (overrides the ref stored in `MessageContext`).
-
-| Type                                    |
-| --------------------------------------- |
-| React.MutableRefObject<HTMLDivElement\> |
-
 ### readBy
 
 An array of users that have read the current message (overrides the value stored in `MessageContext`).
@@ -460,14 +444,6 @@ Function to toggle the editing state on a message (overrides the function stored
 | Type                                                        |
 | ----------------------------------------------------------- |
 | (event: React.BaseSyntheticEvent) => Promise<void\> \| void |
-
-### showDetailedReactions
-
-When true, show the reactions list component (overrides the value stored in `MessageContext`).
-
-| Type    |
-| ------- |
-| boolean |
 
 ### threadList
 

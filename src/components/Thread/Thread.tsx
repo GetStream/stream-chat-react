@@ -18,7 +18,8 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
-import { useStateStore, useThreadContext } from '../../components/Threads';
+import { useThreadContext } from '../Threads';
+import { useStateStore } from '../../store';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';

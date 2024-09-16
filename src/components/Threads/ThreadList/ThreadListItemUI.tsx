@@ -11,7 +11,7 @@ import { UnreadCountBadge } from '../UnreadCountBadge';
 import { useChatContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
-import { useStateStore } from '../hooks/useStateStore';
+import { useStateStore } from '../../../store';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 

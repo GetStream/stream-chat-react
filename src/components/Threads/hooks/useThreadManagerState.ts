@@ -1,6 +1,6 @@
 import { useChatContext } from 'context';
-import { useStateStore } from './useStateStore';
 import { ThreadManagerState } from 'stream-chat';
+import { useStateStore } from '../../../store';
 
 export const useThreadManagerState = <T extends readonly unknown[]>(
   selector: (nextValue: ThreadManagerState) => T,

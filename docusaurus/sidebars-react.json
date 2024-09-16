@@ -149,7 +149,8 @@
         "guides/video-integration/video-integration-stream",
         "guides/sdk-state-management",
         "guides/date-time-formatting",
-        "guides/custom-threads-view"
+        "guides/custom-threads-view",
+        "guides/dialog-management"
       ]
     },
     {

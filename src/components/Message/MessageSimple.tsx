@@ -23,10 +23,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
-import {
-  ReactionsList as DefaultReactionList,
-  ReactionSelector as DefaultReactionSelector,
-} from '../Reactions';
+import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
@@ -58,13 +55,10 @@ const MessageSimpleWithContext = <
     handleRetry,
     highlighted,
     isMyMessage,
-    isReactionEnabled,
     message,
     onUserClick,
     onUserHover,
-    reactionSelectorRef,
     renderText,
-    showDetailedReactions,
     threadList,
   } = props;
 
@@ -82,7 +76,7 @@ const MessageSimpleWithContext = <
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
-    ReactionSelector = DefaultReactionSelector,
+
     ReactionsList = DefaultReactionList,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
@@ -97,14 +91,6 @@ const MessageSimpleWithContext = <
   if (message.deleted_at || message.type === 'deleted') {
     return <MessageDeleted message={message} />;
   }
-
-  /** FIXME: isReactionEnabled should be removed with next major version and a proper centralized permissions logic should be put in place
-   * With the current permissions implementation it would be sth like:
-   * const messageActions = getMessageActions();
-   * const canReact = messageActions.includes(MESSAGE_ACTIONS.react);
-   */
-  const canReact = isReactionEnabled;
-  const canShowReactions = hasReactions;
 
   const showMetadata = !groupedByUser || endOfGroup;
   const showReplyCountButton = !threadList && !!message.reply_count;
@@ -134,7 +120,7 @@ const MessageSimpleWithContext = <
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--pinned pinned-message': message.pinned,
-      'str-chat__message--with-reactions': canShowReactions,
+      'str-chat__message--with-reactions': hasReactions,
       'str-chat__message-send-can-be-retried':
         message?.status === 'failed' && message?.errorStatusCode !== 403,
       'str-chat__message-with-thread-link': showReplyCountButton,
@@ -187,8 +173,7 @@ const MessageSimpleWithContext = <
           >
             <MessageOptions />
             <div className='str-chat__message-reactions-host'>
-              {canShowReactions && <ReactionsList reverse />}
-              {showDetailedReactions && canReact && <ReactionSelector ref={reactionSelectorRef} />}
+              {hasReactions && <ReactionsList reverse />}
             </div>
             <div className='str-chat__message-bubble'>
               {message.attachments?.length && !message.quoted_message ? (

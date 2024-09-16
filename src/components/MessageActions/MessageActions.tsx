@@ -1,24 +1,17 @@
-import React, {
-  ElementRef,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
 import clsx from 'clsx';
+import React, { ElementRef, PropsWithChildren, useCallback, useRef } from 'react';
 
 import { MessageActionsBox } from './MessageActionsBox';
 
+import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { ActionsIcon as DefaultActionsIcon } from '../Message/icons';
 import { isUserMuted, shouldRenderMessageActions } from '../Message/utils';
 
 import { useChatContext } from '../../context/ChatContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 import type { DefaultStreamChatGenerics, IconProps } from '../../types/types';
-import { useMessageActionsBoxPopper } from './hooks';
-import { useComponentContext, useTranslationContext } from '../../context';
 
 type MessageContextPropsToPick =
   | 'getMessageActions'
@@ -38,8 +31,6 @@ export type MessageActionsProps<
   customWrapperClass?: string;
   /* If true, renders the wrapper component as a `span`, not a `div` */
   inline?: boolean;
-  /* React mutable ref that can be placed on the message root `div` of MessageActions component */
-  messageWrapperRef?: React.RefObject<HTMLDivElement>;
   /* Function that returns whether the message was sent by the connected user */
   mine?: () => boolean;
 };
@@ -60,7 +51,6 @@ export const MessageActions = <
     handlePin: propHandlePin,
     inline,
     message: propMessage,
-    messageWrapperRef,
     mine,
   } = props;
 
@@ -93,9 +83,11 @@ export const MessageActions = <
   const message = propMessage || contextMessage;
   const isMine = mine ? mine() : isMyMessage();
 
-  const [actionsBoxOpen, setActionsBoxOpen] = useState(false);
-
   const isMuted = useCallback(() => isUserMuted(message, mutes), [message, mutes]);
+
+  const dialogId = `message-actions--${message.id}`;
+  const dialog = useDialog({ id: dialogId });
+  const dialogIsOpen = useDialogIsOpen(dialogId);
 
   const messageActions = getMessageActions();
 
@@ -106,45 +98,7 @@ export const MessageActions = <
     messageActions,
   });
 
-  const hideOptions = useCallback((event: MouseEvent | KeyboardEvent) => {
-    if (event instanceof KeyboardEvent && event.key !== 'Escape') {
-      return;
-    }
-    setActionsBoxOpen(false);
-  }, []);
-  const messageDeletedAt = !!message?.deleted_at;
-
-  useEffect(() => {
-    if (messageWrapperRef?.current) {
-      messageWrapperRef.current.addEventListener('mouseleave', hideOptions);
-    }
-  }, [hideOptions, messageWrapperRef]);
-
-  useEffect(() => {
-    if (messageDeletedAt) {
-      document.removeEventListener('click', hideOptions);
-    }
-  }, [hideOptions, messageDeletedAt]);
-
-  useEffect(() => {
-    if (!actionsBoxOpen) return;
-
-    document.addEventListener('click', hideOptions);
-    document.addEventListener('keyup', hideOptions);
-
-    return () => {
-      document.removeEventListener('click', hideOptions);
-      document.removeEventListener('keyup', hideOptions);
-    };
-  }, [actionsBoxOpen, hideOptions]);
-
   const actionsBoxButtonRef = useRef<ElementRef<'button'>>(null);
-
-  const { attributes, popperElementRef, styles } = useMessageActionsBoxPopper<HTMLDivElement>({
-    open: actionsBoxOpen,
-    placement: isMine ? 'top-end' : 'top-start',
-    referenceElement: actionsBoxButtonRef.current,
-  });
 
   if (!renderMessageActions) return null;
 
@@ -152,28 +106,33 @@ export const MessageActions = <
     <MessageActionsWrapper
       customWrapperClass={customWrapperClass}
       inline={inline}
-      setActionsBoxOpen={setActionsBoxOpen}
+      toggleOpen={dialog?.toggle}
     >
-      <MessageActionsBox
-        {...attributes.popper}
-        getMessageActions={getMessageActions}
-        handleDelete={handleDelete}
-        handleEdit={setEditingState}
-        handleFlag={handleFlag}
-        handleMarkUnread={handleMarkUnread}
-        handleMute={handleMute}
-        handlePin={handlePin}
-        isUserMuted={isMuted}
-        mine={isMine}
-        open={actionsBoxOpen}
-        ref={popperElementRef}
-        style={styles.popper}
-      />
+      <DialogAnchor
+        id={dialogId}
+        placement={isMine ? 'top-end' : 'top-start'}
+        referenceElement={actionsBoxButtonRef.current}
+        trapFocus
+      >
+        <MessageActionsBox
+          getMessageActions={getMessageActions}
+          handleDelete={handleDelete}
+          handleEdit={setEditingState}
+          handleFlag={handleFlag}
+          handleMarkUnread={handleMarkUnread}
+          handleMute={handleMute}
+          handlePin={handlePin}
+          isUserMuted={isMuted}
+          mine={isMine}
+          open={dialogIsOpen}
+        />
+      </DialogAnchor>
       <button
-        aria-expanded={actionsBoxOpen}
+        aria-expanded={dialogIsOpen}
         aria-haspopup='true'
         aria-label={t('aria/Open Message Actions Menu')}
         className='str-chat__message-actions-box-button'
+        data-testid='message-actions-toggle-button'
         ref={actionsBoxButtonRef}
       >
         <ActionsIcon className='str-chat__message-action-icon' />
@@ -183,13 +142,13 @@ export const MessageActions = <
 };
 
 export type MessageActionsWrapperProps = {
-  setActionsBoxOpen: React.Dispatch<React.SetStateAction<boolean>>;
   customWrapperClass?: string;
   inline?: boolean;
+  toggleOpen?: () => void;
 };
 
 const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
-  const { children, customWrapperClass, inline, setActionsBoxOpen } = props;
+  const { children, customWrapperClass, inline, toggleOpen } = props;
 
   const defaultWrapperClass = clsx(
     'str-chat__message-simple__actions__action',
@@ -197,17 +156,10 @@ const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperPro
     'str-chat__message-actions-container',
   );
 
-  const wrapperClass = customWrapperClass || defaultWrapperClass;
-
-  const onClickOptionsAction = (event: React.BaseSyntheticEvent) => {
-    event.stopPropagation();
-    setActionsBoxOpen((prev) => !prev);
-  };
-
   const wrapperProps = {
-    className: wrapperClass,
+    className: customWrapperClass || defaultWrapperClass,
     'data-testid': 'message-actions',
-    onClick: onClickOptionsAction,
+    onClick: toggleOpen,
   };
 
   if (inline) return <span {...wrapperProps}>{children}</span>;

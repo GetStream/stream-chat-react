@@ -9,6 +9,7 @@ import {
   ChannelStateProvider,
   ChatProvider,
   ComponentProvider,
+  DialogManagerProvider,
   TranslationProvider,
 } from '../../../context';
 import {
@@ -65,9 +66,11 @@ async function renderQuotedMessage(customProps) {
                 Message: () => <MessageSimple channelConfig={channelConfig} />,
               }}
             >
-              <Message {...customProps}>
-                <QuotedMessage {...customProps} />
-              </Message>
+              <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
+                <Message {...customProps}>
+                  <QuotedMessage {...customProps} />
+                </Message>
+              </DialogManagerProvider>
             </ComponentProvider>
           </TranslationProvider>
         </ChannelActionProvider>

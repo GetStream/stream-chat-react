@@ -13,8 +13,9 @@ import { Avatar as AvatarMock } from '../../Avatar';
 
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { MessageProvider } from '../../../context/MessageContext';
+import { DialogManagerProvider } from '../../../context';
 
-import { generateReaction, generateUser } from '../../../mock-builders';
+import { generateMessage, generateReaction, generateUser } from '../../../mock-builders';
 
 jest.mock('../../Avatar', () => ({
   Avatar: jest.fn(() => <div data-testid='avatar' />),
@@ -35,11 +36,13 @@ const handleReactionMock = jest.fn();
 
 const renderComponent = (props) =>
   render(
-    <ComponentProvider value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}>
-      <MessageProvider value={{}}>
-        <ReactionSelector handleReaction={handleReactionMock} {...props} />
-      </MessageProvider>
-    </ComponentProvider>,
+    <DialogManagerProvider>
+      <ComponentProvider value={{ Avatar: AvatarMock, reactionOptions: defaultReactionOptions }}>
+        <MessageProvider value={{ message: generateMessage() }}>
+          <ReactionSelector handleReaction={handleReactionMock} {...props} />
+        </MessageProvider>
+      </ComponentProvider>
+    </DialogManagerProvider>,
   );
 
 describe('ReactionSelector', () => {
