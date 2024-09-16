@@ -10,11 +10,11 @@ With the release of v12 of our SDK we're also releasing new thread functionality
 
 ### Thread & ThreadManager
 
-Both [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) and [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) are new classes within [`stream-chat` package](https://www.npmjs.com/package/stream-chat) with own logic which updates their respective state objects to which integrators can subscribe to and render their UI accordingly. These classes (or rather instances of these classes) are utilised within React SDK. Read more about accessing state of these classes in our [SDK State Management documentation](../guides/sdk-state-management.mdx#thread-and-threadmanager).
+Both [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) and [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread_manager.ts) are new classes within [`stream-chat` package](https://www.npmjs.com/package/stream-chat) with own logic which updates their respective state objects to which integrators can subscribe to and render their UI accordingly. These classes (or rather instances of these classes) are utilised within React SDK. Read more about accessing state of these classes in our [SDK State Management documentation](../guides/sdk-state-management.mdx#thread-and-threadmanager).
 
 ### ThreadList & ThreadListItem
 
-[`ThreadList`](../components/core-components/thread-list.mdx) component represents a [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instance while [`ThreadListItem`](../components/core-components/thread-list-item.mdx) represents individual [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instances. UI of both of these components reflects latest state of their appropriate "controllers" but apart from communicating with their controllers via available methods these components do not manage any extra logic.
+[`ThreadList`](../components/core-components/thread-list.mdx) component represents a [`ThreadManager`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread_manager.ts) instance while [`ThreadListItem`](../components/core-components/thread-list-item.mdx) represents individual [`Thread`](https://github.com/GetStream/stream-chat-js/blob/master/src/thread.ts) instances. UI of both of these components reflects latest state of their appropriate "controllers" but apart from communicating with their controllers via available methods these components do not manage any extra logic.
 
 ### ThreadProvider
 
