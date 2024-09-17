@@ -1,3 +1,70 @@
+## [12.0.0](https://github.com/GetStream/stream-chat-react/compare/v11.23.9...v12.0.0) (2024-09-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* - own user will not anymore be filtered out of the selection list of users to mention if `mentionAllAppUsers` is enabled on MessageInput
+* - removes the following variables from `MessageContext`: isReactionEnabled, onReactionListClick, showDetailedReactions, reactionSelectorRef
+- removes prop `messageWrapperRef` from `MessageOptions` and `MessageActions` props.
+* ComponentContext no longer provides any defaults
+* removed Thread prop fullWidth, removed class str-chat__thread--full
+* removed Window prop hideOnThread, replaced class str-chat__main-panel--hideOnThread with str-chat__main-panel--thread-open
+* MP3 audio encoder has to be explicitly imported and
+used as a plugin for audio recordings. The default audio recording
+format is audio/wav.
+* @breezystack/lamejs became a peer dependency and has to
+be installed by the integrator so that the MP3 audio encoder can work
+properly.
+* Removed fileOrder, imageOrder, fileUploads,
+imageUploads, uploadFile, uploadImage, removeFile, removeImage from the
+MessageInputContext. Use attachments, uploadAttachment, uploadNewFiles, upsertAttachments, removeAttachments instead.
+* Removed default values for timestamp formatting props
+like calendar or format for DateSeparator, EventComponent,
+MessageTimestamp. The formatting configuration now entirely relies on
+i18n translations.
+* The VirtualizedMessageList does not provide default
+Footer component
+* The VirtualizedMessageList markup has changed as
+TypingIndicator is rendered as a child of MessageListMainPanel
+* stylesheet import path changed & v1 stylesheet has been dropped, see release guide for more information
+* theme v1 related markup and classNames have been removed
+* `themeVersion` property has been removed from `ChatContext`
+
+### Bug Fixes
+
+* add theme to ChatView component ([#2494](https://github.com/GetStream/stream-chat-react/issues/2494)) ([d477072](https://github.com/GetStream/stream-chat-react/commit/d4770722b54f236d88bd1d0c5c207402e012ae12))
+* address the circular dependencies among TranslationContext and Streami18n ([#2483](https://github.com/GetStream/stream-chat-react/issues/2483)) ([b91fd9a](https://github.com/GetStream/stream-chat-react/commit/b91fd9aa6fcdbdd9ec1fe7342c58011a0d34116d))
+* change platform for CJS bundle from node to browser ([#2454](https://github.com/GetStream/stream-chat-react/issues/2454)) ([4bc2d35](https://github.com/GetStream/stream-chat-react/commit/4bc2d3591900963290d87408279dc2b516206715))
+* do not rerender on client options update ([#2465](https://github.com/GetStream/stream-chat-react/issues/2465)) ([3899352](https://github.com/GetStream/stream-chat-react/commit/389935255e9d159827936f91a900d1b92573f633))
+* export typeVersions correctly for emojis and mp3-encoder ([#2449](https://github.com/GetStream/stream-chat-react/issues/2449)) ([17218db](https://github.com/GetStream/stream-chat-react/commit/17218dba4fedbbfbf17bb49ec6df0271671488f4))
+* extract MP3 encoder plugin ([#2447](https://github.com/GetStream/stream-chat-react/issues/2447)) ([625196f](https://github.com/GetStream/stream-chat-react/commit/625196f38fc0666f66492905584933da656afef0))
+* provide both browser and node cjs bundles ([#2457](https://github.com/GetStream/stream-chat-react/issues/2457)) ([273ea2a](https://github.com/GetStream/stream-chat-react/commit/273ea2aa481c4519013e095950fed8697f1fb9f8))
+* quote replies in threads ([#2487](https://github.com/GetStream/stream-chat-react/issues/2487)) ([0e4a6f1](https://github.com/GetStream/stream-chat-react/commit/0e4a6f17a53ce9ac6604c83d1d4688a8e29dc366))
+* remove the use of deprecated query operator $ne ([#2504](https://github.com/GetStream/stream-chat-react/issues/2504)) ([09614f6](https://github.com/GetStream/stream-chat-react/commit/09614f688a9fbeed66584202ac5c669fd0b5c0a4))
+* render typing indicator outside the VirtualizedMessageList scroll container ([#2406](https://github.com/GetStream/stream-chat-react/issues/2406)) ([d9442d2](https://github.com/GetStream/stream-chat-react/commit/d9442d2a419ee8737ac19c5663ffff04141d3650))
+* reuse useChannelPreviewInfo for ThreadListItemUI ([#2508](https://github.com/GetStream/stream-chat-react/issues/2508)) ([4bb5b7c](https://github.com/GetStream/stream-chat-react/commit/4bb5b7cd0a6a49ff315b62b6b425ca89d4a08a11))
+* update ChannelHeader and ChannelPreview titles and images on channel.updated ([#2500](https://github.com/GetStream/stream-chat-react/issues/2500)) ([f32fbb6](https://github.com/GetStream/stream-chat-react/commit/f32fbb6a9621e228a97c282ecdef43ef70eef075))
+
+
+### Features
+
+* add centralized dialog management ([#2489](https://github.com/GetStream/stream-chat-react/issues/2489)) ([8235d45](https://github.com/GetStream/stream-chat-react/commit/8235d45140e5ef4ffdb7f79c7c27fe5ac874f962))
+* add ThreadList and ThreadProvider (Threads 2.0) ([#2407](https://github.com/GetStream/stream-chat-react/issues/2407)) ([941707d](https://github.com/GetStream/stream-chat-react/commit/941707db13db1fb28a4feae2216f71f04656f197))
+* keep attachments array and remove file and image uploads in MessageInput state ([#2445](https://github.com/GetStream/stream-chat-react/issues/2445)) ([238e801](https://github.com/GetStream/stream-chat-react/commit/238e801f3ecd1997017ad56e7a24b52d81acb1a0))
+* remove default timestamp formatting props from DateSeparator, EventComponent, MessageTimestamp ([#2442](https://github.com/GetStream/stream-chat-react/issues/2442)) ([6431954](https://github.com/GetStream/stream-chat-react/commit/64319549249503c0381a8834e17dd3e8befeb953))
+* remove fullWidth prop from Thread & hideOnThread prop from Window ([#2450](https://github.com/GetStream/stream-chat-react/issues/2450)) ([32c8fc0](https://github.com/GetStream/stream-chat-react/commit/32c8fc08d3b6798cf0c9717200724b4b78a82e56))
+* remove legacy style components ([#2394](https://github.com/GetStream/stream-chat-react/issues/2394)) ([7bf63ae](https://github.com/GetStream/stream-chat-react/commit/7bf63ae79fa6ad508407647dfec9abbc365a576f))
+
+
+### Chores
+
+* **deps:** bump @stream-io/stream-chat-css to version 5.0.0 ([9580a3f](https://github.com/GetStream/stream-chat-react/commit/9580a3f78f1b1a8e4e0037bef4035b89fb95267f))
+* **deps:** bump @stream-io/stream-chat-css to version 5.0.0-rc.1nvm ([e9cf42f](https://github.com/GetStream/stream-chat-react/commit/e9cf42f242de23494267dc7187fa017fa32d3be4))
+* **deps:** bump stream-chat to version 8.40.8 ([#2510](https://github.com/GetStream/stream-chat-react/issues/2510)) ([5cc7a09](https://github.com/GetStream/stream-chat-react/commit/5cc7a090a41dc1289fa07bcc039537d2816d52e0))
+* **deps:** remove unused isomorphic-ws from dependencies ([853bd8b](https://github.com/GetStream/stream-chat-react/commit/853bd8bdcb61f50362c0f1183190146c5bcac103))
+* **deps:** upgrade @stream-io/stream-chat-css to v5.0.0-rc.4 ([#2492](https://github.com/GetStream/stream-chat-react/issues/2492)) ([6e30cb5](https://github.com/GetStream/stream-chat-react/commit/6e30cb5300afad39ef2ff4d44b6dc69a247317e4))
+* **deps:** upgrade @stream-io/stream-chat-css to v5.0.0-rc.5 ([#2495](https://github.com/GetStream/stream-chat-react/issues/2495)) ([2b8fa32](https://github.com/GetStream/stream-chat-react/commit/2b8fa3220e7875c67eebbab2e0a3430c45d60c72))
+
 ## [12.0.0-rc.15](https://github.com/GetStream/stream-chat-react/compare/v12.0.0-rc.14...v12.0.0-rc.15) (2024-09-16)
 
 
