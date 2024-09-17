@@ -6,8 +6,13 @@
       "prerelease": "rc"
     },
     {
-      "name": "release-v11",
+      "name": "release-v12",
       "channel": "latest"
+    },
+    {
+      "name": "release-v11",
+      "channel": "v11",
+      "range": "11.x"
     },
     {
       "name": "release-v10",
