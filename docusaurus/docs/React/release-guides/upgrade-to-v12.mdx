@@ -91,10 +91,12 @@ const MessageInputUi2 = () => {
 
 ## Audio recordings transcoding
 
-Until now, the audio recordings were transcoded to `audio/mp3` format for inter-browser compatibility and size reduction. However, as of the v12, the MIME type `audio/wav` will be the default. The MP3 encoder use is opt-in from now on.
+Until now the audio recordings were transcoded to audio/mp3. As of v12, the MIME-type audio/wav will be the default.
+You can still opt-in to MP3 and benefit from the reduced file size and bandwidth usage:
 
 :::important
 **Action required**<br/>
+To opt into MP3 transcoding follow these steps:
 
 1. The library `@breezystack/lamejs` has to be installed as this is a peer dependency to `stream-chat-react`.
 
