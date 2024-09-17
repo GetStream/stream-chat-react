@@ -2,12 +2,16 @@
   "branches": [
     {
       "name": "master",
-      "channel": "rc",
-      "prerelease": "rc"
+      "channel": "latest"
+    },
+    {
+      "name": "release-v12",
+      "channel": "latest"
     },
     {
       "name": "release-v11",
-      "channel": "latest"
+      "channel": "v11",
+      "range": "11.x"
     },
     {
       "name": "release-v10",
