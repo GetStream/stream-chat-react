@@ -8,6 +8,8 @@ import { Timestamp } from '../../Message/Timestamp';
 import { Avatar } from '../../Avatar';
 import { Icon } from '../icons';
 import { UnreadCountBadge } from '../UnreadCountBadge';
+
+import { useChannelPreviewInfo } from '../../ChannelPreview';
 import { useChatContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
@@ -18,9 +20,6 @@ export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'>;
 /**
  * TODO:
  * - maybe hover state? ask design
- * - move styling to CSS library and clean it up (separate layout and theme)
- * - use Moment/DayJs for proper created_at formatting (replace toLocaleTimeString)
- * - handle deleted message [in progress]
  */
 
 export const attachmentTypeIconMap = {
@@ -84,10 +83,12 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
     [client],
   );
 
-  const [latestReply, ownUnreadMessageCount, parentMessage, channelData, deletedAt] = useStateStore(
+  const [latestReply, ownUnreadMessageCount, parentMessage, channel, deletedAt] = useStateStore(
     thread.state,
     selector,
   );
+
+  const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
 
@@ -104,9 +105,7 @@ export const ThreadListItemUI = (props: ThreadListItemUIProps) => {
     >
       <div className='str-chat__thread-list-item__channel'>
         <Icon.MessageBubble />
-        <div className='str-chat__thread-list-item__channel-text'>
-          {channelData.data?.name || 'N/A'}
-        </div>
+        <div className='str-chat__thread-list-item__channel-text'>{channelDisplayTitle}</div>
       </div>
       <div className='str-chat__thread-list-item__parent-message'>
         <div className='str-chat__thread-list-item__parent-message-text'>
