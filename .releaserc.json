@@ -2,8 +2,7 @@
   "branches": [
     {
       "name": "master",
-      "channel": "rc",
-      "prerelease": "rc"
+      "channel": "latest"
     },
     {
       "name": "release-v12",
