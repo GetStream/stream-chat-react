@@ -9,9 +9,16 @@ The `stream-chat-react` package follows semantic versioning and the release is t
 
 In order to get the above generated outputs, each contributor should follow [Angular's Commit Message Format rules](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format).
 
+## Major version release preparations
+
+We need to:
+1. Convert the current latest branch to a version branch by creating a PR with adjusted `.releaserc.json`. Example PR: https://github.com/GetStream/stream-chat-react/pull/2507
+
+2. Configure the `master` branch back from `prerelease` to `latest` and add a config for the next version branch also designated as `latest`. Example PR: https://github.com/GetStream/stream-chat-react/pull/2506.
+
 ## Required steps
 
-At the moment these manual actions have to be taken to achieve a successfull release:
+At the moment these manual actions have to be taken to achieve a successful release:
 
 1. make sure that all the new required features and bug fixes in peer dependency repositories `@stream-io/stream-chat-css` and `stream-chat-js` are released
 2. make sure that the peer dependencies `@stream-io/stream-chat-css` and `stream-chat-js` are installed at their latest version (see `package.json`, `yarn.lock`) (if applicable)
