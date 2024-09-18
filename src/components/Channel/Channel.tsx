@@ -885,9 +885,13 @@ const ChannelInner = <
 
   const updateMessage = (
     updatedMessage: MessageToSend<StreamChatGenerics> | StreamMessage<StreamChatGenerics>,
+    timestampChanged = true,
   ) => {
     // add the message to the local channel state
-    channel.state.addMessageSorted(updatedMessage as MessageResponse<StreamChatGenerics>, true);
+    channel.state.addMessageSorted(
+      updatedMessage as MessageResponse<StreamChatGenerics>,
+      timestampChanged,
+    );
 
     dispatch({
       channel,

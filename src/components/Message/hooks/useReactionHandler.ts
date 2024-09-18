@@ -93,7 +93,7 @@ export const useReactionHandler = <
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
-      updateMessage(tempMessage);
+      updateMessage(tempMessage, false);
       // @ts-expect-error
       thread?.upsertReplyLocally({ message: tempMessage });
 
@@ -102,10 +102,10 @@ export const useReactionHandler = <
         : await channel.deleteReaction(id, type);
 
       // seems useless as we're expecting WS event to come in and replace this anyway
-      updateMessage(messageResponse.message);
+      updateMessage(messageResponse.message, false);
     } catch (error) {
       // revert to the original message if the API call fails
-      updateMessage(message);
+      updateMessage(message, false);
       // @ts-expect-error
       thread?.upsertReplyLocally({ message });
     }
