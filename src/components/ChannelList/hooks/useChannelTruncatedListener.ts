@@ -35,6 +35,5 @@ export const useChannelTruncatedListener = <
     return () => {
       client.off('channel.truncated', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customHandler]);
+  }, [client, customHandler, forceUpdate, setChannels]);
 };

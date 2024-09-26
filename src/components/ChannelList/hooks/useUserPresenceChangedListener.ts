@@ -36,6 +36,5 @@ export const useUserPresenceChangedListener = <
     return () => {
       client.off('user.presence.changed', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [client, setChannels]);
 };

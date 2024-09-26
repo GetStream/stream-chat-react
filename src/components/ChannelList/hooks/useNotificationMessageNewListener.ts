@@ -40,6 +40,5 @@ export const useNotificationMessageNewListener = <
     return () => {
       client.off('notification.message_new', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customHandler]);
+  }, [allowNewMessagesFromUnfilteredChannels, client, customHandler, setChannels]);
 };

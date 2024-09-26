@@ -39,6 +39,5 @@ export const useChannelHiddenListener = <
     return () => {
       client.off('channel.hidden', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customHandler]);
+  }, [client, customHandler, setChannels]);
 };
