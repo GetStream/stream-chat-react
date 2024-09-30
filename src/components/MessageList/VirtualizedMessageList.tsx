@@ -23,7 +23,7 @@ import { useMarkRead } from './hooks/useMarkRead';
 
 import { MessageNotification as DefaultMessageNotification } from './MessageNotification';
 import { MessageListNotifications as DefaultMessageListNotifications } from './MessageListNotifications';
-import { MessageListMainPanel } from './MessageListMainPanel';
+import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 import {
   getGroupStyles,
   getLastReceived,
@@ -235,6 +235,7 @@ const VirtualizedMessageListWithContext = <
     MessageListNotifications = DefaultMessageListNotifications,
     MessageNotification = DefaultMessageNotification,
     MessageSystem = DefaultMessageSystem,
+    MessageListMainPanel = DefaultMessageListMainPanel,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageSimple,

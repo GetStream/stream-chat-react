@@ -49,7 +49,12 @@ import type {
 
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
 import type { TimestampProps } from '../components/Message/Timestamp';
-import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import type {
+  CustomTrigger,
+  DefaultStreamChatGenerics,
+  PropsWithChildrenOnly,
+  UnknownType,
+} from '../types/types';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -78,6 +83,7 @@ export type ComponentContextValue<
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   MessageDeleted?: React.ComponentType<MessageDeletedProps<StreamChatGenerics>>;
+  MessageListMainPanel?: React.ComponentType<PropsWithChildrenOnly>;
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
