@@ -25,6 +25,7 @@ import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyState
 import { ScrollToBottomButton } from '../ScrollToBottomButton';
 import { MessageListNotifications } from '../MessageListNotifications';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
+import { nanoid } from 'nanoid';
 
 expect.extend(toHaveNoViolations);
 
@@ -326,7 +327,11 @@ describe('MessageList', () => {
   });
 
   describe('unread messages', () => {
-    const messages = Array.from({ length: 5 }, generateMessage);
+    const timestamp = new Date().getTime();
+    const messages = Array.from({ length: 5 }, (_, index) =>
+      generateMessage({ created_at: new Date(timestamp + index * 1000).toISOString() }),
+    );
+
     const unread_messages = 2;
     const lastReadMessage = messages[unread_messages];
     const separatorText = `Unread messages`;
@@ -668,24 +673,34 @@ describe('MessageList', () => {
             msgListProps,
           });
           if (expected === 'should') {
-            expect(screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID)).toBeInTheDocument();
+            await waitFor(() =>
+              expect(
+                screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
+              ).toBeInTheDocument(),
+            );
           } else {
-            expect(
-              screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
-            ).not.toBeInTheDocument();
+            await waitFor(() =>
+              expect(
+                screen.queryByTestId(UNREAD_MESSAGES_NOTIFICATION_TEST_ID),
+              ).not.toBeInTheDocument(),
+            );
           }
         },
       );
 
       it('should display custom unread messages notification', async () => {
-        const customUnreadMessagesNotificationText = 'customUnreadMessagesNotificationText';
-        const UnreadMessagesNotification = () => <div>{customUnreadMessagesNotificationText}</div>;
+        const customUnreadMessagesNotificationText = nanoid();
+        const UnreadMessagesNotification = () => (
+          <div data-testid={customUnreadMessagesNotificationText}>aaa</div>
+        );
         await setupTest({
           channelProps: { UnreadMessagesNotification },
           entries: observerEntriesScrolledBelowSeparator,
         });
 
-        expect(screen.getByText(customUnreadMessagesNotificationText)).toBeInTheDocument();
+        await waitFor(() =>
+          expect(screen.getByTestId(customUnreadMessagesNotificationText)).toBeInTheDocument(),
+        );
       });
 
       it('should not display unread messages notification when unread count is 0', async () => {
