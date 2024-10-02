@@ -23,6 +23,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
+import { Poll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -30,6 +31,7 @@ import { MessageContextValue, useMessageContext } from '../../context/MessageCon
 
 import { useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
+import type { PollResponse } from 'stream-chat';
 
 import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -176,6 +178,7 @@ const MessageSimpleWithContext = <
               {hasReactions && <ReactionsList reverse />}
             </div>
             <div className='str-chat__message-bubble'>
+              {message.poll && <Poll poll={message.poll as PollResponse<StreamChatGenerics>} />}
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}

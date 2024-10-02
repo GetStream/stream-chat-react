@@ -41,8 +41,9 @@ export const useUserRole = <
   const isMyMessage = client.userID === message.user?.id;
 
   const canEdit =
-    (!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
-    (isMyMessage && channelCapabilities['update-own-message']);
+    !message.poll &&
+    ((!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
+      (isMyMessage && channelCapabilities['update-own-message']));
 
   const canDelete =
     channelCapabilities['delete-any-message'] ||

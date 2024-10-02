@@ -69,6 +69,8 @@ export type DefaultStreamChatGenerics = ExtendableGenerics & {
   commandType: LiteralStringForUnion;
   eventType: UnknownType;
   messageType: DefaultMessageType;
+  pollOptionType: UnknownType;
+  pollType: UnknownType;
   reactionType: UnknownType;
   userType: DefaultUserType;
 };
