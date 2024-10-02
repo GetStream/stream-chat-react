@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { TranslationLanguages } from 'stream-chat';
+import type { PollResponse, TranslationLanguages } from 'stream-chat';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -11,6 +11,7 @@ import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
+import { QuotedPoll } from '../Poll';
 
 export const QuotedMessagePreviewHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -73,12 +74,18 @@ export const QuotedMessagePreview = <
         />
       )}
       <div className='str-chat__quoted-message-bubble'>
-        {!!quotedMessageAttachment.length && (
-          <Attachment attachments={quotedMessageAttachment} isQuoted />
+        {quotedMessage.poll ? (
+          <QuotedPoll poll={quotedMessage.poll as PollResponse<StreamChatGenerics>} />
+        ) : (
+          <>
+            {!!quotedMessageAttachment.length && (
+              <Attachment attachments={quotedMessageAttachment} isQuoted />
+            )}
+            <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
+              <p>{quotedMessageText}</p>
+            </div>
+          </>
         )}
-        <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
-          <p>{quotedMessageText}</p>
-        </div>
       </div>
     </div>
   );

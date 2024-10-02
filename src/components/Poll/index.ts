@@ -1,1 +1,2 @@
-export { Poll } from './Poll';
+export * from './Poll';
+export * from './QuotedPoll';
