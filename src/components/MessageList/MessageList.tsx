@@ -30,7 +30,7 @@ import { InfiniteScroll, InfiniteScrollProps } from '../InfiniteScrollPaginator/
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
 import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
-import { MessageListMainPanel } from './MessageListMainPanel';
+import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
 import { defaultRenderMessages, MessageRenderer } from './renderMessages';
 
@@ -104,6 +104,7 @@ const MessageListWithContext = <
     MessageNotification = DefaultMessageNotification,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
+    MessageListMainPanel = DefaultMessageListMainPanel,
   } = useComponentContext<StreamChatGenerics>('MessageList');
 
   const {

@@ -36,10 +36,10 @@ export const useUnreadMessagesNotification = ({
       return;
     }
 
-    const msgListPanel = document.querySelector(`.${MESSAGE_LIST_MAIN_PANEL_CLASS}`);
+    const [msgListPanel] = document.getElementsByClassName(MESSAGE_LIST_MAIN_PANEL_CLASS);
     if (!msgListPanel) return;
 
-    const observedTarget = document.querySelector(`.${UNREAD_MESSAGE_SEPARATOR_CLASS}`);
+    const [observedTarget] = document.getElementsByClassName(UNREAD_MESSAGE_SEPARATOR_CLASS);
     if (!observedTarget) {
       setShow(true);
       return;
