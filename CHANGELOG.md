@@ -1,3 +1,10 @@
+## [12.1.0](https://github.com/GetStream/stream-chat-react/compare/v12.0.0...v12.1.0) (2024-10-02)
+
+
+### Features
+
+* add MessageListMainPanel to ComponentContext ([#2528](https://github.com/GetStream/stream-chat-react/issues/2528)) ([32928f3](https://github.com/GetStream/stream-chat-react/commit/32928f33ad2691b565b0cedce1ef22c70008ae61))
+
 ## [12.0.0](https://github.com/GetStream/stream-chat-react/compare/v11.23.9...v12.0.0) (2024-09-17)
 
 
