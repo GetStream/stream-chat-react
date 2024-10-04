@@ -159,3 +159,5 @@ export type Readable<T> = {
 } & {};
 
 export type ValuesType<T> = T[keyof T];
+
+export type PartialSelected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

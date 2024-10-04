@@ -22,6 +22,7 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
+import { DialogManagerProvider } from '../../context';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -167,19 +168,21 @@ const UnMemoizedMessageInput = <
 
   if (dragAndDropWindow)
     return (
-      <>
+      <DialogManagerProvider id='message-input-dialog-manager'>
         <TriggerProvider>
           <Input />
         </TriggerProvider>
-      </>
+      </DialogManagerProvider>
     );
 
   return (
-    <MessageInputProvider {...props}>
-      <TriggerProvider>
-        <Input />
-      </TriggerProvider>
-    </MessageInputProvider>
+    <DialogManagerProvider id='message-input-dialog-manager'>
+      <MessageInputProvider {...props}>
+        <TriggerProvider>
+          <Input />
+        </TriggerProvider>
+      </MessageInputProvider>
+    </DialogManagerProvider>
   );
 };
 

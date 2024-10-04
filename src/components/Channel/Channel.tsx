@@ -103,6 +103,8 @@ type ChannelPropsForwardedToComponentContext<
   Attachment?: ComponentContextValue<StreamChatGenerics>['Attachment'];
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: ComponentContextValue<StreamChatGenerics>['AttachmentPreviewList'];
+  /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
+  AttachmentSelector?: ComponentContextValue<StreamChatGenerics>['AttachmentSelector'];
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: ComponentContextValue<StreamChatGenerics>['AudioRecorder'];
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -1256,6 +1258,7 @@ const ChannelInner = <
     () => ({
       Attachment: props.Attachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
+      AttachmentSelector: props.AttachmentSelector,
       AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -1306,6 +1309,7 @@ const ChannelInner = <
     [
       props.Attachment,
       props.AttachmentPreviewList,
+      props.AttachmentSelector,
       props.AudioRecorder,
       props.AutocompleteSuggestionItem,
       props.AutocompleteSuggestionList,

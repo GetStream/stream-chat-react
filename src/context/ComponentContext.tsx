@@ -50,6 +50,7 @@ import type {
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
 import type { TimestampProps } from '../components/Message/Timestamp';
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../types/types';
+import { AttachmentSelectorProps } from '../components/MessageInput/AttachmentSelector';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -57,6 +58,7 @@ export type ComponentContextValue<
 > = {
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  AttachmentSelector?: React.ComponentType<AttachmentSelectorProps>;
   AudioRecorder?: React.ComponentType;
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps<StreamChatGenerics>>;
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps<StreamChatGenerics>>;

@@ -53,7 +53,7 @@ export function useDialogAnchor<T extends HTMLElement>({
   };
 }
 
-type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
+export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
   id: string;
   focus?: boolean;
   trapFocus?: boolean;

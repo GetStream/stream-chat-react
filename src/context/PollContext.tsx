@@ -3,7 +3,7 @@ import { Poll } from 'stream-chat';
 import { useChatContext } from './ChatContext';
 
 import type { PollResponse } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../types/types';
+import type { DefaultStreamChatGenerics } from '../types';
 
 export type PollContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

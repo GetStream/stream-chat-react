@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { UploadButton } from '../ReactFileUtilities';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { useDropzone } from 'react-dropzone';
-import { nanoid } from 'nanoid';
-
-import { UploadIcon as DefaultUploadIcon } from './icons';
+import { AttachmentSelector as DefaultAttachmentSelector } from './AttachmentSelector';
+// import { SimpleAttachmentSelector as DefaultAttachmentSelector } from './AttachmentSelector';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
@@ -59,8 +57,8 @@ export const MessageInputFlat = <
   const {
     AudioRecorder = DefaultAudioRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
+    AttachmentSelector = DefaultAttachmentSelector,
     CooldownTimer = DefaultCooldownTimer,
-    FileUploadIcon = DefaultUploadIcon,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
     RecordingPermissionDeniedNotification = DefaultRecordingPermissionDeniedNotification,
@@ -84,7 +82,6 @@ export const MessageInputFlat = <
     setShowRecordingPermissionDeniedNotification(false);
   }, []);
 
-  const id = useMemo(() => nanoid(), []);
   const failedUploadsCount = useMemo(
     () => attachments.filter((a) => a.localMetadata?.uploadState === 'failed').length,
     [attachments],
@@ -161,21 +158,7 @@ export const MessageInputFlat = <
         {displayQuotedMessage && <QuotedMessagePreviewHeader />}
 
         <div className='str-chat__message-input-inner'>
-          <div className='str-chat__file-input-container' data-testid='file-upload-button'>
-            <UploadButton
-              accept={acceptedFiles?.join(',')}
-              aria-label={t('aria/File upload')}
-              className='str-chat__file-input'
-              data-testid='file-input'
-              disabled={!isUploadEnabled || maxFilesLeft === 0}
-              id={id}
-              multiple={multipleUploads}
-              onFileChange={uploadNewFiles}
-            />
-            <label className='str-chat__file-input-label' htmlFor={id}>
-              <FileUploadIcon />
-            </label>
-          </div>
+          <AttachmentSelector />
           <div className='str-chat__message-textarea-container'>
             {displayQuotedMessage && <QuotedMessagePreview quotedMessage={quotedMessage} />}
             {isUploadEnabled &&
