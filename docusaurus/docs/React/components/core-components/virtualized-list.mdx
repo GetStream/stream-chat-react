@@ -209,6 +209,35 @@ The messages to render in the list, provide your own array to override the data 
 | ----- | -------------------------------------------------------------------------------------- |
 | array | [ChannelStateContextValue['messages']](../contexts/channel-state-context.mdx#messages) |
 
+### openThread
+
+Custom handler invoked when the button in the `Message` component that opens [`Thread`](./thread.mdx) component is clicked. To be able to define custom logic to `openThread`, we need to have a wrapper around `VirtualizedMessageList` component and reach out to `ChannelActionContext` for the default `openThread` function.
+
+```tsx
+import { useCallback } from 'react';
+import { VirtualizedMessageList, useChannelActionContext } from 'stream-chat-react';
+import type { StreamMessage } from 'stream-chat-react';
+import type { StreamChatGenerics } from './types';
+
+const MessageListWrapper = () => {
+  const { openThread: contextOpenThread } = useChannelActionContext<StreamChatGenerics>();
+
+  const openThread = useCallback(
+    (message: StreamMessage<StreamChatGenerics>, event?: React.BaseSyntheticEvent) => {
+      // custom logic
+      contextOpenThread(message, event);
+    },
+    [contextOpenThread],
+  );
+
+  return <VirtualizedMessageList openThread={openThread} />;
+};
+```
+
+| Type                                                                 | Default                                                                                      |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `(message: StreamMessage, event?: React.BaseSyntheticEvent) => void` | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
+
 ### overscan
 
 The amount of extra content the list should render in addition to what's necessary to fill in the viewport.

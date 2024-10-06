@@ -65,20 +65,24 @@ import type { Channel, ChannelState as StreamChannelState, UserResponse } from '
 import type { DefaultStreamChatGenerics, UnknownType } from '../../types/types';
 import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 
-type VirtualizedMessageListPropsForContext =
+type PropsDrilledToMessage =
   | 'additionalMessageInputProps'
-  | 'closeReactionSelectorOnClick'
   | 'customMessageActions'
-  | 'customMessageRenderer'
   | 'formatDate'
+  | 'messageActions'
+  | 'openThread'
+  | 'reactionDetailsSort'
+  | 'sortReactions'
+  | 'sortReactionDetails';
+
+type VirtualizedMessageListPropsForContext =
+  | PropsDrilledToMessage
+  | 'closeReactionSelectorOnClick'
+  | 'customMessageRenderer'
   | 'head'
   | 'loadingMore'
   | 'Message'
-  | 'messageActions'
   | 'shouldGroupByUser'
-  | 'reactionDetailsSort'
-  | 'sortReactions'
-  | 'sortReactionDetails'
   | 'threadList';
 
 /**
@@ -202,6 +206,7 @@ const VirtualizedMessageListWithContext = <
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages,
     notifications,
+    openThread,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
     overscan = 0,
     read,
@@ -469,6 +474,7 @@ const VirtualizedMessageListWithContext = <
                 messageGroupStyles,
                 MessageSystem,
                 numItemsPrepended,
+                openThread,
                 ownMessagesReadByOthers,
                 processedMessages,
                 reactionDetailsSort,
@@ -517,15 +523,6 @@ const VirtualizedMessageListWithContext = <
     </>
   );
 };
-
-type PropsDrilledToMessage =
-  | 'additionalMessageInputProps'
-  | 'customMessageActions'
-  | 'formatDate'
-  | 'messageActions'
-  | 'reactionDetailsSort'
-  | 'sortReactions'
-  | 'sortReactionDetails';
 
 export type VirtualizedMessageListProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
