@@ -1,3 +1,10 @@
+## [11.24.0](https://github.com/GetStream/stream-chat-react/compare/v11.23.10...v11.24.0) (2024-10-07)
+
+
+### Features
+
+* add openThread prop to VirtualizedMessageList ([#2523](https://github.com/GetStream/stream-chat-react/issues/2523)) ([791f1fa](https://github.com/GetStream/stream-chat-react/commit/791f1fa44eef8fa7700964596a8fe62b9f74ee9f))
+
 ## [11.23.10](https://github.com/GetStream/stream-chat-react/compare/v11.23.9...v11.23.10) (2024-09-16)
 
 
