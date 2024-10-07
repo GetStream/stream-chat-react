@@ -252,7 +252,9 @@ const UnMemoizedChannelList = <
    * For some events, inner properties on the channel will update but the shallow comparison will not
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
-  const forceUpdate = () => setChannelUpdateCount((count) => count + 1);
+  const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), [
+    setChannelUpdateCount,
+  ]);
 
   const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {

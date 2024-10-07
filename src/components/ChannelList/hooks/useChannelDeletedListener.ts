@@ -27,7 +27,7 @@ export const useChannelDeletedListener = <
 
           if (channelIndex < 0) return [...channels];
 
-          // Remove the deleted channel from the list.s
+          // Remove the deleted channel from the list
           channels.splice(channelIndex, 1);
 
           return [...channels];
@@ -40,6 +40,5 @@ export const useChannelDeletedListener = <
     return () => {
       client.off('channel.deleted', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customHandler]);
+  }, [client, customHandler, setChannels]);
 };

@@ -39,6 +39,5 @@ export const useChannelVisibleListener = <
     return () => {
       client.off('channel.visible', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customHandler]);
+  }, [client, customHandler, setChannels]);
 };
