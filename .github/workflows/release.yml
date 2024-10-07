@@ -6,6 +6,10 @@ on:
         description: Skip package release and publish documentation only
         default: false
         type: boolean
+      skip_docs:
+        description: Skip publishing the documentation
+        default: false
+        type: boolean
       dry_run:
         description: Run package release in "dry run" mode (does not publish either)
         default: false
@@ -56,7 +60,7 @@ jobs:
     name: Publish documentation from "${{ github.ref_name }}" branch to ${{ inputs.docs_env }}
     runs-on: ubuntu-latest
     # skip during dry runs, publish to production only from master or branches with names starting with "release", publish to staging from anywhere
-    if: ${{ !inputs.dry_run && (((github.ref_name == 'master' || startsWith(github.ref_name, 'release')) && inputs.docs_env == 'production') || inputs.docs_env == 'staging') }}
+    if: ${{ !inputs.dry_run && !inputs.skip_docs && (((github.ref_name == 'master' || startsWith(github.ref_name, 'release')) && inputs.docs_env == 'production') || inputs.docs_env == 'staging') }}
     outputs:
       target-version: $${{ steps.target-version.outputs }}
     steps:
