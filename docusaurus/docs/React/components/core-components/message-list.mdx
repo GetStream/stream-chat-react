@@ -396,11 +396,32 @@ Custom action handler function to run on hover of user avatar.
 
 ### openThread
 
-Custom action handler to open a [`Thread`](./thread.mdx) component.
+Custom handler invoked when the button in the `Message` component that opens [`Thread`](./thread.mdx) component is clicked. To be able to define custom logic to `openThread`, we need to have a wrapper around `MessageList` component and reach out to `ChannelActionContext` for the default `openThread` function.
 
-| Type     | Default                                                                                      |
-| -------- | -------------------------------------------------------------------------------------------- |
-| function | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
+```tsx
+import { useCallback } from 'react';
+import { MessageList, useChannelActionContext } from 'stream-chat-react';
+import type { StreamMessage } from 'stream-chat-react';
+import type { StreamChatGenerics } from './types';
+
+const MessageListWrapper = () => {
+  const { openThread: contextOpenThread } = useChannelActionContext<StreamChatGenerics>();
+
+  const openThread = useCallback(
+    (message: StreamMessage<StreamChatGenerics>, event?: React.BaseSyntheticEvent) => {
+      // custom logic
+      contextOpenThread(message, event);
+    },
+    [contextOpenThread],
+  );
+
+  return <MessageList openThread={openThread} />;
+};
+```
+
+| Type                                                                 | Default                                                                                      |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `(message: StreamMessage, event?: React.BaseSyntheticEvent) => void` | [ChannelActionContextValue['openThread']](../contexts/channel-action-context.mdx#openthread) |
 
 ### pinPermissions
 
