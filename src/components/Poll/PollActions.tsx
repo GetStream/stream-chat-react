@@ -92,7 +92,7 @@ export const PollActions = <
           openModal={() => setModalOpen('suggest-option')}
         >
           <FormDialog<{ optionText: '' }>
-            className='str-chat__modal__suggest-poll-option'
+            className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'
             close={closeModal}
             fields={{
               optionText: {
@@ -123,7 +123,7 @@ export const PollActions = <
           openModal={() => setModalOpen('add-comment')}
         >
           <FormDialog<{ comment: '' }>
-            className='str-chat__modal__poll-add-comment'
+            className='str-chat__prompt-dialog str-chat__modal__poll-add-comment'
             close={closeModal}
             fields={{
               comment: {

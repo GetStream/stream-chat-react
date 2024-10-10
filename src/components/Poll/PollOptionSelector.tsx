@@ -38,7 +38,6 @@ type PollStateSelectorReturnValue<
   Record<string, PollVote<StreamChatGenerics>[]>,
   string[],
   Record<string, string>,
-  number,
   Record<string, number>,
 ];
 const pollStateSelector = <
@@ -50,7 +49,6 @@ const pollStateSelector = <
   nextValue.latest_votes_by_option,
   nextValue.maxVotedOptionIds,
   nextValue.ownVotesByOptionId,
-  nextValue.vote_count,
   nextValue.vote_counts_by_option,
 ];
 
@@ -79,11 +77,11 @@ export const PollOptionSelector = <
     latest_votes_by_option,
     maxVotedOptionIds,
     ownVotesByOptionId,
-    vote_count,
     vote_counts_by_option,
   ] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(pollStateSelector);
   const poll = usePoll();
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const winningOptionCount = maxVotedOptionIds[0] ? vote_counts_by_option[maxVotedOptionIds[0]] : 0;
 
   return (
     <div
@@ -92,6 +90,7 @@ export const PollOptionSelector = <
       })}
       key={`base-poll-option-${option.id}`}
       onClick={() => {
+        // todo: throttle
         if (!canCastVote) return;
         const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
         return haveVotedForTheOption
@@ -124,7 +123,9 @@ export const PollOptionSelector = <
         </div>
       </div>
       <AmountBar
-        amount={(vote_count && (vote_counts_by_option[option.id] ?? 0) / vote_count) * 100}
+        amount={
+          (winningOptionCount && (vote_counts_by_option[option.id] ?? 0) / winningOptionCount) * 100
+        }
         className={clsx('str-chat__poll-option__votes-bar', {
           'str-chat__poll-option__votes-bar--winner':
             is_closed && maxVotedOptionIds.length === 1 && maxVotedOptionIds[0] === option.id,

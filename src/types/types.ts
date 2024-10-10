@@ -161,3 +161,7 @@ export type Readable<T> = {
 export type ValuesType<T> = T[keyof T];
 
 export type PartialSelected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type DeepRequired<T> = {
+  [K in keyof T]-?: T[K] extends object ? DeepRequired<T[K]> : T[K];
+};

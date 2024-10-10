@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
-import { ModalHeader } from '../ModalHeader';
+import { ModalHeader } from '../../../Modal/ModalHeader';
 import { PollOptionVotesList } from './PollOptionVotesList';
 import { PollOptionWithLatestVotes } from './PollOptionWithLatestVotes';
 import { usePollState } from '../../hooks';
@@ -21,6 +21,7 @@ export type PollResultsProps = {
   close?: () => void;
 };
 
+// todo: sort options by vote count
 export const PollResults = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({

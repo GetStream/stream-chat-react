@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModalHeader } from './ModalHeader';
+import { ModalHeader } from '../../Modal/ModalHeader';
 import { usePollState } from '../hooks';
 import { PollOptionList } from '../PollOptionList';
 import { useTranslationContext } from '../../../context';

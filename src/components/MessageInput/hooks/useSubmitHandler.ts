@@ -65,7 +65,13 @@ export const useSubmitHandler = <
       trimmedMessage === '__' ||
       trimmedMessage === '****';
 
-    if (isEmptyMessage && numberOfUploads === 0 && attachments.length === 0) return;
+    if (
+      isEmptyMessage &&
+      numberOfUploads === 0 &&
+      attachments.length === 0 &&
+      !customMessageData?.poll_id
+    )
+      return;
     const someAttachmentsUploading = attachments.some(
       (att) => att.localMetadata?.uploadState === 'uploading',
     );

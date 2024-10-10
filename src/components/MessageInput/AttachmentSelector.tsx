@@ -1,6 +1,9 @@
 import { nanoid } from 'nanoid';
-import React, { ElementRef, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ElementRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
+import { Modal } from '../Modal';
+import { PollCreationDialog } from '../Poll/modals/PollCreationDialog';
+import { Portal } from '../Portal/Portal';
 import { UploadFileInput } from '../ReactFileUtilities';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
@@ -41,31 +44,41 @@ export const AttachmentSelector = <
 >() => {
   const { t } = useTranslationContext('AttachmentSelectorActionsMenu');
   const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
-  const [input, setInput] = useState<HTMLInputElement | null>(null);
+
+  const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
 
   const menuButtonRef = useRef<ElementRef<'button'>>(null);
 
-  const dialogId = 'attachment-actions-menu';
-  const dialog = useDialog({ id: dialogId });
-  const dialogIsOpen = useDialogIsOpen(dialogId);
+  const menuDialogId = 'attachment-actions-menu';
+  const menuDialog = useDialog({ id: menuDialogId });
+  const menuDialogIsOpen = useDialogIsOpen(menuDialogId);
+
+  const [createPollModalIsOpen, setCreatePollModalIsOpen] = useState<boolean>(false);
+  const closePollModal = useCallback(() => setCreatePollModalIsOpen(false), []);
+  const openPollModal = useCallback(() => setCreatePollModalIsOpen(true), []);
+
+  const getCreatePollModalDestination = useCallback(
+    () => document.getElementById('str-chat__chat-view'),
+    [],
+  );
 
   if (!channelCapabilities['send-poll'] && !channelCapabilities['upload-file']) return null;
 
   return (
     <div className='str-chat__attachment-selector'>
-      <UploadFileInput ref={setInput} />
+      <UploadFileInput ref={setFileInput} />
       <button
-        aria-expanded={dialogIsOpen}
+        aria-expanded={menuDialogIsOpen}
         aria-haspopup='true'
         aria-label={t('aria/Open Attachment Selector')}
         className='str-chat__attachment-selector__menu-button'
-        onClick={() => dialog?.toggle()}
+        onClick={() => menuDialog?.toggle()}
         ref={menuButtonRef}
       >
         <div className='str-chat__attachment-selector__menu-button__icon' />
       </button>
       <DialogAnchor
-        id={dialogId}
+        id={menuDialogId}
         placement='top-end'
         referenceElement={menuButtonRef.current}
         trapFocus
@@ -75,8 +88,8 @@ export const AttachmentSelector = <
             <DialogMenuButton
               className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
               onClick={() => {
-                input?.click();
-                dialog.close();
+                fileInput?.click();
+                menuDialog.close();
               }}
             >
               {t<string>('File')}
@@ -86,7 +99,8 @@ export const AttachmentSelector = <
             <DialogMenuButton
               className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
               onClick={() => {
-                dialog.close();
+                openPollModal();
+                menuDialog.close();
               }}
             >
               {t<string>('Poll')}
@@ -94,6 +108,15 @@ export const AttachmentSelector = <
           )}
         </div>
       </DialogAnchor>
+      <Portal getPortalDestination={getCreatePollModalDestination} isOpen={createPollModalIsOpen}>
+        <Modal
+          className='str-chat__create-poll-modal'
+          onClose={closePollModal}
+          open={createPollModalIsOpen}
+        >
+          <PollCreationDialog close={closePollModal} />
+        </Modal>
+      </Portal>
     </div>
   );
 };

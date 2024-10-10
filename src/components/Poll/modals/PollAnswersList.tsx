@@ -1,5 +1,5 @@
 import React from 'react';
-import { ModalHeader } from './ModalHeader';
+import { ModalHeader } from '../../Modal/ModalHeader';
 import { PollVote } from '../PollVote';
 import { usePollAnswersPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';

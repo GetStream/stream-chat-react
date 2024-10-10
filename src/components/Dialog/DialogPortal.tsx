@@ -1,6 +1,6 @@
-import React, { PropsWithChildren, useLayoutEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React, { PropsWithChildren, useCallback } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from './hooks';
+import { Portal } from '../Portal/Portal';
 import { useDialogManager } from '../../context';
 
 export const DialogPortalDestination = () => {
@@ -32,16 +32,15 @@ export const DialogPortalEntry = ({
 }: PropsWithChildren<DialogPortalEntryProps>) => {
   const { dialogManager } = useDialogManager();
   const dialogIsOpen = useDialogIsOpen(dialogId);
-  const [portalDestination, setPortalDestination] = useState<Element | null>(null);
-  useLayoutEffect(() => {
-    const destination = document.querySelector(
-      `div[data-str-chat__portal-id="${dialogManager.id}"]`,
-    );
-    if (!destination) return;
-    setPortalDestination(destination);
-  }, [dialogManager, dialogIsOpen]);
 
-  if (!portalDestination) return null;
+  const getPortalDestination = useCallback(
+    () => document.querySelector(`div[data-str-chat__portal-id="${dialogManager.id}"]`),
+    [dialogManager.id],
+  );
 
-  return createPortal(children, portalDestination);
+  return (
+    <Portal getPortalDestination={getPortalDestination} isOpen={dialogIsOpen}>
+      {children}
+    </Portal>
+  );
 };
