@@ -32,8 +32,7 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    const renderedText = renderPreviewText(previewTextToRender);
-    return renderedText;
+    return renderPreviewText(previewTextToRender);
   }
 
   if (latestMessage.command) {

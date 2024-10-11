@@ -18,12 +18,12 @@ For even deeper customization of the channel list and channel previews, use the 
 To customize the `ChannelList` item UI simply pass your custom `Preview` component to the `ChannelList`. See [The Preview Prop Component](../../guides/customization/channel-list-preview.mdx#the-preview-prop-component) for the extended guide.
 
 ```tsx
-const CustomChannelPreviewUI = ({ latestMessage, lastMessage }) => {
+const CustomChannelPreviewUI = ({ latestMessagePreview, lastMessage }) => {
   // "lastMessage" property is for the last
   // message that has been interacted with (pinned/edited/deleted)
 
-  // to display last message of the channel use "latestMessage" property
-  return <span>{latestMessage}</span>;
+  // to display last message of the channel use "latestMessagePreview" property
+  return <span>{latestMessagePreview}</span>;
 };
 
 <ChannelList Preview={CustomChannelPreviewUI} />;
@@ -104,6 +104,14 @@ The last message received in a channel.
 | `StreamMessage` |
 
 ### latestMessage
+
+Deprecated, use `latestMessagePreview` instead.
+
+| Type                    |
+| ----------------------- |
+| `string \| JSX.Element` |
+
+### latestMessagePreview
 
 Latest message preview to display. Will be either a string or a JSX.Element rendering markdown.
 

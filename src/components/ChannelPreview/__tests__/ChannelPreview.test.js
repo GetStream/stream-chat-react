@@ -8,6 +8,7 @@ import { Chat } from '../../Chat';
 import { ChatContext } from '../../../context/ChatContext';
 
 import {
+  dispatchChannelTruncatedEvent,
   dispatchMessageDeletedEvent,
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
@@ -24,11 +25,15 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
+const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
+
 const PreviewUIComponent = (props) => (
   <>
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
-    <div data-testid='last-event-message'>{props.lastMessage && props.lastMessage.text}</div>
+    <div data-testid='last-event-message'>
+      {props.lastMessage ? props.lastMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
+    </div>
   </>
 );
 
@@ -65,7 +70,12 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
-    useMockedApis(client, [queryChannelsApi([generateChannel(), generateChannel()])]);
+    useMockedApis(client, [
+      queryChannelsApi([
+        generateChannel({ messages: Array.from({ length: 5 }, generateMessage) }),
+        generateChannel({ messages: Array.from({ length: 5 }, generateMessage) }),
+      ]),
+    ]);
 
     [c0, c1] = await client.queryChannels({}, {});
   });
@@ -132,10 +142,11 @@ describe('ChannelPreview', () => {
     ['message.new', dispatchMessageNewEvent],
     ['message.updated', dispatchMessageUpdatedEvent],
     ['message.deleted', dispatchMessageDeletedEvent],
+    ['message.undeleted', dispatchMessageDeletedEvent],
   ];
 
   describe.each(eventCases)('On %s event', (eventType, dispatcher) => {
-    it('should update lastMessage', async () => {
+    it('should update latest message preview', async () => {
       const newUnreadCount = getRandomInt(1, 10);
       c0.countUnread = () => newUnreadCount;
 
@@ -151,9 +162,10 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const message = generateMessage();
-      act(() => {
-        dispatcher(client, message, c0);
+      const message =
+        eventType === 'message.new' ? generateMessage() : c0.state.messages.slice(-1)[0];
+      await act(async () => {
+        await dispatcher(client, message, c0);
       });
 
       await expectLastEventMessageToBe(getByTestId, message.text);
@@ -232,6 +244,61 @@ describe('ChannelPreview', () => {
       await expectUnreadCountToBe(getByTestId, 0);
     });
   });
+
+  it('on channel.truncated event should update latest message preview', async () => {
+    const newUnreadCount = getRandomInt(1, 10);
+    c0.countUnread = () => newUnreadCount;
+
+    const { getByTestId } = renderComponent(
+      {
+        activeChannel: c1,
+        channel: c0,
+      },
+      render,
+    );
+
+    await waitFor(() => {
+      expect(getByTestId('channel-id')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await dispatchChannelTruncatedEvent(client, c0);
+    });
+
+    await expectLastEventMessageToBe(getByTestId, EMPTY_CHANNEL_PREVIEW_TEXT);
+  });
+
+  it.each([
+    ['message.updated', dispatchMessageUpdatedEvent],
+    ['message.deleted', dispatchMessageDeletedEvent],
+    ['message.undeleted', dispatchMessageDeletedEvent],
+  ])(
+    'on %s event should not update latest message preview for the non-last message',
+    async (_, dispatcher) => {
+      const newUnreadCount = getRandomInt(1, 10);
+      c0.countUnread = () => newUnreadCount;
+
+      const { getByTestId } = renderComponent(
+        {
+          activeChannel: c1,
+          channel: c0,
+        },
+        render,
+      );
+
+      await waitFor(() => {
+        expect(getByTestId('channel-id')).toBeInTheDocument();
+      });
+
+      const lastMessage = c0.state.messages.slice(-1)[0];
+      const penultimateMessage = c0.state.messages.slice(-2)[0];
+      await act(async () => {
+        await dispatcher(client, penultimateMessage, c0);
+      });
+
+      await expectLastEventMessageToBe(getByTestId, lastMessage.text);
+    },
+  );
 
   describe('notification.mark_read', () => {
     it('should set unread count to 0 for event missing CID', () => {
