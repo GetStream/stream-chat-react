@@ -60,11 +60,11 @@ const channelsQueryStateMock = {
  * to those components might end up breaking tests for ChannelList, which will be quite painful
  * to debug then.
  */
-const ChannelPreviewComponent = ({ channel, channelUpdateCount, latestMessage }) => (
+const ChannelPreviewComponent = ({ channel, channelUpdateCount, latestMessagePreview }) => (
   <div data-testid={channel.id} role='listitem'>
     <div data-testid='channelUpdateCount'>{channelUpdateCount}</div>
     <div>{channel.data.name}</div>
-    <div>{latestMessage}</div>
+    <div>{latestMessagePreview}</div>
   </div>
 );
 
@@ -454,6 +454,36 @@ describe('ChannelList', () => {
       expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
       expect(screen.getByTestId(testChannel3.channel.id)).toBeInTheDocument();
       expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    });
+  });
+
+  it('allows to customize latest message preview generation', async () => {
+    const previewText = 'custom preview text';
+    const getLatestMessagePreview = () => previewText;
+
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1])]);
+    const { rerender } = render(
+      <Chat client={chatClient}>
+        <ChannelList filters={{}} options={{ limit: 2 }} />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Nothing yet...')).toBeInTheDocument();
+    });
+
+    rerender(
+      <Chat client={chatClient}>
+        <ChannelList
+          filters={{}}
+          getLatestMessagePreview={getLatestMessagePreview}
+          options={{ limit: 2 }}
+        />
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(previewText)).toBeInTheDocument();
     });
   });
 

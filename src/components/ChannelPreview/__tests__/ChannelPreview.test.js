@@ -36,6 +36,15 @@ const PreviewUIComponent = (props) => (
     </div>
   </>
 );
+const PreviewUIComponentWithLatestMessagePreview = (props) => (
+  <>
+    <div data-testid='channel-id'>{props.channel.id}</div>
+    <div data-testid='unread-count'>{props.unread}</div>
+    <div data-testid='last-event-message'>
+      {props.lastMessage ? props.latestMessagePreview : EMPTY_CHANNEL_PREVIEW_TEXT}
+    </div>
+  </>
+);
 
 const expectUnreadCountToBe = async (getByTestId, expectedValue) => {
   await waitFor(() => {
@@ -72,8 +81,14 @@ describe('ChannelPreview', () => {
     client = await getTestClientWithUser(user);
     useMockedApis(client, [
       queryChannelsApi([
-        generateChannel({ messages: Array.from({ length: 5 }, generateMessage) }),
-        generateChannel({ messages: Array.from({ length: 5 }, generateMessage) }),
+        generateChannel({
+          channel: { name: 'c0' },
+          messages: Array.from({ length: 5 }, generateMessage),
+        }),
+        generateChannel({
+          channel: { name: 'c1' },
+          messages: Array.from({ length: 5 }, generateMessage),
+        }),
       ]),
     ]);
 
@@ -136,6 +151,22 @@ describe('ChannelPreview', () => {
       rerender,
     );
     await expectUnreadCountToBe(getByTestId, newUnreadCount);
+  });
+
+  it('allows to customize latest message preview generation', async () => {
+    const getLatestMessagePreview = (channel) => channel.data.name;
+
+    const { getByTestId } = renderComponent(
+      {
+        activeChannel: c0,
+        channel: c0,
+        getLatestMessagePreview,
+        Preview: PreviewUIComponentWithLatestMessagePreview,
+      },
+      render,
+    );
+
+    await expectLastEventMessageToBe(getByTestId, c0.data.name);
   });
 
   const eventCases = [
@@ -349,6 +380,7 @@ describe('ChannelPreview', () => {
       expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
   });
+
   describe('notification.mark_unread', () => {
     it('should be ignored if not originated from the current user', () => {
       const unreadCount = 0;

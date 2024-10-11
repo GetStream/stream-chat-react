@@ -95,6 +95,14 @@ Title of channel to display.
 | -------- |
 | `string` |
 
+### getLatestMessagePreview
+
+Custom function that generates the message preview in ChannelPreview component.
+
+| Type                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------- |
+| `(channel: Channel, t: TranslationContextValue['t'], userLanguage: TranslationContextValue['userLanguage']) => string \| JSX.Element` |
+
 ### lastMessage
 
 The last message received in a channel.

@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
-import { getLatestMessagePreview } from './utils';
+import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -15,7 +15,7 @@ import type { Channel, Event } from 'stream-chat';
 import type { AvatarProps } from '../Avatar/Avatar';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-
+import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelPreviewUIComponentProps<
@@ -52,6 +52,12 @@ export type ChannelPreviewProps<
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
+  /** Custom function that generates the message preview in ChannelPreview component */
+  getLatestMessagePreview?: (
+    channel: Channel<StreamChatGenerics>,
+    t: TranslationContextValue['t'],
+    userLanguage: TranslationContextValue['userLanguage'],
+  ) => string | JSX.Element;
   key?: string;
   /** Custom ChannelPreview click handler function */
   onSelect?: (event: React.MouseEvent) => void;
@@ -68,7 +74,12 @@ export const ChannelPreview = <
 >(
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
-  const { channel, Preview = ChannelPreviewMessenger, channelUpdateCount } = props;
+  const {
+    channel,
+    Preview = ChannelPreviewMessenger,
+    channelUpdateCount,
+    getLatestMessagePreview = defaultGetLatestMessagePreview,
+  } = props;
   const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
     'ChannelPreview',
   );

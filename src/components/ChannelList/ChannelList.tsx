@@ -35,7 +35,7 @@ import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
-
+import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
 
 const DEFAULT_FILTERS = {};
@@ -70,6 +70,12 @@ export type ChannelListProps<
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
   /** An object containing channel query filters */
   filters?: ChannelFilters<StreamChatGenerics>;
+  /** Custom function that generates the message preview in ChannelPreview component */
+  getLatestMessagePreview?: (
+    channel: Channel<StreamChatGenerics>,
+    t: TranslationContextValue['t'],
+    userLanguage: TranslationContextValue['userLanguage'],
+  ) => string | JSX.Element;
   /** Custom UI component to display the container for the queried channels, defaults to and accepts same props as: [ChannelListMessenger](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelList/ChannelListMessenger.tsx) */
   List?: React.ComponentType<ChannelListMessengerProps<StreamChatGenerics>>;
   /** Custom UI component to display the loading error indicator, defaults to and accepts same props as: [ChatDown](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChatDown/ChatDown.tsx) */
@@ -168,6 +174,7 @@ const UnMemoizedChannelList = <
     customQueryChannels,
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     filters,
+    getLatestMessagePreview,
     LoadingErrorIndicator = ChatDown,
     LoadingIndicator = LoadingChannels,
     List = ChannelListMessenger,
@@ -333,6 +340,7 @@ const UnMemoizedChannelList = <
       channel: item,
       // forces the update of preview component on channel update
       channelUpdateCount,
+      getLatestMessagePreview,
       key: item.cid,
       Preview,
       setActiveChannel,
