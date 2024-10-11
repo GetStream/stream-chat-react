@@ -137,7 +137,7 @@ export const ChannelPreview = <
     refreshUnreadCount();
 
     const handleEvent = () => {
-      setLastMessage(channel.state.messages[channel.state.messages.length - 1]);
+      setLastMessage(channel.state.latestMessages[channel.state.latestMessages.length - 1]);
       refreshUnreadCount();
     };
 
