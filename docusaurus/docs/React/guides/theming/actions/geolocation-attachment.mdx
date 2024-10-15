@@ -3,10 +3,8 @@ id: geolocation_attachment
 title: Geolocation Attachment
 ---
 
-import Geolocation1 from '../../../assets/Geolocation1.png';
-import Geolocation2 from '../../../assets/Geolocation2.png';
-import Geolocation3 from '../../../assets/Geolocation3.png';
-import Geolocation4 from '../../../assets/Geolocation4.png';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 In this comprehensive example, we demonstrate how to build a live location sharing feature. Chat users will have the ability to send their location to a channel and display it through a custom `Attachment` component that displays coordinates using the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview).
 
@@ -20,6 +18,10 @@ The feature flow has three distinct steps:
 
 We've prepared [an example geolocation context/controller](#geoloccontext) that we'll be referencing throughout the guide. This controller takes care of registering and updating messages with the current location. Note that this is an _example_ controller that should be expanded on based on your needs and requirements. This controller is missing logic such as end-of-life of the messages with live location updates, manually stopping location updates, limiting the amount of messages with live location updates or proper error handling. Treat it as a baseline to get you started.
 
+:::note
+If you wish to use only one-time location sharing functionality, you don't need [`GeoLocContext`](#geoloccontext) controller/context and can safely omit it.
+:::
+
 ## Custom Message Input With Location Sharing Button
 
 The first step in our location sharing flow is to add a custom button beside message input that on click allows a chat user to begin the process of sending their coordinates to the channel.
@@ -30,18 +32,8 @@ In this example, our custom handler function will utilise `window.confirm` dialo
 We'll be using `registerMessageIds` function from our pre-defined [`GeoLocContext`](#geoloccontext) to save messages to a `localStorage` to be later loaded in case of a page reload so that we can keep sharing our location.
 :::
 
-```css title="message-input-with-location-button.css"
-.message-input-container {
-  display: flex;
-}
-
-.location-share-button {
-  border-radius: 9999px;
-  margin: 5px 5px 5px 0px;
-  line-height: 1;
-  padding: 5px 10px;
-}
-```
+<Tabs groupId='example'>
+<TabItem value='tsx' label='React'>
 
 ```tsx title="custom-components.tsx"
 import { MessageInput, useChannelStateContext } from 'stream-chat-react';
@@ -92,7 +84,27 @@ export const MessageInputWithLocationButton = () => {
 };
 ```
 
-<img src={Geolocation1} alt='Geolocation 1' width='700' />
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css title="message-input-with-location-button.css"
+.message-input-container {
+  display: flex;
+}
+
+.location-share-button {
+  border-radius: 9999px;
+  margin: 5px 5px 5px 0px;
+  line-height: 1;
+  padding: 5px 10px;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../../assets/geolocation-attachment-0.png)
+![](../../../assets/geolocation-attachment-1.png)
 
 ## Custom Map Attachment
 
@@ -189,7 +201,9 @@ const App = () => {
 };
 ```
 
-### GeoLocContext
+![](../../../assets/geolocation-attachment-2.png)
+
+## GeoLocContext
 
 ```tsx title="geo-loc-context.tsx"
 import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
