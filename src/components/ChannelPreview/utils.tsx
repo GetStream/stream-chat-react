@@ -17,7 +17,7 @@ export const getLatestMessagePreview = <
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
 ): string | JSX.Element => {
-  const latestMessage = channel.state.messages[channel.state.messages.length - 1];
+  const latestMessage = channel.state.latestMessages[channel.state.latestMessages.length - 1];
 
   const previewTextToRender =
     latestMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
@@ -32,8 +32,7 @@ export const getLatestMessagePreview = <
   }
 
   if (previewTextToRender) {
-    const renderedText = renderPreviewText(previewTextToRender);
-    return renderedText;
+    return renderPreviewText(previewTextToRender);
   }
 
   if (latestMessage.command) {
