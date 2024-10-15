@@ -55,6 +55,14 @@ Custom class for the channel preview root
 | -------- |
 | `string` |
 
+### getLatestMessagePreview
+
+Custom function that generates the message preview in ChannelPreview component.
+
+| Type                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------- |
+| `(channel: Channel, t: TranslationContextValue['t'], userLanguage: TranslationContextValue['userLanguage']) => string \| JSX.Element` |
+
 ### onSelect
 
 Custom handler invoked when the `ChannelPreview` is clicked. The SDK uses `ChannelPreview` to display items of channel search results. There, behind the scenes, the new active channel is set.
