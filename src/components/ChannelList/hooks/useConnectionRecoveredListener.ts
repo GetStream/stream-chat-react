@@ -23,6 +23,5 @@ export const useConnectionRecoveredListener = <
     return () => {
       client.off('connection.recovered', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [client, forceUpdate]);
 };

@@ -135,6 +135,7 @@ export const messageRenderer = <
     messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
+    openThread,
     ownMessagesReadByOthers,
     processedMessages: messageList,
     reactionDetailsSort,
@@ -225,6 +226,7 @@ export const messageRenderer = <
         message={message}
         Message={MessageUIComponent}
         messageActions={messageActions}
+        openThread={openThread}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         sortReactionDetails={sortReactionDetails}

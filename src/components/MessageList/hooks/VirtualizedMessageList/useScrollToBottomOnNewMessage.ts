@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StreamMessage } from '../../../../context';
 import { DefaultStreamChatGenerics } from '../../../../types/types';
 
 type UseScrollToBottomOnNewMessageParams<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** */
   scrollToBottom: () => void;
   messages?: StreamMessage<StreamChatGenerics>[];
   /** When `true`, the list will scroll to the latest message when the window regains focus */
@@ -19,41 +18,43 @@ export const useScrollToBottomOnNewMessage = <
   scrollToBottom,
   scrollToLatestMessageOnFocus,
 }: UseScrollToBottomOnNewMessageParams<StreamChatGenerics>) => {
-  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = React.useState(
-    false,
-  );
+  const [newMessagesReceivedInBackground, setNewMessagesReceivedInBackground] = useState(false);
 
-  const resetNewMessagesReceivedInBackground = useCallback(() => {
-    setNewMessagesReceivedInBackground(false);
-  }, []);
+  const scrollToBottomIfConfigured = useRef<(e: Event) => void>();
+
+  scrollToBottomIfConfigured.current = (event: Event) => {
+    if (
+      !scrollToLatestMessageOnFocus ||
+      !newMessagesReceivedInBackground ||
+      event.target !== window
+    ) {
+      return;
+    }
+
+    setTimeout(scrollToBottom, 100);
+  };
 
   useEffect(() => {
     setNewMessagesReceivedInBackground(true);
   }, [messages]);
 
-  const scrollToBottomIfConfigured = useCallback(
-    (event: Event) => {
-      if (
-        !scrollToLatestMessageOnFocus ||
-        !newMessagesReceivedInBackground ||
-        event.target !== window
-      )
-        return;
-      setTimeout(scrollToBottom, 100);
-    },
-    [scrollToLatestMessageOnFocus, scrollToBottom, newMessagesReceivedInBackground],
-  );
-
   useEffect(() => {
+    const handleFocus = (event: Event) => {
+      scrollToBottomIfConfigured.current?.(event);
+    };
+
+    const handleBlur = () => {
+      setNewMessagesReceivedInBackground(false);
+    };
+
     if (typeof window !== 'undefined') {
-      window.addEventListener('focus', scrollToBottomIfConfigured);
-      window.addEventListener('blur', resetNewMessagesReceivedInBackground);
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
     }
 
     return () => {
-      window.removeEventListener('focus', scrollToBottomIfConfigured);
-      window.removeEventListener('blur', resetNewMessagesReceivedInBackground);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scrollToBottomIfConfigured]);
+  }, []);
 };

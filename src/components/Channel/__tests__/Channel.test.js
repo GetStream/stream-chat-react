@@ -565,8 +565,12 @@ describe('Channel', () => {
       const { channel, chatClient } = await initClient();
       const getRepliesSpy = jest.spyOn(channel, 'getReplies');
       const threadMessage = messages[0];
-      const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, () =>
-        generateMessage({ parent_id: threadMessage.id }),
+      const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
+      const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, (_, index) =>
+        generateMessage({
+          created_at: new Date(timestamp + index * 1000),
+          parent_id: threadMessage.id,
+        }),
       );
 
       useMockedApis(chatClient, [threadRepliesApi(replies)]);
@@ -1241,16 +1245,23 @@ describe('Channel', () => {
         });
       });
 
+      // const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
       it.each([
         [
           false,
           'last page',
           'first unread message',
           [
-            generateMessage(),
-            generateMessage({ id: last_read_message_id }),
-            generateMessage({ id: first_unread_message_id }),
-            generateMessage(),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
+            generateMessage({
+              created_at: new Date('2024-01-01T00:00:00.001Z'),
+              id: last_read_message_id,
+            }),
+            generateMessage({
+              created_at: new Date('2024-01-01T00:00:00.002Z'),
+              id: first_unread_message_id,
+            }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.003Z') }),
           ],
           first_unread_message_id,
         ],
@@ -1259,10 +1270,16 @@ describe('Channel', () => {
           'other than last page',
           'first unread message',
           [
-            generateMessage(),
-            generateMessage(),
-            generateMessage({ id: last_read_message_id }),
-            generateMessage({ id: first_unread_message_id }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
+            generateMessage({
+              created_at: new Date('2024-01-01T00:00:00.002Z'),
+              id: last_read_message_id,
+            }),
+            generateMessage({
+              created_at: new Date('2024-01-01T00:00:00.003Z'),
+              id: first_unread_message_id,
+            }),
           ],
           first_unread_message_id,
         ],
@@ -1271,10 +1288,13 @@ describe('Channel', () => {
           'other than last page',
           'last read message',
           [
-            generateMessage(),
-            generateMessage(),
-            generateMessage(),
-            generateMessage({ id: last_read_message_id }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
+            generateMessage({ created_at: new Date('2024-01-01T00:00:00.002Z') }),
+            generateMessage({
+              created_at: new Date('2024-01-01T00:00:00.003Z'),
+              id: last_read_message_id,
+            }),
           ],
           undefined,
         ],

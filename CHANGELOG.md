@@ -1,3 +1,27 @@
+## [12.2.0](https://github.com/GetStream/stream-chat-react/compare/v12.1.0...v12.2.0) (2024-10-07)
+
+
+### Bug Fixes
+
+* add missing dependencies to ChannelList hooks effects ([#2525](https://github.com/GetStream/stream-chat-react/issues/2525)) ([9cb8e47](https://github.com/GetStream/stream-chat-react/commit/9cb8e4781482f893dc827641c8fb2b96d4fb189c))
+
+
+### Features
+
+* add openThread prop to VirtualizedMessageList ([#2523](https://github.com/GetStream/stream-chat-react/issues/2523)) ([e95eaa4](https://github.com/GetStream/stream-chat-react/commit/e95eaa4fd4686bc814f2688617d8daeac4cb4568))
+
+
+### Refactors
+
+* useScrollToBottomOnNewMessage hook ([#2532](https://github.com/GetStream/stream-chat-react/issues/2532)) ([8980016](https://github.com/GetStream/stream-chat-react/commit/8980016e430d3cf53e88efa20b19a3381ab597c3))
+
+## [12.1.0](https://github.com/GetStream/stream-chat-react/compare/v12.0.0...v12.1.0) (2024-10-02)
+
+
+### Features
+
+* add MessageListMainPanel to ComponentContext ([#2528](https://github.com/GetStream/stream-chat-react/issues/2528)) ([32928f3](https://github.com/GetStream/stream-chat-react/commit/32928f33ad2691b565b0cedce1ef22c70008ae61))
+
 ## [12.0.0](https://github.com/GetStream/stream-chat-react/compare/v11.23.9...v12.0.0) (2024-09-17)
 
 
