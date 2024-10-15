@@ -1,8 +1,5 @@
-import React, { PropsWithChildren, useContext, useEffect, useMemo } from 'react';
-import { Poll } from 'stream-chat';
-import { useChatContext } from './ChatContext';
-
-import type { PollResponse } from 'stream-chat';
+import React, { PropsWithChildren, useContext } from 'react';
+import type { Poll } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../types';
 
 export type PollContextValue<
@@ -17,21 +14,15 @@ export const PollProvider = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   children,
-  poll: pollData,
+  poll,
 }: PropsWithChildren<{
-  poll: PollResponse<StreamChatGenerics>;
-}>) => {
-  const { client } = useChatContext();
-
-  const poll = useMemo<Poll>(() => new Poll({ client, poll: pollData }), [client, pollData]);
-
-  useEffect(() => {
-    poll.registerSubscriptions();
-    return poll.unregisterSubscriptions;
-  }, [poll]);
-
-  return <PollContext.Provider value={{ poll }}>{children}</PollContext.Provider>;
-};
+  poll: Poll<StreamChatGenerics>;
+}>) =>
+  poll ? (
+    <PollContext.Provider value={({ poll } as unknown) as PollContextValue}>
+      {children}
+    </PollContext.Provider>
+  ) : null;
 
 export const usePollContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

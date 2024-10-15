@@ -29,9 +29,8 @@ import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageContextValue, useMessageContext } from '../../context/MessageContext';
 
-import { useTranslationContext } from '../../context';
+import { useChatContext, useTranslationContext } from '../../context';
 import { MessageEditedTimestamp } from './MessageEditedTimestamp';
-import type { PollResponse } from 'stream-chat';
 
 import type { MessageUIComponentProps } from './types';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -63,7 +62,7 @@ const MessageSimpleWithContext = <
     renderText,
     threadList,
   } = props;
-
+  const { client } = useChatContext('MessageSimple');
   const { t } = useTranslationContext('MessageSimple');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const [isEditedTimestampOpen, setEditedTimestampOpen] = useState(false);
@@ -132,6 +131,8 @@ const MessageSimpleWithContext = <
     },
   );
 
+  const poll = message.poll_id && client.polls.fromState(message.poll_id);
+
   return (
     <>
       {editing && (
@@ -178,7 +179,7 @@ const MessageSimpleWithContext = <
               {hasReactions && <ReactionsList reverse />}
             </div>
             <div className='str-chat__message-bubble'>
-              {message.poll && <Poll poll={message.poll as PollResponse<StreamChatGenerics>} />}
+              {poll && <Poll poll={poll} />}
               {message.attachments?.length && !message.quoted_message ? (
                 <Attachment actionHandler={handleAction} attachments={message.attachments} />
               ) : null}
