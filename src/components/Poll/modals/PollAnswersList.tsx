@@ -5,14 +5,25 @@ import { usePollAnswersPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useTranslationContext } from '../../../context';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type PollAnswersListProps = {
   close?: () => void;
 };
 
-export const PollAnswersList = ({ close }: PollAnswersListProps) => {
+export const PollAnswersList = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  close,
+}: PollAnswersListProps) => {
   const { t } = useTranslationContext();
-  const { error, hasNextPage, loading, loadMore, pollAnswers } = usePollAnswersPagination();
+  const {
+    answers,
+    error,
+    hasNextPage,
+    loading,
+    loadMore,
+  } = usePollAnswersPagination<StreamChatGenerics>();
 
   return (
     <div className='str-chat__modal__poll-answer-list'>
@@ -20,7 +31,7 @@ export const PollAnswersList = ({ close }: PollAnswersListProps) => {
       <div className='str-chat__modal__poll-answer-list__body'>
         <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>
           <div className='str-chat__poll-answer-list'>
-            {pollAnswers.map((answer) => (
+            {answers.map((answer) => (
               <div className='str-chat__poll-answer' key={`comment-${answer.id}`}>
                 {answer.answer_text && (
                   <p className='str-chat__poll-answer__text'>{answer.answer_text}</p>

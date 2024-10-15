@@ -12,6 +12,7 @@ export const Portal = ({
   isOpen,
 }: PropsWithChildren<PortalProps>) => {
   const [portalDestination, setPortalDestination] = useState<Element | null>(null);
+
   useLayoutEffect(() => {
     const destination = getPortalDestination();
     if (!destination || !isOpen) return;

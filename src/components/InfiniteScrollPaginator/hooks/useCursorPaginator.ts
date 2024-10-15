@@ -1,42 +1,61 @@
 import uniqBy from 'lodash.uniqby';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import { StateStore } from 'stream-chat';
+
+export type CursorPaginatorState<T> = {
+  hasNextPage: boolean;
+  items: T[];
+  latestPageItems: T[];
+  loading: boolean;
+  error?: Error;
+  next?: string | null;
+};
+
+export type CursorPaginatorStateStore<T> = StateStore<CursorPaginatorState<T>>;
 
 export type PaginationFn<T> = (next?: string) => Promise<{ items: T[]; next?: string }>;
 
 export const useCursorPaginator = <T>(paginationFn: PaginationFn<T>, loadFirstPage?: boolean) => {
-  const [items, setItems] = useState<T[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error>();
-  const cursorRef = useRef<string | null | undefined>();
-  const queryInProgress = useRef<boolean>(false);
+  const cursorPaginatorState = useMemo(
+    () =>
+      new StateStore<CursorPaginatorState<T>>({
+        hasNextPage: true,
+        items: [],
+        latestPageItems: [],
+        loading: false,
+      }),
+    [],
+  );
 
   const loadMore = useCallback(async () => {
-    if (cursorRef.current === null || queryInProgress.current) return;
+    const { loading, next: currentNext } = cursorPaginatorState.getLatestValue();
+    if (currentNext === null || loading) return;
 
-    setLoading(true);
-    queryInProgress.current = true;
+    cursorPaginatorState.partialNext({ loading: true });
+
     try {
-      const { items, next } = await paginationFn(cursorRef.current);
-      cursorRef.current = next || null;
-      setItems((prev) => uniqBy([...prev, ...items], 'id'));
-    } catch (e) {
-      setError(e as Error);
+      const { items, next } = await paginationFn(currentNext);
+      cursorPaginatorState.next((prev) => ({
+        ...prev,
+        hasNextPage: next !== null,
+        items: uniqBy(prev.items.concat(items), 'id'),
+        latestPageItems: items,
+        next: next || null,
+      }));
+    } catch (error) {
+      cursorPaginatorState.partialNext({ error: error as Error });
     }
-    queryInProgress.current = false;
-    setLoading(false);
-  }, [paginationFn]);
+    cursorPaginatorState.partialNext({ loading: false });
+  }, [cursorPaginatorState, paginationFn]);
 
   useEffect(() => {
+    const { items } = cursorPaginatorState.getLatestValue();
     if (!loadFirstPage || items.length) return;
     loadMore();
-  }, [loadFirstPage, loadMore, items]);
+  }, [cursorPaginatorState, loadFirstPage, loadMore]);
 
   return {
-    error,
-    hasNextPage: cursorRef.current !== null,
-    items,
-    loading,
+    cursorPaginatorState,
     loadMore,
-    next: cursorRef.current,
   };
 };
