@@ -1,3 +1,10 @@
+## [11.24.1](https://github.com/GetStream/stream-chat-react/compare/v11.24.0...v11.24.1) (2024-10-15)
+
+
+### Bug Fixes
+
+* get correct lastMessage and latestMessagePreview from channel state ([#2535](https://github.com/GetStream/stream-chat-react/issues/2535)) ([ba6b1a3](https://github.com/GetStream/stream-chat-react/commit/ba6b1a3d5bde657cbf6933ed9d58c3a16188159d))
+
 ## [11.24.0](https://github.com/GetStream/stream-chat-react/compare/v11.23.10...v11.24.0) (2024-10-07)
 
 
