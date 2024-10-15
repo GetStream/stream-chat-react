@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChannelPreviewMessenger } from './ChannelPreviewMessenger';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
-import { getLatestMessagePreview } from './utils';
+import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
 
 import { ChatContextValue, useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -15,7 +15,7 @@ import type { Channel, Event } from 'stream-chat';
 import type { AvatarProps } from '../Avatar/Avatar';
 
 import type { StreamMessage } from '../../context/ChannelStateContext';
-
+import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelPreviewUIComponentProps<
@@ -29,8 +29,10 @@ export type ChannelPreviewUIComponentProps<
   displayTitle?: string;
   /** The last message received in a channel */
   lastMessage?: StreamMessage<StreamChatGenerics>;
-  /** Latest message preview to display, will be a string or JSX element supporting markdown. */
+  /** @deprecated Use latestMessagePreview prop instead. */
   latestMessage?: string | JSX.Element;
+  /** Latest message preview to display, will be a string or JSX element supporting markdown. */
+  latestMessagePreview?: string | JSX.Element;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Number of unread Messages */
@@ -50,6 +52,12 @@ export type ChannelPreviewProps<
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
+  /** Custom function that generates the message preview in ChannelPreview component */
+  getLatestMessagePreview?: (
+    channel: Channel<StreamChatGenerics>,
+    t: TranslationContextValue['t'],
+    userLanguage: TranslationContextValue['userLanguage'],
+  ) => string | JSX.Element;
   key?: string;
   /** Custom ChannelPreview click handler function */
   onSelect?: (event: React.MouseEvent) => void;
@@ -66,7 +74,12 @@ export const ChannelPreview = <
 >(
   props: ChannelPreviewProps<StreamChatGenerics>,
 ) => {
-  const { channel, Preview = ChannelPreviewMessenger, channelUpdateCount } = props;
+  const {
+    channel,
+    Preview = ChannelPreviewMessenger,
+    channelUpdateCount,
+    getLatestMessagePreview = defaultGetLatestMessagePreview,
+  } = props;
   const { channel: activeChannel, client, setActiveChannel } = useChatContext<StreamChatGenerics>(
     'ChannelPreview',
   );
@@ -123,26 +136,29 @@ export const ChannelPreview = <
   useEffect(() => {
     refreshUnreadCount();
 
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
-      if (event.message) setLastMessage(event.message);
+    const handleEvent = () => {
+      setLastMessage(channel.state.latestMessages[channel.state.latestMessages.length - 1]);
       refreshUnreadCount();
     };
 
     channel.on('message.new', handleEvent);
     channel.on('message.updated', handleEvent);
     channel.on('message.deleted', handleEvent);
+    channel.on('message.undeleted', handleEvent);
+    channel.on('channel.truncated', handleEvent);
 
     return () => {
       channel.off('message.new', handleEvent);
       channel.off('message.updated', handleEvent);
       channel.off('message.deleted', handleEvent);
+      channel.off('message.undeleted', handleEvent);
+      channel.off('channel.truncated', handleEvent);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refreshUnreadCount, channelUpdateCount]);
+  }, [channel, refreshUnreadCount, channelUpdateCount]);
 
   if (!Preview) return null;
 
-  const latestMessage = getLatestMessagePreview(channel, t, userLanguage);
+  const latestMessagePreview = getLatestMessagePreview(channel, t, userLanguage);
 
   return (
     <Preview
@@ -151,7 +167,8 @@ export const ChannelPreview = <
       displayImage={displayImage}
       displayTitle={displayTitle}
       lastMessage={lastMessage}
-      latestMessage={latestMessage}
+      latestMessage={latestMessagePreview}
+      latestMessagePreview={latestMessagePreview}
       messageDeliveryStatus={messageDeliveryStatus}
       setActiveChannel={setActiveChannel}
       unread={unread}

@@ -18,7 +18,7 @@ const UnMemoizedChannelPreviewMessenger = <
     className: customClassName = '',
     displayImage,
     displayTitle,
-    latestMessage,
+    latestMessagePreview,
     onSelect: customOnSelectChannel,
     setActiveChannel,
     unread,
@@ -74,7 +74,9 @@ const UnMemoizedChannelPreviewMessenger = <
             </div>
           )}
         </div>
-        <div className='str-chat__channel-preview-messenger--last-message'>{latestMessage}</div>
+        <div className='str-chat__channel-preview-messenger--last-message'>
+          {latestMessagePreview}
+        </div>
       </div>
     </button>
   );

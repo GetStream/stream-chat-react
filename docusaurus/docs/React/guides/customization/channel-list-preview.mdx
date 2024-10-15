@@ -55,12 +55,12 @@ Let's implement a simple custom preview:
 <TabItem value="js" label="React">
 
 ```jsx
-const CustomChannelPreview = ({ displayImage, displayTitle, latestMessage }) => (
+const CustomChannelPreview = ({ displayImage, displayTitle, latestMessagePreview }) => (
   <div className='channel-preview'>
     <img className='channel-preview__avatar' src={displayImage} alt='' />
     <div className='channel-preview__main'>
       <div className='channel-preview__header'>{displayTitle}</div>
-      <div className='channel-preview__message'>{latestMessage}</div>
+      <div className='channel-preview__message'>{latestMessagePreview}</div>
     </div>
   </div>
 );
@@ -122,7 +122,7 @@ message in the channel:
 
 ```jsx
 const CustomChannelPreview = (props) => {
-  const { channel, displayImage, displayTitle, latestMessage } = props;
+  const { channel, displayImage, displayTitle, latestMessagePreview } = props;
   const { userLanguage } = useTranslationContext();
   const latestMessageAt = channel.state.last_message_at;
 
@@ -146,7 +146,7 @@ const CustomChannelPreview = (props) => {
             {timestamp}
           </time>
         </div>
-        <div className='channel-preview__message'>{latestMessage}</div>
+        <div className='channel-preview__message'>{latestMessagePreview}</div>
       </div>
     </div>
   );
@@ -217,7 +217,7 @@ const CustomChannelPreview = (props) => {
     activeChannel,
     displayImage,
     displayTitle,
-    latestMessage,
+    latestMessagePreview,
     setActiveChannel,
   } = props;
   const latestMessageAt = channel.state.last_message_at;
@@ -252,7 +252,7 @@ const CustomChannelPreview = (props) => {
             {timestamp}
           </time>
         </div>
-        <div className='channel-preview__message'>{latestMessage}</div>
+        <div className='channel-preview__message'>{latestMessagePreview}</div>
       </div>
     </button>
   );
