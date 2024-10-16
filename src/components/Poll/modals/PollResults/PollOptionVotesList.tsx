@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { PollVoteListing } from '../../PollVote';
 import { usePollOptionVotesPagination } from '../../hooks';
 import { LoadingIndicator } from '../../../Loading';
@@ -31,11 +31,6 @@ export const PollOptionVotesList = <
   } = usePollOptionVotesPagination<StreamChatGenerics>({
     paginationParams,
   });
-
-  useEffect(() => {
-    if (votes.length) return;
-    loadMore();
-  }, [loadMore, votes]);
 
   return (
     <div className='str-chat__poll-option str-chat__poll-option--full-vote-list'>
