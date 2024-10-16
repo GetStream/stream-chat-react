@@ -37,7 +37,7 @@ export const useCursorPaginator = <T>(paginationFn: PaginationFn<T>, loadFirstPa
       const { items, next } = await paginationFn(currentNext);
       cursorPaginatorState.next((prev) => ({
         ...prev,
-        hasNextPage: next !== null,
+        hasNextPage: !!next,
         items: uniqBy(prev.items.concat(items), 'id'),
         latestPageItems: items,
         next: next || null,
