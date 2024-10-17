@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useCallback, useState } from 'react';
-import { PollAnswersList } from './modals/PollAnswersList';
+import { PollAnswerList } from './modals/PollAnswerList';
 import { PollOptionsFullList } from './modals/PollOptionsFullList';
 import { FormDialog, PromptDialog } from '../Dialog';
 import { MAX_OPTIONS_DISPLAYED } from './config';
@@ -68,6 +68,7 @@ export const PollActions = <
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
   const closeModal = useCallback(() => setModalOpen(undefined), []);
+  const onUpdateAnswerClick = useCallback(() => setModalOpen('add-comment'), []);
 
   return (
     <div className='str-chat__poll-actions'>
@@ -88,6 +89,7 @@ export const PollActions = <
         <PollAction
           buttonText={t<string>('Suggest an option')}
           closeModal={closeModal}
+          modalClassName='str-chat__suggest-poll-option-modal'
           modalIsOpen={modalOpen === 'suggest-option'}
           openModal={() => setModalOpen('suggest-option')}
         >
@@ -119,6 +121,7 @@ export const PollActions = <
         <PollAction
           buttonText={ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
           closeModal={closeModal}
+          modalClassName='str-chat__add-poll-answer-modal'
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
         >
@@ -152,19 +155,22 @@ export const PollActions = <
         <PollAction
           buttonText={t<string>('View {{count}} comments', { count: answers_count })}
           closeModal={closeModal}
+          modalClassName='str-chat__poll-answer-list-modal'
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
         >
-          <PollAnswersList close={closeModal} />
-          <button className='str-chat__poll-action' onClick={() => setModalOpen('add-comment')}>
-            {ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
-          </button>
+          <PollAnswerList
+            close={closeModal}
+            onUpdateOwnAnswerClick={onUpdateAnswerClick}
+            ownAnswerExists={!!ownAnswer}
+          />
         </PollAction>
       )}
 
       <PollAction
         buttonText={t<string>('View results')}
         closeModal={closeModal}
+        modalClassName='str-chat__poll-results-modal'
         modalIsOpen={modalOpen === 'view-results'}
         openModal={() => setModalOpen('view-results')}
       >
@@ -175,6 +181,7 @@ export const PollActions = <
         <PollAction
           buttonText={t<string>('End vote')}
           closeModal={closeModal}
+          modalClassName='str-chat__end-poll-modal'
           modalIsOpen={modalOpen === 'end-vote'}
           openModal={() => setModalOpen('end-vote')}
         >

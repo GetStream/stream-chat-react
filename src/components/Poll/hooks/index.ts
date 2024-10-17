@@ -1,4 +1,4 @@
 export * from './usePoll';
 export * from './usePollState';
-export * from './usePollAnswersPagination';
+export * from './usePollAnswerPagination';
 export * from './usePollOptionVotesPagination';

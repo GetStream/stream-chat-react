@@ -7,9 +7,9 @@ import {
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 import { usePollContext } from '../../../context';
 
-import type { DefaultStreamChatGenerics } from '../../../types';
-import type { PollAnswer, PollAnswersQueryParams, PollVote } from 'stream-chat';
 import { useStateStore } from '../../../store';
+import type { PollAnswer, PollAnswersQueryParams, PollVote } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
 const paginationStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -17,14 +17,14 @@ const paginationStateSelector = <
   state: CursorPaginatorState<PollVote<StreamChatGenerics>>,
 ): [Error | undefined, boolean, boolean] => [state.error, state.hasNextPage, state.loading];
 
-type UsePollAnswersPaginationParams = {
+type UsePollAnswerPaginationParams = {
   paginationParams?: PollAnswersQueryParams;
 };
 
-export const usePollAnswersPagination = <
+export const usePollAnswerPagination = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->({ paginationParams }: UsePollAnswersPaginationParams = {}) => {
-  const { poll } = usePollContext<StreamChatGenerics>('usePollAnswersPagination');
+>({ paginationParams }: UsePollAnswerPaginationParams = {}) => {
+  const { poll } = usePollContext<StreamChatGenerics>('usePollAnswerPagination');
 
   const paginationFn = useCallback<PaginationFn<PollAnswer>>(
     async (next) => {
