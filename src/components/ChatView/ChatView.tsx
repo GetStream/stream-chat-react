@@ -33,9 +33,7 @@ export const ChatView = ({ children }: PropsWithChildren) => {
 
   return (
     <ChatViewContext.Provider value={value}>
-      <div className={clsx('str-chat', theme, 'str-chat__chat-view')} id='str-chat__chat-view'>
-        {children}
-      </div>
+      <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{children}</div>
     </ChatViewContext.Provider>
   );
 };

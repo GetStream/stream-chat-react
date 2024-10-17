@@ -8,6 +8,7 @@ import { UploadFileInput } from '../ReactFileUtilities';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
 import { useChannelStateContext, useComponentContext, useTranslationContext } from '../../context';
+import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {
@@ -58,7 +59,7 @@ export const AttachmentSelector = <
   const openPollModal = useCallback(() => setCreatePollModalIsOpen(true), []);
 
   const getCreatePollModalDestination = useCallback(
-    () => document.getElementById('str-chat__chat-view'),
+    () => document.getElementById(CHANNEL_CONTAINER_ID),
     [],
   );
 
