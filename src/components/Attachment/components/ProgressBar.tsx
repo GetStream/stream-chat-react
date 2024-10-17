@@ -1,13 +1,14 @@
+import clsx from 'clsx';
 import React from 'react';
 
 export type ProgressBarProps = {
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress: number;
-} & Pick<React.ComponentProps<'div'>, 'onClick'>;
+} & Pick<React.ComponentProps<'div'>, 'className' | 'onClick'>;
 
-export const ProgressBar = ({ onClick, progress }: ProgressBarProps) => (
+export const ProgressBar = ({ className, onClick, progress }: ProgressBarProps) => (
   <div
-    className='str-chat__message-attachment-audio-widget--progress-track'
+    className={clsx('str-chat__message-attachment-audio-widget--progress-track', className)}
     data-progress={progress}
     data-testid='audio-progress'
     onClick={onClick}

@@ -64,6 +64,8 @@ export type ComponentContextValue<
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
+  AttachmentSelector?: React.ComponentType;
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */

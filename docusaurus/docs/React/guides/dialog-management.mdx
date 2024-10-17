@@ -65,7 +65,7 @@ const Container = () => {
       <DialogAnchor id={dialogId} placement='top' referenceElement={buttonRef.current} trapFocus>
         <ComponentToDisplayOnDialog />
       </DialogAnchor>
-      <button aria-expanded={dialogIsOpen} onClick={dialog.toggleSingle} ref={buttonRef}>
+      <button aria-expanded={dialogIsOpen} onClick={() => dialog.toggle()} ref={buttonRef}>
         Toggle
       </button>
     </>
