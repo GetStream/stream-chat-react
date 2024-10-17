@@ -25,7 +25,6 @@ export type PollResultsProps = {
   close?: () => void;
 };
 
-// todo: sort options by vote count
 export const PollResults = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({

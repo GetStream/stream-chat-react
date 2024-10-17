@@ -1,10 +1,11 @@
 import clsx from 'clsx';
-import React from 'react';
+import debounce from 'lodash.debounce';
+import React, { useMemo } from 'react';
+import type { PollOption, PollState, PollVote } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { usePoll, usePollState } from './hooks';
 import { Avatar } from '../Avatar';
 import { useChannelStateContext, useMessageContext, useTranslationContext } from '../../context';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 type AmountBarProps = {
@@ -83,20 +84,25 @@ export const PollOptionSelector = <
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const winningOptionCount = maxVotedOptionIds[0] ? vote_counts_by_option[maxVotedOptionIds[0]] : 0;
 
+  const toggleVote = useMemo(
+    () =>
+      debounce(() => {
+        if (!canCastVote) return;
+        const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
+        return haveVotedForTheOption
+          ? poll.removeVote(ownVotesByOptionId[option.id], message.id)
+          : poll.castVote(option.id, message.id);
+      }, 100),
+    [canCastVote, message.id, option.id, ownVotesByOptionId, poll],
+  );
+
   return (
     <div
       className={clsx('str-chat__poll-option', {
         'str-chat__poll-option--votable': canCastVote,
       })}
       key={`base-poll-option-${option.id}`}
-      onClick={() => {
-        // todo: throttle
-        if (!canCastVote) return;
-        const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
-        return haveVotedForTheOption
-          ? poll.removeVote(ownVotesByOptionId[option.id], message.id)
-          : poll.castVote(option.id, message.id);
-      }}
+      onClick={toggleVote}
     >
       {!is_closed && <Checkmark checked={!!ownVotesByOptionId[option.id]} />}
       <div className='str-chat__poll-option-data'>
@@ -106,7 +112,7 @@ export const PollOptionSelector = <
             {latest_votes_by_option?.[option.id] &&
               (latest_votes_by_option[option.id] as PollVote<StreamChatGenerics>[])
                 .filter((vote) => !!vote.user && !isVoteAnswer(vote))
-                .slice(0, avatarCount) // todo: check how many avatars should be shown
+                .slice(0, avatarCount)
                 .map(({ user }) => (
                   <Avatar
                     image={user?.image}
