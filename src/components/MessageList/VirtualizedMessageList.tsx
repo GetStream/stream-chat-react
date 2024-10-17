@@ -434,10 +434,14 @@ const VirtualizedMessageListWithContext = <
 
   if (!processedMessages) return null;
 
+  const dialogManagerId = threadList
+    ? 'virtualized-message-list-dialog-manager-thread'
+    : 'virtualized-message-list-dialog-manager';
+
   return (
     <>
       <MessageListMainPanel>
-        <DialogManagerProvider id='virtualized-message-list-dialog-manager'>
+        <DialogManagerProvider id={dialogManagerId}>
           {!threadList && showUnreadMessagesNotification && (
             <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
           )}

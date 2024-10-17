@@ -221,11 +221,13 @@ const MessageListWithContext = <
   }, [highlightedMessageId]);
 
   const showEmptyStateIndicator = elements.length === 0 && !threadList;
-
+  const dialogManagerId = threadList
+    ? 'message-list-dialog-manager-thread'
+    : 'message-list-dialog-manager';
   return (
     <MessageListContextProvider value={{ listElement, scrollToBottom }}>
       <MessageListMainPanel>
-        <DialogManagerProvider id='message-list-dialog-manager'>
+        <DialogManagerProvider id={dialogManagerId}>
           {!threadList && showUnreadMessagesNotification && (
             <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unread_messages} />
           )}
