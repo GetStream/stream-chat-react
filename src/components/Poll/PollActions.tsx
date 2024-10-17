@@ -159,11 +159,7 @@ export const PollActions = <
           modalIsOpen={modalOpen === 'view-comments'}
           openModal={() => setModalOpen('view-comments')}
         >
-          <PollAnswerList
-            close={closeModal}
-            onUpdateOwnAnswerClick={onUpdateAnswerClick}
-            ownAnswerExists={!!ownAnswer}
-          />
+          <PollAnswerList close={closeModal} onUpdateOwnAnswerClick={onUpdateAnswerClick} />
         </PollAction>
       )}
 

@@ -1,15 +1,22 @@
 import React from 'react';
 import { ModalHeader } from '../../Modal/ModalHeader';
 import { PollVote } from '../PollVote';
-import { usePollAnswerPagination } from '../hooks';
+import { usePollAnswerPagination, usePollState } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useTranslationContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
+import type { PollAnswer, PollState } from 'stream-chat';
+
+type PollStateSelectorReturnValue = [boolean | undefined, PollAnswer | undefined];
+const pollStateSelector = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>(
+  nextValue: PollState<StreamChatGenerics>,
+): PollStateSelectorReturnValue => [nextValue.is_closed, nextValue.ownAnswer];
 
 export type PollAnswerListProps = {
   onUpdateOwnAnswerClick: () => void;
-  ownAnswerExists: boolean;
   close?: () => void;
 };
 
@@ -18,9 +25,12 @@ export const PollAnswerList = <
 >({
   close,
   onUpdateOwnAnswerClick,
-  ownAnswerExists,
 }: PollAnswerListProps) => {
   const { t } = useTranslationContext();
+  const [isClosed, ownAnswer] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(
+    pollStateSelector,
+  );
+
   const {
     answers,
     error,
@@ -52,9 +62,9 @@ export const PollAnswerList = <
         </InfiniteScrollPaginator>
         {error?.message && <div>{error?.message}</div>}
       </div>
-      {answers.length > 0 && (
+      {answers.length > 0 && !isClosed && (
         <button className='str-chat__poll-action' onClick={onUpdateOwnAnswerClick}>
-          {ownAnswerExists ? t<string>('Update your comment') : t<string>('Add a comment')}
+          {ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
         </button>
       )}
     </div>
