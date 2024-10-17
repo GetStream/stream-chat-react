@@ -7,7 +7,12 @@ import { Portal } from '../Portal/Portal';
 import { UploadFileInput } from '../ReactFileUtilities';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
-import { useChannelStateContext, useComponentContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useComponentContext,
+  useMessageInputContext,
+  useTranslationContext,
+} from '../../context';
 import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import type { DefaultStreamChatGenerics } from '../../types';
 
@@ -45,12 +50,12 @@ export const AttachmentSelector = <
 >() => {
   const { t } = useTranslationContext('AttachmentSelectorActionsMenu');
   const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
-
+  const { isThreadInput } = useMessageInputContext();
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
 
   const menuButtonRef = useRef<ElementRef<'button'>>(null);
 
-  const menuDialogId = 'attachment-actions-menu';
+  const menuDialogId = `attachment-actions-menu${isThreadInput ? '-thread' : ''}`;
   const menuDialog = useDialog({ id: menuDialogId });
   const menuDialogIsOpen = useDialogIsOpen(menuDialogId);
 
@@ -80,7 +85,7 @@ export const AttachmentSelector = <
       </button>
       <DialogAnchor
         id={menuDialogId}
-        placement='top-end'
+        placement='top-start'
         referenceElement={menuButtonRef.current}
         trapFocus
       >
@@ -96,7 +101,7 @@ export const AttachmentSelector = <
               {t<string>('File')}
             </DialogMenuButton>
           )}
-          {channelCapabilities['send-poll'] && (
+          {!isThreadInput && channelCapabilities['send-poll'] && (
             <DialogMenuButton
               className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
               onClick={() => {
