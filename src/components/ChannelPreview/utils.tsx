@@ -38,7 +38,7 @@ export const getLatestMessagePreview = <
   const previewTextToRender =
     latestMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
     latestMessage?.text;
-  const { poll } = latestMessage;
+  const poll = latestMessage?.poll;
 
   if (!latestMessage) {
     return t('Nothing yet...');
