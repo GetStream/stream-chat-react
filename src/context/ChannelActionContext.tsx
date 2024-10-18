@@ -95,7 +95,7 @@ export type ChannelActionContextValue<
   setQuotedMessage: React.Dispatch<
     React.SetStateAction<StreamMessage<StreamChatGenerics> | undefined>
   >;
-  updateMessage: (message: StreamMessage<StreamChatGenerics>) => void;
+  updateMessage: (message: StreamMessage<StreamChatGenerics>, timestampChanged?: boolean) => void;
 };
 
 export const ChannelActionContext = React.createContext<ChannelActionContextValue | undefined>(
