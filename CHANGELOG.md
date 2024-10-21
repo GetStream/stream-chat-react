@@ -1,3 +1,10 @@
+## [12.2.2](https://github.com/GetStream/stream-chat-react/compare/v12.2.1...v12.2.2) (2024-10-21)
+
+
+### Bug Fixes
+
+* show dialogs in thread message list ([#2539](https://github.com/GetStream/stream-chat-react/issues/2539)) ([43895d3](https://github.com/GetStream/stream-chat-react/commit/43895d34abf1cfb4e929b2203e89939760180ed4))
+
 ## [12.2.1](https://github.com/GetStream/stream-chat-react/compare/v12.2.0...v12.2.1) (2024-10-15)
 
 
