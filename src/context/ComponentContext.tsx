@@ -1,12 +1,5 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import {
-  BaseImageProps,
-  CooldownTimerProps,
-  CustomMessageActionsListProps,
-  StartRecordingAudioButtonProps,
-} from '../components';
-
 import type {
   AttachmentPreviewListProps,
   AttachmentProps,
@@ -45,6 +38,12 @@ import type {
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
+} from '../components';
+import {
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
+  StartRecordingAudioButtonProps,
 } from '../components';
 
 import type { MessageBouncePromptProps } from '../components/MessageBounce';
@@ -127,6 +126,8 @@ export type ComponentContextValue<
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
+  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/Poll.tsx) */
+  Poll?: React.ComponentType;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
   QuotedMessage?: React.ComponentType;
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */

@@ -137,6 +137,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'MessageTimestamp'
   | 'ModalGallery'
   | 'PinIndicator'
+  | 'Poll'
   | 'QuotedMessage'
   | 'QuotedMessagePreview'
   | 'reactionOptions'
@@ -1250,6 +1251,7 @@ const ChannelInner = <
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
+      Poll: props.Poll,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
       reactionOptions: props.reactionOptions,
@@ -1300,6 +1302,7 @@ const ChannelInner = <
       props.MessageTimestamp,
       props.ModalGallery,
       props.PinIndicator,
+      props.Poll,
       props.QuotedMessage,
       props.QuotedMessagePreview,
       props.ReactionSelector,
