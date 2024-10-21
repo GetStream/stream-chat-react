@@ -4,6 +4,9 @@ import type {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
   DateSeparatorProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
@@ -12,6 +15,7 @@ import type {
   GiphyPreviewMessageProps,
   LinkPreviewListProps,
   LoadingIndicatorProps,
+  MessageBouncePromptProps,
   MessageDeletedProps,
   MessageInputProps,
   MessageListNotificationsProps,
@@ -24,37 +28,31 @@ import type {
   MessageUIComponentProps,
   ModalGalleryProps,
   PinIndicatorProps,
+  PollCreationDialogProps,
   QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
+  StartRecordingAudioButtonProps,
   SuggestionItemProps,
   SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
+  TimestampProps,
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
-import {
-  BaseImageProps,
-  CooldownTimerProps,
-  CustomMessageActionsListProps,
-  StartRecordingAudioButtonProps,
-} from '../components';
 
-import type { MessageBouncePromptProps } from '../components/MessageBounce';
-import type { TimestampProps } from '../components/Message/Timestamp';
 import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import type { PollCreationDialogProps } from '../components/Poll';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,

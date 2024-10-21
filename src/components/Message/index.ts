@@ -13,3 +13,4 @@ export * from './QuotedMessage';
 export * from './renderText';
 export * from './types';
 export * from './utils';
+export type { TimestampProps } from './Timestamp';
