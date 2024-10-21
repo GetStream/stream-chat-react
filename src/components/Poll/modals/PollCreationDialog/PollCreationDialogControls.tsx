@@ -15,8 +15,10 @@ export const PollCreationDialogControls = ({
   state,
 }: PollCreationDialogControlsProps) => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext('PollCreationDialog');
-  const { handleSubmit: handleSubmitMessage } = useMessageInputContext('PollCreationDialog');
+  const { t } = useTranslationContext('PollCreationDialogControls');
+  const { handleSubmit: handleSubmitMessage } = useMessageInputContext(
+    'PollCreationDialogControls',
+  );
 
   const canSubmit = () => {
     const hasAtLeastOneOption = state.options.filter((o) => !!o.text).length > 0;

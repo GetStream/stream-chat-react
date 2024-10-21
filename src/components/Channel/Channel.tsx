@@ -138,6 +138,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'ModalGallery'
   | 'PinIndicator'
   | 'Poll'
+  | 'PollCreationDialog'
   | 'QuotedMessage'
   | 'QuotedMessagePreview'
   | 'reactionOptions'
@@ -1252,6 +1253,7 @@ const ChannelInner = <
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
       Poll: props.Poll,
+      PollCreationDialog: props.PollCreationDialog,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
       reactionOptions: props.reactionOptions,
@@ -1303,6 +1305,7 @@ const ChannelInner = <
       props.ModalGallery,
       props.PinIndicator,
       props.Poll,
+      props.PollCreationDialog,
       props.QuotedMessage,
       props.QuotedMessagePreview,
       props.ReactionSelector,
