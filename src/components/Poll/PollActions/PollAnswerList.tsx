@@ -5,6 +5,7 @@ import { usePollAnswerPagination, usePollState } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
 import { useTranslationContext } from '../../../context';
+
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollAnswer, PollState } from 'stream-chat';
 

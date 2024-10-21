@@ -1,11 +1,11 @@
 // @ts-nocheck
 import clsx from 'clsx';
-import { MAX_POLL_OPTIONS } from '../../constants';
+import { MAX_POLL_OPTIONS } from '../constants';
 import { nanoid } from 'nanoid';
 import React, { useCallback } from 'react';
 import { FieldError } from './FieldError';
-import { DragAndDropContainer } from '../../../DragAndDrop/DragAndDropContainer';
-import { useTranslationContext } from '../../../../context';
+import { DragAndDropContainer } from '../../DragAndDrop/DragAndDropContainer';
+import { useTranslationContext } from '../../../context';
 import type { OptionErrors, PollFormState, PollOptionFormData } from './types';
 
 const VALIDATION_ERRORS = ({ 'Option already exists': true } as const) as Record<string, boolean>;

@@ -1,19 +1,19 @@
 import { nanoid } from 'nanoid';
 import React, { ElementRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UploadIcon as DefaultUploadIcon } from './icons';
-import { Modal } from '../Modal';
-import { PollCreationDialog } from '../Poll/modals/PollCreationDialog';
-import { Portal } from '../Portal/Portal';
-import { UploadFileInput } from '../ReactFileUtilities';
+import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
+import { Modal } from '../Modal';
+import { PollCreationDialog } from '../Poll/PollCreationDialog';
+import { Portal } from '../Portal/Portal';
+import { UploadFileInput } from '../ReactFileUtilities';
 import {
   useChannelStateContext,
   useComponentContext,
   useMessageInputContext,
   useTranslationContext,
 } from '../../context';
-import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {

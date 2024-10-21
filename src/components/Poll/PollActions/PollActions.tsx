@@ -1,21 +1,28 @@
-import React, { PropsWithChildren, useCallback, useState } from 'react';
-import { PollAnswerList } from './modals/PollAnswerList';
-import { PollOptionsFullList } from './modals/PollOptionsFullList';
-import { FormDialog, PromptDialog } from '../Dialog';
-import { MAX_OPTIONS_DISPLAYED } from './config';
-import { MAX_POLL_OPTIONS } from './constants';
-import { PollResults } from './modals/PollResults/PollResults';
-import { Modal } from '../Modal';
-import { usePoll, usePollState } from './hooks';
+import React, { useCallback, useState } from 'react';
+import { PollAction } from './PollAction';
+import { AddCommentFormProps, AddCommentForm as DefaultAddCommentForm } from './AddCommentForm';
+import {
+  SuggestPollOptionForm as DefaultSuggestPollOptionForm,
+  SuggestPollOptionFormProps,
+} from './SuggestPollOptionForm';
+import { EndPollDialog as DefaultEndPollDialog, EndPollDialogProps } from './EndPollDialog';
+import { PollAnswerList as DefaultPollAnswerList, PollAnswerListProps } from './PollAnswerList';
+import {
+  PollOptionsFullList as DefaultPollOptionsFullList,
+  FullPollOptionsListingProps,
+} from './PollOptionsFullList';
+import { PollResults as DefaultPollResults, PollResultsProps } from './PollResults';
+import { usePollState } from '../hooks';
 import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
   useTranslationContext,
-} from '../../context';
+} from '../../../context';
+import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 
 import type { PollAnswer, PollOption, PollState } from 'stream-chat';
-import type { DefaultStreamChatGenerics } from '../../types';
+import type { DefaultStreamChatGenerics } from '../../../types';
 
 type ModalName =
   | 'suggest-option'
@@ -48,14 +55,29 @@ const pollStateSelector = <
   nextValue.ownAnswer,
 ];
 
+export type PollActionsProps = {
+  AddCommentForm: React.ComponentType<AddCommentFormProps>;
+  EndPollDialog: React.ComponentType<EndPollDialogProps>;
+  PollAnswerList: React.ComponentType<PollAnswerListProps>;
+  PollOptionsFullList: React.ComponentType<FullPollOptionsListingProps>;
+  PollResults: React.ComponentType<PollResultsProps>;
+  SuggestPollOptionForm: React.ComponentType<SuggestPollOptionFormProps>;
+};
+
 export const PollActions = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->() => {
+>({
+  AddCommentForm = DefaultAddCommentForm,
+  EndPollDialog = DefaultEndPollDialog,
+  PollAnswerList = DefaultPollAnswerList,
+  PollOptionsFullList = DefaultPollOptionsFullList,
+  PollResults = DefaultPollResults,
+  SuggestPollOptionForm = DefaultSuggestPollOptionForm,
+}: PollActionsProps) => {
   const { client } = useChatContext();
   const { t } = useTranslationContext('PollActions');
   const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>('PollActions');
   const { message } = useMessageContext('PollActions');
-  const poll = usePoll<StreamChatGenerics>();
   const [
     allow_answers,
     allow_user_suggested_options,
@@ -93,27 +115,7 @@ export const PollActions = <
           modalIsOpen={modalOpen === 'suggest-option'}
           openModal={() => setModalOpen('suggest-option')}
         >
-          <FormDialog<{ optionText: '' }>
-            className='str-chat__prompt-dialog str-chat__modal__suggest-poll-option'
-            close={closeModal}
-            fields={{
-              optionText: {
-                element: 'input',
-                props: {
-                  id: 'optionText',
-                  name: 'optionText',
-                  required: true,
-                  type: 'text',
-                  value: '',
-                },
-              },
-            }}
-            onSubmit={async (value) => {
-              await client.createPollOption(poll.id, { text: value.optionText });
-            }}
-            shouldDisableSubmitButton={(value) => !value.optionText}
-            title={t<string>('Suggest an option')}
-          />
+          <SuggestPollOptionForm close={closeModal} />
         </PollAction>
       )}
 
@@ -125,29 +127,7 @@ export const PollActions = <
           modalIsOpen={modalOpen === 'add-comment'}
           openModal={() => setModalOpen('add-comment')}
         >
-          <FormDialog<{ comment: '' }>
-            className='str-chat__prompt-dialog str-chat__modal__poll-add-comment'
-            close={closeModal}
-            fields={{
-              comment: {
-                element: 'input',
-                props: {
-                  id: 'comment',
-                  name: 'comment',
-                  required: true,
-                  type: 'text',
-                  value: ownAnswer?.answer_text ?? '',
-                },
-              },
-            }}
-            onSubmit={async (value) => {
-              await poll.addAnswer(value.comment, message.id);
-            }}
-            shouldDisableSubmitButton={(value) =>
-              !value.comment || value.comment === ownAnswer?.answer_text
-            }
-            title={ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
-          />
+          <AddCommentForm close={closeModal} messageId={message.id} />
         </PollAction>
       )}
 
@@ -181,52 +161,9 @@ export const PollActions = <
           modalIsOpen={modalOpen === 'end-vote'}
           openModal={() => setModalOpen('end-vote')}
         >
-          <PromptDialog
-            actions={[
-              {
-                children: t<string>('Cancel'),
-                className: 'str-chat__dialog__controls-button--cancel',
-                onClick: closeModal,
-              },
-              {
-                children: t<string>('End'),
-                className:
-                  '.str-chat__dialog__controls-button--submit str-chat__dialog__controls-button--end-poll',
-                onClick: poll.close,
-              },
-            ]}
-            className='str-chat__modal__end-vote'
-            prompt={t<string>('Nobody will be able to vote in this poll anymore.')}
-            title={t<string>('End vote')}
-          />
+          <EndPollDialog close={closeModal} />
         </PollAction>
       )}
     </div>
   );
 };
-
-export type PollActionProps = {
-  buttonText: string;
-  closeModal: () => void;
-  modalIsOpen: boolean;
-  openModal: () => void;
-  modalClassName?: string;
-};
-
-const PollAction = ({
-  buttonText,
-  children,
-  closeModal,
-  modalClassName,
-  modalIsOpen,
-  openModal,
-}: PropsWithChildren<PollActionProps>) => (
-  <>
-    <button className='str-chat__poll-action' onClick={openModal}>
-      {buttonText}
-    </button>
-    <Modal className={modalClassName} onClose={closeModal} open={modalIsOpen}>
-      {children}
-    </Modal>
-  </>
-);

@@ -1,10 +1,10 @@
 import React from 'react';
+import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 import { PollVoteListing } from '../../PollVote';
 import { usePollState } from '../../hooks';
 import { useChannelStateContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
-import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics

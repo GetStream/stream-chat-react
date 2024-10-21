@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Avatar } from '../Avatar';
+import { PopperTooltip } from '../Tooltip';
+import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext, useTranslationContext } from '../../context';
 
-import type { DefaultStreamChatGenerics } from '../../types';
 import type { PollVote as PollVoteType } from 'stream-chat';
-import { useEnterLeaveHandlers } from '../Tooltip/hooks';
-import { PopperTooltip } from '../Tooltip';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
   const { t } = useTranslationContext();

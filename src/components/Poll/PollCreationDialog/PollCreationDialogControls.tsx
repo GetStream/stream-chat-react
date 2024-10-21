@@ -1,6 +1,6 @@
 import React from 'react';
-import { VALID_MAX_VOTES_VALUE_REGEX } from '../../constants';
-import { useChatContext, useMessageInputContext, useTranslationContext } from '../../../../context';
+import { VALID_MAX_VOTES_VALUE_REGEX } from '../constants';
+import { useChatContext, useMessageInputContext, useTranslationContext } from '../../../context';
 import type { PollFormState } from './types';
 
 export type PollCreationDialogControlsProps = {

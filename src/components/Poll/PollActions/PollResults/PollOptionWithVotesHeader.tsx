@@ -1,6 +1,5 @@
 import React from 'react';
 import { usePollState } from '../../hooks';
-import { WinningOptionIcon } from '../../icons';
 import { useTranslationContext } from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
@@ -29,7 +28,9 @@ export const PollResultOptionVoteCounter = <
 
   return (
     <div className='str-chat__poll-result-option-vote-counter'>
-      {maxVotedOptionIds.length === 1 && maxVotedOptionIds[0] === optionId && <WinningOptionIcon />}
+      {maxVotedOptionIds.length === 1 && maxVotedOptionIds[0] === optionId && (
+        <div className='str-chat__poll-result-winning-option-icon' />
+      )}
       <span className='str-chat__poll-result-option-vote-count'>
         {t<string>('{{count}} votes', { count: vote_counts_by_option[optionId] ?? 0 })}
       </span>

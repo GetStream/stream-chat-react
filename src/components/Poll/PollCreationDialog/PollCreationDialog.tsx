@@ -1,16 +1,16 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
-import { FieldError } from './PollCreationDialog/FieldError';
-import { OptionFieldSet } from './PollCreationDialog/OptionFieldSet';
+import { FieldError } from './FieldError';
+import { OptionFieldSet } from './OptionFieldSet';
+import { PollCreationDialogControls } from './PollCreationDialogControls';
+import { VALID_MAX_VOTES_VALUE_REGEX } from '../constants';
 import { ModalHeader } from '../../Modal/ModalHeader';
 import { SimpleSwitchField } from '../../Form/SwitchField';
 import { useChatContext, useTranslationContext } from '../../../context';
 
 import type { VotingVisibility } from 'stream-chat';
-import type { OptionErrors, PollFormState } from './PollCreationDialog/types';
-import { PollCreationDialogControls } from './PollCreationDialog/PollCreationDialogControls';
-import { VALID_MAX_VOTES_VALUE_REGEX } from '../constants';
+import type { OptionErrors, PollFormState } from './types';
 
 export type PollCreationDialogProps = {
   close: () => void;

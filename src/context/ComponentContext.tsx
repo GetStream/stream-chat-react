@@ -54,7 +54,7 @@ import type {
   PropsWithChildrenOnly,
   UnknownType,
 } from '../types/types';
-import { PollCreationDialogProps } from '../components/Poll/modals/PollCreationDialog';
+import type { PollCreationDialogProps } from '../components/Poll';
 
 export type ComponentContextValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
