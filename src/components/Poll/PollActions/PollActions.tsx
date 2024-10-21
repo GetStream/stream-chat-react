@@ -56,12 +56,12 @@ const pollStateSelector = <
 ];
 
 export type PollActionsProps = {
-  AddCommentForm: React.ComponentType<AddCommentFormProps>;
-  EndPollDialog: React.ComponentType<EndPollDialogProps>;
-  PollAnswerList: React.ComponentType<PollAnswerListProps>;
-  PollOptionsFullList: React.ComponentType<FullPollOptionsListingProps>;
-  PollResults: React.ComponentType<PollResultsProps>;
-  SuggestPollOptionForm: React.ComponentType<SuggestPollOptionFormProps>;
+  AddCommentForm?: React.ComponentType<AddCommentFormProps>;
+  EndPollDialog?: React.ComponentType<EndPollDialogProps>;
+  PollAnswerList?: React.ComponentType<PollAnswerListProps>;
+  PollOptionsFullList?: React.ComponentType<FullPollOptionsListingProps>;
+  PollResults?: React.ComponentType<PollResultsProps>;
+  SuggestPollOptionForm?: React.ComponentType<SuggestPollOptionFormProps>;
 };
 
 export const PollActions = <
