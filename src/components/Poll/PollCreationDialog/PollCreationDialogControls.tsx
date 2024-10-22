@@ -23,16 +23,17 @@ export const PollCreationDialogControls = ({
   const canSubmit = () => {
     const hasAtLeastOneOption = state.options.filter((o) => !!o.text).length > 0;
     const hasName = !!state.name;
-    const maxVotesAllowed = parseInt(
+    const maxVotesAllowedNumber = parseInt(
       state.max_votes_allowed?.match(VALID_MAX_VOTES_VALUE_REGEX)?.[0] || '',
     );
-    const hasValidVoteLimit =
-      state.enforce_unique_vote ||
-      (maxVotesAllowed && (2 <= maxVotesAllowed || maxVotesAllowed <= 10));
+
+    const validMaxVotesAllowed =
+      state.max_votes_allowed === '' ||
+      (!!maxVotesAllowedNumber && (2 <= maxVotesAllowedNumber || maxVotesAllowedNumber <= 10));
 
     const noErrors = errors.length === 0;
 
-    return hasAtLeastOneOption && hasName && hasValidVoteLimit && noErrors;
+    return hasAtLeastOneOption && hasName && validMaxVotesAllowed && noErrors;
   };
 
   return (

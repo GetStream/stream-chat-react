@@ -7,5 +7,6 @@ type FieldErrorProps = {
   className?: string;
   text?: string;
 };
-export const FieldError = ({ text }: FieldErrorProps) =>
-  text ? <div className={clsx('str-chat__form-field-error', className)}>{text}</div> : null;
+export const FieldError = ({ text }: FieldErrorProps) => (
+  <div className={clsx('str-chat__form-field-error', className)}>{text}</div>
+);

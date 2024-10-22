@@ -94,13 +94,15 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                   enforce_unique_vote: !e.target.checked,
                   max_votes_allowed: '',
                 }));
-                setMultipleAnswerCountError(
-                  e.target.checked ? t<string>('Type a number from 2 to 10') : undefined,
-                );
+                setMultipleAnswerCountError(undefined);
               }}
             />
             {!state.enforce_unique_vote && (
-              <>
+              <div
+                className={clsx('str-chat__form__input-field__value', {
+                  'str-chat__form__input-field__value--has-error': nameError,
+                })}
+              >
                 <FieldError
                   className='str-chat__form__input-field__error'
                   text={multipleAnswerCountError}
@@ -118,10 +120,10 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                     setState((prev) => ({ ...prev, max_votes_allowed: e.target.value }));
                   }}
                   placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
-                  type='text'
+                  type='number'
                   value={state.max_votes_allowed}
                 />
-              </>
+              </div>
             )}
           </div>
           <SimpleSwitchField
