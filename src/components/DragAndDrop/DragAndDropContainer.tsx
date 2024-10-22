@@ -121,7 +121,6 @@ export const DragAndDropContainer = ({
         return (
           <div
             className={clsx('str-chat__drag-and-drop-container__item', {
-              // 'str-chat__drag-and-drop-container__item--dragged': dragStartIndex === currentIndex,
               'str-chat__drag-and-drop-container__item--dragged-over-from-bottom':
                 moveDirection === 'up' && dragOverIndex === currentIndex,
               'str-chat__drag-and-drop-container__item--dragged-over-from-top':
