@@ -62,8 +62,10 @@ export const PollResults = <
             <div className='str-chat__modal__poll-results__title'>{name}</div>
             <div className='str-chat__modal__poll-results__option-list'>
               {options
-                .sort((current, next) =>
-                  voteCountsByOption[current.id] >= voteCountsByOption[next.id] ? -1 : 1,
+                .sort((next, current) =>
+                  (voteCountsByOption[current.id] ?? 0) >= (voteCountsByOption[next.id] ?? 0)
+                    ? 1
+                    : -1,
                 )
                 .map((option) => (
                   <PollOptionWithLatestVotes
