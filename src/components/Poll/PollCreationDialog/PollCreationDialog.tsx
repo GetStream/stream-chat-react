@@ -53,7 +53,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                 'str-chat__form__input-field__value--has-error': nameError,
               })}
             >
-              <FieldError text={nameError} />
+              <FieldError className='str-chat__form__input-field__error' text={nameError} />
               <input
                 id='name'
                 onBlur={(e) => {
@@ -101,7 +101,10 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             />
             {!state.enforce_unique_vote && (
               <>
-                <FieldError text={multipleAnswerCountError} />
+                <FieldError
+                  className='str-chat__form__input-field__error'
+                  text={multipleAnswerCountError}
+                />
                 <input
                   id='max_votes_allowed'
                   onChange={(e) => {

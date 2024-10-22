@@ -50,11 +50,12 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
           <div
             className={clsx('str-chat__form__input-field__value', {
               'str-chat__form__input-field__value--draggable': draggable,
+              'str-chat__form__input-field__value--has-error': errors[option.id],
             })}
             key={`new-poll-option-${i}`}
           >
             <div>
-              <FieldError text={errors[option.id]} />
+              <FieldError className='str-chat__form__input-field__error' text={errors[option.id]} />
               <input
                 id={option.id}
                 onBlur={(e) => {

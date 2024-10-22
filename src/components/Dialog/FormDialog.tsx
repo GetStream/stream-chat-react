@@ -1,4 +1,3 @@
-import { useTranslationContext } from '../../context';
 import React, {
   ChangeEvent,
   ChangeEventHandler,
@@ -7,10 +6,14 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
+import { FieldError } from '../Poll/PollCreationDialog/FieldError';
+import { useTranslationContext } from '../../context';
 
 type FormElements = 'input' | 'textarea';
 type FieldId = string;
-type Validator = (value: string | readonly string[] | number | boolean | undefined) => Error[];
+type Validator = (
+  value: string | readonly string[] | number | boolean | undefined,
+) => Error | undefined;
 
 export type FieldConfig = {
   element: FormElements;
@@ -43,7 +46,7 @@ export const FormDialog = <
   title,
 }: TextInputFormProps<F>) => {
   const { t } = useTranslationContext();
-  const [fieldErrors, setFieldErrors] = useState<Record<FieldId, Error[]>>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<FieldId, Error>>({});
   const [value, setValue] = useState<F>(() => {
     let acc: Partial<F> = {};
     for (const [id, config] of Object.entries(fields)) {
@@ -58,8 +61,8 @@ export const FormDialog = <
       const fieldConfig = fields[fieldId];
       if (!fieldConfig) return;
 
-      const errors = fieldConfig.validator?.(event.target.value);
-      if (errors?.length) setFieldErrors((prev) => ({ [fieldId]: errors, ...prev }));
+      const error = fieldConfig.validator?.(event.target.value);
+      if (error) setFieldErrors((prev) => ({ [fieldId]: error, ...prev }));
       setValue((prev) => ({ ...prev, [fieldId]: event.target.value }));
 
       if (!fieldConfig.props.onChange) return;
@@ -79,11 +82,11 @@ export const FormDialog = <
 
   const handleSubmit = async () => {
     if (!Object.keys(value).length) return;
-    const errors: Record<FieldId, Error[]> = {};
+    const errors: Record<FieldId, Error> = {};
     for (const [id, fieldValue] of Object.entries(value)) {
-      const thisFieldErrors = fields[id].validator?.(fieldValue);
-      if (thisFieldErrors?.length) {
-        errors[id] = thisFieldErrors;
+      const thisFieldError = fields[id].validator?.(fieldValue);
+      if (thisFieldError) {
+        errors[id] = thisFieldError;
       }
     }
     if (Object.keys(errors).length) {
@@ -98,7 +101,7 @@ export const FormDialog = <
     <div className={clsx('str-chat__dialog str-chat__dialog--form', className)}>
       <div className='str-chat__dialog__body'>
         {title && <div className='str-chat__dialog__title'>{title}</div>}
-        <form onError={console.log}>
+        <form>
           {Object.entries(fields).map(([id, fieldConfig]) => (
             <div className='str-chat__dialog__field' key={`dialog-field-${id}`}>
               {fieldConfig.label && (
@@ -115,11 +118,7 @@ export const FormDialog = <
                 onChange: handleChange,
                 value: value[id],
               })}
-              {fieldErrors[id]?.map((error, errIndex) => (
-                <div className='str-chat__form-error' key={`field-${id}-error-${errIndex}`}>
-                  {error.message}
-                </div>
-              ))}
+              <FieldError text={fieldErrors[id]?.message} />
             </div>
           ))}
         </form>
