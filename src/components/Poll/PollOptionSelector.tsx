@@ -37,8 +37,9 @@ type PollStateSelectorReturnValue<
 > = [
   boolean | undefined,
   Record<string, PollVote<StreamChatGenerics>[]>,
+  number,
   string[],
-  Record<string, string>,
+  Record<string, PollVote<StreamChatGenerics>>,
   Record<string, number>,
 ];
 const pollStateSelector = <
@@ -48,6 +49,7 @@ const pollStateSelector = <
 ): PollStateSelectorReturnValue<StreamChatGenerics> => [
   nextValue.is_closed,
   nextValue.latest_votes_by_option,
+  nextValue.max_votes_allowed,
   nextValue.maxVotedOptionIds,
   nextValue.ownVotesByOptionId,
   nextValue.vote_counts_by_option,
@@ -76,24 +78,46 @@ export const PollOptionSelector = <
   const [
     is_closed,
     latest_votes_by_option,
+    max_votes_allowed,
     maxVotedOptionIds,
     ownVotesByOptionId,
     vote_counts_by_option,
-  ] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(pollStateSelector);
+  ] = usePollState<PollStateSelectorReturnValue<StreamChatGenerics>, StreamChatGenerics>(
+    pollStateSelector,
+  );
   const poll = usePoll();
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const winningOptionCount = maxVotedOptionIds[0] ? vote_counts_by_option[maxVotedOptionIds[0]] : 0;
 
   const toggleVote = useMemo(
     () =>
-      debounce(() => {
+      debounce(async () => {
         if (!canCastVote) return;
         const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
-        return haveVotedForTheOption
-          ? poll.removeVote(ownVotesByOptionId[option.id], message.id)
-          : poll.castVote(option.id, message.id);
+        const reachedVoteLimit =
+          max_votes_allowed && max_votes_allowed === Object.keys(ownVotesByOptionId).length;
+
+        if (reachedVoteLimit) {
+          let oldestVotedOption: { optionId?: string; vote?: PollVote<StreamChatGenerics> } = {};
+          Object.entries(ownVotesByOptionId).forEach(([optionId, vote]) => {
+            if (
+              !oldestVotedOption.vote?.created_at ||
+              new Date(vote.created_at) < new Date(oldestVotedOption.vote.created_at)
+            ) {
+              oldestVotedOption = { optionId, vote };
+            }
+          });
+          if (oldestVotedOption.vote?.id) {
+            await poll.removeVote(oldestVotedOption.vote?.id, message.id);
+          }
+          poll.castVote(option.id, message.id);
+        } else if (haveVotedForTheOption) {
+          poll.removeVote(ownVotesByOptionId[option.id].id, message.id);
+        } else {
+          poll.castVote(option.id, message.id);
+        }
       }, 100),
-    [canCastVote, message.id, option.id, ownVotesByOptionId, poll],
+    [canCastVote, max_votes_allowed, message.id, option.id, ownVotesByOptionId, poll],
   );
 
   return (
