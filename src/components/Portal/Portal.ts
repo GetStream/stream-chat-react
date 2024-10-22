@@ -1,4 +1,4 @@
-import { PropsWithChildren, useLayoutEffect, useState } from 'react';
+import { PropsWithChildren, ReactPortal, useLayoutEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export type PortalProps = {
@@ -10,7 +10,7 @@ export const Portal = ({
   children,
   getPortalDestination,
   isOpen,
-}: PropsWithChildren<PortalProps>) => {
+}: PropsWithChildren<PortalProps>): ReactPortal | null => {
   const [portalDestination, setPortalDestination] = useState<Element | null>(null);
 
   useLayoutEffect(() => {
