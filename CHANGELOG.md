@@ -1,3 +1,17 @@
+## [12.2.2](https://github.com/GetStream/stream-chat-react/compare/v12.2.1...v12.2.2) (2024-10-21)
+
+
+### Bug Fixes
+
+* show dialogs in thread message list ([#2539](https://github.com/GetStream/stream-chat-react/issues/2539)) ([43895d3](https://github.com/GetStream/stream-chat-react/commit/43895d34abf1cfb4e929b2203e89939760180ed4))
+
+## [12.2.1](https://github.com/GetStream/stream-chat-react/compare/v12.2.0...v12.2.1) (2024-10-15)
+
+
+### Bug Fixes
+
+* get correct lastMessage and latestMessagePreview from channel state ([#2535](https://github.com/GetStream/stream-chat-react/issues/2535)) ([9dcf4f3](https://github.com/GetStream/stream-chat-react/commit/9dcf4f38ecda17ff0b9efb3d3dc5d867a0f44342))
+
 ## [12.2.0](https://github.com/GetStream/stream-chat-react/compare/v12.1.0...v12.2.0) (2024-10-07)
 
 
