@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { FieldError } from '../Poll/PollCreationDialog/FieldError';
+import { FieldError } from '../Form/FieldError';
 import { useTranslationContext } from '../../context';
 
 type FormElements = 'input' | 'textarea';
@@ -62,7 +62,14 @@ export const FormDialog = <
       if (!fieldConfig) return;
 
       const error = fieldConfig.validator?.(event.target.value);
-      if (error) setFieldErrors((prev) => ({ [fieldId]: error, ...prev }));
+      if (error) {
+        setFieldErrors((prev) => ({ [fieldId]: error, ...prev }));
+      } else {
+        setFieldErrors((prev) => {
+          delete prev[fieldId];
+          return prev;
+        });
+      }
       setValue((prev) => ({ ...prev, [fieldId]: event.target.value }));
 
       if (!fieldConfig.props.onChange) return;

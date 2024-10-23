@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
-import { FieldError } from './FieldError';
+import { FieldError } from '../../Form/FieldError';
 import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
 import { VALID_MAX_VOTES_VALUE_REGEX } from '../constants';
