@@ -150,7 +150,8 @@
         "guides/sdk-state-management",
         "guides/date-time-formatting",
         "guides/custom-threads-view",
-        "guides/dialog-management"
+        "guides/dialog-management",
+        "guides/blocking-users"
       ]
     },
     {
