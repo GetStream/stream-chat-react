@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { usePoll, usePollState } from './hooks';
 import { Avatar } from '../Avatar';
 import { useChannelStateContext, useMessageContext, useTranslationContext } from '../../context';
+import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 type AmountBarProps = {
@@ -38,7 +38,7 @@ type PollStateSelectorReturnValue<
   boolean | undefined,
   Record<string, PollVote<StreamChatGenerics>[]>,
   string[],
-  Record<string, string>,
+  Record<string, PollVote<StreamChatGenerics>>,
   Record<string, number>,
 ];
 const pollStateSelector = <
@@ -90,7 +90,7 @@ export const PollOptionSelector = <
         if (!canCastVote) return;
         const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
         return haveVotedForTheOption
-          ? poll.removeVote(ownVotesByOptionId[option.id], message.id)
+          ? poll.removeVote(ownVotesByOptionId[option.id].id, message.id)
           : poll.castVote(option.id, message.id);
       }, 100),
     [canCastVote, message.id, option.id, ownVotesByOptionId, poll],
