@@ -22,6 +22,7 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
+import { DialogManagerProvider } from '../../context';
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -86,6 +87,8 @@ export type MessageInputProps<
   hideSendButton?: boolean;
   /** Custom UI component handling how the message input is rendered, defaults to and accepts the same props as [MessageInputFlat](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/MessageInputFlat.tsx) */
   Input?: React.ComponentType<MessageInputProps<StreamChatGenerics, V>>;
+  /** Signals that the MessageInput is rendered in a message thread (Thread component) */
+  isThreadInput?: boolean;
   /** Max number of rows the underlying `textarea` component is allowed to grow */
   maxRows?: number;
   /** If true, the suggestion list will search all app users for an @mention, not just current channel members/watchers. Default: false. */
@@ -164,22 +167,27 @@ const UnMemoizedMessageInput = <
   >('MessageInput');
 
   const Input = PropInput || ContextInput || MessageInputFlat;
+  const dialogManagerId = props.isThreadInput
+    ? 'message-input-dialog-manager-thread'
+    : 'message-input-dialog-manager';
 
   if (dragAndDropWindow)
     return (
-      <>
+      <DialogManagerProvider id={dialogManagerId}>
         <TriggerProvider>
           <Input />
         </TriggerProvider>
-      </>
+      </DialogManagerProvider>
     );
 
   return (
-    <MessageInputProvider {...props}>
-      <TriggerProvider>
-        <Input />
-      </TriggerProvider>
-    </MessageInputProvider>
+    <DialogManagerProvider id={dialogManagerId}>
+      <MessageInputProvider {...props}>
+        <TriggerProvider>
+          <Input />
+        </TriggerProvider>
+      </MessageInputProvider>
+    </DialogManagerProvider>
   );
 };
 

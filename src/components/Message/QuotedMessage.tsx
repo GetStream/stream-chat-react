@@ -8,10 +8,11 @@ import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 
-import type { TranslationLanguages } from 'stream-chat';
+import type { PollResponse, TranslationLanguages } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
 import { Attachment as DefaultAttachment } from '../Attachment';
+import { QuotedPoll } from '../Poll';
 
 export const QuotedMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -41,7 +42,7 @@ export const QuotedMessage = <
       ? quoted_message.attachments[0]
       : null;
 
-  if (!quotedMessageText && !quotedMessageAttachment) return null;
+  if (!quoted_message.poll && !quotedMessageText && !quotedMessageAttachment) return null;
 
   return (
     <>
@@ -63,12 +64,21 @@ export const QuotedMessage = <
           />
         )}
         <div className='str-chat__quoted-message-bubble' data-testid='quoted-message-contents'>
-          {quotedMessageAttachment && (
-            <Attachment attachments={[quotedMessageAttachment]} isQuoted />
+          {quoted_message.poll ? (
+            <QuotedPoll poll={quoted_message.poll as PollResponse<StreamChatGenerics>} />
+          ) : (
+            <>
+              {quotedMessageAttachment && (
+                <Attachment attachments={[quotedMessageAttachment]} isQuoted />
+              )}
+              <div
+                className='str-chat__quoted-message-bubble__text'
+                data-testid='quoted-message-text'
+              >
+                {quotedMessageText}
+              </div>
+            </>
           )}
-          <div className='str-chat__quoted-message-bubble__text' data-testid='quoted-message-text'>
-            {quotedMessageText}
-          </div>
         </div>
       </div>
       {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}

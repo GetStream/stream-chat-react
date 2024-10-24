@@ -1,16 +1,12 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import {
-  BaseImageProps,
-  CooldownTimerProps,
-  CustomMessageActionsListProps,
-  StartRecordingAudioButtonProps,
-} from '../components';
-
 import type {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
   DateSeparatorProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
@@ -19,6 +15,7 @@ import type {
   GiphyPreviewMessageProps,
   LinkPreviewListProps,
   LoadingIndicatorProps,
+  MessageBouncePromptProps,
   MessageDeletedProps,
   MessageInputProps,
   MessageListNotificationsProps,
@@ -31,24 +28,25 @@ import type {
   MessageUIComponentProps,
   ModalGalleryProps,
   PinIndicatorProps,
+  PollCreationDialogProps,
   QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
+  StartRecordingAudioButtonProps,
   SuggestionItemProps,
   SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
+  TimestampProps,
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
 
-import type { MessageBouncePromptProps } from '../components/MessageBounce';
-import type { TimestampProps } from '../components/Message/Timestamp';
 import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
@@ -64,6 +62,8 @@ export type ComponentContextValue<
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
+  AttachmentSelector?: React.ComponentType;
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -125,6 +125,10 @@ export type ComponentContextValue<
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
+  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/Poll.tsx) */
+  Poll?: React.ComponentType;
+  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog.tsx) */
+  PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
   QuotedMessage?: React.ComponentType;
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
