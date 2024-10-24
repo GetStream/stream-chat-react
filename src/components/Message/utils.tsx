@@ -56,6 +56,10 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   edit: 'edit',
   flag: 'flag',
+  markAsUnread: 'markAsUnread',
+  /**
+   * @deprecated Use `markAsUnread` instead.
+   */
   markUnread: 'markUnread',
   mute: 'mute',
   pin: 'pin',
@@ -208,6 +212,7 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.pin,
   MESSAGE_ACTIONS.reply,
   MESSAGE_ACTIONS.markUnread,
+  MESSAGE_ACTIONS.markAsUnread,
 ];
 
 /**
