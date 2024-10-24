@@ -15,19 +15,6 @@ import { useUserRole } from '../Message/hooks';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { MessageActionsWrapper } from './MessageActions';
 
-// 1. set of available actions
-// const messageactions = {
-//   quick: [{ type: 'reply' }, { type: 'react' }],
-//   extended: [
-//     { type: 'block' },
-//     { type: 'mute' },
-//     { type: 'flag' },
-//     { type: 'pin' },
-//     { type: 'quote' },
-//     { type: 'mark-as-unread', action: () => {}, component },
-//   ],
-// } as const;
-
 type MessageAction = {
   Component: React.ComponentType;
   placement: 'quick' | 'dropdown';
@@ -46,7 +33,7 @@ type MessageAction = {
     | (string & {});
 };
 
-const DefaultActions_UNSTABLE = {
+const DefaultMessageActions_UNSTABLE = {
   dropdown: {
     // eslint-disable-next-line react/display-name
     Quote: () => {
@@ -68,7 +55,7 @@ const DefaultActions_UNSTABLE = {
       };
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleQuote} role='option'>
+        <DefaultDropdownActionButton onClick={handleQuote}>
           {t<string>('Quote')}
         </DefaultDropdownActionButton>
       );
@@ -79,7 +66,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handlePin} role='option'>
+        <DefaultDropdownActionButton onClick={handlePin}>
           {!message.pinned ? t<string>('Pin') : t<string>('Unpin')}
         </DefaultDropdownActionButton>
       );
@@ -90,7 +77,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleMarkUnread} role='option'>
+        <DefaultDropdownActionButton onClick={handleMarkUnread}>
           {t<string>('Mark as unread')}
         </DefaultDropdownActionButton>
       );
@@ -101,7 +88,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleFlag} role='option'>
+        <DefaultDropdownActionButton onClick={handleFlag}>
           {t<string>('Flag')}
         </DefaultDropdownActionButton>
       );
@@ -113,7 +100,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleMute} role='option'>
+        <DefaultDropdownActionButton onClick={handleMute}>
           {isUserMuted(message, mutes) ? t<string>('Unmute') : t<string>('Mute')}
         </DefaultDropdownActionButton>
       );
@@ -124,7 +111,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleEdit} role='option'>
+        <DefaultDropdownActionButton onClick={handleEdit}>
           {t<string>('Edit Message')}
         </DefaultDropdownActionButton>
       );
@@ -135,7 +122,7 @@ const DefaultActions_UNSTABLE = {
       const { t } = useTranslationContext();
 
       return (
-        <DefaultDropdownActionButton aria-selected='false' onClick={handleDelete} role='option'>
+        <DefaultDropdownActionButton onClick={handleDelete}>
           {t<string>('Delete')}
         </DefaultDropdownActionButton>
       );
@@ -143,21 +130,16 @@ const DefaultActions_UNSTABLE = {
   },
   quick: {
     // eslint-disable-next-line react/display-name
-    React: () => {
-      const { theme } = useChatContext();
-
-      return <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} theme={theme} />;
-    },
+    React: () => <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />,
     // eslint-disable-next-line react/display-name
     Reply: () => {
       const { handleOpenThread } = useMessageContext();
-      const { theme } = useChatContext();
       const { t } = useTranslationContext();
 
       return (
         <button
           aria-label={t('aria/Open Thread')}
-          className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--thread str-chat__message-reply-in-thread-button`}
+          className='str-chat__message-reply-in-thread-button'
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
@@ -169,100 +151,113 @@ const DefaultActions_UNSTABLE = {
 };
 
 export const defaultMessageActionSet_UNSTABLE: MessageAction[] = [
-  { Component: DefaultActions_UNSTABLE.quick.Reply, placement: 'quick', type: 'reply' },
-  { Component: DefaultActions_UNSTABLE.quick.React, placement: 'quick', type: 'react' },
+  { Component: DefaultMessageActions_UNSTABLE.quick.Reply, placement: 'quick', type: 'reply' },
+  { Component: DefaultMessageActions_UNSTABLE.quick.React, placement: 'quick', type: 'react' },
   //   { placement: 'dropdown', type: 'block' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Delete, placement: 'dropdown', type: 'delete' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Edit, placement: 'dropdown', type: 'edit' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Mute, placement: 'dropdown', type: 'mute' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Flag, placement: 'dropdown', type: 'flag' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Pin, placement: 'dropdown', type: 'pin' },
-  { Component: DefaultActions_UNSTABLE.dropdown.Quote, placement: 'dropdown', type: 'quote' },
   {
-    Component: DefaultActions_UNSTABLE.dropdown.MarkAsUnread,
+    Component: DefaultMessageActions_UNSTABLE.dropdown.Delete,
+    placement: 'dropdown',
+    type: 'delete',
+  },
+  { Component: DefaultMessageActions_UNSTABLE.dropdown.Edit, placement: 'dropdown', type: 'edit' },
+  { Component: DefaultMessageActions_UNSTABLE.dropdown.Mute, placement: 'dropdown', type: 'mute' },
+  { Component: DefaultMessageActions_UNSTABLE.dropdown.Flag, placement: 'dropdown', type: 'flag' },
+  { Component: DefaultMessageActions_UNSTABLE.dropdown.Pin, placement: 'dropdown', type: 'pin' },
+  {
+    Component: DefaultMessageActions_UNSTABLE.dropdown.Quote,
+    placement: 'dropdown',
+    type: 'quote',
+  },
+  {
+    Component: DefaultMessageActions_UNSTABLE.dropdown.MarkAsUnread,
     placement: 'dropdown',
     type: 'markAsUnread',
   },
 ] as const;
 
-export const DefaultQuickActionButton = ({
-  children,
-  className = 'str-chat__message-simple__actions__action',
-  ...rest
-}: ComponentPropsWithoutRef<'button'>) => (
-  <button className={className} {...rest}>
-    {children}
-  </button>
-);
-
 export const DefaultDropdownActionButton = ({
+  'aria-selected': ariaSelected = 'false',
   children,
   className = 'str-chat__message-actions-list-item-button',
+  role = 'option',
   ...rest
 }: ComponentPropsWithoutRef<'button'>) => (
-  <button className={className} {...rest}>
+  <button aria-selected={ariaSelected} className={className} role={role} {...rest}>
     {children}
   </button>
 );
 
 /**
- * Default filter function which covers actions of type `delete`, `edit`,
+ * Base filter hook which covers actions of type `delete`, `edit`,
  * `flag`, `markAsUnread`, `mute`, `quote`, `react` and `reply` and whether
  * the rendered message is a reply (replies are limited to certain actions).
- *
- * @returns boolean
  */
-export const defaultFilterFunction: MessageActionFilterFunction = ({
-  isMessageThreadReply,
-  messageAction: { type },
-  userCapabilities,
-}) => {
-  if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply) return false;
-
-  if (type === 'delete' && !userCapabilities.canDelete) return false;
-  if (type === 'edit' && !userCapabilities.canEdit) return false;
-  if (type === 'flag' && !userCapabilities.canFlag) return false;
-  if (type === 'markAsUnread' && !userCapabilities.canMarkUnread) return false;
-  if (type === 'mute' && !userCapabilities.canMute) return false;
-  if (type === 'quote' && !userCapabilities.canQuote) return false;
-  if (type === 'react' && !userCapabilities.canReact) return false;
-  if (type === 'reply' && !userCapabilities.canReply) return false;
-
-  return true;
-};
-
-export type MessageActionFilterFunction = (value: {
-  index: number;
-  isMessageThreadReply: boolean;
-  messageAction: MessageAction;
-  userCapabilities: ReturnType<typeof useUserRole>;
-}) => boolean;
-
-const useMessageActionFilter_UNSTABLE = ({
-  messageActionSet,
-  filterFunction = defaultFilterFunction,
-}: {
-  messageActionSet: MessageAction[];
-  filterFunction?: MessageActionFilterFunction;
-}) => {
-  const { message } = useMessageContext();
-
+export const useBaseMessageActionSetFilter_UNSTABLE = (
+  messageActionSet: MessageAction[],
+  disable = false,
+) => {
+  const { initialMessage: isInitialMessage, message } = useMessageContext();
+  const {
+    canDelete,
+    canEdit,
+    canFlag,
+    canMarkUnread,
+    canMute,
+    canQuote,
+    canReact,
+    canReply,
+  } = useUserRole(message);
   const isMessageThreadReply = typeof message.parent_id === 'string';
 
-  const userCapabilities = useUserRole(message);
-
   return useMemo(() => {
-    const filteredSet = messageActionSet.filter((messageAction, index) =>
-      filterFunction({
-        messageAction,
-        index,
-        userCapabilities,
-        isMessageThreadReply,
-      }),
-    );
+    if (disable) return messageActionSet;
 
-    return filteredSet;
-  }, [filterFunction, isMessageThreadReply, messageActionSet, userCapabilities]);
+    // filter out all actions if any of these are true
+    if (
+      isInitialMessage || // not sure whether this thing even works anymore
+      !message.type ||
+      message.type === 'error' ||
+      message.type === 'system' ||
+      message.type === 'ephemeral' ||
+      message.status === 'failed' ||
+      message.status === 'sending'
+    )
+      return [];
+
+    return messageActionSet.filter(({ type }: MessageAction) => {
+      // filter out actions with types that do not work in thread
+      if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply) return false;
+
+      if (
+        (type === 'delete' && !canDelete) ||
+        (type === 'edit' && !canEdit) ||
+        (type === 'flag' && !canFlag) ||
+        (type === 'markAsUnread' && !canMarkUnread) ||
+        (type === 'mute' && !canMute) ||
+        (type === 'quote' && !canQuote) ||
+        (type === 'react' && !canReact) ||
+        (type === 'reply' && !canReply)
+      )
+        return false;
+
+      return true;
+    });
+  }, [
+    canDelete,
+    canEdit,
+    canFlag,
+    canMarkUnread,
+    canMute,
+    canQuote,
+    canReact,
+    canReply,
+    isInitialMessage,
+    isMessageThreadReply,
+    message.status,
+    message.type,
+    disable,
+    messageActionSet,
+  ]);
 };
 
 export const useSplitMessageActionSet_UNSTABLE = (messageActionSet: MessageAction[]) =>
@@ -279,42 +274,36 @@ export const useSplitMessageActionSet_UNSTABLE = (messageActionSet: MessageActio
   }, [messageActionSet]);
 
 export const MessageActions_UNSTABLE = ({
+  disableBaseMessageActionSetFilter = false,
   messageActionSet = defaultMessageActionSet_UNSTABLE,
-  filterFunction,
 }: {
-  filterFunction?: MessageActionFilterFunction;
+  disableBaseMessageActionSetFilter?: boolean;
   messageActionSet?: MessageAction[];
 }) => {
   const { theme } = useChatContext();
-  const { initialMessage, isMyMessage, message } = useMessageContext();
+  const { isMyMessage, message } = useMessageContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
 
-  const filteredMessageActionSet = useMessageActionFilter_UNSTABLE({
+  const filteredMessageActionSet = useBaseMessageActionSetFilter_UNSTABLE(
     messageActionSet,
-    filterFunction,
-  });
+    disableBaseMessageActionSetFilter,
+  );
+
   const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet_UNSTABLE(
     filteredMessageActionSet,
   );
 
-  const dialogId = `message-actions--${message.id}`;
-  const dialog = useDialog({ id: dialogId });
-  const dropdownDialogIsOpen = useDialogIsOpen(`message-actions--${message.id}`);
-  const reactionSelectorDialogIsOpen = useDialogIsOpen(`reaction-selector--${message.id}`);
+  const dropdownDialogId = `message-actions--${message.id}`;
+  const reactionSelectorDialogId = `reaction-selector--${message.id}`;
+  const dialog = useDialog({ id: dropdownDialogId });
+  const dropdownDialogIsOpen = useDialogIsOpen(dropdownDialogId);
+  const reactionSelectorDialogIsOpen = useDialogIsOpen(reactionSelectorDialogId);
 
-  // do not render actions
-  if (
-    !message.type ||
-    message.type === 'error' ||
-    message.type === 'system' ||
-    message.type === 'ephemeral' ||
-    message.status === 'failed' ||
-    message.status === 'sending' ||
-    initialMessage
-  ) {
+  // do not render anything if total action count is zero
+  if (dropdownActionSet.length + quickActionSet.length === 0) {
     return null;
   }
 
@@ -338,7 +327,7 @@ export const MessageActions_UNSTABLE = ({
           </button>
 
           <DialogAnchor
-            id={dialogId}
+            id={dropdownDialogId}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
             trapFocus

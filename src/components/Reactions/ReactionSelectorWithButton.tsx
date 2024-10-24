@@ -8,8 +8,6 @@ import type { IconProps } from '../../types/types';
 type ReactionSelectorWithButtonProps = {
   /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
   ReactionIcon: React.ComponentType<IconProps>;
-  /* Theme string to be added to CSS class names. */
-  theme: string;
 };
 
 /**
@@ -20,7 +18,6 @@ export const ReactionSelectorWithButton = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
   ReactionIcon,
-  theme,
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('MessageOptions');
@@ -42,7 +39,7 @@ export const ReactionSelectorWithButton = <
       <button
         aria-expanded={dialogIsOpen}
         aria-label={t('aria/Open Reaction Selector')}
-        className={`str-chat__message-${theme}__actions__action str-chat__message-${theme}__actions__action--reactions str-chat__message-reactions-button`}
+        className='str-chat__message-reactions-button'
         data-testid='message-reaction-action'
         onClick={() => dialog?.toggle()}
         ref={buttonRef}
