@@ -147,7 +147,7 @@ export type MessageActionsWrapperProps = {
   toggleOpen?: () => void;
 };
 
-const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
+export const MessageActionsWrapper = (props: PropsWithChildren<MessageActionsWrapperProps>) => {
   const { children, customWrapperClass, inline, toggleOpen } = props;
 
   const defaultWrapperClass = clsx(
