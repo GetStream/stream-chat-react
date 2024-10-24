@@ -48,13 +48,13 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
       >
         {options.map((option, i) => (
           <div
-            className={clsx('str-chat__form__input-field__value', {
-              'str-chat__form__input-field__value--draggable': draggable,
-              'str-chat__form__input-field__value--has-error': errors[option.id],
+            className={clsx('str-chat__form__input-field', {
+              'str-chat__form__input-field--draggable': draggable,
+              'str-chat__form__input-field--has-error': errors[option.id],
             })}
             key={`new-poll-option-${i}`}
           >
-            <div>
+            <div className='str-chat__form__input-field__value'>
               <FieldError className='str-chat__form__input-field__error' text={errors[option.id]} />
               <input
                 id={option.id}

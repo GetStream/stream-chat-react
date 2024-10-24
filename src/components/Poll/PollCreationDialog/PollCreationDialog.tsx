@@ -44,15 +44,18 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
       <ModalHeader close={close} title={t<string>('Create poll')} />
       <div className='str-chat__dialog__body'>
         <form>
-          <div className='str-chat__form__field str-chat__form__input-field'>
+          <div
+            className={clsx(
+              'str-chat__form__field str-chat__form__input-field str-chat__form__input-field--with-label',
+              {
+                'str-chat__form__input-field--has-error': nameError,
+              },
+            )}
+          >
             <label className='str-chat__form__field-label' htmlFor='name'>
               {t<string>('Question')}
             </label>
-            <div
-              className={clsx('str-chat__form__input-field__value', {
-                'str-chat__form__input-field__value--has-error': nameError,
-              })}
-            >
+            <div className={clsx('str-chat__form__input-field__value')}>
               <FieldError className='str-chat__form__input-field__error' text={nameError} />
               <input
                 id='name'
@@ -99,30 +102,32 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             />
             {!state.enforce_unique_vote && (
               <div
-                className={clsx('str-chat__form__input-field__value', {
-                  'str-chat__form__input-field__value--has-error': nameError,
+                className={clsx('str-chat__form__input-field', {
+                  'str-chat__form__input-field--has-error': multipleAnswerCountError,
                 })}
               >
-                <FieldError
-                  className='str-chat__form__input-field__error'
-                  text={multipleAnswerCountError}
-                />
-                <input
-                  id='max_votes_allowed'
-                  onChange={(e) => {
-                    const isValidValue =
-                      !e.target.value || e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX);
-                    if (!isValidValue) {
-                      setMultipleAnswerCountError(t<string>('Type a number from 2 to 10'));
-                    } else if (multipleAnswerCountError) {
-                      setMultipleAnswerCountError(undefined);
-                    }
-                    setState((prev) => ({ ...prev, max_votes_allowed: e.target.value }));
-                  }}
-                  placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
-                  type='number'
-                  value={state.max_votes_allowed}
-                />
+                <div className={clsx('str-chat__form__input-field__value')}>
+                  <FieldError
+                    className='str-chat__form__input-field__error'
+                    text={multipleAnswerCountError}
+                  />
+                  <input
+                    id='max_votes_allowed'
+                    onChange={(e) => {
+                      const isValidValue =
+                        !e.target.value || e.target.value.match(VALID_MAX_VOTES_VALUE_REGEX);
+                      if (!isValidValue) {
+                        setMultipleAnswerCountError(t<string>('Type a number from 2 to 10'));
+                      } else if (multipleAnswerCountError) {
+                        setMultipleAnswerCountError(undefined);
+                      }
+                      setState((prev) => ({ ...prev, max_votes_allowed: e.target.value }));
+                    }}
+                    placeholder={t<string>('Maximum number of votes (from 2 to 10)')}
+                    type='number'
+                    value={state.max_votes_allowed}
+                  />
+                </div>
               </div>
             )}
           </div>
