@@ -23,7 +23,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { EditMessageForm as DefaultEditMessageForm, MessageInput } from '../MessageInput';
 import { MML } from '../MML';
 import { Modal } from '../Modal';
-import { Poll } from '../Poll';
+import { Poll as DefaultPoll } from '../Poll';
 import { ReactionsList as DefaultReactionList } from '../Reactions';
 import { MessageBounceModal } from '../MessageBounce/MessageBounceModal';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -77,7 +77,7 @@ const MessageSimpleWithContext = <
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
-
+    Poll = DefaultPoll,
     ReactionsList = DefaultReactionList,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
