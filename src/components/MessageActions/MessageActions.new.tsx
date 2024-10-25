@@ -15,7 +15,7 @@ import { useUserRole } from '../Message/hooks';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { MessageActionsWrapper } from './MessageActions';
 
-type MessageAction = {
+export type MessageAction = {
   Component: React.ComponentType;
   placement: 'quick' | 'dropdown';
   type:
@@ -33,10 +33,9 @@ type MessageAction = {
     | (string & {});
 };
 
-const DefaultMessageActions_UNSTABLE = {
+const DefaultMessageActionComponents = {
   dropdown: {
-    // eslint-disable-next-line react/display-name
-    Quote: () => {
+    Quote() {
       const { setQuotedMessage } = useChannelActionContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -60,8 +59,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    Pin: () => {
+    Pin() {
       const { handlePin, message } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -71,8 +69,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    MarkAsUnread: () => {
+    MarkAsUnread() {
       const { handleMarkUnread } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -82,8 +79,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    Flag: () => {
+    Flag() {
       const { handleFlag } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -93,8 +89,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    Mute: () => {
+    Mute() {
       const { handleMute, message } = useMessageContext();
       const { mutes } = useChatContext();
       const { t } = useTranslationContext();
@@ -105,8 +100,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    Edit: () => {
+    Edit() {
       const { handleEdit } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -116,8 +110,7 @@ const DefaultMessageActions_UNSTABLE = {
         </DefaultDropdownActionButton>
       );
     },
-    // eslint-disable-next-line react/display-name
-    Delete: () => {
+    Delete() {
       const { handleDelete } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -129,10 +122,10 @@ const DefaultMessageActions_UNSTABLE = {
     },
   },
   quick: {
-    // eslint-disable-next-line react/display-name
-    React: () => <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />,
-    // eslint-disable-next-line react/display-name
-    Reply: () => {
+    React() {
+      return <ReactionSelectorWithButton ReactionIcon={DefaultReactionIcon} />;
+    },
+    Reply() {
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -150,26 +143,26 @@ const DefaultMessageActions_UNSTABLE = {
   },
 };
 
-export const defaultMessageActionSet_UNSTABLE: MessageAction[] = [
-  { Component: DefaultMessageActions_UNSTABLE.quick.Reply, placement: 'quick', type: 'reply' },
-  { Component: DefaultMessageActions_UNSTABLE.quick.React, placement: 'quick', type: 'react' },
+export const defaultMessageActionSet: MessageAction[] = [
+  { Component: DefaultMessageActionComponents.quick.Reply, placement: 'quick', type: 'reply' },
+  { Component: DefaultMessageActionComponents.quick.React, placement: 'quick', type: 'react' },
   //   { placement: 'dropdown', type: 'block' },
   {
-    Component: DefaultMessageActions_UNSTABLE.dropdown.Delete,
+    Component: DefaultMessageActionComponents.dropdown.Delete,
     placement: 'dropdown',
     type: 'delete',
   },
-  { Component: DefaultMessageActions_UNSTABLE.dropdown.Edit, placement: 'dropdown', type: 'edit' },
-  { Component: DefaultMessageActions_UNSTABLE.dropdown.Mute, placement: 'dropdown', type: 'mute' },
-  { Component: DefaultMessageActions_UNSTABLE.dropdown.Flag, placement: 'dropdown', type: 'flag' },
-  { Component: DefaultMessageActions_UNSTABLE.dropdown.Pin, placement: 'dropdown', type: 'pin' },
+  { Component: DefaultMessageActionComponents.dropdown.Edit, placement: 'dropdown', type: 'edit' },
+  { Component: DefaultMessageActionComponents.dropdown.Mute, placement: 'dropdown', type: 'mute' },
+  { Component: DefaultMessageActionComponents.dropdown.Flag, placement: 'dropdown', type: 'flag' },
+  { Component: DefaultMessageActionComponents.dropdown.Pin, placement: 'dropdown', type: 'pin' },
   {
-    Component: DefaultMessageActions_UNSTABLE.dropdown.Quote,
+    Component: DefaultMessageActionComponents.dropdown.Quote,
     placement: 'dropdown',
     type: 'quote',
   },
   {
-    Component: DefaultMessageActions_UNSTABLE.dropdown.MarkAsUnread,
+    Component: DefaultMessageActionComponents.dropdown.MarkAsUnread,
     placement: 'dropdown',
     type: 'markAsUnread',
   },
@@ -192,7 +185,7 @@ export const DefaultDropdownActionButton = ({
  * `flag`, `markAsUnread`, `mute`, `quote`, `react` and `reply` and whether
  * the rendered message is a reply (replies are limited to certain actions).
  */
-export const useBaseMessageActionSetFilter_UNSTABLE = (
+export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageAction[],
   disable = false,
 ) => {
@@ -260,7 +253,7 @@ export const useBaseMessageActionSetFilter_UNSTABLE = (
   ]);
 };
 
-export const useSplitMessageActionSet_UNSTABLE = (messageActionSet: MessageAction[]) =>
+export const useSplitMessageActionSet = (messageActionSet: MessageAction[]) =>
   useMemo(() => {
     const quickActionSet: MessageAction[] = [];
     const dropdownActionSet: MessageAction[] = [];
@@ -273,9 +266,9 @@ export const useSplitMessageActionSet_UNSTABLE = (messageActionSet: MessageActio
     return { quickActionSet, dropdownActionSet } as const;
   }, [messageActionSet]);
 
-export const MessageActions_UNSTABLE = ({
+export const MessageActions = ({
   disableBaseMessageActionSetFilter = false,
-  messageActionSet = defaultMessageActionSet_UNSTABLE,
+  messageActionSet = defaultMessageActionSet,
 }: {
   disableBaseMessageActionSetFilter?: boolean;
   messageActionSet?: MessageAction[];
@@ -287,14 +280,12 @@ export const MessageActions_UNSTABLE = ({
     null,
   );
 
-  const filteredMessageActionSet = useBaseMessageActionSetFilter_UNSTABLE(
+  const filteredMessageActionSet = useBaseMessageActionSetFilter(
     messageActionSet,
     disableBaseMessageActionSetFilter,
   );
 
-  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet_UNSTABLE(
-    filteredMessageActionSet,
-  );
+  const { dropdownActionSet, quickActionSet } = useSplitMessageActionSet(filteredMessageActionSet);
 
   const dropdownDialogId = `message-actions--${message.id}`;
   const reactionSelectorDialogId = `reaction-selector--${message.id}`;
