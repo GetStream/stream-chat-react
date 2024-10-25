@@ -26,18 +26,7 @@ export const PollProvider = <
 
 export const usePollContext = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
->(
-  componentName?: string,
-) => {
+>() => {
   const contextValue = useContext(PollContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The usePollContext hook was called outside of the PollContext provider. Make sure this hook is called within a child of the Channel component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as PollContextValue<StreamChatGenerics>;
-  }
-
   return (contextValue as unknown) as PollContextValue<StreamChatGenerics>;
 };

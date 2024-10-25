@@ -24,7 +24,7 @@ type UsePollAnswerPaginationParams = {
 export const usePollAnswerPagination = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({ paginationParams }: UsePollAnswerPaginationParams = {}) => {
-  const { poll } = usePollContext<StreamChatGenerics>('usePollAnswerPagination');
+  const { poll } = usePollContext<StreamChatGenerics>();
 
   const paginationFn = useCallback<PaginationFn<PollAnswer>>(
     async (next) => {

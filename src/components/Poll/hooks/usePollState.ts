@@ -9,6 +9,6 @@ export const usePollState = <
 >(
   selector: (nextValue: PollState<StreamChatGenerics>) => T,
 ) => {
-  const { poll } = usePollContext<StreamChatGenerics>('usePollState');
+  const { poll } = usePollContext<StreamChatGenerics>();
   return useStateStore(poll.state, selector);
 };
