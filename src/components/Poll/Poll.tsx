@@ -4,10 +4,10 @@ import { PollActions } from './PollActions';
 import { PollHeader } from './PollHeader';
 import { PollOptionList } from './PollOptionList';
 import { usePollState } from './hooks';
+import { MAX_OPTIONS_DISPLAYED } from './constants';
 import { PollProvider } from '../../context';
 import type { Poll as PollClass, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
-import { MAX_OPTIONS_DISPLAYED } from './constants';
 
 type PollStateSelectorReturnValue = [boolean | undefined];
 const pollStateSelector = <

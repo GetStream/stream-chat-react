@@ -1,4 +1,3 @@
-// @ts-nocheck
 import clsx from 'clsx';
 import { MAX_POLL_OPTIONS } from '../constants';
 import { nanoid } from 'nanoid';
@@ -100,6 +99,12 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
                       ],
                     };
                   });
+                }}
+                onKeyUp={(event) => {
+                  if (event.key === 'Enter') {
+                    const nextInputId = options[i + 1].id;
+                    document.getElementById(nextInputId)?.focus();
+                  }
                 }}
                 placeholder={t<string>('Add an option')}
                 type='text'

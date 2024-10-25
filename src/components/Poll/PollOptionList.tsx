@@ -8,6 +8,7 @@ import type { DefaultStreamChatGenerics } from '../../types';
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = [PollOption<StreamChatGenerics>[]];
+
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
