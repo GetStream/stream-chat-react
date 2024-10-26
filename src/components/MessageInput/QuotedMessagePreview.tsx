@@ -1,17 +1,18 @@
 import React, { useMemo } from 'react';
-import type { PollResponse, TranslationLanguages } from 'stream-chat';
 
+import { CloseIcon } from './icons';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { CloseIcon } from './icons';
+import { Poll as DefaultPoll } from '../Poll';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
+import type { TranslationLanguages } from 'stream-chat';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { QuotedPoll } from '../Poll';
 
 export const QuotedMessagePreviewHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -46,9 +47,11 @@ export const QuotedMessagePreview = <
 >({
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
+  const { client } = useChatContext();
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
+    Poll = DefaultPoll,
   } = useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 
@@ -63,6 +66,8 @@ export const QuotedMessagePreview = <
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
+  const poll = quotedMessage.poll_id && client.polls.fromState(quotedMessage.poll_id);
+
   return (
     <div className='str-chat__quoted-message-preview' data-testid='quoted-message-preview'>
       {quotedMessage.user && (
@@ -74,8 +79,8 @@ export const QuotedMessagePreview = <
         />
       )}
       <div className='str-chat__quoted-message-bubble'>
-        {quotedMessage.poll ? (
-          <QuotedPoll poll={quotedMessage.poll as PollResponse<StreamChatGenerics>} />
+        {poll ? (
+          <Poll isQuoted poll={poll} />
         ) : (
           <>
             {!!quotedMessageAttachment.length && (

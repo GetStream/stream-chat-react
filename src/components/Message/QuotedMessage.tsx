@@ -1,18 +1,19 @@
 import React from 'react';
 import clsx from 'clsx';
 
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { Poll as DefaultPoll } from '../Poll';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 
-import type { PollResponse, TranslationLanguages } from 'stream-chat';
+import type { TranslationLanguages } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { Attachment as DefaultAttachment } from '../Attachment';
-import { QuotedPoll } from '../Poll';
 
 export const QuotedMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -20,7 +21,9 @@ export const QuotedMessage = <
   const {
     Attachment = DefaultAttachment,
     Avatar: ContextAvatar,
+    Poll = DefaultPoll,
   } = useComponentContext<StreamChatGenerics>('QuotedMessage');
+  const { client } = useChatContext();
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
@@ -30,6 +33,7 @@ export const QuotedMessage = <
   const { quoted_message } = message;
   if (!quoted_message) return null;
 
+  const poll = quoted_message.poll_id && client.polls.fromState(quoted_message.poll_id);
   const quotedMessageDeleted = quoted_message.deleted_at || quoted_message.type === 'deleted';
 
   const quotedMessageText = quotedMessageDeleted
@@ -64,8 +68,8 @@ export const QuotedMessage = <
           />
         )}
         <div className='str-chat__quoted-message-bubble' data-testid='quoted-message-contents'>
-          {quoted_message.poll ? (
-            <QuotedPoll poll={quoted_message.poll as PollResponse<StreamChatGenerics>} />
+          {poll ? (
+            <Poll isQuoted poll={poll} />
           ) : (
             <>
               {quotedMessageAttachment && (
