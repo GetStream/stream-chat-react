@@ -24,6 +24,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
+import { generatePoll } from '../../../mock-builders/generator/poll';
 
 expect.extend(toHaveNoViolations);
 
@@ -1325,6 +1326,48 @@ describe(`MessageInputFlat only`, () => {
         dispatchMessageDeletedEvent(client, mainListMessage, channel);
       });
       quotedMessagePreviewIsNotDisplayed(mainListMessage);
+    });
+
+    it('renders quoted Poll component if message contains poll', async () => {
+      const poll = generatePoll();
+      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ messages: [messageWithPoll] }],
+      });
+      const { container } = await renderComponent({
+        customChannel: channel,
+        customClient: client,
+        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+      });
+
+      await initQuotedMessagePreview(messageWithPoll);
+      expect(container.querySelector('.str-chat__quoted-poll-preview')).toBeInTheDocument();
+    });
+
+    it('renders custom quoted Poll component if message contains poll', async () => {
+      const poll = generatePoll();
+      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ messages: [messageWithPoll] }],
+      });
+      const pollText = 'Custom Poll component';
+      const Poll = () => <div>{pollText}</div>;
+
+      await renderComponent({
+        channelProps: { Poll },
+        customChannel: channel,
+        customClient: client,
+        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+      });
+
+      await initQuotedMessagePreview(messageWithPoll);
+      expect(screen.queryByText(pollText)).toBeInTheDocument();
     });
   });
 
