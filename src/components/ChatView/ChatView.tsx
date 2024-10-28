@@ -127,11 +127,13 @@ const ThreadAdapter = ({ children }: PropsWithChildren) => {
   return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
 };
 
-const selector = (nextValue: ThreadManagerState) => [nextValue.unreadThreadCount];
+const selector = ({ unreadThreadCount }: ThreadManagerState) => ({
+  unreadThreadCount,
+});
 
 const ChatViewSelector = () => {
   const { client } = useChatContext();
-  const [unreadThreadCount] = useStateStore(client.threads.state, selector);
+  const { unreadThreadCount } = useStateStore(client.threads.state, selector);
 
   const { activeChatView, setActiveChatView } = useContext(ChatViewContext);
 

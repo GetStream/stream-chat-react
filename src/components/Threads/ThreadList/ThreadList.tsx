@@ -10,7 +10,7 @@ import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from 
 import { useChatContext, useComponentContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-const selector = (nextValue: ThreadManagerState) => [nextValue.threads] as const;
+const selector = (nextValue: ThreadManagerState) => ({ threads: nextValue.threads });
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
 
@@ -49,7 +49,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();
-  const [threads] = useStateStore(client.threads.state, selector);
+  const { threads } = useStateStore(client.threads.state, selector);
 
   useThreadList();
 
