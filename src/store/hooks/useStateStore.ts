@@ -22,8 +22,6 @@ export function useStateStore<
   useEffect(() => {
     if (!store) return;
 
-    // TODO: remove once updated in the StateStore
-    // @ts-expect-error
     const unsubscribe = store.subscribeWithSelector(selector, setState);
 
     return unsubscribe;
