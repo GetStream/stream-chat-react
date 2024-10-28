@@ -118,6 +118,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'LinkPreviewList'
   | 'LoadingIndicator'
   | 'Message'
+  | 'MessageActions'
   | 'MessageBouncePrompt'
   | 'MessageDeleted'
   | 'MessageListNotifications'
@@ -1226,6 +1227,7 @@ const ChannelInner = <
       LinkPreviewList: props.LinkPreviewList,
       LoadingIndicator: props.LoadingIndicator,
       Message: props.Message,
+      MessageActions: props.MessageActions,
       MessageBouncePrompt: props.MessageBouncePrompt,
       MessageDeleted: props.MessageDeleted,
       MessageListNotifications: props.MessageListNotifications,
@@ -1275,6 +1277,7 @@ const ChannelInner = <
       props.LinkPreviewList,
       props.LoadingIndicator,
       props.Message,
+      props.MessageActions,
       props.MessageBouncePrompt,
       props.MessageDeleted,
       props.MessageListNotifications,

@@ -70,13 +70,15 @@ const MessageSimpleWithContext = <
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
     EditMessageInput = DefaultEditMessageForm,
+    MessageOptions = DefaultMessageOptions,
+    // TODO: remove this "passthrough" in the next
+    // major release and use the new default instead
+    MessageActions = MessageOptions,
     MessageDeleted = DefaultMessageDeleted,
     MessageBouncePrompt = DefaultMessageBouncePrompt,
-    MessageOptions = DefaultMessageOptions,
     MessageRepliesCountButton = DefaultMessageRepliesCountButton,
     MessageStatus = DefaultMessageStatus,
     MessageTimestamp = DefaultMessageTimestamp,
-
     ReactionsList = DefaultReactionList,
     PinIndicator,
   } = useComponentContext<StreamChatGenerics>('MessageSimple');
@@ -171,7 +173,7 @@ const MessageSimpleWithContext = <
             onClick={handleClick}
             onKeyUp={handleClick}
           >
-            <MessageOptions />
+            <MessageActions />
             <div className='str-chat__message-reactions-host'>
               {hasReactions && <ReactionsList reverse />}
             </div>

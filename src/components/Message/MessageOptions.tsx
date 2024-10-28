@@ -100,6 +100,9 @@ const UnMemoizedMessageOptions = <
   );
 };
 
+/**
+ * @deprecated Use MessageActions_UNSTABLE (`MessageActions` component) instead.
+ */
 export const MessageOptions = React.memo(
   UnMemoizedMessageOptions,
 ) as typeof UnMemoizedMessageOptions;

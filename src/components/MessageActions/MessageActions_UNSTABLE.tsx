@@ -182,8 +182,9 @@ export const DefaultDropdownActionButton = ({
 
 /**
  * Base filter hook which covers actions of type `delete`, `edit`,
- * `flag`, `markAsUnread`, `mute`, `quote`, `react` and `reply` and whether
- * the rendered message is a reply (replies are limited to certain actions).
+ * `flag`, `markAsUnread`, `mute`, `quote`, `react` and `reply`, whether
+ * the rendered message is a reply (replies are limited to certain actions) and
+ * whether the message has appropriate type and status.
  */
 export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageAction[],
@@ -266,6 +267,7 @@ export const useSplitMessageActionSet = (messageActionSet: MessageAction[]) =>
     return { quickActionSet, dropdownActionSet } as const;
   }, [messageActionSet]);
 
+// TODO: allow passing down customWrapperClass
 export const MessageActions = ({
   disableBaseMessageActionSetFilter = false,
   messageActionSet = defaultMessageActionSet,
