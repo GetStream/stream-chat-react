@@ -1,189 +1,167 @@
 ---
 id: geolocation_attachment
-title: Geolocation Attachment
+title: Geolocation Attachment & Live Location Sharing
 ---
 
-import Geolocation1 from '../../../assets/Geolocation1.png';
-import Geolocation2 from '../../../assets/Geolocation2.png';
-import Geolocation3 from '../../../assets/Geolocation3.png';
-import Geolocation4 from '../../../assets/Geolocation4.png';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-In this comprehensive example, we demonstrate how to build a location sharing feature. Chat users will
-have the ability to send their location to a channel through a custom `Attachment` component that displays
-coordinates using the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview).
+In this comprehensive example, we demonstrate how to build a live location sharing feature. Chat users will have the ability to send their location to a channel and display it through a custom `Attachment` component that displays coordinates using the [Google Maps API](https://developers.google.com/maps/documentation/javascript/overview).
 
 The feature flow has three distinct steps:
 
-- Select `Share Location` custom message action
-- Confirm you wish to send your location to the current channel
+- Click `Share Location` button with confirmation dialog
+- Confirm, send and register a message for live location updates
 - Render coordinates on a Google Maps overlay sent as a message attachment
 
-## Custom Message Action
+## Prerequisities
 
-The first step in our location sharing flow is to add a custom message action that on click allows a chat
-user to begin the process of sending their coordinates to the channel. For a more detailed explanation of
-customizing message actions, see our [custom code example](./message-actions.mdx).
+We've prepared [an example geolocation context/controller](#geoloccontext) that we'll be referencing throughout the guide. This controller takes care of registering and updating messages with the current location. Note that this is an _example_ controller that should be expanded on based on your needs and requirements. This controller is missing logic such as end-of-life of the messages with live location updates, manually stopping location updates, limiting the amount of messages with live location updates or proper error handling. Treat it as a baseline to get you started.
 
-In this example, our custom handler function will toggle a state variable that shows/hides a location sharing
-confirmation modal.
+:::note
+If you wish to use only one-time location sharing functionality, you don't need [`GeoLocContext`](#geoloccontext) controller/context and can safely omit it.
+:::
 
-```tsx
-const [shareLocation, setShareLocation] = useState<boolean>(false);
+## Custom Message Input With Location Sharing Button
 
-const locationHandler = (message: StreamMessage, event: React.BaseSyntheticEvent) => {
-  setShareLocation(true);
-};
+The first step in our location sharing flow is to add a custom button beside message input that on click allows a chat user to begin the process of sending their coordinates to the channel.
 
-const customMessageActions = { 'Share Location': locationHandler };
+In this example, our custom handler function will utilise `window.confirm` dialog to get the user confirmation before requesting location data.
 
-<MessageList customMessageActions={customMessageActions} />;
-```
+:::note
+We'll be using `registerMessageIds` function from our pre-defined [`GeoLocContext`](#geoloccontext) to save messages to a `localStorage` to be later loaded in case of a page reload so that we can keep sharing our location.
+:::
 
-<img src={Geolocation1} alt='Geolocation 1' width='700' />
+<Tabs groupId='example'>
+<TabItem value='tsx' label='React'>
 
-## Location Sharing Confirmation
+```tsx title="custom-components.tsx"
+import { MessageInput, useChannelStateContext } from 'stream-chat-react';
 
-Next, we display a popup that prompts the chat user to confirm whether or not they actually wish to
-send their location to the current channel.
+import { useGeoLocContext } from './geo-loc-context';
 
-As soon as the modal component mounts, we fetch the connected user's latitude and longitude by calling
-the `getCurrentPosition` method from the [Geolocation Web API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API).
-The coordinates are then set into local state hooks. If the user confirms they wish to share their location, a
-message attachment of type `map` is created with the `latitude` and `longitude` state variables attached.
+import './message-input-with-location-button.css';
 
-```tsx
-type ShareLocationModalProps = {
-  setShareLocation: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const ShareLocationModal: React.FC<ShareLocationModalProps> = (props) => {
-  const { setShareLocation } = props;
-  const { sendMessage } = useChannelActionContext();
-
-  const [latitude, setLatitude] = useState<number>();
-  const [longitude, setLongitude] = useState<number>();
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      setLatitude(position.coords.latitude);
-      setLongitude(position.coords.longitude);
-    });
-  }, []);
-
-  const handleYes = async () => {
-    const messageToSend: MessageToSend = {
-      attachments: [{ type: 'map', latitude, longitude }],
-    };
-
-    try {
-      await sendMessage(messageToSend);
-    } catch (err) {
-      console.log(err);
-    }
-
-    setShareLocation(false);
-  };
-
-  const handleNo = () => setShareLocation(false);
+export const MessageInputWithLocationButton = () => {
+  const { channel } = useChannelStateContext();
+  const { registerMessageIds } = useGeoLocContext();
 
   return (
-    <div className='share-location'>
-      <div>Do you want to share your location in this conversation?</div>
-      <div className='share-location-buttons'>
-        <button disabled={!latitude || !longitude} onClick={handleYes}>
-          Yes
-        </button>
-        <button onClick={handleNo}>No</button>
-      </div>
+    <div className='message-input-container'>
+      <MessageInput focus />
+      <button
+        onClick={() => {
+          const shouldShareLocation = window.confirm('Would you like to share your location?');
+
+          if (!shouldShareLocation) return;
+
+          navigator.geolocation.getCurrentPosition(
+            ({ coords: { latitude, longitude } }) => {
+              channel
+                .sendMessage({
+                  attachments: [
+                    {
+                      type: 'location',
+                      latitude,
+                      longitude,
+                    },
+                  ],
+                })
+                .then((response) => {
+                  registerMessageIds([response.message.id]);
+                });
+            },
+            console.log,
+            { maximumAge: 0, timeout: 500 },
+          );
+        }}
+        className='location-share-button'
+      >
+        🗺️
+      </button>
     </div>
   );
 };
 ```
 
-<img src={Geolocation2} alt='Geolocation 2' width='700' />
+</TabItem>
+<TabItem value='css' label='CSS'>
+
+```css title="message-input-with-location-button.css"
+.message-input-container {
+  display: flex;
+}
+
+.location-share-button {
+  border-radius: 9999px;
+  margin: 5px 5px 5px 0px;
+  line-height: 1;
+  padding: 5px 10px;
+}
+```
+
+</TabItem>
+</Tabs>
+
+![](../../../assets/geolocation-attachment-0.png)
+![](../../../assets/geolocation-attachment-1.png)
 
 ## Custom Map Attachment
 
-Now that we've created a message attachment of type `map`, we need to build a custom `Attachment` component that
-conditionally renders this new type. If a message attachment is not of type `map`, meaning it's a standard library
-type, we return the default `Attachment` component.
+Now that we're able to send a message with an attachment of type `location`, we need to build a custom `Attachment` component that can this new type. If a message attachment is not of type `location`, meaning it's a standard library type, we return the default `Attachment` component.
 
-When our custom component receives an attachment of type `map`, we pass the geolocation coordinates into the
-`GoogleMapReact` component. This library is a React-based wrapper around the Google Maps API and displays a map
-and geolocation as a React component. See the [`google-map-react`](https://www.npmjs.com/package/google-map-react)
-readme and documentation for more information.
-
-Since the `GoogleMapReact` component can take some time to render as coordinates are extracted from the Geolocation
-API, we render the component library's standard [`LoadingIndicator`](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx)
-while we wait for `latitude` and `longitude` to be set.
+When our custom component receives an attachment of type `location`, we pass the geolocation coordinates to the `Map` and `Marker` components from [`@vis.gl/react-google-maps`](https://www.npmjs.com/package/@vis.gl/react-google-maps). This library is a React-based wrapper around the Google Maps API and displays a map and geolocation as a React component. See the [`@vis.gl/react-google-maps`](https://www.npmjs.com/package/@vis.gl/react-google-maps) documentation for more information.
 
 :::important
-In order to interact with the Google Maps API, you must [set up an account](https://developers.google.com/maps/documentation/javascript/cloud-setup)
-and generate an API key.
+In order to interact with the Google Maps API, you must [set up an account](https://developers.google.com/maps/documentation/javascript/cloud-setup) and generate an API key.
 :::
 
 :::note
-Since we've added new fields to our `map` type message attachment, we must extend the basic `Attachment` type
-(renamed to `StreamAttachment` here) to support `latitude` and `longitude`.
+Since we've added new fields to our `location` type message attachment, we must extend the default attachment type to support `latitude` and `longitude` through `StreamChatGenerics` which we can then pass to `AttachmentProps` type.
 :::
 
-```tsx
-import GoogleMapReact from 'google-map-react';
+```tsx title="custom-components.tsx"
+import { Attachment } from 'stream-chat-react';
+import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 
-const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS as string;
+import type { AttachmentProps } from 'stream-chat-react';
 
-type MapCenterProps = {
-  lat: number;
-  lng: number;
-};
+export type StreamChatGenerics = {
+  attachmentType: { latitude: number; longitude: number };
+  // ▽ defaults
+  commandType: string;
+} & Record<
+  | 'channelType'
+  | 'eventType'
+  | 'messageType'
+  | 'pollOptionType'
+  | 'pollType'
+  | 'reactionType'
+  | 'userType',
+  Record<string, unknown>
+>;
 
-const MapCenter: React.FC<MapCenterProps> = () => <div className='map-center' />;
+const GOOGLE_MAPS_API_KEY = 'key';
 
-type ExtendedAttachment = {
-  latitude?: number;
-  longitude?: number;
-};
+export const AttachmentWithMap = (props: AttachmentProps<StreamChatGenerics>) => {
+  const [locationAttachment] = props.attachments;
 
-type MapAttachmentProps<ExtendedAttachment> = {
-  mapAttachment: StreamAttachment<ExtendedAttachment>;
-};
+  if (locationAttachment.type === 'location') {
+    const { latitude, longitude } = locationAttachment;
 
-const MapAttachment: React.FC<MapAttachmentProps<ExtendedAttachment>> = (props) => {
-  const { mapAttachment } = props;
-
-  const { latitude, longitude } = mapAttachment;
-
-  if (!latitude || !longitude) {
     return (
-      <div className='map-loading'>
-        <LoadingIndicator size={30} />
-      </div>
+      <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+        <Map
+          style={{ width: '300px', height: '300px' }}
+          defaultCenter={{ lat: latitude, lng: longitude }}
+          defaultZoom={16}
+          disableDefaultUI={true}
+          gestureHandling='greedy'
+        >
+          <Marker position={{ lat: latitude, lng: longitude }} />
+        </Map>
+      </APIProvider>
     );
-  }
-
-  const center = {
-    lat: latitude,
-    lng: longitude,
-  };
-
-  return (
-    <GoogleMapReact
-      bootstrapURLKeys={{ key: googleMapsApiKey }}
-      defaultCenter={center}
-      defaultZoom={11}
-      style={{ height: '250px', width: '250px' }}
-      yesIWantToUseGoogleMapApiInternals
-    >
-      <MapCenter lat={center.lat} lng={center.lng} />
-    </GoogleMapReact>
-  );
-};
-
-const CustomAttachment: React.FC<AttachmentProps> = (props) => {
-  const { attachments } = props;
-
-  if (attachments[0]?.type === 'map') {
-    return <MapAttachment mapAttachment={attachments[0]} />;
   }
 
   return <Attachment {...props} />;
@@ -194,179 +172,27 @@ const CustomAttachment: React.FC<AttachmentProps> = (props) => {
 
 Now that each individual piece has been constructed, we can assemble all of the snippets into the final code example.
 
-### The Code
+```tsx title="app.tsx"
+import { Chat, ChannelList, Channel, Window, Thread } from 'stream-chat-react';
 
-```css
-.map-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--grey-whisper);
-  border-radius: 16px;
-  height: 250px;
-  width: 250px;
-}
+import { AttachmentWithMap, MessageInputWithLocationButton } from './custom-components';
+import { GeoLocContextProvider } from './geo-loc-context';
 
-.map-center {
-  background: var(--primary-color);
-  border-radius: 6px;
-  height: 12px;
-  width: 12px;
-}
-
-.share-location {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  background: var(--white-snow);
-  border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  padding: 8px;
-  z-index: 99;
-}
-
-.share-location-buttons {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  margin-bottom: 8px;
-  margin-top: 16px;
-}
-
-.share-location-buttons button {
-  border-radius: 16px;
-  font-size: 16px;
-  width: 80px;
-}
-```
-
-```tsx
-import GoogleMapReact from 'google-map-react';
-
-const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS as string;
-
-type ShareLocationModalProps = {
-  setShareLocation: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-const ShareLocationModal: React.FC<ShareLocationModalProps> = (props) => {
-  const { setShareLocation } = props;
-  const { sendMessage } = useChannelActionContext();
-
-  const [latitude, setLatitude] = useState<number>();
-  const [longitude, setLongitude] = useState<number>();
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      setLatitude(position.coords.latitude);
-      setLongitude(position.coords.longitude);
-    });
-  }, []);
-
-  const handleYes = async () => {
-    const messageToSend: MessageToSend = {
-      attachments: [{ type: 'map', latitude, longitude }],
-    };
-
-    try {
-      await sendMessage(messageToSend);
-    } catch (err) {
-      console.log(err);
-    }
-
-    setShareLocation(false);
-  };
-
-  const handleNo = () => setShareLocation(false);
-
-  return (
-    <div className='share-location'>
-      <div>Do you want to share your location in this conversation?</div>
-      <div className='share-location-buttons'>
-        <button disabled={!latitude || !longitude} onClick={handleYes}>
-          Yes
-        </button>
-        <button onClick={handleNo}>No</button>
-      </div>
-    </div>
-  );
-};
-
-type MapCenterProps = {
-  lat: number;
-  lng: number;
-};
-
-const MapCenter: React.FC<MapCenterProps> = () => <div className='map-center' />;
-
-type ExtendedAttachment = {
-  latitude?: number;
-  longitude?: number;
-};
-
-type MapAttachmentProps<ExtendedAttachment> = {
-  mapAttachment: StreamAttachment<ExtendedAttachment>;
-};
-
-const MapAttachment: React.FC<MapAttachmentProps<ExtendedAttachment>> = (props) => {
-  const { mapAttachment } = props;
-
-  const { latitude, longitude } = mapAttachment;
-
-  if (!latitude || !longitude) {
-    return (
-      <div className='map-loading'>
-        <LoadingIndicator size={30} />
-      </div>
-    );
-  }
-
-  const center = {
-    lat: latitude,
-    lng: longitude,
-  };
-
-  return (
-    <GoogleMapReact
-      bootstrapURLKeys={{ key: googleMapsApiKey }}
-      defaultCenter={center}
-      defaultZoom={11}
-      style={{ height: '250px', width: '250px' }}
-      yesIWantToUseGoogleMapApiInternals
-    >
-      <MapCenter lat={center.lat} lng={center.lng} />
-    </GoogleMapReact>
-  );
-};
-
-const CustomAttachment: React.FC<AttachmentProps> = (props) => {
-  const { attachments } = props;
-
-  if (attachments[0]?.type === 'map') {
-    return <MapAttachment mapAttachment={attachments[0]} />;
-  }
-
-  return <Attachment {...props} />;
-};
+import type { StreamChatGenerics } from './custom-components';
 
 const App = () => {
-  const [shareLocation, setShareLocation] = useState<boolean>(false);
+  const chatClient = useCreateChatClient<StreamChatGenerics>(/*...*/);
 
-  const locationHandler = (message: StreamMessage, event: React.BaseSyntheticEvent) => {
-    setShareLocation(true);
-  };
-
-  const customMessageActions = { 'Share Location': locationHandler };
+  if (!chatClient) return <div>Loading...</div>;
 
   return (
     <Chat client={chatClient}>
       <ChannelList />
-      <Channel Attachment={CustomAttachment}>
+      <Channel Attachment={AttachmentWithMap}>
         <Window>
-          {shareLocation && <ShareLocationModal setShareLocation={setShareLocation} />}
           <ChannelHeader />
-          <MessageList customMessageActions={customMessageActions} />
-          <MessageInput />
+          <MessageList />
+          <MessageInputWithLocationButton />
         </Window>
         <Thread />
       </Channel>
@@ -375,12 +201,132 @@ const App = () => {
 };
 ```
 
-### The Result
+![](../../../assets/geolocation-attachment-2.png)
 
-**The `MapAttachment` component loading:**
+## GeoLocContext
 
-<img src={Geolocation3} alt='Geolocation 3' width='700' />
+```tsx title="geo-loc-context.tsx"
+import React, { useState, useEffect, useCallback, useRef, useContext } from 'react';
+import { useChatContext } from 'stream-chat-react';
 
-**The `MapAttachment` component rendered:**
+import type { PropsWithChildren } from 'react';
 
-<img src={Geolocation4} alt='Geolocation 4' width='700' />
+type GeoLocContextValue = {
+  registeredMessageIds: string[];
+  registerMessageIds: (messageIds: string[]) => void;
+  unregisterMessageIds: (messageIds: string[]) => void;
+};
+
+const GeoLocContext = React.createContext<GeoLocContextValue>({
+  registeredMessageIds: [],
+  registerMessageIds: () => {},
+  unregisterMessageIds: () => {},
+});
+
+export const useGeoLocContext = () => useContext(GeoLocContext);
+
+const constructStorageKey = (userId: string) => {
+  return `$geoloc.registeredMessageIds-${userId}`;
+};
+
+export const GeoLocContextProvider = ({ children }: PropsWithChildren) => {
+  const { client } = useChatContext();
+
+  const [registeredMessageIds, setRegisteredMessageIds] = useState(() => {
+    const registeredMessageIdsString = window.localStorage.getItem(
+      constructStorageKey(client.userID!),
+    );
+
+    if (!registeredMessageIdsString) return [];
+
+    try {
+      const messageIds = JSON.parse(atob(registeredMessageIdsString));
+
+      return (messageIds as unknown) as string[];
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  });
+
+  const registerMessageIds = useCallback((messageIds: string[]) => {
+    setRegisteredMessageIds((currentMessageIds) => currentMessageIds.concat(messageIds));
+  }, []);
+
+  const unregisterMessageIds = useCallback((messageIds: string[]) => {
+    setRegisteredMessageIds((currentMessageIds) =>
+      currentMessageIds.filter((messageId) => !messageIds.includes(messageId)),
+    );
+  }, []);
+
+  const handlePositionChangeRef = useRef<(position: GeolocationPosition) => Promise<void>>();
+
+  handlePositionChangeRef.current = async (position) => {
+    const settled = await Promise.allSettled(
+      registeredMessageIds.map((messageId) =>
+        client.partialUpdateMessage(messageId, {
+          set: {
+            attachments: [
+              {
+                type: 'location',
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              },
+            ],
+          },
+        }),
+      ),
+    );
+
+    const idsToDelete = [];
+    for (let index = 0; index < settled.length; index++) {
+      if (settled[index].status !== 'rejected') continue;
+      idsToDelete.push(registeredMessageIds[index]);
+    }
+
+    unregisterMessageIds(idsToDelete);
+  };
+
+  useEffect(() => {
+    // sync storage
+    const oldValue = window.localStorage.getItem(constructStorageKey(client.userID!));
+    const newValue = btoa(JSON.stringify(registeredMessageIds));
+
+    if (newValue === oldValue) return;
+
+    window.localStorage.setItem(constructStorageKey(client.userID!), newValue);
+  }, [client, registeredMessageIds]);
+
+  const shouldWatch = registeredMessageIds.length !== 0;
+
+  useEffect(() => {
+    let promise: Promise<void> | null = null;
+
+    if (!shouldWatch) return;
+
+    const position = navigator.geolocation.watchPosition(
+      (newPosition) => {
+        if (promise) return;
+
+        promise = handlePositionChangeRef.current!(newPosition).finally(() => {
+          promise = null;
+        });
+      },
+      console.log,
+      { enableHighAccuracy: true },
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(position);
+    };
+  }, [shouldWatch]);
+
+  return (
+    <GeoLocContext.Provider
+      value={{ registeredMessageIds, registerMessageIds, unregisterMessageIds }}
+    >
+      {children}
+    </GeoLocContext.Provider>
+  );
+};
+```
