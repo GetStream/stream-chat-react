@@ -1,3 +1,4 @@
+export * from './AttachmentSelector';
 export { AttachmentPreviewList } from './AttachmentPreviewList';
 export type {
   AttachmentPreviewListProps,

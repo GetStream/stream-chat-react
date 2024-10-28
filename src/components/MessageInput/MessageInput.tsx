@@ -8,6 +8,7 @@ import { useMessageInputState } from './hooks/useMessageInputState';
 import { StreamMessage, useChannelStateContext } from '../../context/ChannelStateContext';
 import { ComponentContextValue, useComponentContext } from '../../context/ComponentContext';
 import { MessageInputContextProvider } from '../../context/MessageInputContext';
+import { DialogManagerProvider } from '../../context';
 
 import type { Channel, Message, SendFileAPIResponse } from 'stream-chat';
 
@@ -22,7 +23,6 @@ import type {
 } from '../../types/types';
 import type { URLEnrichmentConfig } from './hooks/useLinkPreviews';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
-import { DialogManagerProvider } from '../../context';
 
 export type EmojiSearchIndexResult = {
   id: string;

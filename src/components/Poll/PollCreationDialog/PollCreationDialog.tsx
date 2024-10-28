@@ -40,7 +40,10 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   );
 
   return (
-    <div className='str-chat__dialog str-chat__poll-creation-dialog'>
+    <div
+      className='str-chat__dialog str-chat__poll-creation-dialog'
+      data-testid='poll-creation-dialog'
+    >
       <ModalHeader close={close} title={t<string>('Create poll')} />
       <div className='str-chat__dialog__body'>
         <form>
