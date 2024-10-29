@@ -68,9 +68,14 @@ export const getChannel = async <
   if (queryPromise) {
     await queryPromise;
   } else {
-    WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid] = theChannel.watch(options);
-    await WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
-    delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
+    try {
+      WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid] = theChannel.watch(options);
+      await WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
+      delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
+    } catch (e) {
+      delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
+      throw e;
+    }
   }
 
   return theChannel;
