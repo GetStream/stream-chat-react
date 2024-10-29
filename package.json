@@ -50,6 +50,18 @@
       },
       "default": "./dist/plugins/encoders/mp3.js"
     },
+    "./experimental": {
+      "types": "./dist/experimental/index.d.ts",
+      "node": {
+        "require": "./dist/experimental/index.node.cjs",
+        "import": "./dist/experimental/index.js"
+      },
+      "browser": {
+        "require": "./dist/experimental/index.browser.cjs",
+        "import": "./dist/experimental/index.js"
+      },
+      "default": "./dist/experimental/index.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -70,6 +82,9 @@
       ],
       "mp3-encoder": [
         "./dist/plugins/encoders/mp3.d.ts"
+      ],
+      "experimental": [
+        "./dist/experimental/index.d.ts"
       ]
     }
   },
