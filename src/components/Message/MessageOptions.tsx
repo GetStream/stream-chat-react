@@ -95,9 +95,7 @@ const UnMemoizedMessageOptions = <
           <ThreadIcon className='str-chat__message-action-icon' />
         </button>
       )}
-      {shouldShowReactions && (
-        <ReactionSelectorWithButton ReactionIcon={ReactionIcon} theme={theme} />
-      )}
+      {shouldShowReactions && <ReactionSelectorWithButton ReactionIcon={ReactionIcon} />}
     </div>
   );
 };

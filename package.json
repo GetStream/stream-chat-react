@@ -50,6 +50,18 @@
       },
       "default": "./dist/plugins/encoders/mp3.js"
     },
+    "./experimental": {
+      "types": "./dist/experimental/index.d.ts",
+      "node": {
+        "require": "./dist/experimental/index.node.cjs",
+        "import": "./dist/experimental/index.js"
+      },
+      "browser": {
+        "require": "./dist/experimental/index.browser.cjs",
+        "import": "./dist/experimental/index.js"
+      },
+      "default": "./dist/experimental/index.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -70,6 +82,9 @@
       ],
       "mp3-encoder": [
         "./dist/plugins/encoders/mp3.d.ts"
+      ],
+      "experimental": [
+        "./dist/experimental/index.d.ts"
       ]
     }
   },
@@ -130,7 +145,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^18.0.0 || ^17.0.0 || ^16.8.0",
     "react-dom": "^18.0.0 || ^17.0.0 || ^16.8.0",
-    "stream-chat": "^8.40.8"
+    "stream-chat": "^8.41.1"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -240,7 +255,7 @@
     "react-dom": "^18.1.0",
     "react-test-renderer": "^18.1.0",
     "semantic-release": "^19.0.5",
-    "stream-chat": "^8.40.8",
+    "stream-chat": "^8.41.1",
     "ts-jest": "^29.1.4",
     "typescript": "^5.4.5"
   },

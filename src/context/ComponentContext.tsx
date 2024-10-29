@@ -102,6 +102,8 @@ export type ComponentContextValue<
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps<StreamChatGenerics>>;
+  /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */
+  MessageActions?: React.ComponentType;
   /** Custom UI component to display the contents of a bounced message modal. Usually it allows to retry, edit, or delete the message. Defaults to and accepts the same props as: [MessageBouncePrompt](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) */
   MessageBouncePrompt?: React.ComponentType<MessageBouncePromptProps>;
   /** Custom UI component for a deleted message, defaults to and accepts same props as: [MessageDeleted](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageDeleted.tsx) */
@@ -111,7 +113,11 @@ export type ComponentContextValue<
   MessageListNotifications?: React.ComponentType<MessageListNotificationsProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [MessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/MessageNotification.tsx) */
   MessageNotification?: React.ComponentType<MessageNotificationProps>;
-  /** Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx) */
+  /**
+   * Custom UI component for message options popup, defaults to and accepts same props as: [MessageOptions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageOptions.tsx)
+   *
+   * @deprecated Use MessageActions property instead.
+   */
   MessageOptions?: React.ComponentType<MessageOptionsProps<StreamChatGenerics>>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;

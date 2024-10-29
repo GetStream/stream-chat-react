@@ -1,3 +1,22 @@
+## [12.4.0](https://github.com/GetStream/stream-chat-react/compare/v12.3.0...v12.4.0) (2024-10-29)
+
+
+### Features
+
+* new MessageActions component ([#2543](https://github.com/GetStream/stream-chat-react/issues/2543)) ([17a1160](https://github.com/GetStream/stream-chat-react/commit/17a1160c8b10b2255bcb87931e3873ce33fd571c))
+
+## [12.3.0](https://github.com/GetStream/stream-chat-react/compare/v12.2.2...v12.3.0) (2024-10-28)
+
+
+### Features
+
+* return objects from selectors instead of arrays ([#2547](https://github.com/GetStream/stream-chat-react/issues/2547)) ([ae2e22a](https://github.com/GetStream/stream-chat-react/commit/ae2e22ae918c2cf79b5598c0ae3e3562db787ebd))
+
+
+### Chores
+
+* **deps:** update stream-chat to v8.41.1 ([8369de8](https://github.com/GetStream/stream-chat-react/commit/8369de83fc2bd23529c9cb007c13935ab685f478))
+
 ## [12.2.2](https://github.com/GetStream/stream-chat-react/compare/v12.2.1...v12.2.2) (2024-10-21)
 
 

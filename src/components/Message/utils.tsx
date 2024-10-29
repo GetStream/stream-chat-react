@@ -65,7 +65,7 @@ export const MESSAGE_ACTIONS = {
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
-  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'quote' | 'react' | 'reply' | T
+  keyof typeof MESSAGE_ACTIONS | T
 >;
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release

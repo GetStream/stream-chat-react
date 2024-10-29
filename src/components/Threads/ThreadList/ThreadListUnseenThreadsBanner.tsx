@@ -6,11 +6,13 @@ import { Icon } from '../icons';
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
-const selector = (nextValue: ThreadManagerState) => [nextValue.unseenThreadIds] as const;
+const selector = (nextValue: ThreadManagerState) => ({
+  unseenThreadIds: nextValue.unseenThreadIds,
+});
 
 export const ThreadListUnseenThreadsBanner = () => {
   const { client } = useChatContext();
-  const [unseenThreadIds] = useStateStore(client.threads.state, selector);
+  const { unseenThreadIds } = useStateStore(client.threads.state, selector);
 
   if (!unseenThreadIds.length) return null;
 

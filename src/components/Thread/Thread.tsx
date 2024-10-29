@@ -74,13 +74,12 @@ export const Thread = <
   );
 };
 
-const selector = (nextValue: ThreadState) =>
-  [
-    nextValue.replies,
-    nextValue.pagination.isLoadingPrev,
-    nextValue.pagination.isLoadingNext,
-    nextValue.parentMessage,
-  ] as const;
+const selector = (nextValue: ThreadState) => ({
+  isLoadingNext: nextValue.pagination.isLoadingNext,
+  isLoadingPrev: nextValue.pagination.isLoadingPrev,
+  parentMessage: nextValue.parentMessage,
+  replies: nextValue.replies,
+});
 
 const ThreadInner = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
@@ -102,8 +101,8 @@ const ThreadInner = <
   } = props;
 
   const threadInstance = useThreadContext();
-  const [latestReplies, isLoadingPrev, isLoadingNext, parentMessage] =
-    useStateStore(threadInstance?.state, selector) ?? [];
+  const { isLoadingNext, isLoadingPrev, parentMessage, replies } =
+    useStateStore(threadInstance?.state, selector) ?? {};
 
   const {
     thread,
@@ -154,7 +153,7 @@ const ThreadInner = <
         loadingMoreNewer: isLoadingNext,
         loadMore: threadInstance.loadPrevPage,
         loadMoreNewer: threadInstance.loadNextPage,
-        messages: latestReplies,
+        messages: replies,
       }
     : {
         hasMore: threadHasMore,

@@ -10,9 +10,8 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
-
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../../types/types';
-import { EmojiSearchIndex } from 'components/MessageInput';
+import type { EmojiSearchIndex } from '../MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
 
