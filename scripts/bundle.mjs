@@ -10,6 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const sdkEntrypoint = resolve(__dirname, '../src/index.ts');
 const emojiEntrypoint = resolve(__dirname, '../src/plugins/Emojis/index.ts');
 const mp3EncoderEntrypoint = resolve(__dirname, '../src/plugins/encoders/mp3.ts');
+const unstableEntrypoint = resolve(__dirname, '../src/unstable/index.ts');
 const outDir = resolve(__dirname, '../dist');
 
 // Those dependencies are distributed as ES modules, and cannot be externalized
@@ -33,7 +34,7 @@ const external = deps.filter((dep) => !bundledDeps.includes(dep));
 
 /** @type esbuild.BuildOptions */
 const cjsBundleConfig = {
-  entryPoints: [sdkEntrypoint, emojiEntrypoint, mp3EncoderEntrypoint],
+  entryPoints: [sdkEntrypoint, emojiEntrypoint, mp3EncoderEntrypoint, unstableEntrypoint],
   bundle: true,
   format: 'cjs',
   target: 'es2020',
