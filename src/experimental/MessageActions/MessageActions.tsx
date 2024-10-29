@@ -28,7 +28,7 @@ export type MessageActionsProps = {
 // TODO: allow passing down customWrapperClass
 /**
  * A new actions component to replace current `MessageOptions` component.
- * Exports from `stream-chat-react/unstable` __MIGHT__ change - use with caution
+ * Exports from `stream-chat-react/experimental` __MIGHT__ change - use with caution
  * and follow release notes in case you notice unexpected behavior.
  */
 export const MessageActions = ({

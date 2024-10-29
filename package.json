@@ -50,17 +50,17 @@
       },
       "default": "./dist/plugins/encoders/mp3.js"
     },
-    "./unstable": {
-      "types": "./dist/unstable/index.d.ts",
+    "./experimental": {
+      "types": "./dist/experimental/index.d.ts",
       "node": {
-        "require": "./dist/unstable/index.node.cjs",
-        "import": "./dist/unstable/index.js"
+        "require": "./dist/experimental/index.node.cjs",
+        "import": "./dist/experimental/index.js"
       },
       "browser": {
-        "require": "./dist/unstable/index.browser.cjs",
-        "import": "./dist/unstable/index.js"
+        "require": "./dist/experimental/index.browser.cjs",
+        "import": "./dist/experimental/index.js"
       },
-      "default": "./dist/unstable/index.js"
+      "default": "./dist/experimental/index.js"
     },
     "./dist/css/*": {
       "default": "./dist/css/*"
@@ -83,8 +83,8 @@
       "mp3-encoder": [
         "./dist/plugins/encoders/mp3.d.ts"
       ],
-      "unstable": [
-        "./dist/unstable/index.d.ts"
+      "experimental": [
+        "./dist/experimental/index.d.ts"
       ]
     }
   },
