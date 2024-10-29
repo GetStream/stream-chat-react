@@ -56,10 +56,6 @@ export const MESSAGE_ACTIONS = {
   delete: 'delete',
   edit: 'edit',
   flag: 'flag',
-  markAsUnread: 'markAsUnread',
-  /**
-   * @deprecated Use `markAsUnread` instead.
-   */
   markUnread: 'markUnread',
   mute: 'mute',
   pin: 'pin',
@@ -69,7 +65,7 @@ export const MESSAGE_ACTIONS = {
 };
 
 export type MessageActionsArray<T extends string = string> = Array<
-  'delete' | 'edit' | 'flag' | 'mute' | 'pin' | 'quote' | 'react' | 'reply' | T
+  keyof typeof MESSAGE_ACTIONS | T
 >;
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
@@ -212,7 +208,6 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
   MESSAGE_ACTIONS.pin,
   MESSAGE_ACTIONS.reply,
   MESSAGE_ACTIONS.markUnread,
-  MESSAGE_ACTIONS.markAsUnread,
 ];
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable sort-keys */
-import React, { ComponentPropsWithoutRef } from 'react';
+import React from 'react';
 
 import { isUserMuted } from '../../components';
 import { ReactionIcon as DefaultReactionIcon, ThreadIcon } from '../../components/Message/icons';
@@ -10,6 +10,8 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
+
+import type { ComponentPropsWithoutRef } from 'react';
 
 import type { MessageActionSetItem } from './MessageActions';
 
@@ -61,7 +63,7 @@ const DefaultMessageActionComponents = {
         </DefaultDropdownActionButton>
       );
     },
-    MarkAsUnread() {
+    MarkUnread() {
       const { handleMarkUnread } = useMessageContext();
       const { t } = useTranslationContext();
 
@@ -136,9 +138,9 @@ const DefaultMessageActionComponents = {
 };
 
 export const defaultMessageActionSet: MessageActionSetItem[] = [
+  // { placement: 'dropdown', type: 'block' },
   { Component: DefaultMessageActionComponents.quick.Reply, placement: 'quick', type: 'reply' },
   { Component: DefaultMessageActionComponents.quick.React, placement: 'quick', type: 'react' },
-  //   { placement: 'dropdown', type: 'block' },
   {
     Component: DefaultMessageActionComponents.dropdown.Delete,
     placement: 'dropdown',
@@ -154,8 +156,8 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
     type: 'quote',
   },
   {
-    Component: DefaultMessageActionComponents.dropdown.MarkAsUnread,
+    Component: DefaultMessageActionComponents.dropdown.MarkUnread,
     placement: 'dropdown',
-    type: 'markAsUnread',
+    type: 'markUnread',
   },
 ] as const;

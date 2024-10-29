@@ -7,7 +7,7 @@ import type { MessageActionSetItem } from '../MessageActions';
 
 /**
  * Base filter hook which covers actions of type `delete`, `edit`,
- * `flag`, `markAsUnread`, `mute`, `quote`, `react` and `reply`, whether
+ * `flag`, `markUnread`, `mute`, `quote`, `react` and `reply`, whether
  * the rendered message is a reply (replies are limited to certain actions) and
  * whether the message has appropriate type and status.
  */
@@ -51,7 +51,7 @@ export const useBaseMessageActionSetFilter = (
         (type === 'delete' && !canDelete) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
-        (type === 'markAsUnread' && !canMarkUnread) ||
+        (type === 'markUnread' && !canMarkUnread) ||
         (type === 'mute' && !canMute) ||
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||

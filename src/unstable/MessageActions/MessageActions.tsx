@@ -6,6 +6,7 @@ import { useChatContext, useMessageContext, useTranslationContext } from '../../
 import { ActionsIcon } from '../../components/Message/icons';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../../components/Dialog';
 import { MessageActionsWrapper } from '../../components/MessageActions/MessageActions';
+import { MESSAGE_ACTIONS } from '../../components';
 
 import { useBaseMessageActionSetFilter, useSplitMessageActionSet } from './hooks';
 import { defaultMessageActionSet } from './defaults';
@@ -14,16 +15,7 @@ export type MessageActionSetItem = {
   Component: React.ComponentType;
   placement: 'quick' | 'dropdown';
   type:
-    | 'reply'
-    | 'react'
-    | 'block'
-    | 'delete'
-    | 'edit'
-    | 'mute'
-    | 'flag'
-    | 'pin'
-    | 'quote'
-    | 'markAsUnread'
+    | keyof typeof MESSAGE_ACTIONS
     // eslint-disable-next-line @typescript-eslint/ban-types
     | (string & {});
 };
