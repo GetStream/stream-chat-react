@@ -71,10 +71,8 @@ export const getChannel = async <
     try {
       WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid] = theChannel.watch(options);
       await WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
+    } finally {
       delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
-    } catch (e) {
-      delete WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL[originalCid];
-      throw e;
     }
   }
 
