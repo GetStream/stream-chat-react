@@ -100,9 +100,6 @@ const UnMemoizedMessageOptions = <
   );
 };
 
-/**
- * @deprecated Consider moving to `MessageActions` from `stream-chat-react/unstable` instead.
- */
 export const MessageOptions = React.memo(
   UnMemoizedMessageOptions,
 ) as typeof UnMemoizedMessageOptions;
