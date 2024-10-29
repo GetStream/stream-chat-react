@@ -1,3 +1,10 @@
+## [12.4.0](https://github.com/GetStream/stream-chat-react/compare/v12.3.0...v12.4.0) (2024-10-29)
+
+
+### Features
+
+* new MessageActions component ([#2543](https://github.com/GetStream/stream-chat-react/issues/2543)) ([17a1160](https://github.com/GetStream/stream-chat-react/commit/17a1160c8b10b2255bcb87931e3873ce33fd571c))
+
 ## [12.3.0](https://github.com/GetStream/stream-chat-react/compare/v12.2.2...v12.3.0) (2024-10-28)
 
 
