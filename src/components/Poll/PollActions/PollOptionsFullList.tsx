@@ -1,18 +1,18 @@
 import React from 'react';
 import { ModalHeader } from '../../Modal/ModalHeader';
-import { usePollState } from '../hooks';
 import { PollOptionList } from '../PollOptionList';
-import { useTranslationContext } from '../../../context';
+import { useStateStore } from '../../../store';
+import { usePollContext, useTranslationContext } from '../../../context';
 
 import type { PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
-type PollStateSelectorReturnValue = [string];
+type PollStateSelectorReturnValue = { name: string };
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => [nextValue.name];
+): PollStateSelectorReturnValue => ({ name: nextValue.name });
 
 export type FullPollOptionsListingProps = {
   close?: () => void;
@@ -24,7 +24,8 @@ export const PollOptionsFullList = <
   close,
 }: FullPollOptionsListingProps) => {
   const { t } = useTranslationContext();
-  const [name] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(pollStateSelector);
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { name } = useStateStore(poll.state, pollStateSelector);
 
   return (
     <div className={'str-chat__modal__poll-option-list'}>

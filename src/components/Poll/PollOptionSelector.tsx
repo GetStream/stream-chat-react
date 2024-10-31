@@ -1,10 +1,15 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import { isVoteAnswer } from 'stream-chat';
-import { usePoll, usePollState } from './hooks';
+import { isVoteAnswer, VotingVisibility } from 'stream-chat';
 import { Avatar } from '../Avatar';
-import { useChannelStateContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useMessageContext,
+  usePollContext,
+  useTranslationContext,
+} from '../../context';
+import { useStateStore } from '../../store';
 import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
@@ -34,37 +39,39 @@ export const Checkmark = ({ checked }: CheckmarkProps) => (
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = [
-  boolean | undefined,
-  Record<string, PollVote<StreamChatGenerics>[]>,
-  string[],
-  Record<string, PollVote<StreamChatGenerics>>,
-  Record<string, number>,
-];
+> = {
+  is_closed: boolean | undefined;
+  latest_votes_by_option: Record<string, PollVote<StreamChatGenerics>[]>;
+  maxVotedOptionIds: string[];
+  ownVotesByOptionId: Record<string, PollVote<StreamChatGenerics>>;
+  vote_counts_by_option: Record<string, number>;
+  voting_visibility: VotingVisibility | undefined;
+};
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => [
-  nextValue.is_closed,
-  nextValue.latest_votes_by_option,
-  nextValue.maxVotedOptionIds,
-  nextValue.ownVotesByOptionId,
-  nextValue.vote_counts_by_option,
-];
+): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+  is_closed: nextValue.is_closed,
+  latest_votes_by_option: nextValue.latest_votes_by_option,
+  maxVotedOptionIds: nextValue.maxVotedOptionIds,
+  ownVotesByOptionId: nextValue.ownVotesByOptionId,
+  vote_counts_by_option: nextValue.vote_counts_by_option,
+  voting_visibility: nextValue.voting_visibility,
+});
 
 export type PollOptionSelectorProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
   option: PollOption<StreamChatGenerics>;
-  avatarCount?: number;
+  displayAvatarCount?: number;
   voteCountVerbose?: boolean;
 };
 
 export const PollOptionSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >({
-  avatarCount,
+  displayAvatarCount,
   option,
   voteCountVerbose,
 }: PollOptionSelectorProps<StreamChatGenerics>) => {
@@ -73,14 +80,16 @@ export const PollOptionSelector = <
     'PollOptionsShortlist',
   );
   const { message } = useMessageContext();
-  const [
+
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const {
     is_closed,
     latest_votes_by_option,
     maxVotedOptionIds,
     ownVotesByOptionId,
     vote_counts_by_option,
-  ] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(pollStateSelector);
-  const poll = usePoll();
+    voting_visibility,
+  } = useStateStore(poll.state, pollStateSelector);
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
   const winningOptionCount = maxVotedOptionIds[0] ? vote_counts_by_option[maxVotedOptionIds[0]] : 0;
 
@@ -104,15 +113,15 @@ export const PollOptionSelector = <
       key={`base-poll-option-${option.id}`}
       onClick={toggleVote}
     >
-      {!is_closed && <Checkmark checked={!!ownVotesByOptionId[option.id]} />}
+      {canCastVote && <Checkmark checked={!!ownVotesByOptionId[option.id]} />}
       <div className='str-chat__poll-option-data'>
         <p className='str-chat__poll-option-text'>{option.text}</p>
-        {avatarCount && (
+        {displayAvatarCount && voting_visibility === 'public' && (
           <div className='str-chat__poll-option-voters'>
             {latest_votes_by_option?.[option.id] &&
               (latest_votes_by_option[option.id] as PollVote<StreamChatGenerics>[])
                 .filter((vote) => !!vote.user && !isVoteAnswer(vote))
-                .slice(0, avatarCount)
+                .slice(0, displayAvatarCount)
                 .map(({ user }) => (
                   <Avatar
                     image={user?.image}

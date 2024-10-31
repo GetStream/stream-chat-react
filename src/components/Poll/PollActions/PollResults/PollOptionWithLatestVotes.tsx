@@ -1,20 +1,20 @@
 import React from 'react';
 import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 import { PollVoteListing } from '../../PollVote';
-import { usePollState } from '../../hooks';
-import { useChannelStateContext, useTranslationContext } from '../../../../context';
+import { useStateStore } from '../../../../store';
+import { useChannelStateContext, usePollContext, useTranslationContext } from '../../../../context';
 import type { PollOption, PollState, PollVote } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../../types';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = [Record<string, PollVote<StreamChatGenerics>[]>];
+> = { latest_votes_by_option: Record<string, PollVote<StreamChatGenerics>[]> };
 
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => [nextValue.latest_votes_by_option];
+): PollStateSelectorReturnValue => ({ latest_votes_by_option: nextValue.latest_votes_by_option });
 
 export type PollOptionWithVotesProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -35,9 +35,9 @@ export const PollOptionWithLatestVotes = <
   const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>(
     'PollOptionWithLatestVotes',
   );
-  const [latest_votes_by_option] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(
-    pollStateSelector,
-  );
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { latest_votes_by_option } = useStateStore(poll.state, pollStateSelector);
+
   const votes = latest_votes_by_option && latest_votes_by_option[option.id];
 
   return (

@@ -1,16 +1,16 @@
-import { FormDialog } from '../../Dialog';
 import React from 'react';
-import { useTranslationContext } from '../../../context';
-import { usePoll, usePollState } from '../hooks';
+import { FormDialog } from '../../Dialog';
+import { useStateStore } from '../../../store';
+import { usePollContext, useTranslationContext } from '../../../context';
 import type { PollAnswer, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
-type PollStateSelectorReturnValue = [PollAnswer | undefined];
+type PollStateSelectorReturnValue = { ownAnswer: PollAnswer | undefined };
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => [nextValue.ownAnswer];
+): PollStateSelectorReturnValue => ({ ownAnswer: nextValue.ownAnswer });
 
 export type AddCommentFormProps = {
   close: () => void;
@@ -24,10 +24,9 @@ export const AddCommentForm = <
   messageId,
 }: AddCommentFormProps) => {
   const { t } = useTranslationContext('AddCommentForm');
-  const poll = usePoll<StreamChatGenerics>();
-  const [ownAnswer] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(
-    pollStateSelector,
-  );
+
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
   return (
     <FormDialog<{ comment: '' }>

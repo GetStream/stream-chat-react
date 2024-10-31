@@ -1,32 +1,40 @@
 import React, { useMemo } from 'react';
-import { usePollState } from './hooks';
-import { useTranslationContext } from '../../context';
+import { usePollContext, useTranslationContext } from '../../context';
+import { useStateStore } from '../../store';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = [boolean, boolean | undefined, number, string, PollOption<StreamChatGenerics>[]];
+> = {
+  enforce_unique_vote: boolean;
+  is_closed: boolean | undefined;
+  max_votes_allowed: number;
+  name: string;
+  options: PollOption<StreamChatGenerics>[];
+};
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => [
-  nextValue.enforce_unique_vote,
-  nextValue.is_closed,
-  nextValue.max_votes_allowed,
-  nextValue.name,
-  nextValue.options,
-];
+): PollStateSelectorReturnValue<StreamChatGenerics> => ({
+  enforce_unique_vote: nextValue.enforce_unique_vote,
+  is_closed: nextValue.is_closed,
+  max_votes_allowed: nextValue.max_votes_allowed,
+  name: nextValue.name,
+  options: nextValue.options,
+});
 
 export const PollHeader = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const { t } = useTranslationContext('PollHeader');
-  const [enforce_unique_vote, is_closed, max_votes_allowed, name, options] = usePollState<
-    PollStateSelectorReturnValue<StreamChatGenerics>,
-    StreamChatGenerics
-  >(pollStateSelector);
+
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } = useStateStore(
+    poll.state,
+    pollStateSelector,
+  );
 
   const selectionInstructions = useMemo(() => {
     if (is_closed) return t<string>('Vote ended');

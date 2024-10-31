@@ -1,18 +1,19 @@
 import { FormDialog } from '../../Dialog';
 import React from 'react';
-import { usePoll, usePollState } from '../hooks';
+import { usePoll } from '../hooks';
+import { useStateStore } from '../../../store';
 import { useChatContext, useTranslationContext } from '../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = [PollOption<StreamChatGenerics>[]];
+> = { options: PollOption<StreamChatGenerics>[] };
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => [nextValue.options];
+): PollStateSelectorReturnValue<StreamChatGenerics> => ({ options: nextValue.options });
 
 export type SuggestPollOptionFormProps = {
   close: () => void;
@@ -28,10 +29,7 @@ export const SuggestPollOptionForm = <
   const { client } = useChatContext('SuggestPollOptionForm');
   const { t } = useTranslationContext('SuggestPollOptionForm');
   const poll = usePoll<StreamChatGenerics>();
-  const [options] = usePollState<
-    PollStateSelectorReturnValue<StreamChatGenerics>,
-    StreamChatGenerics
-  >(pollStateSelector);
+  const { options } = useStateStore(poll.state, pollStateSelector);
 
   return (
     <FormDialog<{ optionText: '' }>

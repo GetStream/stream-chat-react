@@ -12,14 +12,15 @@ import {
   FullPollOptionsListingProps,
 } from './PollOptionsFullList';
 import { PollResults as DefaultPollResults, PollResultsProps } from './PollResults';
-import { usePollState } from '../hooks';
+import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
 import {
   useChannelStateContext,
   useChatContext,
   useMessageContext,
+  usePollContext,
   useTranslationContext,
 } from '../../../context';
-import { MAX_OPTIONS_DISPLAYED, MAX_POLL_OPTIONS } from '../constants';
+import { useStateStore } from '../../../store';
 
 import type { PollAnswer, PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
@@ -32,28 +33,28 @@ type ModalName =
   | 'view-results'
   | 'end-vote';
 
-type PollStateSelectorReturnValue = [
-  boolean | undefined,
-  boolean | undefined,
-  number,
-  string,
-  boolean | undefined,
-  PollOption[],
-  PollAnswer | undefined,
-];
+type PollStateSelectorReturnValue = {
+  allow_answers: boolean | undefined;
+  allow_user_suggested_options: boolean | undefined;
+  answers_count: number;
+  created_by_id: string;
+  is_closed: boolean | undefined;
+  options: PollOption[];
+  ownAnswer: PollAnswer | undefined;
+};
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => [
-  nextValue.allow_answers,
-  nextValue.allow_user_suggested_options,
-  nextValue.answers_count,
-  nextValue.created_by_id,
-  nextValue.is_closed,
-  nextValue.options,
-  nextValue.ownAnswer,
-];
+): PollStateSelectorReturnValue => ({
+  allow_answers: nextValue.allow_answers,
+  allow_user_suggested_options: nextValue.allow_user_suggested_options,
+  answers_count: nextValue.answers_count,
+  created_by_id: nextValue.created_by_id,
+  is_closed: nextValue.is_closed,
+  options: nextValue.options,
+  ownAnswer: nextValue.ownAnswer,
+});
 
 export type PollActionsProps = {
   AddCommentForm?: React.ComponentType<AddCommentFormProps>;
@@ -78,7 +79,8 @@ export const PollActions = <
   const { t } = useTranslationContext('PollActions');
   const { channelCapabilities = {} } = useChannelStateContext<StreamChatGenerics>('PollActions');
   const { message } = useMessageContext('PollActions');
-  const [
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const {
     allow_answers,
     allow_user_suggested_options,
     answers_count,
@@ -86,7 +88,7 @@ export const PollActions = <
     is_closed,
     options,
     ownAnswer,
-  ] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(pollStateSelector);
+  } = useStateStore(poll.state, pollStateSelector);
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
   const closeModal = useCallback(() => setModalOpen(undefined), []);

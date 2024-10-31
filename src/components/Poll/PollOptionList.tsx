@@ -1,19 +1,20 @@
 import clsx from 'clsx';
 import React from 'react';
 import { PollOptionSelector } from './PollOptionSelector';
-import { usePollState } from './hooks';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
+import { usePollContext } from '../../context';
+import { useStateStore } from '../../store';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
-> = [PollOption<StreamChatGenerics>[]];
+> = { options: PollOption<StreamChatGenerics>[] };
 
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue<StreamChatGenerics> => [nextValue.options];
+): PollStateSelectorReturnValue<StreamChatGenerics> => ({ options: nextValue.options });
 
 export type PollOptionListProps = {
   optionsDisplayCount?: number;
@@ -24,9 +25,8 @@ export const PollOptionList = <
 >({
   optionsDisplayCount,
 }: PollOptionListProps) => {
-  const [options] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(
-    pollStateSelector,
-  );
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { options } = useStateStore(poll.state, pollStateSelector);
 
   return (
     <div
@@ -35,7 +35,11 @@ export const PollOptionList = <
       })}
     >
       {options.slice(0, optionsDisplayCount ?? options.length).map((option) => (
-        <PollOptionSelector avatarCount={3} key={`poll-option-${option.id}`} option={option} />
+        <PollOptionSelector
+          displayAvatarCount={3}
+          key={`poll-option-${option.id}`}
+          option={option}
+        />
       ))}
     </div>
   );

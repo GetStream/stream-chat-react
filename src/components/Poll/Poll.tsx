@@ -3,27 +3,28 @@ import React from 'react';
 import { PollActions } from './PollActions';
 import { PollHeader } from './PollHeader';
 import { PollOptionList } from './PollOptionList';
-import { usePollState } from './hooks';
 import { MAX_OPTIONS_DISPLAYED } from './constants';
-import { PollProvider } from '../../context';
+import { useStateStore } from '../../store';
+import { PollProvider, usePollContext } from '../../context';
 import type { Poll as PollClass, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
-type PollStateSelectorQuotedPollReturnValue = [boolean | undefined, string];
+type PollStateSelectorQuotedPollReturnValue = { is_closed: boolean | undefined; name: string };
 
 const pollStateSelectorQuotedPoll = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorQuotedPollReturnValue => [nextValue.is_closed, nextValue.name];
+): PollStateSelectorQuotedPollReturnValue => ({
+  is_closed: nextValue.is_closed,
+  name: nextValue.name,
+});
 
 export const QuotedPoll = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const [is_closed, name] = usePollState<
-    PollStateSelectorQuotedPollReturnValue,
-    StreamChatGenerics
-  >(pollStateSelectorQuotedPoll);
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { is_closed, name } = useStateStore(poll.state, pollStateSelectorQuotedPoll);
 
   return (
     <div
@@ -37,22 +38,21 @@ export const QuotedPoll = <
   );
 };
 
-type PollStateSelectorPollUIReturnValue = [boolean | undefined];
+type PollStateSelectorPollUIReturnValue = { is_closed: boolean | undefined };
 const pollStateSelectorPollUI = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorPollUIReturnValue => [nextValue.is_closed];
+): PollStateSelectorPollUIReturnValue => ({ is_closed: nextValue.is_closed });
 
 const PollUI = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
-  const [isClosed] = usePollState<PollStateSelectorPollUIReturnValue, StreamChatGenerics>(
-    pollStateSelectorPollUI,
-  );
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { is_closed } = useStateStore(poll.state, pollStateSelectorPollUI);
 
   return (
-    <div className={clsx('str-chat__poll', { 'str-chat__poll--closed': isClosed })}>
+    <div className={clsx('str-chat__poll', { 'str-chat__poll--closed': is_closed })}>
       <PollHeader />
       <PollOptionList optionsDisplayCount={MAX_OPTIONS_DISPLAYED} />
       <PollActions />

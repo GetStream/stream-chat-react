@@ -1,20 +1,27 @@
 import React from 'react';
 import { ModalHeader } from '../../Modal/ModalHeader';
 import { PollVote } from '../PollVote';
-import { usePollAnswerPagination, usePollState } from '../hooks';
+import { usePollAnswerPagination } from '../hooks';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { LoadingIndicator } from '../../Loading';
-import { useTranslationContext } from '../../../context';
+import { useStateStore } from '../../../store';
+import { usePollContext, useTranslationContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollAnswer, PollState } from 'stream-chat';
 
-type PollStateSelectorReturnValue = [boolean | undefined, PollAnswer | undefined];
+type PollStateSelectorReturnValue = {
+  is_closed: boolean | undefined;
+  ownAnswer: PollAnswer | undefined;
+};
 const pollStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
   nextValue: PollState<StreamChatGenerics>,
-): PollStateSelectorReturnValue => [nextValue.is_closed, nextValue.ownAnswer];
+): PollStateSelectorReturnValue => ({
+  is_closed: nextValue.is_closed,
+  ownAnswer: nextValue.ownAnswer,
+});
 
 export type PollAnswerListProps = {
   onUpdateOwnAnswerClick: () => void;
@@ -28,9 +35,8 @@ export const PollAnswerList = <
   onUpdateOwnAnswerClick,
 }: PollAnswerListProps) => {
   const { t } = useTranslationContext();
-  const [isClosed, ownAnswer] = usePollState<PollStateSelectorReturnValue, StreamChatGenerics>(
-    pollStateSelector,
-  );
+  const { poll } = usePollContext<StreamChatGenerics>();
+  const { is_closed, ownAnswer } = useStateStore(poll.state, pollStateSelector);
 
   const {
     answers,
@@ -63,7 +69,7 @@ export const PollAnswerList = <
         </InfiniteScrollPaginator>
         {error?.message && <div>{error?.message}</div>}
       </div>
-      {answers.length > 0 && !isClosed && (
+      {answers.length > 0 && !is_closed && (
         <button className='str-chat__poll-action' onClick={onUpdateOwnAnswerClick}>
           {ownAnswer ? t<string>('Update your comment') : t<string>('Add a comment')}
         </button>
