@@ -2,8 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Event } from 'stream-chat';
 import clsx from 'clsx';
 import { useDropzone } from 'react-dropzone';
-import { AttachmentSelector as DefaultAttachmentSelector } from './AttachmentSelector';
-// import { SimpleAttachmentSelector as DefaultAttachmentSelector } from './AttachmentSelector';
+import {
+  AttachmentSelector as DefaultAttachmentSelector,
+  SimpleAttachmentSelector,
+} from './AttachmentSelector';
+import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
@@ -16,7 +19,6 @@ import {
   QuotedMessagePreview as DefaultQuotedMessagePreview,
   QuotedMessagePreviewHeader,
 } from './QuotedMessagePreview';
-import { AttachmentPreviewList as DefaultAttachmentPreviewList } from './AttachmentPreviewList';
 import { LinkPreviewList as DefaultLinkPreviewList } from './LinkPreviewList';
 
 import { ChatAutoComplete } from '../ChatAutoComplete/ChatAutoComplete';
@@ -57,7 +59,7 @@ export const MessageInputFlat = <
   const {
     AudioRecorder = DefaultAudioRecorder,
     AttachmentPreviewList = DefaultAttachmentPreviewList,
-    AttachmentSelector = DefaultAttachmentSelector,
+    AttachmentSelector = message ? SimpleAttachmentSelector : DefaultAttachmentSelector,
     CooldownTimer = DefaultCooldownTimer,
     LinkPreviewList = DefaultLinkPreviewList,
     QuotedMessagePreview = DefaultQuotedMessagePreview,
