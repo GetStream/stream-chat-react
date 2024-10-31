@@ -21,7 +21,10 @@ import {
 import type { DefaultStreamChatGenerics } from '../../types';
 
 export const SimpleAttachmentSelector = () => {
-  const { FileUploadIcon = DefaultUploadIcon } = useComponentContext('SimpleAttachmentSelector');
+  const {
+    AttachmentSelectorInitiationButtonContents,
+    FileUploadIcon = DefaultUploadIcon,
+  } = useComponentContext();
   const inputRef = useRef<ElementRef<'input'>>(null);
   const [labelElement, setLabelElement] = useState<HTMLLabelElement | null>(null);
   const id = useMemo(() => nanoid(), []);
@@ -41,12 +44,29 @@ export const SimpleAttachmentSelector = () => {
 
   return (
     <div className='str-chat__file-input-container' data-testid='file-upload-button'>
-      <UploadFileInput ref={inputRef} />
+      <UploadFileInput id={id} ref={inputRef} />
       <label className='str-chat__file-input-label' htmlFor={id} ref={setLabelElement} tabIndex={0}>
-        <FileUploadIcon />
+        {AttachmentSelectorInitiationButtonContents ? (
+          <AttachmentSelectorInitiationButtonContents />
+        ) : (
+          <FileUploadIcon />
+        )}
       </label>
     </div>
   );
+};
+
+const AttachmentSelectorMenuInitButtonIcon = () => {
+  const { AttachmentSelectorInitiationButtonContents, FileUploadIcon } = useComponentContext(
+    'SimpleAttachmentSelector',
+  );
+  if (AttachmentSelectorInitiationButtonContents) {
+    return <AttachmentSelectorInitiationButtonContents />;
+  }
+  if (FileUploadIcon) {
+    return <FileUploadIcon />;
+  }
+  return <div className='str-chat__attachment-selector__menu-button__icon' />;
 };
 
 export type AttachmentSelectorActionProps = {
@@ -162,7 +182,7 @@ export const AttachmentSelector = <
           onClick={() => menuDialog?.toggle()}
           ref={menuButtonRef}
         >
-          <div className='str-chat__attachment-selector__menu-button__icon' />
+          <AttachmentSelectorMenuInitButtonIcon />
         </button>
         <DialogAnchor
           id={menuDialogId}

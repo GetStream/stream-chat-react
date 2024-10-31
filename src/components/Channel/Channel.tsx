@@ -106,6 +106,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'Attachment'
   | 'AttachmentPreviewList'
   | 'AttachmentSelector'
+  | 'AttachmentSelectorInitiationButtonContents'
   | 'AudioRecorder'
   | 'AutocompleteSuggestionItem'
   | 'AutocompleteSuggestionList'
@@ -1223,6 +1224,7 @@ const ChannelInner = <
       Attachment: props.Attachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
       AttachmentSelector: props.AttachmentSelector,
+      AttachmentSelectorInitiationButtonContents: props.AttachmentSelectorInitiationButtonContents,
       AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -1277,6 +1279,7 @@ const ChannelInner = <
       props.Attachment,
       props.AttachmentPreviewList,
       props.AttachmentSelector,
+      props.AttachmentSelectorInitiationButtonContents,
       props.AudioRecorder,
       props.AutocompleteSuggestionItem,
       props.AutocompleteSuggestionList,
