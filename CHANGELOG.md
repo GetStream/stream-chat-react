@@ -1,3 +1,10 @@
+## [12.4.1](https://github.com/GetStream/stream-chat-react/compare/v12.4.0...v12.4.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* remove rejected channel query promises from channel query lock ([#2549](https://github.com/GetStream/stream-chat-react/issues/2549)) ([631a928](https://github.com/GetStream/stream-chat-react/commit/631a92890b048363a1adb512de38cc1a90c4b842))
+
 ## [12.4.0](https://github.com/GetStream/stream-chat-react/compare/v12.3.0...v12.4.0) (2024-10-29)
 
 
