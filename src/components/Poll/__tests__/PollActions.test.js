@@ -1,4 +1,5 @@
 import React from 'react';
+import { Poll } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { PollActions } from '../PollActions';
@@ -15,7 +16,6 @@ import {
   generateUser,
   getTestClientWithUser,
 } from '../../../mock-builders';
-import { Poll } from '../../../../../stream-chat-js';
 import { MAX_OPTIONS_DISPLAYED } from '../constants';
 
 const SEE_ALL_OPTIONS_ACTION_TEXT = 'See all options ({{count}})';
