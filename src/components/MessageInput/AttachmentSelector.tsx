@@ -122,7 +122,6 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
   { ActionButton: DefaultAttachmentSelectorComponents.File, type: 'uploadFile' },
   {
     ActionButton: DefaultAttachmentSelectorComponents.Poll,
-    ModalContent: DefaultPollCreationDialog,
     type: 'createPoll',
   },
 ];

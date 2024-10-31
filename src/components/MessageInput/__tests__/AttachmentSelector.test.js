@@ -227,7 +227,11 @@ describe('AttachmentSelector', () => {
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     const createPollButton = menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`);
-    fireEvent.click(createPollButton);
-    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    act(() => {
+      fireEvent.click(createPollButton);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
+    });
   });
 });
