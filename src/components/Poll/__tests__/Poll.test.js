@@ -87,4 +87,50 @@ describe('Poll', () => {
     expect(container.querySelector(POLL_OPTION_LIST__CLASS)).not.toBeInTheDocument();
     expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
   });
+
+  it('allows to override the quoted version', async () => {
+    const testId = 'custom-quoted-poll';
+    const QuotedPoll = () => <div data-testid={testId} />;
+    const pollData = generatePoll();
+    const poll = new PollClass({ client: {}, poll: pollData });
+    const { container } = await renderComponent({
+      componentContext: { QuotedPoll },
+      props: { isQuoted: true, poll },
+    });
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(container.querySelector(QUOTED_POLL__CLASS)).not.toBeInTheDocument();
+    expect(container.querySelector(POLL_HEADER__CLASS)).not.toBeInTheDocument();
+    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).not.toBeInTheDocument();
+    expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
+  });
+
+  it('allows to override the header', async () => {
+    const testId = 'custom-poll-header';
+    const PollHeader = () => <div data-testid={testId} />;
+    const pollData = generatePoll();
+    const poll = new PollClass({ client: {}, poll: pollData });
+    const { container } = await renderComponent({
+      componentContext: { PollHeader },
+      props: { poll },
+    });
+    expect(container.querySelector(POLL_HEADER__CLASS)).not.toBeInTheDocument();
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).toBeInTheDocument();
+    expect(container.querySelector(POLL_ACTIONS__CLASS)).toBeInTheDocument();
+  });
+
+  it('allows to override the poll option selector', async () => {
+    const testId = 'custom-poll-option-selector';
+    const PollOptionSelector = () => <div data-testid={testId} />;
+    const pollData = generatePoll();
+    const poll = new PollClass({ client: {}, poll: pollData });
+    const { container } = await renderComponent({
+      componentContext: { PollOptionSelector },
+      props: { poll },
+    });
+    expect(screen.getAllByTestId(testId)).toHaveLength(pollData.options.length);
+    expect(container.querySelector(POLL_HEADER__CLASS)).toBeInTheDocument();
+    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).toBeInTheDocument();
+    expect(container.querySelector(POLL_ACTIONS__CLASS)).toBeInTheDocument();
+  });
 });

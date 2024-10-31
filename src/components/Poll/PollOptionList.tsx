@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import React from 'react';
-import { PollOptionSelector } from './PollOptionSelector';
+import { PollOptionSelector as DefaultPollOptionSelector } from './PollOptionSelector';
+import { useStateStore } from '../../store';
+import { useComponentContext, usePollContext } from '../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
-import { usePollContext } from '../../context';
-import { useStateStore } from '../../store';
 
 type PollStateSelectorReturnValue<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -25,6 +25,9 @@ export const PollOptionList = <
 >({
   optionsDisplayCount,
 }: PollOptionListProps) => {
+  const {
+    PollOptionSelector = DefaultPollOptionSelector,
+  } = useComponentContext<StreamChatGenerics>();
   const { poll } = usePollContext<StreamChatGenerics>();
   const { options } = useStateStore(poll.state, pollStateSelector);
 

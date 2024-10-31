@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
-import type {
+import {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,
@@ -29,6 +29,7 @@ import type {
   ModalGalleryProps,
   PinIndicatorProps,
   PollCreationDialogProps,
+  PollOptionSelectorProps,
   QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
@@ -140,12 +141,18 @@ export type ComponentContextValue<
   Poll?: React.ComponentType;
   /** Custom UI component to override default poll actioons rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
   PollActions?: React.ComponentType;
-  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog.tsx) */
+  /** Custom UI component to override default poll creation dialog contents, defaults to and accepts same props as: [PollCreationDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog/PollCreationDialog.tsx) */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
+  /** Custom UI component to override default poll header in a message, defaults to and accepts same props as: [PollHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollHeader.tsx) */
+  PollHeader?: React.ComponentType;
+  /** Custom UI component to override default poll option selector, defaults to and accepts same props as: [PollOptionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollOptionSelector.tsx) */
+  PollOptionSelector?: React.ComponentType<PollOptionSelectorProps<StreamChatGenerics>>;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
   QuotedMessage?: React.ComponentType;
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<StreamChatGenerics>>;
+  /** Custom UI component to override the rendering of quoted poll, defaults to and accepts same props as: [QuotedPoll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/Poll.tsx) */
+  QuotedPoll?: React.ComponentType;
   /** Custom reaction options to be applied to ReactionSelector, ReactionList and SimpleReactionList components */
   reactionOptions?: ReactionOptions;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */

@@ -142,8 +142,11 @@ type ChannelPropsForwardedToComponentContext<
   | 'Poll'
   | 'PollActions'
   | 'PollCreationDialog'
+  | 'PollHeader'
+  | 'PollOptionSelector'
   | 'QuotedMessage'
   | 'QuotedMessagePreview'
+  | 'QuotedPoll'
   | 'reactionOptions'
   | 'ReactionSelector'
   | 'ReactionsList'
@@ -1260,8 +1263,11 @@ const ChannelInner = <
       Poll: props.Poll,
       PollActions: props.PollActions,
       PollCreationDialog: props.PollCreationDialog,
+      PollHeader: props.PollHeader,
+      PollOptionSelector: props.PollOptionSelector,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
+      QuotedPoll: props.QuotedPoll,
       reactionOptions: props.reactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
@@ -1315,8 +1321,11 @@ const ChannelInner = <
       props.Poll,
       props.PollActions,
       props.PollCreationDialog,
+      props.PollHeader,
+      props.PollOptionSelector,
       props.QuotedMessage,
       props.QuotedMessagePreview,
+      props.QuotedPoll,
       props.ReactionSelector,
       props.ReactionsList,
       props.SendButton,

@@ -5,4 +5,5 @@ export * from './PollHeader';
 export * from './PollOptionList';
 export * from './PollOptionSelector';
 export * from './PollVote';
+export * from './QuotedPoll';
 export * from './hooks';
