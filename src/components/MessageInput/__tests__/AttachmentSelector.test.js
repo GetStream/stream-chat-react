@@ -151,11 +151,9 @@ describe('AttachmentSelector', () => {
 
   it('renders custom menu actions if provided', async () => {
     const customText = 'Custom text';
-    const CustomItem = () => <div>{customText}</div>;
+    const ActionButton = () => <div>{customText}</div>;
     const CustomAttachmentSelector = () => (
-      <AttachmentSelector
-        attachmentSelectorActionSet={[{ Component: CustomItem, type: 'custom' }]}
-      />
+      <AttachmentSelector attachmentSelectorActionSet={[{ ActionButton, type: 'custom' }]} />
     );
     await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
     await invokeMenu();
@@ -164,6 +162,62 @@ describe('AttachmentSelector', () => {
     expect(menu).toHaveTextContent(customText);
     expect(menu).not.toHaveTextContent('File');
     expect(menu).not.toHaveTextContent('Poll');
+  });
+
+  it('renders custom modal content if provided', async () => {
+    const buttonText = 'Custom text';
+    const modalText = 'Modal text';
+    const ActionButton = ({ closeMenu, openModalForAction }) => (
+      <div
+        onClick={() => {
+          openModalForAction('custom');
+          closeMenu();
+        }}
+      >
+        {buttonText}
+      </div>
+    );
+    const ModalContent = ({ close }) => <div onClick={close}>{modalText}</div>;
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector
+        attachmentSelectorActionSet={[{ ActionButton, ModalContent, type: 'custom' }]}
+      />
+    );
+    await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
+    await invokeMenu();
+    act(() => {
+      fireEvent.click(screen.getByText(buttonText));
+    });
+    await waitFor(() => {
+      expect(screen.getByText(modalText)).toBeInTheDocument();
+    });
+
+    act(() => {
+      fireEvent.click(screen.getByText(modalText));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(modalText)).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('allows to customize the portal destination', async () => {
+    const getModalPortalDestination = jest.fn();
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector getModalPortalDestination={getModalPortalDestination} />
+    );
+    await renderComponent({ componentContext: { AttachmentSelector: CustomAttachmentSelector } });
+    await invokeMenu();
+    act(() => {
+      fireEvent.click(screen.getByText('Poll'));
+    });
+
+    await waitFor(() => {
+      expect(getModalPortalDestination).toHaveBeenCalledWith();
+    });
   });
 
   it('allows to override PollCreationDialog', async () => {

@@ -18,7 +18,7 @@ export type PollCreationDialogProps = {
 
 export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext('PollCreationDialog');
+  const { t } = useTranslationContext();
 
   const [nameError, setNameError] = useState<string>();
   const [optionsErrors, setOptionsErrors] = useState<OptionErrors>({});
