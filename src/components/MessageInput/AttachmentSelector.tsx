@@ -5,7 +5,7 @@ import { CHANNEL_CONTAINER_ID } from '../Channel/constants';
 import { DialogAnchor, useDialog, useDialogIsOpen } from '../Dialog';
 import { DialogMenuButton } from '../Dialog/DialogMenu';
 import { Modal } from '../Modal';
-import { PollCreationDialog } from '../Poll';
+import { PollCreationDialog as DefaultPollCreationDialog } from '../Poll';
 import { Portal } from '../Portal/Portal';
 import { UploadFileInput } from '../ReactFileUtilities';
 import {
@@ -147,6 +147,7 @@ export const AttachmentSelector = <
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
+  const { PollCreationDialog = DefaultPollCreationDialog } = useComponentContext();
   const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
   const { isThreadInput } = useMessageInputContext();
 

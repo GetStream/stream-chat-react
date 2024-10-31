@@ -165,4 +165,15 @@ describe('AttachmentSelector', () => {
     expect(menu).not.toHaveTextContent('File');
     expect(menu).not.toHaveTextContent('Poll');
   });
+
+  it('allows to override PollCreationDialog', async () => {
+    const testId = 'custom-poll-creation-dialog';
+    const CustomPollCreationDialog = () => <div data-testid={testId} />;
+    await renderComponent({ componentContext: { PollCreationDialog: CustomPollCreationDialog } });
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const createPollButton = menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`);
+    fireEvent.click(createPollButton);
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+  });
 });
