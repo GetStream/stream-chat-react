@@ -16,6 +16,7 @@ import { AttachmentSelector } from '../AttachmentSelector';
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
 
+const ATTACHMENT_SELECTOR_CLASS = 'str-chat__attachment-selector';
 const UPLOAD_FILE_BUTTON_CLASS = 'str-chat__attachment-selector-actions-menu__upload-file-button';
 const CREATE_POLL_BUTTON_CLASS = 'str-chat__attachment-selector-actions-menu__create-poll-button';
 
@@ -25,6 +26,7 @@ const translationContext = {
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'send-poll': true, 'upload-file': true },
+  channelConfig: { polls: true },
 };
 
 const defaultMessageInputProps = {
@@ -79,29 +81,31 @@ describe('AttachmentSelector', () => {
     expect(menu).toHaveTextContent('Poll');
   });
 
-  it('renders with single upload file button if send-poll permission is not granted', async () => {
-    await renderComponent({
+  it('falls back to SimpleAttachmentSelector if channel.config.polls is false', async () => {
+    const { container } = await renderComponent({
+      channelStateContext: { channelConfig: { polls: false } },
+    });
+    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
+  });
+
+  it('renders SimpleAttachmentSelector if send-poll permission is not granted', async () => {
+    const { container } = await renderComponent({
       channelStateContext: { channelCapabilities: { 'upload-file': true } },
     });
-    await invokeMenu();
-    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
-    expect(menu).toBeInTheDocument();
-    expect(menu).toHaveTextContent('File');
-    expect(menu).not.toHaveTextContent('Poll');
+    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
-  it('renders with single upload file button if rendered in a thread', async () => {
-    await renderComponent({
+  it('renders SimpleAttachmentSelector if rendered in a thread', async () => {
+    const { container } = await renderComponent({
       messageInputProps: { isThreadInput: true },
     });
-    await invokeMenu();
-    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
-    expect(menu).toBeInTheDocument();
-    expect(menu).toHaveTextContent('File');
-    expect(menu).not.toHaveTextContent('Poll');
+    expect(container.querySelector(`.${ATTACHMENT_SELECTOR_CLASS}`)).not.toBeInTheDocument();
+    expect(screen.getByTestId('file-upload-button')).toBeInTheDocument();
   });
 
-  it('renders with single poll button if upload-file permission is not granted', async () => {
+  it('renders SimpleAttachmentSelector if upload-file permission is not granted', async () => {
     await renderComponent({
       channelStateContext: { channelCapabilities: { 'send-poll': true } },
     });

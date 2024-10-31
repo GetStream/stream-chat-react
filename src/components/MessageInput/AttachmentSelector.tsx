@@ -127,12 +127,15 @@ const useAttachmentSelectorActionsFiltered = <
 >(
   original: AttachmentSelectorAction[],
 ) => {
-  const { channelCapabilities } = useChannelStateContext<StreamChatGenerics>();
+  const { channelCapabilities, channelConfig } = useChannelStateContext<StreamChatGenerics>();
   const { isThreadInput } = useMessageInputContext();
 
   return original.filter((action) => {
-    if (!channelCapabilities['upload-file'] && action.type === 'uploadFile') return false;
-    if ((isThreadInput || !channelCapabilities['send-poll']) && action.type === 'createPoll')
+    if (action.type === 'uploadFile' && !channelCapabilities['upload-file']) return false;
+    if (
+      action.type === 'createPoll' &&
+      (!channelConfig?.polls || isThreadInput || !channelCapabilities['send-poll'])
+    )
       return false;
     return true;
   });
@@ -168,6 +171,8 @@ export const AttachmentSelector = <
   );
 
   if (actions.length === 0) return null;
+
+  if (actions.length === 1 && actions[0].type === 'uploadFile') return <SimpleAttachmentSelector />;
 
   return (
     <AttachmentSelectorContextProvider value={{ fileInput, openPollModal }}>
