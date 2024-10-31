@@ -108,7 +108,7 @@ export const FormDialog = <
     <div className={clsx('str-chat__dialog str-chat__dialog--form', className)}>
       <div className='str-chat__dialog__body'>
         {title && <div className='str-chat__dialog__title'>{title}</div>}
-        <form>
+        <form autoComplete='off'>
           {Object.entries(fields).map(([id, fieldConfig]) => (
             <div className='str-chat__dialog__field' key={`dialog-field-${id}`}>
               {fieldConfig.label && (

@@ -46,7 +46,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
     >
       <ModalHeader close={close} title={t<string>('Create poll')} />
       <div className='str-chat__dialog__body'>
-        <form>
+        <form autoComplete='off'>
           <div
             className={clsx(
               'str-chat__form__field str-chat__form__input-field str-chat__form__input-field--with-label',
