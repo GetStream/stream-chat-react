@@ -54,7 +54,11 @@ export const OptionFieldSet = ({ errors, options, setErrors, setState }: OptionF
             key={`new-poll-option-${i}`}
           >
             <div className='str-chat__form__input-field__value'>
-              <FieldError className='str-chat__form__input-field__error' text={errors[option.id]} />
+              <FieldError
+                className='str-chat__form__input-field__error'
+                data-testid={'poll-option-input-field-error'}
+                text={errors[option.id]}
+              />
               <input
                 id={option.id}
                 onBlur={(e) => {

@@ -59,7 +59,11 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               {t<string>('Question')}
             </label>
             <div className={clsx('str-chat__form__input-field__value')}>
-              <FieldError className='str-chat__form__input-field__error' text={nameError} />
+              <FieldError
+                className='str-chat__form__input-field__error'
+                data-testid={'poll-name-input-field-error'}
+                text={nameError}
+              />
               <input
                 id='name'
                 onBlur={(e) => {
@@ -112,6 +116,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                 <div className={clsx('str-chat__form__input-field__value')}>
                   <FieldError
                     className='str-chat__form__input-field__error'
+                    data-testid={'poll-max-votes-allowed-input-field-error'}
                     text={multipleAnswerCountError}
                   />
                   <input

@@ -1,12 +1,11 @@
 import clsx from 'clsx';
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import className = ReactMarkdown.propTypes.className;
+import React, { ComponentProps } from 'react';
 
-type FieldErrorProps = {
-  className?: string;
+type FieldErrorProps = ComponentProps<'div'> & {
   text?: string;
 };
-export const FieldError = ({ text }: FieldErrorProps) => (
-  <div className={clsx('str-chat__form-field-error', className)}>{text}</div>
+export const FieldError = ({ className, text, ...props }: FieldErrorProps) => (
+  <div {...props} className={clsx('str-chat__form-field-error', className)}>
+    {text}
+  </div>
 );
