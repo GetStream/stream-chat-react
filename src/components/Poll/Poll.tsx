@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React from 'react';
-import { PollActions } from './PollActions';
+import { PollActions as DefaultPollActions } from './PollActions';
 import { PollHeader } from './PollHeader';
 import { PollOptionList } from './PollOptionList';
 import { MAX_OPTIONS_DISPLAYED } from './constants';
 import { useStateStore } from '../../store';
-import { PollProvider, usePollContext } from '../../context';
+import { PollProvider, useComponentContext, usePollContext } from '../../context';
 import type { Poll as PollClass, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../types';
 
@@ -48,6 +48,7 @@ const pollStateSelectorPollUI = <
 const PollUI = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
+  const { PollActions = DefaultPollActions } = useComponentContext<StreamChatGenerics>();
   const { poll } = usePollContext<StreamChatGenerics>();
   const { is_closed } = useStateStore(poll.state, pollStateSelectorPollUI);
 

@@ -138,6 +138,8 @@ export type ComponentContextValue<
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
   /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/Poll.tsx) */
   Poll?: React.ComponentType;
+  /** Custom UI component to override default poll actioons rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
+  PollActions?: React.ComponentType;
   /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog.tsx) */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
