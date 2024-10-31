@@ -46,9 +46,7 @@ export function useManagePollVotesRealtime<
       }
       if (event.type === 'poll.vote_changed') {
         setVotesInRealtime((prev) =>
-          event.poll_vote
-            ? prev.filter((vote) => vote.user_id !== (event.poll_vote as T).user_id)
-            : prev,
+          event.poll_vote ? prev.filter((vote) => vote.id !== (event.poll_vote as T).id) : prev,
         );
       }
       if (['poll.vote_casted', 'poll.vote_changed'].includes(event.type)) {
