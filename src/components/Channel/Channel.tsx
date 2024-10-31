@@ -139,8 +139,8 @@ type ChannelPropsForwardedToComponentContext<
   | 'MessageTimestamp'
   | 'ModalGallery'
   | 'PinIndicator'
-  | 'Poll'
   | 'PollActions'
+  | 'PollContent'
   | 'PollCreationDialog'
   | 'PollHeader'
   | 'PollOptionSelector'
@@ -1260,8 +1260,8 @@ const ChannelInner = <
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
-      Poll: props.Poll,
       PollActions: props.PollActions,
+      PollContent: props.PollContent,
       PollCreationDialog: props.PollCreationDialog,
       PollHeader: props.PollHeader,
       PollOptionSelector: props.PollOptionSelector,
@@ -1318,8 +1318,8 @@ const ChannelInner = <
       props.MessageTimestamp,
       props.ModalGallery,
       props.PinIndicator,
-      props.Poll,
       props.PollActions,
+      props.PollContent,
       props.PollCreationDialog,
       props.PollHeader,
       props.PollOptionSelector,

@@ -137,10 +137,10 @@ export type ComponentContextValue<
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
-  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [Poll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/Poll.tsx) */
-  Poll?: React.ComponentType;
-  /** Custom UI component to override default poll actioons rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
+  /** Custom UI component to override default poll actions rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
   PollActions?: React.ComponentType;
+  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [PollContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollContent.tsx) */
+  PollContent?: React.ComponentType;
   /** Custom UI component to override default poll creation dialog contents, defaults to and accepts same props as: [PollCreationDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog/PollCreationDialog.tsx) */
   PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
   /** Custom UI component to override default poll header in a message, defaults to and accepts same props as: [PollHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollHeader.tsx) */

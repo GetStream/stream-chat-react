@@ -1,5 +1,6 @@
 export * from './Poll';
 export * from './PollActions';
+export * from './PollContent';
 export * from './PollCreationDialog';
 export * from './PollHeader';
 export * from './PollOptionList';

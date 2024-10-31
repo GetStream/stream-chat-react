@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { CloseIcon } from './icons';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { Poll as DefaultPoll } from '../Poll';
+import { Poll } from '../Poll';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
@@ -51,7 +51,6 @@ export const QuotedMessagePreview = <
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
-    Poll = DefaultPoll,
   } = useComponentContext<StreamChatGenerics>('QuotedMessagePreview');
   const { userLanguage } = useTranslationContext('QuotedMessagePreview');
 

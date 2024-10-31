@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { Poll as DefaultPoll } from '../Poll';
+import { Poll } from '../Poll';
 
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -21,7 +21,6 @@ export const QuotedMessage = <
   const {
     Attachment = DefaultAttachment,
     Avatar: ContextAvatar,
-    Poll = DefaultPoll,
   } = useComponentContext<StreamChatGenerics>('QuotedMessage');
   const { client } = useChatContext();
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');

@@ -133,4 +133,19 @@ describe('Poll', () => {
     expect(container.querySelector(POLL_OPTION_LIST__CLASS)).toBeInTheDocument();
     expect(container.querySelector(POLL_ACTIONS__CLASS)).toBeInTheDocument();
   });
+
+  it('allows to override the poll content', async () => {
+    const testId = 'custom-poll-content';
+    const PollContent = () => <div data-testid={testId} />;
+    const pollData = generatePoll();
+    const poll = new PollClass({ client: {}, poll: pollData });
+    const { container } = await renderComponent({
+      componentContext: { PollContent },
+      props: { poll },
+    });
+    expect(screen.getByTestId(testId)).toBeInTheDocument();
+    expect(container.querySelector(POLL_HEADER__CLASS)).not.toBeInTheDocument();
+    expect(container.querySelector(POLL_OPTION_LIST__CLASS)).not.toBeInTheDocument();
+    expect(container.querySelector(POLL_ACTIONS__CLASS)).not.toBeInTheDocument();
+  });
 });

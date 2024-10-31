@@ -1497,10 +1497,10 @@ describe(`MessageInputFlat only`, () => {
         channelsData: [{ messages: [messageWithPoll] }],
       });
       const pollText = 'Custom Poll component';
-      const Poll = () => <div>{pollText}</div>;
+      const QuotedPoll = () => <div>{pollText}</div>;
 
       await renderComponent({
-        channelProps: { Poll },
+        channelProps: { QuotedPoll },
         customChannel: channel,
         customClient: client,
         messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },

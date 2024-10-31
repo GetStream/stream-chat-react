@@ -228,10 +228,10 @@ describe('QuotedMessage', () => {
       customUser: alice,
     });
     const pollText = 'Custom Poll component';
-    const Poll = () => <div>{pollText}</div>;
+    const QuotedPoll = () => <div>{pollText}</div>;
 
     await renderQuotedMessage({
-      componentContext: { Poll },
+      componentContext: { QuotedPoll },
       customChannel: channel,
       customClient: client,
       customProps: { message: quotingMessage },
