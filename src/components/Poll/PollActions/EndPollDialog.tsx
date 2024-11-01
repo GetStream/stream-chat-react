@@ -1,7 +1,6 @@
 import { PromptDialog } from '../../Dialog/PromptDialog';
 import React from 'react';
-import { useTranslationContext } from '../../../context';
-import { usePoll } from '../hooks';
+import { usePollContext, useTranslationContext } from '../../../context';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
 export type EndPollDialogProps = {
@@ -14,7 +13,8 @@ export const EndPollDialog = <
   close,
 }: EndPollDialogProps) => {
   const { t } = useTranslationContext('SuggestPollOptionForm');
-  const poll = usePoll<StreamChatGenerics>();
+  const { poll } = usePollContext<StreamChatGenerics>();
+
   return (
     <PromptDialog
       actions={[

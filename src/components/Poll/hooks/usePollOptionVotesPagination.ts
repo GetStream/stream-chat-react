@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { usePoll } from './usePoll';
 import { useManagePollVotesRealtime } from './useManagePollVotesRealtime';
 import {
   CursorPaginatorState,
   PaginationFn,
   useCursorPaginator,
 } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
+import { useStateStore } from '../../../store';
+import { usePollContext } from '../../../context';
 
 import type { DefaultStreamChatGenerics } from '../../../types';
 import type { PollOptionVotesQueryParams, PollVote } from 'stream-chat';
-import { useStateStore } from '../../../store';
 
 const paginationStateSelector = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -26,7 +26,7 @@ export const usePollOptionVotesPagination = <
 >({
   paginationParams,
 }: UsePollOptionVotesPaginationParams) => {
-  const poll = usePoll<StreamChatGenerics>();
+  const { poll } = usePollContext<StreamChatGenerics>();
 
   const paginationFn = useCallback<PaginationFn<PollVote<StreamChatGenerics>>>(
     async (next) => {

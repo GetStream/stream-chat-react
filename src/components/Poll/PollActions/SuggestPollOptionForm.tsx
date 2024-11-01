@@ -1,8 +1,7 @@
 import React from 'react';
-import { usePoll } from '../hooks';
 import { FormDialog } from '../../Dialog/FormDialog';
+import { useChatContext, usePollContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { useChatContext, useTranslationContext } from '../../../context';
 import type { PollOption, PollState } from 'stream-chat';
 import type { DefaultStreamChatGenerics } from '../../../types';
 
@@ -28,7 +27,7 @@ export const SuggestPollOptionForm = <
 }: SuggestPollOptionFormProps) => {
   const { client } = useChatContext('SuggestPollOptionForm');
   const { t } = useTranslationContext('SuggestPollOptionForm');
-  const poll = usePoll<StreamChatGenerics>();
+  const { poll } = usePollContext<StreamChatGenerics>();
   const { options } = useStateStore(poll.state, pollStateSelector);
 
   return (
