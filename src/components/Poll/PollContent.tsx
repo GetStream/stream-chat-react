@@ -1,13 +1,13 @@
-import type { DefaultStreamChatGenerics } from '../../types';
-import type { PollState } from '../../../../stream-chat-js';
-import { PollHeader as DefaulPollHeader } from './PollHeader';
-import { PollActions as DefaultPollActions } from './PollActions';
-import { useComponentContext, usePollContext } from '../../context';
-import { useStateStore } from '../../store';
 import clsx from 'clsx';
+import React from 'react';
+import { PollHeader as DefaultPollHeader } from './PollHeader';
+import { PollActions as DefaultPollActions } from './PollActions';
 import { PollOptionList } from './PollOptionList';
 import { MAX_OPTIONS_DISPLAYED } from './constants';
-import React from 'react';
+import { useComponentContext, usePollContext } from '../../context';
+import { useStateStore } from '../../store';
+import type { PollState } from 'stream-chat';
+import type { DefaultStreamChatGenerics } from '../../types';
 
 type PollStateSelectorPollContentReturnValue = { is_closed: boolean | undefined };
 const pollStateSelectorPollContent = <
@@ -19,7 +19,7 @@ export const PollContent = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >() => {
   const {
-    PollHeader = DefaulPollHeader,
+    PollHeader = DefaultPollHeader,
     PollActions = DefaultPollActions,
   } = useComponentContext<StreamChatGenerics>();
   const { poll } = usePollContext<StreamChatGenerics>();
