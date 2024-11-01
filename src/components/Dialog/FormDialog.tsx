@@ -143,7 +143,7 @@ export const FormDialog = <
           onClick={handleSubmit}
           type='submit'
         >
-          {title ?? t<string>('Submit')}
+          {t<string>('Send')}
         </button>
       </div>
     </div>

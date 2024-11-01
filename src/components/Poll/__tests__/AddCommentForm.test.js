@@ -6,9 +6,6 @@ import { AddCommentForm } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
 import { generatePoll } from '../../../mock-builders';
 
-const ADD_COMMENT_TEXT = 'Add a comment';
-const UPDATE_COMMENT_TEXT = 'Update your comment';
-
 const close = jest.fn();
 const messageId = 'messageId';
 const newlyTypedValue = 'XX';
@@ -35,7 +32,7 @@ describe('AddCommentForm', () => {
     expect(input).toHaveValue(poll.data.ownAnswer.text);
     const submitButton = container.querySelector('button[type="submit"]');
     expect(submitButton).toBeDisabled();
-    expect(submitButton).toHaveTextContent(UPDATE_COMMENT_TEXT);
+    expect(submitButton).toHaveTextContent('Send');
 
     act(() => {
       fireEvent.change(input, { target: { value: newlyTypedValue } });
@@ -43,7 +40,7 @@ describe('AddCommentForm', () => {
 
     await waitFor(() => {
       expect(submitButton).toBeEnabled();
-      expect(submitButton).toHaveTextContent(UPDATE_COMMENT_TEXT);
+      expect(submitButton).toHaveTextContent('Send');
     });
 
     act(() => {
@@ -63,13 +60,13 @@ describe('AddCommentForm', () => {
     expect(input).toHaveValue('');
     const submitButton = container.querySelector('button[type="submit"]');
     expect(submitButton).toBeDisabled();
-    expect(submitButton).toHaveTextContent(ADD_COMMENT_TEXT);
+    expect(submitButton).toHaveTextContent('Send');
     act(() => {
       fireEvent.change(input, { target: { value: newlyTypedValue } });
     });
     await waitFor(() => {
       expect(submitButton).toBeEnabled();
-      expect(submitButton).toHaveTextContent(ADD_COMMENT_TEXT);
+      expect(submitButton).toHaveTextContent('Send');
     });
     act(() => {
       fireEvent.click(submitButton);

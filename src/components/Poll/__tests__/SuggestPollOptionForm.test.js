@@ -6,7 +6,7 @@ import { SuggestPollOptionForm } from '../PollActions';
 import { ChatProvider, PollProvider, TranslationProvider } from '../../../context';
 import { generatePoll } from '../../../mock-builders';
 
-const SUBMIT_BUTTON_TEXT = 'Suggest an option';
+const SUBMIT_BUTTON_TEXT = 'Send';
 
 const close = jest.fn();
 const messageId = 'messageId';
