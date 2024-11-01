@@ -1,6 +1,6 @@
-import { FormDialog } from '../../Dialog';
 import React from 'react';
 import { usePoll } from '../hooks';
+import { FormDialog } from '../../Dialog/FormDialog';
 import { useStateStore } from '../../../store';
 import { useChatContext, useTranslationContext } from '../../../context';
 import type { PollOption, PollState } from 'stream-chat';

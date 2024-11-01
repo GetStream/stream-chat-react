@@ -1,4 +1,4 @@
-import { PromptDialog } from '../../Dialog';
+import { PromptDialog } from '../../Dialog/PromptDialog';
 import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { usePoll } from '../hooks';

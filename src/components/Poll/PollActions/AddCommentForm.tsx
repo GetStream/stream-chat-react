@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormDialog } from '../../Dialog';
+import { FormDialog } from '../../Dialog/FormDialog';
 import { useStateStore } from '../../../store';
 import { usePollContext, useTranslationContext } from '../../../context';
 import type { PollAnswer, PollState } from 'stream-chat';
