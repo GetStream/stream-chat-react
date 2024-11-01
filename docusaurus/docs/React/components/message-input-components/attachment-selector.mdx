@@ -118,3 +118,15 @@ const CustomAttachmentSelector = () => (
   <AttachmentSelector getModalPortalDestination={getModalPortalDestination} />
 );
 ```
+
+## AttachmentSelector context
+
+Components rendered as children of `AttachmentSelector` can access `AttachmentSelectorContext`. The context exposes the following properties:
+
+### fileInput
+
+Reference to `input` element of type `file` used to select files to upload. The reference is `null` if the user does not have a permission to upload files.
+
+| Type               | Default |
+| ------------------ | ------- |
+| `HTMLInputElement` | `null`  |
