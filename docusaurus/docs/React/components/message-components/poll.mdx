@@ -192,3 +192,26 @@ const CustomComponent = () => {
 :::warning
 Do not try to access the `poll` data via `message` object available from `MessageContext`. This data is not updated and serve only as a seed, for the `poll` state.
 :::
+
+## PollContext
+
+The context is available to all the children of the `Poll` component. Currently it exposes the following properies:
+
+### poll
+
+The instance of a `Poll` class provided by the low-level client. The instance is retrieved from `PollManager` via `client.polls.fromState(pollId)`
+
+```jsx
+import { Poll, useChatContext, useMessageContext } from 'stream-chat-react';
+
+const Component = () => {
+  const { client } = useChatContext();
+  const { message } = useMessageContext();
+  const poll = message.poll_id && client.polls.fromState(message.poll_id);
+
+  if (!poll) return null;
+  return <Poll poll={poll} />;
+};
+```
+
+This extraction is done internally by the `MessageSimple` component.
