@@ -1,3 +1,10 @@
+## [12.5.0](https://github.com/GetStream/stream-chat-react/compare/v12.4.1...v12.5.0) (2024-11-01)
+
+
+### Features
+
+* add Poll support ([#2530](https://github.com/GetStream/stream-chat-react/issues/2530)) ([b4ea052](https://github.com/GetStream/stream-chat-react/commit/b4ea0528ffdeeb4daef8dfb27aaaa808ed1fc27a))
+
 ## [12.4.1](https://github.com/GetStream/stream-chat-react/compare/v12.4.0...v12.4.1) (2024-10-29)
 
 
