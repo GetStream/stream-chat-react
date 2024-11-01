@@ -197,6 +197,7 @@ const ThreadInner = <
       <MessageInput
         focus={autoFocus}
         Input={ThreadInput}
+        isThreadInput
         parent={thread ?? parentMessage}
         publishTypingEvent={false}
         {...additionalMessageInputProps}

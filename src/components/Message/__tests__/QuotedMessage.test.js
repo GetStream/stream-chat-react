@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { toHaveNoViolations } from 'jest-axe';
 import React from 'react';
 import { axe } from '../../../../axe-helper';
@@ -13,18 +13,20 @@ import {
   TranslationProvider,
 } from '../../../context';
 import {
-  generateChannel,
   generateFileAttachment,
+  generateMessage,
   generateUser,
-  getTestClientWithUser,
+  initClientWithChannels,
 } from '../../../mock-builders';
 
 import { Message } from '../Message';
 import { MessageSimple } from '../MessageSimple';
 import { QuotedMessage } from '../QuotedMessage';
+import { generatePoll } from '../../../mock-builders/generator/poll';
 
 expect.extend(toHaveNoViolations);
 
+const quotedPollPreviewClassSelector = '.str-chat__quoted-poll-preview';
 const quotedMessageTestId = 'quoted-message';
 const quotedMessageContentsTestId = 'quoted-message-contents';
 const quotedMessageTextTestId = 'quoted-message-text';
@@ -39,18 +41,22 @@ const Attachment = (props) => <div data-testid={props.attachments[0].testId} />;
 const alice = generateUser({ name: 'alice' });
 const jumpToMessageMock = jest.fn();
 
-async function renderQuotedMessage(customProps) {
-  const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({
-    getConfig: () => {},
-    state: { membership: {} },
-  });
-  const channelConfig = channel.getConfig();
+async function renderQuotedMessage({
+  componentContext,
+  customChannel,
+  customClient,
+  customProps,
+} = {}) {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({ customUser: alice });
+  const channelConfig = (customChannel ?? channel).getConfig();
   const customDateTimeParser = jest.fn(() => ({ format: jest.fn() }));
 
   return render(
-    <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel, channelConfig }}>
+    <ChatProvider value={{ client: customClient ?? client }}>
+      <ChannelStateProvider value={{ channel: customChannel ?? channel, channelConfig }}>
         <ChannelActionProvider value={{ jumpToMessage: jumpToMessageMock }}>
           <TranslationProvider
             value={{
@@ -62,8 +68,10 @@ async function renderQuotedMessage(customProps) {
             <ComponentProvider
               value={{
                 Attachment,
-                // eslint-disable-next-line react/display-name
-                Message: () => <MessageSimple channelConfig={channelConfig} />,
+                Message() {
+                  return <MessageSimple channelConfig={channelConfig} />;
+                },
+                ...componentContext,
               }}
             >
               <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
@@ -81,14 +89,18 @@ async function renderQuotedMessage(customProps) {
 
 describe('QuotedMessage', () => {
   it('should not be rendered if no message.quoted_message', async () => {
-    const { container, queryByTestId } = await renderQuotedMessage({ message: {} });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message: {} },
+    });
     expect(queryByTestId(quotedMessageTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
   it('should not be rendered if no text neither attachments', async () => {
     const message = { quoted_message: {} };
-    const { container, queryByTestId } = await renderQuotedMessage({ message });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(quotedMessageTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -96,7 +108,9 @@ describe('QuotedMessage', () => {
 
   it('should rendered text', async () => {
     const { container, queryByTestId, queryByText } = await renderQuotedMessage({
-      message: { quoted_message: { text: quotedText } },
+      customProps: {
+        message: { quoted_message: { text: quotedText } },
+      },
     });
     expect(queryByText(quotedText)).toBeInTheDocument();
     expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
@@ -111,7 +125,9 @@ describe('QuotedMessage', () => {
         text: '',
       },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({ message });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(quotedAttachmentListTestId)).toBeInTheDocument();
     expect(queryByTestId(quotedMessageTextTestId)).toBeEmptyDOMElement();
     const results = await axe(container);
@@ -125,7 +141,9 @@ describe('QuotedMessage', () => {
         text: quotedText,
       },
     };
-    const { container, queryByTestId, queryByText } = await renderQuotedMessage({ message });
+    const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(quotedAttachmentListTestId)).toBeInTheDocument();
     expect(queryByText(quotedText)).toBeInTheDocument();
     const results = await axe(container);
@@ -137,7 +155,9 @@ describe('QuotedMessage', () => {
       attachments: [generateFileAttachment({ testId: quotingAttachmentListTestId })],
       quoted_message: { text: quotedText },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({ message });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
     expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
     expect(queryByTestId(quotedMessageTextTestId)).toBeInTheDocument();
@@ -150,7 +170,9 @@ describe('QuotedMessage', () => {
     const message = {
       quoted_message: { text: quotedText, user: alice },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({ message });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(avatarTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -160,10 +182,61 @@ describe('QuotedMessage', () => {
     const message = {
       quoted_message: { text: quotedText },
     };
-    const { container, queryByTestId } = await renderQuotedMessage({ message });
+    const { container, queryByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
     expect(queryByTestId(avatarTestId)).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('renders quoted Poll component if message contains poll', async () => {
+    const poll = generatePoll();
+    const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: '' });
+    const quotingMessage = generateMessage({
+      quoted_message: messageWithPoll,
+    });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ messages: [messageWithPoll, quotingMessage] }],
+      customUser: alice,
+    });
+    const { container } = await renderQuotedMessage({
+      customChannel: channel,
+      customClient: client,
+      customProps: { message: quotingMessage },
+    });
+    const quotedPollPreview = container.querySelector(quotedPollPreviewClassSelector);
+    expect(quotedPollPreview).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('renders custom quoted Poll component if message contains poll', async () => {
+    const poll = generatePoll();
+    const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: '' });
+    const quotingMessage = generateMessage({
+      quoted_message: messageWithPoll,
+    });
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ messages: [messageWithPoll, quotingMessage] }],
+      customUser: alice,
+    });
+    const pollText = 'Custom Poll component';
+    const QuotedPoll = () => <div>{pollText}</div>;
+
+    await renderQuotedMessage({
+      componentContext: { QuotedPoll },
+      customChannel: channel,
+      customClient: client,
+      customProps: { message: quotingMessage },
+    });
+    expect(screen.getByText(pollText)).toBeInTheDocument();
   });
 
   describe('deleted', () => {
@@ -171,7 +244,9 @@ describe('QuotedMessage', () => {
       const message = {
         quoted_message: { text: quotedText, type: 'deleted' },
       };
-      const { container, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByText(quotedText)).not.toBeInTheDocument();
       const results = await axe(container);
@@ -185,7 +260,9 @@ describe('QuotedMessage', () => {
           type: 'deleted',
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
       const results = await axe(container);
@@ -200,7 +277,9 @@ describe('QuotedMessage', () => {
           type: 'deleted',
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
       const results = await axe(container);
@@ -211,7 +290,9 @@ describe('QuotedMessage', () => {
       const message = {
         quoted_message: { deleted_at: new Date().toISOString(), text: quotedText },
       };
-      const { container, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByText(quotedText)).not.toBeInTheDocument();
       const results = await axe(container);
@@ -225,7 +306,9 @@ describe('QuotedMessage', () => {
           deleted_at: new Date().toISOString(),
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByTestId(quotedAttachmentListTestId)).not.toBeInTheDocument();
       const results = await axe(container);
@@ -240,7 +323,9 @@ describe('QuotedMessage', () => {
           deleted_at: new Date().toISOString(),
         },
       };
-      const { container, queryByTestId, queryByText } = await renderQuotedMessage({ message });
+      const { container, queryByTestId, queryByText } = await renderQuotedMessage({
+        customProps: { message },
+      });
       expect(queryByText(deletedMessageText)).toBeInTheDocument();
       expect(queryByTestId(quotingAttachmentListTestId)).toBeInTheDocument();
       const results = await axe(container);

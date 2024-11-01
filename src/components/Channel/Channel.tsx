@@ -1,4 +1,5 @@
 import React, {
+  ComponentProps,
   PropsWithChildren,
   useCallback,
   useEffect,
@@ -70,7 +71,11 @@ import {
 } from '../../constants/limits';
 
 import { hasMoreMessagesProbably } from '../MessageList';
-import { useChannelContainerClasses } from './hooks/useChannelContainerClasses';
+import {
+  getChatContainerClass,
+  useChannelContainerClasses,
+  useImageFlagEmojisOnWindowsClass,
+} from './hooks/useChannelContainerClasses';
 import { findInMsgSetByDate, findInMsgSetById, makeAddNotifications } from './utils';
 import { getChannel } from '../../utils';
 
@@ -92,6 +97,7 @@ import {
 } from '../Attachment/attachment-sizing';
 import type { URLEnrichmentConfig } from '../MessageInput/hooks/useLinkPreviews';
 import { useThreadContext } from '../Threads';
+import { CHANNEL_CONTAINER_ID } from './constants';
 
 type ChannelPropsForwardedToComponentContext<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -99,6 +105,8 @@ type ChannelPropsForwardedToComponentContext<
   ComponentContextValue<StreamChatGenerics>,
   | 'Attachment'
   | 'AttachmentPreviewList'
+  | 'AttachmentSelector'
+  | 'AttachmentSelectorInitiationButtonContents'
   | 'AudioRecorder'
   | 'AutocompleteSuggestionItem'
   | 'AutocompleteSuggestionList'
@@ -131,8 +139,14 @@ type ChannelPropsForwardedToComponentContext<
   | 'MessageTimestamp'
   | 'ModalGallery'
   | 'PinIndicator'
+  | 'PollActions'
+  | 'PollContent'
+  | 'PollCreationDialog'
+  | 'PollHeader'
+  | 'PollOptionSelector'
   | 'QuotedMessage'
   | 'QuotedMessagePreview'
+  | 'QuotedPoll'
   | 'reactionOptions'
   | 'ReactionSelector'
   | 'ReactionsList'
@@ -238,6 +252,25 @@ export type ChannelProps<
   videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
 };
 
+const ChannelContainer = <
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+>({
+  children,
+  className: additionalClassName,
+  ...props
+}: PropsWithChildren<ComponentProps<'div'>>) => {
+  const { customClasses, theme } = useChatContext<StreamChatGenerics>('Channel');
+  const { channelClass, chatClass } = useChannelContainerClasses({
+    customClasses,
+  });
+  const className = clsx(chatClass, theme, channelClass, additionalClassName);
+  return (
+    <div id={CHANNEL_CONTAINER_ID} {...props} className={className}>
+      {children}
+    </div>
+  );
+};
+
 const UnMemoizedChannel = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
   V extends CustomTrigger = CustomTrigger
@@ -251,38 +284,30 @@ const UnMemoizedChannel = <
     LoadingIndicator = DefaultLoadingIndicator,
   } = props;
 
-  const {
-    channel: contextChannel,
-    channelsQueryState,
-    customClasses,
-    theme,
-  } = useChatContext<StreamChatGenerics>('Channel');
-  const { channelClass, chatClass } = useChannelContainerClasses({
-    customClasses,
-  });
+  const { channel: contextChannel, channelsQueryState } = useChatContext<StreamChatGenerics>(
+    'Channel',
+  );
 
   const channel = propsChannel || contextChannel;
 
-  const className = clsx(chatClass, theme, channelClass);
-
   if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
     return (
-      <div className={className}>
+      <ChannelContainer>
         <LoadingIndicator />
-      </div>
+      </ChannelContainer>
     );
   }
 
   if (channelsQueryState.error && LoadingErrorIndicator) {
     return (
-      <div className={className}>
+      <ChannelContainer>
         <LoadingErrorIndicator error={channelsQueryState.error} />
-      </div>
+      </ChannelContainer>
     );
   }
 
   if (!channel?.cid) {
-    return <div className={className}>{EmptyPlaceholder}</div>;
+    return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;
   }
 
   return <ChannelInner {...props} channel={channel} key={channel.cid} />;
@@ -338,16 +363,10 @@ const ChannelInner = <
     customClasses,
     latestMessageDatesByChannels,
     mutes,
-    theme,
   } = useChatContext<StreamChatGenerics>('Channel');
   const { t } = useTranslationContext('Channel');
-  const {
-    channelClass,
-    chatClass,
-    chatContainerClass,
-    windowsEmojiClass,
-  } = useChannelContainerClasses({ customClasses });
-
+  const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
+  const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   const thread = useThreadContext();
 
   const [channelConfig, setChannelConfig] = useState(channel.getConfig());
@@ -1208,6 +1227,8 @@ const ChannelInner = <
     () => ({
       Attachment: props.Attachment,
       AttachmentPreviewList: props.AttachmentPreviewList,
+      AttachmentSelector: props.AttachmentSelector,
+      AttachmentSelectorInitiationButtonContents: props.AttachmentSelectorInitiationButtonContents,
       AudioRecorder: props.AudioRecorder,
       AutocompleteSuggestionItem: props.AutocompleteSuggestionItem,
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
@@ -1239,8 +1260,14 @@ const ChannelInner = <
       MessageTimestamp: props.MessageTimestamp,
       ModalGallery: props.ModalGallery,
       PinIndicator: props.PinIndicator,
+      PollActions: props.PollActions,
+      PollContent: props.PollContent,
+      PollCreationDialog: props.PollCreationDialog,
+      PollHeader: props.PollHeader,
+      PollOptionSelector: props.PollOptionSelector,
       QuotedMessage: props.QuotedMessage,
       QuotedMessagePreview: props.QuotedMessagePreview,
+      QuotedPoll: props.QuotedPoll,
       reactionOptions: props.reactionOptions,
       ReactionSelector: props.ReactionSelector,
       ReactionsList: props.ReactionsList,
@@ -1259,6 +1286,8 @@ const ChannelInner = <
     [
       props.Attachment,
       props.AttachmentPreviewList,
+      props.AttachmentSelector,
+      props.AttachmentSelectorInitiationButtonContents,
       props.AudioRecorder,
       props.AutocompleteSuggestionItem,
       props.AutocompleteSuggestionList,
@@ -1289,8 +1318,14 @@ const ChannelInner = <
       props.MessageTimestamp,
       props.ModalGallery,
       props.PinIndicator,
+      props.PollActions,
+      props.PollContent,
+      props.PollCreationDialog,
+      props.PollHeader,
+      props.PollOptionSelector,
       props.QuotedMessage,
       props.QuotedMessagePreview,
+      props.QuotedPoll,
       props.ReactionSelector,
       props.ReactionsList,
       props.SendButton,
@@ -1313,34 +1348,32 @@ const ChannelInner = <
     typing,
   });
 
-  const className = clsx(chatClass, theme, channelClass);
-
   if (state.error) {
     return (
-      <div className={className}>
+      <ChannelContainer>
         <LoadingErrorIndicator error={state.error} />
-      </div>
+      </ChannelContainer>
     );
   }
 
   if (state.loading) {
     return (
-      <div className={className}>
+      <ChannelContainer>
         <LoadingIndicator />
-      </div>
+      </ChannelContainer>
     );
   }
 
   if (!channel.watch) {
     return (
-      <div className={className}>
+      <ChannelContainer>
         <div>{t<string>('Channel Missing')}</div>
-      </div>
+      </ChannelContainer>
     );
   }
 
   return (
-    <div className={clsx(className, windowsEmojiClass)}>
+    <ChannelContainer className={windowsEmojiClass}>
       <ChannelStateProvider value={channelStateContextValue}>
         <ChannelActionProvider value={channelActionContextValue}>
           <WithComponents overrides={componentContextValue}>
@@ -1355,7 +1388,7 @@ const ChannelInner = <
           </WithComponents>
         </ChannelActionProvider>
       </ChannelStateProvider>
-    </div>
+    </ChannelContainer>
   );
 };
 

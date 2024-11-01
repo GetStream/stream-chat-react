@@ -45,6 +45,16 @@ export type InfiniteScrollProps = PaginatorProps & {
   useCapture?: boolean;
 };
 
+/**
+ * This component serves a single purpose - load more items on scroll inside the MessageList component
+ * It is not a general purpose infinite scroll controller, because:
+ * 1. It is re-rendered whenever isLoading, hasNext, hasPrev changes. This can lead to scrollListener to have stale data.
+ * 2. It pretends to invoke scrollListener on resize event even though this event is emitted only on window resize. It should
+ * rather use ResizeObserver. But then again, it ResizeObserver would invoke a stale version of scrollListener.
+ *
+ * In general, the infinite scroll controller should not aim for checking the loading state and whether there is more data to load.
+ * That should be controlled by the loading function.
+ */
 export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) => {
   const {
     children,

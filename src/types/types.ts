@@ -69,6 +69,8 @@ export type DefaultStreamChatGenerics = ExtendableGenerics & {
   commandType: LiteralStringForUnion;
   eventType: UnknownType;
   messageType: DefaultMessageType;
+  pollOptionType: UnknownType;
+  pollType: UnknownType;
   reactionType: UnknownType;
   userType: DefaultUserType;
 };
@@ -157,3 +159,9 @@ export type Readable<T> = {
 } & {};
 
 export type ValuesType<T> = T[keyof T];
+
+export type PartialSelected<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type DeepRequired<T> = {
+  [K in keyof T]-?: T[K] extends object ? DeepRequired<T[K]> : T[K];
+};

@@ -1,5 +1,6 @@
 import React from 'react';
 
+// FIXME: remove color and size props and let the loading indicator to be styled via CSS
 export type LoadingIndicatorProps = {
   /** Set the color of the LoadingIndicator */
   color?: string;

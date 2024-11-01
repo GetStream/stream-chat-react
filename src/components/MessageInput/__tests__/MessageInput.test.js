@@ -24,6 +24,7 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
+import { generatePoll } from '../../../mock-builders/generator/poll';
 
 expect.extend(toHaveNoViolations);
 
@@ -53,7 +54,7 @@ const threadMessage = generateMessage({
   user,
 });
 const mockedChannelData = generateChannel({
-  channel: { own_capabilities: ['upload-file'] },
+  channel: { own_capabilities: ['send-poll', 'upload-file'] },
   members: [generateMember({ user }), generateMember({ user: mentionUser })],
   messages: [mainListMessage],
   thread: [threadMessage],
@@ -132,6 +133,9 @@ const makeRenderFn = (InputComponent) => async ({
     client = result.client;
   }
   let renderResult;
+
+  const defaultMessageInputProps =
+    InputComponent.name === 'EditMessageForm' ? { message: mainListMessage } : {};
   await act(() => {
     renderResult = render(
       <ChatProvider value={{ ...defaultChatContext, channel, client, ...chatContextOverrides }}>
@@ -146,7 +150,10 @@ const makeRenderFn = (InputComponent) => async ({
               getMessageActions={defaultMessageContextValue.getMessageActions}
             />
           </MessageProvider>
-          <MessageInput Input={InputComponent} {...messageInputProps} />
+          <MessageInput
+            Input={InputComponent}
+            {...{ ...defaultMessageInputProps, ...messageInputProps }}
+          />
         </Channel>
       </ChatProvider>,
     );
@@ -196,40 +203,11 @@ function axeNoViolations(container) {
     });
 
     it('should contain placeholder text if no default message text provided', async () => {
-      await renderComponent();
+      await renderComponent({ messageInputProps: { message: { text: '' } } });
       await waitFor(() => {
         const textarea = screen.getByPlaceholderText(inputPlaceholder);
         expect(textarea).toBeInTheDocument();
         expect(textarea.value).toBe('');
-      });
-    });
-
-    it('should contain default message text if provided', async () => {
-      const defaultValue = nanoid();
-      await renderComponent({
-        messageInputProps: {
-          additionalTextareaProps: { defaultValue },
-        },
-      });
-      await waitFor(() => {
-        const textarea = screen.queryByDisplayValue(defaultValue);
-        expect(textarea).toBeInTheDocument();
-      });
-    });
-
-    it('should prefer value from getDefaultValue before additionalTextareaProps.defaultValue', async () => {
-      const defaultValue = nanoid();
-      const generatedDefaultValue = nanoid();
-      const getDefaultValue = () => generatedDefaultValue;
-      await renderComponent({
-        messageInputProps: {
-          additionalTextareaProps: { defaultValue },
-          getDefaultValue,
-        },
-      });
-      await waitFor(() => {
-        const textarea = screen.queryByDisplayValue(generatedDefaultValue);
-        expect(textarea).toBeInTheDocument();
       });
     });
 
@@ -248,7 +226,10 @@ function axeNoViolations(container) {
 
     it('should render default file upload icon', async () => {
       const { container } = await renderComponent();
-      const fileUploadIcon = await screen.findByTitle('Attach files');
+      const fileUploadIcon =
+        componentName === 'EditMessageForm'
+          ? await screen.findByTitle('Attach files')
+          : await screen.getByTestId('invoke-attachment-selector-button');
 
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
@@ -270,6 +251,35 @@ function axeNoViolations(container) {
 
       await waitFor(() => {
         expect(fileUploadIcon).toBeInTheDocument();
+      });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should prefer custom AttachmentSelectorInitiationButtonContents before custom FileUploadIcon', async () => {
+      const FileUploadIcon = () => (
+        <svg>
+          <title>NotFileUploadIcon</title>
+        </svg>
+      );
+
+      const AttachmentSelectorInitiationButtonContents = () => (
+        <svg>
+          <title>AttachmentSelectorInitiationButtonContents</title>
+        </svg>
+      );
+
+      const { container } = await renderComponent({
+        channelProps: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
+      });
+
+      const fileUploadIcon = await screen.queryByTitle('NotFileUploadIcon');
+      const attachmentSelectorButtonIcon = await screen.getByTitle(
+        'AttachmentSelectorInitiationButtonContents',
+      );
+      await waitFor(() => {
+        expect(fileUploadIcon).not.toBeInTheDocument();
+        expect(attachmentSelectorButtonIcon).toBeInTheDocument();
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -679,14 +689,6 @@ function axeNoViolations(container) {
 
     describe('Uploads disabled', () => {
       const channelData = { channel: { own_capabilities: [] } };
-      it('should render file upload button disabled', async () => {
-        const { container } = await renderComponent({
-          channelData,
-        });
-        await waitFor(() => expect(screen.getByTestId(FILE_INPUT_TEST_ID)).toBeDisabled());
-        const results = await axe(container);
-        expect(results).toHaveNoViolations();
-      });
 
       it('pasting images and files should do nothing', async () => {
         const doImageUploadRequest = mockUploadApi();
@@ -763,13 +765,23 @@ function axeNoViolations(container) {
 
         await act(() => submit());
 
-        expect(submitMock).toHaveBeenCalledWith(
-          channel,
-          expect.objectContaining({
-            text: messageText,
-          }),
-          {},
-        );
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining({
+              text: messageText,
+            }),
+            {},
+          );
+        } else {
+          expect(submitMock).toHaveBeenCalledWith(
+            channel,
+            expect.objectContaining({
+              text: messageText,
+            }),
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
@@ -843,24 +855,33 @@ function axeNoViolations(container) {
         });
 
         await act(() => submit());
-
-        expect(overrideMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: messageText,
-          }),
-          channel.cid,
-          customMessageData,
-          {},
-        );
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining({
+              text: messageText,
+            }),
+            {},
+          );
+        } else {
+          expect(overrideMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+              text: messageText,
+            }),
+            channel.cid,
+            customMessageData,
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
       it('should not do anything if the message is empty and has no files', async () => {
-        const { container, submit } = await renderComponent();
+        const { container, submit } = await renderComponent({ messageInputProps: { message: {} } });
 
         await act(() => submit());
 
-        expect(submitMock).not.toHaveBeenCalled();
+        expect(componentName === 'EditMessageForm' ? editMock : submitMock).not.toHaveBeenCalled();
         await axeNoViolations(container);
       });
 
@@ -883,18 +904,28 @@ function axeNoViolations(container) {
 
         await act(() => submit());
 
-        expect(submitMock).toHaveBeenCalledWith(
-          channel,
-          expect.objectContaining({
-            attachments: expect.arrayContaining([
-              expect.objectContaining({
-                image_url: fileUploadUrl,
-                type: 'image',
-              }),
-            ]),
-          }),
-          {},
-        );
+        const msgFragment = {
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              image_url: fileUploadUrl,
+              type: 'image',
+            }),
+          ]),
+        };
+
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        } else {
+          expect(submitMock).toHaveBeenCalledWith(
+            channel,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
@@ -917,18 +948,28 @@ function axeNoViolations(container) {
 
         await act(() => submit());
 
-        expect(submitMock).toHaveBeenCalledWith(
-          channel,
-          expect.objectContaining({
-            attachments: expect.arrayContaining([
-              expect.objectContaining({
-                asset_url: fileUploadUrl,
-                type: 'file',
-              }),
-            ]),
-          }),
-          {},
-        );
+        const msgFragment = {
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              asset_url: fileUploadUrl,
+              type: 'file',
+            }),
+          ]),
+        };
+
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        } else {
+          expect(submitMock).toHaveBeenCalledWith(
+            channel,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
@@ -953,18 +994,28 @@ function axeNoViolations(container) {
 
         await act(() => submit());
 
-        expect(submitMock).toHaveBeenCalledWith(
-          channel,
-          expect.objectContaining({
-            attachments: expect.arrayContaining([
-              expect.objectContaining({
-                asset_url: fileUploadUrl,
-                type: 'audio',
-              }),
-            ]),
-          }),
-          {},
-        );
+        const msgFragment = {
+          attachments: expect.arrayContaining([
+            expect.objectContaining({
+              asset_url: fileUploadUrl,
+              type: 'audio',
+            }),
+          ]),
+        };
+
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        } else {
+          expect(submitMock).toHaveBeenCalledWith(
+            channel,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
@@ -988,14 +1039,24 @@ function axeNoViolations(container) {
 
         await act(() => fireEvent.keyDown(input, { key: 'Enter' }));
 
-        expect(submitHandler).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: messageText,
-          }),
-          channel.cid,
-          undefined,
-          {},
-        );
+        const msgFragment = {
+          text: messageText,
+        };
+
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        } else {
+          expect(submitHandler).toHaveBeenCalledWith(
+            expect.objectContaining(msgFragment),
+            channel.cid,
+            undefined,
+            {},
+          );
+        }
         await axeNoViolations(container);
       });
 
@@ -1048,14 +1109,24 @@ function axeNoViolations(container) {
           });
         });
 
-        expect(submitHandler).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: messageText,
-          }),
-          channel.cid,
-          undefined,
-          {},
-        );
+        const msgFragment = {
+          text: messageText,
+        };
+
+        if (componentName === 'EditMessageForm') {
+          expect(editMock).toHaveBeenCalledWith(
+            channel.cid,
+            expect.objectContaining(msgFragment),
+            {},
+          );
+        } else {
+          expect(submitHandler).toHaveBeenCalledWith(
+            expect.objectContaining(msgFragment),
+            channel.cid,
+            undefined,
+            {},
+          );
+        }
 
         await axeNoViolations(container);
       });
@@ -1176,13 +1247,38 @@ function axeNoViolations(container) {
 
       await act(() => submit());
 
-      expect(submitMock).toHaveBeenCalledWith(
-        channel,
-        expect.objectContaining({
-          mentioned_users: expect.arrayContaining([mentionId]),
-        }),
-        {},
-      );
+      if (componentName === 'EditMessageForm') {
+        expect(editMock).toHaveBeenCalledWith(
+          channel.cid,
+          expect.objectContaining({
+            ...mainListMessage,
+            created_at: expect.any(Date),
+            mentioned_users: [
+              {
+                banned: false,
+                created_at: '2020-04-27T13:39:49.331742Z',
+                id: 'mention-id',
+                image: expect.any(String),
+                name: 'mention-name',
+                online: false,
+                role: 'user',
+                updated_at: '2020-04-27T13:39:49.332087Z',
+              },
+            ],
+            text: '@mention-name ',
+            updated_at: expect.any(Date),
+          }),
+          {},
+        );
+      } else {
+        expect(submitMock).toHaveBeenCalledWith(
+          channel,
+          expect.objectContaining({
+            mentioned_users: expect.arrayContaining([mentionId]),
+          }),
+          {},
+        );
+      }
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
@@ -1253,10 +1349,55 @@ function axeNoViolations(container) {
   });
 });
 
+describe('EditMessageForm only', () => {
+  afterEach(tearDown);
+
+  const renderComponent = makeRenderFn(EditMessageForm);
+
+  it('should render file upload button disabled', async () => {
+    const channelData = { channel: { own_capabilities: [] } };
+    const { container } = await renderComponent({
+      channelData,
+    });
+    await waitFor(() => expect(screen.getByTestId(FILE_INPUT_TEST_ID)).toBeDisabled());
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+});
+
 describe(`MessageInputFlat only`, () => {
   afterEach(tearDown);
 
   const renderComponent = makeRenderFn(MessageInputFlat);
+
+  it('should contain default message text if provided', async () => {
+    const defaultValue = nanoid();
+    await renderComponent({
+      messageInputProps: {
+        additionalTextareaProps: { defaultValue },
+      },
+    });
+    await waitFor(() => {
+      const textarea = screen.queryByDisplayValue(defaultValue);
+      expect(textarea).toBeInTheDocument();
+    });
+  });
+
+  it('should prefer value from getDefaultValue before additionalTextareaProps.defaultValue', async () => {
+    const defaultValue = nanoid();
+    const generatedDefaultValue = nanoid();
+    const getDefaultValue = () => generatedDefaultValue;
+    await renderComponent({
+      messageInputProps: {
+        additionalTextareaProps: { defaultValue },
+        getDefaultValue,
+      },
+    });
+    await waitFor(() => {
+      const textarea = screen.queryByDisplayValue(generatedDefaultValue);
+      expect(textarea).toBeInTheDocument();
+    });
+  });
 
   const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
     const {
@@ -1325,6 +1466,48 @@ describe(`MessageInputFlat only`, () => {
         dispatchMessageDeletedEvent(client, mainListMessage, channel);
       });
       quotedMessagePreviewIsNotDisplayed(mainListMessage);
+    });
+
+    it('renders quoted Poll component if message contains poll', async () => {
+      const poll = generatePoll();
+      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ messages: [messageWithPoll] }],
+      });
+      const { container } = await renderComponent({
+        customChannel: channel,
+        customClient: client,
+        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+      });
+
+      await initQuotedMessagePreview(messageWithPoll);
+      expect(container.querySelector('.str-chat__quoted-poll-preview')).toBeInTheDocument();
+    });
+
+    it('renders custom quoted Poll component if message contains poll', async () => {
+      const poll = generatePoll();
+      const messageWithPoll = generateMessage({ poll, poll_id: poll.id, text: 'X' });
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [{ messages: [messageWithPoll] }],
+      });
+      const pollText = 'Custom Poll component';
+      const QuotedPoll = () => <div>{pollText}</div>;
+
+      await renderComponent({
+        channelProps: { QuotedPoll },
+        customChannel: channel,
+        customClient: client,
+        messageContextOverrides: { ...defaultMessageContextValue, message: messageWithPoll },
+      });
+
+      await initQuotedMessagePreview(messageWithPoll);
+      expect(screen.queryByText(pollText)).toBeInTheDocument();
     });
   });
 

@@ -114,6 +114,7 @@ describe('Image', () => {
       <div>
         <div
           class="str-chat messaging light str-chat__channel"
+          id="str-chat__channel"
         >
           <div
             class="str-chat__container"

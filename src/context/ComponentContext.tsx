@@ -1,16 +1,12 @@
 import React, { PropsWithChildren, useContext } from 'react';
 
 import {
-  BaseImageProps,
-  CooldownTimerProps,
-  CustomMessageActionsListProps,
-  StartRecordingAudioButtonProps,
-} from '../components';
-
-import type {
   AttachmentPreviewListProps,
   AttachmentProps,
   AvatarProps,
+  BaseImageProps,
+  CooldownTimerProps,
+  CustomMessageActionsListProps,
   DateSeparatorProps,
   EmojiSearchIndex,
   EmptyStateIndicatorProps,
@@ -19,6 +15,7 @@ import type {
   GiphyPreviewMessageProps,
   LinkPreviewListProps,
   LoadingIndicatorProps,
+  MessageBouncePromptProps,
   MessageDeletedProps,
   MessageInputProps,
   MessageListNotificationsProps,
@@ -31,24 +28,26 @@ import type {
   MessageUIComponentProps,
   ModalGalleryProps,
   PinIndicatorProps,
+  PollCreationDialogProps,
+  PollOptionSelectorProps,
   QuotedMessagePreviewProps,
   ReactionOptions,
   ReactionSelectorProps,
   ReactionsListProps,
   RecordingPermissionDeniedNotificationProps,
   SendButtonProps,
+  StartRecordingAudioButtonProps,
   SuggestionItemProps,
   SuggestionListProps,
   ThreadHeaderProps,
   ThreadListItemProps,
   ThreadListItemUIProps,
+  TimestampProps,
   TypingIndicatorProps,
   UnreadMessagesNotificationProps,
   UnreadMessagesSeparatorProps,
 } from '../components';
 
-import type { MessageBouncePromptProps } from '../components/MessageBounce';
-import type { TimestampProps } from '../components/Message/Timestamp';
 import type {
   CustomTrigger,
   DefaultStreamChatGenerics,
@@ -64,6 +63,10 @@ export type ComponentContextValue<
   Attachment?: React.ComponentType<AttachmentProps<StreamChatGenerics>>;
   /** Custom UI component to display an attachment previews in MessageInput, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
+  /** Custom UI component to control adding attachments to MessageInput, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AttachmentSelector.tsx) */
+  AttachmentSelector?: React.ComponentType;
+  /** Custom UI component for contents of attachment selector initiation button */
+  AttachmentSelectorInitiationButtonContents?: React.ComponentType;
   /** Custom UI component to display AudioRecorder in MessageInput, defaults to and accepts same props as: [AudioRecorder](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/AudioRecorder.tsx) */
   AudioRecorder?: React.ComponentType;
   /** Optional UI component to override the default suggestion Item component, defaults to and accepts same props as: [Item](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/Item.js) */
@@ -88,7 +91,10 @@ export type ComponentContextValue<
   emojiSearchIndex?: EmojiSearchIndex;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
-  /** Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx) */
+  /**
+   * Custom UI component for file upload icon, defaults to and accepts same props as: [FileUploadIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/icons.tsx)
+   * @deprecated use AttachmentSelectorInitiationButtonContents prop instead
+   */
   FileUploadIcon?: React.ComponentType;
   /** Custom UI component to render a Giphy preview in the `VirtualizedMessageList` */
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps<StreamChatGenerics>>;
@@ -131,10 +137,22 @@ export type ComponentContextValue<
   ModalGallery?: React.ComponentType<ModalGalleryProps>;
   /** Custom UI component to override default pinned message indicator, defaults to and accepts same props as: [PinIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/icons.tsx) */
   PinIndicator?: React.ComponentType<PinIndicatorProps<StreamChatGenerics>>;
+  /** Custom UI component to override default poll actions rendering in a message, defaults to and accepts same props as: [PollActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollActions/PollActions.tsx) */
+  PollActions?: React.ComponentType;
+  /** Custom UI component to override default poll rendering in a message, defaults to and accepts same props as: [PollContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollContent.tsx) */
+  PollContent?: React.ComponentType;
+  /** Custom UI component to override default poll creation dialog contents, defaults to and accepts same props as: [PollCreationDialog](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollCreationDialog/PollCreationDialog.tsx) */
+  PollCreationDialog?: React.ComponentType<PollCreationDialogProps>;
+  /** Custom UI component to override default poll header in a message, defaults to and accepts same props as: [PollHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollHeader.tsx) */
+  PollHeader?: React.ComponentType;
+  /** Custom UI component to override default poll option selector, defaults to and accepts same props as: [PollOptionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/PollOptionSelector.tsx) */
+  PollOptionSelector?: React.ComponentType<PollOptionSelectorProps<StreamChatGenerics>>;
   /** Custom UI component to override quoted message UI on a sent message, defaults to and accepts same props as: [QuotedMessage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/QuotedMessage.tsx) */
   QuotedMessage?: React.ComponentType;
   /** Custom UI component to override the message input's quoted message preview, defaults to and accepts same props as: [QuotedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageInput/QuotedMessagePreview.tsx) */
   QuotedMessagePreview?: React.ComponentType<QuotedMessagePreviewProps<StreamChatGenerics>>;
+  /** Custom UI component to override the rendering of quoted poll, defaults to and accepts same props as: [QuotedPoll](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Poll/QuotedPoll.tsx) */
+  QuotedPoll?: React.ComponentType;
   /** Custom reaction options to be applied to ReactionSelector, ReactionList and SimpleReactionList components */
   reactionOptions?: ReactionOptions;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */

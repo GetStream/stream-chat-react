@@ -1,14 +1,16 @@
 import React, { useMemo } from 'react';
-import type { TranslationLanguages } from 'stream-chat';
 
+import { CloseIcon } from './icons';
 import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
-import { CloseIcon } from './icons';
+import { Poll } from '../Poll';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useChannelActionContext } from '../../context/ChannelActionContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 
+import type { TranslationLanguages } from 'stream-chat';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
@@ -45,6 +47,7 @@ export const QuotedMessagePreview = <
 >({
   quotedMessage,
 }: QuotedMessagePreviewProps<StreamChatGenerics>) => {
+  const { client } = useChatContext();
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
@@ -62,6 +65,8 @@ export const QuotedMessagePreview = <
 
   if (!quotedMessageText && !quotedMessageAttachment) return null;
 
+  const poll = quotedMessage.poll_id && client.polls.fromState(quotedMessage.poll_id);
+
   return (
     <div className='str-chat__quoted-message-preview' data-testid='quoted-message-preview'>
       {quotedMessage.user && (
@@ -73,12 +78,18 @@ export const QuotedMessagePreview = <
         />
       )}
       <div className='str-chat__quoted-message-bubble'>
-        {!!quotedMessageAttachment.length && (
-          <Attachment attachments={quotedMessageAttachment} isQuoted />
+        {poll ? (
+          <Poll isQuoted poll={poll} />
+        ) : (
+          <>
+            {!!quotedMessageAttachment.length && (
+              <Attachment attachments={quotedMessageAttachment} isQuoted />
+            )}
+            <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
+              <p>{quotedMessageText}</p>
+            </div>
+          </>
         )}
-        <div className='str-chat__quoted-message-text' data-testid='quoted-message-text'>
-          <p>{quotedMessageText}</p>
-        </div>
       </div>
     </div>
   );

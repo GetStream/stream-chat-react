@@ -25,7 +25,7 @@ export const EditMessageForm = <
   }, [clearEditingState]);
 
   return (
-    <form className='str-chat__edit-message-form' onSubmit={handleSubmit}>
+    <form autoComplete='off' className='str-chat__edit-message-form' onSubmit={handleSubmit}>
       <MessageInputFlat />
       <div className='str-chat__edit-message-form-options'>
         <button

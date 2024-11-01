@@ -32,6 +32,7 @@ export const generateChannel = (options = { channel: {} }) => {
         message_retention: 'infinite',
         mutes: true,
         name: 'messaging',
+        polls: true,
         reactions: true,
         read_events: true,
         replies: true,

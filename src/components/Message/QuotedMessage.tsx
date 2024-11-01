@@ -1,8 +1,11 @@
 import React from 'react';
 import clsx from 'clsx';
 
+import { Attachment as DefaultAttachment } from '../Attachment';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { Poll } from '../Poll';
 
+import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -11,7 +14,6 @@ import { useChannelActionContext } from '../../context/ChannelActionContext';
 import type { TranslationLanguages } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../types/types';
-import { Attachment as DefaultAttachment } from '../Attachment';
 
 export const QuotedMessage = <
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
@@ -20,6 +22,7 @@ export const QuotedMessage = <
     Attachment = DefaultAttachment,
     Avatar: ContextAvatar,
   } = useComponentContext<StreamChatGenerics>('QuotedMessage');
+  const { client } = useChatContext();
   const { isMyMessage, message } = useMessageContext<StreamChatGenerics>('QuotedMessage');
   const { t, userLanguage } = useTranslationContext('QuotedMessage');
   const { jumpToMessage } = useChannelActionContext('QuotedMessage');
@@ -29,6 +32,7 @@ export const QuotedMessage = <
   const { quoted_message } = message;
   if (!quoted_message) return null;
 
+  const poll = quoted_message.poll_id && client.polls.fromState(quoted_message.poll_id);
   const quotedMessageDeleted = quoted_message.deleted_at || quoted_message.type === 'deleted';
 
   const quotedMessageText = quotedMessageDeleted
@@ -41,7 +45,7 @@ export const QuotedMessage = <
       ? quoted_message.attachments[0]
       : null;
 
-  if (!quotedMessageText && !quotedMessageAttachment) return null;
+  if (!quoted_message.poll && !quotedMessageText && !quotedMessageAttachment) return null;
 
   return (
     <>
@@ -63,12 +67,21 @@ export const QuotedMessage = <
           />
         )}
         <div className='str-chat__quoted-message-bubble' data-testid='quoted-message-contents'>
-          {quotedMessageAttachment && (
-            <Attachment attachments={[quotedMessageAttachment]} isQuoted />
+          {poll ? (
+            <Poll isQuoted poll={poll} />
+          ) : (
+            <>
+              {quotedMessageAttachment && (
+                <Attachment attachments={[quotedMessageAttachment]} isQuoted />
+              )}
+              <div
+                className='str-chat__quoted-message-bubble__text'
+                data-testid='quoted-message-text'
+              >
+                {quotedMessageText}
+              </div>
+            </>
           )}
-          <div className='str-chat__quoted-message-bubble__text' data-testid='quoted-message-text'>
-            {quotedMessageText}
-          </div>
         </div>
       </div>
       {message.attachments?.length ? <Attachment attachments={message.attachments} /> : null}

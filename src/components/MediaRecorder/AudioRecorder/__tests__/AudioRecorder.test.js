@@ -47,7 +47,9 @@ const DEFAULT_RENDER_PARAMS = {
   channelActionCtx: {
     addNotification: jest.fn(),
   },
-  channelStateCtx: {},
+  channelStateCtx: {
+    channelCapabilities: [],
+  },
   chatCtx: {
     getAppSettings: jest.fn().mockReturnValue({}),
     latestMessageDatesByChannels: {},

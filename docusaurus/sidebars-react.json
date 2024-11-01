@@ -59,6 +59,7 @@
             "components/message-components/ui-components",
             "components/utility-components/avatar",
             "components/utility-components/base-image",
+            "components/message-components/poll",
             {
               "Attachment": [
                 "components/message-components/attachment",
@@ -78,6 +79,7 @@
             "components/message-input-components/ui_components",
             "components/message-input-components/emoji-picker",
             "components/message-input-components/audio_recorder",
+            "components/message-input-components/attachment-selector",
             "components/contexts/typing_context"
           ]
         },
