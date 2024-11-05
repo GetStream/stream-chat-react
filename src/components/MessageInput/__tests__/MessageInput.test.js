@@ -333,6 +333,64 @@ function axeNoViolations(container) {
         expect(results).toHaveNoViolations();
       });
 
+      it('gives preference to pasting text over files', async () => {
+        const doImageUploadRequest = mockUploadApi();
+        const doFileUploadRequest = mockUploadApi();
+        const pastedString = 'pasted string';
+        const { container } = await renderComponent({
+          messageInputProps: {
+            doFileUploadRequest,
+            doImageUploadRequest,
+          },
+        });
+
+        const file = getFile();
+        const image = getImage();
+
+        const clipboardEvent = new Event('paste', {
+          bubbles: true,
+        });
+        // set `clipboardData`. Mock DataTransfer object
+        clipboardEvent.clipboardData = {
+          items: [
+            {
+              getAsFile: () => file,
+              kind: 'file',
+            },
+            {
+              getAsFile: () => image,
+              kind: 'file',
+            },
+            {
+              getAsString: (cb) => cb(pastedString),
+              kind: 'string',
+              type: 'text/plain',
+            },
+          ],
+        };
+        const formElement = screen.getByPlaceholderText(inputPlaceholder);
+        await act(async () => {
+          await formElement.dispatchEvent(clipboardEvent);
+        });
+
+        await waitFor(() => {
+          expect(doFileUploadRequest).not.toHaveBeenCalled();
+          expect(doImageUploadRequest).not.toHaveBeenCalled();
+          expect(screen.queryByTestId(IMAGE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+          expect(screen.queryByTestId(FILE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
+          expect(screen.queryByText(filename)).not.toBeInTheDocument();
+          expect(screen.queryByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).not.toBeInTheDocument();
+          if (componentName === 'EditMessageForm') {
+            expect(formElement.value.startsWith(pastedString)).toBeTruthy();
+          } else {
+            expect(formElement).toHaveValue(pastedString);
+          }
+        });
+
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
+      });
+
       it('Should upload an image when it is dropped on the dropzone', async () => {
         const doImageUploadRequest = mockUploadApi();
         const { container } = await renderComponent({
