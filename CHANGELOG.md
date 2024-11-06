@@ -1,3 +1,10 @@
+## [12.5.1](https://github.com/GetStream/stream-chat-react/compare/v12.5.0...v12.5.1) (2024-11-06)
+
+
+### Bug Fixes
+
+* give preference to pasting text over files ([#2552](https://github.com/GetStream/stream-chat-react/issues/2552)) ([652ae33](https://github.com/GetStream/stream-chat-react/commit/652ae337e4f707eea153f6f234d96fe1d9eb9d18))
+
 ## [12.5.0](https://github.com/GetStream/stream-chat-react/compare/v12.4.1...v12.5.0) (2024-11-01)
 
 
