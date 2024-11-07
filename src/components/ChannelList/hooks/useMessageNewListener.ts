@@ -1,41 +1,82 @@
 import { useEffect } from 'react';
-import uniqBy from 'lodash.uniqby';
-
-import { moveChannelUp } from '../utils';
+import type { Dispatch, SetStateAction } from 'react';
 
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, Event, ExtendableGenerics } from 'stream-chat';
 
 import type { DefaultStreamChatGenerics } from '../../../types/types';
+import { moveChannelUpwards } from '../utils';
+
+export const isChannelPinned = <SCG extends ExtendableGenerics>({
+  channel,
+  userId,
+}: {
+  userId: string;
+  channel?: Channel<SCG>;
+}) => {
+  if (!channel) return false;
+
+  const member = channel.state.members[userId];
+
+  return !!member?.pinned_at;
+};
 
 export const useMessageNewListener = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  SCG extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 >(
-  setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
+  setChannels: Dispatch<SetStateAction<Array<Channel<SCG>>>>,
   customHandler?: (
-    setChannels: React.Dispatch<React.SetStateAction<Array<Channel<StreamChatGenerics>>>>,
-    event: Event<StreamChatGenerics>,
+    setChannels: Dispatch<SetStateAction<Array<Channel<SCG>>>>,
+    event: Event<SCG>,
   ) => void,
   lockChannelOrder = false,
   allowNewMessagesFromUnfilteredChannels = true,
+  considerPinnedChannels = false, // automatically set to true by checking sorting options (must include {pinned_at: -1/1})
 ) => {
-  const { client } = useChatContext<StreamChatGenerics>('useMessageNewListener');
+  const { client } = useChatContext<SCG>('useMessageNewListener');
 
   useEffect(() => {
-    const handleEvent = (event: Event<StreamChatGenerics>) => {
+    const handleEvent = (event: Event<SCG>) => {
       if (customHandler && typeof customHandler === 'function') {
         customHandler(setChannels, event);
       } else {
         setChannels((channels) => {
-          const channelInList = channels.filter((channel) => channel.cid === event.cid).length > 0;
+          const targetChannelIndex = channels.findIndex((channel) => channel.cid === event.cid);
+          const targetChannelExistsWithinList = targetChannelIndex >= 0;
 
-          if (!channelInList && allowNewMessagesFromUnfilteredChannels && event.channel_type) {
-            const channel = client.channel(event.channel_type, event.channel_id);
-            return uniqBy([channel, ...channels], 'cid');
+          const isTargetChannelPinned = isChannelPinned({
+            channel: channels[targetChannelIndex],
+            userId: client.userID!,
+          });
+
+          if (
+            // target channel is pinned
+            (isTargetChannelPinned && considerPinnedChannels) ||
+            // list order is locked
+            lockChannelOrder ||
+            // target channel is not within the loaded list and loading from cache is disallowed
+            (!targetChannelExistsWithinList && !allowNewMessagesFromUnfilteredChannels)
+          ) {
+            return channels;
           }
 
-          if (!lockChannelOrder) return moveChannelUp({ channels, cid: event.cid || '' });
+          // we either have the channel to move or we pull it from the cache (or instantiate) if it's allowed
+          const channelToMove: Channel<SCG> | null =
+            channels[targetChannelIndex] ??
+            (allowNewMessagesFromUnfilteredChannels && event.channel_type
+              ? client.channel(event.channel_type, event.channel_id)
+              : null);
+
+          if (channelToMove) {
+            return moveChannelUpwards({
+              channels,
+              channelToMove,
+              channelToMoveIndexWithinChannels: targetChannelIndex,
+              considerPinnedChannels,
+              userId: client.userID!,
+            });
+          }
 
           return channels;
         });
@@ -50,6 +91,7 @@ export const useMessageNewListener = <
   }, [
     allowNewMessagesFromUnfilteredChannels,
     client,
+    considerPinnedChannels,
     customHandler,
     lockChannelOrder,
     setChannels,

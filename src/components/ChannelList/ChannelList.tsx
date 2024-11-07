@@ -15,7 +15,8 @@ import { useNotificationMessageNewListener } from './hooks/useNotificationMessag
 import { useNotificationRemovedFromChannelListener } from './hooks/useNotificationRemovedFromChannelListener';
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
-import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
+import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUpwards } from './utils';
+
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
@@ -43,7 +44,7 @@ const DEFAULT_OPTIONS = {};
 const DEFAULT_SORT = {};
 
 export type ChannelListProps<
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 > = {
   /** Additional props for underlying ChannelSearch component and channel search controller, [available props](https://getstream.io/chat/docs/sdk/react/utility-components/channel_search/#props) */
   additionalChannelSearchProps?: Omit<ChannelSearchProps<StreamChatGenerics>, 'setChannels'>;
@@ -62,6 +63,7 @@ export type ChannelListProps<
   ) => Array<Channel<StreamChatGenerics>>;
   /** Custom UI component to display search results, defaults to and accepts same props as: [ChannelSearch](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelSearch/ChannelSearch.tsx) */
   ChannelSearch?: React.ComponentType<ChannelSearchProps<StreamChatGenerics>>;
+  // FIXME: how is this even legal (WHY IS IT STRING?!)
   /** Set a channel (with this ID) to active and manually move it to the top of the list */
   customActiveChannel?: string;
   /** Custom function that handles the channel pagination. Has to build query filters, sort and options and query and append channels to the current channels state and update the hasNext pagination flag after each query. */
@@ -161,7 +163,7 @@ export type ChannelListProps<
 };
 
 const UnMemoizedChannelList = <
-  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
+  StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
 >(
   props: ChannelListProps<StreamChatGenerics>,
 ) => {
@@ -229,6 +231,7 @@ const UnMemoizedChannelList = <
     }
 
     if (customActiveChannel) {
+      // FIXME: this is wrong...
       let customActiveChannelObject = channels.find((chan) => chan.id === customActiveChannel);
 
       if (!customActiveChannelObject) {
@@ -239,10 +242,12 @@ const UnMemoizedChannelList = <
       if (customActiveChannelObject) {
         setActiveChannel(customActiveChannelObject, watchers);
 
-        const newChannels = moveChannelUp({
-          activeChannel: customActiveChannelObject,
+        const newChannels = moveChannelUpwards({
           channels,
-          cid: customActiveChannelObject.cid,
+          channelToMove: customActiveChannelObject,
+          // TODO: adjust acordingly (based on sort)
+          considerPinnedChannels: false,
+          userId: client.userID!,
         });
 
         setChannels(newChannels);
@@ -260,9 +265,10 @@ const UnMemoizedChannelList = <
    * For some events, inner properties on the channel will update but the shallow comparison will not
    * force a re-render. Incrementing this dummy variable ensures the channel previews update.
    */
-  const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), [
-    setChannelUpdateCount,
-  ]);
+  const forceUpdate = useCallback(
+    () => setChannelUpdateCount((count) => count + 1),
+    [setChannelUpdateCount],
+  );
 
   const onSearch = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
@@ -299,6 +305,8 @@ const UnMemoizedChannelList = <
     onMessageNewHandler,
     lockChannelOrder,
     allowNewMessagesFromUnfilteredChannels,
+    // TODO: adjust accordingly (consider sort option)
+    false,
   );
   useNotificationMessageNewListener(
     setChannels,
