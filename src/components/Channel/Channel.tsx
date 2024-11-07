@@ -112,6 +112,7 @@ type ChannelPropsForwardedToComponentContext<
   | 'AutocompleteSuggestionList'
   | 'Avatar'
   | 'BaseImage'
+  | 'ChannelAvatar'
   | 'CooldownTimer'
   | 'CustomMessageActionsList'
   | 'DateSeparator'
@@ -1234,6 +1235,7 @@ const ChannelInner = <
       AutocompleteSuggestionList: props.AutocompleteSuggestionList,
       Avatar: props.Avatar,
       BaseImage: props.BaseImage,
+      ChannelAvatar: props.ChannelAvatar,
       CooldownTimer: props.CooldownTimer,
       CustomMessageActionsList: props.CustomMessageActionsList,
       DateSeparator: props.DateSeparator,
@@ -1293,6 +1295,7 @@ const ChannelInner = <
       props.AutocompleteSuggestionList,
       props.Avatar,
       props.BaseImage,
+      props.ChannelAvatar,
       props.CooldownTimer,
       props.CustomMessageActionsList,
       props.DateSeparator,

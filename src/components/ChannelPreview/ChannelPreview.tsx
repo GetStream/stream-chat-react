@@ -12,8 +12,8 @@ import { MessageDeliveryStatus, useMessageDeliveryStatus } from './hooks/useMess
 
 import type { Channel, Event } from 'stream-chat';
 
-import type { AvatarProps } from '../Avatar/Avatar';
-
+import type { ChannelAvatarProps } from '../Avatar/ChannelAvatar';
+import type { GroupChannelDisplayInfo } from './utils';
 import type { StreamMessage } from '../../context/ChannelStateContext';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics } from '../../types/types';
@@ -27,6 +27,8 @@ export type ChannelPreviewUIComponentProps<
   displayImage?: string;
   /** Title of Channel to display */
   displayTitle?: string;
+  /** Title of Channel to display */
+  groupChannelDisplayInfo?: GroupChannelDisplayInfo;
   /** The last message received in a channel */
   lastMessage?: StreamMessage<StreamChatGenerics>;
   /** @deprecated Use latestMessagePreview prop instead. */
@@ -47,7 +49,7 @@ export type ChannelPreviewProps<
   /** Current selected channel object */
   activeChannel?: Channel<StreamChatGenerics>;
   /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<ChannelAvatarProps<StreamChatGenerics>>;
   /** Forces the update of preview component on channel update */
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
@@ -84,7 +86,9 @@ export const ChannelPreview = <
     'ChannelPreview',
   );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
-  const { displayImage, displayTitle } = useChannelPreviewInfo({ channel });
+  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
+    channel,
+  });
 
   const [lastMessage, setLastMessage] = useState<StreamMessage<StreamChatGenerics>>(
     channel.state.messages[channel.state.messages.length - 1],
@@ -166,6 +170,7 @@ export const ChannelPreview = <
       active={isActive}
       displayImage={displayImage}
       displayTitle={displayTitle}
+      groupChannelDisplayInfo={groupChannelDisplayInfo}
       lastMessage={lastMessage}
       latestMessage={latestMessagePreview}
       latestMessagePreview={latestMessagePreview}

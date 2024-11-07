@@ -2,7 +2,7 @@ import React from 'react';
 
 import { MenuIcon as DefaultMenuIcon } from './icons';
 
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar';
+import { ChannelAvatar, ChannelAvatarProps } from '../Avatar';
 import { useChannelPreviewInfo } from '../ChannelPreview/hooks/useChannelPreviewInfo';
 
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -13,7 +13,7 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 
 export type ChannelHeaderProps = {
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
   /** Show a little indicator that the Channel is live right now */
@@ -33,7 +33,7 @@ export const ChannelHeader = <
   props: ChannelHeaderProps,
 ) => {
   const {
-    Avatar = DefaultAvatar,
+    Avatar = ChannelAvatar,
     MenuIcon = DefaultMenuIcon,
     image: overrideImage,
     live,
@@ -43,7 +43,7 @@ export const ChannelHeader = <
   const { channel, watcher_count } = useChannelStateContext<StreamChatGenerics>('ChannelHeader');
   const { openMobileNav } = useChatContext<StreamChatGenerics>('ChannelHeader');
   const { t } = useTranslationContext('ChannelHeader');
-  const { displayImage, displayTitle } = useChannelPreviewInfo({
+  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
     overrideTitle,
@@ -62,6 +62,7 @@ export const ChannelHeader = <
       </button>
       <Avatar
         className='str-chat__avatar--channel-header'
+        groupChannelDisplayInfo={groupChannelDisplayInfo}
         image={displayImage}
         name={displayTitle}
       />

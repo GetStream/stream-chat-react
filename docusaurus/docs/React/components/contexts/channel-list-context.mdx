@@ -5,7 +5,7 @@ title: ChannelListContext
 
 The context value is provided by `ChannelListContextProvider` which wraps the contents rendered by [`ChannelList`](../core-components/channel-list.mdx). It exposes API that the default and custom components rendered by `ChannelList` can take advantage of. The components that can consume the context are customizable via `ChannelListProps`:
 
-- `Avatar` - component used to display channel image
+- `ChannelAvatar` - component used to display channel image
 - `ChannelSearch` - renders channel search input and results
 - `EmptyStateIndicator` - rendered when the channels query returns and empty array
 - `LoadingErrorIndicator` - rendered when the channels query fails
@@ -24,10 +24,10 @@ import { useChannelListContext } from 'stream-chat-react';
 export const CustomComponent = () => {
   const { channels, setChannels } = useChannelListContext();
   // component logic ...
-  return(
-      {/* rendered elements */}
-  );
-}
+  return {
+    /* rendered elements */
+  };
+};
 ```
 
 ## Value
@@ -37,7 +37,7 @@ export const CustomComponent = () => {
 State representing the array of loaded channels. Channels query is executed by default only within the [`ChannelList` component](../core-components/channel-list.mdx) in the SDK.
 
 | Type        |
-|-------------|
+| ----------- |
 | `Channel[]` |
 
 ### setChannels
@@ -109,5 +109,5 @@ const Sidebar = () => {
 ```
 
 | Type                                  |
-|---------------------------------------|
+| ------------------------------------- |
 | `Dispatch<SetStateAction<Channel[]>>` |

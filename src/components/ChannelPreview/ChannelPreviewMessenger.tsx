@@ -1,9 +1,8 @@
 import React, { useRef } from 'react';
 import clsx from 'clsx';
+import { ChannelAvatar } from '../Avatar/ChannelAvatar';
 
-import { Avatar as DefaultAvatar } from '../Avatar';
 import type { ChannelPreviewUIComponentProps } from './ChannelPreview';
-
 import type { DefaultStreamChatGenerics } from '../../types/types';
 
 const UnMemoizedChannelPreviewMessenger = <
@@ -13,11 +12,12 @@ const UnMemoizedChannelPreviewMessenger = <
 ) => {
   const {
     active,
-    Avatar = DefaultAvatar,
+    Avatar = ChannelAvatar,
     channel,
     className: customClassName = '',
     displayImage,
     displayTitle,
+    groupChannelDisplayInfo,
     latestMessagePreview,
     onSelect: customOnSelectChannel,
     setActiveChannel,
@@ -59,6 +59,7 @@ const UnMemoizedChannelPreviewMessenger = <
       <div className='str-chat__channel-preview-messenger--left'>
         <Avatar
           className='str-chat__avatar--channel-preview'
+          groupChannelDisplayInfo={groupChannelDisplayInfo}
           image={displayImage}
           name={avatarName}
         />

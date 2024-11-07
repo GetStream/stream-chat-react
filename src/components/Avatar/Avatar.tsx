@@ -11,15 +11,15 @@ import type { DefaultStreamChatGenerics } from '../../types/types';
 export type AvatarProps<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = {
-  /** Custom class that will be merged with the default class */
+  /** Custom root element class that will be merged with the default class */
   className?: string;
   /** Image URL or default is an image of the first initial of the name if there is one  */
   image?: string | null;
   /** Name of the image, used for title tag fallback */
   name?: string;
-  /** click event handler */
+  /** click event handler attached to the component root element */
   onClick?: (event: React.BaseSyntheticEvent) => void;
-  /** mouseOver event handler */
+  /** mouseOver event handler attached to the component root element */
   onMouseOver?: (event: React.BaseSyntheticEvent) => void;
   /** The entire user object for the chat user displayed in the component */
   user?: UserResponse<StreamChatGenerics>;

@@ -16,8 +16,7 @@ import { useNotificationRemovedFromChannelListener } from './hooks/useNotificati
 import { CustomQueryChannelsFn, usePaginatedChannels } from './hooks/usePaginatedChannels';
 import { useUserPresenceChangedListener } from './hooks/useUserPresenceChangedListener';
 import { MAX_QUERY_CHANNELS_LIMIT, moveChannelUp } from './utils';
-
-import { AvatarProps, Avatar as DefaultAvatar } from '../Avatar/Avatar';
+import { ChannelAvatar } from '../Avatar';
 import { ChannelPreview, ChannelPreviewUIComponentProps } from '../ChannelPreview/ChannelPreview';
 import {
   ChannelSearchProps,
@@ -35,6 +34,7 @@ import { ChannelListContextProvider } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 
 import type { Channel, ChannelFilters, ChannelOptions, ChannelSort, Event } from 'stream-chat';
+import type { ChannelAvatarProps } from '../Avatar';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { DefaultStreamChatGenerics, PaginatorProps } from '../../types/types';
 
@@ -54,8 +54,8 @@ export type ChannelListProps<
    * to false, which will prevent channels not in the list from incrementing the list. The default is true.
    */
   allowNewMessagesFromUnfilteredChannels?: boolean;
-  /** Custom UI component to display user avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  /** Custom UI component to display channel avatar, defaults to and accepts same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
+  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Optional function to filter channels prior to loading in the DOM. Do not use any complex or async logic that would delay the loading of the ChannelList. We recommend using a pure function with array methods like filter/sort/reduce. */
   channelRenderFilterFn?: (
     channels: Array<Channel<StreamChatGenerics>>,
@@ -166,7 +166,7 @@ const UnMemoizedChannelList = <
 ) => {
   const {
     additionalChannelSearchProps,
-    Avatar = DefaultAvatar,
+    Avatar = ChannelAvatar,
     allowNewMessagesFromUnfilteredChannels,
     channelRenderFilterFn,
     ChannelSearch = DefaultChannelSearch,
