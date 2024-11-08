@@ -11,7 +11,7 @@ import type { CommandResponse, UserResponse } from 'stream-chat';
 
 import type { TriggerSettings } from '../MessageInput/DefaultTriggerProvider';
 import type { CustomTrigger, DefaultStreamChatGenerics, UnknownType } from '../../types/types';
-import type { EmojiSearchIndex } from '../MessageInput';
+import { EmojiSearchIndex, EmojiSearchIndexResult } from '../MessageInput';
 
 type ObjectUnion<T> = T[keyof T];
 
@@ -23,9 +23,7 @@ export type SuggestionUser<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics
 > = UserResponse<StreamChatGenerics>;
 
-export type SuggestionEmoji<T extends UnknownType = UnknownType> = Awaited<
-  ReturnType<EmojiSearchIndex<T>['search']>
->;
+export type SuggestionEmoji<T extends UnknownType = UnknownType> = EmojiSearchIndexResult & T;
 
 export type SuggestionItem<
   StreamChatGenerics extends DefaultStreamChatGenerics = DefaultStreamChatGenerics,
