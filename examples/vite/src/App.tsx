@@ -1,6 +1,7 @@
 import { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import {
   Channel,
+  ChannelAvatar,
   ChannelHeader,
   ChannelList,
   Chat,
@@ -73,10 +74,17 @@ const App = () => {
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
-          <ChannelList filters={filters} options={options} sort={sort} />
+          <ChannelList
+            Avatar={ChannelAvatar}
+            filters={filters}
+            options={options}
+            sort={sort}
+            showChannelSearch
+            additionalChannelSearchProps={{ searchForChannels: true }}
+          />
           <Channel>
             <Window>
-              <ChannelHeader />
+              <ChannelHeader Avatar={ChannelAvatar} />
               <MessageList returnAllReadData />
               <MessageInput focus />
             </Window>
