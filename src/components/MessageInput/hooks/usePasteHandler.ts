@@ -1,9 +1,5 @@
 import { useCallback } from 'react';
-import {
-  // dataTransferItemsHaveFiles,
-  dataTransferItemsToFiles,
-  FileLike,
-} from '../../ReactFileUtilities';
+import { dataTransferItemsToFiles, FileLike } from '../../ReactFileUtilities';
 import type { EnrichURLsController } from './useLinkPreviews';
 import { SetLinkPreviewMode } from '../types';
 
@@ -35,17 +31,15 @@ export const usePasteHandler = (
         }
 
         const fileLikes = await dataTransferItemsToFiles(Array.from(items));
-        if (fileLikes.length && isUploadEnabled) {
-          uploadNewFiles(fileLikes);
-          return;
-        }
 
-        // fallback to regular text paste
         if (plainTextPromise) {
           const pastedText = await plainTextPromise;
           insertText(pastedText);
           findAndEnqueueURLsToEnrich?.(pastedText, SetLinkPreviewMode.UPSERT);
           findAndEnqueueURLsToEnrich?.flush();
+        } else if (fileLikes.length && isUploadEnabled) {
+          uploadNewFiles(fileLikes);
+          return;
         }
       })(clipboardEvent);
     },
