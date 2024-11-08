@@ -20,6 +20,7 @@ import {
 } from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
+import { useThreadsViewContext } from '../ChatView';
 
 import type { MessageProps, MessageUIComponentProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
@@ -112,6 +113,7 @@ const ThreadInner = <
     threadSuppressAutoscroll,
   } = useChannelStateContext<StreamChatGenerics>('Thread');
   const { closeThread, loadMoreThread } = useChannelActionContext<StreamChatGenerics>('Thread');
+  const { setActiveThread } = useThreadsViewContext();
   const { customClasses } = useChatContext<StreamChatGenerics>('Thread');
   const {
     ThreadInput: ContextInput,
@@ -183,7 +185,10 @@ const ThreadInner = <
 
   return (
     <div className={threadClass}>
-      <ThreadHeader closeThread={closeThread} thread={messageAsThread} />
+      <ThreadHeader
+        closeThread={threadInstance ? () => setActiveThread(undefined) : closeThread}
+        thread={messageAsThread}
+      />
       <ThreadMessageList
         disableDateSeparator={!enableDateSeparator}
         head={head}
